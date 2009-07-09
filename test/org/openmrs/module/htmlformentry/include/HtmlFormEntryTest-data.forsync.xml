@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <!-- A patient -->
+  <patient patient_id="2" creator="1" date_created="2005-09-22 00:00:00.0" changed_by="1" date_changed="2008-08-18 12:29:59.0" voided="false" void_reason=""/>
+  <patient_identifier patient_identifier_id="999" patient_id="2" identifier="101" identifier_type="2" preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  <patient_identifier_type patient_identifier_type_id="2" name="Old Identification Number" description="Number given out prior to the OpenMRS system (No check digit)" format="" check_digit="false" creator="1" date_created="2005-09-22 00:00:00.0" required="false" retired="false"/>
+  <person person_id="2" gender="M" dead="false" creator="1" date_created="2005-09-22 00:00:00.0" voided="false"/>
+  <person_address person_address_id="2" person_id="2" preferred="false" address1="1050 Wishard Blvd." address2="RG5" city_village="Indianapolis" state_province="IN" postal_code="46202" country="USA" latitude="" longitude="" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  <person_name person_name_id="2" preferred="true" person_id="2" prefix="Mr." given_name="Horatio" middle_name="Test" family_name="Hornblower" family_name_suffix="Esq." creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  
+  <!-- Weight and CD4 concepts -->
+  <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <concept_datatype concept_datatype_id="3" name="Text" hl7_abbreviation="ST" description="Free text" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <concept_datatype concept_datatype_id="6" name="Date" hl7_abbreviation="DT" description="Absolute date" creator="1" date_created="2004-07-22 00:00:00.0" retired="false"/>
+
+  <concept concept_id="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="1" concept_id="1" name="CD4 COUNT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept_name voided="false" concept_name_id="2" concept_id="2" name="WEIGHT (KG)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="3" concept_id="2" name="POIDS (KG)" locale="fr" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+
+  <!-- Put two concepts DOSE and UNIT in a set -->
+  <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4"/>
+  <concept concept_id="5" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept concept_id="6" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3"/>
+  <concept_name voided="false" concept_name_id="5" concept_id="4" name="DOSAGE CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="6" concept_id="5" name="DOSE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="7" concept_id="6" name="UNIT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_set concept_set_id="991" concept_id="5" concept_set="4" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="992" concept_id="6" concept_set="4" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+  <!-- And put ALLERGY and ALLERGY DATE in a set -->
+  <concept concept_id="7" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4"/>
+  <concept concept_id="8" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3"/>
+  <concept concept_id="9" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6"/>
+  <concept_name voided="false" concept_name_id="8" concept_id="7" name="ALLERGY CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="9" concept_id="8" name="ALLERGY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="10" concept_id="9" name="ALLERGY DATE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_set concept_set_id="993" concept_id="8" concept_set="7" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="994" concept_id="9" concept_set="7" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+  <!-- A person with only a patient attached -->
+  <person person_id="2" dead="false" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" gender="M" />
+  <person_name person_id="2" person_name_id="2" preferred="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" given_name="John" middle_name=" " family_name="Doe" />
+  <patient patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
+  <patient_identifier patient_identifier_id="998" patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="1234" identifier_type="1" preferred="1" voided="false" location_id="1" />
+  <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" check_digit="false" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
+  
+  <!-- Required metadata -->
+  <location location_id="1" name="Test Location" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <field_type field_type_id="1" creator="1" date_created="2005-01-01 00:00:00.0" name="Concept" is_set="false" />
+  <field_type field_type_id="2" creator="1" date_created="2005-01-01 00:00:00.0" name="Database element" is_set="false" />
+  <field_type field_type_id="3" creator="1" date_created="2005-01-01 00:00:00.0" name="Set of Terms" is_set="true" />
+  <field_type field_type_id="4" creator="1" date_created="2005-01-01 00:00:00.0" name="Miscellaneous Set" is_set="true" />
+  <field_type field_type_id="5" creator="1" date_created="2005-01-01 00:00:00.0" name="Section" is_set="true" />
+  
+  <!-- A form and its fields -->
+  <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+  <field field_id="5" name="Current weight" description="" field_type="1" concept_id="2" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="1" name="PATIENT" description="Patient section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="2" name="ENCOUNTER" description="Encounter section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="3" name="OBS" description="Obs section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="4" name="Most recent CD4" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="6" name="Current height" description="" field_type="1" concept_id="3" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="7" name="Dose and unit construct" description="" field_type="3" concept_id="4" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="8" name="Dose" description="" field_type="1" concept_id="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="9" name="Unit" description="" field_type="1" concept_id="6" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="10" name="Allergy and date construct" description="" field_type="3" concept_id="7" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="11" name="Allergy" description="" field_type="1" concept_id="8" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="12" name="Date" description="" field_type="1" concept_id="9" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <form_field form_field_id="5" form_id="1" field_id="5" field_number="1" field_part="b" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="500"/>
+  <form_field form_field_id="1" form_id="1" field_id="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="100"/>
+  <form_field form_field_id="2" form_id="1" field_id="2" parent_form_field="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="200"/>
+  <form_field form_field_id="3" form_id="1" field_id="3" parent_form_field="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="300"/>
+  <form_field form_field_id="4" form_id="1" field_id="4" field_number="1" field_part="a" page_number="1" parent_form_field="3" min_occurs="" max_occurs="" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="400"/>
+  <form_field form_field_id="6" form_id="1" field_id="6" field_number="1" field_part="c" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="600"/>
+  <form_field form_field_id="7" form_id="1" field_id="7" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700" min_occurs="0" max_occurs="10"/>
+  <form_field form_field_id="8" form_id="1" field_id="8" parent_form_field="7" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
+  <form_field form_field_id="9" form_id="1" field_id="9" parent_form_field="7" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="10" form_id="1" field_id="10" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700"/>
+  <form_field form_field_id="11" form_id="1" field_id="11" parent_form_field="10" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
+  <form_field form_field_id="12" form_id="1" field_id="12" parent_form_field="10" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+
+</dataset>
