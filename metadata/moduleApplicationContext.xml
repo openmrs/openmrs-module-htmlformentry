@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Beans to add to the current Application context definition -->
+  
+<beans>
+    <bean id="htmlformentryUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+    	<property name="order"><value>1</value></property>
+    	<property name="mappings">
+            <props>
+            	<prop key="module/htmlformentry/htmlFormSchema.form">htmlFormSchemaController</prop>
+            	<prop key="module/htmlformentry/htmlFormFromFile.form">htmlFormFromFileController</prop>
+            	<prop key="module/htmlformentry/htmlForm.list">htmlFormListController</prop>
+				<prop key="module/htmlformentry/htmlForm.form">htmlFormController</prop>
+				<prop key="module/htmlformentry/htmlFormEntry.form">htmlFormEntryController</prop>
+				<prop key="module/htmlformentry/deleteEncounter.form">deleteEncounterController</prop>
+				<prop key="**/patientHtmlForms.portlet">patientHtmlFormsPortletController</prop>
+	    	</props>
+		</property>
+    </bean>
+	
+	<!-- Service -->
+	<bean parent="serviceContext">
+		<property name="moduleService">
+			<list>
+				<value>org.openmrs.module.htmlformentry.HtmlFormEntryService</value>
+				<bean class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+					<property name="transactionManager"><ref bean="transactionManager"/></property>
+					<property name="target">
+						<bean class="org.openmrs.module.htmlformentry.impl.HtmlFormEntryServiceImpl">
+							<property name="dao">
+								<bean class="org.openmrs.module.htmlformentry.db.hibernate.HibernateHtmlFormEntryDAO">
+									<property name="sessionFactory"><ref bean="sessionFactory"/></property>	
+								</bean>
+							</property>	
+						</bean>
+					</property>
+					<property name="preInterceptors">
+						<list>
+							<ref bean="authorizationInterceptor"/>
+						</list>
+					</property>
+					<property name="transactionAttributeSource">
+						<bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	
+    <!-- Controllers -->
+	<bean id="htmlFormListController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormListController">
+    	<property name="sessionForm"><value>false</value></property>
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/htmlformentry/htmlFormList</value></property>
+		<property name="successView"><value>htmlForm.list</value></property>
+    </bean>
+    
+	<bean id="htmlFormController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormController">
+    	<property name="sessionForm"><value>true</value></property>
+    	<property name="validator"><ref bean="htmlFormValidator"/></property>
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/htmlformentry/htmlForm</value></property>
+		<property name="successView"><value>htmlForm.form</value></property>
+    </bean>
+    
+    <bean id="htmlFormFromFileController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormFromFileController">
+    	<property name="sessionForm"><value>true</value></property>
+    	<property name="validator"><ref bean="htmlFormValidator"/></property>
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/htmlformentry/htmlFormFromFile</value></property>
+		<property name="successView"><value>htmlFormFromFile.form</value></property>
+    </bean>
+    
+    <bean id="htmlFormSchemaController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormSchemaController">
+    	<property name="sessionForm"><value>true</value></property>
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/htmlformentry/htmlFormSchema</value></property>
+		<property name="successView"><value>htmlFormSchema.form</value></property>
+    </bean>
+    
+    <!-- This is where we actually enter/view/edit a form -->
+    <bean id="htmlFormEntryController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormEntryController">
+    	<property name="sessionForm"><value>false</value></property>
+		<property name="commandName"><value>command</value></property>
+		<property name="formView"><value>/module/htmlformentry/htmlFormEntry</value></property>
+		<property name="successView"><value>../../patientDashboard.form</value></property>
+    </bean>
+    
+    <bean id="deleteEncounterController" class="org.openmrs.module.htmlformentry.web.controller.DeleteEncounterController"/>
+    
+    <bean id="htmlFormValidator" class="org.openmrs.module.htmlformentry.HtmlFormValidator"/>
+    
+    <bean id="patientHtmlFormsPortletController" class="org.openmrs.module.htmlformentry.web.controller.PatientHtmlFormEntryPortletController" />
+    <!-- /Controllers -->
+</beans>

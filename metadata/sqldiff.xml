@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqldiff PUBLIC "-//OpenMRS//DTD OpenMRS SQL Diff Config 1.0//EN" "http://resources.openmrs.org/doctype/sqldiff-1.0.dtd">
+
+<sqldiff version="1.0">
+	<help>
+		USE:
+			The diffs are ordered by datamodel version number.
+			The script can be run in a top down fashion and is
+			expected to not failor overwrite old data
+		
+		EXPECT:
+			- "use business-database-name;" was called prior to
+			   calling this script
+	</help>
+	
+	<diff>
+		<version>1.0.0</version>
+		<author>Darius Jazayeri</author>
+		<date>Jan 20 2009</date>
+		<description>
+			Create htmlform table, for storing html form templates
+		</description>
+		<sql>			
+			CREATE TABLE IF NOT EXISTS `htmlformentry_html_form` (
+			  `id` int(11) NOT NULL auto_increment,
+			  `form_id` int(11),
+			  `name` varchar(100) NOT NULL,
+			  `xml_data` mediumtext NOT NULL,
+			  `creator` int(11) NOT NULL default '0',
+			  `date_created` datetime NOT NULL default '0000-00-00 00:00:00',
+			  `changed_by` int(11) default NULL,
+  			  `date_changed` datetime default NULL,
+			  `retired` tinyint(1) NOT NULL default '0',
+			  PRIMARY KEY  (`id`),
+			  KEY `User who created htmlformentry_htmlform` (`creator`),
+			  KEY `Form with which this htmlform is related` (`form_id`),
+			  KEY `User who changed htmlformentry_htmlform` (`changed_by`),
+			  CONSTRAINT `User who created htmlformentry_htmlform` FOREIGN KEY (`creator`) REFERENCES `users` (`user_id`),
+			  CONSTRAINT `Form with which this htmlform is related` FOREIGN KEY (`form_id`) REFERENCES `form` (`form_id`),
+			  CONSTRAINT `User who changed htmlformentry_htmlform` FOREIGN KEY (`changed_by`) REFERENCES `users` (`user_id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+		</sql>
+	</diff>
+	
+</sqldiff>

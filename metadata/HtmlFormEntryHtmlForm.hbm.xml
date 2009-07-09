@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+<hibernate-mapping package="org.openmrs.module.htmlformentry">
+
+	<class name="HtmlForm" table="htmlformentry_html_form">
+
+		<id name="id" type="int" column="id" unsaved-value="0">
+			<generator class="native" />
+		</id>
+		
+		<property name="name" type="java.lang.String" column="name" not-null="true" length="100" />
+	
+		<many-to-one name="form" class="org.openmrs.Form" not-null="false" column="form_id" />
+		
+		<property name="xmlData" type="java.lang.String" column="xml_data" length="65535" not-null="true"/>
+
+		<many-to-one name="creator" class="org.openmrs.User" not-null="true" />
+		
+		<property name="dateCreated" type="java.util.Date" column="date_created" not-null="true"
+			length="19" />
+			
+		<many-to-one name="changedBy" column="changed_by" class="org.openmrs.User" not-null="false" />
+		
+		<property name="dateChanged" type="java.util.Date" column="date_changed" not-null="false"
+			length="19" />
+
+		<property name="retired" type="boolean" not-null="true" />
+
+	</class>
+
+</hibernate-mapping>
