@@ -1,0 +1,32 @@
+input.illegalValue, textarea.illegalValue {
+	background-color: #ff6666;
+}
+
+input.legalValue, textarea.legalValue {
+	background-color: #ddffdd;
+}
+
+div.formEntrySection {
+	border: 1px gray solid;
+}
+
+.formEntrySectionTitle {
+	color: #444444;
+	text-decoration: underline;
+}
+
+.value {
+	color: #2200ff;
+	font-weight: bold;
+}
+
+.emptyValue {
+}
+
+#htmlFormEntryBanner {
+	background-color: #e0e0e0;
+	text-align: center;
+	border-bottom: 1px black solid;
+	border-top: 1px black solid;
+	padding: 0.25em;
+}
