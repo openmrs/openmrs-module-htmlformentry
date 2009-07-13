@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -42,6 +43,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class HtmlFormEntryUtil {
 	
@@ -132,7 +134,7 @@ public class HtmlFormEntryUtil {
     	try {
 	        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	        DocumentBuilder db = dbf.newDocumentBuilder();
-	        Document document = db.parse(new ByteArrayInputStream(xml.getBytes()));
+	        Document document = db.parse(new InputSource(new StringReader(xml)));
 	        return document;
     	}
     	catch (Exception e) {
