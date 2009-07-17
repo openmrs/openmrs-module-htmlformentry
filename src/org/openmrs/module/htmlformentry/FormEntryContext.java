@@ -148,7 +148,7 @@ public class FormEntryContext {
             Obs obs = iter.next();
             if (!obs.isVoided() &&
                     concept.getConceptId().equals(obs.getConcept().getConceptId()) &&
-                    (answerConcept == null || answerConcept.equals(obs.getValueCoded()))) {
+                    (answerConcept == null || equalConcepts(answerConcept, obs.getValueCoded()))) {
                 iter.remove();
                 return obs;
             }
@@ -196,7 +196,7 @@ public class FormEntryContext {
         if (list != null) {
             for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
                 Obs test = iter.next();
-                if (answer == null || OpenmrsUtil.nullSafeEquals(answer, test.getValueCoded())) {
+                if (answer == null || equalConcepts(answer, test.getValueCoded())) {
                     iter.remove();
                     if (list.size() == 0)
                         existingObs.remove(question);
@@ -208,6 +208,13 @@ public class FormEntryContext {
     }
     
     /**
+     * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
+     */
+    private boolean equalConcepts(Concept c1, Concept c2) {
+    	return OpenmrsUtil.nullSafeEquals(c1 == null ? null : c1.getConceptId(), c2 == null ? null : c2.getConceptId());
+    }
+
+	/**
      * Find obs with the given concept whose answer is equal to the given answer, returns one, and removes
      * it from the list.
      * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
