@@ -12,7 +12,6 @@
 	<classpathentry kind="lib" path="lib-common/openmrs-api-1.4.0.22.6883.jar" sourcepath="/openmrs-1.4.x/src/api"/>
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.4.0.20.6111.jar"/>
 	<classpathentry kind="lib" path="lib-common/commons-lang-2.4.jar"/>
-	<classpathentry kind="lib" path="/openmrs-1.4.x/lib/junit/hsqldb.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/mail/activation.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/antlr/antlr_2.7.6.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/asm/asm-1.5.3.jar"/>
