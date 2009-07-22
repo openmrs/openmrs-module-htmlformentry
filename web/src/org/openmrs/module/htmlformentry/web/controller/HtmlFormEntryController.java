@@ -39,32 +39,47 @@ public class HtmlFormEntryController extends SimpleFormController {
     @Override
     protected FormEntrySession formBackingObject(HttpServletRequest request) throws Exception {
         long ts = System.currentTimeMillis();
-        Integer personId = Integer.valueOf(request.getParameter("personId"));
-        Patient patient = Context.getPatientService().getPatient(personId);
-        if (patient == null)
-            throw new IllegalArgumentException("No patient with id " + personId);
         
-        HtmlForm htmlForm = null;
-                
-        String htmlFormIdParam = request.getParameter("htmlFormId");
-        if (StringUtils.hasText(htmlFormIdParam)) {
-        	htmlForm = HtmlFormEntryUtil.getService().getHtmlForm(Integer.valueOf(htmlFormIdParam));
-        }
-        String formIdParam = request.getParameter("formId");
-        if (StringUtils.hasText(formIdParam)) {
-        	Form form = Context.getFormService().getForm(Integer.parseInt(formIdParam));
-        	htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
-        }
-        if (htmlForm == null) {
-        	throw new IllegalArgumentException("You must specify either an htmlFormId or a formId");
-        }
-               
         Integer encounterId = null;
         Encounter encounter = null;
         if (request.getParameter("encounterId") != null && !"".equals(request.getParameter("encounterId"))) {
             encounterId = Integer.valueOf(request.getParameter("encounterId"));
             encounter = Context.getEncounterService().getEncounter(encounterId);
-        } 
+        }
+        
+        Integer personId = null;
+        Patient patient = null;
+        if (encounter != null) {
+        	patient = encounter.getPatient();
+        	personId = patient.getPersonId();
+        } else {
+        	personId = Integer.valueOf(request.getParameter("personId"));
+        	patient = Context.getPatientService().getPatient(personId);
+            if (patient == null)
+                throw new IllegalArgumentException("No patient with id " + personId);
+        }
+        
+        HtmlForm htmlForm = null;
+        
+        if (encounter != null) {
+        	htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(encounter.getForm());
+        	if (htmlForm == null) {
+        		throw new IllegalArgumentException("The form for the specified encounter (" + encounter.getForm() + ") does not have an HtmlForm associated with it");
+        	}
+        } else {
+	        String htmlFormIdParam = request.getParameter("htmlFormId");
+	        if (StringUtils.hasText(htmlFormIdParam)) {
+	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlForm(Integer.valueOf(htmlFormIdParam));
+	        }
+	        String formIdParam = request.getParameter("formId");
+	        if (StringUtils.hasText(formIdParam)) {
+	        	Form form = Context.getFormService().getForm(Integer.parseInt(formIdParam));
+	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
+	        }
+	        if (htmlForm == null) {
+	        	throw new IllegalArgumentException("You must specify either an htmlFormId or a formId");
+	        }
+        }
 
         FormEntrySession session;
         if (encounter != null) {

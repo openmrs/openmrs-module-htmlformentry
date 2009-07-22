@@ -6,11 +6,8 @@
 	<classpathentry kind="src" path="web/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="dist"/>
-	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.2.0.3530.jar"/>
 	<classpathentry kind="lib" path="lib-common/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib-common/servlet-api.jar"/>
-	<classpathentry kind="lib" path="lib-common/openmrs-api-1.4.0.22.6883.jar" sourcepath="/openmrs-1.4.x/src/api"/>
-	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.4.0.20.6111.jar"/>
 	<classpathentry kind="lib" path="lib-common/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/mail/activation.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/antlr/antlr_2.7.6.jar"/>
@@ -32,5 +29,8 @@
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/spring-framework/spring-webmvc.jar" sourcepath="/openmrs-source/spring-webmvc-sources.zip"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/jta/jta.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/velocity/velocity-1.6-beta1.jar" sourcepath="/openmrs-source/velocity-1.6-beta1.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk-really-clean/dist/openmrs-api-1.6.0.9100-dev.jar" sourcepath="/openmrs-trunk-really-clean/src"/>
+	<classpathentry kind="lib" path="/openmrs-trunk-really-clean/dist/tests-openmrs-api-1.6.0.9100-dev.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk-really-clean/dist/web-openmrs-api-1.6.0.9100-dev.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
