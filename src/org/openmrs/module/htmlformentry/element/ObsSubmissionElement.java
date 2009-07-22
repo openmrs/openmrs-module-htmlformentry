@@ -178,12 +178,24 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             if (parameters.get("answerLabels") != null) {
                 answerLabels = Arrays.asList(parameters.get("answerLabels").split(","));
             }
+            if (parameters.get("answerCodes") != null) {
+            	String[] split = parameters.get("answerCodes").split(",");
+            	for (String s : split) {
+            		answerLabels.add(context.getTranslator().translate(userLocaleStr, s));
+            	}
+            }
             
             if (answerConcept != null) {
                 // if there's also an answer concept specified, this is a single checkbox
                 answerLabel = parameters.get("answerLabel");
                 if (answerLabel == null) {
-                    answerLabel = answerConcept.getBestName(Context.getLocale()).getName();
+                    String answerCode = parameters.get("answerCode");
+                    if (answerCode != null) {
+                        answerLabel = context.getTranslator().translate(userLocaleStr, answerCode);
+                    }
+                    else {
+                    	answerLabel = answerConcept.getBestName(Context.getLocale()).getName();
+                    }
                 }
                 valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
                 if (existingObs != null) {
