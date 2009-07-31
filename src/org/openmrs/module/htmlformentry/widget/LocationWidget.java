@@ -32,7 +32,7 @@ public class LocationWidget implements Widget {
         sb.append("<select name=\"" + context.getFieldName(this) + "\">");
         sb.append("\n<option value=\"\">");
         sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"));
-        sb.append("</option");
+        sb.append("</option>");
         List<Location> useLocations;
         if (options != null) {
             useLocations = options;
