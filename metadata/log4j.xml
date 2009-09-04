@@ -12,16 +12,13 @@
  
  	<logger name="org.openmrs.module.htmlformentry">
 		<level value="DEBUG" />
+		<appender-ref ref="CONSOLE" />
  	</logger>
  	
  	<!-- Hide unnecessary errors logged by Hibernate during unit testing -->
 	<logger name="org.hibernate.tool.hbm2ddl.SchemaExport">
 		<level value="FATAL" />
+		<appender-ref ref="CONSOLE" />
 	</logger>
 	
-	<root>
-		<level value="ERROR" />
-		<appender-ref ref="CONSOLE" />
-	</root>
- 
 </log4j:configuration>
