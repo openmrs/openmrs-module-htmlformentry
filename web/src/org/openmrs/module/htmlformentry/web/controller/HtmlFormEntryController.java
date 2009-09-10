@@ -33,8 +33,14 @@ import org.springframework.web.servlet.view.RedirectView;
 public class HtmlFormEntryController extends SimpleFormController {
     
     protected final Log log = LogFactory.getLog(getClass());
+    
+    private String closeDialogView;
     public final static String FORM_IN_PROGRESS_KEY = "HTML_FORM_IN_PROGRESS_KEY";
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
+    
+    public void setCloseDialogView(String closeDialogView) {
+    	this.closeDialogView = closeDialogView;
+    }
 
     @Override
     protected FormEntrySession formBackingObject(HttpServletRequest request) throws Exception {
@@ -154,7 +160,11 @@ public class HtmlFormEntryController extends SimpleFormController {
             String successView = session.getReturnUrlWithParameters();
             if (successView == null)
                 successView = getSuccessView() + "?patientId=" + session.getPatient().getPersonId();
-            return new ModelAndView(new RedirectView(successView));
+            if (StringUtils.hasText(request.getParameter("closeAfterSubmission"))) {
+            	return new ModelAndView(closeDialogView, "dialogToClose", request.getParameter("closeAfterSubmission"));
+            } else {
+            	return new ModelAndView(new RedirectView(successView));
+            }
         } catch (BadFormDesignException ex) {
             log.error("Bad Form Design:", ex);
             errors.reject(ex.getMessage());

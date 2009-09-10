@@ -1,8 +1,16 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 
 <c:set var="OPENMRS_DO_NOT_SHOW_PATIENT_SET" scope="request" value="true"/>
+<c:set var="inPopup" value="${param.inPopup != null && param.inPopup}"/>
 
-<%@ include file="/WEB-INF/template/header.jsp" %>
+<c:choose>
+	<c:when test="${inPopup}">
+		<%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
+	</c:when>
+	<c:otherwise>
+		<%@ include file="/WEB-INF/template/header.jsp" %>
+	</c:otherwise>
+</c:choose>
 
 <openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 <openmrs:htmlInclude file="/dwr/engine.js" />
@@ -60,65 +68,67 @@
 	}
 </script>
 
-<div id="htmlFormEntryBanner">
-	<spring:message var="backMessage" code="htmlformentry.goBack"/>
-	<c:if test="${command.context.mode == 'ENTER' || command.context.mode == 'EDIT'}">
-		<spring:message var="backMessage" code="htmlformentry.discard"/>
-	</c:if>
-	<div style="float: left">
-		<a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:back();</c:otherwise></c:choose>">${backMessage}</a>
-	</div>
-	<div style="float:right">
-		<c:if test="${command.context.mode == 'VIEW'}">
-			<c:url var="editUrl" value="htmlFormEntry.form">
-				<c:forEach var="p" items="${param}">
-					<c:if test="${p.key != 'mode'}">
-						<c:param name="${p.key}" value="${p.value}"/>
+<c:if test="${!inPopup}">
+	<div id="htmlFormEntryBanner">
+		<spring:message var="backMessage" code="htmlformentry.goBack"/>
+		<c:if test="${command.context.mode == 'ENTER' || command.context.mode == 'EDIT'}">
+			<spring:message var="backMessage" code="htmlformentry.discard"/>
+		</c:if>
+		<div style="float: left">
+			<a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:back();</c:otherwise></c:choose>">${backMessage}</a>
+		</div>
+		<div style="float:right">
+			<c:if test="${command.context.mode == 'VIEW'}">
+				<c:url var="editUrl" value="htmlFormEntry.form">
+					<c:forEach var="p" items="${param}">
+						<c:if test="${p.key != 'mode'}">
+							<c:param name="${p.key}" value="${p.value}"/>
+						</c:if>
+					</c:forEach>
+					<c:param name="mode" value="EDIT"/>
+				</c:url>
+				<a href="${editUrl}"><spring:message code="general.edit"/></a>
+				|
+				<a onClick="handleDeleteButton()"><spring:message code="general.delete"/></a>
+				<div id="confirmDeleteFormPopup" style="position: absolute; z-axis: 1; right: 0px; background-color: #ffff00; border: 2px black solid; display: none; padding: 10px">
+					<form method="post" action="deleteEncounter.form">
+						<input type="hidden" name="encounterId" value="${command.encounter.encounterId}"/>
+						<input type="hidden" name="returnUrl" value="${command.returnUrlWithParameters}"/>
+						<center>
+							<spring:message code="htmlformentry.deleteReason"/>
+							<br/>
+							<textarea name="reason"></textarea>
+							<br/><br/>
+							<input type="button" value="<spring:message code="general.cancel"/>" onClick="cancelDeleteForm()"/>
+							&nbsp;&nbsp;&nbsp;&nbsp;
+							<input type="submit" value="<spring:message code="general.delete"/>"/>
+						</center>	
+				</div> 
+			</c:if>
+		</div>
+		<b>
+			${command.patient.personName} |
+			<c:choose>
+				<c:when test="${not empty command.form}">
+					${command.form.name} (${command.form.encounterType.name})
+				</c:when>
+				<c:otherwise>
+					<c:if test="${not empty command.encounter}">
+						${command.encounter.form.name} (${command.encounter.encounterType.name})
 					</c:if>
-				</c:forEach>
-				<c:param name="mode" value="EDIT"/>
-			</c:url>
-			<a href="${editUrl}"><spring:message code="general.edit"/></a>
+				</c:otherwise> 
+			</c:choose>
+			
 			|
-			<a onClick="handleDeleteButton()"><spring:message code="general.delete"/></a>
-			<div id="confirmDeleteFormPopup" style="position: absolute; z-axis: 1; right: 0px; background-color: #ffff00; border: 2px black solid; display: none; padding: 10px">
-				<form method="post" action="deleteEncounter.form">
-					<input type="hidden" name="encounterId" value="${command.encounter.encounterId}"/>
-					<input type="hidden" name="returnUrl" value="${command.returnUrlWithParameters}"/>
-					<center>
-						<spring:message code="htmlformentry.deleteReason"/>
-						<br/>
-						<textarea name="reason"></textarea>
-						<br/><br/>
-						<input type="button" value="<spring:message code="general.cancel"/>" onClick="cancelDeleteForm()"/>
-						&nbsp;&nbsp;&nbsp;&nbsp;
-						<input type="submit" value="<spring:message code="general.delete"/>"/>
-					</center>	
-			</div> 
-		</c:if>
+			<c:if test="${not empty command.encounter}">
+				<openmrs:formatDate date="${command.encounter.encounterDatetime}"/> | ${command.encounter.location.name} 
+			</c:if>
+			<c:if test="${empty command.encounter}">
+				<spring:message code="htmlformentry.newForm"/>
+			</c:if>
+		</b>
 	</div>
-	<b>
-		${command.patient.personName} |
-		<c:choose>
-			<c:when test="${not empty command.form}">
-				${command.form.name} (${command.form.encounterType.name})
-			</c:when>
-			<c:otherwise>
-				<c:if test="${not empty command.encounter}">
-					${command.encounter.form.name} (${command.encounter.encounterType.name})
-				</c:if>
-			</c:otherwise> 
-		</c:choose>
-		
-		|
-		<c:if test="${not empty command.encounter}">
-			<openmrs:formatDate date="${command.encounter.encounterDatetime}"/> | ${command.encounter.location.name} 
-		</c:if>
-		<c:if test="${empty command.encounter}">
-			<spring:message code="htmlformentry.newForm"/>
-		</c:if>
-	</b>
-</div>
+</c:if>
 
 <spring:hasBindErrors name="command">
 	<spring:message code="fix.error"/>
@@ -138,6 +148,7 @@
 	<c:if test="${ not empty command.encounter }">
 		<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
 	</c:if>
+	<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
 	
 	${command.htmlToDisplay}
 	
@@ -170,4 +181,11 @@
 	});
 </script>
 
-<%@ include file="/WEB-INF/template/footer.jsp" %>
+<c:choose>
+	<c:when test="${inPopup}">
+		<%@ include file="/WEB-INF/template/footerMinimal.jsp" %>
+	</c:when>
+	<c:otherwise>
+		<%@ include file="/WEB-INF/template/footer.jsp" %>
+	</c:otherwise>
+</c:choose>

@@ -15,6 +15,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
@@ -112,15 +113,18 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
         StringBuilder ret = new StringBuilder();
         if (dateWidget != null) {
             ret.append(dateWidget.generateHtml(context));
-            ret.append(dateErrorWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+            	ret.append(dateErrorWidget.generateHtml(context));
         }
         if (providerWidget != null) {
             ret.append(providerWidget.generateHtml(context));
-            ret.append(providerErrorWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+            	ret.append(providerErrorWidget.generateHtml(context));
         }
         if (locationWidget != null) {
             ret.append(locationWidget.generateHtml(context));
-            ret.append(locationErrorWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+            	ret.append(locationErrorWidget.generateHtml(context));
         }
         return ret.toString();
     }

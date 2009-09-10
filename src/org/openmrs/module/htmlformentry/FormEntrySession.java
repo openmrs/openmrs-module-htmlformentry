@@ -48,8 +48,6 @@ import org.springframework.web.util.JavaScriptUtils;
  *         // display errors
  *         // redisplay form, 
  *         }
- *
- * TODO implement the "Edit Existing Form" use case
  */
 public class FormEntrySession {
 

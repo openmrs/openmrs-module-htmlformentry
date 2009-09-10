@@ -85,6 +85,7 @@
     	<property name="sessionForm"><value>false</value></property>
 		<property name="commandName"><value>command</value></property>
 		<property name="formView"><value>/module/htmlformentry/htmlFormEntry</value></property>
+		<property name="closeDialogView"><value>/module/htmlformentry/closeDialog</value></property>
 		<property name="successView"><value>../../patientDashboard.form</value></property>
     </bean>
     

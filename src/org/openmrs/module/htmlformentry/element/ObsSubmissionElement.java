@@ -347,8 +347,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             }
             ret.append(dateWidget.generateHtml(context));
         }
-        ret.append(" ");
-        ret.append(errorWidget.generateHtml(context));
+        if (context.getMode() != Mode.VIEW) {
+	        ret.append(" ");
+	        ret.append(errorWidget.generateHtml(context));
+        }
         return ret.toString();
     }
 
