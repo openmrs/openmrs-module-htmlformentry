@@ -30,8 +30,8 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         return handlers;
     }
     
-    public void setHandlers(Map<String, TagHandler> handlers) {
-        handlers.putAll(handlers);
+    public void setHandlers(Map<String, TagHandler> handlersToSet) {
+        handlers.putAll(handlersToSet);
     }
 
     public void setDao(HtmlFormEntryDAO dao) {
