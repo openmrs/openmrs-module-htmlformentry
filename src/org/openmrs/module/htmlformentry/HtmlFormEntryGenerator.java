@@ -29,27 +29,10 @@ import org.w3c.dom.NodeList;
  * This takes an <htmlform>...</htmlform> xml block and turns it into HTML to be displayed as a form in
  * a web browser. It can apply the <macros>...</macros> section, and replace tags like <obs/>
  * 
- * TODO allow modules to register their own tag handlers.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
    
-    private Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
     
-    public HtmlFormEntryGenerator() {
-        //setHandler("repeatConcept", new RepeatConceptHandler());
-        setHandler("obs", new ObsTagHandler());
-        setHandler("obsgroup", new ObsGroupTagHandler());
-        setHandler("encounterDate", new EncounterDateHandler());
-        setHandler("encounterProvider", new EncounterProviderHandler());
-        setHandler("encounterLocation", new EncounterLocationHandler());
-        setHandler("section", new SectionTagHandler());
-        setHandler("lookup", new VelocityHandler());
-        setHandler("submit", new SubmitButtonHandler());
-    }
-    
-    public void setHandler(String tagName, TagHandler handler) {
-        handlers.put(tagName, handler);
-    }
         
     /**
      * Takes an XML string, finds the <macros></macros> section in it, and applies those substitutions
@@ -256,13 +239,12 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
 
     private void applyTagsHelper(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        
         TagHandler handler = null;
         // Find the handler for this node
         {
             String name = node.getNodeName();
             if (name != null) {
-                handler = handlers.get(name);
+                handler = HtmlFormEntryUtil.getService().getHandlerByTagName(name);
             }
         }
         
