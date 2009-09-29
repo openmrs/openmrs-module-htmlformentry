@@ -16,8 +16,7 @@ import org.openmrs.module.htmlformentry.handler.TagHandler;
 public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements HtmlFormEntryService {
     
     private HtmlFormEntryDAO dao;
-    
-private Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
+    private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
     
     public void addHandler(String tagName, TagHandler handler) {
         handlers.put(tagName, handler);
@@ -28,11 +27,11 @@ private Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>
     }
     
     public Map<String, TagHandler> getHandlers(){
-        return this.handlers;
+        return handlers;
     }
     
     public void setHandlers(Map<String, TagHandler> handlers) {
-        this.handlers = handlers;
+        handlers.putAll(handlers);
     }
 
     public void setDao(HtmlFormEntryDAO dao) {
