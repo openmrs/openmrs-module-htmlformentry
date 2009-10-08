@@ -76,8 +76,12 @@
 		
 		<!-- Copy module metadata -->
 		<copy todir="build/">
-			<fileset dir="metadata/" includes="**/*" />
+			<fileset dir="metadata/" includes="**/*" excludes="messages*.properties" />
 			<filterset refid="variables.to.replace" />
+		</copy>
+		
+		<copy todir="build/">
+			<fileset dir="metadata/" includes="messages*.properties" />
 		</copy>
 		
 		<!-- Copy module web data -->
