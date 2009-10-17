@@ -35,38 +35,42 @@
 							</property>	
 							<property name="handlers">
 							    <map>
-								  <entry>
-							        <key><value>obs</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.ObsTagHandler"/>
-							      </entry>
-							      <entry>
-							        <key><value>obsgroup</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.ObsGroupTagHandler"/>
-							      </entry>
-							      <entry>
-							        <key><value>encounterDate</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.EncounterDateHandler"/>
-							      </entry>
-							      <entry>
-							        <key><value>encounterProvider</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.EncounterProviderHandler"/>
-							      </entry>
-							      <entry>
-							        <key><value>encounterLocation</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.EncounterLocationHandler"/>
-							      </entry>
-							      <entry>
-							        <key><value>section</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.SectionTagHandler"/>
-							      </entry>
-							      <entry>
-							        <key><value>lookup</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.VelocityHandler"/>
-							      </entry>
-							       <entry>
-							        <key><value>submit</value></key>
-							        <bean class="org.openmrs.module.htmlformentry.handler.SubmitButtonHandler"/>
-							      </entry>
+									<entry>
+							        	<key><value>obs</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.ObsTagHandler"/>
+							      	</entry>
+							      	<entry>
+							        	<key><value>obsgroup</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.ObsGroupTagHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>encounterDate</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.EncounterDateHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>encounterProvider</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.EncounterProviderHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>encounterLocation</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.EncounterLocationHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>enrollInProgram</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.EnrollInProgramHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>section</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.SectionTagHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>lookup</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.VelocityHandler"/>
+							      	</entry>
+							       	<entry>
+								        <key><value>submit</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.SubmitButtonHandler"/>
+							      	</entry>
 							    </map>  
 							</property>
 						</bean>

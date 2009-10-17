@@ -6,6 +6,10 @@
 
 <h2><spring:message code="htmlformentry.HtmlForm.edit.title" /></h2>
 
+<openmrs:extensionPoint pointId="org.openmrs.module.htmlformentry.designer">
+	<openmrs:portlet url="${extension.portletUrl}" moduleId="${extension.moduleId}" />
+</openmrs:extensionPoint>
+
 <spring:hasBindErrors name="command">
 	<spring:message code="fix.error"/>
 	<div class="error">

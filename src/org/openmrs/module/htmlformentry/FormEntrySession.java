@@ -20,12 +20,14 @@ import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.PersonAttribute;
 import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
@@ -70,8 +72,10 @@ public class FormEntrySession {
     private VelocityEngine velocityEngine;
     private VelocityContext velocityContext;
 
-    private FormEntrySession(Patient patient) {
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode) {
+        context = new FormEntryContext(mode);
         this.patient = patient;
+        context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
         try {
             velocityEngine.init();
@@ -138,19 +142,17 @@ public class FormEntrySession {
     }
     
     public FormEntrySession(Patient patient, String xml) throws Exception {
-        this(patient);
-        context = new FormEntryContext(Mode.ENTER);
+        this(patient, Mode.ENTER);
         submissionController = new FormSubmissionController();
         
         this.htmlToDisplay = createForm(xml);
     }
     
     public FormEntrySession(Patient patient, HtmlForm htmlForm) throws Exception {
-        this(patient);
+        this(patient, Mode.ENTER);
         this.htmlForm = htmlForm;
         this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated() : htmlForm.getDateChanged()).getTime();
         form = htmlForm.getForm();
-        context = new FormEntryContext(Mode.ENTER);
         
         velocityContext.put("form", form);
         submissionController = new FormSubmissionController();
@@ -162,9 +164,8 @@ public class FormEntrySession {
     }
     
     public FormEntrySession(Patient patient, Form form) throws Exception {
-        this(patient);
+        this(patient, Mode.ENTER);
         this.form = form;
-        context = new FormEntryContext(Mode.ENTER);
         
         velocityContext.put("form", form);
         submissionController = new FormSubmissionController();
@@ -175,7 +176,7 @@ public class FormEntrySession {
     }
     
     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm) throws Exception {
-        this(patient);
+        this(patient, mode);
         this.htmlForm = htmlForm;
         if (htmlForm != null) {
             if (htmlForm.getId() != null)
@@ -193,7 +194,6 @@ public class FormEntrySession {
             encounterModifiedTimestamp = getEncounterModifiedDate(encounter);
         }
 
-        context = new FormEntryContext(mode);
         submissionController = new FormSubmissionController();
         context.setupExistingData(encounter);
         this.htmlToDisplay = createForm(htmlForm.getXmlData());
@@ -299,6 +299,14 @@ public class FormEntrySession {
                     toCheck.addAll(o.getGroupMembers());
             }
         }
+        
+        // propagate encounterDatetime to PatientPrograms where necessary
+        if (submissionActions.getPatientProgramsToCreate() != null) {
+        	for (PatientProgram pp : submissionActions.getPatientProgramsToCreate()) {
+        		if (pp.getDateEnrolled() == null)
+        			pp.setDateEnrolled(encounter.getEncounterDatetime());
+        	}
+        }
                
         // TODO wrap this in a transaction
         if (submissionActions.getPersonsToCreate() != null) {
@@ -313,6 +321,42 @@ public class FormEntrySession {
                 }
                 Context.getEncounterService().saveEncounter(e);
             }
+        }
+
+        // program enrollments are trickier since we need to make sure the patient isn't already enrolled
+        // 1. if the patient is already enrolled on the given date, just skip this
+        // 2. if the patient is enrolled *after* the given date, shift the existing enrollment to start earlier. (TODO decide if this is right)
+        // 3. otherwise just enroll them as requested
+        if (submissionActions.getPatientProgramsToCreate() != null) {
+        	for (PatientProgram toCreate : submissionActions.getPatientProgramsToCreate()) {
+        		boolean skip = false;
+        		PatientProgram earliestAfter = null;
+        		List<PatientProgram> already = Context.getProgramWorkflowService().getPatientPrograms(toCreate.getPatient(), toCreate.getProgram(), null, null, null, null, false);
+        		for (PatientProgram pp : already) {
+        			if (pp.getActive(toCreate.getDateEnrolled())) {
+        				skip = true;
+        				break;
+        			}
+        			// if the existing one starts after toCreate
+        			if (OpenmrsUtil.compare(pp.getDateEnrolled(), toCreate.getDateEnrolled()) > 0) {
+        				if (earliestAfter == null
+        						|| OpenmrsUtil.compare(pp.getDateEnrolled(), earliestAfter.getDateEnrolled()) < 0) {
+        					earliestAfter = pp;
+        				}
+        			}
+        		}
+        		if (skip) {
+        			continue;
+        		}
+        		if (earliestAfter != null) {
+        			// edit this enrollment to move its start date earlier
+        			earliestAfter.setDateEnrolled(toCreate.getDateEnrolled());
+        			Context.getProgramWorkflowService().savePatientProgram(earliestAfter);
+        		} else {
+        			// just enroll as requested
+        			Context.getProgramWorkflowService().savePatientProgram(toCreate);
+        		}
+        	}
         }
         
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.

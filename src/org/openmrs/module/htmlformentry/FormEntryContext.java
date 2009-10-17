@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
@@ -48,9 +49,18 @@ public class FormEntryContext {
     private HtmlFormSchema schema = new HtmlFormSchema();
     private ObsGroup activeObsGroup;
     
+    private Patient existingPatient;
+    private Encounter existingEncounter;
+    private Map<Concept, List<Obs>> existingObs;
+    private List<Obs> existingObsInGroups;
+    
+    private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
+    private List<Obs> currentObsGroupMembers;
+
+    
     public FormEntryContext(Mode mode) {
         this.mode = mode;
-        setupExistingData(null);
+        setupExistingData((Encounter) null);
     }
     
     public Mode getMode() {
@@ -103,10 +113,7 @@ public class FormEntryContext {
             ret.add(getFieldName(e));
         return ret;
     }
-    
-    Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
-    List<Obs> currentObsGroupMembers;
-    
+       
     public void beginObsGroup(Concept conceptSet) {
         currentObsGroupConcepts.push(conceptSet);
         activeObsGroup = new ObsGroup(conceptSet);
@@ -156,10 +163,10 @@ public class FormEntryContext {
         return null;
     }
     
-    Encounter existingEncounter;
-    Map<Concept, List<Obs>> existingObs;
-    List<Obs> existingObsInGroups;
-    
+    public void setupExistingData(Patient patient) {
+    	existingPatient = patient;
+    }
+        
     public void setupExistingData(Encounter encounter) {
         existingEncounter = encounter;
         existingObs = new HashMap<Concept, List<Obs>>();
@@ -265,6 +272,10 @@ public class FormEntryContext {
             }
         }
         return null;
+    }
+    
+    public Patient getExistingPatient() {
+    	return existingPatient;
     }
         
     public Encounter getExistingEncounter() {

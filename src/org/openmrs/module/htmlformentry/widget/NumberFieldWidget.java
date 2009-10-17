@@ -13,7 +13,13 @@ public class NumberFieldWidget implements Widget {
     private boolean floatingPoint = true;
     private Double absoluteMinimum;
     private Double absoluteMaximum;
-      
+
+    public NumberFieldWidget(Double absoluteMinimum, Double absoluteMaximum, boolean floatingPoint) {
+    	this.absoluteMinimum = absoluteMinimum;
+    	this.absoluteMaximum = absoluteMaximum;
+    	this.floatingPoint = floatingPoint;
+    }
+    
     public NumberFieldWidget(ConceptNumeric concept) {
         if (concept != null) {
             setAbsoluteMaximum(concept.getHiAbsolute());
@@ -76,7 +82,7 @@ public class NumberFieldWidget implements Widget {
         return sb.toString();
     }
 
-    public Object getValue(FormEntryContext context, HttpServletRequest request) {
+    public Double getValue(FormEntryContext context, HttpServletRequest request) {
         try {
             Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
             if (d != null && absoluteMinimum != null && d < absoluteMinimum)

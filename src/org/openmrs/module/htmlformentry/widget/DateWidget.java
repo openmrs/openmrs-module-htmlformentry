@@ -36,7 +36,7 @@ public class DateWidget implements Widget {
         }
     }
 
-    public Object getValue(FormEntryContext context, HttpServletRequest request) {
+    public Date getValue(FormEntryContext context, HttpServletRequest request) {
         try {
             Date d = (Date) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Date.class);
             return d;

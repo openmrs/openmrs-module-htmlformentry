@@ -1,10 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -15,9 +13,10 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
 import org.openmrs.Person;
+import org.openmrs.Program;
 import org.openmrs.api.context.Context;
-import org.openmrs.util.OpenmrsUtil;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually
@@ -39,6 +38,7 @@ public class FormSubmissionActions {
     private List<Obs> obsToCreate = new Vector<Obs>();
     private List<Obs> obsToVoid = new Vector<Obs>();
     private List<Order> ordersToCreate = new Vector<Order>();
+    private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
     
     Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
     
@@ -203,7 +203,24 @@ public class FormSubmissionActions {
         }
     }
 
-    /**
+	public void enrollInProgram(Program program) {
+        if (program == null)
+            throw new IllegalArgumentException("Cannot enroll in a blank program");
+        
+        Patient patient = highestOnStack(Patient.class);
+        if (patient == null)
+            throw new IllegalArgumentException("Cannot enroll in a program outside of a Patient");
+        Encounter encounter = highestOnStack(Encounter.class);
+        if (encounter == null)
+        	throw new IllegalArgumentException("Cannot enroll in a program outside of an Encounter");
+
+        PatientProgram pp = new PatientProgram();
+        pp.setPatient(patient);
+        pp.setProgram(program);
+        patientProgramsToCreate.add(pp);
+    }
+	
+	/**
      * This method compares Timestamps to plain Dates by dropping the nanosecond precision
      */
     private boolean dateChangedHelper(Date oldVal, Date newVal) {
@@ -264,6 +281,20 @@ public class FormSubmissionActions {
 
     public void setOrdersToCreate(List<Order> ordersToCreate) {
         this.ordersToCreate = ordersToCreate;
+    }
+	
+    /**
+     * @return the patientProgramsToCreate
+     */
+    public List<PatientProgram> getPatientProgramsToCreate() {
+    	return patientProgramsToCreate;
+    }
+	
+    /**
+     * @param patientProgramsToCreate the patientProgramsToCreate to set
+     */
+    public void setPatientProgramsToCreate(List<PatientProgram> patientProgramsToCreate) {
+    	this.patientProgramsToCreate = patientProgramsToCreate;
     }
 
 }
