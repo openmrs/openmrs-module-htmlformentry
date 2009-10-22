@@ -90,14 +90,14 @@ public class HtmlFormEntryUtil {
         }
     }
 
-    public static Obs createObs(FormField formField, Object value, Date datetime) {
+    public static Obs createObs(FormField formField, Object value, Date datetime, String accessionNumber) {
         Concept concept = formField.getField().getConcept();
         if (concept == null)
             throw new FormEntryException("Can't create an Obs for a formField that doesn't represent a Concept");
-        return createObs(concept, value, datetime);
+        return createObs(concept, value, datetime, accessionNumber);
     }
     
-    public static Obs createObs(Concept concept, Object value, Date datetime) {
+    public static Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
         Obs obs = new Obs();
         obs.setConcept(concept);
         ConceptDatatype dt = obs.getConcept().getDatatype();
@@ -127,6 +127,8 @@ public class HtmlFormEntryUtil {
         }
         if (datetime != null)
             obs.setObsDatetime(datetime);
+        if (accessionNumber != null)
+            obs.setAccessionNumber(accessionNumber);
         return obs;
     }
     

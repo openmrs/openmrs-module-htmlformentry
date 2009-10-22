@@ -49,6 +49,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
     private Widget valueWidget;
     private String dateLabel;
     private DateWidget dateWidget;
+    private String accessionNumberLabel;
+    private TextFieldWidget accessionNumberWidget;
     private ErrorWidget errorWidget;
     private boolean allowFutureDates = false;
     private Concept answerConcept;
@@ -307,6 +309,20 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             }
         }
         
+     // if an accessionNumber is requested, do that too
+        if ("true".equals(parameters.get("showAccessionNumber")) || parameters.containsKey("accessionNumberLabel")) {
+            if (parameters.containsKey("accessionNumberLabel"))
+                accessionNumberLabel = parameters.get("accessionNumberLabel");
+            accessionNumberWidget = new TextFieldWidget();
+            context.registerWidget(accessionNumberWidget);
+            context.registerErrorWidget(accessionNumberWidget, errorWidget);
+            if (existingObs != null) {
+                accessionNumberWidget.setInitialValue(existingObs.getAccessionNumber());
+            }
+        }
+        
+        
+        
         ObsField field = new ObsField();
         field.setName(valueLabel);
         field.setQuestion(concept);
@@ -346,6 +362,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 ret.append(dateLabel);
             }
             ret.append(dateWidget.generateHtml(context));
+        }
+        if (accessionNumberWidget != null) {
+            ret.append(" ");
+            if (accessionNumberLabel != null) {
+                ret.append("<br/>" + accessionNumberLabel);
+            }
+            ret.append(accessionNumberWidget.generateHtml(context));
         }
         if (context.getMode() != Mode.VIEW) {
 	        ret.append(" ");
@@ -388,15 +411,17 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         Object value = valueWidget.getValue(session.getContext(), submission);
         Date obsDatetime = null;
+        String accessionNumberValue = null;
         if (dateWidget != null)
             obsDatetime = (Date) dateWidget.getValue(session.getContext(), submission);
-        
+        if (accessionNumberWidget != null)
+            accessionNumberValue = (String) accessionNumberWidget.getValue(session.getContext(), submission);
         if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
             // call this regardless of whether the new value is null -- the modifyObs method is smart
-            session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime);
+            session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue);
         } else {
             if (value != null && !"".equals(value)) {
-                session.getSubmissionActions().createObs(concept, value, obsDatetime);
+                session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue);
             }
         }
     }

@@ -221,7 +221,7 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
         Patient pat = new Patient(2);
         Encounter enc = new Encounter();
         enc.setPatient(pat);
-        Obs obs = HtmlFormEntryUtil.createObs(Context.getConceptService().getConcept(1), 123, new Date());
+        Obs obs = HtmlFormEntryUtil.createObs(Context.getConceptService().getConcept(1), 123, new Date(), null);
         enc.addObs(obs);
         
         HtmlForm fakeForm = new HtmlForm();

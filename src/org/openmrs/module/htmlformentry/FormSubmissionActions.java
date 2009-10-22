@@ -17,6 +17,7 @@ import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.util.OpenmrsUtil;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually
@@ -143,11 +144,11 @@ public class FormSubmissionActions {
         return false;
     }
         
-    public Obs createObs(Concept concept, Object value, Date datetime) {
+    public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
         if (value == null || "".equals(value))
             throw new IllegalArgumentException("Cannot create Obs with null or blank value");
         
-        Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime);
+        Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
 
         Person person = highestOnStack(Person.class);
         if (person == null)
@@ -168,7 +169,7 @@ public class FormSubmissionActions {
         return obs;
     }
     
-    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime) {
+    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
         // if the concepts don't match then something has gone wrong, and we fail hard
         if (!existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
             throw new RuntimeException("Programming error somewhere in this module. Please report this to OpenMRS. " + existingObs.getConcept().getBestName(Context.getLocale()) + " != " + concept.getBestName(Context.getLocale()));
@@ -180,7 +181,7 @@ public class FormSubmissionActions {
             obsToVoid.add(existingObs);
             return;
         }
-        Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime);
+        Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime, accessionNumber);
         String oldString = existingObs.getValueAsString(Context.getLocale());
         String newString = newObs.getValueAsString(Context.getLocale());
         if (log.isDebugEnabled()) {
@@ -189,13 +190,14 @@ public class FormSubmissionActions {
         boolean valueChanged = !newString.equals(oldString);
         // TODO: handle dates that may equal encounter date
         boolean dateChanged = dateChangedHelper(existingObs.getObsDatetime(), newObs.getObsDatetime());
-        if (valueChanged || dateChanged) {
+        boolean accessionNumberChanged = accessionNumberChangedHelper(existingObs.getAccessionNumber(), newObs.getAccessionNumber());
+        if (valueChanged || dateChanged || accessionNumberChanged) {
             if (log.isDebugEnabled()) {
                 log.debug("CHANGED: " + printObsHelper(existingObs));
             }
             // TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
             obsToVoid.add(existingObs);
-            createObs(concept, newValue, newDatetime);
+            createObs(concept, newValue, newDatetime, accessionNumber);
         } else {
             if (log.isDebugEnabled()) {
                 log.debug("SAME: " + printObsHelper(existingObs));
@@ -228,6 +230,10 @@ public class FormSubmissionActions {
             return false;
         else
             return oldVal.getTime() != newVal.getTime();
+    }
+    
+    private boolean accessionNumberChangedHelper(String oldVal, String newVal) {
+        return OpenmrsUtil.nullSafeEquals(oldVal, newVal);
     }
 
     private String printObsHelper(Obs obs) {
