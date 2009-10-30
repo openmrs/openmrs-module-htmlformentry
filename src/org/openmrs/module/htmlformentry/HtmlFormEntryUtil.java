@@ -4,6 +4,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -80,6 +81,8 @@ public class HtmlFormEntryUtil {
             }
         } else if (Double.class.isAssignableFrom(clazz)) {
             return Double.valueOf(val);
+        } else if (Integer.class.isAssignableFrom(clazz)) {
+        	return Integer.valueOf(val);
         } else if (Concept.class.isAssignableFrom(clazz)) {
             ConceptEditor ed = new ConceptEditor();
             ed.setAsText(val);
@@ -218,11 +221,12 @@ public class HtmlFormEntryUtil {
         	}
         }
         demo.setGender("f");
-        try {
-            demo.setBirthdate(Context.getDateFormat().parse("04/05/2006"));
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        {
+	    	Calendar cal = Calendar.getInstance();
+	    	cal.add(Calendar.YEAR, -31);
+	        demo.setBirthdate(cal.getTime());
         }
+
         for (PersonAttributeType type : Context.getPersonService().getAllPersonAttributeTypes()) {
         	if (type.getFormat().equals("java.lang.String")) {
         		demo.addAttribute(new PersonAttribute(type, "Test "+type.getName()+" Attribute"));

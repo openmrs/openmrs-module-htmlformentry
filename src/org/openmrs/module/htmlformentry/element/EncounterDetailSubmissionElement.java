@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Role;
 import org.openmrs.User;
@@ -20,6 +22,7 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
+import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.UserWidget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
@@ -29,6 +32,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 
     private DateWidget dateWidget;
     private ErrorWidget dateErrorWidget;
+    private TimeWidget timeWidget;
+    private ErrorWidget timeErrorWidget;
     private UserWidget providerWidget;
     private ErrorWidget providerErrorWidget;
     private LocationWidget locationWidget;
@@ -42,6 +47,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
                 dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
             } else if (parameters.get("defaultDate") != null) {
                 dateWidget.setInitialValue(parameters.get("defaultDate"));
+            }
+            if ("true".equals(parameters.get("showTime"))) {
+            	timeWidget = new TimeWidget();
+            	timeErrorWidget = new ErrorWidget();
+            	if (context.getExistingEncounter() != null) {
+            		timeWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+            	} else if (parameters.get("defaultDate") != null) {
+            		timeWidget.setInitialValue(parameters.get("defaultDate"));
+            	}
+            	context.registerWidget(timeWidget);
+            	context.registerErrorWidget(timeWidget, timeErrorWidget);
             }
             context.registerWidget(dateWidget);
             context.registerErrorWidget(dateWidget, dateErrorWidget);
@@ -116,6 +132,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
             if (context.getMode() != Mode.VIEW)
             	ret.append(dateErrorWidget.generateHtml(context));
         }
+        if (timeWidget != null) {
+        	ret.append("&nbsp;");
+        	ret.append(timeWidget.generateHtml(context));
+        	if (context.getMode() != Mode.VIEW)
+        		ret.append(timeErrorWidget.generateHtml(context));
+        }
         if (providerWidget != null) {
             ret.append(providerWidget.generateHtml(context));
             if (context.getMode() != Mode.VIEW)
@@ -134,7 +156,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
         List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
         try {
             if (dateWidget != null) {
-                Object date = dateWidget.getValue(context, submission);
+                Date date = (Date) dateWidget.getValue(context, submission);
+                if (timeWidget != null) {
+                    Date time = (Date) timeWidget.getValue(context, submission);
+                    date = combineDateAndTime(date, time);
+                }
                 if (date == null)
                     throw new Exception("htmlformentry.error.required");
                 if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
@@ -143,6 +169,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
         } catch (Exception ex) {
             ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget), Context.getMessageSourceService().getMessage(ex.getMessage())));
         }
+
         try {
             if (providerWidget != null) {
                 Object provider = providerWidget.getValue(context, submission);
@@ -164,10 +191,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
         return ret;
     }
 
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         if (dateWidget != null) {
             Date date = (Date) dateWidget.getValue(session.getContext(), submission);
             session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
+        }
+        if (timeWidget != null) {
+        	Date time = (Date) timeWidget.getValue(session.getContext(), submission);
+        	Encounter e = session.getSubmissionActions().getCurrentEncounter();
+        	Date dateAndTime = combineDateAndTime(e.getEncounterDatetime(), time);
+        	e.setEncounterDatetime(dateAndTime);
         }
         if (providerWidget != null) {
             User user = (User) providerWidget.getValue(session.getContext(), submission);
@@ -178,5 +211,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
             session.getSubmissionActions().getCurrentEncounter().setLocation(location);
         }
     }
-    
+	
+	private Date combineDateAndTime(Date date, Date time) {
+		if (date == null)
+			return null;
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTime(date);
+	    if (time != null) {
+	    	Calendar temp = Calendar.getInstance();
+	    	temp.setTime(time);
+	    	cal.set(Calendar.HOUR_OF_DAY, temp.get(Calendar.HOUR_OF_DAY));
+	    	cal.set(Calendar.MINUTE, temp.get(Calendar.MINUTE));
+	    	cal.set(Calendar.SECOND, temp.get(Calendar.SECOND));
+	    	cal.set(Calendar.MILLISECOND, temp.get(Calendar.MILLISECOND));
+	    }
+	    return cal.getTime();
+    }
 }
