@@ -31,12 +31,14 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
         sessionFactory.getCurrentSession().delete(htmlForm);
     }
 
+    @SuppressWarnings("unchecked")
     public List<HtmlForm> getAllHtmlForms() {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(HtmlForm.class);
         crit.addOrder(Order.asc("name"));
         return (List<HtmlForm>) crit.list();
     }
 
+    @SuppressWarnings("unchecked")
     public HtmlForm getHtmlFormByForm(Form form) {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(HtmlForm.class);
         crit.add(Restrictions.eq("form", form));

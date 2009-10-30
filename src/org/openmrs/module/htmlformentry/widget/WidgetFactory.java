@@ -1,11 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
-import org.openmrs.ConceptNumeric;
 import org.openmrs.FormField;
 
 /**

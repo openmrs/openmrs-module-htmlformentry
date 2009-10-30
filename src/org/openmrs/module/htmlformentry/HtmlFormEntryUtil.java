@@ -1,6 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;

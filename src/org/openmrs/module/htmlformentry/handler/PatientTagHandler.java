@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.action.ObsGroupAction;
-import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.element.PatientElement;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

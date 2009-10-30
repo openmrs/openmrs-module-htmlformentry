@@ -6,6 +6,7 @@ import org.springframework.validation.Validator;
 
 public class HtmlFormValidator implements Validator {
 
+    @SuppressWarnings("unchecked")
     public boolean supports(Class clazz) {
         return HtmlForm.class.equals(clazz);
     }
@@ -18,6 +19,7 @@ public class HtmlFormValidator implements Validator {
         HtmlForm hf = (HtmlForm) obj;
         if (hf.getXmlData() != null) {
             try {
+                @SuppressWarnings("unused")
                 FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), hf.getXmlData());
             } catch (Exception ex) {
                 errors.rejectValue("xmlData", null, ex.getMessage());
