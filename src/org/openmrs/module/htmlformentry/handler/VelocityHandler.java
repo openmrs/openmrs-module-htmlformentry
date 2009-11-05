@@ -27,17 +27,25 @@ public class VelocityHandler extends SubstitutionTagHandler {
         else
             value = session.evaluateVelocityExpression(complexExpression);
         
-        // Enable date formatting
-        try {
-        	DateFormat fromFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
-        	fromFormat.setLenient(false);
-        	Date d = fromFormat.parse(value);
+        // Enable date formatting 
+    	DateFormat fromFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+    	DateFormat fromFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+    	Date d = null;
+    	try {
+        	d = fromFormat.parse(value);
+    	}
+        catch (Exception e) {
+        	try {
+        		d = fromFormat2.parse(value);
+        	}
+            catch (Exception e2) {
+            	// Do nothing
+            }
+        }
+        if (d != null) {
         	String newFormat = parameters.get("format");
         	DateFormat toFormat = new SimpleDateFormat(newFormat == null ? "dd/MMM/yyyy" : newFormat, Context.getLocale());
         	value = toFormat.format(d);
-        }
-        catch (Exception e) {
-        	// Do nothing.
         }
         
         // Enable translation via existing message sources
