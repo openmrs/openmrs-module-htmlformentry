@@ -78,9 +78,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
             else {
             	String defParam = (String)parameters.get("default");
             	if (StringUtils.hasText(defParam)) {
-            		User defaultProvider = Context.getUserService().getUserByUsername(defParam);
-            		if (defaultProvider == null) {
-            			defaultProvider = Context.getUserService().getUser(Integer.parseInt(defParam));
+            		User defaultProvider = null;
+            		if ("currentuser".equalsIgnoreCase(defParam)) {
+            			defaultProvider = Context.getAuthenticatedUser();
+            		} else {
+	            		defaultProvider = Context.getUserService().getUserByUsername(defParam);
+	            		if (defaultProvider == null) {
+	            			try {
+	            				defaultProvider = Context.getUserService().getUser(Integer.parseInt(defParam));
+	            			} catch (NumberFormatException ex) { }
+	            		}
             		}
             		if (defaultProvider == null) {
             			throw new IllegalArgumentException("Invalid default provider specified for encounter: " + defParam);
