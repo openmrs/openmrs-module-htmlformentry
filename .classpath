@@ -29,7 +29,7 @@
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/spring-framework/spring-webmvc.jar" sourcepath="/openmrs-source/spring-webmvc-sources.zip"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/jta/jta.jar"/>
 	<classpathentry kind="lib" path="/openmrs-1.5.x/lib/velocity/velocity-1.6-beta1.jar" sourcepath="/openmrs-source/velocity-1.6-beta1.zip"/>
-	<classpathentry kind="lib" path="lib-common/openmrs-api-1.6.0.9100-dev.jar" sourcepath="/openmrs-trunk-really-clean/src"/>
+	<classpathentry kind="lib" path="lib-common/openmrs-api-1.6.0.9100-dev.jar" sourcepath="/openmrs-1.5.x"/>
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.0.9100-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.0.9100-dev.jar"/>
 	<classpathentry kind="output" path="build"/>
