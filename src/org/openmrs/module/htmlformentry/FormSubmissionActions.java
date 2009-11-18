@@ -233,7 +233,7 @@ public class FormSubmissionActions {
     }
     
     private boolean accessionNumberChangedHelper(String oldVal, String newVal) {
-        return OpenmrsUtil.nullSafeEquals(oldVal, newVal);
+        return !OpenmrsUtil.nullSafeEquals(oldVal, newVal);
     }
 
     private String printObsHelper(Obs obs) {
