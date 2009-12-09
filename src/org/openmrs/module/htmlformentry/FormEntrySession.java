@@ -14,6 +14,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Obs;
@@ -75,6 +77,14 @@ public class FormEntrySession {
     private FormEntrySession(Patient patient) {
         this.patient = patient;
         velocityEngine = new VelocityEngine();
+        
+        // #1953 - Velocity errors in HTML form entry
+        velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, 
+        		"org.apache.velocity.runtime.log.CommonsLogLogChute");
+        velocityEngine.setProperty(CommonsLogLogChute.LOGCHUTE_COMMONS_LOG_NAME,
+        		"htmlformentry_velocity");
+                
+        
         try {
             velocityEngine.init();
         }
