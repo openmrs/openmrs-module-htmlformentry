@@ -30,6 +30,7 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.PersonAttribute;
 import org.openmrs.PersonAttributeType;
@@ -38,6 +39,8 @@ import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.LocationEditor;
+import org.openmrs.propertyeditor.PatientEditor;
+import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -87,6 +90,14 @@ public class HtmlFormEntryUtil {
             ConceptEditor ed = new ConceptEditor();
             ed.setAsText(val);
             return ed.getValue();
+        } else if (Patient.class.isAssignableFrom(clazz)) {
+        	PatientEditor ed = new PatientEditor();
+        	ed.setAsText(val);
+        	return ed.getValue();
+        } else if (Person.class.isAssignableFrom(clazz)) {
+        	PersonEditor ed = new PersonEditor();
+        	ed.setAsText(val);
+        	return ed.getValue();
         } else {
             return val;
         }

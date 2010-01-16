@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Encounter;
 import org.openmrs.Location;
+import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
@@ -22,8 +25,8 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
+import org.openmrs.module.htmlformentry.widget.PersonWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
-import org.openmrs.module.htmlformentry.widget.UserWidget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 
@@ -34,7 +37,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
     private ErrorWidget dateErrorWidget;
     private TimeWidget timeWidget;
     private ErrorWidget timeErrorWidget;
-    private UserWidget providerWidget;
+    private PersonWidget providerWidget;
     private ErrorWidget providerErrorWidget;
     private LocationWidget locationWidget;
     private ErrorWidget locationErrorWidget;
@@ -63,13 +66,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
             context.registerErrorWidget(dateWidget, dateErrorWidget);
         }
         if (Boolean.TRUE.equals(parameters.get("provider"))) {
-            providerWidget = new UserWidget();
+            providerWidget = new PersonWidget();
             if (parameters.get("role") != null) {
                 Role role = Context.getUserService().getRole((String) parameters.get("role"));
                 if (role == null)
                     throw new RuntimeException("Cannot find role: " + parameters.get("role"));
-                List<User> options = Context.getUserService().getUsersByRole(role);
-                providerWidget.setOptions(options);
+                Set<Person> options = new LinkedHashSet<Person>();
+                for (User u : Context.getUserService().getUsersByRole(role)) {
+                	options.add(u.getPerson());
+                }
+                providerWidget.setOptions(new ArrayList<Person>(options));
             }
             providerErrorWidget = new ErrorWidget();
             if (context.getExistingEncounter() != null) {
@@ -210,8 +216,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
         	e.setEncounterDatetime(dateAndTime);
         }
         if (providerWidget != null) {
-            User user = (User) providerWidget.getValue(session.getContext(), submission);
-            session.getSubmissionActions().getCurrentEncounter().setProvider(user);
+            Person person = (Person) providerWidget.getValue(session.getContext(), submission);
+            session.getSubmissionActions().getCurrentEncounter().setProvider(person);
         }
         if (locationWidget != null) {
             Location location = (Location) locationWidget.getValue(session.getContext(), submission);

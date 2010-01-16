@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module configVersion="1.0">
+<module configVersion="1.1">
 	
 	<!-- Base Module Properties -->
 	<id>htmlformentry</id>
 	<name>HTML Form Entry</name>
-	<version>1.5.3</version>
-	<package>org.openmrs.module.@MODULE_ID@</package>
+	<version>1.6.0</version>
+	<package>org.openmrs.module.htmlformentry</package>
 	<author>Darius Jazayeri</author>
 	<description>
 			FormEntry in-webapp, using HTML forms
 	</description>
 
-	<activator>@MODULE_PACKAGE@.HtmlFormEntryActivator</activator>
+	<activator>org.openmrs.module.htmlformentry.HtmlFormEntryActivator</activator>
 	
 	<updateURL>https://dev.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL>
 	<!-- /Base Module Properties -->
 	
-	<require_version>1.5.0.8979</require_version>
+	<require_version>1.6.0.11652</require_version>
 	
 	<!-- Extensions -->
 	<extension>
 		<point>org.openmrs.admin.list</point>
-		<class>@MODULE_PACKAGE@.extension.html.AdminList</class>
+		<class>org.openmrs.module.htmlformentry.extension.html.AdminList</class>
 	</extension>
 	<extension>
 		<point>org.openmrs.module.web.extension.FormEntryHandler</point>
@@ -59,7 +59,7 @@
 	<dwr>
 		<allow>
 			<create creator="new" javascript="DWRHtmlFormEntryService">
-				<param name="class" value="org.openmrs.module.@MODULE_ID@.web.DWRHtmlFormEntryService"/>
+				<param name="class" value="org.openmrs.module.htmlformentry.web.DWRHtmlFormEntryService"/>
 				<include method="checkIfLoggedIn"/>
 				<include method="authenticate"/>
 			</create>
@@ -67,7 +67,7 @@
 
 		<signatures>
 			<![CDATA[
-				import @MODULE_PACKAGE@.web.DWRHtmlFormEntryService;
+				import org.openmrs.module.htmlformentry.web.DWRHtmlFormEntryService;
 				DWRHtmlFormEntryService.checkIfLoggedIn();
 				DWRHtmlFormEntryService.authenticate(String user, String pass);
 			]]>

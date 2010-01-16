@@ -497,7 +497,7 @@ public class FormEntrySession {
      * @return
      */
     public String getReturnUrlWithParameters() {
-        if (returnUrl == null)
+        if (!StringUtils.hasText(returnUrl))
             return null;
         String ret = returnUrl;
         if (!ret.contains("?"))
