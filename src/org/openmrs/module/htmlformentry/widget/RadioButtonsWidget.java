@@ -27,11 +27,10 @@ public class RadioButtonsWidget extends SingleOptionWidget {
                     "".equals(opt.getValue()) :
                     getInitialValue().equals(opt.getValue());
                 if (selected) {
-                    sb.append(WidgetFactory.displayValue("[X]"));
+                    sb.append(WidgetFactory.displayValue("[X]&nbsp;" + opt.getLabel() + "&nbsp;"));
                 } else {
-                    sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]"));
+                    sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]&nbsp;" + opt.getLabel()));
                 }
-                sb.append(opt.getLabel()).append("&nbsp;");
             }
         } else {
             for (int i = 0; i < getOptions().size(); ++i) {

@@ -47,10 +47,14 @@ public class CheckboxWidget implements Widget {
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
         if (context.getMode() == Mode.VIEW) {
-            if (initialValue != null)
-                sb.append(WidgetFactory.displayValue("[X]"));
-            else
-                sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]"));
+            String labelString = "";
+            if  (label != null)
+                labelString = "&nbsp;" + label;
+            if (initialValue != null) {
+                sb.append(WidgetFactory.displayValue("[X]" + labelString));
+            } else {
+                sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]" + labelString));
+            }    
         } else {
             sb.append("<input type=\"hidden\" name=\"_").append(context.getFieldName(this)).append("\"/>");
             sb.append("<input type=\"checkbox\" name=\"").append(context.getFieldName(this)).append("\" value=\"").append(
@@ -58,9 +62,9 @@ public class CheckboxWidget implements Widget {
             if (initialValue != null && !"".equals(initialValue))
                 sb.append(" checked=\"true\"");
             sb.append("/>");
+            if (label != null)
+                sb.append(label);
         }
-        if (label != null)
-            sb.append(label);
         return sb.toString();
     }
 
