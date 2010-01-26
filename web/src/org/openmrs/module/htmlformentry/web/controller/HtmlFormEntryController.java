@@ -3,7 +3,6 @@ package org.openmrs.module.htmlformentry.web.controller;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

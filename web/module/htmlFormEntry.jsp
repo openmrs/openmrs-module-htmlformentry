@@ -76,6 +76,7 @@
 		</c:if>
 		<div style="float: left">
 			<a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:back();</c:otherwise></c:choose>">${backMessage}</a>
+			| <a href= "javascript:window.print();"><spring:message code="htmlformentry.print"/></a><br/>
 		</div>
 		<div style="float:right">
 			<c:if test="${command.context.mode == 'VIEW'}">
