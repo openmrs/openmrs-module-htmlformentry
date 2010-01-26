@@ -24,14 +24,13 @@ public class RadioButtonsWidget extends SingleOptionWidget {
         if (context.getMode() == Mode.VIEW) {
             for (Option opt : getOptions()) {
                 boolean selected = getInitialValue() == null ?
-                    "".equals(opt.getValue()) :
-                    getInitialValue().equals(opt.getValue());
-                if (selected) {
-                    sb.append(WidgetFactory.displayValue("[X]"));
-                } else {
-                    sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]"));
-                }
-                sb.append(opt.getLabel()).append("&nbsp;");
+                        "".equals(opt.getValue()) :
+                        getInitialValue().equals(opt.getValue());
+                    if (selected) {
+                        sb.append(WidgetFactory.displayValue("[X]&nbsp;" + opt.getLabel() + "&nbsp;"));
+                    } else {
+                        sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]&nbsp;" + opt.getLabel()));
+                    }
             }
         } else {
             for (int i = 0; i < getOptions().size(); ++i) {
