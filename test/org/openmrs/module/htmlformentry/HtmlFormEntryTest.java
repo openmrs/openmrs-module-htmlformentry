@@ -40,6 +40,7 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
     
     protected static final String XML_DATASET_PACKAGE_PATH2 = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data2.xml";
     protected static final String HTML_FORM_PATH = "test/org/openmrs/module/htmlformentry/include/htmlForm.xml";
+    protected static final String HTML_FORM2_PATH = "test/org/openmrs/module/htmlformentry/include/htmlForm2.xml";
     
     @Before
     public void setupDatabase() throws Exception {
@@ -192,6 +193,21 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
     @Test
     public void testGenerateHtmlFormFromXml() throws Exception {
         BufferedReader r = new BufferedReader(new FileReader(HTML_FORM_PATH));
+        StringBuilder sb = new StringBuilder();
+        while (true) {
+            String line = r.readLine();
+            if (line == null)
+                break;
+            sb.append(line).append("\n");
+        }
+        
+        FormEntrySession session = new FormEntrySession(new Patient(2), sb.toString());
+        System.out.println("html = " + session.getHtmlToDisplay());
+    }
+    
+    @Test
+    public void testGenerateAnotherHtmlFormFromXml() throws Exception {
+        BufferedReader r = new BufferedReader(new FileReader(HTML_FORM2_PATH));
         StringBuilder sb = new StringBuilder();
         while (true) {
             String line = r.readLine();

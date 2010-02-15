@@ -28,8 +28,17 @@
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/spring-test.jar" sourcepath="/openmrs-source/spring-framework-2.5.6.SEC02-src.zip"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/spring-webmvc.jar" sourcepath="/openmrs-source/spring-webmvc-sources.zip"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/velocity/velocity-1.6-beta1.jar" sourcepath="/openmrs-source/velocity-1.6-beta1.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/simple/simple-xml-1.6.1-mod.jar" sourcepath="/Simple-xml-stream-clean/src"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/liquibase/liquibase-1.9.4-mod.jar" sourcepath="/liquibase-19x"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/tomcat/jsp-api.jar" sourcepath="/openmrs-source/apache-tomcat-5.5.20-src.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/jstl/jstl-1.1.jar" sourcepath="/openmrs-source/apache-tomcat-5.5.20-src.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/dwr/dwr-205.jar" sourcepath="/openmrs-source/dwr-2.0.5-src.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/jakarta-taglibs/taglibs-standard-1.1.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/xerces/xercesImpl.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/slf4j/slf4j-api-1.5.6.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/slf4j/slf4j-log4j12-1.5.6.jar"/>
 	<classpathentry kind="lib" path="lib-common/openmrs-api-1.6.0.11682-dev.jar" sourcepath="/openmrs-1.6.x"/>
-	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.0.11682-dev.jar"/>
+	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.0.11682-dev.jar" sourcepath="/openmrs-1.6.x"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.0.11682-dev.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/tomcat/servlet-api.jar" sourcepath="/openmrs-source/apache-tomcat-5.5.20-src.zip"/>
 	<classpathentry kind="output" path="build"/>

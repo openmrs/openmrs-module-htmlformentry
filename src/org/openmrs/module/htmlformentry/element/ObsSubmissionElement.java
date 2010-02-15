@@ -39,6 +39,8 @@ import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 /**
  *
  */
@@ -54,7 +56,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
     private ErrorWidget errorWidget;
     private boolean allowFutureDates = false;
     private Concept answerConcept;
-    private List<Concept> answers = new ArrayList<Concept>();
+    private List<Concept> conceptAnswers = new ArrayList<Concept>();
+    private List<Number> numericAnswers = new ArrayList<Number>();
+    private List<String> textAnswers = new ArrayList<String>();
     private List<String> answerLabels = new ArrayList<String>();
     private String answerLabel;
     private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
@@ -110,34 +114,114 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
         } else {
             valueLabel = "";
         }
+        if (parameters.get("answerLabels") != null) {
+            answerLabels = Arrays.asList(parameters.get("answerLabels").split(","));
+        }
+        if (parameters.get("answerCodes") != null) {
+        	String[] split = parameters.get("answerCodes").split(",");
+        	for (String s : split) {
+        		answerLabels.add(context.getTranslator().translate(userLocaleStr, s));
+        	}
+        }
         if (concept.getDatatype().isNumeric()) {
+        	if (parameters.get("answers") != null) {
+                try {
+                    for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ", "); st.hasMoreTokens(); ) {
+                        Number answer = Double.valueOf(st.nextToken());
+                        numericAnswers.add(answer);
+                    }
+                } catch (Exception ex) {
+                    throw new RuntimeException("Error in answer list for concept " + concept.getConceptId() + " (" + ex.toString() + "): " + conceptAnswers);
+                }
+            }
             ConceptNumeric cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
-            valueWidget = new NumberFieldWidget(cn);
+            if (numericAnswers.size() == 0) {
+            	valueWidget = new NumberFieldWidget(cn);
+            } else {
+            	if ("radio".equals(parameters.get("style"))) {
+            		valueWidget = new RadioButtonsWidget();
+            	} else { // dropdown
+            		valueWidget = new DropdownWidget();
+            		((DropdownWidget) valueWidget).addOption(new Option());
+            	}
+            	// need to make sure we have the initialValue too
+            	Number lookFor = existingObs == null ? null : existingObs.getValueNumeric();
+            	for (int i = 0; i < numericAnswers.size(); ++i) {
+                	Number n = numericAnswers.get(i);
+                	if (lookFor != null && lookFor.equals(n))
+                		lookFor = null;
+                	String label = null;
+                    if (answerLabels != null && i < answerLabels.size()) {
+                        label = answerLabels.get(i);
+                    } else {
+                        label = n.toString();
+                    }
+                    ((SingleOptionWidget) valueWidget).addOption(new Option(label, n.toString(), false));
+            	}
+            	// if lookFor is still non-null, we need to add it directly as an option:
+            	if (lookFor != null)
+            		((SingleOptionWidget) valueWidget).addOption(new Option(lookFor.toString(), lookFor.toString(), true));
+            }
             if (existingObs != null) {
                 valueWidget.setInitialValue(existingObs.getValueNumeric());
             }
         } else if (concept.getDatatype().isText()) {
+        	if (parameters.get("answers") != null) {
+                try {
+                    for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ","); st.hasMoreTokens(); ) {
+                        textAnswers.add(st.nextToken());
+                    }
+                } catch (Exception ex) {
+                    throw new RuntimeException("Error in answer list for concept " + concept.getConceptId() + " (" + ex.toString() + "): " + conceptAnswers);
+                }
+            }
         	if ("location".equals(parameters.get("style"))) {
         		valueWidget = new LocationWidget();
         	}
         	else {
-	            Integer rows = null;
-	            Integer cols = null;
-	            try {
-	                rows = Integer.valueOf(parameters.get("rows"));
-	            } catch (Exception ex) { }
-	            try {
-	                cols = Integer.valueOf(parameters.get("cols"));
-	            } catch (Exception ex) { }
-	            if (rows != null || cols != null || "textarea".equals(parameters.get("style"))) {
-	                valueWidget = new TextFieldWidget(rows, cols);
-	            } else {
-	                Integer size = null;
-	                try {
-	                    size = Integer.valueOf(parameters.get("size"));
-	                } catch (Exception ex) { }
-	                valueWidget = new TextFieldWidget(size);
-	            }
+        		if (textAnswers.size() == 0) {
+		            Integer rows = null;
+		            Integer cols = null;
+		            try {
+		                rows = Integer.valueOf(parameters.get("rows"));
+		            } catch (Exception ex) { }
+		            try {
+		                cols = Integer.valueOf(parameters.get("cols"));
+		            } catch (Exception ex) { }
+		            if (rows != null || cols != null || "textarea".equals(parameters.get("style"))) {
+		                valueWidget = new TextFieldWidget(rows, cols);
+		            } else {
+		                Integer size = null;
+		                try {
+		                    size = Integer.valueOf(parameters.get("size"));
+		                } catch (Exception ex) { }
+		                valueWidget = new TextFieldWidget(size);
+		            }
+        		} else {
+        			if ("radio".equals(parameters.get("style"))) {
+        				valueWidget = new RadioButtonsWidget();
+                    } else { // dropdown
+                    	valueWidget = new DropdownWidget();
+                    	((DropdownWidget) valueWidget).addOption(new Option());
+                    }
+                    // need to make sure we have the initialValue too
+                    String lookFor = existingObs == null ? null : existingObs.getValueText();
+                    for (int i = 0; i < textAnswers.size(); ++i) {
+                       	String s = textAnswers.get(i);
+                       	if (lookFor != null && lookFor.equals(s))
+                       		lookFor = null;
+                       	String label = null;
+                        if (answerLabels != null && i < answerLabels.size()) {
+                            label = answerLabels.get(i);
+                        } else {
+                            label = s;
+                        }
+                        ((SingleOptionWidget) valueWidget).addOption(new Option(label, s, false));
+                    }
+                    // if lookFor is still non-null, we need to add it directly as an option:
+                    if (lookFor != null)
+                    	((SingleOptionWidget) valueWidget).addOption(new Option(lookFor, lookFor, true));
+        		}
         	}
             if (existingObs != null) {
                 Object value;
@@ -156,10 +240,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                         Concept c = Context.getConceptService().getConcept(conceptId);
                         if (c == null)
                             throw new RuntimeException("Cannot find concept " + conceptId);
-                        answers.add(c);
+                        conceptAnswers.add(c);
                     }
                 } catch (Exception ex) {
-                    throw new RuntimeException("Error in answer list for concept " + concept.getConceptId() + " (" + ex.toString() + "): " + answers);
+                    throw new RuntimeException("Error in answer list for concept " + concept.getConceptId() + " (" + ex.toString() + "): " + conceptAnswers);
                 }
             }
             else if (parameters.get("answerClasses") != null) {
@@ -170,21 +254,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                         if (cc == null) {
                             throw new RuntimeException("Cannot find concept class " + className);
                         }
-                    	answers.addAll(Context.getConceptService().getConceptsByClass(cc));
+                    	conceptAnswers.addAll(Context.getConceptService().getConceptsByClass(cc));
                     }
-                    Collections.sort(answers, conceptNameComparator);
+                    Collections.sort(conceptAnswers, conceptNameComparator);
                 } catch (Exception ex) {
-                    throw new RuntimeException("Error in answer class list for concept " + concept.getConceptId() + " (" + ex.toString() + "): " + answers);
+                    throw new RuntimeException("Error in answer class list for concept " + concept.getConceptId() + " (" + ex.toString() + "): " + conceptAnswers);
                 }
-            }
-            if (parameters.get("answerLabels") != null) {
-                answerLabels = Arrays.asList(parameters.get("answerLabels").split(","));
-            }
-            if (parameters.get("answerCodes") != null) {
-            	String[] split = parameters.get("answerCodes").split(",");
-            	for (String s : split) {
-            		answerLabels.add(context.getTranslator().translate(userLocaleStr, s));
-            	}
             }
             
             if (answerConcept != null) {
@@ -207,13 +282,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 // if this is a select-multi, we need a group of checkboxes
                 throw new RuntimeException("Multi-select coded questions are not yet implemented");
             } else {
-            	// If no answers are specified, use all available answers
-            	if (answers == null || answers.isEmpty()) {
-            		answers = new ArrayList<Concept>();
+            	// If no conceptAnswers are specified, use all available conceptAnswers
+            	if (conceptAnswers == null || conceptAnswers.isEmpty()) {
+            		conceptAnswers = new ArrayList<Concept>();
                     for (ConceptAnswer ca : concept.getAnswers(false)) {
-                    	answers.add(ca.getAnswerConcept());
+                    	conceptAnswers.add(ca.getAnswerConcept());
                     }
-                    Collections.sort(answers, conceptNameComparator);
+                    Collections.sort(conceptAnswers, conceptNameComparator);
             	}
             	
             	// Show Radio Buttons if specified, otherwise default to Drop Down
@@ -225,8 +300,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             		valueWidget = new DropdownWidget();
             		((DropdownWidget) valueWidget).addOption(new Option());
             	}
-                for (int i = 0; i < answers.size(); ++i) {
-                	Concept c = answers.get(i);
+                for (int i = 0; i < conceptAnswers.size(); ++i) {
+                	Concept c = conceptAnswers.get(i);
                 	String label = null;
                     if (answerLabels != null && i < answerLabels.size()) {
                         label = answerLabels.get(i);
@@ -321,8 +396,6 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             }
         }
         
-        
-        
         ObsField field = new ObsField();
         field.setName(valueLabel);
         field.setQuestion(concept);
@@ -332,10 +405,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
         	ans.setConcept(answerConcept);
         	field.setAnswers(Arrays.asList(ans));
         }
-        else if (answers != null) {
-        	for (int i=0; i<answers.size(); i++) {
+        else if (conceptAnswers != null) {
+        	for (int i=0; i<conceptAnswers.size(); i++) {
         		ObsFieldAnswer ans = new ObsFieldAnswer();
-        		ans.setConcept(answers.get(i));
+        		ans.setConcept(conceptAnswers.get(i));
         		if (i < answerLabels.size()) {
         			ans.setDisplayName(answerLabels.get(i));
         		}
@@ -451,9 +524,23 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	/**
 	 * @return the conceptAnswers
 	 */
-	public List<Concept> getAnswers() {
-		return answers;
+	public List<Concept> getConceptAnswers() {
+		return conceptAnswers;
 	}
+	
+    /**
+     * @return the numericAnswers
+     */
+    public List<Number> getNumericAnswers() {
+    	return numericAnswers;
+    }
+
+    /**
+     * @return the textAnswers
+     */
+    public List<String> getTextAnswers() {
+    	return textAnswers;
+    }
 
 	/**
 	 * @return the answerLabels

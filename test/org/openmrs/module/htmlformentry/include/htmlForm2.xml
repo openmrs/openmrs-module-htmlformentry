@@ -1,0 +1,29 @@
+<htmlform>
+	<macros>
+		bgcolor=#e0e0e0
+	</macros>
+
+	This is a form
+
+	<table>
+		<tr>
+			<td style="background-color: $bgcolor">
+				This is the left column.
+			</td>
+			<td>
+				<obsgroup groupingConceptId="3">
+					<!-- CD4 -->
+					<obs conceptId="1" labelNameTag="default" showDate="true" dateLabel="Date:"/>
+
+					<!-- Weight -->
+					<obs conceptId="2" labelNameTag="default" answers="1,2,3"/>
+				</obsgroup>
+			</td>
+		</tr>
+	</table>
+	
+	<p/> Encounter info <br/>
+	Date: <encounterDate/> <br/>
+	Location: <encounterLocation/> <br/>
+	Provider: <encounterProvider/> <br/>
+</htmlform>

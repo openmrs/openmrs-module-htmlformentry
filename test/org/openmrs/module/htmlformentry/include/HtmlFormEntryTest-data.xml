@@ -2,7 +2,7 @@
 <dataset>
   <!-- A patient -->
   <patient patient_id="2" creator="1" date_created="2005-09-22 00:00:00.0" changed_by="1" date_changed="2008-08-18 12:29:59.0" voided="false" void_reason=""/>
-  <patient_identifier patient_id="2" identifier="101" identifier_type="2" preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  <patient_identifier patient_identifier_id="1" patient_id="2" identifier="101" identifier_type="2" preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
   <patient_identifier_type patient_identifier_type_id="2" name="Old Identification Number" description="Number given out prior to the OpenMRS system (No check digit)" format="" check_digit="false" creator="1" date_created="2005-09-22 00:00:00.0" required="false" retired="false"/>
   <person person_id="2" gender="M" dead="false" creator="1" date_created="2005-09-22 00:00:00.0" voided="false"/>
   <person_address person_address_id="2" person_id="2" preferred="false" address1="1050 Wishard Blvd." address2="RG5" city_village="Indianapolis" state_province="IN" postal_code="46202" country="USA" latitude="" longitude="" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
@@ -29,8 +29,8 @@
   <concept_name voided="false" concept_name_id="5" concept_id="4" name="DOSAGE CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept_name voided="false" concept_name_id="6" concept_id="5" name="DOSE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept_name voided="false" concept_name_id="7" concept_id="6" name="UNIT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
-  <concept_set concept_id="5" concept_set="4" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
-  <concept_set concept_id="6" concept_set="4" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="1" concept_id="5" concept_set="4" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="2" concept_id="6" concept_set="4" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
   
   <!-- And put ALLERGY and ALLERGY DATE in a set -->
   <concept concept_id="7" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4"/>
@@ -39,14 +39,14 @@
   <concept_name voided="false" concept_name_id="8" concept_id="7" name="ALLERGY CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept_name voided="false" concept_name_id="9" concept_id="8" name="ALLERGY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept_name voided="false" concept_name_id="10" concept_id="9" name="ALLERGY DATE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
-  <concept_set concept_id="8" concept_set="7" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
-  <concept_set concept_id="9" concept_set="7" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3" concept_id="8" concept_set="7" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="4" concept_id="9" concept_set="7" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
   
   <!-- A person with only a patient attached -->
   <person person_id="2" dead="false" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" gender="M" />
   <person_name person_id="2" person_name_id="2" preferred="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" given_name="John" middle_name=" " family_name="Doe" />
   <patient patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
-  <patient_identifier patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="1234" identifier_type="1" preferred="1" voided="false" location_id="1" />
+  <patient_identifier patient_identifier_id="2" patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="1234" identifier_type="1" preferred="1" voided="false" location_id="1" />
   <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" check_digit="false" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
   
   <!-- Required metadata -->
@@ -79,7 +79,7 @@
   <form_field form_field_id="1" form_id="1" field_id="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="100"/>
   <form_field form_field_id="2" form_id="1" field_id="2" parent_form_field="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="200"/>
   <form_field form_field_id="3" form_id="1" field_id="3" parent_form_field="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="300"/>
-  <form_field form_field_id="4" form_id="1" field_id="4" field_number="1" field_part="a" page_number="1" parent_form_field="3" min_occurs="" max_occurs="" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="400"/>
+  <form_field form_field_id="4" form_id="1" field_id="4" field_number="1" field_part="a" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="400"/>
   <form_field form_field_id="6" form_id="1" field_id="6" field_number="1" field_part="c" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="600"/>
   <form_field form_field_id="7" form_id="1" field_id="7" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700" min_occurs="0" max_occurs="10"/>
   <form_field form_field_id="8" form_id="1" field_id="8" parent_form_field="7" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
