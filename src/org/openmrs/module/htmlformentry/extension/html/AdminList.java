@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.openmrs.module.Extension;
 import org.openmrs.module.web.extension.AdministrationSectionExt;
+import org.openmrs.util.OpenmrsConstants;
 
 /**
  * This class defines the links that will appear on the administration page
@@ -54,5 +55,13 @@ public class AdminList extends AdministrationSectionExt {
 		
 		return map;
 	}
+
+	/**
+     * @see org.openmrs.module.web.extension.AdministrationSectionExt#getRequiredPrivilege()
+     */
+    @Override
+    public String getRequiredPrivilege() {
+	    return OpenmrsConstants.PRIV_MANAGE_FORMS;
+    }
 	
 }
