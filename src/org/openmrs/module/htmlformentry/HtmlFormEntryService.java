@@ -48,7 +48,7 @@ public interface HtmlFormEntryService extends OpenmrsService {
      * @param tagName
      * @return
      */
-    @Transactional
+    @Transactional(readOnly=true)
     public TagHandler getHandlerByTagName(String tagName);
     
     /**
@@ -57,7 +57,7 @@ public interface HtmlFormEntryService extends OpenmrsService {
      * 
      * @return 
      */
-    @Transactional
+    @Transactional(readOnly=true)
     public Map<String, TagHandler> getHandlers();
 
 }
