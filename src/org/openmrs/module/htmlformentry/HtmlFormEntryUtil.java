@@ -252,4 +252,21 @@ public class HtmlFormEntryUtil {
         return demo;
     }
 
+	public static Date combineDateAndTime(Date date, Date time) {
+		if (date == null)
+			return null;
+	    Calendar cal = Calendar.getInstance();
+	    
+	    cal.setTime(date);
+	    if (time != null) {	    	
+	    	Calendar temp = Calendar.getInstance();
+	    	temp.setTime(time);
+	    	cal.set(Calendar.HOUR_OF_DAY, temp.get(Calendar.HOUR_OF_DAY));
+	    	cal.set(Calendar.MINUTE, temp.get(Calendar.MINUTE));
+	    	cal.set(Calendar.SECOND, temp.get(Calendar.SECOND));
+	    	cal.set(Calendar.MILLISECOND, temp.get(Calendar.MILLISECOND));
+	    }
+	    return cal.getTime();
+    }
+    
 }
