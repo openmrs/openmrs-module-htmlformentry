@@ -17,6 +17,7 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptNumeric;
+import org.openmrs.ConceptDatatype;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -36,10 +37,9 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
+import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
-
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 /**
  *
@@ -363,9 +363,25 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 throw new RuntimeException("Boolean with style = " + parameters.get("style") + " not yet implemented (concept = " + concept.getConceptId() + ")");
             }
         } else if (concept.getDatatype().isDate()) {
-            valueWidget = new DateWidget();
-            if (existingObs != null)
-                valueWidget.setInitialValue(existingObs.getValueDatetime());
+        	// if it's a Date type
+        	if(ConceptDatatype.DATE.equals(concept.getDatatype().getHl7Abbreviation())){
+        		valueWidget = new DateWidget();
+        		if (existingObs != null)
+        			valueWidget.setInitialValue(existingObs.getValueDatetime());
+        	}
+        	// if it's a Time type
+        	else if(ConceptDatatype.TIME.equals(concept.getDatatype().getHl7Abbreviation())){
+        		valueWidget = new TimeWidget();
+        		if (existingObs != null)
+        			valueWidget.setInitialValue(existingObs.getValueDatetime());
+        	}
+        	// if it's a Date Time type, just do a date widget for now
+        	// TODO: create DateTime widget
+        	else if(ConceptDatatype.DATETIME.equals(concept.getDatatype().getHl7Abbreviation())){
+        		valueWidget = new DateWidget();
+        		if (existingObs != null)
+        			valueWidget.setInitialValue(existingObs.getValueDatetime());
+        	}
         } else {
             throw new RuntimeException("Cannot handle datatype: " + concept.getDatatype().getName() + " (for concept " + concept.getConceptId() + ")");
         }
