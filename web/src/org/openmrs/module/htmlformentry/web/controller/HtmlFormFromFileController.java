@@ -56,7 +56,7 @@ public class HtmlFormFromFileController extends SimpleFormController {
         			
         			BufferedReader in =
         			   new BufferedReader(
-        			       new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
+        			       new InputStreamReader(new FileInputStream(f), "UTF-8"));
         			       				
         			String line;
         			
