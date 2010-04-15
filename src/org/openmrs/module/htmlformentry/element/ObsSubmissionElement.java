@@ -453,8 +453,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 				if (existingObs != null)
 					valueWidget.setInitialValue(existingObs.getValueDatetime());
 			}
-			// if it's a Date Time type, just do a date widget for now
-			// TODO: create DateTime widget
+			// if it's a Date Time type
 			else if (ConceptDatatype.DATETIME.equals(concept.getDatatype()
 					.getHl7Abbreviation())) {
 				DateWidget dateWidget = new DateWidget();

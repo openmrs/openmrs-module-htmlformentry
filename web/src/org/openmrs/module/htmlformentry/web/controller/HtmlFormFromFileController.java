@@ -1,6 +1,11 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,9 +50,24 @@ public class HtmlFormFromFileController extends SimpleFormController {
         	ret.put("filePath", filePath);
         	try {
         		File f = new File(filePath);
-        		if (f != null && f.exists()) {
-        			String xml = OpenmrsUtil.getFileAsString(f);
-                    Patient p = null;
+        		if (f != null && f.exists() && f.canRead()) {
+        			
+        			StringBuffer sb = new StringBuffer(1000); 
+        			
+        			BufferedReader in =
+        			   new BufferedReader(
+        			       new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
+        			       				
+        			String line;
+        			
+        			while ((line = in.readLine()) != null)
+        				sb.append(line);
+        			
+        			in.close();
+        			
+        			String xml = sb.toString();
+                    
+        			Patient p = null;
                     String pId = request.getParameter("patientId");
                     if (StringUtils.hasText(pId)) {
                     	p = Context.getPatientService().getPatient(Integer.parseInt(pId));
