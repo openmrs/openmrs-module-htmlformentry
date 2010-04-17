@@ -89,16 +89,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 			} else {
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
-					User defaultProvider = null;
+					Person defaultProvider = null;
 					if ("currentuser".equalsIgnoreCase(defParam)) {
-						defaultProvider = Context.getAuthenticatedUser();
+						defaultProvider = Context.getAuthenticatedUser().getPerson();
 					} else {
 						defaultProvider = Context.getUserService()
-								.getUserByUsername(defParam);
+								.getUserByUsername(defParam).getPerson();
 						if (defaultProvider == null) {
 							try {
-								defaultProvider = Context.getUserService()
-										.getUser(Integer.parseInt(defParam));
+								defaultProvider = Context.getPersonService()
+										.getPerson(Integer.parseInt(defParam));
 							} catch (NumberFormatException ex) {
 							}
 						}
