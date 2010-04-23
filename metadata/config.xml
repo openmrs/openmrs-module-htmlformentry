@@ -9,7 +9,7 @@
 	
 	<revision>
 		<prefix>1.6.3</prefix>
-		<number>$Rev:</number>
+		<number>$Rev$</number>
 	</revision>
 
 	<package>org.openmrs.module.htmlformentry</package>

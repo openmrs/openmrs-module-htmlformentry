@@ -29,10 +29,10 @@
 		
 		<xmlproperty file="metadata/config.xml" />
 
-		<!-- strip "$Rev " prefix out of the revision number -->
+		<!-- strip "$Rev $" out of the revision number -->
 		<propertyregex property="module.revision.number" 
 			input="${module.revision.number}"
-			regexp="\$Rev: " replace="" override="true"/>
+			regexp="\$Rev: (.*) \$" replace="\1" override="true"/>
 		
 		<filterset id="variables.to.replace">
 			<filter token="MODULE_ID" value="${module.id}" />
