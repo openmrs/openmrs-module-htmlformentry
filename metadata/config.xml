@@ -4,7 +4,14 @@
 	<!-- Base Module Properties -->
 	<id>htmlformentry</id>
 	<name>HTML Form Entry</name>
-	<version>1.6.3</version>
+
+	<version>@MODULE_VERSION@</version>
+	
+	<revision>
+		<prefix>1.6.3</prefix>
+		<number>$Rev:</number>
+	</revision>
+
 	<package>org.openmrs.module.htmlformentry</package>
 	<author>Darius Jazayeri</author>
 	<description>
