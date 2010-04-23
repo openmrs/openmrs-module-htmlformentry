@@ -438,34 +438,36 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 						+ " not yet implemented (concept = "
 						+ concept.getConceptId() + ")");
 			}
-		} else if (concept.getDatatype().isDate()) {
-			// if it's a Date type
-			if (ConceptDatatype.DATE.equals(concept.getDatatype()
-					.getHl7Abbreviation())) {
-				valueWidget = new DateWidget();
-				if (existingObs != null)
-					valueWidget.setInitialValue(existingObs.getValueDatetime());
-			}
-			// if it's a Time type
-			else if (ConceptDatatype.TIME.equals(concept.getDatatype()
-					.getHl7Abbreviation())) {
-				valueWidget = new TimeWidget();
-				if (existingObs != null)
-					valueWidget.setInitialValue(existingObs.getValueDatetime());
-			}
-			// if it's a Date Time type
-			else if (ConceptDatatype.DATETIME.equals(concept.getDatatype()
-					.getHl7Abbreviation())) {
-				DateWidget dateWidget = new DateWidget();
-				TimeWidget timeWidget = new TimeWidget();
+		
+		// TODO: in 1.7-compatible version of the module, we can replace the H17 checks
+		// used below with the new isDate, isTime, and isDatetime
+		
+		// if it's a Date type
+		} else if (ConceptDatatype.DATE.equals(concept.getDatatype()
+				.getHl7Abbreviation())) {
+			valueWidget = new DateWidget();
+			if (existingObs != null)
+				valueWidget.setInitialValue(existingObs.getValueDatetime());
+		}
+		// if it's a Time type
+		else if (ConceptDatatype.TIME.equals(concept.getDatatype()
+				.getHl7Abbreviation())) {
+			valueWidget = new TimeWidget();
+			if (existingObs != null)
+				valueWidget.setInitialValue(existingObs.getValueDatetime());
+		}
+		// if it's a Date Time type
+		else if (ConceptDatatype.DATETIME.equals(concept.getDatatype()
+				.getHl7Abbreviation())) {
+			DateWidget dateWidget = new DateWidget();
+			TimeWidget timeWidget = new TimeWidget();
 				
-				valueWidget = new DateTimeWidget(dateWidget,timeWidget);
-				if (existingObs != null)
-					valueWidget.setInitialValue(existingObs.getValueDatetime());
+			valueWidget = new DateTimeWidget(dateWidget,timeWidget);
+			if (existingObs != null)
+				valueWidget.setInitialValue(existingObs.getValueDatetime());
 				
-				context.registerWidget(dateWidget);
-				context.registerWidget(timeWidget);
-			}
+			context.registerWidget(dateWidget);
+			context.registerWidget(timeWidget);
 		} else {
 			throw new RuntimeException("Cannot handle datatype: "
 					+ concept.getDatatype().getName() + " (for concept "
