@@ -16,7 +16,7 @@
 	<!-- *********************************************************** -->
 	<!-- **                     TARGETS                           ** -->
 	<!-- *********************************************************** -->
-	<target name="init" description="initialization">
+	<target name="init" depends="clean" description="initialization">
 		<xmlcatalog id="common-dtds">
 	        <dtd 
 	            publicId="-//OpenMRS//DTD OpenMRS Config 1.1//EN"
@@ -28,7 +28,7 @@
 		</xmlproperty>
 		
 		<xmlproperty file="metadata/config.xml" />
-
+		
 		<!-- strip "$Rev $" out of the revision number -->
 		<propertyregex property="module.revision.number" 
 			input="${module.revision.number}"
@@ -46,12 +46,6 @@
 				<include name="**/*.jar"/>
 			</fileset>
 			<fileset dir="lib-common">
-				<include name="**/*.jar"/>
-			</fileset>
-			<fileset dir="../openmrs-1.6.x/lib">
-				<include name="**/*.jar"/>
-			</fileset>
-			<fileset dir="../openmrs-1.6.x/dist">
 				<include name="**/*.jar"/>
 			</fileset>
 		</path>

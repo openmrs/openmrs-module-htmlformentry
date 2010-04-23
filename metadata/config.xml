@@ -6,7 +6,6 @@
 	<name>HTML Form Entry</name>
 
 	<version>@MODULE_VERSION@</version>
-	
 	<revision>
 		<prefix>1.6.3</prefix>
 		<number>$Rev$</number>
