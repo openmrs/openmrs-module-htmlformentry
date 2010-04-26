@@ -7,7 +7,7 @@
 
 	<version>@MODULE_VERSION@</version>
 	<revision>
-		<prefix>1.6.3</prefix>
+		<prefix>1.6.3.1</prefix>
 		<number>$Rev$</number>
 	</revision>
 
