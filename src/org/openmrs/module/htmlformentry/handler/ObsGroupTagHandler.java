@@ -52,8 +52,9 @@ public class ObsGroupTagHandler implements TagHandler {
     }
 
     private Obs findObsGroup(FormEntrySession session, Node parent, Node node) {
+    	Concept groupingConcept = Context.getConceptService().getConcept(Integer.valueOf(node.getAttributes().getNamedItem("groupingConceptId").getNodeValue()));
         List<ObsGroupComponent> questionsAndAnswers = findQuestionsAndAnswersForGroup(node);
-        return session.getContext().findFirstMatchingObsGroup(questionsAndAnswers);
+        return session.getContext().findFirstMatchingObsGroup(groupingConcept,questionsAndAnswers);
     }
 
     private List<ObsGroupComponent> findQuestionsAndAnswersForGroup(Node node) {

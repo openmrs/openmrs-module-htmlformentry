@@ -248,8 +248,9 @@ public class FormEntryContext {
 
     
     /**
-     * Returns, and removes the first obs group that matches, i.e. all Obs in the group can
-     * also belong to questionsAndAnswers.
+     * Returns, and removes the first obs group that matches  
+     *  i.e. Concept of the parent Obs = groupConcept, and all Obs 
+     *  in the group also belong to questionsAndAnswers.
      * 
      * For example you might have a group capable of holding (per questionsAndAnswers):
      *      Symptom Absent = Cough
@@ -258,15 +259,17 @@ public class FormEntryContext {
      * and if we have an obs group containing a subset of those
      *      Symptom Present = Cough
      *      Symptom Duration = 5
-     * then we would return it.
+     *      
+     * then we would return it, assuming the the concept associated
+     * with the parent Obs = groupConcept
      * 
      * @param requiredQuestionsAndAnswers
      * @return
      */
-    public Obs findFirstMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers) {
+    public Obs findFirstMatchingObsGroup(Concept groupConcept, List<ObsGroupComponent> questionsAndAnswers) {
         for (Iterator<Obs> iter = existingObsInGroups.iterator(); iter.hasNext(); ) {
             Obs group = iter.next();
-            if (ObsGroupComponent.supports(questionsAndAnswers, group)) {
+            if (group.getConcept() == groupConcept && ObsGroupComponent.supports(questionsAndAnswers, group)) {
                 iter.remove();
                 return group;
             }
