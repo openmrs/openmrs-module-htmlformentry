@@ -10,15 +10,25 @@ import org.apache.commons.lang.WordUtils;
 import org.openmrs.api.context.Context;
 
 /**
- * Encapsulates Translator functionality
+ * Encapsulates Translator functionality (see {@see HtmlFormEntryGenerator#applyTranslations(String, FormEntryContext)})
  */
 public class Translator {
 
 	private String defaultLocaleStr = "en";
 	private Map<String, Map<String, String>> translations = new HashMap<String, Map<String, String>>();
 	
+	/**
+	 * Allowed formats for {@see translate(String, String, Format)}
+	 */
 	public static enum Format {
-		LOWERCASE, UPPERCASE, CAPITALIZE, CAPITALIZE_ALL
+		/** Set all characters to lower-case */
+		LOWERCASE, 
+		/** Set all characters to upper-case */
+		UPPERCASE, 
+		/** Capitalize the first word (set the first letter of the first word to upper-case */
+		CAPITALIZE, 
+		/** Capitalize all words (set first letter of each word to upper-case)*/
+		CAPITALIZE_ALL
 	}
 	
 	/**
@@ -27,6 +37,8 @@ public class Translator {
 	public Translator() {}
 
 	/**
+	 * Returns the translation mappings associated with this Translator
+	 * 
 	 * @return the translations
 	 */
 	public Map<String, Map<String, String>> getTranslations() {
@@ -34,6 +46,8 @@ public class Translator {
 	}
 
 	/**
+	 * Sets the translation mappings associated with this Translator
+	 * 
 	 * @param translations the translations to set
 	 */
 	public void setTranslations(Map<String, Map<String, String>> translations) {
@@ -41,6 +55,8 @@ public class Translator {
 	}
 	
 	/**
+	 * Return the default locale used by this Translator
+	 * 
 	 * @return the defaultLocaleStr
 	 */
 	public String getDefaultLocaleStr() {
@@ -48,6 +64,8 @@ public class Translator {
 	}
 
 	/**
+	 * Sets the default locale used by this Translator
+	 * 
 	 * @param defaultLocaleStr the defaultLocaleStr to set
 	 */
 	public void setDefaultLocaleStr(String defaultLocaleStr) {
@@ -55,10 +73,13 @@ public class Translator {
 	}
 
 	/**
-	 * Adds a translation for the given code and {@link String}
-	 * @param localeStr
-	 * @param code 
-	 * @param translation
+	 * Adds a translation for the given code and locale
+	 * <p>
+	 * (see {@see HtmlFormEntryGenerator#applyTranslations(String, FormEntryContext)})
+	 * 
+	 * @param localeStr the name of the locale that this translation is for
+	 * @param code the code that we are translating
+	 * @param translation the translation for the specified code for the specified locale
 	 */
 	public void addTranslation(String localeStr, String code, String translation) {
 		if (translations == null) {
@@ -76,8 +97,10 @@ public class Translator {
 	}
 	
 	/**
-	 * @param locale
-	 * @return
+	 * Gets the translation map associated with a particular locale
+	 * 
+	 * @param locale the name of the locale
+	 * @return the translation map for that locale
 	 */
 	public Map<String, String> getTranslations(String localeStr) {
 	
@@ -104,17 +127,21 @@ public class Translator {
 	}
 	
 	/**
-	 * @param locale
-	 * @return
+	 * Gets the translation map associated with a particular locale
+	 * 
+	 * @param locale the locale
+	 * @return the translation map for that locale
 	 */
 	public Map<String, String> getTranslations(Locale locale) {
 		return getTranslations(locale == null ? null : locale.toString());
 	}
 	
 	/**
-	 * @param localeStr
-	 * @param key
-	 * @return
+	 * Gets the translation for a specific code and locale
+	 * 
+	 * @param localeStr the name of the locale
+	 * @param key the code 
+	 * @return the translation associated with that code and locale
 	 */
 	public String translate(String localeStr, String key) {
 		Map<String, String> translations = getTranslations(localeStr);
@@ -126,10 +153,13 @@ public class Translator {
 	}
 	
 	/**
-	 * @param localeStr
-	 * @param key
-	 * @param format
-	 * @return
+	 * Gets the translation for a specific code and locale, returning the
+	 * translation in a specified format
+	 * 
+	 * @param localeStr the name of the locale
+	 * @param key the code 
+	 * @param format to return the translation in (see {@see Format})
+	 * @return the translation associated with that code and locale
 	 */
 	public String translate(String localeStr, String key, Format format) {
 		String text = translate(localeStr, key);

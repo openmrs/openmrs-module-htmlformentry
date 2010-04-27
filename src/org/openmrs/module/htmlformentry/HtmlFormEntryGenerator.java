@@ -17,34 +17,38 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This takes an <htmlform>...</htmlform> xml block and turns it into HTML to be displayed as a form in
- * a web browser. It can apply the <macros>...</macros> section, and replace tags like <obs/>
+ * Provides methods to take a {@code <htmlform>...</htmlform>} xml block and turns it into HTML to be displayed as a form in
+ * a web browser. It can apply the {@code <macros>...</macros>} section, and replace tags like {@code <obs/>}.
  * 
  */
 public class HtmlFormEntryGenerator implements TagHandler {
-   
-    
         
     /**
-     * Takes an XML string, finds the <macros></macros> section in it, and applies those substitutions
-     * 
+     * Takes an XML string, finds the {@code <macros></macros>} section in it, and applies those substitutions
+     * <p>
      * For example the following input:
-     * 
+     * <pre>
+     * {@code
      * <htmlform>
      *     <macros>
      *          count=1, 2, 3
      *     </macros>
      *     You can count like $count
      * </htmlform>
-     * 
+     * }
+     * </pre>
+     * <p>
      * Would produce the following output:
-     * 
+     * <pre>
+     * {@code
      * <htmlform>
      *     You can count like 1, 2, 3
      * </htmlform>
+     * }
+     * </pre>
      * 
-     * @param xml
-     * @return
+     * @param xml the xml string to process for macros
+     * @return the xml string with after macro substitution
      * @throws Exception 
      */
     public String applyMacros(String xml) throws Exception {
@@ -81,19 +85,23 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
     
     /**
-     * Takes an XML string, finds the <translations></translations> section in it, and applies those substitutions
+     * Takes an XML string, finds the {@code <translations></translations>} section in it, and applies those substitutions
      * 
+     * <pre>
+     * {@code
      * <htmlform>
      *     <translations defaultLocale="en">
      *       <code name="night_sweats">
      *         <variant locale="en" value="night sweats"/>
      *         <variant locale="fr" value="sueurs nocturnes"/>
-     *       </code>
+     * 		  </code>
      *     </translations>
      * </htmlform>
+     * }
+     * </pre>
      * 
-     * @param xml
-     * @return
+     * @param xml the xml string to process for translations
+     * @return the xml string after translation substitutions have been made
      * @throws Exception 
      */
     public String applyTranslations(String xml, FormEntryContext context) throws Exception {
@@ -140,8 +148,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
     
     /**
-     * Takes an XML string, finds each <repeat></repeat> section in it, and applies those substitutions
-     * 
+     * Takes an XML string, finds each {@code <repeat></repeat>} section in it, and applies those substitutions
+     * <p>
+     * <pre>
+     * {@code
      * <htmlform>
      *   <repeat>
      *     <template>
@@ -160,9 +170,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
      *     <render conceptId="2124" answerLabel="Traitement des enfants de &lt; ans: 2 HRZ/4 HR"/>
      *   </repeat>
      * </htmlform>
+     * }
+     * </pre>
      * 
-     * @param xml
-     * @return
+     * @param xml the xml string to process for repeat sections
+     * @return the xml string after repeat substitutions have been made
      * @throws Exception 
      */
     public String applyTemplates(String xml) throws Exception {
@@ -222,6 +234,16 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
     }
     
+    /** 
+     * Applies all the HTML Form Entry tags in a specific XML file 
+     * (excluding {@code <macro>, <translations>, and <repeat>)}, by calling the appropriate
+     * tag handler (see {@see org.openmrs.module.htmlformentry.handler}) for each tag
+     * <p>
+     * @param session the current form entry session context
+     * @param xml the xml string to process
+     * @return the xml string (which should now be html) after tag processing
+     * @throws Exception
+     */
     public String applyTags(FormEntrySession session, String xml) throws Exception {
         Document doc = HtmlFormEntryUtil.stringToDocument(xml);
         StringWriter out = new StringWriter();
@@ -267,6 +289,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
         handler.doEndTag(session, out, parent, node);
     }
 
+    /** Provides default start tag handling for tags with no custom handler
+     * <p>
+     * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML
+     * tags are left as is.
+     */
     public boolean doStartTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         if (node.getNodeType() == Node.TEXT_NODE) {
@@ -292,6 +319,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
         return true;
     }
 
+    /** Provides default end tag handling for tags with no custom handler
+     * <p>
+     * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML
+     * tags are left as is.
+     */
     public void doEndTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         if (node.getNodeType() == Node.TEXT_NODE) {

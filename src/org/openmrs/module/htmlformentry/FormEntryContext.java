@@ -25,16 +25,17 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
- * This class holds the context data around generating html widgets from tags like <obs .../> in an HtmlForm.
- * 
+ * This class holds the context data around generating html widgets from tags in an HtmlForm.
+ * <p/>
  * It allows you to register widgets, which assigns them an id/name in the generated html, and allows you to
  * look up those id/names later. It allows you specify which error widget goes for which widget, so that error
  * messages get displayed in the right place.
- * 
+ * <p/>
  * It also holds existing data for an encounter in View mode, so that widgets can be set with
  * their appropriate values.
- * 
+ * <p/>
  * TODO rename this class: it's really more of the html generation context than a form entry context
+ * </p>
  * TODO move Mode class up to FormEntrySession instead?
  */
 public class FormEntryContext {
@@ -63,12 +64,22 @@ public class FormEntryContext {
         setupExistingData((Encounter) null);
     }
     
+    /**
+     * Gets the {@see Mode} associated with this Context
+     * @return the {@see Mode} associatd with this Context
+     */
     public Mode getMode() {
         return mode;
     }
     
     private Integer sequenceNextVal = 1;
     
+    /**
+     * Registers a widget within the Context
+     *  
+     * @param widget the widget to register
+     * @return the field id used to identify this widget in the HTML Form
+     */
     public String registerWidget(Widget widget) {
         if (fieldNames.containsKey(widget))
             throw new IllegalArgumentException("This widget is already registered");
@@ -83,6 +94,13 @@ public class FormEntryContext {
         return fieldName;
     }
     
+    /**
+     * Registers an error widget within the Context
+     * 
+     * @param widget the widget to associate this error widget with
+     * @param errorWidget the error widget to register
+     * @return the field id used to identify this widget in the HTML Form
+     */
     public String registerErrorWidget(Widget widget, ErrorWidget errorWidget) {
         String errorWidgetId;
         if (!fieldNames.containsKey(errorWidget)) {
@@ -95,6 +113,12 @@ public class FormEntryContext {
         return errorWidgetId;
     }
 
+    /**
+     * Gets the field id used to identify a specific widget within the HTML Form
+     * 
+     * @param widget the widget
+     * @return the field id associated with the widget in the HTML Form
+     */
     public String getFieldName(Widget widget) {
         String fieldName = fieldNames.get(widget);
         if (fieldName == null)
@@ -103,10 +127,21 @@ public class FormEntryContext {
             return fieldName;
     }
     
+    /**
+     * Gets the field id used to identify a specific error widget within the HTML Form
+     * 
+     * @param widget the widget
+     * @return the field id associated with the error widget in the HTML Form
+     */
     public String getErrorFieldId(Widget widget) {
         return getFieldName(errorWidgets.get(widget));
     }
     
+    /**
+     * Gets the fields ids for all currently registered error widgets
+     * 
+     * @return a set of all the field ids for all currently registered error widgets
+     */
     public Collection<String> getErrorDivIds() {
         Set<String> ret = new HashSet<String>();
         for (ErrorWidget e : errorWidgets.values())
@@ -114,15 +149,28 @@ public class FormEntryContext {
         return ret;
     }
        
+    /**
+     * Marks the start of a new {@see ObsGroup} within current Context
+     */
     public void beginObsGroup(Concept conceptSet) {
         currentObsGroupConcepts.push(conceptSet);
         activeObsGroup = new ObsGroup(conceptSet);
     }
     
+    /**
+     * Gets the {@see ObsGroup} that is currently active within the current Context
+     * 
+     * @return the currently active {@see ObsGroup}
+     */
     public ObsGroup getActiveObsGroup() {
     	return activeObsGroup;
     }
     
+    /**
+     * Sets the active Obs group members to the Obs that are associated with the Obs passed as a parameter
+     * 
+     * @param group an Obs that should have group members
+     */
     public void setObsGroup(Obs group) {
         if (group == null) {
             currentObsGroupMembers = null;
@@ -133,6 +181,9 @@ public class FormEntryContext {
         }
     }
     
+    /**
+     * Closes the active {@see ObsGroup} and adds it to the Html Form Schema
+     */
     public void endObsGroup() {
         currentObsGroupMembers = null;
         getSchema().addField(activeObsGroup);
@@ -141,12 +192,21 @@ public class FormEntryContext {
             throw new RuntimeException("Trying to close an obs group where none is open");
     }
     
+    /**
+     * Returns the concepts associated with the active {@see ObsGroup}
+     * 
+     * @return a list of the concepts associated with the active {@see ObsGroup}
+     */
     public List<Concept> getCurrentObsGroupConcepts() {
         return Collections.unmodifiableList(currentObsGroupConcepts);
     }
         
     /**
-     * Also removes the thing that is returned.
+     * Returns (and removes) the Obs from the current {@see ObsGroup} with the specified concept and answer concept
+     * 
+     * @param concept the concept associated with the Obs we are looking for
+     * @param answerConcept the concept associated with the coded value of the Obs we are looking for (may be null)
+     * @return the Obs from the current {@see ObsGroup} with the specified concept and answer concept
      */
     public Obs getObsFromCurrentGroup(Concept concept, Concept answerConcept) {
         if (currentObsGroupMembers == null)
@@ -163,10 +223,21 @@ public class FormEntryContext {
         return null;
     }
     
+    /**
+     * Sets the Patient to associate with the context
+     * 
+     * @param patient patient to associate with the context
+     */
     public void setupExistingData(Patient patient) {
     	existingPatient = patient;
     }
         
+    /**
+     * Sets the existing Encounter to associate with the context.
+     * Also sets all the Obs associated with this Encounter as existing Obs
+     * 
+     * @param encounter encounter to associate with the context
+     */
     public void setupExistingData(Encounter encounter) {
         existingEncounter = encounter;
         existingObs = new HashMap<Concept, List<Obs>>();
@@ -192,10 +263,11 @@ public class FormEntryContext {
     }
     
     /**
-     * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version
+     * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs. Use this version
      * for obs whose concept's datatype is not boolean.
      * 
-     * @param question
+     * @param question the concept associated with the Obs to remove
+     * @param answer the concept that serves as the answer for Obs to remove (may be null)
      * @return
      */
     public Obs removeExistingObs(Concept question, Concept answer) {
@@ -222,12 +294,11 @@ public class FormEntryContext {
     }
 
 	/**
-     * Find obs with the given concept whose answer is equal to the given answer, returns one, and removes
-     * it from the list.
+     * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs.
      * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
      * 
-     * @param concept
-     * @param parseBoolean
+     * param question the concept associated with the Obs to remove
+     * @param parseBoolean the boolean value of the obs
      * @return
      */
     public Obs removeExistingObs(Concept question, boolean answer) {
@@ -248,10 +319,11 @@ public class FormEntryContext {
 
     
     /**
-     * Returns, and removes the first obs group that matches  
-     *  i.e. Concept of the parent Obs = groupConcept, and all Obs 
-     *  in the group also belong to questionsAndAnswers.
-     * 
+     * Returns, and removes, the first {@see ObsGroup} that matches the specified 
+     *  concept and question/answer list. (That is, if the concept of the parent Obs = groupConcept,
+     *  and all Obs in the group also belong to questionsAndAnswers.)
+     *  <p/>
+     * <pre> 
      * For example you might have a group capable of holding (per questionsAndAnswers):
      *      Symptom Absent = Cough
      *      Symptom Present = Cough
@@ -262,9 +334,11 @@ public class FormEntryContext {
      *      
      * then we would return it, assuming the the concept associated
      * with the parent Obs = groupConcept
+     * </pre>
      * 
-     * @param requiredQuestionsAndAnswers
-     * @return
+     * @param groupConcept the grouping concept associated with the {@see ObsGroups}
+     * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
+     * @return the first matching {@see ObsGroup}
      */
     public Obs findFirstMatchingObsGroup(Concept groupConcept, List<ObsGroupComponent> questionsAndAnswers) {
         for (Iterator<Obs> iter = existingObsInGroups.iterator(); iter.hasNext(); ) {
@@ -277,25 +351,45 @@ public class FormEntryContext {
         return null;
     }
     
+    /**
+     * Returns the patient currently associated with the context
+     */
     public Patient getExistingPatient() {
     	return existingPatient;
     }
-        
+     
+    /**
+     * Returns the encounter currently associated with the context
+     */
     public Encounter getExistingEncounter() {
         return existingEncounter;
     }
 
+    /** 
+     * Returns the translator currently associated with the context
+     * @return
+     */
     public Translator getTranslator() {
     	return translator;
     }
     
+    /**
+     * Return the HTML Form schema currently associated with the context
+     * @return
+     */
     public HtmlFormSchema getSchema() {
     	return schema;
     }
     
+    /**
+     * Modes associated with the HTML Form context
+     */
     public enum Mode {
-        ENTER,
+    	/** A new, unsaved form */
+    	ENTER,
+    	/** A saved form in edit mode */
         EDIT,
+        /** A saved form in view-only mode */
         VIEW
     }
     

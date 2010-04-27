@@ -8,6 +8,9 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 
+/**
+ * Basic test cases for HTML Form Entry widgets
+ */
 public class WidgetTest {
 
     FormEntryContext context;

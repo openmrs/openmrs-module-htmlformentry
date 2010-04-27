@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.module.Activator;
 
 /**
- * This class contains the logic that is run every time this module
+ * Contains the logic that is run every time HTML Form Entry module
  * is either started or shutdown
  */
 public class HtmlFormEntryActivator implements Activator {
@@ -26,6 +26,8 @@ public class HtmlFormEntryActivator implements Activator {
 	private Log log = LogFactory.getLog(this.getClass());
 
 	/**
+	 * Logs that module has been started
+	 * 
 	 * @see org.openmrs.module.Activator#startup()
 	 */
 	public void startup() {
@@ -33,6 +35,8 @@ public class HtmlFormEntryActivator implements Activator {
 	}
 	
 	/**
+	 * Logs that module has been stopped
+	 * 
 	 *  @see org.openmrs.module.Activator#shutdown()
 	 */
 	public void shutdown() {

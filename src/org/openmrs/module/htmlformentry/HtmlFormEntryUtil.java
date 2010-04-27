@@ -48,19 +48,42 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+/** 
+ * HTML Form Entry utility methods
+ */
 public class HtmlFormEntryUtil {
 	
 	private static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
     
+	/**
+	 * Returns the HTML Form Entry service from the Context
+	 * 
+	 * @return HTML Form Entry service
+	 */
     public static HtmlFormEntryService getService() {
         return Context.getService(HtmlFormEntryService.class);
     }
 
+    /**
+     * Fetches a http request parameter from an http request and returns it as a specific type
+     * 
+     * @param request an http servlet request
+     * @param name the name of the parameter to retrieve
+     * @param clazz the type to convert the parameter to
+     * @return parameter, converted to appropriate type
+     */
     public static Object getParameterAsType(HttpServletRequest request, String name, Class<?> clazz) {
         String val = request.getParameter(name);
         return convertToType(val, clazz);
     }
-
+    
+    /**
+     * Converts a string to specified type
+     * 
+     * @param val the string to convert
+     * @param clazz the type to convert to
+     * @return an instance of the specified type, with it's value set to val
+     */
     public static Object convertToType(String val, Class<?> clazz) {
         if (val == null)
             return null;
@@ -103,6 +126,16 @@ public class HtmlFormEntryUtil {
         }
     }
 
+    /**
+     * Creaets an OpenMRS Obs instance
+     * 
+     * @param formField the form field that specifies the concept associated with the Obs
+     * @param value value associated with the Obs
+     * @param datetime date/time associated with the Obs (may be null)
+     * @param accessionNumber accession number associatd with the Obs (may be null)
+     * @return the created Obs instance
+     */
+    
     public static Obs createObs(FormField formField, Object value, Date datetime, String accessionNumber) {
         Concept concept = formField.getField().getConcept();
         if (concept == null)
@@ -110,6 +143,15 @@ public class HtmlFormEntryUtil {
         return createObs(concept, value, datetime, accessionNumber);
     }
     
+    /**
+     * Creates an OpenMRS Obs instance
+     * 
+     * @param concept concept associated with the Obs
+     * @param value value associated with the Obs
+     * @param datetime date/time associated with the Obs (may be null)
+     * @param accessionNumber accession number associatd with the Obs (may be null)
+     * @return the created Obs instance
+     */
     public static Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
         Obs obs = new Obs();
         obs.setConcept(concept);
@@ -145,6 +187,13 @@ public class HtmlFormEntryUtil {
         return obs;
     }
     
+    /**
+     * Converts an xml string to a Document object
+     * 
+     * @param xml the xml string to convert
+     * @return the resulting Document object
+     * @throws Exception
+     */
     public static Document stringToDocument(String xml) throws Exception {
     	try {
 	        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -158,6 +207,13 @@ public class HtmlFormEntryUtil {
     	}
     }
     
+    /**
+     * Converts a Document object to an xml string
+     * 
+     * @param document the Document instance to convert
+     * @return the resulting xml string
+     * @throws Exception
+     */
     public static String documentToString(Document document) throws Exception {
         //set up a transformer
         Transformer trans = null;
@@ -195,6 +251,13 @@ public class HtmlFormEntryUtil {
         return xmlString;
     }
 
+    /** 
+     * Retrieves a child Node by name
+     * 
+     * @param content the parent Node
+     * @param name the name of the child Node
+     * @return the child Node with the specified name
+     */
     public static Node findChild(Node content, String name) {
         if (content == null)
             return null;
@@ -207,6 +270,12 @@ public class HtmlFormEntryUtil {
         return null;
     }
     
+    /**
+     * Returns all the attributes associated with a Node
+     * 
+     * @param node the Node to retrieve attributes from
+     * @return a Map containing all the attributes of the Node
+     */
     public static Map<String, String> getNodeAttributes(Node node) {
     	Map<String, String> ret = new HashMap<String, String>();
         NamedNodeMap atts = node.getAttributes();
@@ -217,11 +286,23 @@ public class HtmlFormEntryUtil {
         return ret;
     }
     
+    /**
+     * Returns a specific attribute of a Node
+     * 
+     * @param node the Node to retrieve the attribute from
+     * @param attributeName the name of the attribute to return
+     * @param defaultVal a default value to return if the attribute is not specified for the selected Node
+     * @return
+     */
     public static String getNodeAttribute(Node node, String attributeName, String defaultVal) {
     	String ret = getNodeAttributes(node).get(attributeName);
     	return (ret == null ? defaultVal : ret);
     }
 
+    /** Creates a non-persistent "Fake" Person (used when previewing or validating an HTML Form)
+     * 
+     * @return the "fake" person
+     */
     public static Patient getFakePerson() {
         Patient demo = new Patient();
         demo.addName(new PersonName("Demo", "The", "Person"));
@@ -252,6 +333,14 @@ public class HtmlFormEntryUtil {
         return demo;
     }
 
+    /**
+     * Combines a Date object that contains only a date component (day, month, year) with a Date object that contains
+     * only a time component (hour, minute, second) into a single Date object
+     * 
+     * @param date the Date object that contains date information
+     * @param time the Date object that contains time information
+     * @return a Date object with the combined date/time
+     */
 	public static Date combineDateAndTime(Date date, Date time) {
 		if (date == null)
 			return null;

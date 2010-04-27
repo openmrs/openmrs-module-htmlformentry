@@ -35,14 +35,17 @@ import org.springframework.web.util.JavaScriptUtils;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to fill out or to view.
- * 
+ * </p>
  * Creating one of these requires an HtmlForm object, or at least the xml from one. Creating a FormEntrySession does the following things:
- * 1. Applies macros from the <macros>...</macros> section of the xml document, if one exists.
- * 2. If an existing encounter is provided (for viewing, as opposed to creation) then the observations from that encounter are fetched such that they can be displayed by widgets.
- * 3. Generates html to be displayed to the user.
- * 4. Creates a FormSubmissionController, which is aware of all widgets in the form, and knows how to validate them and handle their submission.
- * 
+ * <ol>
+ * 	<li>Applies macros from the {@code <macros>...</macros>} section of the xml document, if one exists.</li>
+ * 	<li>If an existing encounter is provided (for viewing, as opposed to creation) then the observations from that encounter are fetched such that they can be displayed by widgets.</li>
+ * 	<li>Generates html to be displayed to the user.</li>
+ * 	<li>Creates a FormSubmissionController, which is aware of all widgets in the form, and knows how to validate them and handle their submission.</li>
+ * </ol>
  * To validate and submit a form you need to do something like this:
+ * <pre>
+ * {@code
  *     List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
  *     if (validationErrors.size() == 0) {
  *         session.prepareForSubmit();
@@ -52,9 +55,12 @@ import org.springframework.web.util.JavaScriptUtils;
  *         // display errors
  *         // redisplay form, 
  *         }
+ * }
+ * </pre>
  */
 public class FormEntrySession {
 
+	/** Logger to use with this class */
     protected final Log log = LogFactory.getLog(getClass());
     
     private Form form;
@@ -74,6 +80,12 @@ public class FormEntrySession {
     private VelocityEngine velocityEngine;
     private VelocityContext velocityContext;
 
+    /**
+     * Creates a new Form Entry Session for the specified Patient in the specified {@Mode}
+     * 
+     * @param patient
+     * @param mode
+     */
     private FormEntrySession(Patient patient, FormEntryContext.Mode mode) {
         context = new FormEntryContext(mode);
         this.patient = patient;
@@ -150,6 +162,13 @@ public class FormEntrySession {
         htmlGenerator = new HtmlFormEntryGenerator();
     }
     
+    /**
+     * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the specified xml string to create the HTML Form object
+     * 
+     * @param patient
+     * @param xml
+     * @throws Exception
+     */
     public FormEntrySession(Patient patient, String xml) throws Exception {
         this(patient, Mode.ENTER);
         submissionController = new FormSubmissionController();
@@ -157,6 +176,13 @@ public class FormEntrySession {
         this.htmlToDisplay = createForm(xml);
     }
     
+    /** 
+     * Creates a new HTML Form Entry session (in "Enter") for the specified Patient, using the specified HTML Form
+     * 
+     * @param patient
+     * @param htmlForm
+     * @throws Exception
+     */
     public FormEntrySession(Patient patient, HtmlForm htmlForm) throws Exception {
         this(patient, Mode.ENTER);
         this.htmlForm = htmlForm;
@@ -172,6 +198,13 @@ public class FormEntrySession {
         htmlToDisplay = createForm(htmlForm.getXmlData());
     }
     
+    /**
+     * Creates a new HTML Form Entry session (in "Enter" mode) for the specified patient and using the HTML Form associated with the specified Form
+     * 
+     * @param patient
+     * @param form
+     * @throws Exception
+     */
     public FormEntrySession(Patient patient, Form form) throws Exception {
         this(patient, Mode.ENTER);
         this.form = form;
@@ -184,6 +217,15 @@ public class FormEntrySession {
         htmlToDisplay = createForm(temp.getXmlData());
     }
     
+    /**
+     * Creates a new HTML Form Entry session for the specified patient, encounter, and {@see Mode}, using the specified HtmlForm
+     * 
+     * @param patient
+     * @param encounter
+     * @param mode
+     * @param htmlForm
+     * @throws Exception
+     */
     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm) throws Exception {
         this(patient, mode);
         this.htmlForm = htmlForm;
@@ -222,6 +264,12 @@ public class FormEntrySession {
     }
     */
     
+    /**
+     * Evaluates a velocity expression and returns the result as a string
+     * 
+     * @param velocityExpression
+     * @returns
+     */
     public String evaluateVelocityExpression(String velocityExpression) {
         StringWriter writer = new StringWriter();
         try {
@@ -233,6 +281,16 @@ public class FormEntrySession {
         }
     }
 
+    /**
+     * Creates the HTML for a HTML Form given the xml for the form
+     * 
+     * This method uses the HtmlFormGenerator to process any HTML Form Entry-specific tags 
+     * and returns pure HTML that can be rendered by a browser
+     * 
+     * @param xml the xml string representing the form we wish to create
+     * @return
+     * @throws Exception
+     */
     public String createForm(String xml) throws Exception {
     	if (htmlForm != null) {
     		context.getSchema().setName(htmlForm.getName());
@@ -249,6 +307,10 @@ public class FormEntrySession {
         return xml;
     }
     
+    /**
+     * Prepares a form for submission by instantiating a FormSubmissionsActions object and initializing
+     * it with the Patient and Encounter associated with the Form
+     */
     public void prepareForSubmit() {
         if (context.getMode() == Mode.EDIT) {
             if (encounter == null)
@@ -265,6 +327,15 @@ public class FormEntrySession {
         }
     }
     
+    /**
+     * Applies all the actions associated with a form submission--that is, create/update any Persons, Encounters, and Obs in the database
+     * as necessary, and enroll Patient in any programs as needed
+     * <p/>
+     * TODO:
+     * This requires that...
+     * 
+     * @throws BadFormDesignException
+     */
     public void applyActions() throws BadFormDesignException {
         // if any encounter to be created by this form is missing a required field, throw an error
         // (If there's a widget but it was left blank, that would have been caught earlier--this
@@ -411,23 +482,40 @@ public class FormEntrySession {
         return true;
     }
 
+    /**
+     * Returns the submission controller associated with the session
+     */
     public FormSubmissionController getSubmissionController() {
         return submissionController;
     }
 
+    /**
+     * Returns the form entry context associated with the session
+     */
     public FormEntryContext getContext() {
         return context;
     }
 
+    /**
+     * Returns the submission actions associated with the session 
+     */
     public FormSubmissionActions getSubmissionActions() {
         return submissionActions;
     }
 
+    /**
+     * Return the form display html associated with the session
+     */
     public String getHtmlToDisplay() {
         return htmlToDisplay;
     }
-        
-    public String getSetLastSubmissionFieldsJavascript() {
+    
+    /** 
+     * Returns the last AJAX submission made
+     * TODO: Update this so it is actually right
+     */
+    @SuppressWarnings("unchecked")
+	public String getSetLastSubmissionFieldsJavascript() {
         HttpServletRequest lastSubmission = submissionController.getLastSubmission();
         if (lastSubmission == null) {
             return "";
@@ -445,6 +533,10 @@ public class FormEntrySession {
         }
     }
     
+    /**
+     * Returns any errors associated with the last AJAX submission made
+     * TODO: Update this so it is actually right!
+     */
     public String getLastSubmissionErrorJavascript() {
         StringBuilder sb = new StringBuilder();
         for (String divId : context.getErrorDivIds())
@@ -461,30 +553,44 @@ public class FormEntrySession {
         return sb.toString();
     }
 
+    /**
+     * Returns the Encounter associated with the session
+     */
     public Encounter getEncounter() {
         return encounter;
     }
 
+    /**
+     * Returns the Patient associated with the session
+     */
     public Patient getPatient() {
         return patient;
     }
     
+    /**
+     * Returns the Form associated with the session
+     */
     public Form getForm() {
         return form;
     }
     
+    /**
+     * Returns the id of the HtmlForm associated with the session
+     */
     public Integer getHtmlFormId() {
         return htmlForm == null ? null : htmlForm.getId();
     }
 
     /**
-     * @return the returnUrl
+     * Returns the return Url associated with the session
      */
     public String getReturnUrl() {
         return returnUrl;
     }
 
     /**
+     * Sets the return Url associated with the session
+     * 
      * @param returnUrl the returnUrl to set
      */
     public void setReturnUrl(String returnUrl) {
@@ -494,7 +600,7 @@ public class FormEntrySession {
     /**
      * Adds the patientId=xyz parameter to the returnUrl
      * 
-     * @return
+     * @return the returnUrl with patientId parameter
      */
     public String getReturnUrlWithParameters() {
         if (!StringUtils.hasText(returnUrl))
@@ -509,19 +615,26 @@ public class FormEntrySession {
     }
 
     /**
-     * @return the formModifiedTimestamp
+     * Returns form modified timestamp
      */
     public long getFormModifiedTimestamp() {
         return formModifiedTimestamp;
     }
 
     /**
-     * @return the encounterModifiedTimestamp
+     * Returns the encounter modified timestamp
      */
     public long getEncounterModifiedTimestamp() {
         return encounterModifiedTimestamp;
     }
-
+    
+    /**
+     * Calculates the date an encounter was last modified by checking the creation and voided times 
+     * of all Obs and Orders associated with the Encounter
+     * 
+     * @param encounter
+     * @return last modified time, as a Long
+     */
     public static long getEncounterModifiedDate(Encounter encounter) {
         long ret = encounter.getDateCreated().getTime();
         if (encounter.getDateVoided() != null)

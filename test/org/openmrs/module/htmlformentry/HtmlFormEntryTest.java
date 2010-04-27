@@ -27,6 +27,8 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.SkipBaseSetup;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+/** Basic test cases for HTML Form Entry module */
+
 @SkipBaseSetup
 public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
 
