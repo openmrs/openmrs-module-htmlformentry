@@ -9,6 +9,9 @@ import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+/**
+ * Currently not used--the {@code <repeat>} tag is currently handled by {@see org.openmrs.module.htmlformentry.HtmlFormEntryGenerator#applyTemplates(String)}.
+ */
 public abstract class RepeatTagHandler implements IteratingTagHandler {
 
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {

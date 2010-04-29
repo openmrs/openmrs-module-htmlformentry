@@ -3,6 +3,9 @@ package org.openmrs.module.htmlformentry.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a section in the HTML Form schema
+ */
 public class HtmlFormSection {
 
 	private String name;
@@ -11,6 +14,8 @@ public class HtmlFormSection {
     public HtmlFormSection() { }
 
 	/**
+	 * Gets the name of the section
+	 * 
 	 * @return the name
 	 */
 	public String getName() {
@@ -18,6 +23,8 @@ public class HtmlFormSection {
 	}
 
 	/**
+	 * Sets the name of the section
+	 * 
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
@@ -25,21 +32,27 @@ public class HtmlFormSection {
 	}
 
 	/**
-	 * @return the elements
+	 * Returns the fields in the section
+	 * 
+	 * @return the fields
 	 */
 	public List<HtmlFormField> getFields() {
 		return fields;
 	}
 	
 	/**
-	 * @param element
+	 * Adds a field to the section
+	 * 
+	 * @param field
 	 */
 	public void addField(HtmlFormField field) {
 		fields.add(field);
 	}
 
 	/**
-	 * @param elements the elements to set
+	 * Sets the fields in the section
+	 * 
+	 * @param fieldss the fields to set
 	 */
 	public void setFields(List<HtmlFormField> fields) {
 		this.fields = fields;

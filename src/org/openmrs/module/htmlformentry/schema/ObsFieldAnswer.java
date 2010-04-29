@@ -2,6 +2,9 @@ package org.openmrs.module.htmlformentry.schema;
 
 import org.openmrs.Concept;
 
+/**
+ * Represents an Obs field answer in the HTML Form Schema
+ */
 public class ObsFieldAnswer {
 
 	private String displayName;
@@ -10,6 +13,8 @@ public class ObsFieldAnswer {
     public ObsFieldAnswer() { }
 
 	/**
+	 * Gets the display name for this answer
+	 * 
 	 * @return the displayName
 	 */
 	public String getDisplayName() {
@@ -17,6 +22,8 @@ public class ObsFieldAnswer {
 	}
 
 	/**
+	 * Sets the display name for this answer
+	 * 
 	 * @param displayName the displayName to set
 	 */
 	public void setDisplayName(String displayName) {
@@ -24,6 +31,8 @@ public class ObsFieldAnswer {
 	}
 
 	/**
+	 * Gets the concept associated with this answer
+	 * 
 	 * @return the concept
 	 */
 	public Concept getConcept() {
@@ -31,6 +40,8 @@ public class ObsFieldAnswer {
 	}
 
 	/**
+	 * Sets the concept associated with this answer
+	 * 
 	 * @param concept the concept to set
 	 */
 	public void setConcept(Concept concept) {

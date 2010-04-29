@@ -12,6 +12,9 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
 
+/**
+ * Handles the {@code <encounterDate>} tag
+ */
 public class EncounterDateHandler extends SubstitutionTagHandler {
 
     @Override

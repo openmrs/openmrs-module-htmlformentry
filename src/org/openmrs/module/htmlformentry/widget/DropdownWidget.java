@@ -4,7 +4,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
- * Like <select name="..."><option value="...">...</option></select>"
+ * A dropdown widget, like {@code <select name="..."><option value="...">...</option></select>}
  */
 public class DropdownWidget extends SingleOptionWidget {
     

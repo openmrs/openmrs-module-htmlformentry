@@ -10,6 +10,9 @@ import org.openmrs.Form;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 
+/**
+ * Hibernate implementation of the Data Access Object
+ */
 public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 
     private SessionFactory sessionFactory;

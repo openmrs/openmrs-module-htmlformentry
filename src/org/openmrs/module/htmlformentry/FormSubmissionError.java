@@ -21,26 +21,56 @@ public class FormSubmissionError {
         this.error = error;
     }
 
+    /**
+     * Gets the widget that is the source of the error.
+     * 
+     * @return the widget that is the source of the error
+     */
     public Widget getSourceWidget() {
         return sourceWidget;
     }
 
+    /**
+     * Sets the widget that is the source of the error.
+     * 
+     * @param sourceWidget the widget that is the source of the error
+     */
     public void setSourceWidget(Widget sourceWidget) {
         this.sourceWidget = sourceWidget;
     }
 
+    /**
+     * Gets the ID
+     * 
+     * @return the id
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * Sets the ID
+     * 
+     * @param id value to set
+     */
     public void setId(String id) {
         this.id = id;
     }
 
+    /**
+     * Gets the error message
+     * 
+     * @return the error message
+     */
     public String getError() {
         return error;
     }
 
+    /**
+     * Sets the error message
+     * 
+     * @param error the error message to set
+     */
     public void setError(String error) {
         this.error = error;
     }

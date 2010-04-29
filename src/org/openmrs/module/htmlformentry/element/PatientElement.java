@@ -22,7 +22,10 @@ import org.openmrs.module.htmlformentry.widget.PersonNameWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.springframework.util.StringUtils;
 
-
+/**
+ * Holds the widgets used to represent a Patient, and serves as both the HtmlGeneratorElement 
+ * and the FormSubmissionControllerAction for a Patient.
+ */
 public class PatientElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
 	private boolean allowCreate;

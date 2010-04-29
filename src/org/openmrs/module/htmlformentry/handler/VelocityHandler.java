@@ -10,6 +10,9 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.springframework.util.StringUtils;
 
+/**
+ * Handles the {@code <lookup>} tag
+ */
 public class VelocityHandler extends SubstitutionTagHandler {
 
     @Override

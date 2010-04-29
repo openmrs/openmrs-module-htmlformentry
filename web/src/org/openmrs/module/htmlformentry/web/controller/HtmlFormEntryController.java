@@ -27,7 +27,10 @@ import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * The controller for entering/viewing a form. This should always be set to sessionForm=false.
- * TODO this has a bit too much logic in the onSubmit method. move that into the FormEntrySession
+ * <p/>
+ * Handles {@code htmlFormEntry.form} requests. Renders view {@code htmlFormEntry.jsp}.
+ * <p/>
+ * TODO: This has a bit too much logic in the onSubmit method. Move that into the FormEntrySession.
  */
 public class HtmlFormEntryController extends SimpleFormController {
     

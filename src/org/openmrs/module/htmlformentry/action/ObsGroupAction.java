@@ -11,12 +11,27 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.InvalidActionException;
 
+/**
+ * Defines the actions to take when submitting or validating an ObsGroup
+ */
 public class ObsGroupAction implements FormSubmissionControllerAction {
 
+	/**
+	 * Creates an ObsGroupAction that should be applied at the start of an ObsGroup
+	 * 
+	 * @param groupingConcept the concept of the parent Obs
+	 * @param existingGroup the parent Obs
+	 * @return a new ObsGroupAction
+	 */
     public static ObsGroupAction start(Concept groupingConcept, Obs existingGroup) {
         return new ObsGroupAction(groupingConcept, existingGroup, true);
     }
 
+    /**
+     * Creates an ObsGroupAction that should be applied at the end of an ObsGroup
+     * 
+     * @return
+     */
     public static ObsGroupAction end() {
         return new ObsGroupAction(null, null, false);
     }

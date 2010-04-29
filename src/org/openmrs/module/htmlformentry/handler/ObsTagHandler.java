@@ -6,6 +6,9 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 
+/**
+ * Handles the {@code <obs>} tag
+ */
 public class ObsTagHandler extends SubstitutionTagHandler {
 
     @Override

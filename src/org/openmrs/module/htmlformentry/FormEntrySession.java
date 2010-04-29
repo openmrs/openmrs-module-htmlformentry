@@ -38,7 +38,6 @@ import org.springframework.web.util.JavaScriptUtils;
  * </p>
  * Creating one of these requires an HtmlForm object, or at least the xml from one. Creating a FormEntrySession does the following things:
  * <ol>
- * 	<li>Applies macros from the {@code <macros>...</macros>} section of the xml document, if one exists.</li>
  * 	<li>If an existing encounter is provided (for viewing, as opposed to creation) then the observations from that encounter are fetched such that they can be displayed by widgets.</li>
  * 	<li>Generates html to be displayed to the user.</li>
  * 	<li>Creates a FormSubmissionController, which is aware of all widgets in the form, and knows how to validate them and handle their submission.</li>
@@ -81,7 +80,7 @@ public class FormEntrySession {
     private VelocityContext velocityContext;
 
     /**
-     * Creates a new Form Entry Session for the specified Patient in the specified {@Mode}
+     * Private constructor that creates a new Form Entry Session for the specified Patient in the specified {@Mode}
      * 
      * @param patient
      * @param mode
@@ -177,7 +176,7 @@ public class FormEntrySession {
     }
     
     /** 
-     * Creates a new HTML Form Entry session (in "Enter") for the specified Patient, using the specified HTML Form
+     * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the specified HTML Form
      * 
      * @param patient
      * @param htmlForm

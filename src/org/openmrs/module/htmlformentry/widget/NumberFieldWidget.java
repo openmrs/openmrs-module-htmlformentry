@@ -7,6 +7,9 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
+/**
+ * A widget that implements an input field that takes a numeric answer.
+ */
 public class NumberFieldWidget implements Widget {
 
     private Number initialValue;
@@ -14,12 +17,24 @@ public class NumberFieldWidget implements Widget {
     private Double absoluteMinimum;
     private Double absoluteMaximum;
 
+    /**
+     * Creates a widget with certain absolute maximum and minimum values. Floating point numbers are allowed if floatingPoint=true.
+     * 
+     * @param absoluteMinimum
+     * @param absoluteMaximum
+     * @param floatingPoint
+     */
     public NumberFieldWidget(Double absoluteMinimum, Double absoluteMaximum, boolean floatingPoint) {
     	this.absoluteMinimum = absoluteMinimum;
     	this.absoluteMaximum = absoluteMaximum;
     	this.floatingPoint = floatingPoint;
     }
     
+    /**
+     * Creates a widget with certain absolute maximum and minimum values as defined by a specific numeric Concept
+     * 
+     * @param concept
+     */
     public NumberFieldWidget(ConceptNumeric concept) {
         if (concept != null) {
             setAbsoluteMaximum(concept.getHiAbsolute());
@@ -28,26 +43,56 @@ public class NumberFieldWidget implements Widget {
         }
     }
     
+    /**
+     * Returns whether or not this widget accepts floating point values
+     * 
+     * @return true/false
+     */
     public boolean isFloatingPoint() {
         return floatingPoint;
     }
 
+    /**
+     * Sets whether or not this widget accepts floating point values
+     * 
+     * @param floatingPoint
+     */
     public void setFloatingPoint(boolean floatingPoint) {
         this.floatingPoint = floatingPoint;
     }
 
+    /**
+     * Gets the absolute minimum value allowed for this widget
+     * 
+     * @return absoluteMinimum
+     */
     public Double getAbsoluteMinimum() {
         return absoluteMinimum;
     }
 
+    /**
+     * Sets the absolute minimum value allowed for this widget
+     * 
+     * @param minimum
+     */
     public void setAbsoluteMinimum(Double minimum) {
         this.absoluteMinimum = minimum;
     }
-
+    
+    /**
+     * Gets the absolute maximum value allowed for this widget 
+     * 
+     * @return absoluteMaximum
+     */
     public Double getAbsoluteMaximum() {
         return absoluteMaximum;
     }
 
+    /**
+     * Sets the absolute maximum value allows for this widget
+     * 
+     * @param maximum
+     */
     public void setAbsoluteMaximum(Double maximum) {
         this.absoluteMaximum = maximum;
     }

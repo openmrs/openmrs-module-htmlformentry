@@ -7,6 +7,9 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
 
+/**
+ * Handles the {@code <encounterProvider>} tag
+ */
 public class EncounterProviderHandler extends SubstitutionTagHandler {
 
     @Override

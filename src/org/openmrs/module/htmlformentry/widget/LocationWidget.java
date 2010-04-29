@@ -13,6 +13,9 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.springframework.util.StringUtils;
 
+/**
+ * A widget that allows for the selection of a Location. Implemented using a drop-down selection list.
+ */
 public class LocationWidget implements Widget {
    
     private Location location;
@@ -65,6 +68,9 @@ public class LocationWidget implements Widget {
         location = (Location) initialValue;
     }
 
+    /**
+     * Sets the Locations to use as options for this widget
+     */
     public void setOptions(List<Location> options) {
         this.options = options;        
     }

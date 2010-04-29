@@ -6,7 +6,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
- * Like <input type="checkbox"/>
+ * A checkbox widget, like {@code <input type="checkbox"/>}
  */
 public class CheckboxWidget implements Widget {
 
@@ -25,18 +25,38 @@ public class CheckboxWidget implements Widget {
         this.value = value;
     }
 
+    /**
+     * Gets the value attribute for the checkbox. Not to be confused with {@see getValue(FormEntryContext,HttpServletRequest)}.
+     * 
+     * @return value of the widget
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     * Sets the value attribute for the checkbox.
+     * 
+     * @param value
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     * Gets the text label to display before the checkbox.
+     * 
+     * @return the label
+     */
     public String getLabel() {
         return label;
     }
 
+    /**
+     * Sets the text label to display after the checkbox.
+     * 
+     * @param label
+     */
     public void setLabel(String label) {
         this.label = label;
     }

@@ -7,13 +7,18 @@ import javax.servlet.http.HttpServletRequest;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
+/**
+ * A widget that combines a {@see DateWidget} and a {@see TimeWidget} into a single widget
+ * @author Mark
+ *
+ */
 public class DateTimeWidget implements Widget {
 
-	Date initialValue;
+	private Date initialValue;
 
-	DateWidget dateWidget;
+	private DateWidget dateWidget;
 
-	TimeWidget timeWidget;
+	private TimeWidget timeWidget;
 
 	public DateTimeWidget() {
 
@@ -31,6 +36,9 @@ public class DateTimeWidget implements Widget {
 
 	}
 
+	 /**
+     * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
+     */
 	public String generateHtml(FormEntryContext context) {
 		// have the date and time widgets generate their HTML
 		String dateHTML = dateWidget.generateHtml(context);
@@ -40,6 +48,9 @@ public class DateTimeWidget implements Widget {
 		return dateHTML + " " + timeHTML;
 	}
 
+	 /**
+     * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
+     */
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 
 		// get the values from the associated date and time widgets
@@ -49,6 +60,9 @@ public class DateTimeWidget implements Widget {
 		return HtmlFormEntryUtil.combineDateAndTime(date, time);
 	}
 
+	 /**
+     * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
+     */
 	public void setInitialValue(Object value) {
 		initialValue = (Date) value;
 
@@ -57,10 +71,20 @@ public class DateTimeWidget implements Widget {
 		timeWidget.setInitialValue(initialValue);
 	}
 
+	/**
+	 * Gets the DateWidget associated with this widget
+	 * 
+	 * @return associated DateWidget
+	 */
 	public DateWidget getDateWidget() {
 		return dateWidget;
 	}
 
+	/**
+	 * Gets the TimeWidget associated with this widget
+	 * 
+	 * @return associated TimeWidget
+	 */
 	public TimeWidget getTimeWidget() {
 		return timeWidget;
 	}

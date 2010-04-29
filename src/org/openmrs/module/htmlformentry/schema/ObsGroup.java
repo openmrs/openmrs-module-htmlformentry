@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.openmrs.Concept;
 
+/**
+ * Represents an ObsGroup in the HTML Form Schema
+ */
 public class ObsGroup implements HtmlFormField {
 
 	private Concept concept;
@@ -15,6 +18,8 @@ public class ObsGroup implements HtmlFormField {
     }
 
 	/**
+	 * Gets the parent concept associated with this ObsGroup
+	 * 
 	 * @return the concept
 	 */
 	public Concept getConcept() {
@@ -22,6 +27,8 @@ public class ObsGroup implements HtmlFormField {
 	}
 
 	/**
+	 * Sets the parent concept associated with this ObsGroup
+	 * 
 	 * @param concept the concept to set
 	 */
 	public void setConcept(Concept concept) {
@@ -29,13 +36,17 @@ public class ObsGroup implements HtmlFormField {
 	}
 
 	/**
-	 * @return the children
+	 * Gets the Obs fields that are members of this group
+	 * 
+	 * return the children
 	 */
 	public List<ObsField> getChildren() {
 		return children;
 	}
 
 	/**
+	 * Sets the Obs fields that are members of this group
+	 * 
 	 * @param children the children to set
 	 */
 	public void setChildren(List<ObsField> children) {

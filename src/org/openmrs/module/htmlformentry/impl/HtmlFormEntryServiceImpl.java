@@ -13,6 +13,9 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 
+/**
+ * Standard implementation of the HtmlFormEntryService
+ */
 public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements HtmlFormEntryService {
     
     private HtmlFormEntryDAO dao;
@@ -30,10 +33,20 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         return handlers;
     }
     
+    /**
+     * Sets the tag handlers 
+     * 
+     * @param handlersToSet
+     */
     public void setHandlers(Map<String, TagHandler> handlersToSet) {
         handlers.putAll(handlersToSet);
     }
-
+    
+    /**
+     * Sets the DAO
+     * 
+     * @param dao
+     */
     public void setDao(HtmlFormEntryDAO dao) {
         this.dao = dao;
     }

@@ -3,6 +3,9 @@ package org.openmrs.module.htmlformentry.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the schema of an HTML Form
+ */
 public class HtmlFormSchema {
 
 	private String name;
@@ -11,6 +14,8 @@ public class HtmlFormSchema {
     public HtmlFormSchema() { }
 
 	/**
+	 * Gets the name of the schema
+	 * 
 	 * @return the name
 	 */
 	public String getName() {
@@ -18,6 +23,8 @@ public class HtmlFormSchema {
 	}
 
 	/**
+	 * Sets the name of the schema
+	 * 
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
@@ -25,6 +32,8 @@ public class HtmlFormSchema {
 	}
 
 	/**
+	 * Gets all the sections in the schema
+	 * 
 	 * @return the sections
 	 */
 	public List<HtmlFormSection> getSections() {
@@ -32,13 +41,17 @@ public class HtmlFormSchema {
 	}
 	
 	/**
-	 * @param section
+	 * Adds a section to the schema
+	 * 
+	 * @param section the section to add
 	 */
 	public void addSection(HtmlFormSection section) {
 		sections.add(section);
 	}
 
 	/**
+	 * Sets the sections of the schema
+	 * 
 	 * @param sections the sections to set
 	 */
 	public void setSections(List<HtmlFormSection> sections) {
@@ -54,7 +67,8 @@ public class HtmlFormSchema {
 	
 	/**
 	 * Returns the last section from the schema
-	 * @return
+	 * 
+	 * @return the last section of the schema
 	 */
 	public HtmlFormSection getLastSection() {
 		if (sections.isEmpty()) {
@@ -64,7 +78,9 @@ public class HtmlFormSchema {
 	}
 	
 	/**
-	 * @param element
+	 * Adds an HTML Form Field to the schema
+	 * 
+	 * @param field the field to add
 	 */
 	public void addField(HtmlFormField field) {
 		getLastSection().addField(field);

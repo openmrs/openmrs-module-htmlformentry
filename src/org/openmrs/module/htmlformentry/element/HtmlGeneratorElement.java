@@ -8,6 +8,12 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
  */
 public interface HtmlGeneratorElement {
 
+	/**
+	 * Generates the HTML for this element
+	 * 
+	 * @param context the Form Entry context
+	 * @return the generated HTML
+	 */
     public String generateHtml(FormEntryContext context);
     
 }

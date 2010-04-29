@@ -9,7 +9,9 @@ import org.openmrs.module.htmlformentry.element.PatientElement;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-
+/**
+ * Currently not used? Meant to handles the {@code <patient>} tag?
+ */
 public class PatientTagHandler implements TagHandler {
 	
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {

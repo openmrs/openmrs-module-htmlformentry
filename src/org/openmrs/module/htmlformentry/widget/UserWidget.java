@@ -11,6 +11,9 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.springframework.util.StringUtils;
 
+/**
+ * A widget that allows for the selection of a User.  Implemented using a drop-down selection list.
+ */
 public class UserWidget implements Widget {
 
     private User user;
@@ -59,6 +62,11 @@ public class UserWidget implements Widget {
         user = (User) initialValue;
     }
 
+    /**
+     * Sets the Users to use as options for this widget
+     * 
+     * @param options
+     */
     public void setOptions(List<User> options) {
         this.options = options;
     }

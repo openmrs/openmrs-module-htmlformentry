@@ -47,7 +47,7 @@ public abstract class SingleOptionWidget implements Widget {
     }
 
 	/**
-	 * Adds an option to this Widget
+	 * Adds an Option to this Widget
 	 * @param option
 	 */
     public void addOption(Option option) {

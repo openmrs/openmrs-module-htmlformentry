@@ -9,6 +9,10 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
+/**
+ * A widget that allows the selection of a specific day, month, and year. To handle both
+ * a date and time, see {@see DateTimeWidget}.
+ */
 public class DateWidget implements Widget {
     
     private Date initialValue;

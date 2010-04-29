@@ -4,6 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.module.htmlformentry.FormEntryContext;
 
+/**
+ * A widget the represents as error field.
+ */
 public class ErrorWidget implements Widget {
 
     public String generateHtml(FormEntryContext context) {

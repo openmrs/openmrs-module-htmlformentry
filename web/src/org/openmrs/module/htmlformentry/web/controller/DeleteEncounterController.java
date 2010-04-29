@@ -10,6 +10,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.Controller;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * Used to delete an encounter. Handles {@code deleteEncounter.form}.
+ * <p/>
+ * Format: {@code deleteEncounters.form?encounterId=123&reason=reason_for_voiding}.
+ * <p/>
+ * Redirects to the dashboard for the current Patient.
+ */
 public class DeleteEncounterController implements Controller {
 
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {

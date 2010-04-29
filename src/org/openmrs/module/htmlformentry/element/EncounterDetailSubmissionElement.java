@@ -30,6 +30,10 @@ import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 
+/**
+ * Holds the widgets used to represent an Encounter details, and serves as both the HtmlGeneratorElement 
+ * and the FormSubmissionControllerAction for Encounter details.
+ */
 public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 		FormSubmissionControllerAction {
 

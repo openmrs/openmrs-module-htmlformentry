@@ -8,6 +8,9 @@ import org.openmrs.FormField;
  */
 public class WidgetFactory {
 
+	/**
+	 * Used by {@see inferWidgetTypeHint(FormField)}.
+	 */
     public enum WidgetTypeHint {
         NUMBER,
         TEXT,
@@ -21,6 +24,9 @@ public class WidgetFactory {
         DATE_TIME
     }
 
+    /**
+     * Given a FormField, infers the related widget from the ConceptDatatype associated with that FormField.
+     */
     public static WidgetTypeHint inferWidgetTypeHint(FormField formField) {
         ConceptDatatype dt = formField.getField().getConcept().getDatatype();
         if (dt.isText()) {
@@ -86,6 +92,12 @@ public class WidgetFactory {
     }
     */
     
+    /**
+     * Formats a value for display as HTML.
+     * 
+     * @param the value to display
+     * @return the HTML to display the value
+     */
     public static String displayValue(String value) {
         value = value.replace("<", "&lt;");
         value = value.replace(">", "&gt;");
@@ -93,6 +105,12 @@ public class WidgetFactory {
         return "<span class=\"value\">" + value + "</span>";
     }
     
+    /** 
+     * Returns the HTML to display an empty value.
+     * 
+     * @param value
+     * @return the HTML to display the empty value
+     */
     public static String displayEmptyValue(String value) {
         value = value.replace("<", "&lt;");
         value = value.replace(">", "&gt;");

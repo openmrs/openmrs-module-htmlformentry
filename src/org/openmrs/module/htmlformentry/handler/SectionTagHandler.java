@@ -11,13 +11,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
- * A convenient way to implement a tag handler than just replaces the tag with a dynamically generated string.
- * (For example <obs .../> gets substituted with labels and widgets.)
- * 
- * Just override the getSubstitution() method.
+ * Handles the {@code <section>} tag
  */
 public class SectionTagHandler implements TagHandler {
 
+	/** The logger to use with this class */
     protected final Log log = LogFactory.getLog(getClass());
     
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {

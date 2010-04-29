@@ -9,6 +9,9 @@ import org.openmrs.Concept;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 
+/**
+ * Currently unimplemented
+ */
 public class RepeatConceptHandler { /* extends RepeatTagHandler {
 
     private List<Concept> items;

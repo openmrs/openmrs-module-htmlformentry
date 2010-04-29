@@ -6,7 +6,9 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.EnrollInProgramElement;
 
-
+/**
+ * Handles the {@code <enrollInProgram>} tag
+ */
 public class EnrollInProgramHandler extends SubstitutionTagHandler implements TagHandler {
 	
 	@Override

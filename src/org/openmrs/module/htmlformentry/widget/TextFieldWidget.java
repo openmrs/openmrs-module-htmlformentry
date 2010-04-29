@@ -5,6 +5,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
+/**
+ * A widget that implements a text input field, either as a simple input field, like {@code <input type="text"/>},
+ * or as a {@code <textarea>}.
+ */
 public class TextFieldWidget implements Widget {
     
     private Boolean textArea = false;
@@ -13,19 +17,37 @@ public class TextFieldWidget implements Widget {
     private Integer textAreaColumns;
     private String initialValue;
     
+    /**
+     * Default constructor implements the text field as a simple input field, like {@code <input type="text"/>}.
+     */
     public TextFieldWidget() {
         this(false);
     }
     
+    /**
+     * If textArea parameter is set to True, implement this field as a {@code <textarea>}.
+     * 
+     * @param textArea
+     */
     public TextFieldWidget(Boolean textArea) {
         this.textArea = textArea;
     }
     
+    /**
+     * Implements the field as a {@code <input type="text">} with the specified size.
+     * @param size
+     */
     public TextFieldWidget(Integer size) {
         this(false);
         textFieldSize = size;
     }
     
+    /**
+     * Implements the field as a {@code <textarea>} with the specified numbers of rows and columns.
+     *
+     * @param rows
+     * @param columns
+     */
     public TextFieldWidget(Integer rows, Integer columns) {
         this(true);
         textAreaRows = rows;
@@ -33,6 +55,8 @@ public class TextFieldWidget implements Widget {
     }
 
     /**
+     * Gets the initial value associated with this widget
+     * 
      * @return the initialValue
      */
     public String getInitialValue() {

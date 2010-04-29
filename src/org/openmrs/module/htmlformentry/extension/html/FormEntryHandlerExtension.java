@@ -15,7 +15,13 @@ import org.openmrs.module.web.FormEntryContext;
 import org.openmrs.module.web.extension.FormEntryHandler;
 import org.openmrs.util.OpenmrsConstants;
 
-
+/**
+ * Defines the extension point that allows HTML Forms to appear in 
+ * the UI when the user indicates they want to enter a form, and wants to pick which form.
+ * 
+ * This extension is enabled by defining (uncommenting) it in the 
+ * /metadata/config.xml file. 
+ */
 public class FormEntryHandlerExtension extends FormEntryHandler {
 
 	/**

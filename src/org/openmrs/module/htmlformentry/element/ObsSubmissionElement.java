@@ -43,7 +43,8 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
- *
+ * Holds the widgets used to represent a specific Observation, and serves as both the HtmlGeneratorElement 
+ * and the FormSubmissionControllerAction for the Observation.
  */
 public class ObsSubmissionElement implements HtmlGeneratorElement,
 		FormSubmissionControllerAction {
@@ -627,49 +628,49 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	};
 
 	/**
-	 * @return the concept
+	 * Returns the concept associated with this Observation
 	 */
 	public Concept getConcept() {
 		return concept;
 	}
 
 	/**
-	 * @return the answerConcept
+	 * Returns the concept associated with the answer to this Observation
 	 */
 	public Concept getAnswerConcept() {
 		return answerConcept;
 	}
 
 	/**
-	 * @return the conceptAnswers
+	 * Returns the concepts that are potential answers to this Observation
 	 */
 	public List<Concept> getConceptAnswers() {
 		return conceptAnswers;
 	}
 
 	/**
-	 * @return the numericAnswers
+	 * Returns the Numbers that are potential answers for this Observation
 	 */
 	public List<Number> getNumericAnswers() {
 		return numericAnswers;
 	}
 
 	/**
-	 * @return the textAnswers
+	 * Returns the potential text answers for this Observation
 	 */
 	public List<String> getTextAnswers() {
 		return textAnswers;
 	}
 
 	/**
-	 * @return the answerLabels
+	 * Returns the labels to use for the answers to this Observation
 	 */
 	public List<String> getAnswerLabels() {
 		return answerLabels;
 	}
 
 	/**
-	 * @return the answerLabel
+	 * Returns the label to use for the answer to this Observation
 	 */
 	public String getAnswerLabel() {
 		return answerLabel;

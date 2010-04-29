@@ -15,7 +15,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 
 /**
- * <enrollInProgram programId="1"/>
+ * Serves as both the HtmlGeneratorElement and the FormSubmissionControllerAction
+ * for a Program Enrollment.
  */
 public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	

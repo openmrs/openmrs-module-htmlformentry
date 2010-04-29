@@ -7,6 +7,9 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
+/**
+ * Handles the {@code <submit>} tag
+ */
 public class SubmitButtonHandler extends SubstitutionTagHandler {
 
     @Override

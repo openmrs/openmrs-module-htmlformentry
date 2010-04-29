@@ -25,6 +25,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * Handles the display of an HTML Form Schema.
+ * <p/>
+ * Handles {@code htmlFormSchema.form} requests. Renders view {@code htmlFormSchema.jsp}.
+ */
 public class HtmlFormSchemaController extends SimpleFormController {
 
     /** Logger for this class and subclasses */

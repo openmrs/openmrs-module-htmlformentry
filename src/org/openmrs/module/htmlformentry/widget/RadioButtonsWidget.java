@@ -4,7 +4,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
- * Like a bunch of <input type="radio"/>
+ * A widget that implements radio buttons, like a bunch of {@code <input type="radio"/>}.
  */
 public class RadioButtonsWidget extends SingleOptionWidget {
 

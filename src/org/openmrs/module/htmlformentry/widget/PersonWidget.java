@@ -1,19 +1,19 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Person;
-import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.springframework.util.StringUtils;
 
-
+/**
+ * A widget that allows for the selection of a Person.  Implemented using a drop-down selection list.
+ */
 public class PersonWidget implements Widget {
 	
 	private Person person;
@@ -25,6 +25,11 @@ public class PersonWidget implements Widget {
 	    person = (Person) initialValue;
     }
 	
+	/**
+	 * Sets the Persons to use as options for this widget
+	 * 
+	 * @param options
+	 */
 	public void setOptions(List<Person> options) {
         this.options = options;
     }

@@ -8,7 +8,10 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.springframework.util.StringUtils;
 
-
+/**
+ * A widget that allows the input of a Person name. Implemented using text fields
+ * that accept a Family Name and a Given Name.
+ */
 public class PersonNameWidget implements Widget {
 	
 	private PersonName initialValue;

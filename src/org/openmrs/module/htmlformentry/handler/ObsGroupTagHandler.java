@@ -16,6 +16,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Handles the {@code <obsGroup>} tag
+ */
 public class ObsGroupTagHandler implements TagHandler {
     
     /**

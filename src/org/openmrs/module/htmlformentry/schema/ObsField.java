@@ -5,6 +5,9 @@ import java.util.List;
 
 import org.openmrs.Concept;
 
+/**
+ * Represents an Obs field in an HTML Form schema
+ */
 public class ObsField implements HtmlFormField {
 
 	private String name;
@@ -14,6 +17,8 @@ public class ObsField implements HtmlFormField {
     public ObsField() { }
 
 	/**
+	 * Gets the name of the field
+	 * 
 	 * @return the name
 	 */
 	public String getName() {
@@ -21,6 +26,8 @@ public class ObsField implements HtmlFormField {
 	}
 
 	/**
+	 * Sets the name of the field
+	 * 
 	 * @param name the name to set
 	 */
 	public void setName(String name) {
@@ -28,6 +35,8 @@ public class ObsField implements HtmlFormField {
 	}
 
 	/**
+	 * Gets the question associated with the field
+	 * 
 	 * @return the question
 	 */
 	public Concept getQuestion() {
@@ -35,6 +44,8 @@ public class ObsField implements HtmlFormField {
 	}
 
 	/**
+	 * Sets the question associated with the field
+	 * 
 	 * @param question the question to set
 	 */
 	public void setQuestion(Concept question) {
@@ -42,6 +53,8 @@ public class ObsField implements HtmlFormField {
 	}
 
 	/**
+	 * Gets the answers associated with the field
+	 * 
 	 * @return the answers
 	 */
 	public List<ObsFieldAnswer> getAnswers() {
@@ -49,6 +62,8 @@ public class ObsField implements HtmlFormField {
 	}
 
 	/**
+	 * Sets the answers associated with the field
+	 * 
 	 * @param answers the answers to set
 	 */
 	public void setAnswers(List<ObsFieldAnswer> answers) {

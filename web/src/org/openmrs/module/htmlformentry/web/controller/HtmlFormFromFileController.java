@@ -25,6 +25,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
 
+/**
+ * The controller for previewing a HtmlForm by loading the xml file that defines that HtmlForm.
+ * <p/>
+ * Handles {@code htmlFormFromFile.form} requests. Renders view {@code htmlFormFromFile.jsp}.
+ */
 public class HtmlFormFromFileController extends SimpleFormController {
 
     /** Logger for this class and subclasses */

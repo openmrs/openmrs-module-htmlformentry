@@ -11,7 +11,10 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
-
+/**
+ * A widget that allows the selection of a certain time-of-day.  To handle both
+ * a date and time, see {@see DateTimeWidget}.
+ */
 public class TimeWidget implements Widget {
 
 	private Date initialValue;
