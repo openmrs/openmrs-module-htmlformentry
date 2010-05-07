@@ -10,7 +10,7 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
 
 /**
- * Encapsulates how to validate the form, and commit it to the database.
+ * Encapsulates how to validate and submit a form.
  * <p/>
  * When going through XML/HTML substitution to build a form, one of these is created as a side-effect.
  */
