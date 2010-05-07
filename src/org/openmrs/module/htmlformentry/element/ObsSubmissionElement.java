@@ -64,8 +64,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	private List<String> textAnswers = new ArrayList<String>();
 	private List<String> answerLabels = new ArrayList<String>();
 	private String answerLabel;
-	private Obs existingObs; // in edit mode, this allows submission to check
-								// whether the obs has been modified or not
+    private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
+    private boolean required;
 
 	public ObsSubmissionElement(FormEntryContext context,
 			Map<String, String> parameters) {
@@ -81,6 +81,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		}
 		if ("true".equals(parameters.get("allowFutureDates")))
 			allowFutureDates = true;
+        if ("true".equals(parameters.get("required"))) {
+        	required = true;
+        }
 		prepareWidgets(context, parameters);
 	}
 
@@ -549,6 +552,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			}
 			ret.append(accessionNumberWidget.generateHtml(context));
 		}
+        
+        // if value is required
+        if (required) {
+        	ret.append("*");
+        }
+        
 		if (context.getMode() != Mode.VIEW) {
 			ret.append(" ");
 			ret.append(errorWidget.generateHtml(context));
@@ -585,6 +594,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 					.getMessageSourceService().getMessage(
 							"htmlformentry.error.cannotBeInFuture")));
 
+
+
 		if (value instanceof Date && !allowFutureDates
 				&& OpenmrsUtil.compare((Date) value, new Date()) > 0) {
 			ret.add(new FormSubmissionError(valueWidget, Context
@@ -592,6 +603,17 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 							"htmlformentry.error.cannotBeInFuture")));
 		}
 
+		if (required) {
+        	if (value == null) {
+        		ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
+        	} else if (value instanceof String) {
+        		String valueStr = (String) value;
+        		if (StringUtils.isEmpty(valueStr)) {
+        			ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
+        		}
+        	}
+        }
+		
 		return ret;
 	}
 
