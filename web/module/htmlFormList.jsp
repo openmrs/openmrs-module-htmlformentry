@@ -2,7 +2,7 @@
 
 <%@ include file="/WEB-INF/template/header.jsp"%>
 
-<openmrs:require privilege="<% OpenmrsConstants.PRIV_MANAGE_FORMS %>" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
+<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
 
 <h2><spring:message code="htmlformentry.HtmlForm.edit.title" /></h2>
 

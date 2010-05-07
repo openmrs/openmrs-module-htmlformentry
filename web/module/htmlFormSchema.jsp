@@ -6,7 +6,7 @@
 	tr,th {text-align:left; vertical-align:top;}
 </style>
 
-<openmrs:require privilege="<% OpenmrsConstants.PRIV_MANAGE_FORMS %>" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
+<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
 
 <c:if test="${ not empty message }">
 	<span style="color:red;">${message}</span>
