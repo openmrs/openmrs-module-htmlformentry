@@ -16,6 +16,8 @@ package org.openmrs.module.htmlformentry.extension.html;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openmrs.User;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.Extension;
 import org.openmrs.module.web.extension.AdministrationSectionExt;
 import org.openmrs.util.OpenmrsConstants;
@@ -50,9 +52,13 @@ public class AdminList extends AdministrationSectionExt {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		
-		map.put("module/htmlformentry/htmlForm.list", "htmlformentry.manage");
-		map.put("module/htmlformentry/htmlFormFromFile.form", "htmlformentry.preview");
+	User currentUser = Context.getAuthenticatedUser();
 		
+		if (currentUser.hasPrivilege(OpenmrsConstants.PRIV_MANAGE_FORMS)) {
+			map.put("module/htmlformentry/htmlForm.list", "htmlformentry.manage");
+			map.put("module/htmlformentry/htmlFormFromFile.form", "htmlformentry.preview");
+		}
+			
 		return map;
 	}
 
