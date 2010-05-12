@@ -7,12 +7,6 @@
 <!-- ********************************************************* -->
 <project name="HtmlFormEntry" default="package-module">
 		
-<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-	 <classpath>
-	   <pathelement location="lib-common/ant-contrib-1.0b2.jar"/>
-	 </classpath>
-</taskdef>
-	
 	<!-- *********************************************************** -->
 	<!-- **                     TARGETS                           ** -->
 	<!-- *********************************************************** -->
@@ -29,15 +23,10 @@
 		
 		<xmlproperty file="metadata/config.xml" />
 		
-		<!-- strip "$Rev $" out of the revision number -->
-		<propertyregex property="module.revision.number" 
-			input="${module.revision.number}"
-			regexp="\$Rev: (.*) \$" replace="\1" override="true"/>
-		
 		<filterset id="variables.to.replace">
 			<filter token="MODULE_ID" value="${module.id}" />
 			<filter token="MODULE_NAME" value="${module.name}" />
-			<filter token="MODULE_VERSION" value="${module.revision.prefix}.${module.revision.number}" />
+			<filter token="MODULE_VERSION" value="${module.version}" />
 			<filter token="MODULE_PACKAGE" value="${module.package}" />
 		</filterset>
 		
@@ -114,7 +103,7 @@
 		</copy>
 		
 		<!-- Create distributable jar file -->
-		<jar destfile="dist/${module.id}-${module.revision.prefix}.${module.revision.number}.omod">
+		<jar destfile="dist/${module.id}-${module.version}.omod">
 			<fileset dir="build" includes="**/*" />
 		</jar>
 	</target>
