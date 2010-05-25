@@ -42,4 +42,27 @@
 		</sql>
 	</diff>
 	
+	<diff>
+		<version>1.1.0</version>
+		<author>Mark Goodrich</author>
+		<date>May 25 2010</date>
+		<description>
+			Update htmlform table to contain all standard Openmrs metadata fields
+		</description>
+		<sql>
+			ALTER TABLE htmlformentry_html_form
+			ADD COLUMN `uuid` char(38),
+			ADD COLUMN `description` varchar(1000),
+			ADD COLUMN `retired_by` int(11) default NULL,
+			ADD COLUMN `date_retired` datetime default NULL,
+			ADD COLUMN `retire_reason` varchar(255) default NULL,
+			MODIFY `name` varchar(255) NOT NULL,
+			ADD CONSTRAINT `user_who_retired_html_form` FOREIGN KEY (`retired_by`) REFERENCES `users` (`user_id`);
+			
+			UPDATE htmlformentry_html_form SET uuid = UUID() WHERE uuid is null;
+			ALTER TABLE htmlformentry_html_form MODIFY uuid char(38) NOT NULL;
+			CREATE UNIQUE INDEX htmlformentry_html_form_uuid_index ON htmlformentry_html_form (uuid);
+		</sql>
+	</diff>
+	
 </sqldiff>

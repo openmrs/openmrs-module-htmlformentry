@@ -76,9 +76,7 @@
 						</bean>
 					</property>
 					<property name="preInterceptors">
-						<list>
-							<ref bean="authorizationInterceptor"/>
-						</list>
+						<ref bean="serviceInterceptors"/>  <!--  handles common metadata fields -->
 					</property>
 					<property name="transactionAttributeSource">
 						<bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
