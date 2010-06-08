@@ -23,11 +23,11 @@
 <form method="post">
 	<table>
 		<tr>
-			<th><spring:message code="general.id"/></th>
+			<th align="right"><spring:message code="general.id"/>:</th>
 			<td>${command.id}</td>
 		</tr>
 		<tr>
-			<th><spring:message code="htmlformentry.HtmlForm.form"/></th>
+			<th align="right"><spring:message code="htmlformentry.HtmlForm.form"/>:</th>
 			<td>
 				<spring:bind path="command.form">
 					<select name="${status.expression}">
@@ -45,7 +45,7 @@
 			</td>
 		</tr>
 		<tr>
-			<th><spring:message code="htmlformentry.HtmlForm.name"/></th>
+			<th align="right"><spring:message code="htmlformentry.HtmlForm.name"/>:</th>
 			<td>
 				<spring:bind path="command.name">
 					<input type="text" name="${status.expression}" value="${status.value}"/>
@@ -56,7 +56,7 @@
 			</td>
 		</tr>
 		<tr>
-			<th><spring:message code="general.retired" /></th>
+			<th align="right"><spring:message code="general.retired" />:</th>
 			<td>
 				<spring:bind path="command.retired">
 					<input type="hidden" name="_${status.expression}">
@@ -69,19 +69,19 @@
 			</td>
 		</tr>
 		<tr>
-			<th><spring:message code="general.createdBy"/></th>
+			<th align="right"><spring:message code="general.createdBy"/>:</th>
 			<td>
 				${command.creator} ${command.dateCreated}
 			</td>
 		</tr>
 		<tr>
-			<th><spring:message code="general.changedBy"/></th>
+			<th align="right"><spring:message code="general.changedBy"/>:</th>
 			<td>
 				${command.changedBy} ${command.dateChanged}
 			</td>
 		</tr>
 		<tr>
-			<th><spring:message code="Form.formSchema"/></th>
+			<th align="right"><spring:message code="Form.formSchema"/>:</th>
 			<td>
 				<c:if test="${!empty command.xmlData}">
 					<a target="_blank" href="htmlFormSchema.form?id=${command.id}"><spring:message code="general.view"/></a>
@@ -89,10 +89,11 @@
 			</td>
 		</tr>
 		<tr>
-			<th valign="top"><spring:message code="htmlformentry.HtmlForm.html"/></th>
+			<th valign="top" align="right"><spring:message code="htmlformentry.HtmlForm.html"/>:</th>
 			<td>
 				<spring:bind path="command.xmlData">
-					<textarea rows="20" cols="80" name="${status.expression}"><c:out value="${status.value}" escapeXml="true"/></textarea>
+					<!-- added id="xmlData" to assure compatibility with HtmlFormDesigner module -->
+					<textarea id="xmlData" rows="20" cols="80" name="${status.expression}"><c:out value="${status.value}" escapeXml="true"/></textarea>
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
