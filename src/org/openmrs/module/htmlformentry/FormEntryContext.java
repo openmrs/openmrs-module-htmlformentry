@@ -20,6 +20,7 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.module.htmlformentry.schema.RptGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
@@ -46,11 +47,17 @@ public class FormEntryContext {
     private Mode mode;
     private Map<Widget, String> fieldNames = new HashMap<Widget, String>();
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
+    
+    /* the list to store all rpt in this form */
+    private List<RptGroup> exsistingRptGroups = new ArrayList<RptGroup>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
     private ObsGroup activeObsGroup;
     
-    private Patient existingPatient;
+    /* for the newrepeat tag */
+    private RptGroup activeRptGroup;
+ 
+	private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
     private List<Obs> existingObsInGroups;
@@ -58,7 +65,7 @@ public class FormEntryContext {
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
 
-    
+
     public FormEntryContext(Mode mode) {
         this.mode = mode;
         setupExistingData((Encounter) null);
@@ -74,7 +81,15 @@ public class FormEntryContext {
     
     private Integer sequenceNextVal = 1;
     
-    /**
+    /* the counter to realize the naming as
+     * rpt1_m2 for controls in a repeater
+     */
+    private Integer newrepeatSeqVal = 1;
+    private Integer ctrlInNewrepeatSeqVal = 1;
+    private Integer newrepeatTimesSeqVal = 1;
+    
+
+	/**
      * Registers a widget within the Context
      *  
      * @param widget the widget to register
@@ -83,15 +98,40 @@ public class FormEntryContext {
     public String registerWidget(Widget widget) {
         if (fieldNames.containsKey(widget))
             throw new IllegalArgumentException("This widget is already registered");
-        int thisVal = 0;
-        synchronized (sequenceNextVal) {
-            thisVal = sequenceNextVal;
-            sequenceNextVal = sequenceNextVal + 1;            
+        
+        if(this.activeRptGroup == null){
+        	int thisVal = 0;
+        	synchronized (sequenceNextVal) {
+        		thisVal = sequenceNextVal;
+        		sequenceNextVal = sequenceNextVal + 1;            
+        	}
+        	String fieldName = "w" + thisVal;
+        	fieldNames.put(widget, fieldName);
+        	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
+        	return fieldName;
         }
-        String fieldName = "w" + thisVal;
-        fieldNames.put(widget, fieldName);
-        log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
-        return fieldName;
+        else{
+        	/* we are in a repeat now, need to use the alternative naming system */
+        	int thisRptVal = 0; //rpt counter
+        	int thisCtrlVal = 0;   //ctl counter
+        	int thisRpttimeVal = 0;
+        	 
+        	synchronized (newrepeatSeqVal) {
+        		thisRptVal = newrepeatSeqVal;        
+        	}
+        	synchronized (ctrlInNewrepeatSeqVal) {
+        		thisCtrlVal = ctrlInNewrepeatSeqVal;
+        		ctrlInNewrepeatSeqVal = ctrlInNewrepeatSeqVal + 1;            
+        	}
+        	synchronized(this.newrepeatTimesSeqVal){
+        		thisRpttimeVal = newrepeatTimesSeqVal;
+        	}
+        	/* i.e. rpt1_w1_1 stands for the first widget in the 1st repeat*/
+        	String fieldName = "rpt" + thisRptVal+"_w"+thisCtrlVal+"_"+thisRpttimeVal;
+        	fieldNames.put(widget, fieldName);
+        	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
+        	return fieldName;
+        }
     }
     
     /**
@@ -242,7 +282,8 @@ public class FormEntryContext {
         existingEncounter = encounter;
         existingObs = new HashMap<Concept, List<Obs>>();
         if (encounter != null) {
-            for (Obs obs : encounter.getObsAtTopLevel(false)) {
+        	List <Obs> sortedObs = HtmlFormEntryUtil.SortObs(encounter.getObsAtTopLevel(false));
+            for (Obs obs : sortedObs) {
                 List<Obs> list = existingObs.get(obs.getConcept());
                 if (list == null) {
                     list = new LinkedList<Obs>();
@@ -381,7 +422,44 @@ public class FormEntryContext {
     	return schema;
     }
     
-    /**
+    public RptGroup getActiveRptGroup() {
+		return activeRptGroup;
+	}
+
+	public void setActiveRptGroup(RptGroup activeRptGroup) {
+		this.activeRptGroup = activeRptGroup;
+	}
+	
+    public Integer getNewrepeatSeqVal() {
+    	int thisRptVal = 0; //rpt counter
+    	 
+    	synchronized (newrepeatSeqVal) {
+    		thisRptVal = newrepeatSeqVal; 
+    	}
+		return thisRptVal;
+	}
+    
+    
+    
+    public Integer getNewrepeatTimesSeqVal() {
+    	int thisRptTimeVal = 0; //rpt times counter
+   	 
+    	synchronized (this.newrepeatTimesSeqVal) {
+    		thisRptTimeVal = newrepeatTimesSeqVal;
+    	}
+		return thisRptTimeVal;
+	}
+
+
+	public List<RptGroup> getExsistingRptGroups() {
+		return exsistingRptGroups;
+	}
+
+	public void setExsistingRptGroups(List<RptGroup> exsistingRptGroups) {
+		this.exsistingRptGroups = exsistingRptGroups;
+	}
+
+	/**
      * Modes associated with the HTML Form context
      */
     public enum Mode {
@@ -392,5 +470,55 @@ public class FormEntryContext {
         /** A saved form in view-only mode */
         VIEW
     }
-    
+
+    /***
+     * Notify we are starting a newrepeat group
+     */
+	public void beginNewRepeatGroup() {
+		// TODO Auto-generated method stub
+		/* we are in a repeat group */
+		int index;
+		synchronized (newrepeatSeqVal) {
+    		index = newrepeatSeqVal;
+    	}
+		this.activeRptGroup = this.exsistingRptGroups.get(index -1);
+	}
+
+	 /***
+     * Notify we are out of a newrepeat group
+     */
+	public void endNewRepeatGroup() {
+		// TODO Auto-generated method stubs
+		this.activeRptGroup = null;
+		synchronized (newrepeatSeqVal) {
+    		++newrepeatSeqVal;
+    	}
+		/* reset the m and k value */
+		synchronized (ctrlInNewrepeatSeqVal) {
+			ctrlInNewrepeatSeqVal = 1;
+		}
+		synchronized (newrepeatTimesSeqVal) {
+			 newrepeatTimesSeqVal = 1; 
+		}
+	}
+
+	/* force the repeat counter = i
+	 * */
+	public void setNewrepeatSeqVal(Integer newrepeatSeqVal) {
+		synchronized (newrepeatSeqVal) {
+			this.newrepeatSeqVal = newrepeatSeqVal;
+    	}	
+	}
+	
+	/*increase the repeattime control */
+	public void getnewrepeatTimesNextSeqVal(){
+		synchronized(newrepeatTimesSeqVal){
+			++newrepeatTimesSeqVal;
+		}
+	}
+
+	public void setCtrlInNewrepeatSeqVal(Integer ctrlInNewrepeatSeqVal) {
+		this.ctrlInNewrepeatSeqVal = ctrlInNewrepeatSeqVal;
+	}
+	
 }

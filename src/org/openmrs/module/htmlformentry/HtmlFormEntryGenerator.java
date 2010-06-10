@@ -8,9 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
 
+import org.openmrs.Obs;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.schema.RptGroup;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -252,7 +257,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
 
     private void applyTagsHelper(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        TagHandler handler = null;
+        
+    	
+    	TagHandler handler = null;
         // Find the handler for this node
         {
             String name = node.getNodeName();
@@ -334,5 +341,142 @@ public class HtmlFormEntryGenerator implements TagHandler {
             out.print("</" + node.getNodeName() + ">");
         }
     }
+    
+    /***
+     * * the function to fetch required data for later form edit display 
+     * there are 2 cases:
+     * 1)load for form display. i.e encounter = null; mode != Edit
+     * 2)load for edit. i.e. encounter != null; mode == Edit
+     * in mode of edit we have to load the existing obs before we can parse 
+     * the form, we will need
+     * 1) how many times each newrepeat repeated based on database record 
+     * 2) xml fragment in each newrepeat
+     * then we paste this fragment in front of this 
+     * @param xml
+     * @return the xml contains the newrepeat part
+     * @throws Exception 
+     */
+	public void applyNewRepeat(FormEntrySession session, String xml) throws Exception {
+		FormEntryContext context= session.getContext();
+		int startIndex =0 ;
+		int endIndex =0;
+		
+		StringBuilder sb = new StringBuilder(xml);
+
+		/* here we get the rpt xml fragment */
+		while (true) {
+        	startIndex = sb.indexOf("<newrepeat>") + 11;
+        	if(startIndex == 10)break;
+        	endIndex = sb.indexOf("</newrepeat>");
+        	String xmlfragment = sb.substring(startIndex, endIndex);
+        	  	
+        	xmlfragment = "<span>"+xmlfragment;
+        	xmlfragment = xmlfragment+"</span>";
+       
+        	RptGroup rptgroup = new RptGroup();
+        	this.FillChildObs(xmlfragment, rptgroup);
+        	
+    		rptgroup.setXmlfragment(xmlfragment);
+    		context.getExsistingRptGroups().add(rptgroup);
+    		
+    		sb = new StringBuilder(sb.substring(endIndex+12));
+        }
+		
+		/*also need to find out repeat times of each repeater */
+		if(context.getMode() == Mode.VIEW || context.getMode()== Mode.EDIT){
+			
+			Set<Obs> allObs = session.getEncounter().getAllObs();
+			List<Obs> sortedObs = new ArrayList<Obs>();
+			
+			int t = CountObs(xml);
+			
+			sortedObs = HtmlFormEntryUtil.SortObs(allObs);
+			
+			/*remove first t obs, where t stands for total number of obs appear in the htmlform*/
+			for (int i =0; i < t; ++i){
+			    sortedObs.remove(0);
+			}
+			
+			//TODO: now it can't handle when 1 repeat set is a prefix of another
+			//i.e. for sequence a,b, c <newrepeat> a,b</newrepeat>  will also match, which is
+			//not right
+			for(RptGroup rpt: context.getExsistingRptGroups()){
+				/*count for the original record*/
+				if(rpt.getObsNum()==0) continue;
+				rpt.setRepeattime(1);
+				boolean matchFlag = true;
+				while(matchFlag == true){
+					for(int i=0; i<rpt.getObsNum();++i){
+						if(sortedObs.size()<i+1
+								||sortedObs.get(i).getConcept().getConceptId().compareTo(rpt.getChildrenobs().get(i))!=0)	
+						{
+							matchFlag = false;break;
+						}
+					}
+					if(matchFlag ==true){
+						for(int i=0; i<rpt.getObsNum();++i){
+							sortedObs.remove(0);
+						}
+						//Found 1 match, add to the rpt repeattime
+						rpt.setRepeattime(rpt.getRepeattime()+1);
+					}else{break;}
+				}
+			}
+		}
+	}
+
+	private int CountObs(String xml) throws Exception {
+		// TODO Auto-generated method stub
+		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
+		NodeList nList = doc.getChildNodes();
+		Stack <NodeList> stack = new Stack<NodeList>();
+		stack.push(nList);
+		int obsCount = 0;
+		while(!stack.empty()){
+			nList = stack.pop();
+			for(int i = 0; i< nList.getLength(); ++i){
+				Node node = nList.item(i);
+				stack.push(node.getChildNodes());
+				String nodeName = node.getNodeName();
+				if("obs".equals(nodeName)){
+					++obsCount;
+				}
+			}
+		}
+		return obsCount;
+	}
+
+	/***
+	 * parse the xml fragment and store the parsed information in rptgroup
+	 * @param xml the xmlfragment with a rptgroupt
+	 * @param rptgroup the rptgroup to store a repeat info
+	 * @return the count of obs in this xml fragment
+	 * @throws Exception
+	 */
+	private void FillChildObs(String xml, RptGroup rptgroup) throws Exception {
+		// TODO handler obsgroup?
+		
+		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
+		NodeList nList = doc.getChildNodes();
+		Stack <NodeList> stack = new Stack<NodeList>();
+		stack.push(nList);
+		while(!stack.empty()){
+			nList = stack.pop();
+			for(int i = 0; i< nList.getLength(); ++i){
+				Node node = nList.item(i);
+				stack.push(node.getChildNodes());
+				String nodeName = node.getNodeName();
+				if("obs".equals(nodeName)){
+					for(int j = 0; j < node.getAttributes().getLength(); ++j){
+						if("conceptId".equals(node.getAttributes().item(j).getNodeName())){
+							int conceptId = Integer.parseInt(node.getAttributes().item(j).getNodeValue());
+							rptgroup.getChildrenobs().add(conceptId);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
 
 }

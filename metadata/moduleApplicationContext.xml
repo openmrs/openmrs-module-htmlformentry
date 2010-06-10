@@ -71,6 +71,11 @@
 								        <key><value>submit</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.SubmitButtonHandler"/>
 							      	</entry>
+							      	<!-- new entry for newrepeat tag -->
+							      	<entry>
+							      		<key><value>newrepeat</value></key>
+							      		<bean class="org.openmrs.module.htmlformentry.handler.NewRepeatHandler"/>
+							      	</entry>
 							    </map>  
 							</property>
 						</bean>

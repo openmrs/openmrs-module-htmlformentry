@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="metadata"/>
+	<classpathentry kind="lib" path="metadata"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="src" path="web/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="dist"/>
 	<classpathentry kind="lib" path="lib-common/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/antlr/antlr_2.7.6.jar"/>
-	<classpathentry kind="lib" path="/openmrs-trunk/lib/asm/asm-1.5.3.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/c3p0/c3p0-0.9.1.jar" sourcepath="/openmrs-source/c3p0-0.9.1-pre9.zip"/>
-	<classpathentry kind="lib" path="/openmrs-trunk/lib/cglib/cglib-2.1_3.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/commons-collections/commons-collections-3.2.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/commons-lang/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/dom4j/dom4j-1.6.1.jar"/>
@@ -21,12 +18,8 @@
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/junit/hsqldb-1.8.0.10.jar" sourcepath="/openmrs-source/hsqldb_1_8_0_9.zip"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/jakarta-log4j/log4j-1.2.15.jar" sourcepath="/openmrs-source/apache-log4j-1.2.15.zip"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/jta/jta.jar"/>
-	<classpathentry kind="lib" path="/openmrs-trunk/lib/junit/junit-4.4.jar" sourcepath="/openmrs-source/junit-4.4-src.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/mail/activation.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/mail/mail.jar"/>
-	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/spring-2.5.6.jar" sourcepath="/openmrs-source/spring-framework-2.5.6.SEC02-src.zip"/>
-	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/spring-test.jar" sourcepath="/openmrs-source/spring-framework-2.5.6.SEC02-src.zip"/>
-	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/spring-webmvc.jar" sourcepath="/openmrs-source/spring-webmvc-sources.zip"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/velocity/velocity-1.6-beta1.jar" sourcepath="/openmrs-source/velocity-1.6-beta1.zip"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/simple/simple-xml-1.6.1-mod.jar" sourcepath="/Simple-xml-stream-clean/src"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/liquibase/liquibase-1.9.4-mod.jar" sourcepath="/liquibase-19x"/>
@@ -37,9 +30,28 @@
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/xerces/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/slf4j/slf4j-api-1.5.6.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/slf4j/slf4j-log4j12-1.5.6.jar"/>
-	<classpathentry kind="lib" path="lib-common/openmrs-api-1.6.0.11682-dev.jar" sourcepath="/openmrs-1.6.x"/>
-	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.0.11682-dev.jar" sourcepath="/openmrs-1.6.x"/>
-	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.0.11682-dev.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/tomcat/servlet-api.jar" sourcepath="/openmrs-source/apache-tomcat-5.5.20-src.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/asm/asm-2.2.3.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/cglib/cglib-nodep-2.2.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/junit/junit-4.8.1.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/com.springsource.org.aopalliance-1.0.0.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.aop-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.asm-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.aspects-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.beans-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.beans-sources-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.context-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.context-sources-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.context.support-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.core-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.core-sources-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.expression-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.jdbc-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.orm-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.test-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.test-sources-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.transaction-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.web-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.web-sources-3.0.2.RELEASE"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.web.servlet-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.web.servlet-sources-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="C:/Documents and Settings/flash/workspace/htmlformentry/dist/dist"/>
+	<classpathentry kind="lib" path="lib-common/openmrs-api-1.6.0.11682-dev.jar"/>
+	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.0.11682-dev.jar"/>
+	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.0.11682-dev.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

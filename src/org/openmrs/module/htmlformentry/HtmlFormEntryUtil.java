@@ -4,10 +4,13 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
@@ -358,4 +361,23 @@ public class HtmlFormEntryUtil {
 	    return cal.getTime();
     }
     
+	public static List<Obs> SortObs(Set<Obs> obsset){
+		List<Obs> sortedObs = new ArrayList<Obs>();
+		if (obsset == null) return null;
+	
+		/* get the obs ordered by obs_id */
+		while(obsset.size()!= 0){
+			Obs minObs = obsset.iterator().next();
+			int minId = minObs.getObsId();
+			for (Obs obs: obsset){
+		    	if(obs.getObsId()< minId) {
+		    		minId = obs.getObsId();
+		    		minObs = obs;
+		    	}
+			}
+			obsset.remove(minObs);
+			sortedObs.add(minObs);
+		}
+		return sortedObs;
+	}
 }

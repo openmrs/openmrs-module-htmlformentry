@@ -154,6 +154,9 @@ public class HtmlFormEntryController extends SimpleFormController {
             throws Exception {
         FormEntrySession session = (FormEntrySession) commandObject;
         try {
+        	if(session.getContext().getMode()!=Mode.EDIT){
+        		session.prepareNewRepeat(request);
+        	}
             session.prepareForSubmit();
             session.getSubmissionController().handleFormSubmission(session, request);
             if (session.getContext().getMode() == Mode.ENTER && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))

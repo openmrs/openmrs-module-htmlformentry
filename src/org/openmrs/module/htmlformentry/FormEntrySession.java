@@ -29,6 +29,7 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.schema.RptGroup;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -158,7 +159,7 @@ public class FormEntrySession {
             velocityContext.put("relationshipMap", relMap);
         }
         
-        htmlGenerator = new HtmlFormEntryGenerator();
+        setHtmlGenerator(new HtmlFormEntryGenerator());
     }
     
     /**
@@ -294,10 +295,11 @@ public class FormEntrySession {
     	if (htmlForm != null) {
     		context.getSchema().setName(htmlForm.getName());
     	}
-        xml = htmlGenerator.applyMacros(xml);
-        xml = htmlGenerator.applyTemplates(xml);
-        xml = htmlGenerator.applyTranslations(xml, context);
-        xml = htmlGenerator.applyTags(this, xml);
+        xml = getHtmlGenerator().applyMacros(xml);
+        xml = getHtmlGenerator().applyTemplates(xml);
+        getHtmlGenerator().applyNewRepeat(this, xml);
+        xml = getHtmlGenerator().applyTranslations(xml, context);
+        xml = getHtmlGenerator().applyTags(this, xml);
         int endOfFirstTag = xml.indexOf('>');
         int startOfLastTag = xml.lastIndexOf('<');
         if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
@@ -309,8 +311,9 @@ public class FormEntrySession {
     /**
      * Prepares a form for submission by instantiating a FormSubmissionsActions object and initializing
      * it with the Patient and Encounter associated with the Form
+     * @throws Exception 
      */
-    public void prepareForSubmit() {
+    public void prepareForSubmit() throws Exception {
         if (context.getMode() == Mode.EDIT) {
             if (encounter == null)
                 throw new RuntimeException("Programming exception: encounter shouldn't be null in EDIT mode");
@@ -398,6 +401,8 @@ public class FormEntrySession {
                     e.setForm(form);
                     e.setEncounterType(form.getEncounterType());
                 }
+                /*save obs later so we can keep the sequence, xiaohu*/
+                e.setObs(null);
                 Context.getEncounterService().saveEncounter(e);
             }
         }
@@ -445,12 +450,16 @@ public class FormEntrySession {
         }
                 
         ObsService obsService = Context.getObsService();
-        /* This should propagate from above
+        String reason = null;
+        if(this.getContext().getMode()==Mode.EDIT){
+        	reason = "htmlformentry";
+        }
+        /* This should propagate from above */
         if (submissionActions.getObsToCreate() != null) {
             for (Obs o : submissionActions.getObsToCreate())
-                Context.getObsService().saveObs(o, null);
+                Context.getObsService().saveObs(o, reason);
         }
-        */
+        
                 
         if (submissionActions.getObsToVoid() != null) {
             for (Obs o : submissionActions.getObsToVoid()) {
@@ -650,5 +659,43 @@ public class FormEntrySession {
         }
         return ret;
     }
+
+	public void prepareNewRepeat(HttpServletRequest request) throws Exception{
+		// TODO Auto-generated method stub
+		/* get the repeater times for each repeat */
+	
+			for(int i = 0; i< this.context.getExsistingRptGroups().size();++i){
+	       		RptGroup rg = this.context.getExsistingRptGroups().get(i);
+	       		String paraName = "kCount"+(i+1);	
+	       		int rpttime = Integer.parseInt(request.getParameter(paraName));
+	       		rg.setRepeattime(rpttime);
+			}
+		
+		/*TODO: handle this mess in a more graceful way */
+		this.context. setNewrepeatSeqVal(1);
+		 /*paser the addtional controllers */
+    	for(RptGroup rg:  this.context.getExsistingRptGroups()){
+    		/* to allow the addtional widget recognized to be in a rpt
+    		 * TODO: handle this more gracefully                 */
+    		this.context.beginNewRepeatGroup();
+        	String addtionalxml =rg.getXmlfragment();
+        	
+        	for (int i=1; i< rg.getRepeattime(); ++i ){
+        		this.context.getnewrepeatTimesNextSeqVal();
+        		/*each time we reset the ctrl newrepeatseq*/
+        		this.context.setCtrlInNewrepeatSeqVal(1);
+        		this.getHtmlGenerator().applyTags(this, addtionalxml);
+        	}
+        	this.context.endNewRepeatGroup();
+        }
+	}
+
+	public void setHtmlGenerator(HtmlFormEntryGenerator htmlGenerator) {
+		this.htmlGenerator = htmlGenerator;
+	}
+
+	public HtmlFormEntryGenerator getHtmlGenerator() {
+		return htmlGenerator;
+	}
     
 }
