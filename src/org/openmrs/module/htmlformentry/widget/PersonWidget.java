@@ -52,7 +52,7 @@ public class PersonWidget implements Widget {
         if (options != null) {
             personList = options;
         } else {
-            personList = Context.getPersonService().getPeople("", true);
+            personList = Context.getPersonService().getPeople("", false);
         }
         for (Person p : personList) {
             sb.append("\n<option");

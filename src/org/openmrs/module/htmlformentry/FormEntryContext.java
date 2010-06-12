@@ -494,31 +494,39 @@ public class FormEntryContext {
     		++newrepeatSeqVal;
     	}
 		/* reset the m and k value */
-		synchronized (ctrlInNewrepeatSeqVal) {
-			ctrlInNewrepeatSeqVal = 1;
-		}
-		synchronized (newrepeatTimesSeqVal) {
-			 newrepeatTimesSeqVal = 1; 
-		}
+		ResetCtrlInNewrepeatSeqVal();
+		ResetNewrepeatTimesSeqVal();
 	}
 
-	/* force the repeat counter = i
-	 * */
-	public void setNewrepeatSeqVal(Integer newrepeatSeqVal) {
-		synchronized (newrepeatSeqVal) {
-			this.newrepeatSeqVal = newrepeatSeqVal;
-    	}	
-	}
-	
 	/*increase the repeattime control */
 	public void getnewrepeatTimesNextSeqVal(){
 		synchronized(newrepeatTimesSeqVal){
 			++newrepeatTimesSeqVal;
 		}
 	}
-
-	public void setCtrlInNewrepeatSeqVal(Integer ctrlInNewrepeatSeqVal) {
-		this.ctrlInNewrepeatSeqVal = ctrlInNewrepeatSeqVal;
+	
+	/* reset the repeat counter
+	 * */
+	public void ResetNewrepeatSeqVal() {
+		synchronized (newrepeatSeqVal) {
+			this.newrepeatSeqVal = 1;
+    	}	
+	}
+	
+	/* reset the ctrl counter in repeat 
+	 * */
+	public void ResetCtrlInNewrepeatSeqVal() {
+		synchronized(ctrlInNewrepeatSeqVal){
+			this.ctrlInNewrepeatSeqVal =1;
+		}
+	}
+	
+	/* reset the repeat times counter in repeat 
+	 * */
+	public void ResetNewrepeatTimesSeqVal() {
+		synchronized(newrepeatTimesSeqVal){
+			this.newrepeatTimesSeqVal =1;
+		}
 	}
 	
 }

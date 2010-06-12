@@ -8,6 +8,7 @@
         <column>date_created</column>
         <column>retired</column>
         <column>xml_data</column>
+        <column>uuid</column>
         <row>
         	<value>1</value>
             <null/>
@@ -25,6 +26,7 @@
 				  	</htmlform>
             	]]>
             </value>
+            <value>0050d87a-735a-11df-9768-17cfc9833272</value>
         </row>
         <row>
         	<value>2</value>
@@ -63,6 +65,7 @@
 				  	</htmlform>
             	]]>
             </value>
+             <value>0050d87a-735a-11df-9768-17cfc9833272</value>
         </row>
     </table>
 </dataset>

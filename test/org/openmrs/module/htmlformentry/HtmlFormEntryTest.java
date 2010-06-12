@@ -123,7 +123,7 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
     }
     */
     
-    private void executeXmlDataSet(String datasetFilename) throws Exception {
+    public void executeXmlDataSet(String datasetFilename) throws Exception {
         File file = new File(datasetFilename);
         
         InputStream fileInInputStreamFormat = null;

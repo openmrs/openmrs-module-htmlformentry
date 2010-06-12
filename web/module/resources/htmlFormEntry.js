@@ -123,3 +123,97 @@ function removeRow(tableId, anElementInRow) {
 			flags[0].value = 'false';
 	}
 }
+
+/* from htmlwidgets.js */
+
+function getClone(idToClone) {
+	var template = $("#"+idToClone);
+	var c = $(template).clone(true);
+	$(c).show();
+	return c;
+}
+
+function cloneAndInsertBefore(idToClone, elementToAddBefore) {
+	var newRow = getClone(idToClone);
+	$(newRow).insertBefore(elementToAddBefore);
+	return newRow;
+}
+
+/*add for remove span in repeat*/
+
+function removeParentWithClass(element, parentClass) {
+	var parent = findParentWithClass(element, parentClass);
+	$(parent).remove(); 
+	updateAllParent(parent.id);
+	//newRepeat1_1
+	var pos = parent.id.indexOf("_");
+	var temp = parent.id.substring(9, pos);
+	$('#kCount'+temp).val($('#kCount'+temp).val()-1)
+}
+
+function updateAllParent(elementid){
+
+	var nextId = GetNewRptTimeId(elementid, 1);
+	
+	while($("#"+nextId).length > 0 ){
+		updateRepeatSpan(nextId);
+		nextId = GetNewRptTimeId(nextId, 1);
+	}
+}
+
+function updateRepeatSpan(rptspanid){
+	var id = rptspanid;
+	var element = $("#"+rptspanid)[0];
+	var nextId = GetNewRptTimeId(element.id, -1);
+	element.id = nextId;
+	
+	for(var i = 0; i< element.children.length;++i){
+		var child = element.children[i];
+		if(child.id!="")
+			updateChildren(child.id);
+	}
+}
+
+
+function updateChildren(childid){
+	if(childid =="")return;
+	var child = $("#"+childid)[0];
+	var newid = GetNewRptTimeId(child.id, -1)
+	child.id = newid;
+	child.name = newid;
+	if(child.attributes["onBlur"]!== undefined){
+	    var onblur =child.attributes["onBlur"].value;
+		pos1 = onblur.indexOf("'");
+		pos2 = onblur.indexOf("'", pos1+1);
+		var temp =  onblur.substring(pos1+1,pos2);
+		pos1 = child.id.indexOf("_");
+		var tmp = child.id.substring(3,pos1);
+		temp = onblur.replace(temp, GetNewRptTimeId(temp, -1));
+		child.attributes["onBlur"].value = temp;
+	}
+	//if(child.attribute("onblur")!=null)
+	//deal with onblur to correct the error field
+	for(var i = 0; i< child.children.length; ++i){
+		var children = child.children[i];
+		updateChildren(children.id);
+	}
+}
+
+function GetNewRptTimeId(id, offset){
+	var index = id.indexOf("_");
+	if(index == -1)//should be like newrepeat1
+	{
+		return id;
+	}
+	
+	if(id.indexOf("_", index+1) != -1)
+		index  = id.indexOf("_", index+1);
+	
+	var rpttime = parseInt(id.substring(index+1,id.length));
+	var offset = parseInt(offset);
+	id = id.substring(0,index+1)+(rpttime+offset);
+	//alert(id);
+	return id;
+}
+
+

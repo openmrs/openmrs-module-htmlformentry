@@ -74,15 +74,19 @@ public class MyHtmlFormEntryTest extends BaseModuleContextSensitiveTest {
 		sb.append("<htmlform>Symptomes:" + 
 				"<newrepeat>"
 				+ "<obs conceptId=\"1\" labelText=\"This is in  first repeat\"/>"
+				+"<br/><obs conceptId=\"2\" rows=\"10\" cols=\"60\"  labelText=\"I've no idea wt is this\"/> "
 				+ "</newrepeat>" 
-				
+				/*
 				+ "\n\n<encounterDate default=\"today\"/> "
 				+ "<encounterLocation/> " + "<encounterProvider/> "
-				+ "<submit/> " + "</htmlform>");
+				+ "<submit/> " 
+				*/
+				+ "</htmlform>");
 
 		Patient demo = HtmlFormEntryUtil.getFakePerson();
 		FormEntrySession session = new FormEntrySession(demo, sb.toString());
 		System.out.println("<script src=\"jquery-1.4.2.js\" type=\"text/javascript\"></script>"
+				+"<script src=\"htmlFormEntry.js\" type=\"text/javascript\"></script>\n" 
 				+ session.getHtmlToDisplay());
 	}
 
