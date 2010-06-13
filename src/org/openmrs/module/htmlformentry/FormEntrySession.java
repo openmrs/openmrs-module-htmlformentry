@@ -300,6 +300,7 @@ public class FormEntrySession {
         getHtmlGenerator().applyNewRepeat(this, xml);
         xml = getHtmlGenerator().applyTranslations(xml, context);
         xml = getHtmlGenerator().applyTags(this, xml);
+        xml = getHtmlGenerator().applyNewRepeatEnd(this, xml);
         int endOfFirstTag = xml.indexOf('>');
         int startOfLastTag = xml.lastIndexOf('<');
         if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
@@ -446,6 +447,9 @@ public class FormEntrySession {
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
         if (context.getMode() == Mode.EDIT) {
+        	if(!this.context.getExsistingRptGroups().isEmpty()){
+        		encounter.setObs(null);/* we don't wanna update here*/
+        	}
             Context.getEncounterService().saveEncounter(encounter);
         }
                 
@@ -456,7 +460,7 @@ public class FormEntrySession {
         }
         
         /* This should propagate from above */
-        /*uncomment this for the obs saving */
+        /*uncomment this for the obs saving to maintain the order*/
         if (submissionActions.getObsToCreate() != null) {
             for (Obs o : submissionActions.getObsToCreate())
                 Context.getObsService().saveObs(o, reason);
@@ -706,5 +710,12 @@ public class FormEntrySession {
 	public HtmlFormEntryGenerator getHtmlGenerator() {
 		return htmlGenerator;
 	}
-    
+
+	/*remove all exsiting obs linked with this encounter */
+	public void voidExistingObs() {
+		// TODO Auto-generated method stub
+		for(Obs obs: this.encounter.getAllObs()){
+			Context.getObsService().voidObs(obs,"htmlformentryedit");
+		}
+	}
 }

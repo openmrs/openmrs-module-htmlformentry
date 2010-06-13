@@ -71,6 +71,10 @@ public class FormEntryContext {
         setupExistingData((Encounter) null);
     }
     
+    public void setMode(Mode mode){
+    	this.mode = mode;
+    }
+    
     /**
      * Gets the {@see Mode} associated with this Context
      * @return the {@see Mode} associatd with this Context
@@ -281,8 +285,18 @@ public class FormEntryContext {
     public void setupExistingData(Encounter encounter) {
         existingEncounter = encounter;
         existingObs = new HashMap<Concept, List<Obs>>();
+        Set <Obs> obsset = new HashSet<Obs>();
         if (encounter != null) {
-        	List <Obs> sortedObs = HtmlFormEntryUtil.SortObs(encounter.getObsAtTopLevel(false));
+        	
+        	/*obsgroup won't display, we only care non group members */
+        	for(Obs obs:encounter.getObsAtTopLevel(false)){
+        		if(!obs.hasGroupMembers()){
+        			obsset.add(obs);
+        		}else{
+        			obsset.addAll(obs.getGroupMembers());
+        		}
+        	}
+        	List <Obs> sortedObs = HtmlFormEntryUtil.SortObs(obsset);
             for (Obs obs : sortedObs) {
                 List<Obs> list = existingObs.get(obs.getConcept());
                 if (list == null) {

@@ -92,7 +92,8 @@ public class ObsGroupTagHandler implements TagHandler {
     }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        session.getContext().endObsGroup();
+        out.print("<br/>");
+    	session.getContext().endObsGroup();
         session.getContext().setObsGroup(null);
         session.getSubmissionController().addAction(ObsGroupAction.end());
     }

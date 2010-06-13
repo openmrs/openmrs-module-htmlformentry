@@ -19,15 +19,18 @@ public class NewRepeatHandler implements TagHandler {
 			Node parent, Node node) {
 		// TODO Auto-generated method stub
 
-		if(session.getContext().getMode()==Mode.EDIT||session.getContext().getMode()==Mode.VIEW){
-			
-		}else{
+		if (session.getContext().getMode() == Mode.EDIT
+				|| session.getContext().getMode() == Mode.VIEW) {
+
+		} else {
 			out.print(this.getEndSubstitution(session));
 		}
-		out.print("<input id=\"kCount" + session.getContext().getNewrepeatSeqVal()
-				+ "\""+ " name=\"kCount" + session.getContext().getNewrepeatSeqVal()
-				+ "\""+ " style=\"display: none;\" value=\"" +session.getContext().getNewrepeatTimesSeqVal()+"\"/> \n");
-		
+		out.print("<input id=\"kCount"
+				+ session.getContext().getNewrepeatSeqVal() + "\""
+				+ " name=\"kCount" + session.getContext().getNewrepeatSeqVal()
+				+ "\"" + " style=\"display: none;\" value=\""
+				+ session.getContext().getNewrepeatTimesSeqVal() + "\"/> \n");
+
 		session.getContext().endNewRepeatGroup();
 
 	}
@@ -73,36 +76,20 @@ public class NewRepeatHandler implements TagHandler {
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out,
 			Node parent, Node node) {
-		
-		/*notify the context that we are strating a repeater  */
+
+		/* notify the context that we are strating a repeater */
 		FormEntryContext context = session.getContext();
 		context.beginNewRepeatGroup();
-		if(context.getMode()==Mode.VIEW||context.getMode()==Mode.EDIT){
-			
-			RptGroup rg = context.getExsistingRptGroups().get(context.getNewrepeatSeqVal()-1);
-	        String addtionalxml =rg.getXmlfragment(); 	
-	        for (int i=1; i< rg.getRepeattime(); ++i ){
-	        	try {
-	        		String replaceStr =session.getHtmlGenerator().applyTags(session, addtionalxml);
-	        		int endOfFirstTag = replaceStr.indexOf('>');
-	                int startOfLastTag = replaceStr.lastIndexOf('<');
-	                if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
-	                	replaceStr = "";
-	                replaceStr = replaceStr.substring(endOfFirstTag + 1, startOfLastTag);
-					out.print(replaceStr);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				context.getnewrepeatTimesNextSeqVal();
-	        }
-		}
-		else{
+		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
+
+			out.print("<#reservenewrepeat" + context.getNewrepeatSeqVal());
+
+		} else {
 			String replacement = getStartSubstitution(session);
 			out.print(replacement);
 		}
 
-        return true;
+		return true;
 	}
 
 	private String getStartSubstitution(FormEntrySession session) {

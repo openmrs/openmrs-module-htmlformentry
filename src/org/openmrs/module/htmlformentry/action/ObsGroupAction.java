@@ -10,6 +10,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.InvalidActionException;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
  * Defines the actions to take when submitting or validating an ObsGroup
@@ -60,7 +61,20 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         try {
             if (start) {
-                if (existingGroup != null) {
+            	/* cheat here if want to edit a form with newrepeat
+            	 * we have to void all obs as well as obs groups and
+            	 * reinsert them.
+            	 */
+            	if(session.getContext().getMode()==Mode.EDIT && !session.getContext().getExsistingRptGroups().isEmpty()){
+            		/*this exsiting group will be take care off automatcally
+            		if (existingGroup != null) {
+                    	session.getSubmissionActions().getObsToVoid().add(existingGroup);
+                    }*/
+            		Obs obsGroup = new Obs();
+                    obsGroup.setConcept(groupingConcept);
+                    session.getSubmissionActions().beginObsGroup(obsGroup);
+            	}
+            	else if (existingGroup != null) {
                     session.getSubmissionActions().beginObsGroup(existingGroup);
                 } else {
                     Obs obsGroup = new Obs();
