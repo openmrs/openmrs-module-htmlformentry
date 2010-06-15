@@ -465,7 +465,7 @@ public class FormEntryContext {
 	}
 
 
-	public List<RptGroup> getExsistingRptGroups() {
+	public List<RptGroup> getExistingRptGroups() {
 		return exsistingRptGroups;
 	}
 

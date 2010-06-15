@@ -356,12 +356,14 @@ public class FormEntrySession {
             Obs o = iter.next();
             if (o.hasGroupMembers())
                 continue;
+            /* we want to save this obs to db even if it is null*/
+            /*
             if (!StringUtils.hasText(o.getValueAsString(Context.getLocale()))) {
                 // this has no value, and we already checked for children. So remove it.
                 log.trace("Removing empty obs group");
                 o.getEncounter().removeObs(o);
                 iter.remove();
-            }
+            }*/
         }
 
         // propagate encounterDatetime to Obs where necessary
@@ -447,7 +449,7 @@ public class FormEntrySession {
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
         if (context.getMode() == Mode.EDIT) {
-        	if(!this.context.getExsistingRptGroups().isEmpty()){
+        	if(!this.context.getExistingRptGroups().isEmpty()){
         		encounter.setObs(null);/* we don't wanna update here*/
         	}
             Context.getEncounterService().saveEncounter(encounter);
@@ -535,13 +537,23 @@ public class FormEntrySession {
             return "";
         } else {
             StringBuilder sb = new StringBuilder();
+         
+    		for(int i = 1; i< this.getContext().getExistingRptGroups().size()+1; ++i){
+    			//sb.append("$(document).ready(function() {");
+    			sb.append("var i = 0;\n");
+    			sb.append("var kCount"+i+"="+lastSubmission.getParameter("kCount"+i)+";\n");
+    			sb.append("for(i=1;i<kCount"+i+";++i){\n");
+    			sb.append("$(\"#defaultFieldlistObjAddButton"+i+"\").click();\n");
+    			sb.append("}");
+    		}
+            
             for (Enumeration e = lastSubmission.getParameterNames(); e.hasMoreElements(); ) {
                 String name = (String) e.nextElement();
-                if (name.startsWith("w")) {
+                if (name.startsWith("w")||name.startsWith("rpt")||name.startsWith("kCount")) {
                     String val = lastSubmission.getParameter(name);
                     if (StringUtils.hasText(val))
                         sb.append("DWRUtil.setValue('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
-                }
+                }   
             }
             return sb.toString();
         }
@@ -677,8 +689,8 @@ public class FormEntrySession {
 		// TODO Auto-generated method stub
 		/* get the repeater times for each repeat */
 	
-			for(int i = 0; i< this.context.getExsistingRptGroups().size();++i){
-	       		RptGroup rg = this.context.getExsistingRptGroups().get(i);
+			for(int i = 0; i< this.context.getExistingRptGroups().size();++i){
+	       		RptGroup rg = this.context.getExistingRptGroups().get(i);
 	       		String paraName = "kCount"+(i+1);	
 	       		int rpttime = Integer.parseInt(request.getParameter(paraName));
 	       		rg.setRepeattime(rpttime);
@@ -687,7 +699,7 @@ public class FormEntrySession {
 		/*TODO: handle this mess in a more graceful way */
 		this.context.ResetNewrepeatSeqVal();
 		 /*paser the addtional controllers */
-    	for(RptGroup rg:  this.context.getExsistingRptGroups()){
+    	for(RptGroup rg:  this.context.getExistingRptGroups()){
     		/* to allow the addtional widget recognized to be in a rpt
     		 * TODO: handle this more gracefully                 */
     		this.context.beginNewRepeatGroup();
@@ -718,4 +730,5 @@ public class FormEntrySession {
 			Context.getObsService().voidObs(obs,"htmlformentryedit");
 		}
 	}
+
 }

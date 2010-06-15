@@ -65,7 +65,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
             	 * we have to void all obs as well as obs groups and
             	 * reinsert them.
             	 */
-            	if(session.getContext().getMode()==Mode.EDIT && !session.getContext().getExsistingRptGroups().isEmpty()){
+            	if(session.getContext().getMode()==Mode.EDIT && !session.getContext().getExistingRptGroups().isEmpty()){
             		/*this exsiting group will be take care off automatcally
             		if (existingGroup != null) {
                     	session.getSubmissionActions().getObsToVoid().add(existingGroup);

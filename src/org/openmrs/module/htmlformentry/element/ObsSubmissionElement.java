@@ -631,7 +631,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 			/* cheating here, if want to edit a form  contains a repeat, we ought to update 
 			 * all obs */
-			if(session.getContext().getExsistingRptGroups().size() != 0){
+			if(session.getContext().getExistingRptGroups().size() != 0){
 				obsDatetime = new Date();
 			}
 		
@@ -640,10 +640,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			session.getSubmissionActions().modifyObs(existingObs, concept,
 					value, obsDatetime, accessionNumberValue);
 		} else {
-			if (value != null && !"".equals(value)) {
+			/*even if the value if null or "", we will save them into the 
+			 * database, because we are using the obs seq to help identify 
+			 * the repeat times
+			 */
+			//if (value != null && !"".equals(value)) {
 				session.getSubmissionActions().createObs(concept, value,
 						obsDatetime, accessionNumberValue);
-			}
+			//}
 		}
 	}
 

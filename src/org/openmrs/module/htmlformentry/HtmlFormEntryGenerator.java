@@ -419,7 +419,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			this.FillChildObs(xmlfragment, rptgroup);
 
 			rptgroup.setXmlfragment(xmlfragment);
-			context.getExsistingRptGroups().add(rptgroup);
+			context.getExistingRptGroups().add(rptgroup);
 
 			sb = new StringBuilder(sb.substring(endIndex + 12));
 		}
@@ -454,7 +454,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			// i.e. for sequence a,b, c <newrepeat> a,b</newrepeat> will also
 			// match, which is
 			// not right
-			for (RptGroup rpt : context.getExsistingRptGroups()) {
+			for (RptGroup rpt : context.getExistingRptGroups()) {
 				/* count for the original record */
 				if (rpt.getObsNum() == 0)
 					continue;
@@ -620,7 +620,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			context.ResetNewrepeatTimesSeqVal();
 			context.getnewrepeatTimesNextSeqVal(); 
 
-			for (RptGroup rg : context.getExsistingRptGroups()) {
+			for (RptGroup rg : context.getExistingRptGroups()) {
 				StringBuilder sb = new StringBuilder();
 				String addtionalxml = rg.getXmlfragment();
 				context.beginNewRepeatGroup();

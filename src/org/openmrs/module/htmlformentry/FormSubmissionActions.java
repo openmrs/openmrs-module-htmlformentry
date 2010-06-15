@@ -216,11 +216,14 @@ public class FormSubmissionActions {
      * @return the Obs to create
      */
     public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
-        if (value == null || "".equals(value))
-            throw new IllegalArgumentException("Cannot create Obs with null or blank value");
-        
-        Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
 
+    	/* we will save the obs into db even if its value is null
+    	 * this is for maintaining the obs order
+        //if (value == null || "".equals(value))        	
+        	//throw new IllegalArgumentException("Cannot create Obs with null or blank value"); 
+        */    
+        Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
+       
         Person person = highestOnStack(Person.class);
         if (person == null)
             throw new IllegalArgumentException("Cannot create an Obs outside of a Person.");

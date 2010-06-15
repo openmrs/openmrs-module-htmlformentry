@@ -27,7 +27,7 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		/* the jquery function to generate the template */
 		// sb.append("<script src=\"../../moduleResources/htmlformentry/jquery-1.4.2.min.js\" type=\"text/javascript\"></script>");
 		// sb.append("<script src=\"../../moduleResources/htmlformentry/htmlwidgets.js\" type=\"text/javascript\"></script> ");
-		sb.append("<script type = \"text/javascript\" charset=\"utf-8\">\n");
+		sb.append("\n <script type=\"text/javascript\" charset=\"utf-8\">\n");
 		sb.append("$(document).ready(function() {\n");
 		sb.append("var kCount   = parseInt($('#kCount"
 				+ context.getNewrepeatSeqVal() + "').val());\n");
@@ -40,19 +40,15 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		sb.append("$newRow.prepend('<br/>');\n");
 		sb.append("var newRowChildren = $newRow.children();\n");
 		sb.append("for (var i=0; i<newRowChildren.length; i++) {\n");
-		sb
-				.append("if (newRowChildren[i].id == 'removeRowButton') { newRowChildren[i].style.display = ''; }\n");
-		sb
-				.append("if(newRowChildren[i].id.length>4 && newRowChildren[i].id.substring(0,3)== 'rpt'){\n");
+		sb.append("if (newRowChildren[i].id == 'removeRowButton') { newRowChildren[i].style.display = ''; }\n");
+		sb.append("if(newRowChildren[i].id.length>4 && newRowChildren[i].id.substring(0,3)== 'rpt'){\n");
 		sb.append("var pos1 = newRowChildren[i].id.indexOf(\"_\");\n");
 		sb.append("var pos2 = newRowChildren[i].id.indexOf(\"_\", pos1+1);\n");
-		sb
-				.append("newRowChildren[i].id = newRowChildren[i].id.substring(0,pos2+1) + '0';\n");
-		sb
-				.append("newRowChildren[i].name = newRowChildren[i].id.substring(0,pos2+1) + '0';\n");
+		sb.append("newRowChildren[i].id = newRowChildren[i].id.substring(0,pos2+1) + '0';\n");
+		sb.append("newRowChildren[i].name = newRowChildren[i].id.substring(0,pos2+1) + '0';\n");
 		sb.append("	}}\n");
 		sb.append("$newRow.hide();\n");
-		sb.append("	});</script>\n");
+		sb.append("	}); \n </script>\n");
 
 		/* the jquery function to add fields */
 		sb.append("<script type=\"text/javascript\" charset=\"utf-8\">\n");
@@ -71,19 +67,15 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		sb.append("$newRow.prepend('<br/>'); \n");
 		sb.append("var newRowChildren = $newRow.children();	\n");
 		sb.append("for (var i=0; i<newRowChildren.length; i++) {	\n");
-		sb
-				.append("if (newRowChildren[i].id == 'removeRowButton') { newRowChildren[i].style.display = ''; }	\n");
+		sb.append("if (newRowChildren[i].id == 'removeRowButton') { newRowChildren[i].style.display = ''; }	\n");
 		sb.append("if (newRowChildren[i].className == 'error') \n"); 
 		sb.append("{ newRowChildren[i].style.display = 'none'; }	\n");
 
-		sb
-				.append("if(newRowChildren[i].id.length>4 && newRowChildren[i].id.substring(0,3)== 'rpt'){\n");
+		sb.append("if(newRowChildren[i].id.length>4 && newRowChildren[i].id.substring(0,3)== 'rpt'){\n");
 		sb.append("	var pos1 = newRowChildren[i].id.indexOf(\"_\");\n");
 		sb.append("	var pos2 = newRowChildren[i].id.indexOf(\"_\", pos1+1);\n");
-		sb
-				.append("	newRowChildren[i].id = newRowChildren[i].id.substring(0,pos2+1) + kCount;\n");
-		sb
-				.append("newRowChildren[i].name = newRowChildren[i].id.substring(0,pos2+1) + kCount;\n");
+		sb.append("	newRowChildren[i].id = newRowChildren[i].id.substring(0,pos2+1) + kCount;\n");
+		sb.append("newRowChildren[i].name = newRowChildren[i].id.substring(0,pos2+1) + kCount;\n");
 		sb.append("if(newRowChildren[i].attributes[\"onBlur\"]!== undefined){");
 		sb.append("var onblur =newRowChildren[i].attributes[\"onBlur\"].value;");
 		sb.append("pos1 = onblur.indexOf(\"'\");");
@@ -107,22 +99,6 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 
 	public String generateEndHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
-
-		/* the jquery to remove 1 set 
-		sb.append("<script type=\"text/javascript\" charset=\"utf-8\">\n");
-		sb.append("$(document).ready(function() {\n");
-		sb.append("$(\"#removeRowButton" + context.getNewrepeatSeqVal()+"_"+context.getNewrepeatTimesSeqVal()
-				+ "\").click(function(event){\n");
-		sb.append("var kCount = parseInt($('#kCount"
-				+ context.getNewrepeatSeqVal() + "').val())\n");
-		sb.append(" if (kCount>1){$('#newRepeat" + context.getNewrepeatSeqVal() + "_"
-				+ context.getNewrepeatTimesSeqVal()+"').remove();\n");
-		sb.append("kCount = kCount - 1;\n");
-		sb.append("$('#kCount" + context.getNewrepeatSeqVal()
-				+ "').val(kCount)};\n");
-		sb.append("});	\n");
-		sb.append("});\n");
-		sb.append("</script>\n");*/
 		
 		/*the remove button */
 		sb.append("<input type=\"button\" id=\"removeRowButton"

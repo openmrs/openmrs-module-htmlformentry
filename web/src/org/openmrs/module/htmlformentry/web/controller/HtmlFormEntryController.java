@@ -148,7 +148,8 @@ public class HtmlFormEntryController extends SimpleFormController {
         }
     }
 
-    @Override
+
+	@Override
     protected ModelAndView onSubmit(HttpServletRequest request,
             HttpServletResponse response, Object commandObject, BindException errors)
             throws Exception {
