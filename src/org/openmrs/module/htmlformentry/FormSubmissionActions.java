@@ -266,8 +266,8 @@ public class FormSubmissionActions {
             if (log.isDebugEnabled())
                 log.debug("VOID: " + printObsHelper(existingObs));
             obsToVoid.add(existingObs);
-            if(newValue == null)//also save it into the database 
-            	createObs(concept, newValue, newDatetime, accessionNumber);
+            //also save it into the database 
+            createObs(concept, newValue, newDatetime, accessionNumber);
             return;
         }
         Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime, accessionNumber);
