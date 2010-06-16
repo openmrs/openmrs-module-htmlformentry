@@ -100,6 +100,11 @@ public class HtmlFormEntryController extends SimpleFormController {
             session = new FormEntrySession(patient, htmlForm);
         }
         
+        /** prepare the new repeat**/
+        if(session.getContext().getMode()!=Mode.EDIT){
+    		session.prepareNewRepeat(request);
+    	}
+        
         String returnUrl = request.getParameter("returnUrl");
         if (StringUtils.hasText(returnUrl)) {
             session.setReturnUrl(returnUrl);
@@ -155,9 +160,6 @@ public class HtmlFormEntryController extends SimpleFormController {
             throws Exception {
         FormEntrySession session = (FormEntrySession) commandObject;
         try {
-        	if(session.getContext().getMode()!=Mode.EDIT){
-        		session.prepareNewRepeat(request);
-        	}
             session.prepareForSubmit();
             session.getSubmissionController().handleFormSubmission(session, request);
             if (session.getContext().getMode() == Mode.ENTER && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))

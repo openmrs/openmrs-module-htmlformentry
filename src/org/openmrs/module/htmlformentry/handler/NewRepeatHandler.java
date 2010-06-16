@@ -77,11 +77,16 @@ public class NewRepeatHandler implements TagHandler {
 	public boolean doStartTag(FormEntrySession session, PrintWriter out,
 			Node parent, Node node) {
 
-		/* notify the context that we are strating a repeater */
+		/* notify the context that we are starting a repeater */
 		FormEntryContext context = session.getContext();
 		context.beginNewRepeatGroup();
 		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
-
+			//the content will be generated later
+			//this is because the applytags will
+			//1)generate html 2)add the action to submissionactions
+			//we want to append  the new repeat's actions to the tail
+			//so the obs/obsgroup will be append to the tail when inserting
+			//in to the database
 			out.print("<#reservenewrepeat" + context.getNewrepeatSeqVal());
 
 		} else {

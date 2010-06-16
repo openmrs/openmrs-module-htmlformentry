@@ -297,9 +297,11 @@ public class FormEntrySession {
     	}
         xml = getHtmlGenerator().applyMacros(xml);
         xml = getHtmlGenerator().applyTemplates(xml);
+        //here we  initial each repeatgroup with repeat time/xmlfragment
         getHtmlGenerator().applyNewRepeat(this, xml);
         xml = getHtmlGenerator().applyTranslations(xml, context);
         xml = getHtmlGenerator().applyTags(this, xml);
+        //here we generate the actual repeatgroup html and add their action into the actionlist
         xml = getHtmlGenerator().applyNewRepeatEnd(this, xml);
         int endOfFirstTag = xml.indexOf('>');
         int startOfLastTag = xml.lastIndexOf('<');
@@ -687,13 +689,18 @@ public class FormEntrySession {
      */
 	public void prepareNewRepeat(HttpServletRequest request) throws Exception{
 		// TODO Auto-generated method stub
-		/* get the repeater times for each repeat */
+		/* get the repeater times for each repeat */;
 	
 			for(int i = 0; i< this.context.getExistingRptGroups().size();++i){
 	       		RptGroup rg = this.context.getExistingRptGroups().get(i);
-	       		String paraName = "kCount"+(i+1);	
-	       		int rpttime = Integer.parseInt(request.getParameter(paraName));
-	       		rg.setRepeattime(rpttime);
+	       		String paraName = "kCount"+(i+1);
+	       		if(request.getParameter(paraName) !=null){
+	       			int rpttime = Integer.parseInt(request.getParameter(paraName));
+	       			rg.setRepeattime(rpttime);
+	       		}else{
+	       			//then we are in the formbackobject method
+	       			return;
+	       		}
 			}
 		
 		/*TODO: handle this mess in a more graceful way */

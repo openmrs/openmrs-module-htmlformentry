@@ -604,7 +604,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 	/**
 	 * here we deal with the remaining obs in view/edit model to ensure the
-	 * order
+	 * order into the database
 	 * 
 	 * @param session
 	 * @param xml
@@ -618,9 +618,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			context.ResetNewrepeatSeqVal();
 			context.ResetCtrlInNewrepeatSeqVal();
 			context.ResetNewrepeatTimesSeqVal();
-			context.getnewrepeatTimesNextSeqVal(); 
 
 			for (RptGroup rg : context.getExistingRptGroups()) {
+				context.getnewrepeatTimesNextSeqVal(); 
 				StringBuilder sb = new StringBuilder();
 				String addtionalxml = rg.getXmlfragment();
 				context.beginNewRepeatGroup();
