@@ -41,5 +41,9 @@
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.0.11682-dev.jar" sourcepath="/openmrs-1.6.x"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.0.11682-dev.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/tomcat/servlet-api.jar" sourcepath="/openmrs-source/apache-tomcat-5.5.20-src.zip"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.context-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.transaction-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.beans-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.web.servlet-3.0.2.RELEASE.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
