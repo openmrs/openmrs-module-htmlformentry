@@ -104,7 +104,6 @@ public class HtmlFormEntryController extends SimpleFormController {
         if(session.getContext().getMode()!=Mode.EDIT){
     		session.prepareNewRepeat(request);
     	}
-        
         String returnUrl = request.getParameter("returnUrl");
         if (StringUtils.hasText(returnUrl)) {
             session.setReturnUrl(returnUrl);
@@ -152,7 +151,6 @@ public class HtmlFormEntryController extends SimpleFormController {
             errors.reject("Exception during form validation, see log for more details: " + ex);
         }
     }
-
 
 	@Override
     protected ModelAndView onSubmit(HttpServletRequest request,

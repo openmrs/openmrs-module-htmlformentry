@@ -11,6 +11,7 @@ import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -92,7 +93,7 @@ public class ObsGroupTagHandler implements TagHandler {
     }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        out.print("<br/>");
+        if(session.getContext().getMode()==Mode.VIEW) out.print("<br/>");
     	session.getContext().endObsGroup();
         session.getContext().setObsGroup(null);
         session.getSubmissionController().addAction(ObsGroupAction.end());

@@ -9,6 +9,9 @@ import org.openmrs.module.htmlformentry.element.NewRepeatElement;
 import org.openmrs.module.htmlformentry.schema.RptGroup;
 import org.w3c.dom.Node;
 
+/***
+ * Handles the <newrepeat> tag
+ */
 public class NewRepeatHandler implements TagHandler {
 
 	/***
@@ -17,14 +20,12 @@ public class NewRepeatHandler implements TagHandler {
 	@Override
 	public void doEndTag(FormEntrySession session, PrintWriter out,
 			Node parent, Node node) {
-		// TODO Auto-generated method stub
 
-		if (session.getContext().getMode() == Mode.EDIT
-				|| session.getContext().getMode() == Mode.VIEW) {
-
-		} else {
+		if (session.getContext().getMode() != Mode.EDIT
+				&& session.getContext().getMode() != Mode.VIEW) {
 			out.print(this.getEndSubstitution(session));
 		}
+		
 		out.print("<input id=\"kCount"
 				+ session.getContext().getNewrepeatSeqVal() + "\""
 				+ " name=\"kCount" + session.getContext().getNewrepeatSeqVal()
@@ -32,7 +33,6 @@ public class NewRepeatHandler implements TagHandler {
 				+ session.getContext().getNewrepeatTimesSeqVal() + "\"/> \n");
 
 		session.getContext().endNewRepeatGroup();
-
 	}
 
 	/**
@@ -80,11 +80,12 @@ public class NewRepeatHandler implements TagHandler {
 		/* notify the context that we are starting a repeater */
 		FormEntryContext context = session.getContext();
 		context.beginNewRepeatGroup();
+		
 		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
-			//the content will be generated later
-			//this is because the applytags will
+			//the content will be generated later in applyNewRepeatEnd in HtmlEntryGenerator
+			//this is because the applytags function will
 			//1)generate html 2)add the action to submissionactions
-			//we want to append  the new repeat's actions to the tail
+			// however we want to append  the new repeat's actions to the tail
 			//so the obs/obsgroup will be append to the tail when inserting
 			//in to the database
 			out.print("<#reservenewrepeat" + context.getNewrepeatSeqVal());
@@ -98,7 +99,6 @@ public class NewRepeatHandler implements TagHandler {
 	}
 
 	private String getStartSubstitution(FormEntrySession session) {
-		// TODO Auto-generated method stub
 		NewRepeatElement nre = new NewRepeatElement();
 		return nre.generateStartHtml(session.getContext());
 	}

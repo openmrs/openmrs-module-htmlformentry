@@ -1,28 +1,28 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.RptGroup;
 
+/***
+ *  serves asthe HtmlGeneratorElement for the newrepeat tag
+ * 
+ */
 public class NewRepeatElement implements HtmlGeneratorElement,
 		FormSubmissionControllerAction {
 
-	@Override
-	public String generateHtml(FormEntryContext context) {
-		// TODO Auto-generated method stub
-		return "";
-	}
 
+	/***
+	 * The html to generate when see a starttag <newrepeat>
+	 * @param context
+	 * @return the generated string 
+	 */
 	public String generateStartHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
-
-		//TODO generate html for existing obs if any
 		
 		/* the jquery function to generate the template */
 		// sb.append("<script src=\"../../moduleResources/htmlformentry/jquery-1.4.2.min.js\" type=\"text/javascript\"></script>");
@@ -31,7 +31,6 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		sb.append("$(document).ready(function() {\n");
 		sb.append("var kCount   = parseInt($('#kCount"
 				+ context.getNewrepeatSeqVal() + "').val());\n");
-		//sb.append("kCount = kCount - 1 ;\n");
 		sb.append("var $newRow = cloneAndInsertBefore('newRepeat"
 				+ context.getNewrepeatSeqVal() + "_1', $('.newRepeat"
 				+ context.getNewrepeatSeqVal() + "'));\n");
@@ -97,6 +96,11 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		return sb.toString();
 	}
 
+	/***
+	 * generate html when see a </newrepeat> tag
+	 * @param context
+	 * @return html
+	 */
 	public String generateEndHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
 		
@@ -104,12 +108,18 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		sb.append("<input type=\"button\" id=\"removeRowButton"
 				+ "\" value=\"X\" size=\"1\" style=\"display:none\";  onclick=\"removeParentWithClass(this,'newRepeat"+context.getNewrepeatSeqVal()+"');\" />\n");
 		
+		/*the add button */
 		sb.append("</span><input id=\"defaultFieldlistObjAddButton"
 				+ context.getNewrepeatSeqVal()
 				+ "\" type=\"button\" value=\"+\" size=\"1\" />\n");
 
-		
 		return sb.toString();
+	}
+	
+	@Override
+	public String generateHtml(FormEntryContext context) {
+		// TODO Auto-generated method stub
+		return "";
 	}
 
 	@Override

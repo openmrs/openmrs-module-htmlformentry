@@ -629,8 +629,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			accessionNumberValue = (String) accessionNumberWidget.getValue(
 					session.getContext(), submission);
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
-			/* cheating here, if want to edit a form  contains a repeat, we ought to update 
-			 * all obs */
+			/* short cut here, if are editing  a form  contains a newrepeat tag, 
+             we ought to 1)remove all current obs/obsgroup and reinsert the new ones with updated value 
+            the obs remove and reinsert is taken cared by the modifyObs function, the new obsDatetime
+            will let modifyObs to identify the obs as a modified one*/
 			if(session.getContext().getExistingRptGroups().size() != 0){
 				obsDatetime = new Date();
 			}
@@ -640,9 +642,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			session.getSubmissionActions().modifyObs(existingObs, concept,
 					value, obsDatetime, accessionNumberValue);
 		} else {
-			/*even if the value if null or "", we will save them into the 
-			 * database, because we are using the obs seq to help identify 
-			 * the repeat times
+			/*even if the value is null or "", we will save them into the 
+			 * database, we will later use the obs seq to help identify 
+			 * the repeat times for each newrepeat, this fixed the bug
+			 * when input field contains empty/null value
 			 */
 			//if (value != null && !"".equals(value)) {
 				session.getSubmissionActions().createObs(concept, value,

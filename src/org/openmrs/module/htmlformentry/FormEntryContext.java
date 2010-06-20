@@ -48,13 +48,13 @@ public class FormEntryContext {
     private Map<Widget, String> fieldNames = new HashMap<Widget, String>();
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
     
-    /* the list to store all rpt in this form */
+    /* the list to store all newrptgroup in this form */
     private List<RptGroup> exsistingRptGroups = new ArrayList<RptGroup>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
     private ObsGroup activeObsGroup;
     
-    /* for the newrepeat tag */
+    /* for the newrepeat tag, used to see if we are inside a newrepeat tag  */
     private RptGroup activeRptGroup;
  
 	private Patient existingPatient;
@@ -71,10 +71,6 @@ public class FormEntryContext {
         setupExistingData((Encounter) null);
     }
     
-    public void setMode(Mode mode){
-    	this.mode = mode;
-    }
-    
     /**
      * Gets the {@see Mode} associated with this Context
      * @return the {@see Mode} associatd with this Context
@@ -86,11 +82,11 @@ public class FormEntryContext {
     private Integer sequenceNextVal = 1;
     
     /* the counter to realize the naming as
-     * rpt1_m2 for controls in a repeater
+     * rpti_m_k for controls in a repeater
      */
-    private Integer newrepeatSeqVal = 1;
-    private Integer ctrlInNewrepeatSeqVal = 1;
-    private Integer newrepeatTimesSeqVal = 1;
+    private Integer newrepeatSeqVal = 1;       //  i
+    private Integer ctrlInNewrepeatSeqVal = 1; // m
+    private Integer newrepeatTimesSeqVal = 1;  //k
     
 
 	/**
@@ -115,10 +111,11 @@ public class FormEntryContext {
         	return fieldName;
         }
         else{
-        	/* we are in a repeat now, need to use the alternative naming system */
-        	int thisRptVal = 0; //rpt counter
-        	int thisCtrlVal = 0;   //ctl counter
-        	int thisRpttimeVal = 0;
+        	/* we are in a new repeat tag now, 
+             need to use the alternative naming system */
+        	int thisRptVal = 0; 
+        	int thisCtrlVal = 0;   
+        	int thisRpttimeVal = 0;  
         	 
         	synchronized (newrepeatSeqVal) {
         		thisRptVal = newrepeatSeqVal;        
@@ -288,7 +285,8 @@ public class FormEntryContext {
         Set <Obs> obsset = new HashSet<Obs>();
         if (encounter != null) {
         	
-        	/*obsgroup won't display, we only care non group members */
+        	/* get all obs related with this encounter
+			 will skip obsgroup cause it won't display, */
         	for(Obs obs:encounter.getObsAtTopLevel(false)){
         		if(!obs.hasGroupMembers()){
         			obsset.add(obs);
@@ -296,6 +294,7 @@ public class FormEntryContext {
         			obsset.addAll(obs.getGroupMembers());
         		}
         	}
+        	//the obs order will later be used to help the display
         	List <Obs> sortedObs = HtmlFormEntryUtil.SortObs(obsset);
             for (Obs obs : sortedObs) {
                 List<Obs> list = existingObs.get(obs.getConcept());
@@ -489,12 +488,11 @@ public class FormEntryContext {
      * Notify we are starting a newrepeat group
      */
 	public void beginNewRepeatGroup() {
-		// TODO Auto-generated method stub
-		/* we are in a repeat group */
 		int index;
 		synchronized (newrepeatSeqVal) {
     		index = newrepeatSeqVal;
     	}
+    	/* we are in a repeat group */
 		this.activeRptGroup = this.exsistingRptGroups.get(index -1);
 	}
 
@@ -512,7 +510,9 @@ public class FormEntryContext {
 		ResetNewrepeatTimesSeqVal();
 	}
 
-	/*increase the repeattime control */
+	/*** 
+    *  Get the next newrepeatTimesSeqVal
+	*/
 	public void getnewrepeatTimesNextSeqVal(){
 		synchronized(newrepeatTimesSeqVal){
 			++newrepeatTimesSeqVal;

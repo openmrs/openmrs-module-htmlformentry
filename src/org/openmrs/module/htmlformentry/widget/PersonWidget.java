@@ -52,6 +52,7 @@ public class PersonWidget implements Widget {
         if (options != null) {
             personList = options;
         } else {
+            /* ? should return alive ppl? */
             personList = Context.getPersonService().getPeople("", false);
         }
         for (Person p : personList) {

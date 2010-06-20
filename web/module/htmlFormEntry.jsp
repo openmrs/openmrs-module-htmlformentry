@@ -21,7 +21,6 @@
 <openmrs:htmlInclude file="/scripts/dojoConfig.js"/>
 <openmrs:htmlInclude file="/scripts/dojo/dojo.js"/>
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
-	
 
 <script type="text/javascript">
 	var tryingToSubmit = false;

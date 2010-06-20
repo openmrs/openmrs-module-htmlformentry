@@ -61,15 +61,13 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         try {
             if (start) {
-            	/* cheat here if want to edit a form with newrepeat
-            	 * we have to void all obs as well as obs groups and
-            	 * reinsert them.
+            	/* short cut here if we are editing a form with newrepeat in it
+            	 * the current strategy is to void all obs and obs groups and reinsert the new ones with updated value.
             	 */
             	if(session.getContext().getMode()==Mode.EDIT && !session.getContext().getExistingRptGroups().isEmpty()){
-            		/*this exsiting group will be take care off automatcally
-            		if (existingGroup != null) {
-                    	session.getSubmissionActions().getObsToVoid().add(existingGroup);
-                    }*/
+            		/* create and return a new obs group
+					  the exsiting group will be take care of  by ApplyActions in FormEntrySession 
+					*/
             		Obs obsGroup = new Obs();
                     obsGroup.setConcept(groupingConcept);
                     session.getSubmissionActions().beginObsGroup(obsGroup);

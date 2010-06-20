@@ -3,6 +3,9 @@ package org.openmrs.module.htmlformentry.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an RptGroup in the HTML Form Schema
+ */
 public class RptGroup implements HtmlFormField {
 	
 	private List<Integer> childrenobs = new ArrayList<Integer>();
@@ -11,8 +14,6 @@ public class RptGroup implements HtmlFormField {
 	private String xmlfragment;
 	
 	private Integer repeattime = 0;
-
-	
 
 	public List<Integer> getChildrenobs() {
 		return childrenobs;
