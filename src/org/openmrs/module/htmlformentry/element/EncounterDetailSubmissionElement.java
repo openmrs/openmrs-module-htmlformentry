@@ -97,9 +97,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 					if ("currentuser".equalsIgnoreCase(defParam)) {
 						defaultProvider = Context.getAuthenticatedUser().getPerson();
 					} else {
-						defaultProvider = Context.getUserService()
-								.getUserByUsername(defParam).getPerson();
-						if (defaultProvider == null) {
+						User providerByUsername = Context.getUserService().getUserByUsername(defParam); 
+						if (providerByUsername != null) {
+							defaultProvider = providerByUsername.getPerson();
+						} else {
 							try {
 								defaultProvider = Context.getPersonService()
 										.getPerson(Integer.parseInt(defParam));
