@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -9,6 +11,8 @@ import org.springframework.validation.Validator;
  */
 public class HtmlFormValidator implements Validator {
 
+	protected final Log log = LogFactory.getLog(getClass());
+	
 	/** 
      * Tests whether the validator supports the specified class
      */
@@ -32,6 +36,7 @@ public class HtmlFormValidator implements Validator {
                 FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), hf.getXmlData());
             } catch (Exception ex) {
                 errors.rejectValue("xmlData", null, ex.getMessage());
+                log.warn("Error in HTML form", ex);
             }
         }
     }
