@@ -44,8 +44,10 @@ public class TimeWidget implements Widget {
 				valAsCal.setTime(initialValue);
 			}
 			StringBuilder sb = new StringBuilder();
-			sb.append("<select name=\"").append(context.getFieldName(this))
-					.append("hours").append("\">");
+			sb.append("<select name=\"").append(context.getFieldName(this));
+			sb.append(".hours\"");
+			sb.append(" id=\"").append(context.getFieldName(this));
+			sb.append(".hours\"").append(" >");
 			for (int i = 0; i <= 23; ++i) {
 				String label = "" + i;
 				if (label.length() == 1)
@@ -60,7 +62,10 @@ public class TimeWidget implements Widget {
 			sb.append("</select>");
 			sb.append(":");
 			sb.append("<select name=\"").append(context.getFieldName(this))
-					.append("minutes").append("\">");
+					.append(".minutes\"")
+					.append(" id=\"").append(context.getFieldName(this))
+					.append(".minutes\"")
+					.append(" >");
 			for (int i = 0; i <= 59; ++i) {
 				String label = "" + i;
 				if (label.length() == 1)
@@ -84,9 +89,9 @@ public class TimeWidget implements Widget {
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
 			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
-					context.getFieldName(this) + "hours", Integer.class);
+					context.getFieldName(this) + ".hours", Integer.class);
 			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
-					context.getFieldName(this) + "minutes", Integer.class);
+					context.getFieldName(this) + ".minutes", Integer.class);
 			Calendar cal = Calendar.getInstance();
 			cal.set(Calendar.HOUR_OF_DAY, h);
 			cal.set(Calendar.MINUTE, m);

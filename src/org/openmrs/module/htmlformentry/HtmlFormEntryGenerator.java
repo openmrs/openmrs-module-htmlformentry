@@ -380,25 +380,34 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 			sb = new StringBuilder(sb.substring(endIndex + 12));
 		}
-
+		
+		if(session.getContext().getRequestParaMap()!=null&&
+				session.getContext().getRequestParaMap().get("kCount1")!=null &&
+				(context.getMode() == Mode.EDIT)){
+	
+			for(int i = 0; i< context.getExistingRptGroups().size();++i){
+	       		RptGroup rg = context.getExistingRptGroups().get(i);
+	       		String paraName = "kCount"+(i+1);       		
+	       		int rpttime = Integer.parseInt(((String[])context.getRequestParaMap().get(paraName))[0]);
+	       		rg.setRepeattime(rpttime);
+	       		
+			}
+		}
 		/* also need to find out repeat times of each repeater */
-		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
+		else if (context.getMode() == Mode.VIEW || (context.getMode() == Mode.EDIT)) {
 
 			Set<Obs> allObs = session.getEncounter().getAllObs();
 			List<Obs> sortedObs = new ArrayList<Obs>();
 
 			int t = CountObs(xml);
-
 			sortedObs = HtmlFormEntryUtil.SortObs(allObs);
 
-			/*
-			 * remove first t obs, where t stands for total number of obs appear
+			/* remove first t obs, where t stands for total number of obs appear
 			 * in the htmlform
 			 */
 			for (int i = 0; i < t; ++i) {
 				sortedObs.remove(0);
 			}
-
 
 			// TODO: now it can't handle when 1 repeat set is a prefix of another
 			// i.e. for sequence a,b, c <newrepeat> a,b</newrepeat> will also
@@ -554,9 +563,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @param session
 	 * @param xml
 	 */
-	public String applyNewRepeatEnd(FormEntrySession session, String xml) {
-		// TODO Auto-generated method stub
-
+	public String applyNewRepeatEnd(FormEntrySession session, String xml)throws Exception {
+	
 		FormEntryContext context = session.getContext();
 
 		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
@@ -571,22 +579,31 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				context.beginNewRepeatGroup();
 				for (int i = 1; i < rg.getRepeattime(); ++i) {
 					/* output 1 set of repeat here */
-					try {
-						String replaceStr = session.getHtmlGenerator()
-								.applyTags(session, addtionalxml);
-						int endOfFirstTag = replaceStr.indexOf('>');
-						int startOfLastTag = replaceStr.lastIndexOf('<');
-						if (endOfFirstTag < 0 || startOfLastTag < 0
-								|| endOfFirstTag > startOfLastTag)
+			
+					String replaceStr = session.getHtmlGenerator().applyTags(session, addtionalxml);
+					int endOfFirstTag = replaceStr.indexOf('>');
+					int startOfLastTag = replaceStr.lastIndexOf('<');
+					if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
 							replaceStr = "";
-						replaceStr = replaceStr.substring(endOfFirstTag + 1,
-								startOfLastTag);
-						sb.append(replaceStr);
-						sb.append("<br/>");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					replaceStr = replaceStr.substring(endOfFirstTag + 1,startOfLastTag);
+					
+					sb.append("<span id=\"newRepeat" + context.getNewrepeatSeqVal() + "_"+(i+1)
+							+ "\" class=\"newRepeat" + context.getNewrepeatSeqVal()
+							+ "\" style=\"display:block\" ><table style=\"display:inline\"> \n");
+					
+					sb.append(replaceStr);
+					
+					//the remove button
+					sb.append("</table>");
+					
+					if(context.getMode() == Mode.EDIT){
+						sb.append("<input type=\"button\" id=\"removeRowButton"
+								+ "\" value=\"X\" size=\"1\"  onclick=\"removeParentWithClass(this,'newRepeat"
+								+ context.getNewrepeatSeqVal() + "');\" />\n");
 					}
+					sb.append("</span>");//</td></tr>\n");
+					//sb.append("<br/>");
+					
 					
 					context.getnewrepeatTimesNextSeqVal();
 					context.ResetCtrlInNewrepeatSeqVal();

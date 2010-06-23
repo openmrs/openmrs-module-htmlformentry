@@ -56,7 +56,8 @@ public class FormEntryContext {
     
     /* for the newrepeat tag, used to see if we are inside a newrepeat tag  */
     private RptGroup activeRptGroup;
- 
+    private Map requestParaMap;
+
 	private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
@@ -78,6 +79,14 @@ public class FormEntryContext {
     public Mode getMode() {
         return mode;
     }
+    
+	public Map getRequestParaMap() {
+		return requestParaMap;
+	}
+
+	public void setRequestParaMap(Map requestParaMap) {
+		this.requestParaMap = requestParaMap;
+	}
     
     private Integer sequenceNextVal = 1;
     

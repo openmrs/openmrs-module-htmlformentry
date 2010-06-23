@@ -14,8 +14,7 @@ public class ObsTagHandler extends SubstitutionTagHandler {
     @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters) {
         ObsSubmissionElement element = new ObsSubmissionElement(session.getContext(), parameters);
-        session.getSubmissionController().addAction(element);
-        
+        session.getSubmissionController().addAction(element);  
         return element.generateHtml(session.getContext());
     }
 

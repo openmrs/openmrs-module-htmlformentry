@@ -95,7 +95,11 @@ public class HtmlFormEntryController extends SimpleFormController {
             if ("EDIT".equals(request.getParameter("mode"))) {
                 mode = Mode.EDIT;
             }
-            session = new FormEntrySession(patient, encounter, mode, htmlForm);
+            if(request.getParameter("kCount1")!= null){
+            	session = new FormEntrySession(patient, encounter, mode, htmlForm, request);
+            }else{
+            	session = new FormEntrySession(patient, encounter, mode, htmlForm);
+            }
         } else {
             session = new FormEntrySession(patient, htmlForm);
         }

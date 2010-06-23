@@ -21,17 +21,9 @@ public class NewRepeatHandler implements TagHandler {
 	public void doEndTag(FormEntrySession session, PrintWriter out,
 			Node parent, Node node) {
 
-		if (session.getContext().getMode() != Mode.EDIT
-				&& session.getContext().getMode() != Mode.VIEW) {
+		if ( session.getContext().getMode() != Mode.VIEW) {
 			out.print(this.getEndSubstitution(session));
 		}
-		
-		out.print("<input id=\"kCount"
-				+ session.getContext().getNewrepeatSeqVal() + "\""
-				+ " name=\"kCount" + session.getContext().getNewrepeatSeqVal()
-				+ "\"" + " style=\"display: none;\" value=\""
-				+ session.getContext().getNewrepeatTimesSeqVal() + "\"/> \n");
-
 		session.getContext().endNewRepeatGroup();
 	}
 
@@ -81,16 +73,7 @@ public class NewRepeatHandler implements TagHandler {
 		FormEntryContext context = session.getContext();
 		context.beginNewRepeatGroup();
 		
-		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
-			//the content will be generated later in applyNewRepeatEnd in HtmlEntryGenerator
-			//this is because the applytags function will
-			//1)generate html 2)add the action to submissionactions
-			// however we want to append  the new repeat's actions to the tail
-			//so the obs/obsgroup will be append to the tail when inserting
-			//in to the database
-			out.print("<#reservenewrepeat" + context.getNewrepeatSeqVal());
-
-		} else {
+		if(context.getMode() != Mode.VIEW){
 			String replacement = getStartSubstitution(session);
 			out.print(replacement);
 		}

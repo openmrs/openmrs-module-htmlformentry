@@ -32,6 +32,7 @@ public class DateWidget implements Widget {
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("<input type=\"text\" size=\"10\" name=\"").append(context.getFieldName(this)).append("\"");
+            sb.append(" id=\"").append(context.getFieldName(this)).append("\"");
             if (initialValue != null)
                 sb.append(" value=\"" + Context.getDateFormat().format(initialValue) + "\"");
             sb.append(" onClick=\"showCalendar(this)\"");

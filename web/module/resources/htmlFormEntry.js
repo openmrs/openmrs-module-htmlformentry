@@ -1,6 +1,7 @@
 var tempRadioStatus;
 
-// remember the status of this radio button when it is first clicked, for use in the radioClicked method
+// remember the status of this radio button when it is first clicked, for use in
+// the radioClicked method
 function radioDown(radioButton) {
 	tempRadioStatus = radioButton.checked;
 }
@@ -15,7 +16,8 @@ function radioClicked(radioButton) {
 function showError(errorDivId, errorMessage) {
 	var errorDiv = document.getElementById(errorDivId);
 	if (errorDiv == null) {
-		window.alert("Error: " + errorMessage + "\n\n(Cannot find div: " + errorDivId + ")");
+		window.alert("Error: " + errorMessage + "\n\n(Cannot find div: "
+				+ errorDivId + ")");
 	} else {
 		if (errorDiv.innerHTML != '')
 			errorDiv.innerHTML += ', ' + errorMessage;
@@ -35,11 +37,11 @@ function clearError(errorDivId) {
 
 function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax) {
 	clearError(errorDivId);
-	
+
 	if (el.value == '') {
 		el.className = null;
 	}
-		
+
 	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax);
 	if (errorMessage == null) {
 		el.className = 'legalValue';
@@ -61,14 +63,14 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax) {
 	} else {
 		val = parseInt(val);
 	}
-	
+
 	if (isNaN(val)) {
 		if (floatOkay)
 			return "Not a number";
 		else
 			return "Not an integer";
 	}
-		
+
 	if (absoluteMin != null) {
 		if (val < absoluteMin)
 			return "Cannot be less than " + absoluteMin;
@@ -83,7 +85,7 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax) {
 function getElementsByClass(node, searchClass) {
 	var ret = new Array();
 	var els = node.getElementsByTagName('*');
-	for (var i = 0; i < els.length; ++i) {
+	for ( var i = 0; i < els.length; ++i) {
 		if (els[i].className == searchClass)
 			ret.push(els[i]);
 	}
@@ -100,7 +102,7 @@ function findParentWithClass(anElement, className) {
 function showAnotherRow(tableId) {
 	var className = 'repeating_table_' + tableId;
 	var els = getElementsByClass(document, className);
-	for (var i = 0; i < els.length; ++i) {
+	for ( var i = 0; i < els.length; ++i) {
 		if (els[i].style.display == 'none') {
 			// display it
 			els[i].style.display = '';
@@ -127,7 +129,7 @@ function removeRow(tableId, anElementInRow) {
 /* from htmlwidgets.js */
 
 function getClone(idToClone) {
-	var template = $("#"+idToClone);
+	var template = $("#" + idToClone);
 	var c = $(template).clone(true);
 	$(c).show();
 	return c;
@@ -139,81 +141,82 @@ function cloneAndInsertBefore(idToClone, elementToAddBefore) {
 	return newRow;
 }
 
-/*add for remove span in repeat*/
+/* add for remove span in repeat */
 
 function removeParentWithClass(element, parentClass) {
 	var parent = findParentWithClass(element, parentClass);
-	$(parent).remove(); 
+	$(parent).remove();
 	updateAllParent(parent.id);
-	//newRepeat1_1
+	// newRepeat1_1
 	var pos = parent.id.indexOf("_");
 	var temp = parent.id.substring(9, pos);
-	$('#kCount'+temp).val($('#kCount'+temp).val()-1)
+	$('#kCount1').val($('#kCount' + temp).val() - 1)
 }
 
-function updateAllParent(elementid){
+function updateAllParent(elementid) {
 
 	var nextId = GetNewRptTimeId(elementid, 1);
-	
-	while($("#"+nextId).length > 0 ){
+
+	while ($("#" + nextId).length > 0) {
 		updateRepeatSpan(nextId);
 		nextId = GetNewRptTimeId(nextId, 1);
 	}
 }
 
-function updateRepeatSpan(rptspanid){
+function updateRepeatSpan(rptspanid) {
 	var id = rptspanid;
-	var element = $("#"+rptspanid)[0];
+	var element = $("#" + rptspanid)[0];
 	var nextId = GetNewRptTimeId(element.id, -1);
 	element.id = nextId;
-	
-	for(var i = 0; i< element.children.length;++i){
+
+	for ( var i = 0; i < element.children.length; ++i) {
 		var child = element.children[i];
-		if(child.id!="")
-			updateChildren(child.id);
+		// if(child.id!="")
+		updateChildren(child);
 	}
 }
 
-
-function updateChildren(childid){
-	if(childid =="")return;
-	var child = $("#"+childid)[0];
-	var newid = GetNewRptTimeId(child.id, -1)
-	child.id = newid;
-	child.name = newid;
-	if(child.attributes["onBlur"]!== undefined){
-	    var onblur =child.attributes["onBlur"].value;
-		pos1 = onblur.indexOf("'");
-		pos2 = onblur.indexOf("'", pos1+1);
-		var temp =  onblur.substring(pos1+1,pos2);
-		pos1 = child.id.indexOf("_");
-		var tmp = child.id.substring(3,pos1);
-		temp = onblur.replace(temp, GetNewRptTimeId(temp, -1));
-		child.attributes["onBlur"].value = temp;
+function updateChildren(child) {
+	if (child.id != "") {
+		// var child = $("#"+childid)[0];
+		var newid = GetNewRptTimeId(child.id, -1)
+		child.id = newid;
+		child.name = newid;
+		if (child.attributes["onBlur"] !== undefined) {
+			var onblur = child.attributes["onBlur"].value;
+			pos1 = onblur.indexOf("'");
+			pos2 = onblur.indexOf("'", pos1 + 1);
+			var temp = onblur.substring(pos1 + 1, pos2);
+			pos1 = child.id.indexOf("_");
+			var tmp = child.id.substring(3, pos1);
+			temp = onblur.replace(temp, GetNewRptTimeId(temp, -1));
+			child.attributes["onBlur"].value = temp;
+		}
 	}
-	//if(child.attribute("onblur")!=null)
-	//deal with onblur to correct the error field
-	for(var i = 0; i< child.children.length; ++i){
-		var children = child.children[i];
-		updateChildren(children.id);
+	for ( var i = 0; i < child.children.length; ++i) {
+		updateChildren(child.children[i]);
 	}
 }
 
-function GetNewRptTimeId(id, offset){
+function GetNewRptTimeId(id, offset) {
 	var index = id.indexOf("_");
-	if(index == -1)//should be like newrepeat1
+	if (index == -1)// should be like newrepeat1
 	{
 		return id;
 	}
+
+	if (id.indexOf("_", index + 1) != -1)
+		index = id.indexOf("_", index + 1);
 	
-	if(id.indexOf("_", index+1) != -1)
-		index  = id.indexOf("_", index+1);
-	
-	var rpttime = parseInt(id.substring(index+1,id.length));
-	var offset = parseInt(offset);
-	id = id.substring(0,index+1)+(rpttime+offset);
-	//alert(id);
+	var dotIndex = id.indexOf(".");
+	if( dotIndex == -1){
+		var rpttime = parseInt(id.substring(index + 1, id.length));
+		var offset = parseInt(offset);
+		id = id.substring(0, index + 1) + (rpttime + offset);
+	}else{
+		var rpttime = parseInt(id.substring(index + 1, dotIndex+1));
+		id = id.substring(0, index + 1) + (rpttime + offset)+id.substring(dotIndex,id.length);
+	}
+	// alert(id);
 	return id;
 }
-
-
