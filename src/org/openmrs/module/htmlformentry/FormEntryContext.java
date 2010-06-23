@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -48,12 +49,13 @@ public class FormEntryContext {
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
+    private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
     private ObsGroup activeObsGroup;
     
     private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
-    private List<Obs> existingObsInGroups;
+    Map<Obs, Set<Obs>> existingObsInGroups;
     
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
@@ -155,6 +157,9 @@ public class FormEntryContext {
     public void beginObsGroup(Concept conceptSet) {
         currentObsGroupConcepts.push(conceptSet);
         activeObsGroup = new ObsGroup(conceptSet);
+        Map<ObsGroup, List<Obs>> map = new HashMap<ObsGroup, List<Obs>>();
+        map.put(this.getActiveObsGroup(), currentObsGroupMembers);
+        obsGroupStack.push(map);
     }
     
     /**
@@ -186,8 +191,19 @@ public class FormEntryContext {
      */
     public void endObsGroup() {
         currentObsGroupMembers = null;
-        getSchema().addField(activeObsGroup);
-        activeObsGroup = null;
+        //remove itself
+        if (!obsGroupStack.isEmpty())
+            obsGroupStack.pop();
+        getSchema().addField(activeObsGroup);  
+        //put the parent obs group back
+        if (!obsGroupStack.isEmpty()){
+            Map<ObsGroup, List<Obs>> map = obsGroupStack.pop();
+            for (Map.Entry<ObsGroup, List<Obs>> e : map.entrySet()){
+                currentObsGroupMembers = e.getValue();
+                activeObsGroup = e.getKey();
+                break;
+            }
+        }
         if (currentObsGroupConcepts.pop() == null)
             throw new RuntimeException("Trying to close an obs group where none is open");
     }
@@ -251,20 +267,22 @@ public class FormEntryContext {
                 list.add(obs);
             }
         }
-        existingObsInGroups = new ArrayList<Obs>();
-        if (encounter != null) {
-            for (Obs parent : encounter.getObsAtTopLevel(false)) {
-                if (parent.hasGroupMembers()) {
-                    // TODO handle groups of groups
-                    existingObsInGroups.add(parent);
-                }
+        existingObsInGroups = new LinkedHashMap<Obs, Set<Obs>>();
+                if (encounter != null)
+                    setupExistingObsInGroups(encounter.getObsAtTopLevel(false));
+             }
+             
+            public void setupExistingObsInGroups(Set<Obs> oSet){
+                for (Obs parent : oSet)       
+                    if (parent.isObsGrouping()){
+                        existingObsInGroups.put(parent, parent.getGroupMembers());
+                        setupExistingObsInGroups(parent.getGroupMembers());
+                    }    
             }
-        }
-    }
-    
-    /**
-     * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs. Use this version
-     * for obs whose concept's datatype is not boolean.
+            
+     /**
+      * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version
+      * for obs whose concept's datatype is not boolean.
      * 
      * @param question the concept associated with the Obs to remove
      * @param answer the concept that serves as the answer for Obs to remove (may be null)
@@ -340,14 +358,14 @@ public class FormEntryContext {
      * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
      * @return the first matching {@see ObsGroup}
      */
-    public Obs findFirstMatchingObsGroup(Concept groupConcept, List<ObsGroupComponent> questionsAndAnswers) {
-        for (Iterator<Obs> iter = existingObsInGroups.iterator(); iter.hasNext(); ) {
-            Obs group = iter.next();
-            if (group.getConcept() == groupConcept && ObsGroupComponent.supports(questionsAndAnswers, group)) {
-                iter.remove();
-                return group;
-            }
-        }
+    public Obs findFirstMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers) {
+        for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet() ) {
+            Obs group = e.getKey();
+            if (ObsGroupComponent.supports(questionsAndAnswers, e.getKey(), e.getValue())) {
+                existingObsInGroups.remove(group);
+                 return group;
+             }
+         }
         return null;
     }
     
@@ -392,5 +410,18 @@ public class FormEntryContext {
         /** A saved form in view-only mode */
         VIEW
     }
+    
+    public Map<Widget, String> getFieldNames() {
+        return fieldNames;
+    }
+        
+    public Map<Concept, List<Obs>> getExistingObs() {
+        return existingObs;
+    }
+        
+    public Map<Obs, Set<Obs>> getExistingObsInGroups() {
+        return existingObsInGroups;
+    }
+
     
 }

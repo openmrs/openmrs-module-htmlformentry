@@ -74,5 +74,10 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
             throw new RuntimeException(ex);
         }
     }
+    
+    public Concept getGroupingConcept() {
+        return groupingConcept;
+    }
+
 
 }

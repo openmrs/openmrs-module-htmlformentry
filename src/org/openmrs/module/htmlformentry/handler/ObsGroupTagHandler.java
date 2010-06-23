@@ -45,8 +45,7 @@ public class ObsGroupTagHandler implements TagHandler {
         groupingConcept.getDatatype().getHl7Abbreviation();
                 
         // find relevant obs group to display for this element
-        Obs thisGroup = findObsGroup(session, parent, node);
-        
+        Obs thisGroup = findObsGroup(session, parent, node, attributes.get("groupingConceptId"));
         session.getContext().beginObsGroup(groupingConcept);
         session.getContext().setObsGroup(thisGroup);
         
@@ -54,20 +53,20 @@ public class ObsGroupTagHandler implements TagHandler {
         return true;
     }
 
-    private Obs findObsGroup(FormEntrySession session, Node parent, Node node) {
-    	Concept groupingConcept = Context.getConceptService().getConcept(Integer.valueOf(node.getAttributes().getNamedItem("groupingConceptId").getNodeValue()));
-        List<ObsGroupComponent> questionsAndAnswers = findQuestionsAndAnswersForGroup(node);
-        return session.getContext().findFirstMatchingObsGroup(groupingConcept,questionsAndAnswers);
+    private Obs findObsGroup(FormEntrySession session, Node parent, Node node, String parentGroupingConceptId) {
+        List<ObsGroupComponent> questionsAndAnswers = findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
+        return session.getContext().findFirstMatchingObsGroup(questionsAndAnswers);
     }
 
-    private List<ObsGroupComponent> findQuestionsAndAnswersForGroup(Node node) {
+
+    private List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId, Node node) {
         List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
-        findQuestionsAndAnswersForGroupHelper(node, ret);
+        findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId,node, ret);
         return ret;
     }
     
 
-    private void findQuestionsAndAnswersForGroupHelper(Node node, List<ObsGroupComponent> ret) {
+    private void findQuestionsAndAnswersForGroupHelper(String parentGroupingConceptId, Node node, List<ObsGroupComponent> ret) {
         if ("obs".equals(node.getNodeName())) {
             Concept question = null;
             Concept answer = null;
@@ -82,19 +81,50 @@ public class ObsGroupTagHandler implements TagHandler {
             } catch (Exception ex) {
                 // this is fine
             }
-            ret.add(new ObsGroupComponent(question, answer));
-        } else {
-            NodeList nl = node.getChildNodes();
-            for (int i = 0; i < nl.getLength(); ++i) {
-                findQuestionsAndAnswersForGroupHelper(nl.item(i), ret);
+           
+          //deterimine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
+            boolean thisObsInThisGroup = false;
+            Node pTmp = node.getParentNode();
+            while(pTmp.getParentNode() != null){
+                          
+                Map<String, String> attributes = new HashMap<String, String>();        
+                NamedNodeMap map = pTmp.getAttributes();
+                if (map != null)
+                    for (int i = 0; i < map.getLength(); ++i) {
+                        Node attribute = map.item(i);
+                        attributes.put(attribute.getNodeName(), attribute.getNodeValue());
+                    }
+                if (attributes.containsKey("groupingConceptId")){
+                    if (attributes.get("groupingConceptId").equals(parentGroupingConceptId)){
+                        thisObsInThisGroup = true;
+                        break;
+                    } else {
+                        break;
+                    }
+                } 
+                pTmp = pTmp.getParentNode();
             }
-        }
-    }
+            if (thisObsInThisGroup)
+                ret.add(new ObsGroupComponent(question, answer));
+            } else {
+                 NodeList nl = node.getChildNodes();
+                 for (int i = 0; i < nl.getLength(); ++i) {
+                     findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), ret);
+                 }
+             }
+         }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        session.getContext().endObsGroup();
-        session.getContext().setObsGroup(null);
-        session.getSubmissionController().addAction(ObsGroupAction.end());
+//                Concept question = null;
+//                if (parent != null){
+//                    NamedNodeMap attrs = parent.getAttributes();
+//                    try {
+//                        question = Context.getConceptService().getConcept(Integer.valueOf(attrs.getNamedItem("groupingConceptId").getNodeValue()));
+//                    } catch (Exception ex){}    
+//                }
+                 session.getContext().endObsGroup();
+                 session.getContext().setObsGroup(null);
+                 session.getSubmissionController().addAction(ObsGroupAction.end());
     }
     
 }

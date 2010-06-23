@@ -16,8 +16,8 @@ import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
-import org.openmrs.ConceptNumeric;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptNumeric;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -555,7 +555,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
         
         // if value is required
         if (required) {
-        	ret.append("*");
+        	ret.append("<span class='required'>*</span>");
         }
         
 		if (context.getMode() != Mode.VIEW) {

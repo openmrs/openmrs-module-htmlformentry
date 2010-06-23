@@ -129,7 +129,14 @@ public class FormSubmissionActions {
         if (encounter != null) {
             addObsToEncounterIfNotAlreadyThere(encounter, group);
         }
+        //this is for obs groups within obs groups
+        Object o = stack.peek();
+        if (o instanceof Obs){
+            Obs oParent = (Obs) o;
+            group.setObsGroup(oParent);
+        }
         stack.push(group);
+
     }
     
     /**

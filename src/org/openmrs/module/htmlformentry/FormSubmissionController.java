@@ -108,4 +108,14 @@ public class FormSubmissionController {
         return lastSubmissionErrors;
     }
     
+    /**
+     * 
+     * Returns the List of FormSubmissionControllerActions
+     * 
+     * @return the FormSubmissionControllerAction List
+     */
+    public List<FormSubmissionControllerAction> getActions() {
+               return actions;
+    }
+    
 }

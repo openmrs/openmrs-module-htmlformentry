@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openmrs.Concept;
 import org.openmrs.Obs;
@@ -50,15 +51,14 @@ public class ObsGroupComponent {
      * @param group
      * @return
      */
-    public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs group) {
-        // TODO handle multi-level obs groups
-        for (Obs obs : group.getGroupMembers()) {
+    public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs parentObs, Set<Obs> group) {
+        for (Obs obs : group) {
             boolean match = false;
             for (ObsGroupComponent test : questionsAndAnswers) {
-                boolean questionMatches = test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
-                boolean answerMatches = test.getAnswer() == null ||
-                    (obs.getValueCoded() != null &&
-                            test.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
+                boolean questionMatches = (test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId())
+                    || (obs.getObsGroup() != null && obs.getObsGroup().equals(parentObs)));
+                boolean answerMatches = test.getAnswer() == null 
+                    ||(obs.getValueCoded() != null && test.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
                 if (questionMatches && answerMatches) {
                     match = true;
                     break;

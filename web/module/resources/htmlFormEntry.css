@@ -30,3 +30,8 @@ div.formEntrySection {
 	border-top: 1px black solid;
 	padding: 0.25em;
 }
+
+.required {
+	color:red;
+}
+ 
