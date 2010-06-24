@@ -362,25 +362,30 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		StringBuilder sb = new StringBuilder(xml);
 
 		/* here we get the rpt xml fragment */
-		while (true) {
-			startIndex = sb.indexOf("<newrepeat>") + 11;
-			if (startIndex == 10)
+		while (true) {              
+			startIndex = sb.indexOf("<multiple>") + 10;
+			if (startIndex == 9)
 				break;
-			endIndex = sb.indexOf("</newrepeat>");
+			
+			endIndex = sb.indexOf("</multiple>");
 			String xmlfragment = sb.substring(startIndex, endIndex);
-
+			
 			xmlfragment = "<span>" + xmlfragment;
 			xmlfragment = xmlfragment + "</span>";
 
 			RptGroup rptgroup = new RptGroup();
 			this.FillChildObs(xmlfragment, rptgroup);
+		
+			this.FillIsInTD(xmlfragment, rptgroup);
 
 			rptgroup.setXmlfragment(xmlfragment);
+			
 			context.getExistingRptGroups().add(rptgroup);
 
-			sb = new StringBuilder(sb.substring(endIndex + 12));
+			sb = new StringBuilder(sb.substring(endIndex + 11));
 		}
 		
+		/* now we are in edit submit mode */
 		if(session.getContext().getRequestParaMap()!=null&&
 				session.getContext().getRequestParaMap().get("kCount1")!=null &&
 				(context.getMode() == Mode.EDIT)){
@@ -410,7 +415,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 
 			// TODO: now it can't handle when 1 repeat set is a prefix of another
-			// i.e. for sequence a,b, c <newrepeat> a,b</newrepeat> will also
+			// i.e. for sequence a,b, c <mutilple> a,b</mutilple> will also
 			// match, which is not right
 			for (RptGroup rpt : context.getExistingRptGroups()) {
 				/* count for the original record */
@@ -462,6 +467,23 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 		}
 	}
+	
+	/***
+	 * to see if the multiple was in a <tr><td></td></tr> pair
+	 * @param xmlfragment
+	 * @param rptgroup
+	 * @throws Exception 
+	 */
+	private void FillIsInTD(String xmlfragment, RptGroup rptgroup) throws Exception {
+		xmlfragment = xmlfragment.replaceAll("\r\n", "");
+		xmlfragment = xmlfragment.trim();
+		Document doc = HtmlFormEntryUtil.stringToDocument(xmlfragment);
+		NodeList nList = doc.getChildNodes();
+		/* if the first child is <tr> then this multiple is not likely 
+		 * in a td
+		 */
+		rptgroup.setIntd(!("tr").equals(nList.item(0).getChildNodes().item(0).getNodeName()));
+	}
 
 	/****
 	 * find out how many obs exsit in this xml 1)count <obs tag 2)count
@@ -472,7 +494,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @throws Exception
 	 */
 	private int CountObs(String xml) throws Exception {
-		// TODO need to deal with obs groups
+		
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		NodeList nList = doc.getChildNodes();
 

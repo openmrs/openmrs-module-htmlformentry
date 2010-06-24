@@ -150,7 +150,7 @@ function removeParentWithClass(element, parentClass) {
 	// newRepeat1_1
 	var pos = parent.id.indexOf("_");
 	var temp = parent.id.substring(9, pos);
-	$('#kCount1').val($('#kCount' + temp).val() - 1)
+	$('#kCount'+temp).val($('#kCount' + temp).val() - 1)
 }
 
 function updateAllParent(elementid) {

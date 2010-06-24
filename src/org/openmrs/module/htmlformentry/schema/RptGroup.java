@@ -13,6 +13,9 @@ public class RptGroup implements HtmlFormField {
 	/* the string to hold the xml representation of the content this repeat*/
 	private String xmlfragment;
 	
+	/* see if we need to append <tr><td> ...</td></tr> pair outside this repeat */
+	private boolean intd;
+	
 	private Integer repeattime = 0;
 
 	public List<Integer> getChildrenobs() {
@@ -45,5 +48,15 @@ public class RptGroup implements HtmlFormField {
 	public Integer getObsNum(){
 		return this.childrenobs.size();
 	}
+
+	public boolean isIntd() {
+		return intd;
+	} 
+
+	public void setIntd(boolean intd) {
+		this.intd = intd;
+	}
+	
+	
 }
 

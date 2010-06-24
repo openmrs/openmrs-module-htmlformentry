@@ -26,7 +26,10 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 		StringBuilder sb = new StringBuilder();
 
 		/* the jquery function to generate the template */
-		sb.append("\n<tr><td> <script type=\"text/javascript\" charset=\"utf-8\">\n");
+		if(!context.getExistingRptGroups().get(context.getNewrepeatSeqVal()-1).isIntd()){
+			sb.append("\n<tr><td> ");
+		}
+		sb.append("<script type=\"text/javascript\" charset=\"utf-8\">\n");
 		sb.append("$(document).ready(function() {\n");
 		sb.append("var kCount   = parseInt($('#kCount"
 				+ context.getNewrepeatSeqVal() + "').val());\n");
@@ -171,8 +174,9 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 				+ context.getNewrepeatSeqVal()
 				+ "\" type=\"button\" value=\"+\" size=\"1\" /></span>"); 
 		
-		
-		sb.append("</td></tr>\n");
+		if(!context.getExistingRptGroups().get(context.getNewrepeatSeqVal()-1).isIntd()){
+			sb.append("</td></tr>\n");
+		}
 
 		if(context.getMode() != Mode.EDIT){
 		sb.append("<input id=\"kCount"

@@ -73,10 +73,10 @@ public class NewRepeatHandler implements TagHandler {
 		FormEntryContext context = session.getContext();
 		context.beginNewRepeatGroup();
 		
-		if(context.getMode() != Mode.VIEW){
-			String replacement = getStartSubstitution(session);
-			out.print(replacement);
-		}
+		
+		String replacement = getStartSubstitution(session);
+		out.print(replacement);
+		
 
 		return true;
 	}
