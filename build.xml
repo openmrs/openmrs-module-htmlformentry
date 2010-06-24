@@ -10,7 +10,7 @@
 	<!-- *********************************************************** -->
 	<!-- **                     TARGETS                           ** -->
 	<!-- *********************************************************** -->
-	<target name="init" depends="clean" description="initialization">
+	<target name="init" description="initialization">
 		<xmlcatalog id="common-dtds">
 	        <dtd 
 	            publicId="-//OpenMRS//DTD OpenMRS Config 1.1//EN"

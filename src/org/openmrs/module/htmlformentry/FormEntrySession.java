@@ -525,7 +525,7 @@ public class FormEntrySession {
                 if (name.startsWith("w")) {
                     String val = lastSubmission.getParameter(name);
                     if (StringUtils.hasText(val))
-                        sb.append("DWRUtil.setValue('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
+                    	sb.append("DWRUtil.setValue('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
                 }
             }
             return sb.toString();
@@ -533,10 +533,15 @@ public class FormEntrySession {
     }
     
     /**
-     * Returns any errors associated with the last AJAX submission made
-     * TODO: Update this so it is actually right!
+     * Returns a fragment of javascript that will display any error widgets that had errors on
+     * the last submission, and hides those that have no error.
      */
     public String getLastSubmissionErrorJavascript() {
+    	if (context.getMode() == Mode.VIEW) {
+    		// in VIEW mode there are no error widgets
+    		return "";
+    	}
+    	
         StringBuilder sb = new StringBuilder();
         for (String divId : context.getErrorDivIds())
             sb.append("clearError('" + divId + "');\n");

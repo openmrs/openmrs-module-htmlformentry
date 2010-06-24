@@ -1,25 +1,30 @@
 <%@ include file="/WEB-INF/template/include.jsp" %>
 
 <c:set var="OPENMRS_DO_NOT_SHOW_PATIENT_SET" scope="request" value="true"/>
-<c:set var="inPopup" value="${param.inPopup != null && param.inPopup}"/>
+<c:set var="pageFragment" value="${param.pageFragment != null && param.pageFragment}"/>
+<c:set var="inPopup" value="${pageFragment || (param.inPopup != null && param.inPopup)}"/>
 
-<c:choose>
-	<c:when test="${inPopup}">
-		<%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
-	</c:when>
-	<c:otherwise>
-		<%@ include file="/WEB-INF/template/header.jsp" %>
-	</c:otherwise>
-</c:choose>
+<c:if test="${not pageFragment}">
+	<c:choose>
+		<c:when test="${inPopup}">
+			<%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
+		</c:when>
+		<c:otherwise>
+			<%@ include file="/WEB-INF/template/header.jsp" %>
+		</c:otherwise>
+	</c:choose>
 
-<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
-<openmrs:htmlInclude file="/dwr/engine.js" />
-<openmrs:htmlInclude file="/dwr/util.js" />
-<openmrs:htmlInclude file="/dwr/interface/DWRHtmlFormEntryService.js" />
-<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
-<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
-<openmrs:htmlInclude file="/scripts/dojoConfig.js"/>
-<openmrs:htmlInclude file="/scripts/dojo/dojo.js"/>
+	<openmrs:htmlInclude file="/scripts/jquery/jquery-1.3.2.min.js" />
+	<script type="text/javascript">
+		$j = jQuery.noConflict();
+	</script>
+	<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
+	<openmrs:htmlInclude file="/dwr/engine.js" />
+	<openmrs:htmlInclude file="/dwr/util.js" />
+	<openmrs:htmlInclude file="/dwr/interface/DWRHtmlFormEntryService.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
+</c:if>
 
 <script type="text/javascript">
 	var tryingToSubmit = false;
@@ -46,10 +51,10 @@
 
 	function loginThenSubmitHtmlForm() {
 		hideDiv('passwordPopup');
-		var username = DWRUtil.getValue('passwordPopupUsername');
-		var password = DWRUtil.getValue('passwordPopupPassword');
-		DWRUtil.setValue('passwordPopupUsername', '');
-		DWRUtil.setValue('passwordPopupPassword', '');
+		var username = $j('#passwordPopupUsername').val();
+		var password = $j('#passwordPopupPassword').val();
+		$j('#passwordPopupUsername').val('');
+		$j('#passwordPopupPassword').val('');
 		DWRHtmlFormEntryService.authenticate(username, password, submitHtmlForm); 
 	}
 
@@ -131,28 +136,33 @@
 	</div>
 </c:if>
 
-<spring:hasBindErrors name="command">
-	<spring:message code="fix.error"/>
-	<div class="error">
-		<c:forEach items="${errors.allErrors}" var="error">
-			<spring:message code="${error.code}" text="${error.code}"/><br/>
-		</c:forEach>
-	</div>
-	<br />
-</spring:hasBindErrors>
+<c:if test="${command.context.mode != 'VIEW'}">
+	<spring:hasBindErrors name="command">
+		<spring:message code="fix.error"/>
+		<div class="error">
+			<c:forEach items="${errors.allErrors}" var="error">
+				<spring:message code="${error.code}" text="${error.code}"/><br/>
+			</c:forEach>
+		</div>
+		<br />
+	</spring:hasBindErrors>
+</c:if>
 
-<form id="htmlform" method="post">
-	<input type="hidden" name="personId" value="${ command.patient.personId }"/>
-	<input type="hidden" name="htmlFormId" value="${ command.htmlFormId }"/>
-	<input type="hidden" name="formModifiedTimestamp" value="${ command.formModifiedTimestamp }"/>
-	<input type="hidden" name="encounterModifiedTimestamp" value="${ command.encounterModifiedTimestamp }"/>
-	<c:if test="${ not empty command.encounter }">
-		<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
-	</c:if>
-	<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
+<c:if test="${command.context.mode != 'VIEW'}">
+	<form id="htmlform" method="post" onSubmit="submitHtmlForm(); return false;">
+		<input type="hidden" name="personId" value="${ command.patient.personId }"/>
+		<input type="hidden" name="htmlFormId" value="${ command.htmlFormId }"/>
+		<input type="hidden" name="formModifiedTimestamp" value="${ command.formModifiedTimestamp }"/>
+		<input type="hidden" name="encounterModifiedTimestamp" value="${ command.encounterModifiedTimestamp }"/>
+		<c:if test="${ not empty command.encounter }">
+			<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
+		</c:if>
+		<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
+</c:if>
 	
 	${command.htmlToDisplay}
 	
+<c:if test="${command.context.mode != 'VIEW'}">
 	<div id="passwordPopup" style="position: absolute; z-axis: 1; bottom: 25px; background-color: #ffff00; border: 2px black solid; display: none; padding: 10px">
 		<center>
 			<table>
@@ -174,19 +184,24 @@
 		</center>
 	</div>
 </form>
+</c:if>
 
-<script type="text/javascript">
-	dojo.addOnLoad( function() {
-		${command.setLastSubmissionFieldsJavascript}
-		${command.lastSubmissionErrorJavascript}
-	});
-</script>
+<c:if test="${not empty command.setLastSubmissionFieldsJavascript || not empty command.lastSubmissionErrorJavascript}"> 
+	<script type="text/javascript">
+		$j(document).ready( function() {
+			${command.setLastSubmissionFieldsJavascript}
+			${command.lastSubmissionErrorJavascript}
+		});
+	</script>
+</c:if>
 
-<c:choose>
-	<c:when test="${inPopup}">
-		<%@ include file="/WEB-INF/template/footerMinimal.jsp" %>
-	</c:when>
-	<c:otherwise>
-		<%@ include file="/WEB-INF/template/footer.jsp" %>
-	</c:otherwise>
-</c:choose>
+<c:if test="${!pageFragment}">
+	<c:choose>
+		<c:when test="${inPopup}">
+			<%@ include file="/WEB-INF/template/footerMinimal.jsp" %>
+		</c:when>
+		<c:otherwise>
+			<%@ include file="/WEB-INF/template/footer.jsp" %>
+		</c:otherwise>
+	</c:choose>
+</c:if>
