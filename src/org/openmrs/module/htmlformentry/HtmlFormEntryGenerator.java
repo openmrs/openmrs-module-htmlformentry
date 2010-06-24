@@ -5,9 +5,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 
@@ -476,13 +478,19 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 */
 	private void FillIsInTD(String xmlfragment, RptGroup rptgroup) throws Exception {
 		xmlfragment = xmlfragment.replaceAll("\r\n", "");
+		
 		xmlfragment = xmlfragment.trim();
 		Document doc = HtmlFormEntryUtil.stringToDocument(xmlfragment);
 		NodeList nList = doc.getChildNodes();
 		/* if the first child is <tr> then this multiple is not likely 
 		 * in a td
 		 */
-		rptgroup.setIntd(!("tr").equals(nList.item(0).getChildNodes().item(0).getNodeName()));
+		for ( int i = 0; i< nList.getLength(); ++i){
+			if(!nList.item(0).getChildNodes().item(i).getNodeName().equals("#text")){
+				rptgroup.setIntd(!("tr").equals(nList.item(0).getChildNodes().item(i).getNodeName()));
+				return;
+			}
+		}
 	}
 
 	/****
@@ -541,10 +549,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		NodeList nList = doc.getChildNodes();
-		Stack<NodeList> stack = new Stack<NodeList>();
-		stack.push(nList);
-		while (!stack.empty()) {
-			nList = stack.pop();
+		Queue<NodeList> stack = new LinkedList<NodeList>();
+		stack.add(nList);
+		while (!stack.isEmpty()) {
+			nList = stack.poll();
 			for (int i = 0; i < nList.getLength(); ++i) {
 				Node node = nList.item(i);
 				String nodeName = node.getNodeName();
@@ -572,7 +580,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 				/* we will skip the content of obsgroup */
 				if (!"obsgroup".equals(nodeName)) {
-					stack.push(node.getChildNodes());
+					stack.add(node.getChildNodes());
 				}
 			}
 		}
