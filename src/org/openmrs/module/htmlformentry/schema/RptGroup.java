@@ -17,6 +17,36 @@ public class RptGroup implements HtmlFormField {
 	private boolean intd;
 	
 	private Integer repeattime = 0;
+	
+	private Integer maxrpt = 10;
+	
+	private Integer minrpt = 1;
+	
+	private String label = "AddNewMultiple";
+
+	public Integer getMaxrpt() {
+		return maxrpt;
+	}
+
+	public void setMaxrpt(Integer maxrpt) {
+		this.maxrpt = maxrpt;
+	}
+
+	public Integer getMinrpt() {
+		return minrpt;
+	}
+
+	public void setMinrpt(Integer minrpt) {
+		this.minrpt = minrpt;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
 
 	public List<Integer> getChildrenobs() {
 		return childrenobs;

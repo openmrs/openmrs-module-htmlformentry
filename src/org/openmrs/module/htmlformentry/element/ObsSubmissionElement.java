@@ -628,19 +628,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		if (accessionNumberWidget != null)
 			accessionNumberValue = (String) accessionNumberWidget.getValue(
 					session.getContext(), submission);
-		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
-			/* short cut here, if are editing  a form  contains a newrepeat tag, 
-             we ought to 1)remove all current obs/obsgroup and reinsert the new ones with updated value 
-            the obs remove and reinsert is taken cared by the modifyObs function, the new obsDatetime
-            will let modifyObs to identify the obs as a modified one*/
-			if(session.getContext().getExistingRptGroups().size() != 0){
-				obsDatetime = new Date();
-			}
-		
+		if (existingObs != null && session.getContext().getMode() == Mode.EDIT 
+				&&session.getContext().getExistingRptGroups().size() == 0) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
-			session.getSubmissionActions().modifyObs(existingObs, concept,
+				session.getSubmissionActions().modifyObs(existingObs, concept,
 					value, obsDatetime, accessionNumberValue);
+			
 		} else {
 			/*even if the value is null or "", we will save them into the 
 			 * database, we will later use the obs seq to help identify 

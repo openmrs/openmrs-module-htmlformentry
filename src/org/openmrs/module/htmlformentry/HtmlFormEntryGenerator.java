@@ -365,9 +365,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 		/* here we get the rpt xml fragment */
 		while (true) {              
-			startIndex = sb.indexOf("<multiple>") + 10;
-			if (startIndex == 9)
+			startIndex = sb.indexOf("<multiple");
+			if (startIndex == -1)
 				break;
+			startIndex += sb.substring(startIndex).indexOf(">")+1;
+			
 			
 			endIndex = sb.indexOf("</multiple>");
 			String xmlfragment = sb.substring(startIndex, endIndex);
@@ -387,7 +389,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			sb = new StringBuilder(sb.substring(endIndex + 11));
 		}
 		
-		/* now we are in edit submit mode */
+		/* now we are in edit mit mode */
 		if(session.getContext().getRequestParaMap()!=null&&
 				session.getContext().getRequestParaMap().get("kCount1")!=null &&
 				(context.getMode() == Mode.EDIT)){
@@ -397,9 +399,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	       		String paraName = "kCount"+(i+1);       		
 	       		int rpttime = Integer.parseInt(((String[])context.getRequestParaMap().get(paraName))[0]);
 	       		rg.setRepeattime(rpttime);
-	       		
 			}
 		}
+		
 		/* also need to find out repeat times of each repeater */
 		else if (context.getMode() == Mode.VIEW || (context.getMode() == Mode.EDIT)) {
 
@@ -417,13 +419,13 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 
 			// TODO: now it can't handle when 1 repeat set is a prefix of another
-			// i.e. for sequence a,b, c <mutilple> a,b</mutilple> will also
+			// i.e. for sequence a,b,c <mutilple> a,b</mutilple> will also
 			// match, which is not right
 			for (RptGroup rpt : context.getExistingRptGroups()) {
 				/* count for the original record */
 				if (rpt.getObsNum() == 0)
 					continue;
-				rpt.setRepeattime(1);
+				rpt.setRepeattime(0);//start from 0
 				boolean matchFlag = true;
 				while (matchFlag == true) {
 					for (int i = 0; i < rpt.getObsNum(); ++i) {
@@ -491,12 +493,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				return;
 			}
 		}
+		rptgroup.setIntd(true);
 	}
 
 	/****
-	 * find out how many obs exsit in this xml 1)count <obs tag 2)count
-	 * <obsgroup tag if it contains obs tag
-	 * 
+	 * find out how many obs exsit in this xml:
+	 *  1)count <obs tag 
+	 *  2)count <obsgroup tag if it contains obs tag
+	 *  update: if <obs is in a repeat then ignore
 	 * @param xml
 	 * @return the number of obs
 	 * @throws Exception
@@ -515,18 +519,28 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			nList = stack.pop();
 			for (int i = 0; i < nList.getLength(); ++i) {
 				Node node = nList.item(i);
-				stack.push(node.getChildNodes());
+				
+				/*skip all obs in a multiple tag */
+				if(!"multiple".equals(node.getNodeName())){
+					stack.push(node.getChildNodes());
+				}
 				String nodeName = node.getNodeName();
 				if ("obs".equals(nodeName)) {
 					++obsCount;
 				}
 				/* obsgroup tag will count only if it contains obs tag */
 				else if ("obsgroup".equals(nodeName)) {
-					for (int j = 0; j < node.getChildNodes().getLength(); ++j) {
-						if ("obs".equals(node.getChildNodes().item(j)
-								.getNodeName())) {
-							++obsCount;// increase for this obsgroup tag
-							break;
+					Stack<NodeList> subStack = new Stack<NodeList>();
+					subStack.add(node.getChildNodes());
+					while(!subStack.isEmpty()){
+						NodeList subNList = subStack.pop();
+						for (int j = 0; j < subNList.getLength(); ++j) {
+							subStack.add(subNList.item(j).getChildNodes());
+							if ("obs".equals(subNList.item(j).getNodeName())) {
+								++obsCount;// increase for this obsgroup tag
+								subStack.clear();
+								break;
+							}
 						}
 					}
 				}
@@ -603,11 +617,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			context.ResetNewrepeatTimesSeqVal();
 
 			for (RptGroup rg : context.getExistingRptGroups()) {
-				context.getnewrepeatTimesNextSeqVal(); 
+				//context.getnewrepeatTimesNextSeqVal(); //start from 1
 				StringBuilder sb = new StringBuilder();
 				String addtionalxml = rg.getXmlfragment();
 				context.beginNewRepeatGroup();
-				for (int i = 1; i < rg.getRepeattime(); ++i) {
+				for (int i = 1; i < rg.getRepeattime()+1; ++i) {
 					/* output 1 set of repeat here */
 			
 					String replaceStr = session.getHtmlGenerator().applyTags(session, addtionalxml);
@@ -617,9 +631,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 							replaceStr = "";
 					replaceStr = replaceStr.substring(endOfFirstTag + 1,startOfLastTag);
 					
-					sb.append("<span id=\"newRepeat" + context.getNewrepeatSeqVal() + "_"+(i+1)
+					sb.append("<span id=\"newRepeat" + context.getNewrepeatSeqVal() + "_"+i
 							+ "\" class=\"newRepeat" + context.getNewrepeatSeqVal()
-							+ "\" style=\"display:block\" ><table style=\"display:inline\"> \n");
+							+ "\" style=\"display:block \" ><table style=\"display:inline\"> \n");
 					
 					sb.append(replaceStr);
 					

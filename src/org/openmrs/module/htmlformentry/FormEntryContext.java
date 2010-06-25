@@ -552,4 +552,13 @@ public class FormEntryContext {
 		}
 	}
 	
+	/***
+	 * set newrepeattimeseq = 0
+	 */
+	public void ZeroNewrepeatTimesSeqVal(){
+		synchronized(newrepeatTimesSeqVal){
+			this.newrepeatTimesSeqVal =0;
+		}
+	}
+	
 }

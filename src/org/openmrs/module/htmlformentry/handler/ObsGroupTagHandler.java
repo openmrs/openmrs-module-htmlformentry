@@ -28,6 +28,9 @@ public class ObsGroupTagHandler implements TagHandler {
     public boolean doStartTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         
+    	/*if it =0, then we are just generating the templates, no actions should be taken*/
+        if(session.getContext().getNewrepeatTimesSeqVal()==0) return true;
+      
         Map<String, String> attributes = new HashMap<String, String>();        
         NamedNodeMap map = node.getAttributes();
         for (int i = 0; i < map.getLength(); ++i) {
@@ -93,6 +96,9 @@ public class ObsGroupTagHandler implements TagHandler {
     }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
+    	/*if it =0, then we are just generating the templates, no actions should be taken*/
+        if(session.getContext().getNewrepeatTimesSeqVal()==0) return;
+ 
         if(session.getContext().getMode()==Mode.VIEW) out.print("<br/>");
     	session.getContext().endObsGroup();
         session.getContext().setObsGroup(null);

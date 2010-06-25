@@ -1,12 +1,17 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.element.NewRepeatElement;
 import org.openmrs.module.htmlformentry.schema.RptGroup;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /***
@@ -21,9 +26,8 @@ public class NewRepeatHandler implements TagHandler {
 	public void doEndTag(FormEntrySession session, PrintWriter out,
 			Node parent, Node node) {
 
-		if ( session.getContext().getMode() != Mode.VIEW) {
-			out.print(this.getEndSubstitution(session));
-		}
+		out.print(this.getEndSubstitution(session));
+
 		session.getContext().endNewRepeatGroup();
 	}
 
@@ -72,11 +76,59 @@ public class NewRepeatHandler implements TagHandler {
 		/* notify the context that we are starting a repeater */
 		FormEntryContext context = session.getContext();
 		context.beginNewRepeatGroup();
+
+		/*
+		 * we will generate the multipe template by java code let 0 as flag
+		 */
+		context.ZeroNewrepeatTimesSeqVal();
+
+		Map<String, String> attributes = new HashMap<String, String>();
+		NamedNodeMap map = node.getAttributes();
+		for (int i = 0; i < map.getLength(); ++i) {
+			Node attribute = map.item(i);
+			if ("addLabel".equals(attribute.getNodeName())) {
+				context.getExistingRptGroups().get(
+						context.getNewrepeatSeqVal() - 1).setLabel(
+						attribute.getNodeValue());
+			} else if ("minOccurs".equals(attribute.getNodeName())) {
+				try {
+					int minOccur = Integer.parseInt(attribute.getNodeValue());
+					if (minOccur < 0)
+						throw new IllegalArgumentException(
+								"minOccurs has to be an integer greater than 0");
+					context.getExistingRptGroups().get(
+							context.getNewrepeatSeqVal() - 1).setMinrpt(
+							minOccur);
+
+				} catch (Exception ex) {
+					throw new IllegalArgumentException(
+							"minOccurs has to be an integer!");
+				}
+			} else if ("maxOccurs".equals(attribute.getNodeName())) {
+				try {
+					int maxOccur = Integer.parseInt(attribute.getNodeValue());
+					if (maxOccur < 0)
+						throw new IllegalArgumentException(
+								"maxOccurs has to be an integer greater than 0");
+					context.getExistingRptGroups().get(
+							context.getNewrepeatSeqVal() - 1).setMaxrpt(
+							Integer.parseInt(attribute.getNodeValue()));
+				} catch (Exception ex) {
+					throw new IllegalArgumentException(
+							"maxOccurs has to be an integer!");
+				}
+			}
+		}
 		
+		if(context.getExistingRptGroups().get(
+				context.getNewrepeatSeqVal() - 1).getMaxrpt()<context.getExistingRptGroups().get(
+						context.getNewrepeatSeqVal() - 1).getMinrpt()){
+			throw new IllegalArgumentException(
+			"maxOccurs has to be bigger than minOccurs!");
+		}
 		
 		String replacement = getStartSubstitution(session);
 		out.print(replacement);
-		
 
 		return true;
 	}

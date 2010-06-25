@@ -743,13 +743,15 @@ public class FormEntrySession {
     	for(RptGroup rg:  this.context.getExistingRptGroups()){
     		/* to allow the addtional widget recognized to be in a rpt*/
     		this.context.beginNewRepeatGroup();
+    		this.context.ResetNewrepeatTimesSeqVal();
         	String addtionalxml =rg.getXmlfragment();
         	
-        	for (int i=1; i< rg.getRepeattime(); ++i ){
-        		this.context.getnewrepeatTimesNextSeqVal();
+        	for (int i=0; i< rg.getRepeattime(); ++i ){	
         		/*each time we reset the ctrl newrepeatseq*/
         		this.context.ResetCtrlInNewrepeatSeqVal();
         		this.getHtmlGenerator().applyTags(this, addtionalxml);
+        		
+        		this.context.getnewrepeatTimesNextSeqVal();
         	}
         	this.context.endNewRepeatGroup();
         }
@@ -761,14 +763,6 @@ public class FormEntrySession {
 
 	public HtmlFormEntryGenerator getHtmlGenerator() {
 		return htmlGenerator;
-	}
-
-	/*remove all exsiting obs linked with this encounter */
-	public void voidExistingObs() {
-		// TODO Auto-generated method stub
-		for(Obs obs: this.encounter.getAllObs()){
-			Context.getObsService().voidObs(obs,"htmlformentryedit");
-		}
 	}
 
 }
