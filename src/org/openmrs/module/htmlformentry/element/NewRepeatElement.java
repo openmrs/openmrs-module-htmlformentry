@@ -38,49 +38,7 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 			sb.append("\n<tr><td> ");
 		}
 
-		/* the jquery function to generate the template */
-		/*
-		 * sb.append("<script type=\"text/javascript\" charset=\"utf-8\">\n");
-		 * sb.append("$(document).ready(function() {\n");
-		 * sb.append("var kCount   = parseInt($('#kCount" +
-		 * context.getNewrepeatSeqVal() + "').val());\n");
-		 * sb.append("var $newRow = cloneAndInsertBefore('newRepeat" +
-		 * context.getNewrepeatSeqVal() + "_1', $('#newRepeat" +
-		 * context.getNewrepeatSeqVal() + "_1'));\n");
-		 * sb.append("$newRow.attr('id', 'newRepeatTemplate" +
-		 * context.getNewrepeatSeqVal() + "');\n"); //
-		 * sb.append("$newRow.prepend('<br/>');\n");
-		 * sb.append("var newRowChildren = $newRow.children();\n");
-		 * 
-		 * sb.append("var stack = new Array();\n"); sb.append(
-		 * "for(var i = 0; i< newRowChildren.length; ++i){stack.push(newRowChildren[i]);}\n"
-		 * ); sb.append("while(stack.length>0){\n");
-		 * sb.append("	var child = stack.pop();\n");
-		 * sb.append("for(var i = 0; i< child.children.length; ++i){\n");
-		 * sb.append("	stack.push(child.children[i]);\n"); sb.append("	}\n"); sb
-		 * .append(
-		 * "  if (child.id == 'removeRowButton') { child.style.display = ''; }\n"
-		 * ); sb.append("else if(child.id ==\"defaultFieldlistObjAddButton" +
-		 * context.getNewrepeatSeqVal() +
-		 * "\"){child.id = \"defaultFieldlistObjAddButton0\";" +
-		 * "child.style.display = '';}"); sb.append(
-		 * "else if(child.id.length>4 && child.id.substring(0,3)== 'rpt'){\n");
-		 * sb.append("	var pos1 = child.id.indexOf(\"_\");\n");
-		 * sb.append("	var pos2 = child.id.indexOf(\"_\", pos1+1);\n");
-		 * sb.append("if(child.id.indexOf(\".\")==-1){");
-		 * sb.append("	child.id = child.id.substring(0,pos2+1) + '0';\n");
-		 * sb.append("	child.name = child.id.substring(0,pos2+1) + '0';\n");
-		 * sb.append("}\n"); sb.append("else{"); sb.append(
-		 * "child.id = child.id.substring(0, pos2 + 1) + '0'+child.id.substring(child.id.indexOf(\".\"),child.id.length);\n"
-		 * ); sb.append("child.name = child.id;\n"); sb.append("}");
-		 * 
-		 * sb.append("}\n");
-		 * 
-		 * sb.append("}\n");
-		 * 
-		 * sb.append("$newRow.hide();\n"); sb.append("	}); \n </script>\n");
-		 */
-
+		
 		/* the jquery function to add fields */
 		sb.append("<script type=\"text/javascript\" charset=\"utf-8\">\n");
 		sb.append("$(document).ready(function() {	\n");
@@ -162,15 +120,16 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 			sb.append("$(document).ready(function() {\n");
 			sb.append("var minRpt   = parseInt($('#minRpt"
 					+ context.getNewrepeatSeqVal() + "').val());\n");
-			sb.append("for(var i=0; i< minRpt;++i){");
+			sb.append("var kCount   = parseInt($('#kCount"
+					+ context.getNewrepeatSeqVal() + "').val());\n");
+			sb.append("for(var i = kCount; i< minRpt;++i){");
 			sb.append("$(\"#defaultFieldlistObjAddButton"
 					+ context.getNewrepeatSeqVal() + "\").click();\n");
 			sb.append("}});");
 			sb.append("</script>\n");
 		}
 		
-		sb
-				.append("<span id=\"newRepeatTemplate"
+		sb.append("<span id=\"newRepeatTemplate"
 						+ context.getNewrepeatSeqVal()
 						+ "\" class=\"newRepeat"
 						+ context.getNewrepeatSeqVal()

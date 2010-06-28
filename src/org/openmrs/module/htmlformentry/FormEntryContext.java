@@ -299,9 +299,9 @@ public class FormEntryContext {
         	for(Obs obs:encounter.getObsAtTopLevel(false)){
         		if(!obs.hasGroupMembers()){
         			obsset.add(obs);
-        		}else{
-        			obsset.addAll(obs.getGroupMembers());
-        		}
+        		}//else{
+        		//	obsset.addAll(obs.getGroupMembers());
+        		//}
         	}
         	//the obs order will later be used to help the display
         	List <Obs> sortedObs = HtmlFormEntryUtil.SortObs(obsset);

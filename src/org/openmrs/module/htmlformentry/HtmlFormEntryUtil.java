@@ -388,4 +388,29 @@ public class HtmlFormEntryUtil {
 		}
 		return sortedObs;
 	}
+
+	/***
+	 * to see if this obs 's value equals null
+	 * @return
+	 */
+	public static boolean IsObsValueNull(Obs obs) {
+		// TODO Auto-generated method stub
+		 ConceptDatatype dt = obs.getConcept().getDatatype();
+		 if (dt.isNumeric()) {
+     		return obs.getValueNumeric()==null;
+     	} else if (dt.isText()) {
+     		return obs.getValueText()==null;
+     	} else if (dt.isCoded()) {
+     		return obs.getValueCoded()== null;
+     	} else if (dt.isBoolean()) {
+     		return obs.getValueNumeric() == null;
+     	} else if (dt.isDate()) {
+     		return obs.getValueDatetime() == null;
+     	} else if ("ZZ".equals(dt.getHl7Abbreviation())) {
+     		// don't set a value
+     		return false;
+     	} else {
+     		throw new IllegalArgumentException("concept datatype not yet implemented: " + dt.getName() + " with Hl7 Abbreviation: " + dt.getHl7Abbreviation());
+     	}
+	}
 }

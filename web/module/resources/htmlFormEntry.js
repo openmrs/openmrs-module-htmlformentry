@@ -126,7 +126,7 @@ function removeRow(tableId, anElementInRow) {
 	}
 }
 
-/* from htmlwidgets.js */
+/* from htmlwidgets.js and new js*/
 
 function getClone(idToClone) {
 	var template = $("#" + idToClone);
@@ -145,12 +145,20 @@ function cloneAndInsertBefore(idToClone, elementToAddBefore) {
 
 function removeParentWithClass(element, parentClass) {
 	var parent = findParentWithClass(element, parentClass);
-	$(parent).remove();
-	updateAllParent(parent.id);
-	// newRepeat1_1
 	var pos = parent.id.indexOf("_");
 	var temp = parent.id.substring(9, pos);
-	$('#kCount'+temp).val($('#kCount' + temp).val() - 1)
+	var newKCount = $('#kCount' + temp).val() - 1;
+	var minRpt = $('#minRpt' + temp).val();
+	
+	if(newKCount >=minRpt ){
+		$(parent).remove();
+		updateAllParent(parent.id);
+		// newRepeat1_1
+		$('#kCount'+temp).val(newKCount);
+		//$('#newRepeat'+temp+'_'+newKCount).css("display", "inline");
+	}else{
+		alert("Multiple minimum reached, please contact form designer");
+	}
 }
 
 function updateAllParent(elementid) {

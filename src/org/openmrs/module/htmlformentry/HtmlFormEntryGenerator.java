@@ -389,10 +389,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			sb = new StringBuilder(sb.substring(endIndex + 11));
 		}
 		
-		/* now we are in edit mit mode */
+		/* now we are in enter/edit  submit mode */
 		if(session.getContext().getRequestParaMap()!=null&&
-				session.getContext().getRequestParaMap().get("kCount1")!=null &&
-				(context.getMode() == Mode.EDIT)){
+				session.getContext().getRequestParaMap().get("kCount1")!=null){
+			//&&(context.getMode() == Mode.EDIT)){
 	
 			for(int i = 0; i< context.getExistingRptGroups().size();++i){
 	       		RptGroup rg = context.getExistingRptGroups().get(i);
@@ -402,7 +402,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 		}
 		
-		/* also need to find out repeat times of each repeater */
+		/* else we are in edit/view loading mode */ 
 		else if (context.getMode() == Mode.VIEW || (context.getMode() == Mode.EDIT)) {
 
 			Set<Obs> allObs = session.getEncounter().getAllObs();
@@ -610,53 +610,51 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String applyNewRepeatEnd(FormEntrySession session, String xml)throws Exception {
 	
 		FormEntryContext context = session.getContext();
+		
+		context.ResetNewrepeatSeqVal();
+		context.ResetCtrlInNewrepeatSeqVal();
+		context.ResetNewrepeatTimesSeqVal();
 
-		if (context.getMode() == Mode.VIEW || context.getMode() == Mode.EDIT) {
-			context.ResetNewrepeatSeqVal();
-			context.ResetCtrlInNewrepeatSeqVal();
-			context.ResetNewrepeatTimesSeqVal();
-
-			for (RptGroup rg : context.getExistingRptGroups()) {
-				//context.getnewrepeatTimesNextSeqVal(); //start from 1
-				StringBuilder sb = new StringBuilder();
-				String addtionalxml = rg.getXmlfragment();
-				context.beginNewRepeatGroup();
-				for (int i = 1; i < rg.getRepeattime()+1; ++i) {
-					/* output 1 set of repeat here */
+		for (RptGroup rg : context.getExistingRptGroups()) {
+			StringBuilder sb = new StringBuilder();
+			String addtionalxml = rg.getXmlfragment();
+			context.beginNewRepeatGroup();
 			
-					String replaceStr = session.getHtmlGenerator().applyTags(session, addtionalxml);
-					int endOfFirstTag = replaceStr.indexOf('>');
-					int startOfLastTag = replaceStr.lastIndexOf('<');
-					if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
-							replaceStr = "";
-					replaceStr = replaceStr.substring(endOfFirstTag + 1,startOfLastTag);
+			for (int i = 1; i < rg.getRepeattime()+1; ++i) {
+				/* output 1 set of repeat here */
+			
+				String replaceStr = session.getHtmlGenerator().applyTags(session, addtionalxml);
+				int endOfFirstTag = replaceStr.indexOf('>');
+				int startOfLastTag = replaceStr.lastIndexOf('<');
+				if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
+						replaceStr = "";
+				
+				replaceStr = replaceStr.substring(endOfFirstTag + 1,startOfLastTag);
 					
-					sb.append("<span id=\"newRepeat" + context.getNewrepeatSeqVal() + "_"+i
-							+ "\" class=\"newRepeat" + context.getNewrepeatSeqVal()
-							+ "\" style=\"display:block \" ><table style=\"display:inline\"> \n");
+				sb.append("<span id=\"newRepeat" + context.getNewrepeatSeqVal() + "_"+i
+						+ "\" class=\"newRepeat" + context.getNewrepeatSeqVal()
+						+ "\" style=\"display:block \" ><table style=\"display:inline\"> \n");
 					
-					sb.append(replaceStr);
+				sb.append(replaceStr);
 					
-					//the remove button
-					sb.append("</table>");
-					
-					if(context.getMode() == Mode.EDIT){
-						sb.append("<input type=\"button\" id=\"removeRowButton"
-								+ "\" value=\"X\" size=\"1\"  onclick=\"removeParentWithClass(this,'newRepeat"
-								+ context.getNewrepeatSeqVal() + "');\" />\n");
-					}
-					sb.append("</span>");//</td></tr>\n");
-					//sb.append("<br/>");
-					
-					
-					context.getnewrepeatTimesNextSeqVal();
-					context.ResetCtrlInNewrepeatSeqVal();
+				//the remove button
+				sb.append("</table>");					
+				
+				if(context.getMode() == Mode.EDIT){
+					sb.append("<input type=\"button\" id=\"removeRowButton"
+							+ "\" value=\"X\" size=\"1\"  onclick=\"removeParentWithClass(this,'newRepeat"
+							+ context.getNewrepeatSeqVal() + "');\" />\n");
 				}
-				xml = xml.replace("<#reservenewrepeat" + context.getNewrepeatSeqVal(),sb.toString());
-				context.endNewRepeatGroup();
+				sb.append("</span>");
+	
+								
+				context.getnewrepeatTimesNextSeqVal();
+				context.ResetCtrlInNewrepeatSeqVal();
 			}
-			
+			xml = xml.replace("<#reservenewrepeat" + context.getNewrepeatSeqVal(),sb.toString());
+			context.endNewRepeatGroup();
 		}
+
 		return xml;
 	}
 

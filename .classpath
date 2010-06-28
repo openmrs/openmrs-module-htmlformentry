@@ -50,7 +50,7 @@
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.transaction-3.0.2.RELEASE.jar"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.web-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.web-sources-3.0.2.RELEASE"/>
 	<classpathentry kind="lib" path="/openmrs-trunk/lib/spring-framework/org.springframework.web.servlet-3.0.2.RELEASE.jar" sourcepath="C:/jsplib/spring-framework-3.0.2.RELEASE/src/org.springframework.web.servlet-sources-3.0.2.RELEASE.jar"/>
-	<classpathentry kind="lib" path="lib-common/openmrs-api-1.7.0.13319-dev.jar"/>
+	<classpathentry kind="lib" path="lib-common/openmrs-api-1.7.0.13319-dev.jar" sourcepath="/openmrs-trunk"/>
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.7.0.13319-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.7.0.13319-dev.jar"/>
 	<classpathentry kind="output" path="build"/>

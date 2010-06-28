@@ -95,19 +95,20 @@ public class HtmlFormEntryController extends SimpleFormController {
             if ("EDIT".equals(request.getParameter("mode"))) {
                 mode = Mode.EDIT;
             }
-            if(request.getParameter("kCount1")!= null){
+            if(request.getParameter("kCount1")!= null){/* edit submit mode*/ 
             	session = new FormEntrySession(patient, encounter, mode, htmlForm, request);
             }else{
             	session = new FormEntrySession(patient, encounter, mode, htmlForm);
             }
         } else {
-            session = new FormEntrySession(patient, htmlForm);
+        	 if(request.getParameter("kCount1")!= null){/* edit submit mode*/ 
+        		 session = new FormEntrySession(patient, htmlForm, request);
+        	 }
+        	else{
+        		 session = new FormEntrySession(patient, htmlForm);
+        	}
         }
         
-        /** prepare the new repeat**/
-        if(session.getContext().getMode()!=Mode.EDIT){
-    		session.prepareNewRepeat(request);
-    	}
         String returnUrl = request.getParameter("returnUrl");
         if (StringUtils.hasText(returnUrl)) {
             session.setReturnUrl(returnUrl);

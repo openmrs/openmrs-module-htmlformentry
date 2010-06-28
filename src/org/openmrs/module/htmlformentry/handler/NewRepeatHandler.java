@@ -72,6 +72,8 @@ public class NewRepeatHandler implements TagHandler {
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out,
 			Node parent, Node node) {
+		
+		int minOccur, maxOccur;
 
 		/* notify the context that we are starting a repeater */
 		FormEntryContext context = session.getContext();
@@ -92,7 +94,11 @@ public class NewRepeatHandler implements TagHandler {
 						attribute.getNodeValue());
 			} else if ("minOccurs".equals(attribute.getNodeName())) {
 				try {
-					int minOccur = Integer.parseInt(attribute.getNodeValue());
+					minOccur = Integer.parseInt(attribute.getNodeValue());
+				} catch (Exception ex) {
+					throw new IllegalArgumentException(
+							"minOccurs has to be an integer!");
+				}
 					if (minOccur < 0)
 						throw new IllegalArgumentException(
 								"minOccurs has to be an integer greater than 0");
@@ -100,23 +106,21 @@ public class NewRepeatHandler implements TagHandler {
 							context.getNewrepeatSeqVal() - 1).setMinrpt(
 							minOccur);
 
-				} catch (Exception ex) {
-					throw new IllegalArgumentException(
-							"minOccurs has to be an integer!");
-				}
+				
 			} else if ("maxOccurs".equals(attribute.getNodeName())) {
 				try {
-					int maxOccur = Integer.parseInt(attribute.getNodeValue());
-					if (maxOccur < 0)
-						throw new IllegalArgumentException(
-								"maxOccurs has to be an integer greater than 0");
-					context.getExistingRptGroups().get(
-							context.getNewrepeatSeqVal() - 1).setMaxrpt(
-							Integer.parseInt(attribute.getNodeValue()));
+					maxOccur = Integer.parseInt(attribute.getNodeValue());
+					
 				} catch (Exception ex) {
 					throw new IllegalArgumentException(
 							"maxOccurs has to be an integer!");
 				}
+				if (maxOccur < 0)
+					throw new IllegalArgumentException(
+							"maxOccurs has to be an integer greater than 0");
+				context.getExistingRptGroups().get(
+						context.getNewrepeatSeqVal() - 1).setMaxrpt(
+						Integer.parseInt(attribute.getNodeValue()));
 			}
 		}
 		
@@ -124,7 +128,7 @@ public class NewRepeatHandler implements TagHandler {
 				context.getNewrepeatSeqVal() - 1).getMaxrpt()<context.getExistingRptGroups().get(
 						context.getNewrepeatSeqVal() - 1).getMinrpt()){
 			throw new IllegalArgumentException(
-			"maxOccurs has to be bigger than minOccurs!");
+			"maxOccurs has to be greater than minOccurs!");
 		}
 		
 		String replacement = getStartSubstitution(session);

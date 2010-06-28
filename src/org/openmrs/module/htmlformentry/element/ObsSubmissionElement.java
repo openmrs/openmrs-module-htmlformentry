@@ -23,6 +23,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.ObsField;
@@ -95,6 +96,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 					Integer.valueOf(parameters.get("answerConceptId")));
 		} catch (Exception ex) {
 		}
+		
+		/* we are generating the template, we don't need any value for the template*/
+		if(context.getNewrepeatTimesSeqVal()!=0){
 		if (context.getCurrentObsGroupConcepts() != null
 				&& context.getCurrentObsGroupConcepts().size() > 0) {
 			existingObs = context
@@ -114,6 +118,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			} else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
+		}
 		}
 
 		errorWidget = new ErrorWidget();
@@ -488,7 +493,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			dateWidget = new DateWidget();
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, errorWidget);
-			if (existingObs != null) {
+			if (existingObs != null && !HtmlFormEntryUtil.IsObsValueNull(existingObs)) {
 				dateWidget.setInitialValue(existingObs.getObsDatetime());
 			}
 		}
