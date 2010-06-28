@@ -22,7 +22,7 @@ public class RptGroup implements HtmlFormField {
 	
 	private Integer minrpt = 1;
 	
-	private String label = "AddNewMultiple";
+	private String label = "Add a New Multiple";
 
 	public Integer getMaxrpt() {
 		return maxrpt;

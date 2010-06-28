@@ -157,13 +157,10 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 			if (context.getMode() == Mode.EDIT) {
 				sb.append("</span>");
 				sb.append("<#reservenewrepeat" + context.getNewrepeatSeqVal());
-
+				sb.append(context.getExistingRptGroups().get(context.getNewrepeatSeqVal() - 1).getLabel());
 				sb.append("<input id=\"defaultFieldlistObjAddButton"
 						+ context.getNewrepeatSeqVal()
-						+ "\" type=\"button\" value=\""
-						+ context.getExistingRptGroups().get(
-								context.getNewrepeatSeqVal() - 1).getLabel()
-						+ "\" size=\"1\" />");
+						+ "\" type=\"button\" value=\"+\" size=\"1\" />");
 			} else {// enter
 				/* the add button */
 				sb.append("</span><input id=\"defaultFieldlistObjAddButton"
