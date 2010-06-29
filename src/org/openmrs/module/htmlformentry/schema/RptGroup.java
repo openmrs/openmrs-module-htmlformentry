@@ -18,11 +18,11 @@ public class RptGroup implements HtmlFormField {
 	
 	private Integer repeattime = 0;
 	
-	private Integer maxrpt = 10;
+	private Integer maxrpt = Integer.MAX_VALUE;
 	
-	private Integer minrpt = 1;
+	private Integer minrpt = 0;
 	
-	private String label = "Add a New Multiple";
+	private String label = "Add Another";
 
 	public Integer getMaxrpt() {
 		return maxrpt;
