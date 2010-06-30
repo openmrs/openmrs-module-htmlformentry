@@ -31,11 +31,7 @@ public class FormSubmissionController {
 		}else{
 			/* remove thelast n acions should be ObsSubmissionElement*/
 			for(int i = 0; i< n; ++i){
-				if(actions.get(actions.size()-1).getClass() != (ObsSubmissionElement.class)){
-					throw new IllegalArgumentException(
-							"error, it should be obs acions");
-							
-				}
+			
 				actions.remove(actions.size()-1);
 			}
 		}

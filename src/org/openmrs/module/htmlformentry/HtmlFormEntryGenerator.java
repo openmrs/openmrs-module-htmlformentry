@@ -384,7 +384,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 			rptgroup.setXmlfragment(xmlfragment);
 			
-			rptgroup.setSize(this.CountObs(xmlfragment));
+			rptgroup.setActionsize(this.CountObsActions(xmlfragment));
 			
 			context.getExistingRptGroups().add(rptgroup);
 
@@ -499,7 +499,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	}
 
 	/****
-	 * find out how many obs exsit in this xml:
+	 * find out how many obs exsit in this xml that will finally go to the db:
 	 *  1)count <obs tag 
 	 *  2)count <obsgroup tag if it contains obs tag
 	 *  update: if <obs is in a repeat then ignore
@@ -635,7 +635,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				//TODO:write a function to deal with this if
 				if(session.getContext().getRequest()!=null && session.getContext().getRequest().getParameter("kCount1")!=null){
 					if(session.getContext().getActiveRptGroup().getIsallobsnulllist().get(session.getContext().getNewrepeatTimesSeqVal()-1).booleanValue()==true){
-						session.getSubmissionController().rollbackLastNActions(session.getContext().getActiveRptGroup().getSize());
+						session.getSubmissionController().rollbackLastNActions(session.getContext().getActiveRptGroup().getActionsize());
 					}
 				}
 				
@@ -671,6 +671,61 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		}
 
 		return xml;
+	}
+	
+	
+	/****
+	 * find out how many obs exsit in this xml:
+	 *  1)count <obs tag 
+	 *  2)count <obsgroup tag if it contains obs tag
+	 *  update: if <obs is in a repeat then ignore
+	 * @param xml
+	 * @return the number of obs
+	 * @throws Exception
+	 */
+	private int CountObsActions(String xml) throws Exception {
+		
+		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
+		NodeList nList = doc.getChildNodes();
+
+		/* the stack to store children list */
+		Stack<NodeList> stack = new Stack<NodeList>();
+
+		stack.push(nList);
+		int obsCount = 0;
+		while (!stack.empty()) {
+			nList = stack.pop();
+			for (int i = 0; i < nList.getLength(); ++i) {
+				Node node = nList.item(i);
+				
+				/*skip all obs in a multiple tag */
+				if(!"multiple".equals(node.getNodeName())){
+					stack.push(node.getChildNodes());
+				}
+				String nodeName = node.getNodeName();
+				if ("obs".equals(nodeName)) {
+					++obsCount;
+				}
+				/* obsgroup tag will count only if it contains obs tag */
+				else if ("obsgroup".equals(nodeName)) {
+					Stack<NodeList> subStack = new Stack<NodeList>();
+					subStack.add(node.getChildNodes());
+					while(!subStack.isEmpty()){
+						NodeList subNList = subStack.pop();
+						for (int j = 0; j < subNList.getLength(); ++j) {
+							subStack.add(subNList.item(j).getChildNodes());
+							if ("obs".equals(subNList.item(j).getNodeName())) {
+								++obsCount;// increase for this obsgroup tag
+								++obsCount;//1 obsgroup tag will produce 2 actions
+								subStack.clear();
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return obsCount;
 	}
 
 }

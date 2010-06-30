@@ -26,8 +26,8 @@ public class RptGroup implements HtmlFormField {
 	
 	private Integer minrpt = 1;
 	
-	/*this will store how many obs in this multiple will eventually being created in db*/
-	private Integer size = 0;
+	/*this will store how many obs actions in this multiple will be added to */
+	private Integer actionsize = 0;
 	
 	private String label = "Add Another";
 	
@@ -40,13 +40,15 @@ public class RptGroup implements HtmlFormField {
 	public void setIsallobsnulllist(List<Boolean> isallobsnulllist) {
 		this.isallobsnulllist = isallobsnulllist;
 	}
+
 	
-	public Integer getSize() {
-		return size;
+
+	public Integer getActionsize() {
+		return actionsize;
 	}
 
-	public void setSize(Integer size) {
-		this.size = size;
+	public void setActionsize(Integer actionsize) {
+		this.actionsize = actionsize;
 	}
 
 	public String getDellabel() {
