@@ -20,7 +20,9 @@ public class ObsTagHandler extends SubstitutionTagHandler {
         }
         
         /*we are in multiple, not  generating the templates, but in edit/enter sumbit */
-    	if(session.getContext().getRequest()!=null && session.getContext().getRequest().getParameter("kCount1")!=null){
+    	if(session.getContext().getRequest()!=null 
+    			&& session.getContext().getRequest().getParameter("kCount1")!=null
+    			&& session.getContext().getActiveRptGroup()!=null){
     		Object value = element.getValueWidget().getValue(session.getContext(), session.getContext().getRequest());
     		
     		/*we mark this multiple as not null */
