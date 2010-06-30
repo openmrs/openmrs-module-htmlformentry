@@ -121,7 +121,12 @@ public class NewRepeatHandler implements TagHandler {
 				context.getExistingRptGroups().get(
 						context.getNewrepeatSeqVal() - 1).setMaxrpt(
 						Integer.parseInt(attribute.getNodeValue()));
+			}else if ("deleteLabel".equals(attribute.getNodeName())) {
+				context.getExistingRptGroups().get(
+						context.getNewrepeatSeqVal() - 1).setDellabel(
+						attribute.getNodeValue());
 			}
+			
 		}
 		
 		if(context.getExistingRptGroups().get(

@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -56,7 +58,9 @@ public class FormEntryContext {
     
     /* for the newrepeat tag, used to see if we are inside a newrepeat tag  */
     private RptGroup activeRptGroup;
-    private Map requestParaMap;
+    
+    /*we only need the parameter*/
+    private HttpServletRequest request;
 
 	private Patient existingPatient;
     private Encounter existingEncounter;
@@ -80,12 +84,12 @@ public class FormEntryContext {
         return mode;
     }
     
-	public Map getRequestParaMap() {
-		return requestParaMap;
+	public HttpServletRequest getRequest() {
+		return request;
 	}
 
-	public void setRequestParaMap(Map requestParaMap) {
-		this.requestParaMap = requestParaMap;
+	public void setRequest(HttpServletRequest request) {
+		this.request = request;
 	}
     
     private Integer sequenceNextVal = 1;

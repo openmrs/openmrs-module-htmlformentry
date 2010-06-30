@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
+import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 
 /**
  * Encapsulates how to validate and submit a form.
@@ -21,7 +22,27 @@ public class FormSubmissionController {
     private transient HttpServletRequest lastSubmission;
     private RepeatControllerAction repeat = null;
     
-    public FormSubmissionController() {
+    /*this will delete the last n actions, for handling null obs multiple */
+    public void rollbackLastNActions(int n) {
+		if(actions.size()< n){
+			throw new IllegalArgumentException(
+			"error, can't roll back "+n+" FormSubmissionControllerAction in current acions");
+			
+		}else{
+			/* remove thelast n acions should be ObsSubmissionElement*/
+			for(int i = 0; i< n; ++i){
+				if(actions.get(actions.size()-1).getClass() != (ObsSubmissionElement.class)){
+					throw new IllegalArgumentException(
+							"error, it should be obs acions");
+							
+				}
+				actions.remove(actions.size()-1);
+			}
+		}
+    	
+	}
+
+	public FormSubmissionController() {
     }
     
     /**

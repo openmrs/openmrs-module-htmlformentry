@@ -149,27 +149,25 @@ public class NewRepeatElement implements HtmlGeneratorElement,
 
 		if (context.getMode() != Mode.VIEW) {
 			/* the remove button */// enter and edit
-			sb
-					.append("</table><input type=\"button\" id=\"removeRowButton"
-							+ "\" value=\"X\" size=\"1\"   onclick=\"removeParentWithClass(this,'newRepeat"
+			sb.append("</table><input type=\"button\" id=\"removeRowButton"
+							+ "\" value=\""
+					+ context.getExistingRptGroups().get(
+							context.getNewrepeatSeqVal() - 1).getDellabel()
+					+ "\" size=\"1\"   onclick=\"removeParentWithClass(this,'newRepeat"
 							+ context.getNewrepeatSeqVal() + "');\" />\n");
-
+			
+			sb.append("</span>");
 			if (context.getMode() == Mode.EDIT) {
-				sb.append("</span>");
 				sb.append("<#reservenewrepeat" + context.getNewrepeatSeqVal());
-				sb.append(context.getExistingRptGroups().get(context.getNewrepeatSeqVal() - 1).getLabel());
-				sb.append("<input id=\"defaultFieldlistObjAddButton"
-						+ context.getNewrepeatSeqVal()
-						+ "\" type=\"button\" value=\"+\" size=\"1\" />");
-			} else {// enter
-				/* the add button */
-				sb.append("</span><input id=\"defaultFieldlistObjAddButton"
-						+ context.getNewrepeatSeqVal()
-						+ "\" type=\"button\" value=\""
-						+ context.getExistingRptGroups().get(
-								context.getNewrepeatSeqVal() - 1).getLabel()
-						+ "\" size=\"1\" />");
-			}
+			} 
+			
+			sb.append("<input id=\"defaultFieldlistObjAddButton"
+					+ context.getNewrepeatSeqVal()
+					+ "\" type=\"button\" value=\""
+					+ context.getExistingRptGroups().get(
+							context.getNewrepeatSeqVal() - 1).getLabel()
+					+ "\" size=\"1\" />");
+			
 		} else {// view
 			sb.append("</table></span>");
 			sb.append("<#reservenewrepeat" + context.getNewrepeatSeqVal());

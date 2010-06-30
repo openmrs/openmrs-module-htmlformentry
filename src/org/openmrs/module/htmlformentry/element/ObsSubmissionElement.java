@@ -633,6 +633,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		if (accessionNumberWidget != null)
 			accessionNumberValue = (String) accessionNumberWidget.getValue(
 					session.getContext(), submission);
+		
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT 
 				&&session.getContext().getExistingRptGroups().size() == 0) {
 			// call this regardless of whether the new value is null -- the
@@ -709,4 +710,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	public String getAnswerLabel() {
 		return answerLabel;
 	}
+
+	public Widget getValueWidget() {
+		return valueWidget;
+	}
+
 }

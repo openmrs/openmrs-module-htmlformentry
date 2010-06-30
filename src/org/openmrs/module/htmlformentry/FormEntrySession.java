@@ -286,7 +286,7 @@ public class FormEntrySession {
 
             submissionController = new FormSubmissionController();
             context.setupExistingData(encounter);
-            context.setRequestParaMap(request.getParameterMap());
+            context.setRequest(request);
             this.htmlToDisplay = createForm(htmlForm.getXmlData());
     }
 
@@ -312,7 +312,7 @@ public class FormEntrySession {
 	        
 	        // avoid lazy initialization exceptions later
 	        form.getEncounterType().getName();
-	        context.setRequestParaMap(request.getParameterMap());
+	        context.setRequest(request);
 	        
 	        htmlToDisplay = createForm(htmlForm.getXmlData());
 	}

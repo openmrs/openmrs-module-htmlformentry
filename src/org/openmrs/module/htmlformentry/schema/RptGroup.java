@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class RptGroup implements HtmlFormField {
 	
+	/*not obs in obsgroup will not appear in this list*/
 	private List<Integer> childrenobs = new ArrayList<Integer>();
 
 	/* the string to hold the xml representation of the content this repeat*/
@@ -16,13 +17,45 @@ public class RptGroup implements HtmlFormField {
 	/* see if we need to append <tr><td> ...</td></tr> pair outside this repeat */
 	private boolean intd;
 	
+	/*if all obs in this rpt group is null, then they should not be saved*/
+	private List <Boolean> isallobsnulllist = new ArrayList<Boolean>();
+
 	private Integer repeattime = 0;
 	
 	private Integer maxrpt = Integer.MAX_VALUE;
 	
-	private Integer minrpt = 0;
+	private Integer minrpt = 1;
+	
+	/*this will store how many obs in this multiple will eventually being created in db*/
+	private Integer size = 0;
 	
 	private String label = "Add Another";
+	
+	private String dellabel = "Delete";
+	
+	public List<Boolean> getIsallobsnulllist() {
+		return isallobsnulllist;
+	}
+
+	public void setIsallobsnulllist(List<Boolean> isallobsnulllist) {
+		this.isallobsnulllist = isallobsnulllist;
+	}
+	
+	public Integer getSize() {
+		return size;
+	}
+
+	public void setSize(Integer size) {
+		this.size = size;
+	}
+
+	public String getDellabel() {
+		return dellabel;
+	}
+
+	public void setDellabel(String dellabel) {
+		this.dellabel = dellabel;
+	}
 
 	public Integer getMaxrpt() {
 		return maxrpt;
@@ -70,10 +103,15 @@ public class RptGroup implements HtmlFormField {
 
 	public void setRepeattime(Integer repeattime) {
 		this.repeattime = repeattime;
+		/*phew~~*/
+		this.isallobsnulllist.clear();
+		for(int i = 0; i< this.repeattime; ++i ){
+			this.isallobsnulllist.add(true);
+		}
 	}
 	
 	/***
-	 * return howmany obs are in this repeat
+	 * return howmany top level obs are in this repeat
 	 */
 	public Integer getObsNum(){
 		return this.childrenobs.size();

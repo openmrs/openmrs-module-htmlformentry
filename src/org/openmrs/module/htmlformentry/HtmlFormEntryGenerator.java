@@ -384,20 +384,22 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
 			rptgroup.setXmlfragment(xmlfragment);
 			
+			rptgroup.setSize(this.CountObs(xmlfragment));
+			
 			context.getExistingRptGroups().add(rptgroup);
 
 			sb = new StringBuilder(sb.substring(endIndex + 11));
 		}
 		
 		/* now we are in enter/edit  submit mode */
-		if(session.getContext().getRequestParaMap()!=null&&
-				session.getContext().getRequestParaMap().get("kCount1")!=null){
+		if(session.getContext().getRequest()!=null&&
+				session.getContext().getRequest().getParameter("kCount1")!=null){
 			//&&(context.getMode() == Mode.EDIT)){
 	
 			for(int i = 0; i< context.getExistingRptGroups().size();++i){
 	       		RptGroup rg = context.getExistingRptGroups().get(i);
 	       		String paraName = "kCount"+(i+1);       		
-	       		int rpttime = Integer.parseInt(((String[])context.getRequestParaMap().get(paraName))[0]);
+	       		int rpttime = Integer.parseInt((context.getRequest().getParameter(paraName)));
 	       		rg.setRepeattime(rpttime);
 			}
 		}
@@ -618,12 +620,25 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		for (RptGroup rg : context.getExistingRptGroups()) {
 			StringBuilder sb = new StringBuilder();
 			String addtionalxml = rg.getXmlfragment();
-			context.beginNewRepeatGroup();
 			
 			for (int i = 1; i < rg.getRepeattime()+1; ++i) {
 				/* output 1 set of repeat here */
+				
+				/*this should ensure the activegroup is updated*/
+				context.beginNewRepeatGroup();
 			
 				String replaceStr = session.getHtmlGenerator().applyTags(session, addtionalxml);
+				
+				/*if all obs in this group have null value, then we roll back n in the actions
+				 * we only need to see this in edit/enter submit
+				 * */
+				//TODO:write a function to deal with this if
+				if(session.getContext().getRequest()!=null && session.getContext().getRequest().getParameter("kCount1")!=null){
+					if(session.getContext().getActiveRptGroup().getIsallobsnulllist().get(session.getContext().getNewrepeatTimesSeqVal()-1).booleanValue()==true){
+						session.getSubmissionController().rollbackLastNActions(session.getContext().getActiveRptGroup().getSize());
+					}
+				}
+				
 				int endOfFirstTag = replaceStr.indexOf('>');
 				int startOfLastTag = replaceStr.lastIndexOf('<');
 				if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
