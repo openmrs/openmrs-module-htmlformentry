@@ -657,7 +657,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				
 				if(context.getMode() == Mode.EDIT){
 					sb.append("<input type=\"button\" id=\"removeRowButton"
-							+ "\" value=\"X\" size=\"1\"  onclick=\"removeParentWithClass(this,'newRepeat"
+							+ "\" value=\""
+					+ context.getExistingRptGroups().get(
+							context.getNewrepeatSeqVal() - 1).getDellabel()
+					+ "\" size=\"1\"  onclick=\"removeParentWithClass(this,'newRepeat"
 							+ context.getNewrepeatSeqVal() + "');\" />\n");
 				}
 				sb.append("</span>");
