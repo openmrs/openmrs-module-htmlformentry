@@ -22,7 +22,7 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
-import org.openmrs.module.htmlformentry.schema.RptGroup;
+import org.openmrs.module.htmlformentry.schema.MultipleGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
@@ -51,13 +51,13 @@ public class FormEntryContext {
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
     
     /* the list to store all newrptgroup in this form */
-    private List<RptGroup> exsistingRptGroups = new ArrayList<RptGroup>();
+    private List<MultipleGroup> existingRptGroups = new ArrayList<MultipleGroup>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
     private ObsGroup activeObsGroup;
     
     /* for the newrepeat tag, used to see if we are inside a newrepeat tag  */
-    private RptGroup activeRptGroup;
+    private MultipleGroup activeRptGroup;
     
     /*we only need the parameter*/
     private HttpServletRequest request;
@@ -124,7 +124,7 @@ public class FormEntryContext {
         	return fieldName;
         }
         else{
-        	/* we are in a new repeat tag now, 
+        	/* we are in a multiple tag now, 
              need to use the alternative naming system */
         	int thisRptVal = 0; 
         	int thisCtrlVal = 0;   
@@ -308,7 +308,7 @@ public class FormEntryContext {
         		//}
         	}
         	//the obs order will later be used to help the display
-        	List <Obs> sortedObs = HtmlFormEntryUtil.SortObs(obsset);
+        	List <Obs> sortedObs = HtmlFormEntryUtil.sortObs(obsset);
             for (Obs obs : sortedObs) {
                 List<Obs> list = existingObs.get(obs.getConcept());
                 if (list == null) {
@@ -448,11 +448,11 @@ public class FormEntryContext {
     	return schema;
     }
     
-    public RptGroup getActiveRptGroup() {
+    public MultipleGroup getActiveRptGroup() {
 		return activeRptGroup;
 	}
 
-	public void setActiveRptGroup(RptGroup activeRptGroup) {
+	public void setActiveRptGroup(MultipleGroup activeRptGroup) {
 		this.activeRptGroup = activeRptGroup;
 	}
 	
@@ -477,12 +477,12 @@ public class FormEntryContext {
 	}
 
 
-	public List<RptGroup> getExistingRptGroups() {
-		return exsistingRptGroups;
+	public List<MultipleGroup> getExistingRptGroups() {
+		return existingRptGroups;
 	}
 
-	public void setExsistingRptGroups(List<RptGroup> exsistingRptGroups) {
-		this.exsistingRptGroups = exsistingRptGroups;
+	public void setExsistingRptGroups(List<MultipleGroup> exsistingRptGroups) {
+		this.existingRptGroups = exsistingRptGroups;
 	}
 
 	/**
@@ -506,7 +506,7 @@ public class FormEntryContext {
     		index = newrepeatSeqVal;
     	}
     	/* we are in a repeat group */
-		this.activeRptGroup = this.exsistingRptGroups.get(index -1);
+		this.activeRptGroup = this.existingRptGroups.get(index -1);
 	}
 
 	 /***
@@ -519,8 +519,8 @@ public class FormEntryContext {
     		++newrepeatSeqVal;
     	}
 		/* reset the m and k value */
-		ResetCtrlInNewrepeatSeqVal();
-		ResetNewrepeatTimesSeqVal();
+		resetCtrlInNewrepeatSeqVal();
+		resetNewrepeatTimesSeqVal();
 	}
 
 	/*** 
@@ -534,7 +534,7 @@ public class FormEntryContext {
 	
 	/* reset the repeat counter
 	 * */
-	public void ResetNewrepeatSeqVal() {
+	public void resetNewrepeatSeqVal() {
 		synchronized (newrepeatSeqVal) {
 			this.newrepeatSeqVal = 1;
     	}	
@@ -542,7 +542,7 @@ public class FormEntryContext {
 	
 	/* reset the ctrl counter in repeat 
 	 * */
-	public void ResetCtrlInNewrepeatSeqVal() {
+	public void resetCtrlInNewrepeatSeqVal() {
 		synchronized(ctrlInNewrepeatSeqVal){
 			this.ctrlInNewrepeatSeqVal =1;
 		}
@@ -550,7 +550,7 @@ public class FormEntryContext {
 	
 	/* reset the repeat times counter in repeat 
 	 * */
-	public void ResetNewrepeatTimesSeqVal() {
+	public void resetNewrepeatTimesSeqVal() {
 		synchronized(newrepeatTimesSeqVal){
 			this.newrepeatTimesSeqVal =1;
 		}
@@ -559,7 +559,7 @@ public class FormEntryContext {
 	/***
 	 * set newrepeattimeseq = 0
 	 */
-	public void ZeroNewrepeatTimesSeqVal(){
+	public void zeroNewrepeatTimesSeqVal(){
 		synchronized(newrepeatTimesSeqVal){
 			this.newrepeatTimesSeqVal =0;
 		}

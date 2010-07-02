@@ -17,7 +17,7 @@ import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
-import org.openmrs.module.htmlformentry.schema.RptGroup;
+import org.openmrs.module.htmlformentry.schema.MultipleGroup;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -355,7 +355,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @return the xml contains the newrepeat part
 	 * @throws Exception
 	 */
-	public void applyNewRepeat(FormEntrySession session, String xml)
+	public void readDataFromMulltipleTag(FormEntrySession session, String xml)
 			throws Exception {
 		FormEntryContext context = session.getContext();
 		int startIndex = 0;
@@ -377,14 +377,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			xmlfragment = "<span>" + xmlfragment;
 			xmlfragment = xmlfragment + "</span>";
 
-			RptGroup rptgroup = new RptGroup();
-			this.FillChildObs(xmlfragment, rptgroup);
+			MultipleGroup rptgroup = new MultipleGroup();
+			this.fillChildObs(xmlfragment, rptgroup);
 		
-			this.FillIsInTD(xmlfragment, rptgroup);
+			this.fillIsInTD(xmlfragment, rptgroup);
 
 			rptgroup.setXmlfragment(xmlfragment);
 			
-			rptgroup.setActionsize(this.CountObsActions(xmlfragment));
+			rptgroup.setActionsize(this.countObsActions(xmlfragment));
 			
 			context.getExistingRptGroups().add(rptgroup);
 
@@ -397,7 +397,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			//&&(context.getMode() == Mode.EDIT)){
 	
 			for(int i = 0; i< context.getExistingRptGroups().size();++i){
-	       		RptGroup rg = context.getExistingRptGroups().get(i);
+	       		MultipleGroup rg = context.getExistingRptGroups().get(i);
 	       		String paraName = "kCount"+(i+1);       		
 	       		int rpttime = Integer.parseInt((context.getRequest().getParameter(paraName)));
 	       		rg.setRepeattime(rpttime);
@@ -410,8 +410,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			Set<Obs> allObs = session.getEncounter().getAllObs();
 			List<Obs> sortedObs = new ArrayList<Obs>();
 
-			int t = CountObs(xml);
-			sortedObs = HtmlFormEntryUtil.SortObs(allObs);
+			int t = countObs(xml);
+			sortedObs = HtmlFormEntryUtil.sortObs(allObs);
 
 			/* remove first t obs, where t stands for total number of obs appear
 			 * in the htmlform
@@ -423,7 +423,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			// TODO: now it can't handle when 1 repeat set is a prefix of another
 			// i.e. for sequence a,b,c <mutilple> a,b</mutilple> will also
 			// match, which is not right
-			for (RptGroup rpt : context.getExistingRptGroups()) {
+			for (MultipleGroup rpt : context.getExistingRptGroups()) {
 				/* count for the original record */
 				if (rpt.getObsNum() == 0)
 					continue;
@@ -480,7 +480,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @param rptgroup
 	 * @throws Exception 
 	 */
-	private void FillIsInTD(String xmlfragment, RptGroup rptgroup) throws Exception {
+	private void fillIsInTD(String xmlfragment, MultipleGroup rptgroup) throws Exception {
 		xmlfragment = xmlfragment.replaceAll("\r\n", "");
 		
 		xmlfragment = xmlfragment.trim();
@@ -507,7 +507,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @return the number of obs
 	 * @throws Exception
 	 */
-	private int CountObs(String xml) throws Exception {
+	private int countObs(String xml) throws Exception {
 		
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		NodeList nList = doc.getChildNodes();
@@ -561,7 +561,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @return
 	 * @throws Exception
 	 */
-	private void FillChildObs(String xml, RptGroup rptgroup) throws Exception {
+	private void fillChildObs(String xml, MultipleGroup rptgroup) throws Exception {
 
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		NodeList nList = doc.getChildNodes();
@@ -613,11 +613,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	
 		FormEntryContext context = session.getContext();
 		
-		context.ResetNewrepeatSeqVal();
-		context.ResetCtrlInNewrepeatSeqVal();
-		context.ResetNewrepeatTimesSeqVal();
+		context.resetNewrepeatSeqVal();
+		context.resetCtrlInNewrepeatSeqVal();
+		context.resetNewrepeatTimesSeqVal();
 
-		for (RptGroup rg : context.getExistingRptGroups()) {
+		for (MultipleGroup rg : context.getExistingRptGroups()) {
 			StringBuilder sb = new StringBuilder();
 			String addtionalxml = rg.getXmlfragment();
 			
@@ -667,7 +667,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	
 								
 				context.getnewrepeatTimesNextSeqVal();
-				context.ResetCtrlInNewrepeatSeqVal();
+				context.resetCtrlInNewrepeatSeqVal();
 			}
 			xml = xml.replace("<#reservenewrepeat" + context.getNewrepeatSeqVal(),sb.toString());
 			context.endNewRepeatGroup();
@@ -686,7 +686,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @return the number of obs
 	 * @throws Exception
 	 */
-	private int CountObsActions(String xml) throws Exception {
+	private int countObsActions(String xml) throws Exception {
 		
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		NodeList nList = doc.getChildNodes();

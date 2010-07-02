@@ -368,7 +368,7 @@ public class HtmlFormEntryUtil {
 	 * @param obsset
 	 * @return the sorted obs in a list
 	 */
-	public static List<Obs> SortObs(Set<Obs> obsset) {
+	public static List<Obs> sortObs(Set<Obs> obsset) {
 		List<Obs> sortedObs = new ArrayList<Obs>();
 		if (obsset == null)
 			return null;
@@ -393,7 +393,7 @@ public class HtmlFormEntryUtil {
 	 * to see if this obs 's value equals null
 	 * @return
 	 */
-	public static boolean IsObsValueNull(Obs obs) {
+	public static boolean isObsValueNull(Obs obs) {
 		// TODO Auto-generated method stub
 		 ConceptDatatype dt = obs.getConcept().getDatatype();
 		 if (dt.isNumeric()) {

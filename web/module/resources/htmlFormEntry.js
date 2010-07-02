@@ -126,7 +126,7 @@ function removeRow(tableId, anElementInRow) {
 	}
 }
 
-/* from htmlwidgets.js and new js*/
+/* from htmlwidgets.js and new js */
 
 function getClone(idToClone) {
 	var template = $("#" + idToClone);
@@ -155,7 +155,7 @@ function removeParentWithClass(element, parentClass) {
 		updateAllParent(parent.id);
 		// newRepeat1_1
 		$('#kCount'+temp).val(newKCount);
-		//$('#newRepeat'+temp+'_'+newKCount).css("display", "inline");
+		// $('#newRepeat'+temp+'_'+newKCount).css("display", "inline");
 	}else{
 		alert("Multiple minimum reached, please contact form designer");
 	}
@@ -227,4 +227,67 @@ function GetNewRptTimeId(id, offset) {
 	}
 	// alert(id);
 	return id;
+}
+
+
+function addNewMutipleGroup(rpti,addbtm){
+	
+	/* the jquery function to add fields */
+	var kCount = parseInt($('#kCount'+ rpti ).val()) + 1;
+    var maxRpt = parseInt($('#maxRpt'+ rpti ).val());
+	
+    if(kCount>maxRpt){alert('Multiple Limit reached, please contact the form designer!');return;}
+
+	$('#kCount' + rpti).val(kCount);
+	var $newRow = cloneAndInsertBefore('newRepeatTemplate'+rpti, addbtm);
+	
+	$('#newRepeat' + rpti + "_"+ (kCount-1)).css("display", "block");
+	$newRow.attr('id', 'newRepeat'+ rpti + "_" + kCount);
+	$newRow.css("display", "block");
+	// sb.append("$newRow.prepend('<br/>'); \n");
+
+	var newRowChildren = $newRow.children();
+
+	var stack = new Array();
+	for(var i = 0; i< newRowChildren.length; ++i){
+		stack.push(newRowChildren[i]);
+	}
+
+	while(stack.length> 0){
+		var child = stack.pop();
+		for(var i = 0; i< child.children.length; ++i){
+			stack.push(child.children[i]);
+		}
+
+		if (child.id == 'removeRowButton') { child.style.display = ''; }
+		else if(child.id =="defaultFieldlistObjAddButton0"){child.style.display = 'none'};
+	
+		if (child.className == 'error')
+		{ 
+			child.style.display = 'none'; 
+		}	
+
+		if(child.id.length>4 && child.id.substring(0,3)== 'rpt'){
+			var pos1 = child.id.indexOf("_");
+			var pos2 = child.id.indexOf("_", pos1+1);
+
+			if(child.id.indexOf(".")==-1){
+				child.id = child.id.substring(0,pos2+1) + kCount;
+				child.name = child.id;
+			}
+			else{
+				child.id = child.id.substring(0, pos2 + 1) + kCount +child.id.substring(child.id.indexOf("."),child.id.length);
+				child.name = child.id;
+			}
+
+			if(child.attributes["onBlur"]!== undefined){
+				var onblur =child.attributes["onBlur"].value;
+				pos1 = onblur.indexOf("'");
+				pos2 = onblur.indexOf("'", pos1+1);
+				var temp =  onblur.substring(pos1+1,pos2);
+				temp = onblur.replace(temp, GetNewRptTimeId(temp, $('#kCount'+ rpti).val()));
+				child.attributes["onBlur"].value=temp;
+			}
+		}
+	}
 }

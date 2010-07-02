@@ -9,15 +9,15 @@ import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.element.NewRepeatElement;
-import org.openmrs.module.htmlformentry.schema.RptGroup;
+import org.openmrs.module.htmlformentry.element.MultipleElement;
+import org.openmrs.module.htmlformentry.schema.MultipleGroup;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /***
  * Handles the <newrepeat> tag
  */
-public class NewRepeatHandler implements TagHandler {
+public class MultipleHandler implements TagHandler {
 
 	/***
 	 * 1)let the formentrysession know we're out of a repeat tag
@@ -82,7 +82,7 @@ public class NewRepeatHandler implements TagHandler {
 		/*
 		 * we will generate the multipe template by java code let 0 as flag
 		 */
-		context.ZeroNewrepeatTimesSeqVal();
+		context.zeroNewrepeatTimesSeqVal();
 
 		Map<String, String> attributes = new HashMap<String, String>();
 		NamedNodeMap map = node.getAttributes();
@@ -143,12 +143,12 @@ public class NewRepeatHandler implements TagHandler {
 	}
 
 	private String getStartSubstitution(FormEntrySession session) {
-		NewRepeatElement nre = new NewRepeatElement();
+		MultipleElement nre = new MultipleElement();
 		return nre.generateStartHtml(session.getContext());
 	}
 
 	private String getEndSubstitution(FormEntrySession session) {
-		NewRepeatElement nre = new NewRepeatElement();
+		MultipleElement nre = new MultipleElement();
 		return nre.generateEndHtml(session.getContext());
 
 	}

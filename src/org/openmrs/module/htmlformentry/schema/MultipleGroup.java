@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Represents an RptGroup in the HTML Form Schema
  */
-public class RptGroup implements HtmlFormField {
+public class MultipleGroup implements HtmlFormField {
 	
 	/*not obs in obsgroup will not appear in this list*/
 	private List<Integer> childrenobs = new ArrayList<Integer>();

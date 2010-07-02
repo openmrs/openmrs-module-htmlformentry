@@ -493,7 +493,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			dateWidget = new DateWidget();
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, errorWidget);
-			if (existingObs != null && !HtmlFormEntryUtil.IsObsValueNull(existingObs)) {
+			if (existingObs != null && !HtmlFormEntryUtil.isObsValueNull(existingObs)) {
 				dateWidget.setInitialValue(existingObs.getObsDatetime());
 			}
 		}
