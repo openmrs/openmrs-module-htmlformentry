@@ -348,11 +348,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * are 2 cases: 1)load for form display. i.e encounter = null; mode != Edit
 	 * 2)load for edit. i.e. encounter != null; mode == Edit in mode of edit we
 	 * have to load the existing obs before we can parse the form, we will need
-	 * 1) how many times each newrepeat repeated based on database record 2) xml
+	 * 1) how many times each multiple repeated based on database record 2) xml
 	 * fragment in each newrepeat then we paste this fragment in front of this
 	 * 
 	 * @param xml
-	 * @return the xml contains the newrepeat part
+	 * @return the xml contains the multiple part
 	 * @throws Exception
 	 */
 	public void readDataFromMulltipleTag(FormEntrySession session, String xml)
@@ -386,7 +386,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			
 			rptgroup.setActionsize(this.countObsActions(xmlfragment));
 			
-			context.getExistingRptGroups().add(rptgroup);
+			context.getExistingMultipleGroups().add(rptgroup);
 
 			sb = new StringBuilder(sb.substring(endIndex + 11));
 		}
@@ -396,8 +396,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				session.getContext().getRequest().getParameter("kCount1")!=null){
 			//&&(context.getMode() == Mode.EDIT)){
 	
-			for(int i = 0; i< context.getExistingRptGroups().size();++i){
-	       		MultipleGroup rg = context.getExistingRptGroups().get(i);
+			for(int i = 0; i< context.getExistingMultipleGroups().size();++i){
+	       		MultipleGroup rg = context.getExistingMultipleGroups().get(i);
 	       		String paraName = "kCount"+(i+1);       		
 	       		int rpttime = Integer.parseInt((context.getRequest().getParameter(paraName)));
 	       		rg.setRepeattime(rpttime);
@@ -423,7 +423,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			// TODO: now it can't handle when 1 repeat set is a prefix of another
 			// i.e. for sequence a,b,c <mutilple> a,b</mutilple> will also
 			// match, which is not right
-			for (MultipleGroup rpt : context.getExistingRptGroups()) {
+			for (MultipleGroup rpt : context.getExistingMultipleGroups()) {
 				/* count for the original record */
 				if (rpt.getObsNum() == 0)
 					continue;
@@ -609,15 +609,15 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @param session
 	 * @param xml
 	 */
-	public String applyNewRepeatEnd(FormEntrySession session, String xml)throws Exception {
+	public String applyMultipleTag(FormEntrySession session, String xml)throws Exception {
 	
 		FormEntryContext context = session.getContext();
 		
-		context.resetNewrepeatSeqVal();
-		context.resetCtrlInNewrepeatSeqVal();
-		context.resetNewrepeatTimesSeqVal();
+		context.resetMultipleSeqVal();
+		context.resetCtrlInMultipleSeqVal();
+		context.resetMultipleTimesSeqVal();
 
-		for (MultipleGroup rg : context.getExistingRptGroups()) {
+		for (MultipleGroup rg : context.getExistingMultipleGroups()) {
 			StringBuilder sb = new StringBuilder();
 			String addtionalxml = rg.getXmlfragment();
 			
@@ -625,7 +625,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				/* output 1 set of repeat here */
 				
 				/*this should ensure the activegroup is updated*/
-				context.beginNewRepeatGroup();
+				context.beginMultipleGroup();
 			
 				String replaceStr = session.getHtmlGenerator().applyTags(session, addtionalxml);
 				
@@ -634,7 +634,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				 * */
 				//TODO:write a function to deal with this if
 				if(session.getContext().getRequest()!=null && session.getContext().getRequest().getParameter("kCount1")!=null){
-					if(session.getContext().getActiveRptGroup().getIsallobsnulllist().get(session.getContext().getNewrepeatTimesSeqVal()-1).booleanValue()==true){
+					if(session.getContext().getActiveRptGroup().getIsallobsnulllist().get(session.getContext().getMultipleTimesSeqVal()-1).booleanValue()==true){
 						session.getSubmissionController().rollbackLastNActions(session.getContext().getActiveRptGroup().getActionsize());
 					}
 				}
@@ -646,8 +646,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				
 				replaceStr = replaceStr.substring(endOfFirstTag + 1,startOfLastTag);
 					
-				sb.append("<span id=\"newRepeat" + context.getNewrepeatSeqVal() + "_"+i
-						+ "\" class=\"newRepeat" + context.getNewrepeatSeqVal()
+				sb.append("<span id=\"newRepeat" + context.getMultipleSeqVal() + "_"+i
+						+ "\" class=\"newRepeat" + context.getMultipleSeqVal()
 						+ "\" style=\"display:block \" ><table style=\"display:inline\"> \n");
 					
 				sb.append(replaceStr);
@@ -658,19 +658,19 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				if(context.getMode() == Mode.EDIT){
 					sb.append("<input type=\"button\" id=\"removeRowButton"
 							+ "\" value=\""
-					+ context.getExistingRptGroups().get(
-							context.getNewrepeatSeqVal() - 1).getDellabel()
+					+ context.getExistingMultipleGroups().get(
+							context.getMultipleSeqVal() - 1).getDellabel()
 					+ "\" size=\"1\"  onclick=\"removeParentWithClass(this,'newRepeat"
-							+ context.getNewrepeatSeqVal() + "');\" />\n");
+							+ context.getMultipleSeqVal() + "');\" />\n");
 				}
 				sb.append("</span>");
 	
 								
-				context.getnewrepeatTimesNextSeqVal();
-				context.resetCtrlInNewrepeatSeqVal();
+				context.getMultipleTimesNextSeqVal();
+				context.resetCtrlInMultipleSeqVal();
 			}
-			xml = xml.replace("<#reservenewrepeat" + context.getNewrepeatSeqVal(),sb.toString());
-			context.endNewRepeatGroup();
+			xml = xml.replace("<#reservenewrepeat" + context.getMultipleSeqVal(),sb.toString());
+			context.endMultipleGroup();
 		}
 
 		return xml;

@@ -33,8 +33,8 @@ public class MultipleElement implements HtmlGeneratorElement,
 	public String generateStartHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
 
-		if (!context.getExistingRptGroups().get(
-				context.getNewrepeatSeqVal() - 1).isIntd()) {
+		if (!context.getExistingMultipleGroups().get(
+				context.getMultipleSeqVal() - 1).isIntd()) {
 			sb.append("\n<tr><td> ");
 		}
 
@@ -43,20 +43,20 @@ public class MultipleElement implements HtmlGeneratorElement,
 			sb.append("<script type=\"text/javascript\" charset=\"utf-8\">\n");
 			sb.append("$(document).ready(function() {\n");
 			sb.append("var minRpt   = parseInt($('#minRpt"
-					+ context.getNewrepeatSeqVal() + "').val());\n");
+					+ context.getMultipleSeqVal() + "').val());\n");
 			sb.append("var kCount   = parseInt($('#kCount"
-					+ context.getNewrepeatSeqVal() + "').val());\n");
+					+ context.getMultipleSeqVal() + "').val());\n");
 			sb.append("for(var i = kCount; i< minRpt;++i){");
 			sb.append("$(\"#defaultFieldlistObjAddButton"
-					+ context.getNewrepeatSeqVal() + "\").click();\n");
+					+ context.getMultipleSeqVal() + "\").click();\n");
 			sb.append("}});");
 			sb.append("</script>\n");
 		}
 		
 		sb.append("<span id=\"newRepeatTemplate"
-						+ context.getNewrepeatSeqVal()
+						+ context.getMultipleSeqVal()
 						+ "\" class=\"newRepeat"
-						+ context.getNewrepeatSeqVal()
+						+ context.getMultipleSeqVal()
 						+ "\" style=\"display:none\" ><table style=\"display:inline\"> \n");
 
 		return sb.toString();
@@ -75,74 +75,74 @@ public class MultipleElement implements HtmlGeneratorElement,
 			/* the remove button */// enter and edit
 			sb.append("</table><input type=\"button\" id=\"removeRowButton"
 							+ "\" value=\""
-					+ context.getExistingRptGroups().get(
-							context.getNewrepeatSeqVal() - 1).getDellabel()
+					+ context.getExistingMultipleGroups().get(
+							context.getMultipleSeqVal() - 1).getDellabel()
 					+ "\" size=\"1\"   onclick=\"removeParentWithClass(this,'newRepeat"
-							+ context.getNewrepeatSeqVal() + "');\" />\n");
+							+ context.getMultipleSeqVal() + "');\" />\n");
 			
 			sb.append("</span>");
 			if (context.getMode() == Mode.EDIT) {
-				sb.append("<#reservenewrepeat" + context.getNewrepeatSeqVal());
+				sb.append("<#reservenewrepeat" + context.getMultipleSeqVal());
 			} 
 			
 			sb.append("<input id=\"defaultFieldlistObjAddButton"
-					+ context.getNewrepeatSeqVal()
+					+ context.getMultipleSeqVal()
 					+ "\" type=\"button\" value=\""
-					+ context.getExistingRptGroups().get(
-							context.getNewrepeatSeqVal() - 1).getLabel()
-					+ "\" size=\"1\" onclick=\"addNewMutipleGroup("+context.getNewrepeatSeqVal()+", this)\" />");
+					+ context.getExistingMultipleGroups().get(
+							context.getMultipleSeqVal() - 1).getLabel()
+					+ "\" size=\"1\" onclick=\"addNewMutipleGroup("+context.getMultipleSeqVal()+", this)\" />");
 			
 		} else {// view
 			sb.append("</table></span>");
-			sb.append("<#reservenewrepeat" + context.getNewrepeatSeqVal());
+			sb.append("<#reservenewrepeat" + context.getMultipleSeqVal());
 		}
 
-		if (!context.getExistingRptGroups().get(
-				context.getNewrepeatSeqVal() - 1).isIntd()) {
+		if (!context.getExistingMultipleGroups().get(
+				context.getMultipleSeqVal() - 1).isIntd()) {
 			sb.append("</td></tr>\n");
 		}
 
 		if (context.getMode() != Mode.VIEW) {
 			if (context.getMode() != Mode.EDIT) {
-				sb.append("<input id=\"kCount" + context.getNewrepeatSeqVal()
+				sb.append("<input id=\"kCount" + context.getMultipleSeqVal()
 						+ "\"" + " name=\"kCount"
-						+ context.getNewrepeatSeqVal() + "\""
+						+ context.getMultipleSeqVal() + "\""
 						+ " style=\"display: none;\" value=\""
-						+ context.getNewrepeatTimesSeqVal() + "\"/> \n");
+						+ context.getMultipleTimesSeqVal() + "\"/> \n");
 			} else {
 				sb.append("<input id=\"kCount"
-						+ context.getNewrepeatSeqVal()
+						+ context.getMultipleSeqVal()
 						+ "\""
 						+ " name=\"kCount"
-						+ context.getNewrepeatSeqVal()
+						+ context.getMultipleSeqVal()
 						+ "\""
 						+ " style=\"display: none;\" value=\""
-						+ context.getExistingRptGroups().get(
-								context.getNewrepeatSeqVal() - 1)
+						+ context.getExistingMultipleGroups().get(
+								context.getMultipleSeqVal() - 1)
 								.getRepeattime() + "\"/> \n");
 			}
 		}
 
 		sb.append("<input id=\"minRpt"
-				+ context.getNewrepeatSeqVal()
+				+ context.getMultipleSeqVal()
 				+ "\""
 				+ " name=\"minRpt"
-				+ context.getNewrepeatSeqVal()
+				+ context.getMultipleSeqVal()
 				+ "\""
 				+ " style=\"display: none;\" value=\""
-				+ context.getExistingRptGroups().get(
-						context.getNewrepeatSeqVal() - 1).getMinrpt()
+				+ context.getExistingMultipleGroups().get(
+						context.getMultipleSeqVal() - 1).getMinrpt()
 				+ "\"/> \n");
 
 		sb.append("<input id=\"maxRpt"
-				+ context.getNewrepeatSeqVal()
+				+ context.getMultipleSeqVal()
 				+ "\""
 				+ " name=\"maxRpt"
-				+ context.getNewrepeatSeqVal()
+				+ context.getMultipleSeqVal()
 				+ "\""
 				+ " style=\"display: none;\" value=\""
-				+ context.getExistingRptGroups().get(
-						context.getNewrepeatSeqVal() - 1).getMaxrpt()
+				+ context.getExistingMultipleGroups().get(
+						context.getMultipleSeqVal() - 1).getMaxrpt()
 				+ "\"/> \n");
 
 		return sb.toString();

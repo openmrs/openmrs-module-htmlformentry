@@ -51,7 +51,7 @@ public class FormEntryContext {
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
     
     /* the list to store all newrptgroup in this form */
-    private List<MultipleGroup> existingRptGroups = new ArrayList<MultipleGroup>();
+    private List<MultipleGroup> existingMultipleGroups = new ArrayList<MultipleGroup>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
     private ObsGroup activeObsGroup;
@@ -97,9 +97,9 @@ public class FormEntryContext {
     /* the counter to realize the naming as
      * rpti_m_k for controls in a repeater
      */
-    private Integer newrepeatSeqVal = 1;       //  i
-    private Integer ctrlInNewrepeatSeqVal = 1; // m
-    private Integer newrepeatTimesSeqVal = 1;  //k
+    private Integer multipleSeqVal = 1;       //  i
+    private Integer ctrlInMultipleSeqVal = 1; // m
+    private Integer multipleTimesSeqVal = 1;  //k
     
 
 	/**
@@ -130,15 +130,15 @@ public class FormEntryContext {
         	int thisCtrlVal = 0;   
         	int thisRpttimeVal = 0;  
         	 
-        	synchronized (newrepeatSeqVal) {
-        		thisRptVal = newrepeatSeqVal;        
+        	synchronized (multipleSeqVal) {
+        		thisRptVal = multipleSeqVal;        
         	}
-        	synchronized (ctrlInNewrepeatSeqVal) {
-        		thisCtrlVal = ctrlInNewrepeatSeqVal;
-        		ctrlInNewrepeatSeqVal = ctrlInNewrepeatSeqVal + 1;            
+        	synchronized (ctrlInMultipleSeqVal) {
+        		thisCtrlVal = ctrlInMultipleSeqVal;
+        		ctrlInMultipleSeqVal = ctrlInMultipleSeqVal + 1;            
         	}
-        	synchronized(this.newrepeatTimesSeqVal){
-        		thisRpttimeVal = newrepeatTimesSeqVal;
+        	synchronized(this.multipleTimesSeqVal){
+        		thisRpttimeVal = multipleTimesSeqVal;
         	}
         	/* i.e. rpt1_w1_1 stands for the first widget in the 1st repeat*/
         	String fieldName = "rpt" + thisRptVal+"_w"+thisCtrlVal+"_"+thisRpttimeVal;
@@ -456,33 +456,33 @@ public class FormEntryContext {
 		this.activeRptGroup = activeRptGroup;
 	}
 	
-    public Integer getNewrepeatSeqVal() {
+    public Integer getMultipleSeqVal() {
     	int thisRptVal = 0; //rpt counter
     	 
-    	synchronized (newrepeatSeqVal) {
-    		thisRptVal = newrepeatSeqVal; 
+    	synchronized (multipleSeqVal) {
+    		thisRptVal = multipleSeqVal; 
     	}
 		return thisRptVal;
 	}
     
     
     
-    public Integer getNewrepeatTimesSeqVal() {
+    public Integer getMultipleTimesSeqVal() {
     	int thisRptTimeVal = 0; //rpt times counter
    	 
-    	synchronized (this.newrepeatTimesSeqVal) {
-    		thisRptTimeVal = newrepeatTimesSeqVal;
+    	synchronized (this.multipleTimesSeqVal) {
+    		thisRptTimeVal = multipleTimesSeqVal;
     	}
 		return thisRptTimeVal;
 	}
 
 
-	public List<MultipleGroup> getExistingRptGroups() {
-		return existingRptGroups;
+	public List<MultipleGroup> getExistingMultipleGroups() {
+		return existingMultipleGroups;
 	}
 
-	public void setExsistingRptGroups(List<MultipleGroup> exsistingRptGroups) {
-		this.existingRptGroups = exsistingRptGroups;
+	public void setExsistingMultipleGroups(List<MultipleGroup> exsistingRptGroups) {
+		this.existingMultipleGroups = exsistingRptGroups;
 	}
 
 	/**
@@ -500,68 +500,68 @@ public class FormEntryContext {
     /***
      * Notify we are starting a newrepeat group
      */
-	public void beginNewRepeatGroup() {
+	public void beginMultipleGroup() {
 		int index;
-		synchronized (newrepeatSeqVal) {
-    		index = newrepeatSeqVal;
+		synchronized (multipleSeqVal) {
+    		index = multipleSeqVal;
     	}
     	/* we are in a repeat group */
-		this.activeRptGroup = this.existingRptGroups.get(index -1);
+		this.activeRptGroup = this.existingMultipleGroups.get(index -1);
 	}
 
 	 /***
      * Notify we are out of a newrepeat group
      */
-	public void endNewRepeatGroup() {
+	public void endMultipleGroup() {
 		// TODO Auto-generated method stubs
 		this.activeRptGroup = null;
-		synchronized (newrepeatSeqVal) {
-    		++newrepeatSeqVal;
+		synchronized (multipleSeqVal) {
+    		++multipleSeqVal;
     	}
 		/* reset the m and k value */
-		resetCtrlInNewrepeatSeqVal();
-		resetNewrepeatTimesSeqVal();
+		resetCtrlInMultipleSeqVal();
+		resetMultipleTimesSeqVal();
 	}
 
 	/*** 
     *  Get the next newrepeatTimesSeqVal
 	*/
-	public void getnewrepeatTimesNextSeqVal(){
-		synchronized(newrepeatTimesSeqVal){
-			++newrepeatTimesSeqVal;
+	public void getMultipleTimesNextSeqVal(){
+		synchronized(multipleTimesSeqVal){
+			++multipleTimesSeqVal;
 		}
 	}
 	
 	/* reset the repeat counter
 	 * */
-	public void resetNewrepeatSeqVal() {
-		synchronized (newrepeatSeqVal) {
-			this.newrepeatSeqVal = 1;
+	public void resetMultipleSeqVal() {
+		synchronized (multipleSeqVal) {
+			this.multipleSeqVal = 1;
     	}	
 	}
 	
 	/* reset the ctrl counter in repeat 
 	 * */
-	public void resetCtrlInNewrepeatSeqVal() {
-		synchronized(ctrlInNewrepeatSeqVal){
-			this.ctrlInNewrepeatSeqVal =1;
+	public void resetCtrlInMultipleSeqVal() {
+		synchronized(ctrlInMultipleSeqVal){
+			this.ctrlInMultipleSeqVal =1;
 		}
 	}
 	
 	/* reset the repeat times counter in repeat 
 	 * */
-	public void resetNewrepeatTimesSeqVal() {
-		synchronized(newrepeatTimesSeqVal){
-			this.newrepeatTimesSeqVal =1;
+	public void resetMultipleTimesSeqVal() {
+		synchronized(multipleTimesSeqVal){
+			this.multipleTimesSeqVal =1;
 		}
 	}
 	
 	/***
 	 * set newrepeattimeseq = 0
 	 */
-	public void zeroNewrepeatTimesSeqVal(){
-		synchronized(newrepeatTimesSeqVal){
-			this.newrepeatTimesSeqVal =0;
+	public void zeroMultipleTimesSeqVal(){
+		synchronized(multipleTimesSeqVal){
+			this.multipleTimesSeqVal =0;
 		}
 	}
 	

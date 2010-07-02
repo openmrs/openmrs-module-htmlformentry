@@ -6,6 +6,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -368,27 +370,35 @@ public class HtmlFormEntryUtil {
 	 * @param obsset
 	 * @return the sorted obs in a list
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<Obs> sortObs(Set<Obs> obsset) {
-		List<Obs> sortedObs = new ArrayList<Obs>();
 		if (obsset == null)
 			return null;
+		
+		List<Obs> sortedObs = new ArrayList<Obs>();
 
 		/* get the obs ordered by obs_id */
-		while (obsset.size() != 0) {
-			Obs minObs = obsset.iterator().next();
-			int minId = minObs.getObsId();
+		if(obsset.size() != 0) {
 			for (Obs obs : obsset) {
-				if (obs.getObsId() < minId) {
-					minId = obs.getObsId();
-					minObs = obs;
-				}
+				sortedObs.add(obs);
 			}
-			obsset.remove(minObs);
-			sortedObs.add(minObs);
 		}
+		
+		Collections.sort(sortedObs,  new HtmlFormEntryUtil().new obsIdComparator());
+		
 		return sortedObs;
 	}
 
+	private class obsIdComparator implements Comparator<Obs>{
+		public int compare(Obs obs1, Obs obs2){
+		//parameter are of type Object, so we have to downcast it to Employee objects
+			Integer obs1id = obs1.getObsId();
+			Integer obs2id = obs2.getObsId();
+			//uses compareTo method of String class to compare names of the employee
+			return obs1id.compareTo(obs2id);
+		}
+	}
+	
 	/***
 	 * to see if this obs 's value equals null
 	 * @return

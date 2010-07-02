@@ -64,7 +64,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
             	/* short cut here if we are editing a form with newrepeat in it
             	 * the current strategy is to void all obs and obs groups and reinsert the new ones with updated value.
             	 */
-            	if(session.getContext().getMode()==Mode.EDIT && !session.getContext().getExistingRptGroups().isEmpty()){
+            	if(session.getContext().getMode()==Mode.EDIT && !session.getContext().getExistingMultipleGroups().isEmpty()){
             		/* create and return a new obs group
 					  the exsiting group will be take care of  by ApplyActions in FormEntrySession 
 					*/

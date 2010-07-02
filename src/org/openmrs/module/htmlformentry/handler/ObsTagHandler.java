@@ -15,7 +15,7 @@ public class ObsTagHandler extends SubstitutionTagHandler {
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters) {
         ObsSubmissionElement element = new ObsSubmissionElement(session.getContext(), parameters);
         /*if it =0, then we are just generating the templates, no actions should be taken*/
-        if(session.getContext().getNewrepeatTimesSeqVal()!=0){
+        if(session.getContext().getMultipleTimesSeqVal()!=0){
         	session.getSubmissionController().addAction(element);
         }
         
@@ -27,7 +27,7 @@ public class ObsTagHandler extends SubstitutionTagHandler {
     		
     		/*we mark this multiple as not null */
     		if (value != null && !"".equals(value)) 
-    			session.getContext().getActiveRptGroup().getIsallobsnulllist().set(session.getContext().getNewrepeatTimesSeqVal()-1, false);
+    			session.getContext().getActiveRptGroup().getIsallobsnulllist().set(session.getContext().getMultipleTimesSeqVal()-1, false);
     	}
 		
         return element.generateHtml(session.getContext());

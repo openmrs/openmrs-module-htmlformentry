@@ -98,7 +98,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		}
 		
 		/* we are generating the template, we don't need any value for the template*/
-		if(context.getNewrepeatTimesSeqVal()!=0){
+		if(context.getMultipleTimesSeqVal()!=0){
 		if (context.getCurrentObsGroupConcepts() != null
 				&& context.getCurrentObsGroupConcepts().size() > 0) {
 			existingObs = context
@@ -635,7 +635,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 					session.getContext(), submission);
 		
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT 
-				&&session.getContext().getExistingRptGroups().size() == 0) {
+				&&session.getContext().getExistingMultipleGroups().size() == 0) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
 				session.getSubmissionActions().modifyObs(existingObs, concept,

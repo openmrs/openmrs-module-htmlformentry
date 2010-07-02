@@ -28,7 +28,7 @@ public class MultipleHandler implements TagHandler {
 
 		out.print(this.getEndSubstitution(session));
 
-		session.getContext().endNewRepeatGroup();
+		session.getContext().endMultipleGroup();
 	}
 
 	/**
@@ -77,20 +77,20 @@ public class MultipleHandler implements TagHandler {
 
 		/* notify the context that we are starting a repeater */
 		FormEntryContext context = session.getContext();
-		context.beginNewRepeatGroup();
+		context.beginMultipleGroup();
 
 		/*
 		 * we will generate the multipe template by java code let 0 as flag
 		 */
-		context.zeroNewrepeatTimesSeqVal();
+		context.zeroMultipleTimesSeqVal();
 
 		Map<String, String> attributes = new HashMap<String, String>();
 		NamedNodeMap map = node.getAttributes();
 		for (int i = 0; i < map.getLength(); ++i) {
 			Node attribute = map.item(i);
 			if ("addLabel".equals(attribute.getNodeName())) {
-				context.getExistingRptGroups().get(
-						context.getNewrepeatSeqVal() - 1).setLabel(
+				context.getExistingMultipleGroups().get(
+						context.getMultipleSeqVal() - 1).setLabel(
 						attribute.getNodeValue());
 			} else if ("minOccurs".equals(attribute.getNodeName())) {
 				try {
@@ -102,8 +102,8 @@ public class MultipleHandler implements TagHandler {
 					if (minOccur < 0)
 						throw new IllegalArgumentException(
 								"minOccurs has to be an integer greater than 0");
-					context.getExistingRptGroups().get(
-							context.getNewrepeatSeqVal() - 1).setMinrpt(
+					context.getExistingMultipleGroups().get(
+							context.getMultipleSeqVal() - 1).setMinrpt(
 							minOccur);
 
 				
@@ -118,20 +118,20 @@ public class MultipleHandler implements TagHandler {
 				if (maxOccur < 0)
 					throw new IllegalArgumentException(
 							"maxOccurs has to be an integer greater than 0");
-				context.getExistingRptGroups().get(
-						context.getNewrepeatSeqVal() - 1).setMaxrpt(
+				context.getExistingMultipleGroups().get(
+						context.getMultipleSeqVal() - 1).setMaxrpt(
 						Integer.parseInt(attribute.getNodeValue()));
 			}else if ("deleteLabel".equals(attribute.getNodeName())) {
-				context.getExistingRptGroups().get(
-						context.getNewrepeatSeqVal() - 1).setDellabel(
+				context.getExistingMultipleGroups().get(
+						context.getMultipleSeqVal() - 1).setDellabel(
 						attribute.getNodeValue());
 			}
 			
 		}
 		
-		if(context.getExistingRptGroups().get(
-				context.getNewrepeatSeqVal() - 1).getMaxrpt()<context.getExistingRptGroups().get(
-						context.getNewrepeatSeqVal() - 1).getMinrpt()){
+		if(context.getExistingMultipleGroups().get(
+				context.getMultipleSeqVal() - 1).getMaxrpt()<context.getExistingMultipleGroups().get(
+						context.getMultipleSeqVal() - 1).getMinrpt()){
 			throw new IllegalArgumentException(
 			"maxOccurs has to be greater than minOccurs!");
 		}
