@@ -74,7 +74,7 @@
 							      	<!-- new entry for newrepeat tag -->
 							      	<entry>
 							      		<key><value>multiple</value></key>
-							      		<bean class="org.openmrs.module.htmlformentry.handler.NewRepeatHandler"/>
+							      		<bean class="org.openmrs.module.htmlformentry.handler.MultipleHandler"/>
 							      	</entry>
 							    </map>  
 							</property>
