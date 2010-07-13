@@ -358,4 +358,49 @@ public class HtmlFormEntryUtil {
 	    return cal.getTime();
     }
     
+	/***
+	 * Get the concept by id,
+	 * the id can either be 
+	 * 		1)an integer id like 5090 
+	 * 	 or 2)mapping type id like "XYZ:HT"
+	 * 	 or 3)uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 * @param Id
+	 * @return the concept if exist, else null
+	 * @should find a concept by its conceptId 
+     * @should find a concept by its mapping 
+     * @should find a concept by its uuid
+     * @should return null otherwise
+	 */
+	public static Concept getConcept(String id){
+		Concept cpt = null;
+		
+		if(id != null){
+			
+			try{//handle integer: id
+				int conceptId = Integer.parseInt(id);
+				cpt  = Context.getConceptService().getConcept(conceptId);
+				return cpt;
+			}catch (Exception ex){
+				//do nothing 
+			}
+			
+			//handle  mapping id: xyz:ht
+			int index = id.indexOf(":");
+			if(index != -1){
+				String mappingCode = id.substring(0,index).trim();
+				String conceptCode = id.substring(index+1,id.length()).trim();	
+				cpt = Context.getConceptService().getConceptByMapping(conceptCode,mappingCode);
+				return cpt;
+			}
+			
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272"
+			index = id.indexOf("-");
+			if(index != -1){
+				cpt = Context.getConceptService().getConceptByUuid(id);
+				return cpt;
+			}
+		}
+		
+		return cpt;
+	}
 }

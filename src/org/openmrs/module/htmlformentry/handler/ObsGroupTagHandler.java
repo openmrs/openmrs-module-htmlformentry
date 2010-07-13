@@ -10,6 +10,7 @@ import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.w3c.dom.NamedNodeMap;
@@ -36,7 +37,7 @@ public class ObsGroupTagHandler implements TagHandler {
         if (attributes.get("groupingConceptId") == null) {
             throw new NullPointerException("obsgroup tag requires a groupingConceptId attribute");
         }
-        Concept groupingConcept = Context.getConceptService().getConcept(Integer.valueOf(attributes.get("groupingConceptId")));
+        Concept groupingConcept = HtmlFormEntryUtil.getConcept(attributes.get("groupingConceptId"));
         if (groupingConcept == null) {
             throw new NullPointerException("could not find concept " + attributes.get("groupingConceptId") + " as grouping obs for an obsgroup tag");
         }
@@ -72,12 +73,12 @@ public class ObsGroupTagHandler implements TagHandler {
             Concept answer = null;
             NamedNodeMap attrs = node.getAttributes();
             try {
-                question = Context.getConceptService().getConcept(Integer.valueOf(attrs.getNamedItem("conceptId").getNodeValue()));
+                question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("conceptId").getNodeValue());
             } catch (Exception ex) {
                 throw new RuntimeException("Error getting conceptId from obs in obsgroup", ex);
             }
             try {
-                answer = Context.getConceptService().getConcept(Integer.valueOf(attrs.getNamedItem("answerConceptId").getNodeValue()));
+                answer = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("answerConceptId").getNodeValue());
             } catch (Exception ex) {
                 // this is fine
             }

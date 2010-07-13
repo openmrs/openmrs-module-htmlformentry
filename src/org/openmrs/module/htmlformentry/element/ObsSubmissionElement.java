@@ -23,6 +23,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.ObsField;
@@ -71,8 +72,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			Map<String, String> parameters) {
 		try {
 			String conceptId = parameters.get("conceptId");
-			concept = Context.getConceptService().getConcept(
-					Integer.valueOf(conceptId));
+			concept = HtmlFormEntryUtil.getConcept(conceptId);
 			if (concept == null)
 				throw new NullPointerException();
 		} catch (Exception ex) {
@@ -91,8 +91,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			Map<String, String> parameters) {
 		String userLocaleStr = Context.getLocale().toString();
 		try {
-			answerConcept = Context.getConceptService().getConcept(
-					Integer.valueOf(parameters.get("answerConceptId")));
+			answerConcept = HtmlFormEntryUtil.getConcept(parameters.get("answerConceptId"));
 		} catch (Exception ex) {
 		}
 		if (context.getCurrentObsGroupConcepts() != null
@@ -279,12 +278,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 				try {
 					for (StringTokenizer st = new StringTokenizer(parameters
 							.get("answerConceptIds"), ", "); st.hasMoreTokens();) {
-						Integer conceptId = Integer.valueOf(st.nextToken());
-						Concept c = Context.getConceptService().getConcept(
-								conceptId);
+						Concept c = HtmlFormEntryUtil.getConcept(st.nextToken());
 						if (c == null)
 							throw new RuntimeException("Cannot find concept "
-									+ conceptId);
+									+ st.nextToken());
 						conceptAnswers.add(c);
 					}
 				} catch (Exception ex) {
