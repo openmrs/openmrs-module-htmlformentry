@@ -133,7 +133,7 @@ public class FormEntrySession {
         }
 
         // For now, the relationship query breaks for non-saved patients, so do not run for Demo patient
-        if (!"Demo".equals(patient.getGivenName())) {
+        if(!("testing-html-form-entry".equals(patient.getUuid()))) {
             List<Relationship> rels = Context.getPersonService().getRelationshipsByPerson(patient);
             // TODO put this is core in relationship service
             Map<String, List<Person>> relMap = new HashMap<String, List<Person>>();
@@ -294,6 +294,8 @@ public class FormEntrySession {
     	if (htmlForm != null) {
     		context.getSchema().setName(htmlForm.getName());
     	}
+    	xml = htmlGenerator.applyIncludes(this, xml);
+    	xml = htmlGenerator.applyExcludes(this, xml);
         xml = htmlGenerator.applyMacros(xml);
         xml = htmlGenerator.applyTemplates(xml);
         xml = htmlGenerator.applyTranslations(xml, context);

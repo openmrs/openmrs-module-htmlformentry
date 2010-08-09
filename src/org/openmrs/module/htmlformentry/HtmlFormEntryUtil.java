@@ -312,7 +312,8 @@ public class HtmlFormEntryUtil {
         		demo.addIdentifier(new PatientIdentifier("Testing" + pit.getName() + "123", pit, l));
         	}
         }
-        demo.setGender("f");
+        demo.setGender("F");
+        demo.setUuid("testing-html-form-entry");
         {
 	    	Calendar cal = Calendar.getInstance();
 	    	cal.add(Calendar.YEAR, -31);
@@ -403,4 +404,5 @@ public class HtmlFormEntryUtil {
 		
 		return cpt;
 	}
+
 }

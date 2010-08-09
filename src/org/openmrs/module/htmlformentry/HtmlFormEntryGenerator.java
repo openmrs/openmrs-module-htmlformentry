@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.openmrs.api.context.Context;
+import org.openmrs.logic.LogicCriteria;
+import org.openmrs.logic.LogicService;
 import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.w3c.dom.Document;
@@ -334,5 +337,183 @@ public class HtmlFormEntryGenerator implements TagHandler {
             out.print("</" + node.getNodeName() + ">");
         }
     }
+
+    /**
+     * Takes an XML string, finds the {@code <includeIf></includeIf>} section in it,
+     * make a test against the logicTest/velocityTest to include/exclude the content within
+     * <p>
+     * For example the following input:
+     * <pre>
+     * {@code
+     * <htmlform>
+     *      <includeIf logicTest="FEMALE">
+     *			<obs conceptId="123" labelText="Pregnant?"/>
+	 *		</includeIf>
+     * </htmlform>
+     * }
+     * </pre>
+     * 
+     * Would include the following only if the logicTest="FEMALE" success
+     * <pre>
+     * {@code
+ 	 * <htmlform>
+     * 		<obs conceptId="123" labelText="Pregnant?"/>	
+     * </htmlform>
+     * }
+     * </pre>
+     * @param xml the xml string to process for includeIf tag
+     * @return the xml string with after includeIf substitution
+     * @throws BadFormDesignException 
+     * @should return correct xml after apply include tag
+     */
+	public String applyIncludes(FormEntrySession session, String xml) throws BadFormDesignException {
+		StringBuilder sb = new StringBuilder(xml);
+
+		while(xml.contains("<includeIf")) {
+        	int startIndex = sb.indexOf("<includeIf")+10;
+        	int endIndex =sb.substring(startIndex).indexOf(">");
+        	String includeStr = sb.substring(startIndex,startIndex+endIndex+1);
+        	
+        	boolean result = HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
+        	HtmlFormEntryGenerator.removeFirstIncludeIfOrExcludeIf(sb, result);
+ 
+        	xml = sb.toString();
+		}
+		return xml;
+	}
+	
+	/***
+	 * this is an opposite of includeif see applyIncludes
+	 * @param session
+	 * @param xml
+	 * @return the xml after applied ExcludeIf tag
+	 * @throws BadFormDesignException 
+	 * @should return correct xml after apply excludeIf tag
+	 */
+	public String applyExcludes(FormEntrySession session, String xml) throws BadFormDesignException {
+
+		StringBuilder sb = new StringBuilder(xml);
+
+		while(xml.contains("<excludeIf")) {
+        	int startIndex = sb.indexOf("<excludeIf")+10;
+        	int endIndex =sb.substring(startIndex).indexOf(">");
+        	String includeStr = sb.substring(startIndex,startIndex+endIndex+1);
+        	
+        	boolean result = !HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
+        	HtmlFormEntryGenerator.removeFirstIncludeIfOrExcludeIf(sb, result);       	
+        	
+        	xml = sb.toString();
+		}
+		return xml;
+	}
+	
+	/***
+	 * Given a include/exclude string. fetch the test expression
+	 * @param teststr
+	 * @return a substring of a test expression
+	 * @throws BadFormDesignException 
+	 * @should extract the correct expression from teststr
+	 */
+	protected static String getTestStr(String teststr) throws BadFormDesignException {
+		int startIndex = teststr.indexOf("=") + 1;
+		int endIndex = teststr.indexOf(">",startIndex);
+		
+		if(startIndex == 0 || endIndex == -1){
+			throw new BadFormDesignException("Can't extract the test expression from "+ teststr);//throw bad design exception here            		
+		}
+		teststr = teststr.substring(startIndex, endIndex).trim();
+		teststr = teststr.substring(1, teststr.length()-1);//remove the begining " and end "
+		
+		return teststr;
+	}
+	
+	/***
+	 * given a test string, parse the string to return a boolean 
+	 * value for logicTest result or Velocity result
+	 * @param session
+	 * @param includeStr for ex. = "logicTest='GENDER = F' >"
+	 * @return a boolean value if this patient is a female
+	 * @throws BadFormDesignException 
+	 * @should return a correct boolean value for logic test string
+	 */
+	protected static boolean processIncludeLogic(FormEntrySession session, String includeStr) throws BadFormDesignException{
+	
+		int logicTestIndex = includeStr.indexOf("logicTest");
+    	String testStr ="";
+    	boolean result; 
+    
+    	if(logicTestIndex >= 0){//constains a logicTest
+
+    		testStr = getTestStr(includeStr.substring(logicTestIndex));
+    		
+    		LogicService ls = Context.getLogicService();
+    		LogicCriteria logicCriteria =null;
+    		try{
+    			logicCriteria = ls.parse(testStr);
+    		}catch (Exception ex) {
+				throw new BadFormDesignException(ex.getMessage());
+			}
+    		
+    		if(logicCriteria != null){
+    			if("testing-html-form-entry".equals(session.getPatient().getUuid()))
+    				result = false;
+    			else {
+    				try{
+    					result = ls.eval(session.getPatient(), logicCriteria).toBoolean();
+    				}catch (Exception ex) {
+    					throw new BadFormDesignException(ex.getMessage());
+    				}
+    			}
+    		}else{
+    			throw new BadFormDesignException("The "+testStr + "is not a valid logic expression");//throw a bad form design
+  
+    		}
+    	}else{
+    		int velocityTestIndex = includeStr.indexOf("velocityTest");
+    		if(velocityTestIndex != -1){
+    			
+    			testStr = getTestStr(includeStr.substring(velocityTestIndex));
+    			
+    			//("#if($patient.getPatientIdentifier(5))true #else false #end"));
+    			testStr = "#if ("+testStr+") true #else false #end";
+    			result = session.evaluateVelocityExpression(testStr).trim().equals("true");
+    		}else{
+    			throw new BadFormDesignException("The "+testStr + "is not a valid velocity expression");//throw a bad form design
+    		 }
+    	}
+    	return result;
+	}
+	
+	public static StringBuilder removeFirstIncludeIfOrExcludeIf(StringBuilder sb, boolean keepcontent){
+		int startIndex = 0;
+		int endIndex = 0;
+		
+		if(keepcontent){
+			//remove this pair of includeif  and keep the content within
+			startIndex = sb.indexOf("<includeIf");
+			if(startIndex  == -1) {
+				startIndex = sb.indexOf("<excludeIf");
+			}
+			endIndex   = sb.substring(startIndex).indexOf(">");
+			sb.replace(startIndex, startIndex+endIndex+1, "");// should remove the <includeIf ...>
+			
+			startIndex = sb.indexOf("</includeIf>");
+			if(startIndex  == -1) startIndex = sb.indexOf("</excludeIf>");
+			endIndex = startIndex + 12;
+			sb.replace(startIndex, endIndex, "");
+		}else{
+			//remove this part of xml
+			startIndex = sb.indexOf("<includeIf");
+			endIndex = sb.indexOf("</includeIf>")+ 12;
+			if(startIndex  == -1) {
+				startIndex = sb.indexOf("<excludeIf");
+				endIndex = sb.indexOf("</excludeIf>")+ 12;
+			}
+			sb.replace(startIndex, endIndex, "");
+			
+		}
+		
+		return sb;
+	}
 
 }
