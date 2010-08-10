@@ -123,3 +123,67 @@ function removeRow(tableId, anElementInRow) {
 			flags[0].value = 'false';
 	}
 }
+
+function setupAutocomplete(element,src, answerids, answerclasses) {
+	var hiddenField = $("#"+element.id+"_hid");
+	var textField = $(element);
+	var select = false;
+	
+	 /*
+	 * There are only 2 valid cases:
+	 * 1) user type something,then selected an item from the suggestion list, then leave.
+	 * 2) user leave the input field with the input field empty.
+	 * otherwise, we willl trigger the error
+	 * The flow is, user typed in sth. ,if got suggestion and user clicked an item
+	 * it will trigger the select event, then close event in this function.
+	 * finaly it will trigger the onblur when user leave this input box.
+	 */
+	if (hiddenField.length > 0 && textField.length > 0) {
+		textField.autocomplete( {
+			 source: function(req, add){  
+	        //pass request to server  
+			$.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {  
+				   
+			//create array for response objects  
+			var suggestions = [];  
+				   
+		   $.each(data, function(i, val){  
+			suggestions.push(val);  
+		   });
+		   
+		   	//this clears the error if it returns no result
+		    //if the input field is not empty
+		    //the error will be triggered in onblur below
+			if (suggestions.length==0) hiddenField.val("");
+			
+			add(suggestions);  
+		 });  
+		}
+			,
+			minLength: 2,
+			select: function(event, ui) {
+					hiddenField.val(ui.item.id);
+					select = true;
+			},
+		    close: function(event, ui) {
+				if(select)//user has selected item from the list
+					textField.css('color', 'green');
+				else {	
+					textField.css('color', 'red');
+					hiddenField.val("ERROR");
+				}
+				select = false;
+			}
+		});
+	} 	
+}
+
+function onBlurAutocomplete(element){
+	var hiddenField = $("#"+element.id+"_hid");
+	var textField = $(element);
+	
+	if(textField.val() != "" && (hiddenField.val()==""||hiddenField.val()=="ERROR")){
+		hiddenField.val("ERROR");
+		textField.css('color', 'red');
+	}
+}

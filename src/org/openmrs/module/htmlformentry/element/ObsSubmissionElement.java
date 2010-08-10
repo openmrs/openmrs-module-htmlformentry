@@ -28,6 +28,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
+import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
@@ -337,35 +338,55 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 				throw new RuntimeException(
 						"Multi-select coded questions are not yet implemented");
 			} else {
-				// If no conceptAnswers are specified, use all available
-				// conceptAnswers
+				// If no conceptAnswers are specified, 
 				if (conceptAnswers == null || conceptAnswers.isEmpty()) {
+					// if style = autocomplete
+					if("autocomplete".equals(parameters.get("style"))){
+						throw new RuntimeException(
+						"style \"autocomplete\" has to work with either \"answerClasses\" or \"answerConceptIds\" attribute");
+					}
+					// else use all available conceptAnswers
 					conceptAnswers = new ArrayList<Concept>();
 					for (ConceptAnswer ca : concept.getAnswers(false)) {
 						conceptAnswers.add(ca.getAnswerConcept());
 					}
 					Collections.sort(conceptAnswers, conceptNameComparator);
 				}
-
-				// Show Radio Buttons if specified, otherwise default to Drop
-				// Down
-				boolean isRadio = "radio".equals(parameters.get("style"));
-				if (isRadio) {
-					valueWidget = new RadioButtonsWidget();
-				} else {
-					valueWidget = new DropdownWidget();
-					((DropdownWidget) valueWidget).addOption(new Option());
-				}
-				for (int i = 0; i < conceptAnswers.size(); ++i) {
-					Concept c = conceptAnswers.get(i);
-					String label = null;
-					if (answerLabels != null && i < answerLabels.size()) {
-						label = answerLabels.get(i);
-					} else {
-						label = c.getBestName(Context.getLocale()).getName();
+				
+				if ("autocomplete".equals(parameters.get("style"))){
+					List<ConceptClass> cptClasses = new ArrayList<ConceptClass>();
+					if (parameters.get("answerClasses") != null) {
+						for (StringTokenizer st = new StringTokenizer(parameters
+								.get("answerClasses"), ","); st.hasMoreTokens();) {
+							String className = st.nextToken().trim();
+							ConceptClass cc = Context.getConceptService()
+									.getConceptClassByName(className);
+							cptClasses.add(cc);
+						}
 					}
-					((SingleOptionWidget) valueWidget).addOption(new Option(
+					valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
+				} else {
+					// Show Radio Buttons if specified, otherwise default to Drop
+					// Down 
+					boolean isRadio = "radio".equals(parameters.get("style"));
+					if (isRadio) {
+						valueWidget = new RadioButtonsWidget();
+					}
+					else {
+						valueWidget = new DropdownWidget();
+						((DropdownWidget) valueWidget).addOption(new Option());
+					}
+					for (int i = 0; i < conceptAnswers.size(); ++i) {
+						Concept c = conceptAnswers.get(i);
+						String label = null;
+						if (answerLabels != null && i < answerLabels.size()) {
+							label = answerLabels.get(i);
+						} else {
+							label = c.getBestName(Context.getLocale()).getName();
+						}
+						((SingleOptionWidget) valueWidget).addOption(new Option(
 							label, c.getConceptId().toString(), false));
+					}
 				}
 				if (existingObs != null) {
 					valueWidget.setInitialValue(existingObs.getValueCoded());

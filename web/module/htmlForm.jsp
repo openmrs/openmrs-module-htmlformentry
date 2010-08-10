@@ -114,6 +114,9 @@
 	<openmrs:htmlInclude file="/scripts/calendar/calendar.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.css" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.min.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
 	
 	<br/>
 	<br/>
