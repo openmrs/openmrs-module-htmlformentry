@@ -30,7 +30,7 @@ public class WidgetTest {
         cw.setInitialValue("Something");
         Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" name=\"w1\" value=\"true\" checked=\"true\"/>", cw.generateHtml(context));
         cw.setLabel("This is a label");
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" name=\"w1\" value=\"true\" checked=\"true\"/>&nbsp;This is a label", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" name=\"w1\" value=\"true\" checked=\"true\"/>This is a label", cw.generateHtml(context));
     }
     
     @Test
