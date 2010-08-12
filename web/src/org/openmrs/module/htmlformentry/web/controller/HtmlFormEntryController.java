@@ -70,10 +70,15 @@ public class HtmlFormEntryController extends SimpleFormController {
         HtmlForm htmlForm = null;
         
         if (encounter != null) {
-        	htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(encounter.getForm());
-        	if (htmlForm == null) {
-        		throw new IllegalArgumentException("The form for the specified encounter (" + encounter.getForm() + ") does not have an HtmlForm associated with it");
-        	}
+            String formIdParam = request.getParameter("formId");
+            if (StringUtils.hasText(formIdParam)) {
+                Form form = Context.getFormService().getForm(Integer.parseInt(formIdParam));
+                htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
+            } else {
+                htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(encounter.getForm());
+            }
+        	if (htmlForm == null)
+                    throw new IllegalArgumentException("The form for the specified encounter (" + encounter.getForm() + ") does not have an HtmlForm associated with it");
         } else {
 	        String htmlFormIdParam = request.getParameter("htmlFormId");
 	        if (StringUtils.hasText(htmlFormIdParam)) {
