@@ -155,18 +155,18 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
     @Test
     public void testApplyMacros() throws Exception {
         StringBuilder sb = new StringBuilder();
-        sb.append("<htmlform>").append('\n');
-        sb.append("<macros>").append('\n');
-        sb.append("    count=1, 2, 3").append('\n');
-        sb.append("</macros>").append('\n');
-        sb.append("You can count like $count").append('\n');
+        sb.append("<htmlform>");
+        sb.append("<macros>");
+        sb.append("count=1, 2, 3");
+        sb.append("</macros>");
+        sb.append("You can count like $count");
         sb.append("</htmlform>");
         
         HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
         
         String result = generator.applyMacros(sb.toString()).trim();
         System.out.println(result);
-        Assert.assertEquals("<htmlform>\n\nYou can count like 1, 2, 3\n</htmlform>", result);
+        Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
     }
     
     @Test
@@ -179,7 +179,7 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
 
         String result = generator.applyMacros(htmlForm.getXmlData()).trim();
         System.out.println(result);
-        Assert.assertTrue(equalsIgnoreSpaces("<htmlform>\n\nYou can count like 1, 2, 3\n</htmlform>", result));
+        Assert.assertTrue(equalsIgnoreSpaces("<htmlform>You can count like 1, 2, 3</htmlform>", result));
     }
     
     private boolean equalsIgnoreSpaces(String a, String b) {
@@ -239,8 +239,11 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
         Patient pat = new Patient(2);
         Encounter enc = new Encounter();
         enc.setPatient(pat);
+        enc.setEncounterDatetime(new Date());
+        enc.setLocation(Context.getLocationService().getLocation(1));
         Obs obs = HtmlFormEntryUtil.createObs(Context.getConceptService().getConcept(1), 123, new Date(), null);
         enc.addObs(obs);
+        Context.getEncounterService().saveEncounter(enc);
         
         HtmlForm fakeForm = new HtmlForm();
         fakeForm.setXmlData(sb.toString());
@@ -333,6 +336,7 @@ public class HtmlFormEntryTest extends BaseModuleContextSensitiveTest {
             sb.append(line).append("\n");
         }
 
+        Context.addProxyPrivilege("View Relationships");
         FormEntrySession session = new FormEntrySession(new Patient(2), sb.toString());
         String html = session.getHtmlToDisplay();
         
