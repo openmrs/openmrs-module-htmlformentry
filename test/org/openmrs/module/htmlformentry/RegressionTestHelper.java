@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,8 +27,11 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.Format;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import com.sun.org.apache.xalan.internal.xsltc.dom.MatchingIterator;
 
 public abstract class RegressionTestHelper {
 	
@@ -251,6 +256,24 @@ public abstract class RegressionTestHelper {
 			int found = getObsCreatedCount();
 	        Assert.assertEquals("Expected to create " + expected + " obs but got " + found, expected, found);
         }
+		
+		/**
+		 * Fails if the number of obs groups in encounterCreated is not 'expected'
+		 * @param expected
+		 */
+		public void assertObsGroupCreatedCount(int expected) {
+	        int found = getObsGroupCreatedCount();
+	        Assert.assertEquals("Expected to create " + expected + " obs groups but got " + found, expected, found);
+        }
+		
+		/**
+         * Fails if the number of obs leaves (i.e. obs that aren't groups) in encounterCreated is not 'expected'
+         * @param expected
+         */
+		public void assertObsLeafCreatedCount(int expected) {
+			int found = getObsLeafCreatedCount();
+	        Assert.assertEquals("Expected to create " + expected + " non-group obs but got " + found, expected, found);
+        }
 
 		/**
 		 * @return the number of obs in encounterCreated (0 if no encounter was created)
@@ -264,13 +287,47 @@ public abstract class RegressionTestHelper {
 	        return temp.size();
         }
 
+		/**
+		 * @return the number of obs groups in encounterCreated (0 if no encounter was created)
+		 */
+		public int getObsGroupCreatedCount() {
+	        if (encounterCreated == null)
+	        	return 0;
+	        Collection<Obs> temp = encounterCreated.getAllObs();
+	        if (temp == null)
+	        	return 0;
+	        int count = 0;
+	        for (Obs o : temp) {
+	        	if (o.isObsGrouping())
+	        		++count;
+	        }
+	        return count;
+        }
+
+		/**
+		 * @return the number of non-group obs in encounterCreated (0 if no encounter was created)
+		 */
+		public int getObsLeafCreatedCount() {
+	        if (encounterCreated == null)
+	        	return 0;
+	        Collection<Obs> temp = encounterCreated.getObs();
+	        if (temp == null)
+	        	return 0;
+	        return temp.size();
+        }
+
+		/**
+		 * Fails if encounterCreated doesn't have an obs with the given conceptId and value
+		 * @param conceptId
+		 * @param value may be null
+		 */
 		public void assertObsCreated(int conceptId, Object value) {
-			String valueAsString = value.toString();
-			if (value instanceof Concept)
-				valueAsString = ((Concept) value).getName(Context.getLocale()).getName();
+			// quick checks
 	        Assert.assertNotNull(encounterCreated);
 	        Collection<Obs> temp = encounterCreated.getAllObs();
 	        Assert.assertNotNull(temp);
+
+	        String valueAsString = valueAsStringHelper(value);
 	        for (Obs obs : temp) {
 	        	if (obs.getConcept().getConceptId() == conceptId) {
 	        		if (valueAsString == null)
@@ -279,8 +336,105 @@ public abstract class RegressionTestHelper {
 	        			return;
 	        	}
 	        }
-	        Assert.assertTrue("Could not find obs with conceptId " + conceptId + " and value " + valueAsString, false);
+	        Assert.fail("Could not find obs with conceptId " + conceptId + " and value " + valueAsString);
+        }
+		
+		/**
+		 * Fails if there isn't an obs group with these exact characteristics
+		 * 
+		 * @param groupingConceptId the concept id of the grouping obs
+		 * @param conceptIdsAndValues these parameters must be given in pairs, the first element of
+		 *            which is the conceptId of a child obs (Integer) and the second element of
+		 *            which is the value of the child obs
+		 */
+		public void assertObsGroupCreated(int groupingConceptId, Object... conceptIdsAndValues) {
+			// quick checks
+	        Assert.assertNotNull(encounterCreated);
+	        Collection<Obs> temp = encounterCreated.getAllObs();
+	        Assert.assertNotNull(temp);
+	        
+	        List<ObsValue> expected = new ArrayList<ObsValue>();
+	        for (int i = 0; i < conceptIdsAndValues.length; i += 2) {
+	        	int conceptId = (Integer) conceptIdsAndValues[i];
+	        	Object value = conceptIdsAndValues[i + 1];
+	        	expected.add(new ObsValue(conceptId, value));
+	        }
+	        
+	        for (Obs o : temp) {
+	        	if (o.getConcept().getConceptId() == groupingConceptId) {
+	        		if (o.getValueCoded() != null || o.getValueComplex() != null || o.getValueDatetime() != null || o.getValueDrug() != null || o.getValueNumeric() != null || o.getValueText() != null) {
+	        			Assert.fail("Obs group with groupingConceptId " + groupingConceptId + " should has a non-null value");
+	        		}
+	        		if (isMatchingObsGroup(o, expected)) {
+	        			return;
+	        		}
+	        	}
+	        }
+	        Assert.fail("Cannot find an obs group matching " + expected);
+        }
+		
+	}
+
+	class ObsValue {
+		public Integer conceptId; // required
+		public Object value; // can be null
+		public ObsValue(Integer cId, Object val) {
+			conceptId = cId;
+			value = val;
+		}
+		public String toString() {
+			return conceptId + "->" + value;
+		}
+		public boolean matches(Obs obs) {
+			if (obs.getConcept().getConceptId() != conceptId)
+				return false;
+			return OpenmrsUtil.nullSafeEquals(valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
         }
 	}
+
+	/**
+	 * Tests whether the child obs of this group exactly match 'expected'
+	 * @param group
+	 * @param expected
+	 * @return
+	 */
+	public boolean isMatchingObsGroup(Obs group, List<ObsValue> expected) {
+		if (!group.isObsGrouping())
+			return false;
+		
+		Set<Obs> children = group.getGroupMembers();
+		if (children.size() != expected.size())
+			return false;
+		
+		boolean[] alreadyUsed = new boolean[expected.size()];
+		for (Obs child : children) {
+			boolean foundMatch = false;
+			for (int i = 0; i < expected.size(); ++i) {
+				if (alreadyUsed[i])
+					continue;
+				if (expected.get(i).matches(child)) {
+					foundMatch = true;
+					alreadyUsed[i] = true;
+					break;
+				}
+			}
+			if (!foundMatch)
+				return false;
+		}
+		return true;
+    }
+
+	public String valueAsStringHelper(Object value) {
+		if (value == null)
+			return null;
+		if (value instanceof Concept)
+			return ((Concept) value).getName(Context.getLocale()).getName();
+		else if (value instanceof Date)
+			return Format.format((Date) value);
+		else if (value instanceof Number)
+			return "" + ((Number) value).doubleValue();
+		else
+			return value.toString();
+    }
 
 }

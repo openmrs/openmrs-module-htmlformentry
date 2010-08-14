@@ -1,0 +1,9 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Weight: <obs conceptId="2"/>
+	Allergy: <obs conceptId="8"/>
+	Allergy Date: <obs conceptId="9"/>
+	<submit/>
+</htmlform>
