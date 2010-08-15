@@ -18,8 +18,11 @@ import org.openmrs.module.htmlformentry.schema.MultipleGroup;
 import org.openmrs.util.OpenmrsUtil;
 
 /***
- * serves asthe HtmlGeneratorElement for the newrepeat tag
- * 
+ * serves as the HtmlGeneratorElement for the multiple tag
+ * This tag now has the following problem:
+ * 1) Will need to save all null obs to keep the seq. 
+ * This is because we want to keep the input and fetch the obs as the same seq
+ * that they are inputed.
  */
 public class MultipleElement implements HtmlGeneratorElement,
 		FormSubmissionControllerAction {
