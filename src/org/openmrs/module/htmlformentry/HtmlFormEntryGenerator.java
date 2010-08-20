@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -250,18 +251,24 @@ public class HtmlFormEntryGenerator implements TagHandler {
     public String applyTags(FormEntrySession session, String xml) throws Exception {
         Document doc = HtmlFormEntryUtil.stringToDocument(xml);
         StringWriter out = new StringWriter();
-        applyTagsHelper(session, new PrintWriter(out), null, doc);
+        applyTagsHelper(session, new PrintWriter(out), null, doc, null);
         return out.toString();
     }
 
-    private void applyTagsHelper(FormEntrySession session, PrintWriter out, Node parent, Node node) {
+    private void applyTagsHelper(FormEntrySession session, PrintWriter out, Node parent, Node node, Map<String, TagHandler> tagHandlerCache) {
+        if (tagHandlerCache == null)
+        	tagHandlerCache = new HashMap<String, TagHandler>();
         TagHandler handler = null;
         // Find the handler for this node
         {
-            String name = node.getNodeName();
-            if (name != null) {
-                handler = HtmlFormEntryUtil.getService().getHandlerByTagName(name);
-            }
+        	String name = node.getNodeName();
+        	if (name != null) {
+		        handler = tagHandlerCache.get(name);
+		        if (handler == null) {
+		        	handler = HtmlFormEntryUtil.getService().getHandlerByTagName(name);
+		        	tagHandlerCache.put(name, handler);
+		        }
+        	}
         }
         
         if (handler == null)
@@ -277,14 +284,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
                 while (iteratingHandler.shouldRunAgain(session, out, parent, node)) {
                     NodeList list = node.getChildNodes();
                     for (int i = 0; i < list.getLength(); ++i) {
-                        applyTagsHelper(session, out, node, list.item(i));
+                        applyTagsHelper(session, out, node, list.item(i), tagHandlerCache);
                     }
                 }
                 
             } else { // recurse to contents once
                 NodeList list = node.getChildNodes();
                 for (int i = 0; i < list.getLength(); ++i) {
-                    applyTagsHelper(session, out, node, list.item(i));
+                    applyTagsHelper(session, out, node, list.item(i), tagHandlerCache);
                 }
             }
         }
