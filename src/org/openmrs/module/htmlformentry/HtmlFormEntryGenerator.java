@@ -256,20 +256,22 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
 
     private void applyTagsHelper(FormEntrySession session, PrintWriter out, Node parent, Node node, Map<String, TagHandler> tagHandlerCache) {
-        if (tagHandlerCache == null)
-        	tagHandlerCache = new HashMap<String, TagHandler>();
-        TagHandler handler = null;
-        // Find the handler for this node
-        {
-        	String name = node.getNodeName();
-        	if (name != null) {
-		        handler = tagHandlerCache.get(name);
-		        if (handler == null) {
-		        	handler = HtmlFormEntryUtil.getService().getHandlerByTagName(name);
-		        	tagHandlerCache.put(name, handler);
-		        }
-        	}
-        }
+		if (tagHandlerCache == null)
+			tagHandlerCache = new HashMap<String, TagHandler>();
+		TagHandler handler = null;
+		// Find the handler for this node
+		{
+			String name = node.getNodeName();
+			if (name != null) {
+				if (tagHandlerCache.containsKey(name)) {
+					// we've looked this up before (though it could be null)
+					handler = tagHandlerCache.get(name);
+				} else {
+					handler = HtmlFormEntryUtil.getService().getHandlerByTagName(name);
+					tagHandlerCache.put(name, handler);
+				}
+			}
+		}
         
         if (handler == null)
             handler = this; // do default actions
@@ -298,7 +300,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         
         handler.doEndTag(session, out, parent, node);
     }
-
+    
     /** Provides default start tag handling for tags with no custom handler
      * <p>
      * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML
