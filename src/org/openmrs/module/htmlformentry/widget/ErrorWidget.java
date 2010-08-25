@@ -10,7 +10,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 public class ErrorWidget implements Widget {
 
     public String generateHtml(FormEntryContext context) {
-        return "<span class=\"error\" id=\"" + context.getFieldName(this) + "\"></span>";
+    	// error widgets are always hidden at first--they are revealed by javascript if necessary  
+        return "<span class=\"error\" style=\"display: none\" id=\"" + context.getFieldName(this) + "\"></span>";
     }
 
     public Object getValue(FormEntryContext context, HttpServletRequest request) {

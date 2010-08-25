@@ -545,8 +545,6 @@ public class FormEntrySession {
     	}
     	
         StringBuilder sb = new StringBuilder();
-        for (String divId : context.getErrorDivIds())
-            sb.append("clearError('" + divId + "');\n");
         List<FormSubmissionError> errs = submissionController.getLastSubmissionErrors(); 
         if (errs != null && errs.size() > 0) {
             for (FormSubmissionError error : errs) {
