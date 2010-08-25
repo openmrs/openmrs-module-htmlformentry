@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +11,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 
 /**
@@ -54,6 +57,7 @@ public class PersonWidget implements Widget {
         } else {
             personList = Context.getPersonService().getPeople("", true);
         }
+        Collections.sort(personList, new PersonComparator());
         for (Person p : personList) {
             sb.append("\n<option");
             if (person != null && person.equals(p))
@@ -71,4 +75,20 @@ public class PersonWidget implements Widget {
         return null;
     }
 
+	/**
+	 * A simple person comparator for sorting providers by name
+	 */
+	private class PersonComparator implements Comparator<Person> {
+		public int compare(Person person1, Person person2) {
+			// compare family names
+			int comparison = OpenmrsUtil.compareWithNullAsGreatest(person1.getFamilyName(), person2.getFamilyName());
+			
+			if(comparison != 0) {
+				return comparison;
+			} else {
+				// if family names are equal, compare given name
+				return OpenmrsUtil.compareWithNullAsGreatest(person1.getGivenName(), person2.getGivenName());
+			}
+		}
+	}
 }
