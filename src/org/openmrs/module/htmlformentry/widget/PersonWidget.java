@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Person;
+import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -57,7 +58,7 @@ public class PersonWidget implements Widget {
         } else {
             personList = Context.getPersonService().getPeople("", true);
         }
-        Collections.sort(personList, new PersonComparator());
+       Collections.sort(personList, new PersonComparatorByName());
         for (Person p : personList) {
             sb.append("\n<option");
             if (person != null && person.equals(p))
@@ -78,17 +79,35 @@ public class PersonWidget implements Widget {
 	/**
 	 * A simple person comparator for sorting providers by name
 	 */
-	private class PersonComparator implements Comparator<Person> {
+	private class PersonComparatorByName implements Comparator<Person> {
 		public int compare(Person person1, Person person2) {
-			// compare family names
-			int comparison = OpenmrsUtil.compareWithNullAsGreatest(person1.getFamilyName(), person2.getFamilyName());
+
+			PersonName name1 = person1.getPersonName();
+			PersonName name2 = person2.getPersonName();
 			
-			if(comparison != 0) {
-				return comparison;
-			} else {
-				// if family names are equal, compare given name
-				return OpenmrsUtil.compareWithNullAsGreatest(person1.getGivenName(), person2.getGivenName());
+			int ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyName(), name2.getFamilyName());
+			
+			if (ret == 0) {
+				ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyName2(), name2.getFamilyName2());
 			}
+			
+			if (ret == 0) {
+				ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getGivenName(), name2.getGivenName());
+			}
+			
+			if (ret == 0) {
+				ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getMiddleName(), name2.getMiddleName());
+			}
+			
+			if (ret == 0) {
+				ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyNamePrefix(), name2.getFamilyNamePrefix());
+			}
+			
+			if (ret == 0) {
+				ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyNameSuffix(), name2.getFamilyNameSuffix());
+			}
+		
+			return ret;
 		}
 	}
 }
