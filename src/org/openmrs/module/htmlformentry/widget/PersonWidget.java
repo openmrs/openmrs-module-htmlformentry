@@ -58,7 +58,7 @@ public class PersonWidget implements Widget {
         } else {
             personList = Context.getPersonService().getPeople("", true);
         }
-       Collections.sort(personList, new PersonComparatorByName());
+       Collections.sort(personList, new PersonByNameComparator());
         for (Person p : personList) {
             sb.append("\n<option");
             if (person != null && person.equals(p))
@@ -79,7 +79,7 @@ public class PersonWidget implements Widget {
 	/**
 	 * A simple person comparator for sorting providers by name
 	 */
-	private class PersonComparatorByName implements Comparator<Person> {
+	private class PersonByNameComparator implements Comparator<Person> {
 		public int compare(Person person1, Person person2) {
 
 			PersonName name1 = person1.getPersonName();
