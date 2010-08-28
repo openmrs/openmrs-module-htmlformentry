@@ -1,10 +1,17 @@
 package org.openmrs.module.htmlformentry;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Encounter;
+import org.openmrs.Location;
+import org.openmrs.Obs;
+import org.openmrs.Person;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.RegressionTestHelper.SubmissionResults;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -171,6 +178,73 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				results.assertObsGroupCreated(7, 8, "Bee stings", 9, date);
 				results.assertObsGroupCreated(7, 8, "Penicillin");
 			}
+		}.run();
+	}
+	
+	@Test
+	public void viewEmptyEncounterSuccess() throws Exception {
+		new RegressionTestHelper() {
+			String getFormName() {
+				return "simplestForm";
+			}
+            Encounter getEncounterToView() throws Exception {
+            	Encounter e = new Encounter();
+            	Date date = Context.getDateFormat().parse("01/02/2003");
+            	e.setDateCreated(new Date());
+        		e.setEncounterDatetime(date);
+        		e.setLocation(Context.getLocationService().getLocation(2));
+        		e.setProvider(Context.getPersonService().getPerson(502));
+        		return e;
+            }
+            void testViewingEncounter(Encounter encounter, String html) {
+            	assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
+            }
+		}.run();
+	}
+	
+	@Test
+	public void viewSingleObsEncounterSuccess() throws Exception {
+		new RegressionTestHelper() {
+			String getFormName() {
+				return "singleObsForm";
+			}
+            Encounter getEncounterToView() throws Exception {
+            	Encounter e = new Encounter();
+            	e.setPatient(getPatient());
+            	Date date = Context.getDateFormat().parse("01/02/2003");
+            	e.setDateCreated(new Date());
+        		e.setEncounterDatetime(date);
+        		e.setLocation(Context.getLocationService().getLocation(2));
+        		e.setProvider(Context.getPersonService().getPerson(502));
+        		addObs(e, 2, 12.3, null); // weight has conceptId 2
+        		return e;
+            }
+            void testViewingEncounter(Encounter encounter, String html) {
+            	assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
+            }
+		}.run();
+	}
+	
+	@Test
+	public void viewSingleObsEncounterWithObsOfAnotherConcept() throws Exception {
+		new RegressionTestHelper() {
+			String getFormName() {
+				return "singleObsForm";
+			}
+            Encounter getEncounterToView() throws Exception {
+            	Encounter e = new Encounter();
+            	e.setPatient(getPatient());
+            	Date date = Context.getDateFormat().parse("01/02/2003");
+            	e.setDateCreated(new Date());
+        		e.setEncounterDatetime(date);
+        		e.setLocation(Context.getLocationService().getLocation(2));
+        		e.setProvider(Context.getPersonService().getPerson(502));
+        		addObs(e, 1, 965.0, null); // this is a CD4 Count
+        		return e;
+            }
+            void testViewingEncounter(Encounter encounter, String html) {
+            	assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
+            }
 		}.run();
 	}
 
