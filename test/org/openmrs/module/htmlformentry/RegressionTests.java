@@ -1,65 +1,68 @@
 package org.openmrs.module.htmlformentry;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
-import org.openmrs.Location;
 import org.openmrs.Obs;
-import org.openmrs.Person;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.RegressionTestHelper.SubmissionResults;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-
 public class RegressionTests extends BaseModuleContextSensitiveTest {
-
+	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
 	protected static final String XML_CONCEPT_DATASET_PATH = XML_DATASET_PATH + "RegressionTest-data.xml";
 	
 	@Before
 	public void loadConcepts() throws Exception {
-        executeDataSet(XML_CONCEPT_DATASET_PATH);
+		executeDataSet(XML_CONCEPT_DATASET_PATH);
 	}
 	
 	@Test
 	public void testSimplestFormFailure() throws Exception {
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "simplestForm";
 			}
+			
 			String[] widgetLabels() {
-				return new String[] {"Date:", "Location:", "Provider:"};
+				return new String[] { "Date:", "Location:", "Provider:" };
 			}
+			
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 			}
+			
 			void testResults(SubmissionResults results) {
 				results.assertErrors(3); // date, location, and provider are required
 				results.assertNoEncounterCreated();
 			}
 		}.run();
 	}
-
 	
 	@Test
 	public void testSimplestFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "simplestForm";
 			}
+			
 			String[] widgetLabels() {
-				return new String[] {"Date:", "Location:", "Provider:"};
+				return new String[] { "Date:", "Location:", "Provider:" };
 			}
+			
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 			}
+			
 			void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -67,23 +70,26 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
-	
 	@Test
 	public void testSingleObsFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "singleObsForm";
 			}
+			
 			String[] widgetLabels() {
-				return new String[] {"Date:", "Location:", "Provider:", "Weight:"};
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
+			
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				request.addParameter(widgets.get("Weight:"), "70");
 			}
+			
 			void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -97,12 +103,15 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void testMultipleObsFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "multipleObsForm";
 			}
+			
 			String[] widgetLabels() {
-				return new String[] {"Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:"};
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
+			
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
@@ -111,6 +120,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Allergy:"), "Bee stings");
 				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
 			}
+			
 			void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -121,17 +131,20 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-
+	
 	@Test
 	public void testSingleObsGroupFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "singleObsGroupForm";
 			}
+			
 			String[] widgetLabels() {
-				return new String[] {"Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:"};
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
+			
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
@@ -140,6 +153,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Allergy:"), "Bee stings");
 				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
 			}
+			
 			void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -150,17 +164,21 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-
+	
 	@Test
 	public void testMultipleObsGroupFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "multipleObsGroupForm";
 			}
+			
 			String[] widgetLabels() {
-				return new String[] {"Date:", "Location:", "Provider:", "Allergy 1:", "Allergy Date 1:", "Allergy 3:", "Allergy Date 3:"};
+				return new String[] { "Date:", "Location:", "Provider:", "Allergy 1:", "Allergy Date 1:", "Allergy 3:",
+				        "Allergy Date 3:" };
 			}
+			
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// for fun let's fill out part of allergy 1 and allergy 3, but leave allergy 2 blank.
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -170,6 +188,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Allergy Date 1:"), dateAsString(date));
 				request.addParameter(widgets.get("Allergy 3:"), "Penicillin");
 			}
+			
 			void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -184,68 +203,237 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	@Test
 	public void viewEmptyEncounterSuccess() throws Exception {
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "simplestForm";
 			}
-            Encounter getEncounterToView() throws Exception {
-            	Encounter e = new Encounter();
-            	Date date = Context.getDateFormat().parse("01/02/2003");
-            	e.setDateCreated(new Date());
-        		e.setEncounterDatetime(date);
-        		e.setLocation(Context.getLocationService().getLocation(2));
-        		e.setProvider(Context.getPersonService().getPerson(502));
-        		return e;
-            }
-            void testViewingEncounter(Encounter encounter, String html) {
-            	assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
-            }
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
+			}
 		}.run();
 	}
 	
 	@Test
 	public void viewSingleObsEncounterSuccess() throws Exception {
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "singleObsForm";
 			}
-            Encounter getEncounterToView() throws Exception {
-            	Encounter e = new Encounter();
-            	e.setPatient(getPatient());
-            	Date date = Context.getDateFormat().parse("01/02/2003");
-            	e.setDateCreated(new Date());
-        		e.setEncounterDatetime(date);
-        		e.setLocation(Context.getLocationService().getLocation(2));
-        		e.setProvider(Context.getPersonService().getPerson(502));
-        		addObs(e, 2, 12.3, null); // weight has conceptId 2
-        		return e;
-            }
-            void testViewingEncounter(Encounter encounter, String html) {
-            	assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
-            }
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				addObs(e, 2, 12.3, null); // weight has conceptId 2
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
+			}
 		}.run();
 	}
 	
 	@Test
 	public void viewSingleObsEncounterWithObsOfAnotherConcept() throws Exception {
 		new RegressionTestHelper() {
+			
 			String getFormName() {
 				return "singleObsForm";
 			}
-            Encounter getEncounterToView() throws Exception {
-            	Encounter e = new Encounter();
-            	e.setPatient(getPatient());
-            	Date date = Context.getDateFormat().parse("01/02/2003");
-            	e.setDateCreated(new Date());
-        		e.setEncounterDatetime(date);
-        		e.setLocation(Context.getLocationService().getLocation(2));
-        		e.setProvider(Context.getPersonService().getPerson(502));
-        		addObs(e, 1, 965.0, null); // this is a CD4 Count
-        		return e;
-            }
-            void testViewingEncounter(Encounter encounter, String html) {
-            	assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
-            }
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				addObs(e, 1, 965.0, null); // this is a CD4 Count
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
+			}
 		}.run();
 	}
-
+	
+	@Test
+	public void testMultipleObsGroupView() throws Exception {
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "multipleObsGroupForm2";
+			}
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				int i = 1001;
+				while (i < 1004) {
+					Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
+					Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
+					Obs allergyDate = new Obs(getPatient(), Context.getConceptService().getConcept(9), new Date(), null);
+					
+					construct.setDateCreated(new Date());
+					allergy.setValueCoded(Context.getConceptService().getConcept(i));
+					allergy.setDateCreated(new Date());
+					allergyDate.setValueDatetime(date);
+					allergyDate.setDateCreated(new Date());
+					
+					construct.addGroupMember(allergy);
+					construct.addGroupMember(allergyDate);
+					e.addObs(construct);
+					
+					i++;
+				}
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				assertFuzzyContains("Allergy \\d: CATS", html);
+				assertFuzzyContains("Allergy \\d: OPENMRS", html);
+				assertFuzzyContains("Allergy \\d: PENICILLIN", html);
+				assertFuzzyContains("Allergy Date 1: 01/02/2003", html);
+				assertFuzzyContains("Allergy Date 2: 01/02/2003", html);
+				assertFuzzyContains("Allergy Date 3: 01/02/2003", html);
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void testMultipleObsGroupView2() throws Exception {
+		// need to test multiple times because sometimes there can be a "lucky" match
+		for (int rep = 1; rep < 30; rep++) {
+			
+			new RegressionTestHelper() {
+				
+				String getFormName() {
+					return "multipleObsGroupForm3";
+				}
+				
+				Encounter getEncounterToView() throws Exception {
+					Encounter e = new Encounter();
+					e.setPatient(getPatient());
+					Date date = Context.getDateFormat().parse("01/02/2003");
+					e.setDateCreated(new Date());
+					e.setEncounterDatetime(date);
+					e.setLocation(Context.getLocationService().getLocation(2));
+					e.setProvider(Context.getPersonService().getPerson(502));
+					
+					int i = 1001;
+					while (i < 1003) {
+						Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
+						Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
+						
+						construct.setDateCreated(new Date());
+						allergy.setValueCoded(Context.getConceptService().getConcept(i));
+						allergy.setDateCreated(new Date());
+						
+						construct.addGroupMember(allergy);
+						e.addObs(construct);
+						
+						i++;
+					}
+					
+					Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(1004), new Date(), null);
+					Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
+					
+					construct.setDateCreated(new Date());
+					allergy.setValueCoded(Context.getConceptService().getConcept(1003));
+					allergy.setDateCreated(new Date());
+					
+					construct.addGroupMember(allergy);
+					e.addObs(construct);
+					
+					return e;
+				}
+				
+				void testViewingEncounter(Encounter encounter, String html) {
+					assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
+				}
+			}.run();
+		}
+	}
+	
+	@Test
+	public void testMultipleObsGroupView3() throws Exception {
+		
+		// need to test multiple times because sometimes there can be a "lucky" match
+		for (int rep = 1; rep < 30; rep++) {
+			new RegressionTestHelper() {
+				
+				String getFormName() {
+					return "multipleObsGroupForm4";
+				}
+				
+				Encounter getEncounterToView() throws Exception {
+					Encounter e = new Encounter();
+					e.setPatient(getPatient());
+					Date date = Context.getDateFormat().parse("01/02/2003");
+					e.setDateCreated(new Date());
+					e.setEncounterDatetime(date);
+					e.setLocation(Context.getLocationService().getLocation(2));
+					e.setProvider(Context.getPersonService().getPerson(502));
+					
+					int i = 1001;
+					while (i < 1003) {
+						Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
+						Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
+						
+						construct.setDateCreated(new Date());
+						allergy.setValueCoded(Context.getConceptService().getConcept(i));
+						allergy.setDateCreated(new Date());
+						
+						construct.addGroupMember(allergy);
+						e.addObs(construct);
+						
+						i++;
+					}
+					
+					Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
+					Obs nonAllergy = new Obs(getPatient(), Context.getConceptService().getConcept(1005), new Date(), null);
+					
+					construct.setDateCreated(new Date());
+					nonAllergy.setValueCoded(Context.getConceptService().getConcept(1003));
+					nonAllergy.setDateCreated(new Date());
+					
+					construct.addGroupMember(nonAllergy);
+					e.addObs(construct);
+					
+					return e;
+				}
+				
+				void testViewingEncounter(Encounter encounter, String html) {
+					assertFuzzyContains("Hyper-Allergy 1: OPENMRS", html);
+				}
+				
+			}.run();
+		}
+	}
 }
