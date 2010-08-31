@@ -22,7 +22,7 @@ public class ObsGroupComponent {
         this.question = question;
         this.answer = answer;
     }
-    
+
 
     /** Gets the concept that represents the component's question */
     public Concept getQuestion() {
@@ -55,9 +55,8 @@ public class ObsGroupComponent {
         for (Obs obs : group) {
             boolean match = false;
             for (ObsGroupComponent test : questionsAndAnswers) {
-                boolean questionMatches = (test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId())
-                    || (obs.getObsGroup() != null && obs.getObsGroup().equals(parentObs)));
-                boolean answerMatches = test.getAnswer() == null 
+                boolean questionMatches = test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
+                boolean answerMatches = (test.getAnswer() == null) 
                     ||(obs.getValueCoded() != null && test.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
                 if (questionMatches && answerMatches) {
                     match = true;

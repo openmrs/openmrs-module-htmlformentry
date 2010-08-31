@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.openmrs.Concept;
 import org.openmrs.Obs;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
@@ -71,6 +71,7 @@ public class ObsGroupTagHandler implements TagHandler {
         if ("obs".equals(node.getNodeName())) {
             Concept question = null;
             Concept answer = null;
+            List<Concept> answersList = null;
             NamedNodeMap attrs = node.getAttributes();
             try {
                 question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("conceptId").getNodeValue());
@@ -81,6 +82,24 @@ public class ObsGroupTagHandler implements TagHandler {
                 answer = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("answerConceptId").getNodeValue());
             } catch (Exception ex) {
                 // this is fine
+            }
+            //check for answerConceptIds (plural)
+            if (answer == null){
+                Node n = attrs.getNamedItem("answerConceptIds");
+                if (n != null){
+                    String answersIds = n.getNodeValue();
+                    if (answersIds != null && !answersIds.equals("")){
+                        //initialize list
+                        answersList = new ArrayList<Concept>();
+                        for (StringTokenizer st = new StringTokenizer(answersIds, ","); st.hasMoreTokens(); ) {
+                            try {
+                                answersList.add(HtmlFormEntryUtil.getConcept(st.nextToken().trim()));
+                            } catch (Exception ex){
+                                //just ignore invalid conceptId if encountered in answersList
+                            }
+                        } 
+                    }
+                }
             }
            
           //deterimine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
@@ -105,15 +124,20 @@ public class ObsGroupTagHandler implements TagHandler {
                 } 
                 pTmp = pTmp.getParentNode();
             }
-            if (thisObsInThisGroup)
-                ret.add(new ObsGroupComponent(question, answer));
-            } else {
-                 NodeList nl = node.getChildNodes();
-                 for (int i = 0; i < nl.getLength(); ++i) {
-                     findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), ret);
-                 }
+            if (thisObsInThisGroup){
+                if (answersList != null && answersList.size() > 0)
+                    for (Concept c : answersList)
+                        ret.add(new ObsGroupComponent(question, c));
+                else
+                    ret.add(new ObsGroupComponent(question, answer));   
+            }    
+        } else {
+             NodeList nl = node.getChildNodes();
+             for (int i = 0; i < nl.getLength(); ++i) {
+                 findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), ret);
              }
          }
+    }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
 //                Concept question = null;
