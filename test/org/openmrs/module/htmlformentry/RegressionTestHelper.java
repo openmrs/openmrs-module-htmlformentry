@@ -542,6 +542,12 @@ public abstract class RegressionTestHelper {
 		}
 	}
 	
+	/**
+	 * Tests whether the substring is contained in the actual string. Allows for inclusion of
+	 * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
+	 * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
+	 * <htmlform>...</htmlform>.
+	 */
 	public void assertFuzzyContains(String substring, String actual) {
 		if (substring == null) {
 			return;
@@ -565,7 +571,7 @@ public abstract class RegressionTestHelper {
 		return string;
 	}
 	
-	public void addObs(Encounter encounter, Integer conceptId, Object value, Date date) {
+	public Obs addObs(Encounter encounter, Integer conceptId, Object value, Date date) {
 		Person person = encounter.getPatient();
 		Concept concept = Context.getConceptService().getConcept(conceptId);
 		Location location = encounter.getLocation();
@@ -582,6 +588,31 @@ public abstract class RegressionTestHelper {
 		}
 		obs.setDateCreated(new Date());
 		encounter.addObs(obs);
+		
+		return obs;
 	}
 	
+	/**
+	 * Creates an obsgroup. The obsDetails arguements should be triplets of conceptId, concept
+	 * value, and date created.
+	 * 
+	 * @param encounter
+	 * @param groupingConceptId
+	 * @param date
+	 * @param obsDetails
+	 * @return
+	 */
+	public Obs addObsGroup(Encounter encounter, Integer groupingConceptId, Date date, Object... obsDetails) {
+		Obs obsgroup = addObs(encounter, groupingConceptId, null, date);
+		
+		int i = 0;
+		while (i < obsDetails.length) {
+			obsgroup.addGroupMember(addObs(encounter, (Integer) obsDetails[i], obsDetails[i + 1], (Date) obsDetails[i + 2]));
+			
+			// skip to the next triple to the next triplet
+			i = i + 3;
+		}
+		
+		return obsgroup;
+	}
 }

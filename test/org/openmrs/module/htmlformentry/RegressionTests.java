@@ -277,11 +277,11 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void testMultipleObsGroupView() throws Exception {
+	public void viewObsgroupsWithCodedValues() throws Exception {
 		new RegressionTestHelper() {
 			
 			String getFormName() {
-				return "multipleObsGroupForm2";
+				return "obsGroupsWithCodedValuesForm";
 			}
 			
 			Encounter getEncounterToView() throws Exception {
@@ -293,24 +293,14 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
-				int i = 1001;
-				while (i < 1004) {
-					Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
-					Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
-					Obs allergyDate = new Obs(getPatient(), Context.getConceptService().getConcept(9), new Date(), null);
-					
-					construct.setDateCreated(new Date());
-					allergy.setValueCoded(Context.getConceptService().getConcept(i));
-					allergy.setDateCreated(new Date());
-					allergyDate.setValueDatetime(date);
-					allergyDate.setDateCreated(new Date());
-					
-					construct.addGroupMember(allergy);
-					construct.addGroupMember(allergyDate);
-					e.addObs(construct);
-					
-					i++;
-				}
+				// create three obsgroups with the identical structures but with different answer values for the ALLERGY CODED obs
+				addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 9, date,
+				    new Date());
+				addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 9, date,
+				    new Date());
+				addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 9, date,
+				    new Date());
+				
 				return e;
 			}
 			
@@ -327,14 +317,14 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void testMultipleObsGroupView2() throws Exception {
+	public void viewObsGroupsWithDifferentGroupingConceptsButSameMemberConcepts() throws Exception {
 		// need to test multiple times because sometimes there can be a "lucky" match
 		for (int rep = 1; rep < 30; rep++) {
 			
 			new RegressionTestHelper() {
 				
 				String getFormName() {
-					return "multipleObsGroupForm3";
+					return "obsGroupsWithDifferentGroupingConceptsButSameMemberConceptsForm";
 				}
 				
 				Encounter getEncounterToView() throws Exception {
@@ -346,35 +336,19 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					e.setLocation(Context.getLocationService().getLocation(2));
 					e.setProvider(Context.getPersonService().getPerson(502));
 					
-					int i = 1001;
-					while (i < 1003) {
-						Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
-						Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
-						
-						construct.setDateCreated(new Date());
-						allergy.setValueCoded(Context.getConceptService().getConcept(i));
-						allergy.setDateCreated(new Date());
-						
-						construct.addGroupMember(allergy);
-						e.addObs(construct);
-						
-						i++;
-					}
+					// first create two ALLERGY CONSTRUCT obsgroups that contain ALLERGY CODED obs with different answer values
+					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
+					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
 					
-					Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(1004), new Date(), null);
-					Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
-					
-					construct.setDateCreated(new Date());
-					allergy.setValueCoded(Context.getConceptService().getConcept(1003));
-					allergy.setDateCreated(new Date());
-					
-					construct.addGroupMember(allergy);
-					e.addObs(construct);
+					// now add a third obsgroups of type ANOTHER ALLERGY CONSTRUCT that also contains a ALLERGY CODED obs with a different answer value
+					addObsGroup(e, 1004, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
 					
 					return e;
 				}
 				
 				void testViewingEncounter(Encounter encounter, String html) {
+					// assert that in the rendered form view the value for the ALLERGY CODED obs within the OTHER ALLERGY CONSTRUCT 
+					// is OPENMRS (i.e., concept 1003)
 					assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
 				}
 			}.run();
@@ -382,14 +356,14 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void testMultipleObsGroupView3() throws Exception {
+	public void viewObsGroupsWithSameGroupingConceptButDifferentMemberConcepts() throws Exception {
 		
 		// need to test multiple times because sometimes there can be a "lucky" match
 		for (int rep = 1; rep < 30; rep++) {
 			new RegressionTestHelper() {
 				
 				String getFormName() {
-					return "multipleObsGroupForm4";
+					return "obsGroupsWithSameGroupingConceptButDifferentMemberConceptsForm";
 				}
 				
 				Encounter getEncounterToView() throws Exception {
@@ -401,35 +375,18 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					e.setLocation(Context.getLocationService().getLocation(2));
 					e.setProvider(Context.getPersonService().getPerson(502));
 					
-					int i = 1001;
-					while (i < 1003) {
-						Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
-						Obs allergy = new Obs(getPatient(), Context.getConceptService().getConcept(1000), new Date(), null);
-						
-						construct.setDateCreated(new Date());
-						allergy.setValueCoded(Context.getConceptService().getConcept(i));
-						allergy.setDateCreated(new Date());
-						
-						construct.addGroupMember(allergy);
-						e.addObs(construct);
-						
-						i++;
-					}
+					// first create two ALLERGY CONSTRUCT obsgroups, both with ALLERGY CODED obs, but with different answer values
+					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
+					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
 					
-					Obs construct = new Obs(getPatient(), Context.getConceptService().getConcept(7), new Date(), null);
-					Obs nonAllergy = new Obs(getPatient(), Context.getConceptService().getConcept(1005), new Date(), null);
-					
-					construct.setDateCreated(new Date());
-					nonAllergy.setValueCoded(Context.getConceptService().getConcept(1003));
-					nonAllergy.setDateCreated(new Date());
-					
-					construct.addGroupMember(nonAllergy);
-					e.addObs(construct);
+					// now create another ALLERGY CONSTRUCT obsgroup, but with a HYPER-ALLERGY CODED obs, and a different answer value
+					addObsGroup(e, 7, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
 					
 					return e;
 				}
 				
 				void testViewingEncounter(Encounter encounter, String html) {
+					// assert that in the rendered form view the value for the HYPER-ALLERGY CODED obs is OPENMRS (i.e., concept 1003)
 					assertFuzzyContains("Hyper-Allergy 1: OPENMRS", html);
 				}
 				
