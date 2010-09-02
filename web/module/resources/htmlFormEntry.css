@@ -29,6 +29,7 @@ div.formEntrySection {
 	border-bottom: 1px black solid;
 	border-top: 1px black solid;
 	padding: 0.25em;
+	height:30px;
 }
 
 .required {

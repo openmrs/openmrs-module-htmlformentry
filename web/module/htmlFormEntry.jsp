@@ -30,6 +30,25 @@
 </c:if>
 
 <script type="text/javascript">
+
+	$j(document).ready(function() {
+		$j('#deleteButton').click(function() {
+			$.post("deleteEncounter.form", 
+				{ 	encounterId: "${command.encounter.encounterId}", 
+					returnUrl: "${command.returnUrlWithParameters}", 
+					reason: $j('#deleteReason').val()
+			 	}, 
+			 	function(data) {
+				 	var url = "${command.returnUrlWithParameters}";
+				 	if (url == null || url == "") {
+					 	url = window.parent.location.href;
+				 	}
+				 	window.parent.location.href = url;
+			 	}
+			 );
+		});
+	});
+
 	var tryingToSubmit = false;
 	
 	function submitHtmlForm() {
@@ -105,45 +124,49 @@
 	}
 </script>
 
-<c:if test="${!inPopup}">
-	<div id="htmlFormEntryBanner">
-		<spring:message var="backMessage" code="htmlformentry.goBack"/>
-		<c:if test="${command.context.mode == 'ENTER' || command.context.mode == 'EDIT'}">
-			<spring:message var="backMessage" code="htmlformentry.discard"/>
+<div id="htmlFormEntryBanner">
+	<spring:message var="backMessage" code="htmlformentry.goBack"/>
+	<c:if test="${!inPopup && (command.context.mode == 'ENTER' || command.context.mode == 'EDIT')}">
+		<spring:message var="backMessage" code="htmlformentry.discard"/>
+	</c:if>
+	<div style="float: left">
+		<c:if test="${!inPopup}">
+			<a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:back();</c:otherwise></c:choose>">${backMessage}</a> | 
 		</c:if>
-		<div style="float: left">
-			<a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:back();</c:otherwise></c:choose>">${backMessage}</a>
-			| <a href= "javascript:window.print();"><spring:message code="htmlformentry.print"/></a> &nbsp;<br/>
-		</div>
-		<div style="float:right">
-			<c:if test="${command.context.mode == 'VIEW'}">
-				<c:url var="editUrl" value="htmlFormEntry.form">
-					<c:forEach var="p" items="${param}">
-						<c:if test="${p.key != 'mode'}">
-							<c:param name="${p.key}" value="${p.value}"/>
-						</c:if>
-					</c:forEach>
-					<c:param name="mode" value="EDIT"/>
-				</c:url>
-				<a href="${editUrl}"><spring:message code="general.edit"/></a>
-				|
+		<a href= "javascript:window.print();"><spring:message code="htmlformentry.print"/></a> &nbsp;<br/>
+	</div>
+	<div style="float:right">
+		<c:if test="${command.context.mode == 'VIEW'}">
+			<c:if test="${!inPopup}">
+				<openmrs:hasPrivilege privilege="Edit Encounters,Edit Observations">
+					<c:url var="editUrl" value="htmlFormEntry.form">
+						<c:forEach var="p" items="${param}">
+							<c:if test="${p.key != 'mode'}">
+								<c:param name="${p.key}" value="${p.value}"/>
+							</c:if>
+						</c:forEach>
+						<c:param name="mode" value="EDIT"/>
+					</c:url>
+					<a href="${editUrl}"><spring:message code="general.edit"/></a> |
+				</openmrs:hasPrivilege>
+			</c:if>
+			<openmrs:hasPrivilege privilege="Delete Encounters,Delete Observations">
 				<a onClick="handleDeleteButton()"><spring:message code="general.delete"/></a>
 				<div id="confirmDeleteFormPopup" style="position: absolute; z-axis: 1; right: 0px; background-color: #ffff00; border: 2px black solid; display: none; padding: 10px">
-					<form method="post" action="deleteEncounter.form">
-						<input type="hidden" name="encounterId" value="${command.encounter.encounterId}"/>
-						<input type="hidden" name="returnUrl" value="${command.returnUrlWithParameters}"/>
-						<center>
-							<spring:message code="htmlformentry.deleteReason"/>
-							<br/>
-							<textarea name="reason"></textarea>
-							<br/><br/>
-							<input type="button" value="<spring:message code="general.cancel"/>" onClick="cancelDeleteForm()"/>
-							&nbsp;&nbsp;&nbsp;&nbsp;
-							<input type="submit" value="<spring:message code="general.delete"/>"/>
-						</center>	
-				</div> 
-			</c:if>
-		</div>
+					<center>
+						<spring:message code="htmlformentry.deleteReason"/>
+						<br/>
+						<textarea name="reason" id="deleteReason"></textarea>
+						<br/><br/>
+						<input type="button" value="<spring:message code="general.cancel"/>" onClick="cancelDeleteForm()"/>
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="<spring:message code="general.delete"/>" id="deleteButton"/>
+					</center>
+				</div>
+			</openmrs:hasPrivilege>
+		</c:if>
+	</div>
+	<c:if test="${!inPopup}">
 		<b>
 			${command.patient.personName} |
 			<c:choose>
@@ -165,8 +188,8 @@
 				<spring:message code="htmlformentry.newForm"/>
 			</c:if>
 		</b>
-	</div>
-</c:if>
+	</c:if>
+</div>
 
 <c:if test="${command.context.mode != 'VIEW'}">
 	<spring:hasBindErrors name="command">
