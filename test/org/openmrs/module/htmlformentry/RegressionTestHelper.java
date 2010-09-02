@@ -237,8 +237,6 @@ public abstract class RegressionTestHelper {
 		if (encs.size() == 1)
 			return encs.get(0);
 		Collections.sort(encs, new Comparator<Encounter>() {
-			
-			@Override
 			public int compare(Encounter left, Encounter right) {
 				return OpenmrsUtil.compareWithNullAsEarliest(left.getEncounterDatetime(), right.getEncounterDatetime());
 			}
