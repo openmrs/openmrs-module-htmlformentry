@@ -6,7 +6,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
-import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
