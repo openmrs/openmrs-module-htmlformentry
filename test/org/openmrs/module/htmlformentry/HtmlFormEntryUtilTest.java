@@ -17,6 +17,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 	
     protected final Log log = LogFactory.getLog(getClass());
     
+	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+    
     protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
     
     @Before
@@ -86,5 +88,23 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		id = "-";//uuid style
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
-
+	
+	/**
+	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
+	 */
+	@Test
+	@Verifies(value = "should convert ids to uuids", method = "replaceConceptIdsWithUuids(HtmlForm)")
+	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuids() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		
+		HtmlForm form = new HtmlForm();
+		
+		form.setXmlData(new HtmlFormEntryTestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		HtmlFormEntryUtil.replaceIdsWithUuids(form);
+		
+		HtmlFormEntryTestUtil.assertFuzzyContains("groupingConceptId=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		HtmlFormEntryTestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
+		HtmlFormEntryTestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
+		HtmlFormEntryTestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6\"", form.getXmlData());
+	}
 }

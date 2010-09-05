@@ -16,10 +16,10 @@
 
   <concept concept_id="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"  uuid="32296060-0370-102d-b0e3-001ec94a0cc1"/>
   <concept_name voided="false" concept_name_id="1" concept_id="1" name="CD4 COUNT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296061-0370-102d-b0e3-001ec94a0cc1"/>
-  <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="32296062-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="32296062-0370-102d-b0e3-001ec94a0cc2"/>
   <concept_name voided="false" concept_name_id="2" concept_id="2" name="WEIGHT (KG)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296063-0370-102d-b0e3-001ec94a0cc1"/>
   <concept_name voided="false" concept_name_id="3" concept_id="2" name="POIDS (KG)" locale="fr" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296064-0370-102d-b0e3-001ec94a0cc1"/>
-  <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="32296065-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="32296065-0370-102d-b0e3-001ec94a0cc3"/>
   <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296066-0370-102d-b0e3-001ec94a0cc1"/>
 
   <!-- Put two concepts DOSE and UNIT in a set -->

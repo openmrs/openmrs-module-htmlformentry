@@ -49,4 +49,9 @@ public class HtmlForm extends BaseOpenmrsMetadata {
     public void setXmlData(String xmlData) {
         this.xmlData = xmlData;
     }       
+    
+    /** Allows HtmlForm to be shared via Metadata Sharing Module **/
+    protected HtmlForm writeReplace() {
+    	return new HtmlFormClone(this);
+    }
 }

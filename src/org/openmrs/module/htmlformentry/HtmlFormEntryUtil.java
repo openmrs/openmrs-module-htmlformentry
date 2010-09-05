@@ -8,6 +8,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
@@ -404,5 +406,57 @@ public class HtmlFormEntryUtil {
 		
 		return cpt;
 	}
-
+	
+	/**
+	 * Replaces all the concept ids in a form with uuids
+	 * 
+	 * @return
+	 * @return
+	 */
+	public static void replaceIdsWithUuids(HtmlForm form) {
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "conceptId"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "conceptIds"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "groupingConceptId"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptId"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptIds"));
+	}
+	
+	private static String replaceIdsWithUuidsHelper(String form, String attribute) {
+		
+		Pattern substitutionPattern = Pattern.compile(attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
+		
+		Matcher matcher = substitutionPattern.matcher(form);
+		
+		StringBuffer buffer = new StringBuffer();
+		
+		while (matcher.find()) {
+			// split the group into the various ids
+			String[] ids = matcher.group(1).split(",");
+			
+			StringBuffer idBuffer = new StringBuffer();
+			// now loop through each id
+			for (String id : ids) {
+				// see if this is a concept id (as opposed to a mapping id or a uuid)
+				if (!id.contains("-") && !id.contains(":")) {
+					// now we need to fetch the appropriate concept for this concept id, and append the uuid to the buffer
+					Concept concept = Context.getConceptService().getConcept(Integer.valueOf(id));
+					idBuffer.append(concept.getUuid() + ",");
+				} else {
+					// otherwise, leave the id only
+					idBuffer.append(id + ",");
+				}
+			}
+			
+			// trim off the trailing comma
+			idBuffer.deleteCharAt(idBuffer.length() - 1);
+			
+			// now do the replacement
+			matcher.appendReplacement(buffer, attribute + "=\"" + idBuffer.toString() + "\"");
+		}
+		
+		// append the rest of htmlform
+		matcher.appendTail(buffer);
+		
+		return buffer.toString();
+	}
 }
