@@ -17,13 +17,13 @@ import org.openmrs.api.context.Context;
  * so that the Metadata sharing module knows which other Openmrs objects it needs
  * to package up with the form.
  */
-public class HtmlFormClone extends HtmlForm {
+public class ShareableHtmlForm extends HtmlForm {
 
-	private static Log log = LogFactory.getLog(HtmlFormClone.class);
+	private static Log log = LogFactory.getLog(ShareableHtmlForm.class);
 	
 	private Collection<OpenmrsObject> dependencies;
 	
-	public HtmlFormClone(HtmlForm form) {
+	public ShareableHtmlForm(HtmlForm form) {
 		// first, make a clone of the form
 		// (do we need to worry about pass-by-reference?)
 		this.setChangedBy(form.getChangedBy());
@@ -45,10 +45,10 @@ public class HtmlFormClone extends HtmlForm {
 		HtmlFormEntryUtil.replaceIdsWithUuids(this);
 		
 		// strip out any local attributes we don't want to pass one
-		this.setXmlData(stripLocalAttributesFromXml(this.getXmlData()));
+		stripLocalAttributesFromXml();
 		
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
-		this.setDependencies(retrieveDependenciesFromXml(this.getXmlData()));
+		calculateDependencies();
 	}
 	
 	public void setDependencies(Collection<OpenmrsObject> dependencies) {
@@ -59,37 +59,38 @@ public class HtmlFormClone extends HtmlForm {
 	    return this.dependencies;
     }
 	
-	private String stripLocalAttributesFromXml(String xml) {
-		
-		// TODO: implement this
-		
-		return xml;
-	}
+	public void calculateDependencies() {
 	
-	private Collection<OpenmrsObject> retrieveDependenciesFromXml(String xml) {
-	
-		Set<OpenmrsObject> objectsToExport = new HashSet<OpenmrsObject>();
+		this.dependencies = new HashSet<OpenmrsObject>();
 		
+		// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
 		Pattern uuid = Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+");
-		Matcher matcher = uuid.matcher(xml);
+		Matcher matcher = uuid.matcher(this.getXmlData());
 		
-		while(matcher.find()) {
+		while (matcher.find()) {
 			
-			if(Context.getConceptService().getConceptByUuid(matcher.group()) != null) {
-				objectsToExport.add(Context.getConceptService().getConceptByUuid(matcher.group()));
+			if (Context.getConceptService().getConceptByUuid(matcher.group()) != null) {
+				this.dependencies.add(Context.getConceptService().getConceptByUuid(matcher.group()));
 			} 
-			else if(Context.getLocationService().getLocationByUuid(matcher.group()) != null) {
-				objectsToExport.add(Context.getConceptService().getConceptByUuid(matcher.group()));
+			else if (Context.getLocationService().getLocationByUuid(matcher.group()) != null) {
+				this.dependencies.add(Context.getConceptService().getConceptByUuid(matcher.group()));
 			}
-			else if(Context.getProgramWorkflowService().getProgramByUuid(matcher.group()) != null) {
-				objectsToExport.add(Context.getConceptService().getConceptByUuid(matcher.group()));
+			else if (Context.getProgramWorkflowService().getProgramByUuid(matcher.group()) != null) {
+				this.dependencies.add(Context.getConceptService().getConceptByUuid(matcher.group()));
 			}
 			else {
+				// there is a chance that the "uuid" pattern could match a non-uuid; one reason I'm
+				// choosing *not* to throw an exception or log an error here is to handle that case
 				log.warn("Unable to load OpenMrs object with uuid = " + matcher.group());
 			}
 		}
+	}
+	
+	
+	public void stripLocalAttributesFromXml() {
 		
-		return objectsToExport;
+		// TODO: implement this
+		
 	}
 	
 }

@@ -11,7 +11,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
-public class HtmlFormCloneTest extends BaseModuleContextSensitiveTest {
+public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
@@ -30,7 +30,7 @@ public class HtmlFormCloneTest extends BaseModuleContextSensitiveTest {
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new HtmlFormEntryTestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
 		
-		HtmlFormClone formClone = new HtmlFormClone(form);
+		ShareableHtmlForm formClone = new ShareableHtmlForm(form);
 		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
 		
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(

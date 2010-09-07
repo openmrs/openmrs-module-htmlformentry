@@ -423,6 +423,7 @@ public class HtmlFormEntryUtil {
 	
 	private static String replaceIdsWithUuidsHelper(String form, String attribute) {
 		
+		// pattern to find the specified attribute and pull out its values
 		Pattern substitutionPattern = Pattern.compile(attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
 		
 		Matcher matcher = substitutionPattern.matcher(form);
