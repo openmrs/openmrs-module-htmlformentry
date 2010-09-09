@@ -26,7 +26,7 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     }
     
     public HtmlForm saveHtmlForm(HtmlForm htmlForm) {
-        sessionFactory.getCurrentSession().saveOrUpdate("org.openmrs.module.htmlformentry.HtmlForm", htmlForm);
+        sessionFactory.getCurrentSession().saveOrUpdate(htmlForm);
         return htmlForm;
     }
     

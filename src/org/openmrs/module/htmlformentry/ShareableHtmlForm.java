@@ -2,7 +2,6 @@ package org.openmrs.module.htmlformentry;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,6 +49,26 @@ public class ShareableHtmlForm extends HtmlForm {
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
 		calculateDependencies();
 	}
+	
+    /** Allows HtmlForm to be shared via Metadata Sharing Module **/
+    protected HtmlForm saveReplace() {
+    	HtmlForm form = new HtmlForm();
+    	form.setChangedBy(getChangedBy());
+    	form.setCreator(getCreator());
+    	form.setDateChanged(getDateChanged());
+    	form.setDateCreated(getDateCreated());
+    	form.setDateRetired(getDateRetired());
+    	form.setDescription(getDescription());
+    	form.setForm(getForm());
+    	form.setId(getId());
+    	form.setName(getName());
+    	form.setRetired(getRetired());
+    	form.setRetiredBy(getRetiredBy());
+    	form.setRetireReason(getRetireReason());
+    	form.setUuid(getUuid());
+    	form.setXmlData(getXmlData());
+    	return form;
+    }
 	
 	public void setDependencies(Collection<OpenmrsObject> dependencies) {
 	    this.dependencies = dependencies;
