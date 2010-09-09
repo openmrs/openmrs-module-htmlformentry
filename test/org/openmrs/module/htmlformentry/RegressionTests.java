@@ -218,7 +218,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			}
 			
 			void testViewingEncounter(Encounter encounter, String html) {
-				assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
+				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
 			}
 		}.run();
 	}
@@ -239,12 +239,12 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
-				addObs(e, 2, 12.3, null); // weight has conceptId 2
+				TestUtil.addObs(e, 2, 12.3, null); // weight has conceptId 2
 				return e;
 			}
 			
 			void testViewingEncounter(Encounter encounter, String html) {
-				assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
+				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
 			}
 		}.run();
 	}
@@ -265,12 +265,12 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
-				addObs(e, 1, 965.0, null); // this is a CD4 Count
+				TestUtil.addObs(e, 1, 965.0, null); // this is a CD4 Count
 				return e;
 			}
 			
 			void testViewingEncounter(Encounter encounter, String html) {
-				assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
+				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
 			}
 		}.run();
 	}
@@ -293,23 +293,23 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
 				// create three obsgroups with the identical structures but with different answer values for the ALLERGY CODED obs
-				addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 9, date,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 9, date,
 				    new Date());
-				addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 9, date,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 9, date,
 				    new Date());
-				addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 9, date,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 9, date,
 				    new Date());
 				
 				return e;
 			}
 			
 			void testViewingEncounter(Encounter encounter, String html) {
-				assertFuzzyContains("Allergy \\d: CATS", html);
-				assertFuzzyContains("Allergy \\d: OPENMRS", html);
-				assertFuzzyContains("Allergy \\d: PENICILLIN", html);
-				assertFuzzyContains("Allergy Date 1: 01/02/2003", html);
-				assertFuzzyContains("Allergy Date 2: 01/02/2003", html);
-				assertFuzzyContains("Allergy Date 3: 01/02/2003", html);
+				TestUtil.assertFuzzyContains("Allergy \\d: CATS", html);
+				TestUtil.assertFuzzyContains("Allergy \\d: OPENMRS", html);
+				TestUtil.assertFuzzyContains("Allergy \\d: PENICILLIN", html);
+				TestUtil.assertFuzzyContains("Allergy Date 1: 01/02/2003", html);
+				TestUtil.assertFuzzyContains("Allergy Date 2: 01/02/2003", html);
+				TestUtil.assertFuzzyContains("Allergy Date 3: 01/02/2003", html);
 			}
 			
 		}.run();
@@ -336,11 +336,11 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					e.setProvider(Context.getPersonService().getPerson(502));
 					
 					// first create two ALLERGY CONSTRUCT obsgroups that contain ALLERGY CODED obs with different answer values
-					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
-					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
 					
 					// now add a third obsgroups of type ANOTHER ALLERGY CONSTRUCT that also contains a ALLERGY CODED obs with a different answer value
-					addObsGroup(e, 1004, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
+					TestUtil.addObsGroup(e, 1004, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
 					
 					return e;
 				}
@@ -348,7 +348,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				void testViewingEncounter(Encounter encounter, String html) {
 					// assert that in the rendered form view the value for the ALLERGY CODED obs within the OTHER ALLERGY CONSTRUCT 
 					// is OPENMRS (i.e., concept 1003)
-					assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
+					TestUtil.assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
 				}
 			}.run();
 		}
@@ -375,18 +375,18 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					e.setProvider(Context.getPersonService().getPerson(502));
 					
 					// first create two ALLERGY CONSTRUCT obsgroups, both with ALLERGY CODED obs, but with different answer values
-					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
-					addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
 					
 					// now create another ALLERGY CONSTRUCT obsgroup, but with a HYPER-ALLERGY CODED obs, and a different answer value
-					addObsGroup(e, 7, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
 					
 					return e;
 				}
 				
 				void testViewingEncounter(Encounter encounter, String html) {
 					// assert that in the rendered form view the value for the HYPER-ALLERGY CODED obs is OPENMRS (i.e., concept 1003)
-					assertFuzzyContains("Hyper-Allergy 1: OPENMRS", html);
+					TestUtil.assertFuzzyContains("Hyper-Allergy 1: OPENMRS", html);
 				}
 				
 			}.run();

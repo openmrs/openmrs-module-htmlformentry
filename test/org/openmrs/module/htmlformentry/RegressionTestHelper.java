@@ -404,7 +404,7 @@ public abstract class RegressionTestHelper {
 			Collection<Obs> temp = encounterCreated.getAllObs();
 			Assert.assertNotNull(temp);
 			
-			String valueAsString = valueAsStringHelper(value);
+			String valueAsString = TestUtil.valueAsStringHelper(value);
 			for (Obs obs : temp) {
 				if (obs.getConcept().getConceptId() == conceptId) {
 					if (valueAsString == null)
@@ -445,7 +445,7 @@ public abstract class RegressionTestHelper {
 						        .fail("Obs group with groupingConceptId " + groupingConceptId
 						                + " should has a non-null value");
 					}
-					if (isMatchingObsGroup(o, expected)) {
+					if (TestUtil.isMatchingObsGroup(o, expected)) {
 						return;
 					}
 				}
@@ -473,144 +473,7 @@ public abstract class RegressionTestHelper {
 		public boolean matches(Obs obs) {
 			if (obs.getConcept().getConceptId() != conceptId)
 				return false;
-			return OpenmrsUtil.nullSafeEquals(valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
+			return OpenmrsUtil.nullSafeEquals(TestUtil.valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
 		}
-	}
-	
-	/**
-	 * Tests whether the child obs of this group exactly match 'expected'
-	 * 
-	 * @param group
-	 * @param expected
-	 * @return
-	 */
-	public boolean isMatchingObsGroup(Obs group, List<ObsValue> expected) {
-		if (!group.isObsGrouping())
-			return false;
-		
-		Set<Obs> children = group.getGroupMembers();
-		if (children.size() != expected.size())
-			return false;
-		
-		boolean[] alreadyUsed = new boolean[expected.size()];
-		for (Obs child : children) {
-			boolean foundMatch = false;
-			for (int i = 0; i < expected.size(); ++i) {
-				if (alreadyUsed[i])
-					continue;
-				if (expected.get(i).matches(child)) {
-					foundMatch = true;
-					alreadyUsed[i] = true;
-					break;
-				}
-			}
-			if (!foundMatch)
-				return false;
-		}
-		return true;
-	}
-	
-	public String valueAsStringHelper(Object value) {
-		if (value == null)
-			return null;
-		if (value instanceof Concept)
-			return ((Concept) value).getName(Context.getLocale()).getName();
-		else if (value instanceof Date)
-			return Format.format((Date) value);
-		else if (value instanceof Number)
-			return "" + ((Number) value).doubleValue();
-		else
-			return value.toString();
-	}
-	
-	/**
-	 * Ignores white space. Ignores capitalization. Strips <span class="value">...</span>. Removes
-	 * <span class="emptyValue">___</span>. Strips <htmlform>...</htmlform>.
-	 */
-	public void assertFuzzyEquals(String expected, String actual) {
-		if (expected == null && actual == null)
-			return;
-		if (expected == null || actual == null)
-			Assert.fail(expected + " does not match " + actual);
-		String test1 = stripTagsAndWhitespace(expected);
-		String test2 = stripTagsAndWhitespace(actual);
-		if (!test1.equals(test2)) {
-			Assert.fail(expected + " does not match " + actual);
-			//Assert.fail(test1 + " VERSUS " + test2);
-		}
-	}
-	
-	/**
-	 * Tests whether the substring is contained in the actual string. Allows for inclusion of
-	 * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
-	 * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
-	 * <htmlform>...</htmlform>.
-	 */
-	public void assertFuzzyContains(String substring, String actual) {
-		if (substring == null) {
-			return;
-		}
-		if (actual == null) {
-			Assert.fail(substring + " is not contained in " + actual);
-		}
-		
-		if (!Pattern.compile(stripTagsAndWhitespace(substring)).matcher(stripTagsAndWhitespace(actual)).find()) {
-			Assert.fail(substring + " is not contained in " + actual);
-		}
-		
-	}
-	
-	private String stripTagsAndWhitespace(String string) {
-		string = string.toLowerCase();
-		string = string.replaceAll("<span class=\"value\">(.*)</span>", "$1");
-		string = string.replaceAll("<span class=\"emptyvalue\">.*</span>", "");
-		string = string.replaceAll("\\s", "");
-		string = string.replaceAll("<htmlform>(.*)</htmlform>", "$1");
-		return string;
-	}
-	
-	public Obs addObs(Encounter encounter, Integer conceptId, Object value, Date date) {
-		Person person = encounter.getPatient();
-		Concept concept = Context.getConceptService().getConcept(conceptId);
-		Location location = encounter.getLocation();
-		Obs obs = new Obs(person, concept, date, location);
-		if (value != null) {
-			if (value instanceof Number)
-				obs.setValueNumeric(((Number) value).doubleValue());
-			else if (value instanceof String)
-				obs.setValueText((String) value);
-			else if (value instanceof Date)
-				obs.setValueDatetime((Date) value);
-			else if (value instanceof Concept)
-				obs.setValueCoded((Concept) value);
-		}
-		obs.setDateCreated(new Date());
-		encounter.addObs(obs);
-		
-		return obs;
-	}
-	
-	/**
-	 * Creates an obsgroup. The obsDetails arguements should be triplets of conceptId, concept
-	 * value, and date created.
-	 * 
-	 * @param encounter
-	 * @param groupingConceptId
-	 * @param date
-	 * @param obsDetails
-	 * @return
-	 */
-	public Obs addObsGroup(Encounter encounter, Integer groupingConceptId, Date date, Object... obsDetails) {
-		Obs obsgroup = addObs(encounter, groupingConceptId, null, date);
-		
-		int i = 0;
-		while (i < obsDetails.length) {
-			obsgroup.addGroupMember(addObs(encounter, (Integer) obsDetails[i], obsDetails[i + 1], (Date) obsDetails[i + 2]));
-			
-			// skip to the next triple to the next triplet
-			i = i + 3;
-		}
-		
-		return obsgroup;
-	}
+	}	
 }

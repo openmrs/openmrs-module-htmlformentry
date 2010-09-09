@@ -28,7 +28,7 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should create cloned form to export with appropriate dependencies", method = "createCloneForExport(HtmlForm)")
 	public void createCloneForExport_shouldCreateCloneWithDependencies() throws Exception {
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new HtmlFormEntryTestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
 		
 		ShareableHtmlForm formClone = new ShareableHtmlForm(form);
 		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
