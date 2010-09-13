@@ -15,22 +15,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Assert;
-import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
-import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
-import org.openmrs.Person;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.Format;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 

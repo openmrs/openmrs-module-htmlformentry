@@ -105,6 +105,38 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		TestUtil.assertFuzzyContains("groupingConceptId=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,someSource:someKey,32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
 	}
+	
+	/**
+	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
+	 * @throws Exception 
+	 */
+	@Test
+	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
+	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithinRepeatTags() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		
+		HtmlForm form = new HtmlForm();
+		
+		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingWithRepeatTestForm.xml"));
+		HtmlFormEntryUtil.replaceIdsWithUuids(form);
+		
+		// make sure it's left the keys alone
+		TestUtil.assertFuzzyContains("groupingConceptId=\"\\{allergyGroup\\}\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("conceptId=\"\\{allergy\\}\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("answerConceptIds=\"\\{allergyAnswers\\}\"", form.getXmlData());
+
+		// test that the first render tag has been substituted
+		TestUtil.assertFuzzyContains("allergyGroup=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergy=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6\"", form.getXmlData());		
+	
+		// test that the second render tag has been substituted
+		TestUtil.assertFuzzyContains("allergyGroup=\"42296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergy=\"52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());		
+	
+	}
+	
 }

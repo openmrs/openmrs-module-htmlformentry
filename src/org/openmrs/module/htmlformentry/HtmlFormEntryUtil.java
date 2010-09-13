@@ -7,7 +7,9 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -421,12 +423,13 @@ public class HtmlFormEntryUtil {
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptIds"));
 	}
 	
-	private static String replaceIdsWithUuidsHelper(String form, String attribute) {
-		
+	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute) {
 		// pattern to find the specified attribute and pull out its values
 		Pattern substitutionPattern = Pattern.compile(attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = substitutionPattern.matcher(formXmlData);
 		
-		Matcher matcher = substitutionPattern.matcher(form);
+		// list to keep track of any "repeat" keys we are going to have to substitute out as well
+		Set<String> keysToReplace = new HashSet<String>();
 		
 		StringBuffer buffer = new StringBuffer();
 		
@@ -437,14 +440,21 @@ public class HtmlFormEntryUtil {
 			StringBuffer idBuffer = new StringBuffer();
 			// now loop through each id
 			for (String id : ids) {
-				// see if this is a concept id (as opposed to a mapping id or a uuid)
-				if (!id.contains("-") && !id.contains(":")) {
+				// see if this is a concept id (matches an integer), as opposed to a mapping id or a uuid, or a key used in a repeat template)
+				if(id.matches("^\\d+$")) {
+				//if (!id.contains("-") && !id.contains(":")) {
 					// now we need to fetch the appropriate concept for this concept id, and append the uuid to the buffer
 					Concept concept = Context.getConceptService().getConcept(Integer.valueOf(id));
 					idBuffer.append(concept.getUuid() + ",");
 				} else {
 					// otherwise, leave the id only
 					idBuffer.append(id + ",");
+					
+					// also, if this is a key (i.e., something in curly braces) we need to keep track of it so that we can perform key substitutions
+					Matcher keyMatcher = Pattern.compile("\\{(.*)\\}").matcher(id);
+					if(keyMatcher.find()) {
+						keysToReplace.add(keyMatcher.group(1));
+					}
 				}
 			}
 			
@@ -458,6 +468,13 @@ public class HtmlFormEntryUtil {
 		// append the rest of htmlform
 		matcher.appendTail(buffer);
 		
-		return buffer.toString();
+		formXmlData = buffer.toString();
+		
+		// now recursively handle any keys we have discovered during this substitution
+		for(String key : keysToReplace) {
+			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key);
+		}
+		
+		return formXmlData;
 	}
 }
