@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <htmlform>
 	Date: <encounterDate/>
-	Location: <encounterLocation/>
-	Provider: <encounterProvider role="Provider"/>
+	Location: <encounterLocation default="2" order="1,9356400c-a5a2-4532-8f2b-2361b3446eb8"/>
+	Provider: <encounterProvider role="Provider" default="9"/>
 	<obsgroup groupingConceptId="7">
 		Allergy 1: <obs conceptId="1000" answerConceptIds="1001,someSource:someKey,1002,32296060-03-102d-b0e3-001ec94a0cc7"/> Allergy Date 1: <obs conceptId="9"/>
 	</obsgroup>
+	Program: <enrollInProgram programId="1"/>
 	<submit/>
 </htmlform>

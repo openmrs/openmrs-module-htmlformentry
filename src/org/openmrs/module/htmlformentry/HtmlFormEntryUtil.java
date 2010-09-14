@@ -452,12 +452,10 @@ public class HtmlFormEntryUtil {
 	 * Get the program by: 
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
-	 *   or 3) name like "MDR-TB program"
 	 * @param Id
-	 * @return the location if exist, else null
-	 * @should find a location by its locationId
-	 * @should find a location by name
-     * @should find a location by its uuid
+	 * @return the program if exist, else null
+	 * @should find a program by its id
+     * @should find a program by its uuid
      * @should return null otherwise
 	 */
 	public static Program getProgram(String id){
@@ -478,10 +476,6 @@ public class HtmlFormEntryUtil {
 				program  = Context.getProgramWorkflowService().getProgramByUuid(id);
 				return program;
 			}
-			else {
-				// if it's neither a uuid or id, try name
-				program = Context.getProgramWorkflowService().getProgramByName(id);
-			}
 			
 		}
 		return program;
@@ -495,15 +489,27 @@ public class HtmlFormEntryUtil {
 	 * @return
 	 */
 	public static void replaceIdsWithUuids(HtmlForm form) {
+		// go through each attribute that may contain an id
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "conceptId"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "conceptIds"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "groupingConceptId"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptId"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptIds"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "programId", "program"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "order", "location"));
+		
+		// matches a "default" attribute within a encounterLocation tag--[^>] means any character except a >
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "<encounterLocation[^>]*default", "location"));
+		// matches a "default" attribute within an encounterProvider tag--[^>] means any character except a >
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "<encounterProvider[^>]*default", "person"));  
 	}
 	
 	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute) {
-		// pattern to find the specified attribute and pull out its values
+		return replaceIdsWithUuidsHelper(formXmlData, attribute, "concept");
+	}
+	
+	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, String objectType) {
+		// pattern to find the specified attribute and pull out its values; regex matches any characters within quotes after an equals, i.e. ="a2-32" would match a232
 		Pattern substitutionPattern = Pattern.compile(attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = substitutionPattern.matcher(formXmlData);
 		
@@ -512,25 +518,39 @@ public class HtmlFormEntryUtil {
 		
 		StringBuffer buffer = new StringBuffer();
 		
-		while (matcher.find()) {
+		while (matcher.find()) {	
 			// split the group into the various ids
 			String[] ids = matcher.group(1).split(",");
 			
 			StringBuffer idBuffer = new StringBuffer();
 			// now loop through each id
 			for (String id : ids) {
-				// see if this is a concept id (matches an integer), as opposed to a mapping id or a uuid, or a key used in a repeat template)
-				if(id.matches("^\\d+$")) {
-				//if (!id.contains("-") && !id.contains(":")) {
-					// now we need to fetch the appropriate concept for this concept id, and append the uuid to the buffer
-					Concept concept = Context.getConceptService().getConcept(Integer.valueOf(id));
-					idBuffer.append(concept.getUuid() + ",");
+				// see if this is a concept id (i.e., is made up of one or more digits), as opposed to a mapping id or a uuid, or a key used in a repeat template)
+				if (id.matches("^\\d+$")) {
+					// now we need to fetch the appropriate object for this id, and append the uuid to the buffer
+					if ("concept".equalsIgnoreCase(objectType)) {
+						Concept concept = Context.getConceptService().getConcept(Integer.valueOf(id));
+						idBuffer.append(concept.getUuid() + ",");
+					}
+					else if ("location".equalsIgnoreCase(objectType)) {
+						Location location = Context.getLocationService().getLocation(Integer.valueOf(id));
+						idBuffer.append(location.getUuid() + ",");
+					}
+					else if ("program".equalsIgnoreCase(objectType)) {
+						Program program = Context.getProgramWorkflowService().getProgram(Integer.valueOf(id));
+						idBuffer.append(program.getUuid() + ",");
+					}
+					else if ("person".equalsIgnoreCase(objectType)) {
+						Person person = Context.getPersonService().getPerson(Integer.valueOf(id));
+						idBuffer.append(person.getUuid() + ",");
+					}
 				} else {
 					// otherwise, leave the id only
 					idBuffer.append(id + ",");
 					
-					// also, if this is a key (i.e., something in curly braces) we need to keep track of it so that we can perform key substitutions
-					Matcher keyMatcher = Pattern.compile("\\{(.*)\\}").matcher(id);
+					// also, if this id is a key (i.e., something in curly braces) we need to keep track of it so that we can perform key substitutions
+					// pattern matches one or more characters of any type within curly braces
+					Matcher keyMatcher = Pattern.compile("\\{(.+)\\}").matcher(id);
 					if(keyMatcher.find()) {
 						keysToReplace.add(keyMatcher.group(1));
 					}
@@ -541,7 +561,8 @@ public class HtmlFormEntryUtil {
 			idBuffer.deleteCharAt(idBuffer.length() - 1);
 			
 			// now do the replacement
-			matcher.appendReplacement(buffer, attribute + "=\"" + idBuffer.toString() + "\"");
+			// append to the buffer the matched sequence, substituting out group(1) with the updated ids
+			matcher.appendReplacement(buffer, matcher.group().substring(0, matcher.start(1) - matcher.start()) + idBuffer.toString() + "\"");
 		}
 		
 		// append the rest of htmlform

@@ -89,16 +89,6 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 	public void getProgram_shouldFindAProgramByItsId() throws Exception {
 		Assert.assertEquals("MDR program", HtmlFormEntryUtil.getProgram("2").getName());
 	}
-
-	/**
-	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
-	 * mapping test
-	 */
-	@Test
-	@Verifies(value = "should find a program by its name", method = "getProgram(String)")
-	public void getProgram_shouldFindAProgramByItsName() throws Exception {
-		Assert.assertEquals("2", HtmlFormEntryUtil.getProgram("MDR program").getId().toString());
-	}
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
@@ -111,7 +101,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 	}
 
 	/**
-	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
 	 */
 	@Test
 	@Verifies(value = "should return null otherwise", method = "getProgram(String)")
@@ -207,10 +197,13 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
 		HtmlFormEntryUtil.replaceIdsWithUuids(form);
 		
+		TestUtil.assertFuzzyContains("<encounterLocation default=\"9356400c-a5a2-4532-8f2b-2361b3446eb8\" order=\"dc5c1fcc-0459-4201-bf70-0b90535ba362,9356400c-a5a2-4532-8f2b-2361b3446eb8\"",form.getXmlData());
+		TestUtil.assertFuzzyContains("<encounterProvider role=\"Provider\" default=\"c04ee3c8-b68f-43cc-bff3-5a831ee7225f\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("groupingConceptId=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,someSource:someKey,32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
 	}
 	
 	/**
