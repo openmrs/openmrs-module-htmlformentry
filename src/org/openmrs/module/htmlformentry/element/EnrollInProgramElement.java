@@ -7,10 +7,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Program;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 
@@ -24,7 +24,7 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 
 	public EnrollInProgramElement(FormEntryContext context, Map<String, String> parameters) {
 		try {
-			program = Context.getProgramWorkflowService().getProgram(Integer.valueOf(parameters.get("programId")));
+			program = HtmlFormEntryUtil.getProgram(parameters.get("programId"));
 		} catch (Exception ex) {
 			throw new IllegalArgumentException("Couldn't find program in: " + parameters);
 		}

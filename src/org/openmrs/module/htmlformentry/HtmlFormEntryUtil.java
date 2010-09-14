@@ -39,6 +39,7 @@ import org.openmrs.PersonAddress;
 import org.openmrs.PersonAttribute;
 import org.openmrs.PersonAttributeType;
 import org.openmrs.PersonName;
+import org.openmrs.Program;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.propertyeditor.ConceptEditor;
@@ -398,9 +399,8 @@ public class HtmlFormEntryUtil {
 				return cpt;
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272"
-			index = id.indexOf("-");
-			if(index != -1){
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid pattern
+			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
 				cpt = Context.getConceptService().getConceptByUuid(id);
 				return cpt;
 			}
@@ -408,6 +408,85 @@ public class HtmlFormEntryUtil {
 		
 		return cpt;
 	}
+	
+	/***
+	 * Get the location by: 
+	 * 		1)an integer id like 5090 
+	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   or 3) location name like "Boston"
+	 * @param Id
+	 * @return the location if exist, else null
+	 * @should find a location by its locationId
+	 * @should find a location by name
+     * @should find a location by its uuid
+     * @should return null otherwise
+	 */
+	public static Location getLocation(String id){
+		Location location = null;
+		
+		if(id != null){
+			
+			try{//handle integer: id
+				int locationId = Integer.parseInt(id);
+				location = Context.getLocationService().getLocation(locationId);
+				return location;
+			}catch (Exception ex){
+				//do nothing 
+			}
+			
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid pattern
+			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+				location  = Context.getLocationService().getLocationByUuid(id);
+				return location;
+			}
+			else {
+				// if it's neither a uuid or id, try location name
+				location = Context.getLocationService().getLocation(id);
+			}
+			
+		}
+		return location;
+	}
+	
+	/***
+	 * Get the program by: 
+	 * 		1)an integer id like 5090 
+	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   or 3) name like "MDR-TB program"
+	 * @param Id
+	 * @return the location if exist, else null
+	 * @should find a location by its locationId
+	 * @should find a location by name
+     * @should find a location by its uuid
+     * @should return null otherwise
+	 */
+	public static Program getProgram(String id){
+		Program program = null;
+		
+		if(id != null){
+			
+			try{//handle integer: id
+				int programId = Integer.parseInt(id);
+				program = Context.getProgramWorkflowService().getProgram(programId);
+				return program;
+			}catch (Exception ex){
+				//do nothing 
+			}
+			
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
+			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+				program  = Context.getProgramWorkflowService().getProgramByUuid(id);
+				return program;
+			}
+			else {
+				// if it's neither a uuid or id, try name
+				program = Context.getProgramWorkflowService().getProgramByName(id);
+			}
+			
+		}
+		return program;
+	}
+	
 	
 	/**
 	 * Replaces all the concept ids in a form with uuids

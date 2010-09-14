@@ -31,7 +31,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	@Verifies(value = "should return correct xml after apply excludeIf tag", method = "applyExcludes(FormEntrySession,String)")
-	public void applyExcludes_shouldReturnCorrectXmlAfterApplyEcludeIfTag()
+	public void applyExcludes_shouldReturnCorrectXmlAfterApplyExcludeIfTag()
 			throws Exception {
 		String htmlform = "<htmlform><excludeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</excludeIf><excludeIf logicTest=\"GENDER = M\">This shows a logic test for a man</excludeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);

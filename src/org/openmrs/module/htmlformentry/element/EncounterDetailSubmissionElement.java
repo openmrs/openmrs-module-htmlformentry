@@ -125,13 +125,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 				List<Location> locations = new ArrayList<Location>();
 				String[] temp = ((String) parameters.get("order")).split(",");
 				for (String s : temp) {
-					Location loc;
-					try {
-						loc = Context.getLocationService().getLocation(
-								Integer.valueOf(s));
-					} catch (NumberFormatException ex) {
-						loc = Context.getLocationService().getLocation(s);
-					}
+					Location loc = HtmlFormEntryUtil.getLocation(s);
 					if (loc == null)
 						throw new RuntimeException("Cannot find location: "
 								+ loc);
@@ -146,8 +140,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 			} else {
 				String defaultLocId = (String) parameters.get("default");
 				if (StringUtils.hasText(defaultLocId)) {
-					Location defaultLoc = Context.getLocationService()
-							.getLocation(Integer.parseInt(defaultLocId));
+					Location defaultLoc = HtmlFormEntryUtil.getLocation(defaultLocId);
 					locationWidget.setInitialValue(defaultLoc);
 				}
 			}

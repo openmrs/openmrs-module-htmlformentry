@@ -29,6 +29,110 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
     }
     
 	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 * id test 
+	 */
+	@Test
+	@Verifies(value = "should find a location by its id", method = "getLocation(String)")
+	public void getLocation_shouldFindALocationByItsId() throws Exception {
+		Assert.assertEquals("Xanadu", HtmlFormEntryUtil.getLocation("2").getName());
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 * mapping test
+	 */
+	@Test
+	@Verifies(value = "should find a location by its name", method = "getLocation(String)")
+	public void getLocation_shouldFindALocationByItsName() throws Exception {
+		Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("Xanadu").getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 * this is the uuid test
+	 */
+	@Test
+	@Verifies(value = "should find a location by its uuid", method = "getLocation(String)")
+	public void getLocation_shouldFindALocationByItsUuid() throws Exception {
+		Assert.assertEquals("Xanadu", HtmlFormEntryUtil.getLocation("9356400c-a5a2-4532-8f2b-2361b3446eb8").getName());
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 */
+	@Test
+	@Verifies(value = "should return null otherwise", method = "getLocation(String)")
+	public void getLocation_shouldReturnNullOtherwise() throws Exception {
+		String id = null;
+		Assert.assertNull(HtmlFormEntryUtil.getLocation(id));
+		
+		id = "";
+		Assert.assertNull(HtmlFormEntryUtil.getLocation(id));
+		
+		id = "100000";//not exist in the standardTestData
+		Assert.assertNull(HtmlFormEntryUtil.getLocation(id));
+		
+		id = "ASDFASDFEAF";//random string
+		Assert.assertNull(HtmlFormEntryUtil.getLocation(id));
+
+		id = "-";//uuid style
+		Assert.assertNull(HtmlFormEntryUtil.getLocation(id));
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
+	 * id test 
+	 */
+	@Test
+	@Verifies(value = "should find a program by its Id", method = "getProgram(String)")
+	public void getProgram_shouldFindAProgramByItsId() throws Exception {
+		Assert.assertEquals("MDR program", HtmlFormEntryUtil.getProgram("2").getName());
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
+	 * mapping test
+	 */
+	@Test
+	@Verifies(value = "should find a program by its name", method = "getProgram(String)")
+	public void getProgram_shouldFindAProgramByItsName() throws Exception {
+		Assert.assertEquals("2", HtmlFormEntryUtil.getProgram("MDR program").getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
+	 * this is the uuid test
+	 */
+	@Test
+	@Verifies(value = "should find a program by its uuid", method = "getProgram(String)")
+	public void getLocation_shouldFindAProgramByItsUuid() throws Exception {
+		Assert.assertEquals("MDR program", HtmlFormEntryUtil.getProgram("71779c39-d289-4dfe-91b5-e7cfaa27c78b").getName());
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 */
+	@Test
+	@Verifies(value = "should return null otherwise", method = "getProgram(String)")
+	public void getProgram_shouldReturnNullOtherwise() throws Exception {
+		String id = null;
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+		
+		id = "";
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+		
+		id = "100000";//not exist in the standardTestData
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+		
+		id = "ASDFASDFEAF";//random string
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+
+		id = "-";//uuid style
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+	}
+	
+	/**
 	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
 	 * id test 
 	 */
@@ -38,7 +142,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		String id = "3";
 		Assert.assertEquals("3",HtmlFormEntryUtil.getConcept(id).getConceptId().toString());
 	}
-
+	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
 	 * mapping test
@@ -88,6 +192,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		id = "-";//uuid style
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
+	
 	
 	/**
 	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
