@@ -52,6 +52,7 @@ public class HtmlForm extends BaseOpenmrsMetadata {
     
     /** Allows HtmlForm to be shared via Metadata Sharing Module **/
     protected HtmlForm writeReplace() {
-    	return new ShareableHtmlForm(this);
+    	// default: includeLocations = true, includeProviders = false
+    	return new ShareableHtmlForm(this, true, false);
     }
 }
