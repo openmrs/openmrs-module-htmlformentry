@@ -481,6 +481,47 @@ public class HtmlFormEntryUtil {
 		return program;
 	}
 	
+	/***
+	 * Get the person by: 
+	 * 		1)an integer id like 5090 
+	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   or 3) a usernaem like "mgoodrich"
+	 * @param Id
+	 * @return the person if exist, else null
+	 * @should find a person by its id
+     * @should find a person by its uuid
+     * @should return null otherwise
+	 */
+	public static Person getPerson(String id){
+		Person person = null;
+		
+		if(id != null){
+			
+			try{//handle integer: id
+				int personId = Integer.parseInt(id);
+				person = Context.getPersonService().getPerson(personId);
+				return person;
+			}catch (Exception ex){
+				//do nothing 
+			}
+			
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
+			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+				person  = Context.getPersonService().getPersonByUuid(id);
+				return person;
+			}
+			// handle username
+			else {
+				User personByUsername = Context.getUserService().getUserByUsername(id);
+				
+				if (personByUsername != null) {
+					person = personByUsername.getPerson();
+				} 
+			}
+		}
+		return person;
+	}
+	
 	
 	/**
 	 * Replaces all the concept ids in a form with uuids

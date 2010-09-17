@@ -123,6 +123,59 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 	}
 	
 	/**
+	 * @see {@link HtmlFormEntryUtil#getPerson(String)}
+	 * id test 
+	 */
+	@Test
+	@Verifies(value = "should find a person by Id", method = "getPerson(String)")
+	public void getPerson_shouldFindAPersonById() throws Exception {
+		Assert.assertEquals("Hornblower", HtmlFormEntryUtil.getPerson("2").getFamilyName());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getPerson(String)}
+	 * this is the uuid test
+	 */
+	@Test
+	@Verifies(value = "should find a person by uuid", method = "getPerson(String)")
+	public void getPerson_shouldFindAPersonByUuid() throws Exception {
+		Assert.assertEquals("Hornblower", HtmlFormEntryUtil.getPerson("da7f524f-27ce-4bb2-86d6-6d1d05312bd5").getFamilyName());
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#getPerson(String)}
+	 * this is the username test
+	 */
+	@Test
+	@Verifies(value = "should find a person by username", method = "getPerson(String)")
+	public void getPerson_shouldFindAPersonByUsername() throws Exception {			
+		Assert.assertEquals("502", HtmlFormEntryUtil.getPerson("butch").getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
+	 */
+	@Test
+	@Verifies(value = "should return null otherwise", method = "getProgram(String)")
+	public void getPerson_shouldReturnNullOtherwise() throws Exception {
+		String id = null;
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+		
+		id = "";
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+		
+		id = "100000";//not exist in the standardTestData
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+		
+		id = "ASDFASDFEAF";//random string
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+
+		id = "-";//uuid style
+		Assert.assertNull(HtmlFormEntryUtil.getProgram(id));
+	}
+	
+	
+	/**
 	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
 	 * id test 
 	 */
