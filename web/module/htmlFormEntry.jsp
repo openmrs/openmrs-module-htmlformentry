@@ -30,6 +30,7 @@
 </c:if>
 
 <script type="text/javascript">
+	var propertyAccessorInfo = new Array();
 
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
@@ -241,6 +242,11 @@
 </form>
 </c:if>
 
+<c:if test="${not empty command.fieldAccessorJavascript}">
+	<script type="text/javascript">
+		${command.fieldAccessorJavascript}
+	</script>
+</c:if>
 <c:if test="${not empty command.setLastSubmissionFieldsJavascript || not empty command.lastSubmissionErrorJavascript}"> 
 	<script type="text/javascript">
 		$j(document).ready( function() {

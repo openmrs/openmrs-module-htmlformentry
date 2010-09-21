@@ -77,7 +77,7 @@ public class CheckboxWidget implements Widget {
             }    
         } else {
             sb.append("<input type=\"hidden\" name=\"_").append(context.getFieldName(this)).append("\"/>");
-            sb.append("<input type=\"checkbox\" name=\"").append(context.getFieldName(this)).append("\" value=\"").append(
+            sb.append("<input type=\"checkbox\" id=\"").append(context.getFieldName(this)).append("\" name=\"").append(context.getFieldName(this)).append("\" value=\"").append(
                     value).append("\"");
             if (initialValue != null && !"".equals(initialValue))
                 sb.append(" checked=\"true\"");

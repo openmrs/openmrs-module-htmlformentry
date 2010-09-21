@@ -187,3 +187,61 @@ function onBlurAutocomplete(element){
 		textField.css('color', 'red');
 	}
 }
+
+
+function getField(elementAndProperty) {
+	var info = propertyAccessorInfo[elementAndProperty];
+	if (info) {
+		var widgetId = info.id;
+		var fn = info.field;
+		if (fn == null)
+			fn = defaultFieldFunction;
+		var tmp = fn(widgetId);
+		return tmp;
+	} else {
+		return null;
+	}	
+}
+
+
+function getValue(elementAndProperty) {
+	var info = propertyAccessorInfo[elementAndProperty];
+	if (info) {
+		var widgetId = info.id;
+		var fn = info.getter;
+		if (fn == null)
+			fn = defaultGetterFunction;
+		return fn(widgetId);
+	} else {
+		return null;
+	}
+}
+
+function setValue(elementAndProperty, value) {
+	var info = propertyAccessorInfo[elementAndProperty];
+	if (info) {
+		var widgetId = info.id;
+		var fn = info.setter;
+		if (fn == null)
+			fn = defaultSetterFunction;
+		return fn(widgetId, value);
+	} else {
+		window.alert("Form scripting error: no property accesser info available for " + elementAndProperty);
+	}
+}
+
+function defaultFieldFunction(widgetId) {
+	return $('#' + widgetId);
+}
+
+function defaultGetterFunction(widgetId) {
+	return DWRUtil.getValue(widgetId);
+}
+
+function defaultSetterFunction(widgetId, value) {
+	if (widgetId == null || document.getElementById(widgetId) == null) {
+		window.alert("Form scripting error: cannot find widget " + widgetId);
+		return;
+	}
+	DWRUtil.setValue(widgetId, value);
+}

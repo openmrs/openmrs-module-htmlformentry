@@ -536,7 +536,7 @@ public class FormEntrySession {
     
     /**
      * Returns a fragment of javascript that will display any error widgets that had errors on
-     * the last submission, and hides those that have no error.
+     * the last submission.
      */
     public String getLastSubmissionErrorJavascript() {
     	if (context.getMode() == Mode.VIEW) {
@@ -555,6 +555,17 @@ public class FormEntrySession {
             }
         }
         return sb.toString();
+    }
+    
+    /**
+     * @return a fragment of javascript that tells the getValue and setValue methods how to work
+     */
+    public String getFieldAccessorJavascript() {
+    	StringBuilder ret = new StringBuilder();
+    	for (Map.Entry<String, String> e : context.getJavascriptFieldAccessorInfo().entrySet()) {
+    		ret.append("propertyAccessorInfo['" + e.getKey() + "'] = " + e.getValue() + "\n");
+    	}
+    	return ret.toString();
     }
 
     /**

@@ -47,6 +47,7 @@ public class FormEntryContext {
     private Mode mode;
     private Map<Widget, String> fieldNames = new HashMap<Widget, String>();
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
+    private Map<String, String> javascriptFieldAccessorInfo = new LinkedHashMap<String, String>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
     private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
@@ -120,6 +121,7 @@ public class FormEntryContext {
      * 
      * @param widget the widget
      * @return the field id associated with the widget in the HTML Form
+     * @throws IllegalArgumentException if the given widget is not registered
      */
     public String getFieldName(Widget widget) {
         String fieldName = fieldNames.get(widget);
@@ -127,6 +129,16 @@ public class FormEntryContext {
             throw new IllegalArgumentException("Widget not registered");
         else
             return fieldName;
+    }
+    
+    /**
+     * Like {@link #getFieldName(Widget)} but returns null if the widget is not registered (instead
+     * of throwing an exception).
+     * @param widget
+     * @return
+     */
+    public String getFieldNameIfRegistered(Widget widget) {
+        return fieldNames.get(widget);
     }
     
     /**
@@ -423,5 +435,55 @@ public class FormEntryContext {
         return existingObsInGroups;
     }
 
-    
+
+    /**
+     * Sets up the necessary information so that the javascript getField, getValue and setValue
+     * functions can work.
+     * @param property the user-facing name of this property, e.g. weight.value
+     * @param widgetId the HTML DOM id of the widget, to be passed to the property accessor methods (if this parameter is null, the method call has no effect)
+     * @param fieldFunctionName the name of the javascript function used to access the field itself (or null to use the default function
+     * @param getterFunctionName the name of the javascript function used to get the value of the field (or null to use the default function
+     * @param setterFunctionName the name of the javascript function used to set the value of the field (or null to use the default function 
+     */
+	public void registerPropertyAccessorInfo(String property, String widgetId,
+	                                         String fieldFunctionName, String getterFunctionName, String setterFunctionName) {
+		if (widgetId == null)
+			return;		
+		StringBuilder val = new StringBuilder("{ id: \"" + widgetId + "\" ");
+		if (fieldFunctionName != null)
+			val.append(", field: " + fieldFunctionName);
+		if (getterFunctionName != null)
+			val.append(", getter: " + getterFunctionName);
+		if (setterFunctionName != null)
+			val.append(", setter: " + setterFunctionName);
+		val.append(" };");
+		if (javascriptFieldAccessorInfo.containsKey(property)) {
+			// if this key has already been registered, this probably means we're inside a repeat tag.
+			// set it up as follows (assuming property="weight.value")
+			//   weight.value = X
+			//   weight.value_1 = X
+			//   weight.value_2 = Y
+			//   weight.value_3 = Z
+			// ...
+			int i = 1;
+			while (javascriptFieldAccessorInfo.containsKey(property + "_" + i))
+				++i;
+			if (i == 1) {
+				// this is the second time we hit this key (i.e. property is registered, but property_1 is not)
+				// we copy key to key_1
+				javascriptFieldAccessorInfo.put(property + "_1", javascriptFieldAccessorInfo.get(property));
+				i = 2;
+			}
+			property = property + "_" + i;
+		}
+		javascriptFieldAccessorInfo.put(property, val.toString());
+    }
+	
+    /**
+     * @return the javascriptFieldAccessors
+     */
+    public Map<String, String> getJavascriptFieldAccessorInfo() {
+    	return javascriptFieldAccessorInfo;
+    }
+	    
 }

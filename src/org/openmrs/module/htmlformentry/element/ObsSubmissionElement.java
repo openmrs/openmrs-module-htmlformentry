@@ -51,6 +51,7 @@ import org.openmrs.util.OpenmrsUtil;
 public class ObsSubmissionElement implements HtmlGeneratorElement,
 		FormSubmissionControllerAction {
 
+	private String id;
 	private Concept concept;
 	private String valueLabel;
 	private Widget valueWidget;
@@ -85,6 +86,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
         if ("true".equals(parameters.get("required"))) {
         	required = true;
         }
+        if (parameters.get("id") != null)
+        	id = parameters.get("id");
 		prepareWidgets(context, parameters);
 	}
 
@@ -552,6 +555,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
+		if (id != null) {
+			ret.append("<span id='" + id + "'>");
+			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget), getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
+			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget), null, null, null);
+			context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(errorWidget), null, null, null);
+			context.registerPropertyAccessorInfo(id + ".accessionNumber", context.getFieldNameIfRegistered(accessionNumberWidget), null, null, null);
+		}
 		ret.append(valueLabel);
 		if (!"".equals(valueLabel))
 			ret.append(" ");
@@ -580,8 +590,44 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			ret.append(" ");
 			ret.append(errorWidget.generateHtml(context));
 		}
+		if (id != null)
+			ret.append("</span>");
 		return ret.toString();
 	}
+
+	/**
+	 * TODO implement for all non-standard widgets
+	 * @param widget
+	 * @return
+	 */
+	private String getSetterFunction(Widget widget) {
+		if (widget == null)
+	    	return null;
+		return null;
+    }
+
+	/**
+	 * TODO implement for all non-standard widgets
+	 * @param widget
+	 * @return
+	 */
+	private String getGetterFunction(Widget widget) {
+		if (widget == null)
+	    	return null;
+	    return null;
+    }
+
+	/**
+	 * TODO implement for all non-standard widgets
+	 * TODO figure out how to return multiple elements, e.g. for date+time widget  
+	 * @param widget
+	 * @return
+	 */
+	private String getFieldFunction(Widget widget) {
+	    if (widget == null)
+	    	return null;
+	    return null;
+    }
 
 	public Collection<FormSubmissionError> validateSubmission(
 			FormEntryContext context, HttpServletRequest submission) {
@@ -715,4 +761,5 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	public String getAnswerLabel() {
 		return answerLabel;
 	}
+
 }
