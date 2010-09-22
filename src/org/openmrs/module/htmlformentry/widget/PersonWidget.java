@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.widget;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,7 +57,10 @@ public class PersonWidget implements Widget {
         if (options != null) {
             personList = options;
         } else {
-            personList = Context.getPersonService().getPeople("", true);
+        	// if no options are specified, set the personList to an empty list
+        	// (fetching *all* the persons doesn't really make much sense)
+        	personList = new LinkedList<Person>();
+            //personList = Context.getPersonService().getPeople("", true);
         }
        Collections.sort(personList, new PersonByNameComparator());
         for (Person p : personList) {
