@@ -26,11 +26,11 @@ public class WidgetTest {
     public void checkboxWidgetShouldProduceHtml() {
         CheckboxWidget cw = new CheckboxWidget();
         context.registerWidget(cw);
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" name=\"w1\" value=\"true\"/>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\"/>", cw.generateHtml(context));
         cw.setInitialValue("Something");
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" name=\"w1\" value=\"true\" checked=\"true\"/>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" checked=\"true\"/>", cw.generateHtml(context));
         cw.setLabel("This is a label");
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" name=\"w1\" value=\"true\" checked=\"true\"/>This is a label", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" checked=\"true\"/>This is a label", cw.generateHtml(context));
     }
     
     @Test
