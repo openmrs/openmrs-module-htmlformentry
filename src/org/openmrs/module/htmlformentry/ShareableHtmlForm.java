@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Location;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
 
@@ -20,6 +21,10 @@ public class ShareableHtmlForm extends HtmlForm {
 	private static Log log = LogFactory.getLog(ShareableHtmlForm.class);
 	
 	private Collection<OpenmrsObject> dependencies;
+	
+	private Boolean includeLocations;
+	
+	private Boolean includeProviders;
 	
 	public ShareableHtmlForm(HtmlForm form, Boolean includeLocations, Boolean includeProviders) {
 		// first, make a clone of the form
@@ -39,15 +44,20 @@ public class ShareableHtmlForm extends HtmlForm {
 		this.setUuid(form.getUuid());
 		this.setXmlData(form.getXmlData());
 		
+		// set the parameters
+		this.includeLocations = includeLocations;
+		this.includeProviders = includeProviders;
+		
 		// strip out any local attributes we don't want to pass one
 		// default is to include locations, but not providers
-		stripLocalAttributesFromXml(includeLocations, includeProviders);
+		stripLocalAttributesFromXml();
 		
 		// replace any Ids with Uuids
 		HtmlFormEntryUtil.replaceIdsWithUuids(this);
 		
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
 		calculateDependencies();
+		// TODO: update the calculate dependencies method to handle locations and persons specified by name...
 	}
 	
 	/** Allows HtmlForm to be shared via Metadata Sharing Module **/
@@ -82,6 +92,18 @@ public class ShareableHtmlForm extends HtmlForm {
 		
 		this.dependencies = new HashSet<OpenmrsObject>();
 		
+		calculateUuidDependencies();
+		
+		if (this.includeLocations) {
+			calculateLocationDependencies();
+		}
+		
+		if (this.includeProviders) {
+			calculateProviderDependencies();
+		}
+	}
+	
+	private void calculateUuidDependencies() {
 		// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
 		Pattern uuid = Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+");
 		Matcher matcher = uuid.matcher(this.getXmlData());
@@ -104,15 +126,63 @@ public class ShareableHtmlForm extends HtmlForm {
 		}
 	}
 	
-	public void stripLocalAttributesFromXml(Boolean includeLocations, Boolean includeProviders) {
-		if (!includeProviders) {
+	private void calculateLocationDependencies() {
+		// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to "[anything]"
+		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* default=\"(.*?)\""));
+		// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to "[anything]"
+		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* order=\"(.*?)\""));
+	}
+	
+	private void calculateLocationDependenciesHelper(Pattern pattern) {
+		
+		Matcher matcher = pattern.matcher(this.getXmlData());
+		
+		while (matcher.find()) {
+			
+			// split the group into the various ids
+			String[] ids = matcher.group(1).split(",");
+			
+			for(String id : ids) {
+			
+				Location location = Context.getLocationService().getLocation(id);
+			
+				if (location != null) {
+					this.dependencies.add(location);
+				}
+			}
+		}
+		
+	}
+	
+	private void calculateProviderDependencies() {
+		
+		// TODO: method not implemented (or currently used)
+		// if we do start allowing providers to exported with forms, we need to decide how we want to handle this
+		// should we export *all* persons who have roles assigned in the role="" parameter of encounterProvider?
+		
+		// TODO: this code has not been tested
+		// pattern matches <encounterProvider [anything but greater-than] default="[anything]"; group(1) is set to "[anything]"
+		/*	Matcher matcher = Pattern.compile("<encounterProvider[^>]* default=\"(.*?)\"").matcher(this.getXmlData);
+		
+		while (matcher.find()) {
+			User user = Context.getUserService().getUserByUsername(matcher.group(1));
+			
+			if (user != null) {
+				this.dependencies.add(user.getPerson());
+			}
+		} */
+
+	}
+	
+	public void stripLocalAttributesFromXml() {
+		if (!this.includeProviders) {
 			// pattern matches <encounterProvider [anything but greater-than] default="[anything]"; group(1) is set to default="[anything]"
 			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterProvider[^>]*( default=\".*?\")"));
 			// pattern matches <encounterProvider [anything but greater-than] role="[anything]"; group(1) is set to role="[anything]"
 			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterProvider[^>]*( role=\".*?\")"));
 		}
 		
-		if (!includeLocations) {
+		if (!this.includeLocations) {
 			// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to default="[anything]"
 			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterLocation[^>]*( default=\".*?\")"));
 			// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to order="[anything]"

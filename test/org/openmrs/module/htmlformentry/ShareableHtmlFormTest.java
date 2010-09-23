@@ -55,6 +55,8 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 			"dc5c1fcc-0459-4201-bf70-0b90535ba362")));
 		Assert.assertTrue(dependencies.contains(Context.getLocationService().getLocationByUuid(
 			"9356400c-a5a2-4532-8f2b-2361b3446eb8")));
+		Assert.assertTrue(dependencies.contains(Context.getLocationService().getLocationByUuid(
+			"167ce20c-4785-4285-9119-d197268f7f4a")));
 		
 		// make sure the provider has been added to the list of dependencies
 		Assert.assertTrue(dependencies.contains(Context.getPersonService().getPersonByUuid(
