@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Concept;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
@@ -22,11 +23,13 @@ public class ShareableHtmlForm extends HtmlForm {
 	
 	private Collection<OpenmrsObject> dependencies;
 	
+	private Boolean includeMappedConcepts;
+	
 	private Boolean includeLocations;
 	
 	private Boolean includeProviders;
 	
-	public ShareableHtmlForm(HtmlForm form, Boolean includeLocations, Boolean includeProviders) {
+	public ShareableHtmlForm(HtmlForm form, Boolean includeMappedConcepts, Boolean includeLocations, Boolean includeProviders) {
 		// first, make a clone of the form
 		// (do we need to worry about pass-by-reference?)
 		this.setChangedBy(form.getChangedBy());
@@ -45,6 +48,7 @@ public class ShareableHtmlForm extends HtmlForm {
 		this.setXmlData(form.getXmlData());
 		
 		// set the parameters
+		this.includeMappedConcepts = includeMappedConcepts;
 		this.includeLocations = includeLocations;
 		this.includeProviders = includeProviders;
 		
@@ -94,6 +98,10 @@ public class ShareableHtmlForm extends HtmlForm {
 		
 		calculateUuidDependencies();
 		
+		if (this.includeMappedConcepts) {
+			calculateMappedConceptDependencies();
+		}
+		
 		if (this.includeLocations) {
 			calculateLocationDependencies();
 		}
@@ -126,10 +134,48 @@ public class ShareableHtmlForm extends HtmlForm {
 		}
 	}
 	
+	private void calculateMappedConceptDependencies() {
+		// pattern matches conceptId="[anything]"; group(1) is set to [anything]
+		calculateMappedConceptDependenciesHelper(Pattern.compile("conceptId=\"(.*?)\""));
+		// pattern matches conceptIds="[anything]"; group(1) is set to [anything]
+		calculateMappedConceptDependenciesHelper(Pattern.compile("conceptIds=\"(.*?)\""));
+		// pattern matches groupingConceptId="[anything]"; group(1) is set to [anything]
+		calculateMappedConceptDependenciesHelper(Pattern.compile("groupingConceptId=\"(.*?)\""));
+		// pattern matches answerConceptId="[anything]"; group(1) is set to [anything]
+		calculateMappedConceptDependenciesHelper(Pattern.compile("answerConceptId=\"(.*?)\""));
+		// pattern matches answerConceptIds="[anything]"; group(1) is set to [anything]
+		calculateMappedConceptDependenciesHelper(Pattern.compile("answerConceptIds=\"(.*?)\""));
+	}
+	
+	private void calculateMappedConceptDependenciesHelper(Pattern pattern) {
+		
+		Matcher matcher = pattern.matcher(this.getXmlData());
+		
+		while (matcher.find()) {
+			
+			// split the group into the various ids
+			String[] ids = matcher.group(1).split(",");
+			
+			// check each id to see if it is a mapping, and, if so, fetch the appropriate concept
+			for (String id : ids) {
+				int index = id.indexOf(":");
+				if (index != -1) {
+					String mappingCode = id.substring(0, index).trim();
+					String conceptCode = id.substring(index + 1, id.length()).trim();
+					Concept concept = Context.getConceptService().getConceptByMapping(conceptCode, mappingCode);
+					
+					if (concept != null) {
+						this.dependencies.add(concept);
+					}
+				}
+			}
+		}
+	}
+	
 	private void calculateLocationDependencies() {
-		// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to "[anything]"
+		// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to [anything]
 		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* default=\"(.*?)\""));
-		// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to "[anything]"
+		// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to [anything]
 		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* order=\"(.*?)\""));
 	}
 	
@@ -142,10 +188,10 @@ public class ShareableHtmlForm extends HtmlForm {
 			// split the group into the various ids
 			String[] ids = matcher.group(1).split(",");
 			
-			for(String id : ids) {
-			
+			for (String id : ids) {
+				
 				Location location = Context.getLocationService().getLocation(id);
-			
+				
 				if (location != null) {
 					this.dependencies.add(location);
 				}
