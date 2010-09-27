@@ -46,97 +46,39 @@ public class ObsGroupTagHandler implements TagHandler {
         groupingConcept.getDatatype().getHl7Abbreviation();
                 
         // find relevant obs group to display for this element
-        Obs thisGroup = findObsGroup(session, parent, node, attributes.get("groupingConceptId"));
-        session.getContext().beginObsGroup(groupingConcept);
+        Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
+        // sets the current obs group members in the context
         session.getContext().setObsGroup(thisGroup);
+        // sets up the obs group stack, sets current obs group to this one
+        session.getContext().beginObsGroup(groupingConcept);
         
+        //adds the obsgroup action to the controller stack
         session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup));
         return true;
     }
 
-    private Obs findObsGroup(FormEntrySession session, Node parent, Node node, String parentGroupingConceptId) {
-        List<ObsGroupComponent> questionsAndAnswers = findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
-        return session.getContext().findFirstMatchingObsGroup(questionsAndAnswers);
-    }
-
-
-    private List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId, Node node) {
-        List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
-        findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId,node, ret);
-        return ret;
+    private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId) {
+        List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
+        int depth = getObsGroupDepth(node);
+        return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, depth);
     }
     
-
-    private void findQuestionsAndAnswersForGroupHelper(String parentGroupingConceptId, Node node, List<ObsGroupComponent> ret) {
-        if ("obs".equals(node.getNodeName())) {
-            Concept question = null;
-            Concept answer = null;
-            List<Concept> answersList = null;
-            NamedNodeMap attrs = node.getAttributes();
-            try {
-                question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("conceptId").getNodeValue());
-            } catch (Exception ex) {
-                throw new RuntimeException("Error getting conceptId from obs in obsgroup", ex);
-            }
-            try {
-                answer = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("answerConceptId").getNodeValue());
-            } catch (Exception ex) {
-                // this is fine
-            }
-            //check for answerConceptIds (plural)
-            if (answer == null){
-                Node n = attrs.getNamedItem("answerConceptIds");
-                if (n != null){
-                    String answersIds = n.getNodeValue();
-                    if (answersIds != null && !answersIds.equals("")){
-                        //initialize list
-                        answersList = new ArrayList<Concept>();
-                        for (StringTokenizer st = new StringTokenizer(answersIds, ","); st.hasMoreTokens(); ) {
-                            try {
-                                answersList.add(HtmlFormEntryUtil.getConcept(st.nextToken().trim()));
-                            } catch (Exception ex){
-                                //just ignore invalid conceptId if encountered in answersList
-                            }
-                        } 
-                    }
-                }
-            }
-           
-          //deterimine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
-            boolean thisObsInThisGroup = false;
-            Node pTmp = node.getParentNode();
-            while(pTmp.getParentNode() != null){
-                          
-                Map<String, String> attributes = new HashMap<String, String>();        
-                NamedNodeMap map = pTmp.getAttributes();
-                if (map != null)
-                    for (int i = 0; i < map.getLength(); ++i) {
-                        Node attribute = map.item(i);
-                        attributes.put(attribute.getNodeName(), attribute.getNodeValue());
-                    }
-                if (attributes.containsKey("groupingConceptId")){
-                    if (attributes.get("groupingConceptId").equals(parentGroupingConceptId)){
-                        thisObsInThisGroup = true;
-                        break;
-                    } else {
-                        break;
-                    }
-                } 
-                pTmp = pTmp.getParentNode();
-            }
-            if (thisObsInThisGroup){
-                if (answersList != null && answersList.size() > 0)
-                    for (Concept c : answersList)
-                        ret.add(new ObsGroupComponent(question, c));
-                else
-                    ret.add(new ObsGroupComponent(question, answer));   
-            }    
-        } else {
-             NodeList nl = node.getChildNodes();
-             for (int i = 0; i < nl.getLength(); ++i) {
-                 findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), ret);
-             }
-         }
+    /**
+     * 
+     * Gets hierarchy level of obsgroup tag.  obsgroups at top level of encounter returns 1.  obsgroups inside of top level obs groups return 2.  etc...
+     * 
+     * @param node
+     * @return
+     */
+    private int getObsGroupDepth(Node node){
+        int obsGroupDepth = 1;
+        Node tmpNode = node;
+        while (!tmpNode.getNodeName().equals("htmlform")){
+            tmpNode = tmpNode.getParentNode();
+            if (tmpNode.getNodeName().equals("obsgroup"))
+                obsGroupDepth++;
+        }
+        return obsGroupDepth;
     }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
@@ -148,7 +90,6 @@ public class ObsGroupTagHandler implements TagHandler {
 //                    } catch (Exception ex){}    
 //                }
                  session.getContext().endObsGroup();
-                 session.getContext().setObsGroup(null);
                  session.getSubmissionController().addAction(ObsGroupAction.end());
     }
     

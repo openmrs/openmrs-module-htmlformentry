@@ -107,7 +107,7 @@ public abstract class RegressionTestHelper {
 		Patient patient = getPatient();
 		FormEntrySession session = setupFormEntrySession(patient, getFormName());
 		String html = session.getHtmlToDisplay();
-		//System.out.println(html);
+//		System.out.println(html);
 		
 		Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
 		MockHttpServletRequest request = new MockHttpServletRequest();

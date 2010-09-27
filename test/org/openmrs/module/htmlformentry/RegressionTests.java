@@ -5,7 +5,11 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
+import org.openmrs.ConceptSet;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -341,6 +345,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					
 					// now add a third obsgroups of type ANOTHER ALLERGY CONSTRUCT that also contains a ALLERGY CODED obs with a different answer value
 					TestUtil.addObsGroup(e, 1004, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
+					//if 1004 contains 1003, then you should see 
 					
 					return e;
 				}
@@ -385,11 +390,149 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				}
 				
 				void testViewingEncounter(Encounter encounter, String html) {
-					// assert that in the rendered form view the value for the HYPER-ALLERGY CODED obs is OPENMRS (i.e., concept 1003)
-					TestUtil.assertFuzzyContains("Hyper-Allergy 1: OPENMRS", html);
+					// assert that in the rendered form view the view for grouping concept_id 1004 doesn't find a group -- it shouldn't
+				    // because all obs groups are concept_id 7.
+				    TestUtil.assertFuzzyContains("Hyper-Allergy 1: <span class=\"emptyValue\">____</span>", html);
 				}
 				
 			}.run();
 		}
+		
 	}
+	
+
+	/**
+	 * 
+	 * Builds the full DST model, and ensures proper recognition of nested obs groups.
+	 * The basic model is:  Encounter --> TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT
+	 * TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT owns 'DST Start Date' obs and multiple TUBERCULOSIS DRUG SENSITIVITY TEST RESULT 
+	 * TUBERCULOSIS DRUG SENSITIVITY TEST RESULT owns a result, and 'colonies' obs
+	 * 
+	 * Yea yea, i know a test should test one component, but this is the most complex single encounter obs model
+	 * that anyone will ever build with an htmlform in practice...  
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+    public void viewDSTModelWithNestedObsGroupsAndConceptSelectTag() throws Exception {
+	        
+            new RegressionTestHelper() {
+                
+
+                String getFormName() {
+                    return "multiLevelObsGroup1";
+                }
+                
+                    Encounter getEncounterToView() throws Exception {
+                    Encounter e = new Encounter();
+                    e.setPatient(getPatient());
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                    e.setLocation(Context.getLocationService().getLocation(2));
+                    e.setProvider(Context.getPersonService().getPerson(502));
+                    
+                    // first create DST parent group
+                    Obs dstParent = TestUtil.createObs(e, 3040, null, date);
+                    e.addObs(dstParent);
+
+                    Obs resultParent = TestUtil.createObs(e, 3025, null, date);
+                    dstParent.addGroupMember(resultParent);
+                    Obs resultParent2 = TestUtil.createObs(e, 3025, null, date);
+                    dstParent.addGroupMember(resultParent2);
+                    Obs resultParent3 = TestUtil.createObs(e, 3025, null, date);
+                    dstParent.addGroupMember(resultParent3);
+                    
+                    Obs dstStartDate = TestUtil.createObs(e, 3032, date, date);
+                    dstParent.addGroupMember(dstStartDate);
+
+                    //let's make rifampin susceptible -- 2474 is susceptible
+                    Obs drugResult = TestUtil.createObs(e, 2474, Context.getConceptService().getConcept(767), date);
+                    resultParent.addGroupMember(drugResult);
+
+                    //let's make INH resistant 1441 is resistant
+                    Obs drugResult2 = TestUtil.createObs(e, 1441, Context.getConceptService().getConcept(656), date);
+                    resultParent2.addGroupMember(drugResult2);
+                    //and add colonies for just INH
+                    Obs colonies1 = TestUtil.createObs(e, 3016, 200, date);
+                    resultParent2.addGroupMember(colonies1);
+                    
+                  //let's make ETHIO intermediate
+                    Obs drugResult4 = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(1414), date);
+                    resultParent3.addGroupMember(drugResult4);
+                    //and add colonies for ETHIO
+                    Obs colonies3 = TestUtil.createObs(e, 3016, 500, date);
+                    resultParent3.addGroupMember(colonies3);
+                    
+                    //THINGS THAT SHOULD BE IGNORED:
+                    //THESE TEST THE BEHAVIOR THAT IF AN OBS GROUP CONCEPT IS UNIQUE AT THAT LEVEL IN AN OBS GROUP HIERARCHY,
+                        //IT WILL BE RETURNED EVEN IF THE MEMBER OBS DONT 'SUPPORT' THE obsgroup SCHEMA
+                    //let's add some 'right' data at the 'wrong' place in the hierarchy:
+                    //let's put another colonies obs in the wrong place in the hierarchy, with colonies value 400
+                    Obs colonies2 = TestUtil.createObs(e, 3016, 400, date);
+                    dstParent.addGroupMember(colonies2);
+                    //and here's a drug result added directly to the encounter (bypassing the DST parentConstructObs)
+                    Obs drugResult3 = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(767), date);
+                    resultParent3.addGroupMember(drugResult3);
+                    e.addObs(resultParent3);
+                    
+                    e = Context.getEncounterService().saveEncounter(e);
+                    return e;
+                }
+                
+                void testViewingEncounter(Encounter encounter, String html) {
+//                    Concept dstParent = Context.getConceptService().getConcept(3040);
+//                    for (ConceptSet s : dstParent.getConceptSets()){
+//                        System.out.println(s.getConcept() + " " + s.getConceptSet());
+//                        for (ConceptSet sInner :s.getConcept().getConceptSets()){
+//                            System.out.println(sInner.getConcept() + " " + sInner.getConceptSet());
+//                            for (ConceptAnswer a :sInner.getConcept().getAnswers()){
+//                                System.out.println(a.getConcept() + " has possible answer " + a.getAnswerConcept());
+//                               
+//                            }
+//                        }
+//                    }
+                   // System.out.println(html);
+                    TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
+                    TestUtil.assertFuzzyContains("ISONIAZID <span class=\"value\">Resistant</span>", html);
+                    TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200.0</span>", html);
+                    TestUtil.assertFuzzyContains("DST Result Date <span class=\"value\">01/02/2003</span>", html);
+                    TestUtil.assertFuzzyDoesNotContain("400", html);
+                    //this tests that the Ethionamide result *wasn't* returned
+                    //this is because the xml doens't expect the ethionamide result to include colonies, 
+                        //which we included.
+                    TestUtil.assertFuzzyDoesNotContain("Intermediate", html);
+
+                }
+                
+            }.run();
+        
+    }
+
+//	@Test
+//  public void testDSTModelSubmission() throws Exception {
+//      final Date date = new Date();
+//      new RegressionTestHelper() {
+//          
+//          String getFormName() {
+//              return "simplestForm";
+//          }
+//          
+//          String[] widgetLabels() {
+//              return new String[] { "Date:", "Location:", "Provider:" };
+//          }
+//          
+//          void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+//              request.addParameter(widgets.get("Date:"), dateAsString(date));
+//              request.addParameter(widgets.get("Location:"), "2");
+//              request.addParameter(widgets.get("Provider:"), "502");
+//          }
+//          
+//          void testResults(SubmissionResults results) {
+//              results.assertNoErrors();
+//              results.assertEncounterCreated();
+//          }
+//      }.run();
+//  }
+	
 }

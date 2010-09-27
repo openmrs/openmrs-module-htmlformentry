@@ -130,6 +130,25 @@ public class TestUtil {
 		}
 	}
 	
+	/**
+     * Tests whether the substring is NOT contained in the actual string. Allows for inclusion of
+     * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
+     * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
+     * <htmlform>...</htmlform>.
+     */
+    public static void assertFuzzyDoesNotContain(String substring, String actual) {
+        if (substring == null) {
+            return;
+        }
+        if (actual == null) {
+            return;
+        }
+        
+        if (Pattern.compile(stripTagsAndWhitespace(substring)).matcher(stripTagsAndWhitespace(actual)).find()) {
+            Assert.fail(substring + " found in  " + actual);
+        }
+    }
+	
 	
 	private static String stripTagsAndWhitespace(String string) {
 		string = string.toLowerCase();
@@ -151,23 +170,8 @@ public class TestUtil {
 	 * @return
 	 */
 	public static Obs addObs(Encounter encounter, Integer conceptId, Object value, Date date) {
-		Person person = encounter.getPatient();
-		Concept concept = Context.getConceptService().getConcept(conceptId);
-		Location location = encounter.getLocation();
-		Obs obs = new Obs(person, concept, date, location);
-		if (value != null) {
-			if (value instanceof Number)
-				obs.setValueNumeric(((Number) value).doubleValue());
-			else if (value instanceof String)
-				obs.setValueText((String) value);
-			else if (value instanceof Date)
-				obs.setValueDatetime((Date) value);
-			else if (value instanceof Concept)
-				obs.setValueCoded((Concept) value);
-		}
-		obs.setDateCreated(new Date());
+	    Obs obs = createObs(encounter, conceptId, value, date);
 		encounter.addObs(obs);
-		
 		return obs;
 	}
 	
@@ -193,6 +197,32 @@ public class TestUtil {
 		}
 		
 		return obsgroup;
+	}
+	
+	/**
+	 * 
+	 * Utility to give us a ready-to-save (without violating foreign-key constraints) Obs
+	 * 
+	 * @param encounter
+	 * @param conceptId
+	 * @param value
+	 * @param date
+	 * @return
+	 */
+	public static Obs createObs(Encounter encounter, Integer conceptId, Object value, Date date){
+	    Obs obs = new Obs(encounter.getPatient(), Context.getConceptService().getConcept(conceptId), date, encounter.getLocation());
+        if (value != null) {
+            if (value instanceof Number)
+                obs.setValueNumeric(((Number) value).doubleValue());
+            else if (value instanceof String)
+                obs.setValueText((String) value);
+            else if (value instanceof Date)
+                obs.setValueDatetime((Date) value);
+            else if (value instanceof Concept)
+                obs.setValueCoded((Concept) value);
+        }
+        obs.setDateCreated(new Date());
+        return obs;
 	}
 	
 }

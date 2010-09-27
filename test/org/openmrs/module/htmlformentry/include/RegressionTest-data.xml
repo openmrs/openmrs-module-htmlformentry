@@ -95,6 +95,7 @@
   <field field_id="1" name="PATIENT" description="Patient section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   <field field_id="2" name="ENCOUNTER" description="Encounter section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   <field field_id="3" name="OBS" description="Obs section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
   <field field_id="4" name="Most recent CD4" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   <field field_id="6" name="Current height" description="" field_type="1" concept_id="3" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   
@@ -118,5 +119,45 @@
   <form_field form_field_id="10" form_id="1" field_id="10" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700"/>
   <form_field form_field_id="11" form_id="1" field_id="11" parent_form_field="10" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
   <form_field form_field_id="12" form_id="1" field_id="12" parent_form_field="10" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+
+	<!-- DST data, with similar conceptIds to PIH dictionary -->
+  <concept concept_id="2474" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03-102d-b0e3-001ec5670cc5"/>
+  <concept concept_id="3017" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03-102d-b0e3-001ec3450cc6"/>
+  <concept concept_id="1441" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03-102d-b0e3-001ec4560cc7"/>
+  <concept concept_id="656" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03-102d-b0e3-001ec4560ddd"/>
+  <concept concept_id="767" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03-102d-b0e3-001ec4560333"/>
+  <concept concept_id="1414" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03-102d-b0e3-001ec4561414"/>
+  <concept concept_id="3016" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="32296060-03-102d-b0e3-001ec4560334"/>
+  <concept concept_id="3032" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6" uuid="32296060-03-102d-bb7e-001ec4560334"/>
+  <concept_name voided="false" concept_name_id="3032" concept_id="3032" name="DST Start Date" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="3016" concept_id="3016" name="Colonies" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="2474" concept_id="2474" name="Susceptible" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="3017" concept_id="3017" name="Intermediate" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="1441" concept_id="1441" name="Resistant" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="656" concept_id="656" name="ISONIAZID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="767" concept_id="767" name="RIFAMPICIN" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="1414" concept_id="1414" name="ETHIONAMIDE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_answer concept_answer_id="1008" concept_id="2474" answer_concept="656" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1009" concept_id="2474" answer_concept="767" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1010" concept_id="3017" answer_concept="656" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1011" concept_id="3017" answer_concept="767" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1012" concept_id="1441" answer_concept="656" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1013" concept_id="1441" answer_concept="767" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1014" concept_id="3017" answer_concept="1414" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1015" concept_id="2474" answer_concept="1414" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1016" concept_id="1441" answer_concept="1414" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <!--  here are the DST parent groups -->
+  <concept concept_id="3040" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03-102d-b0e3-001ece375333"/>
+  <concept_name voided="false" concept_name_id="3040" concept_id="3040" name="TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="3025" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03-102d-b0e3-001f63240333"/>
+  <concept_name voided="false" concept_name_id="3025" concept_id="3025" name="TUBERCULOSIS DRUG SENSITIVITY TEST RESULT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <!-- DST construct owns DST result constructs-->
+  <concept_set concept_set_id="3040" concept_id="3025" concept_set="3040" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3041" concept_id="3032" concept_set="3040" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <!-- DST result constructs owns specific results -->
+  <concept_set concept_set_id="2474" concept_id="2474" concept_set="3025" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3017" concept_id="3017" concept_set="3025" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="1441" concept_id="1441" concept_set="3025" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3016" concept_id="3016" concept_set="3025" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
 
 </dataset>

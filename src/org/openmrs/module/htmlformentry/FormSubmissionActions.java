@@ -120,9 +120,9 @@ public class FormSubmissionActions {
         // there needs to be a Person on the stack before this
         if (!stackContains(Person.class))
             throw new InvalidActionException("No Person on the stack");
-        if (group.getObsId() == null && !obsToCreate.contains(group))
+        if (group.getObsId() == null && !obsToCreate.contains(group)){
             obsToCreate.add(group);
-        
+        }    
         Person person = highestOnStack(Person.class);
         Encounter encounter = highestOnStack(Encounter.class);
         group.setPerson(person);
@@ -133,7 +133,7 @@ public class FormSubmissionActions {
         Object o = stack.peek();
         if (o instanceof Obs){
             Obs oParent = (Obs) o;
-            group.setObsGroup(oParent);
+            oParent.addGroupMember(group);
         }
         stack.push(group);
 
@@ -225,7 +225,6 @@ public class FormSubmissionActions {
     public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
         if (value == null || "".equals(value))
             throw new IllegalArgumentException("Cannot create Obs with null or blank value");
-        
         Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
 
         Person person = highestOnStack(Person.class);
@@ -246,7 +245,22 @@ public class FormSubmissionActions {
         }
         return obs;
     }
-    
+    /**
+     * 
+     * Modifies an existing Obs.
+     * <p/>
+     * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs to a list of Obs to create. 
+     * Note that this method does not commit the changes to the database--the changes are applied elsewhere in the framework.
+     * 
+     * @param existingObs
+     * @param concept
+     * @param newValue
+     * @param newDatetime
+     * @param accessionNumber
+     */
+    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+        modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, false);
+    }
     
     /**
      * Modifies an existing Obs.
@@ -254,18 +268,27 @@ public class FormSubmissionActions {
      * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs to a list of Obs to create. 
      * Note that this method does not commit the changes to the database--the changes are applied elsewhere in the framework.
      * 
+     * 
      * @param existingObs the Obs to modify
      * @param concept concept associated with the Obs 
      * @param newValue the new value of the Obs
      * @param newDatetime the new date information for the Obs
      * @param accessionNumber new accession number for the Obs
+     * @param compareConcepts also compare conceptId for differences
      */
-    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
-        // if the concepts don't match then something has gone wrong, and we fail hard
-        if (!existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
+    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, boolean compareConcepts) {
+        if (!compareConcepts && !existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
+            // if the concepts don't match then something has gone wrong, and we fail hard
             throw new RuntimeException("Programming error somewhere in this module. Please report this to OpenMRS. " + existingObs.getConcept().getBestName(Context.getLocale()) + " != " + concept.getBestName(Context.getLocale()));
-        }
+        } 
         if (newValue == null || "".equals(newValue)) {
+            // we want to delete the existing obs
+            if (log.isDebugEnabled())
+                log.debug("VOID: " + printObsHelper(existingObs));
+            obsToVoid.add(existingObs);
+            return;
+        }
+        if (concept == null) {
             // we want to delete the existing obs
             if (log.isDebugEnabled())
                 log.debug("VOID: " + printObsHelper(existingObs));
@@ -275,14 +298,18 @@ public class FormSubmissionActions {
         Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime, accessionNumber);
         String oldString = existingObs.getValueAsString(Context.getLocale());
         String newString = newObs.getValueAsString(Context.getLocale());
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && concept != null) {
             log.debug("For concept " + concept.getBestName(Context.getLocale()) + ": " + oldString + " -> " + newString);
         }
         boolean valueChanged = !newString.equals(oldString);
         // TODO: handle dates that may equal encounter date
         boolean dateChanged = dateChangedHelper(existingObs.getObsDatetime(), newObs.getObsDatetime());
         boolean accessionNumberChanged = accessionNumberChangedHelper(existingObs.getAccessionNumber(), newObs.getAccessionNumber());
-        if (valueChanged || dateChanged || accessionNumberChanged) {
+        boolean conceptsHaveChanged = false;
+        if (compareConcepts && !existingObs.getConcept().getConceptId().equals(concept.getConceptId())){
+            conceptsHaveChanged = true;
+        }
+        if (valueChanged || dateChanged || accessionNumberChanged || conceptsHaveChanged) {
             if (log.isDebugEnabled()) {
                 log.debug("CHANGED: " + printObsHelper(existingObs));
             }

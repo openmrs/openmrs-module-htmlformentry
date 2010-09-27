@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
 
 /**

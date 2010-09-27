@@ -204,20 +204,20 @@ public class FormEntryContext {
     public void endObsGroup() {
         currentObsGroupMembers = null;
         //remove itself
-        if (!obsGroupStack.isEmpty())
+        if (!obsGroupStack.isEmpty()){
             obsGroupStack.pop();
+            currentObsGroupConcepts.pop();
+        }  
         getSchema().addField(activeObsGroup);  
         //put the parent obs group back
         if (!obsGroupStack.isEmpty()){
-            Map<ObsGroup, List<Obs>> map = obsGroupStack.pop();
+            Map<ObsGroup, List<Obs>> map = obsGroupStack.peek();
             for (Map.Entry<ObsGroup, List<Obs>> e : map.entrySet()){
                 currentObsGroupMembers = e.getValue();
                 activeObsGroup = e.getKey();
                 break;
             }
         }
-        if (currentObsGroupConcepts.pop() == null)
-            throw new RuntimeException("Trying to close an obs group where none is open");
     }
     
     /**
@@ -241,8 +241,7 @@ public class FormEntryContext {
             return null;
         for (Iterator<Obs> iter = currentObsGroupMembers.iterator(); iter.hasNext(); ) {
             Obs obs = iter.next();
-            if (!obs.isVoided() &&
-                    concept.getConceptId().equals(obs.getConcept().getConceptId()) &&
+            if (!obs.isVoided() && (concept == null || concept.getConceptId().equals(obs.getConcept().getConceptId())) &&
                     (answerConcept == null || equalConcepts(answerConcept, obs.getValueCoded()))) {
                 iter.remove();
                 return obs;
@@ -317,6 +316,23 @@ public class FormEntryContext {
     }
     
     /**
+     * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version
+     * for ConceptSelect obs tags.
+    * 
+    * @param questions the concepts associated with the Obs to remove
+    * @param answer the concept that serves as the answer for Obs to remove (may NOT be null)
+    * @return
+    */
+    public Obs removeExistingObs(List<Concept> questions, Concept answer) {
+        for (Concept question:questions){
+            Obs ret = removeExistingObs(question, answer);
+            if (ret != null)
+                return ret;
+        }
+        return null;
+    }
+    
+    /**
      * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
      */
     private boolean equalConcepts(Concept c1, Concept c2) {
@@ -349,36 +365,56 @@ public class FormEntryContext {
 
     
     /**
-     * Returns, and removes, the first {@see ObsGroup} that matches the specified 
-     *  concept and question/answer list. (That is, if the concept of the parent Obs = groupConcept,
-     *  and all Obs in the group also belong to questionsAndAnswers.)
+     * Finds the best matching obsGroup at the at the right obsGroup hierarchy level
      *  <p/>
-     * <pre> 
-     * For example you might have a group capable of holding (per questionsAndAnswers):
-     *      Symptom Absent = Cough
-     *      Symptom Present = Cough
-     *      Symptom Duration = (null)
-     * and if we have an obs group containing a subset of those
-     *      Symptom Present = Cough
-     *      Symptom Duration = 5
-     *      
-     * then we would return it, assuming the the concept associated
-     * with the parent Obs = groupConcept
-     * </pre>
+
      * 
      * @param groupConcept the grouping concept associated with the {@see ObsGroups}
      * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
+     * @param obsGroupDepth  the depth level of the obsGroup in the xml
      * @return the first matching {@see ObsGroup}
      */
-    public Obs findFirstMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers) {
+    public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept, int obsGroupDepth) {
+        Set<Obs> contenders = new HashSet<Obs>();
+        // first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are 
+        // saved as contenders
         for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet() ) {
-            Obs group = e.getKey();
-            if (ObsGroupComponent.supports(questionsAndAnswers, e.getKey(), e.getValue())) {
-                existingObsInGroups.remove(group);
-                 return group;
+            int parentObsDepth = getObsGroupDepthForParentObs(e.getKey());
+            if (parentObsDepth == obsGroupDepth 
+                    && e.getKey().getConcept().getConceptId().equals(Integer.valueOf(xmlObsGroupConcept)) ) {
+                contenders.add(e.getKey());
              }
          }
+        Obs ret = null;
+        // if there's only one contender, that's what we're returning:
+        if (contenders.size() == 1){
+            ret = contenders.iterator().next();
+        // if there are multiple contenders, then we only return obsGroups that match the questionsAndAnswers
+        // meaning, that if an obsGroup has an extra obs besides what's expected, it won't be returned.
+        } else {
+            for (Obs parentObs:contenders){
+                if (ObsGroupComponent.supports(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs))){
+                    ret = parentObs;
+                    break;
+                }
+            } 
+        }
+        
+        if (ret != null){
+            existingObsInGroups.remove(ret);
+            return ret;
+        }
         return null;
+    }
+    
+    private int getObsGroupDepthForParentObs(Obs o){
+        int depth = 1;
+        Obs oTmp = o.getObsGroup();
+        while (oTmp != null){
+            depth ++;
+            oTmp = oTmp.getObsGroup();
+        }
+        return depth;
     }
     
     /**
