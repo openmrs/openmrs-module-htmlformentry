@@ -603,6 +603,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	private String getSetterFunction(Widget widget) {
 		if (widget == null)
 	    	return null;
+		if (widget instanceof CheckboxWidget)
+			return "checkboxSetterFunction";
 		return null;
     }
 
@@ -614,6 +616,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	private String getGetterFunction(Widget widget) {
 		if (widget == null)
 	    	return null;
+		if (widget instanceof CheckboxWidget)
+			return "checkboxGetterFunction";
 	    return null;
     }
 

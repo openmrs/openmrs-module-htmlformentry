@@ -125,8 +125,8 @@ function removeRow(tableId, anElementInRow) {
 }
 
 function setupAutocomplete(element,src, answerids, answerclasses) {
-	var hiddenField = $("#"+element.id+"_hid");
-	var textField = $(element);
+	var hiddenField = jQuery("#"+element.id+"_hid");
+	var textField = jQuery(element);
 	var select = false;
 	
 	 /*
@@ -142,12 +142,12 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 		textField.autocomplete( {
 			 source: function(req, add){  
 	        //pass request to server  
-			$.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {  
+			jQuery.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {  
 				   
 			//create array for response objects  
 			var suggestions = [];  
 				   
-		   $.each(data, function(i, val){  
+			jQuery.each(data, function(i, val){  
 			suggestions.push(val);  
 		   });
 		   
@@ -179,8 +179,8 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 }
 
 function onBlurAutocomplete(element){
-	var hiddenField = $("#"+element.id+"_hid");
-	var textField = $(element);
+	var hiddenField = jQuery("#"+element.id+"_hid");
+	var textField = jQuery(element);
 	
 	if(textField.val() != "" && (hiddenField.val()==""||hiddenField.val()=="ERROR")){
 		hiddenField.val("ERROR");
@@ -231,7 +231,7 @@ function setValue(elementAndProperty, value) {
 }
 
 function defaultFieldFunction(widgetId) {
-	return $('#' + widgetId);
+	return jQuery('#' + widgetId);
 }
 
 function defaultGetterFunction(widgetId) {
@@ -244,4 +244,23 @@ function defaultSetterFunction(widgetId, value) {
 		return;
 	}
 	DWRUtil.setValue(widgetId, value);
+}
+
+function checkboxGetterFunction(widgetId) {
+	var sel = DWRUtil.getValue(widgetId);
+	if (sel) {
+		return jQuery('#' + widgetId).val();
+	} else {
+		return null;
+	}
+}
+
+// turns the checkbox on if you pass it (boolean) true or the 'value' field of the checkbox element
+function checkboxSetterFunction(widgetId, value) {
+	if (widgetId == null || document.getElementById(widgetId) == null) {
+		window.alert("Form scripting error: cannot find widget " + widgetId);
+		return;
+	}
+	var valueWhenOn = jQuery('#' + widgetId).val();
+	DWRUtil.setValue(widgetId, value == true || value == valueWhenOn);
 }
