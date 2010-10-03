@@ -1,11 +1,9 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 
 import org.openmrs.Concept;
 import org.openmrs.Obs;
@@ -15,7 +13,6 @@ import org.openmrs.module.htmlformentry.ObsGroupComponent;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Handles the {@code <obsGroup>} tag
