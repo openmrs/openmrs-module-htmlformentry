@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.w3c.dom.NamedNodeMap;
@@ -18,8 +20,9 @@ import org.w3c.dom.NodeList;
  */
 public class ObsGroupComponent {
 
-	private Concept question;
+    private static final Log log = LogFactory.getLog(ObsGroupComponent.class);
     
+	private Concept question;
 	private Concept answer;
     
     public ObsGroupComponent() {
@@ -53,25 +56,25 @@ public class ObsGroupComponent {
     
     public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs parentObs, Set<Obs> group) {
 //      for (ObsGroupComponent ogc: questionsAndAnswers){
-//          System.out.println(ogc.getQuestion() + " " + ogc.getAnswer());
+//          log.debug(ogc.getQuestion() + " " + ogc.getAnswer());
 //      }
       for (Obs obs : group) {
           boolean match = false;
           for (ObsGroupComponent test : questionsAndAnswers) {
               boolean questionMatches = test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
               boolean answerMatches = test.getAnswer() == null ||(obs.getValueCoded() != null && test.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
-//            System.out.println("First comparison, questionMatches evaluated "+ questionMatches+ " based on test"  + test.getQuestion().getConceptId() + " and obs.concept" + obs.getConcept().getConceptId() + " AND answer concept evaluated " + answerMatches  );
+//              log.debug("First comparison, questionMatches evaluated "+ questionMatches+ " based on test"  + test.getQuestion().getConceptId() + " and obs.concept" + obs.getConcept().getConceptId() + " AND answer concept evaluated " + answerMatches  );
               if (questionMatches && answerMatches) {
                   match = true;
                   break;
               }
           }
           if (!match){
-//            System.out.println("returning false for " + parentObs);
+//              log.debug("returning false for " + parentObs);
               return false;
           }    
       }
-//      System.out.println("returning true for " + parentObs);
+//      log.debug("returning true for " + parentObs);
       return true;
   }
   
@@ -180,5 +183,45 @@ public class ObsGroupComponent {
                }
       }     
       
+  }
+  
+  /**
+   * 
+   * returns the obsgroup hierarchy path of an obsgroup Obs, including itself
+   * 
+   * @param o
+   * @return
+   */
+  public static String getObsGroupPath(Obs o){
+      StringBuilder st = new StringBuilder("/" + o.getConcept().getConceptId());
+      while (o.getObsGroup() != null){
+          o = o.getObsGroup();
+          st.insert(0, "/" + o.getConcept().getConceptId());
+      }
+      return st.toString();
+  }
+
+  /**
+   * 
+   * returns the obsgroup hierarchy path of an obsgroup node in the xml, including itself
+   * 
+   * @param node
+   * @return
+   */
+  public static String getObsGroupPath(Node node){
+      StringBuilder st = new StringBuilder();
+      while (!node.getNodeName().equals("htmlform")){
+          if (node.getNodeName().equals("obsgroup")){
+              try {
+                  String conceptIdString = node.getAttributes().getNamedItem("groupingConceptId").getNodeValue();
+                  Concept c = HtmlFormEntryUtil.getConcept(conceptIdString);
+                  st.insert(0, "/" + c.getConceptId());
+              } catch (Exception ex){
+                  throw new RuntimeException("obsgroup tag encountered without groupingConceptId attribute");
+              }
+          }
+          node = node.getParentNode();        
+      }
+      return st.toString();
   }
 }

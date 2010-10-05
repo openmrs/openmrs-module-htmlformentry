@@ -44,11 +44,8 @@ public class ObsGroupTagHandler implements TagHandler {
                 
         // find relevant obs group to display for this element
         Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
-        // sets the current obs group members in the context
-        session.getContext().setObsGroup(thisGroup);
         // sets up the obs group stack, sets current obs group to this one
-        session.getContext().beginObsGroup(groupingConcept);
-        
+        session.getContext().beginObsGroup(groupingConcept, thisGroup);
         //adds the obsgroup action to the controller stack
         session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup));
         return true;
@@ -56,26 +53,8 @@ public class ObsGroupTagHandler implements TagHandler {
 
     private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId) {
         List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
-        int depth = getObsGroupDepth(node);
-        return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, depth);
-    }
-    
-    /**
-     * 
-     * Gets hierarchy level of obsgroup tag.  obsgroups at top level of encounter returns 1.  obsgroups inside of top level obs groups return 2.  etc...
-     * 
-     * @param node
-     * @return
-     */
-    private int getObsGroupDepth(Node node){
-        int obsGroupDepth = 1;
-        Node tmpNode = node;
-        while (!tmpNode.getNodeName().equals("htmlform")){
-            tmpNode = tmpNode.getParentNode();
-            if (tmpNode.getNodeName().equals("obsgroup"))
-                obsGroupDepth++;
-        }
-        return obsGroupDepth;
+        String path = ObsGroupComponent.getObsGroupPath(node);
+        return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
     }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {

@@ -166,7 +166,8 @@ public class FormEntryContext {
     /**
      * Marks the start of a new {@see ObsGroup} within current Context
      */
-    public void beginObsGroup(Concept conceptSet) {
+    public void beginObsGroup(Concept conceptSet, Obs thisGroup) {
+        setObsGroup(thisGroup);
         currentObsGroupConcepts.push(conceptSet);
         activeObsGroup = new ObsGroup(conceptSet);
         Map<ObsGroup, List<Obs>> map = new HashMap<ObsGroup, List<Obs>>();
@@ -374,16 +375,14 @@ public class FormEntryContext {
      * @param obsGroupDepth  the depth level of the obsGroup in the xml
      * @return the first matching {@see ObsGroup}
      */
-    public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept, int obsGroupDepth) {
+    public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept, String path) {
         Set<Obs> contenders = new HashSet<Obs>();
         // first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are 
         // saved as contenders
         for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet() ) {
-            int parentObsDepth = getObsGroupDepthForParentObs(e.getKey());
-            if (parentObsDepth == obsGroupDepth 
-                    && e.getKey().getConcept().getConceptId().equals(Integer.valueOf(xmlObsGroupConcept)) ) {
+//            log.debug("Comparing obsVal " + ObsGroupComponent.getObsGroupPath(e.getKey()) + " to xmlval " + path);
+            if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey())) )
                 contenders.add(e.getKey());
-             }
          }
         Obs ret = null;
         // if there's only one contender, that's what we're returning:
@@ -406,17 +405,7 @@ public class FormEntryContext {
         }
         return null;
     }
-    
-    private int getObsGroupDepthForParentObs(Obs o){
-        int depth = 1;
-        Obs oTmp = o.getObsGroup();
-        while (oTmp != null){
-            depth ++;
-            oTmp = oTmp.getObsGroup();
-        }
-        return depth;
-    }
-    
+
     /**
      * Returns the patient currently associated with the context
      */
