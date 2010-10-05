@@ -69,18 +69,50 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	private String answerLabel;
     private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
     private boolean required;
+    //these are for conceptSelects:
+    private List<Concept> concepts = null; //possible concepts
+    private List<String> conceptLabels = null; //the text to show for possible concepts
 
 	public ObsSubmissionElement(FormEntryContext context,
-			Map<String, String> parameters) {
-		try {
-			String conceptId = parameters.get("conceptId");
-			concept = HtmlFormEntryUtil.getConcept(conceptId);
-			if (concept == null)
-				throw new NullPointerException();
-		} catch (Exception ex) {
-			throw new IllegalArgumentException("Cannot find concept in "
-					+ parameters);
-		}
+		Map<String, String> parameters) {
+        String conceptId = parameters.get("conceptId");
+        String conceptIds = parameters.get("conceptIds");
+        if (conceptId != null && conceptIds != null)
+            throw new RuntimeException("You can't use conceptId and conceptIds in the same tag!");
+        else if (conceptId == null && conceptIds == null)
+            throw new RuntimeException("You must include either conceptId or conceptIds in an obs tag");
+        if (conceptId != null){
+            try {
+                concept = HtmlFormEntryUtil.getConcept(conceptId);
+                if (concept == null)
+                    throw new NullPointerException();
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Cannot find concept in "
+                        + parameters);
+            }
+        } else {
+            concepts = new ArrayList<Concept>();
+            try {
+                String answerConceptId = parameters.get("answerConceptId");
+                answerConcept = HtmlFormEntryUtil.getConcept(answerConceptId);
+                if (answerConcept == null)
+                    throw new NullPointerException();
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("You must provide a valid answerConcept in "
+                        + parameters);
+            }
+            for (StringTokenizer st = new StringTokenizer(conceptIds, ","); st.hasMoreTokens(); ) {
+                String s = st.nextToken().trim();
+                Concept concept = HtmlFormEntryUtil.getConcept(s);
+                if (concept == null)
+                    throw new IllegalArgumentException("Cannot find concept value " + s + " in conceptIds attribute value. Parameters: " + parameters);
+                concepts.add(concept);
+            }
+            if (concepts.size() == 0)
+                throw new IllegalArgumentException("You must provide some valid conceptIds for the conceptIds attribute. Parameters: " + parameters);
+        }
+	        
+	        
 		if ("true".equals(parameters.get("allowFutureDates")))
 			allowFutureDates = true;
         if ("true".equals(parameters.get("required"))) {
@@ -95,16 +127,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			Map<String, String> parameters) {
 		String userLocaleStr = Context.getLocale().toString();
 		try {
-			answerConcept = HtmlFormEntryUtil.getConcept(parameters.get("answerConceptId"));
+		    if (answerConcept == null)
+		        answerConcept = HtmlFormEntryUtil.getConcept(parameters.get("answerConceptId"));
 		} catch (Exception ex) {
 		}
-		if (context.getCurrentObsGroupConcepts() != null
-				&& context.getCurrentObsGroupConcepts().size() > 0) {
-			existingObs = context
-					.getObsFromCurrentGroup(concept, answerConcept);
-		} else {
-			if (concept.getDatatype().isBoolean()
-					&& "checkbox".equals(parameters.get("style"))) {
+		if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
+			existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
+		} else if (concept != null){
+			if (concept.getDatatype().isBoolean() && "checkbox".equals(parameters.get("style"))) {
 				// since a checkbox has one value we need to look for an exact
 				// match for that value
 				if ("false".equals(parameters.get("value"))) {
@@ -113,10 +143,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 					// if not 'false' we treat as 'true'
 					existingObs = context.removeExistingObs(concept, true);
 				}
-
 			} else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
+		} else {
+		    existingObs = context.removeExistingObs(concepts, answerConcept);
 		}
 
 		errorWidget = new ErrorWidget();
@@ -124,7 +155,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 
 		if (parameters.containsKey("labelNameTag")) {
 			if (parameters.get("labelNameTag").equals("default"))
-				valueLabel = concept.getBestName(Context.getLocale()).getName();
+			    if (concepts != null)
+			        valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
+			    else
+			        valueLabel = concept.getBestName(Context.getLocale()).getName();
 			else
 				throw new IllegalArgumentException(
 						"Name tags other than 'default' not yet implemented");
@@ -134,7 +168,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			valueLabel = context.getTranslator().translate(userLocaleStr,
 					parameters.get("labelCode"));
 		} else {
-			valueLabel = "";
+		    if (concepts != null)
+		        valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
+		    else
+		        valueLabel = "";
 		}
 		if (parameters.get("answerLabels") != null) {
 			answerLabels = Arrays.asList(parameters.get("answerLabels").split(
@@ -147,356 +184,381 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 						userLocaleStr, s));
 			}
 		}
-		if (concept.getDatatype().isNumeric()) {
-			if (parameters.get("answers") != null) {
-				try {
-					for (StringTokenizer st = new StringTokenizer(parameters
-							.get("answers"), ", "); st.hasMoreTokens();) {
-						Number answer = Double.valueOf(st.nextToken());
-						numericAnswers.add(answer);
-					}
-				} catch (Exception ex) {
-					throw new RuntimeException(
-							"Error in answer list for concept "
-									+ concept.getConceptId() + " ("
-									+ ex.toString() + "): " + conceptAnswers);
-				}
-			}
-			ConceptNumeric cn = Context.getConceptService().getConceptNumeric(
-					concept.getConceptId());
-			if (numericAnswers.size() == 0) {
-				valueWidget = new NumberFieldWidget(cn);
-			} else {
-				if ("radio".equals(parameters.get("style"))) {
-					valueWidget = new RadioButtonsWidget();
-				} else { // dropdown
-					valueWidget = new DropdownWidget();
-					((DropdownWidget) valueWidget).addOption(new Option());
-				}
-				// need to make sure we have the initialValue too
-				Number lookFor = existingObs == null ? null : existingObs
-						.getValueNumeric();
-				for (int i = 0; i < numericAnswers.size(); ++i) {
-					Number n = numericAnswers.get(i);
-					if (lookFor != null && lookFor.equals(n))
-						lookFor = null;
-					String label = null;
-					if (answerLabels != null && i < answerLabels.size()) {
-						label = answerLabels.get(i);
-					} else {
-						label = n.toString();
-					}
-					((SingleOptionWidget) valueWidget).addOption(new Option(
-							label, n.toString(), false));
-				}
-				// if lookFor is still non-null, we need to add it directly as
-				// an option:
-				if (lookFor != null)
-					((SingleOptionWidget) valueWidget).addOption(new Option(
-							lookFor.toString(), lookFor.toString(), true));
-			}
-			if (existingObs != null) {
-				valueWidget.setInitialValue(existingObs.getValueNumeric());
-			}
-		} else if (concept.getDatatype().isText()) {
-			if (parameters.get("answers") != null) {
-				try {
-					for (StringTokenizer st = new StringTokenizer(parameters
-							.get("answers"), ","); st.hasMoreTokens();) {
-						textAnswers.add(st.nextToken());
-					}
-				} catch (Exception ex) {
-					throw new RuntimeException(
-							"Error in answer list for concept "
-									+ concept.getConceptId() + " ("
-									+ ex.toString() + "): " + conceptAnswers);
-				}
-			}
-			if ("location".equals(parameters.get("style"))) {
-				valueWidget = new LocationWidget();
-			} else {
-				if (textAnswers.size() == 0) {
-					Integer rows = null;
-					Integer cols = null;
-					try {
-						rows = Integer.valueOf(parameters.get("rows"));
-					} catch (Exception ex) {
-					}
-					try {
-						cols = Integer.valueOf(parameters.get("cols"));
-					} catch (Exception ex) {
-					}
-					if (rows != null || cols != null
-							|| "textarea".equals(parameters.get("style"))) {
-						valueWidget = new TextFieldWidget(rows, cols);
-					} else {
-						Integer size = null;
-						try {
-							size = Integer.valueOf(parameters.get("size"));
-						} catch (Exception ex) {
-						}
-						valueWidget = new TextFieldWidget(size);
-					}
-				} else {
-					if ("radio".equals(parameters.get("style"))) {
-						valueWidget = new RadioButtonsWidget();
-					} else { // dropdown
-						valueWidget = new DropdownWidget();
-						((DropdownWidget) valueWidget).addOption(new Option());
-					}
-					// need to make sure we have the initialValue too
-					String lookFor = existingObs == null ? null : existingObs
-							.getValueText();
-					for (int i = 0; i < textAnswers.size(); ++i) {
-						String s = textAnswers.get(i);
-						if (lookFor != null && lookFor.equals(s))
-							lookFor = null;
-						String label = null;
-						if (answerLabels != null && i < answerLabels.size()) {
-							label = answerLabels.get(i);
-						} else {
-							label = s;
-						}
-						((SingleOptionWidget) valueWidget)
-								.addOption(new Option(label, s, false));
-					}
-					// if lookFor is still non-null, we need to add it directly
-					// as an option:
-					if (lookFor != null)
-						((SingleOptionWidget) valueWidget)
-								.addOption(new Option(lookFor, lookFor, true));
-				}
-			}
-			if (existingObs != null) {
-				Object value;
-				if ("location".equals(parameters.get("style"))) {
-					value = Context.getLocationService().getLocation(
-							Integer.valueOf(existingObs.getValueText()));
-				} else {
-					value = existingObs.getValueText();
-				}
-				valueWidget.setInitialValue(value);
-			}
-		} else if (concept.getDatatype().isCoded()) {
-			if (parameters.get("answerConceptIds") != null) {
-				try {
-					for (StringTokenizer st = new StringTokenizer(parameters
-							.get("answerConceptIds"), ", "); st.hasMoreTokens();) {
-						Concept c = HtmlFormEntryUtil.getConcept(st.nextToken());
-						if (c == null)
-							throw new RuntimeException("Cannot find concept "
-									+ st.nextToken());
-						conceptAnswers.add(c);
-					}
-				} catch (Exception ex) {
-					throw new RuntimeException(
-							"Error in answer list for concept "
-									+ concept.getConceptId() + " ("
-									+ ex.toString() + "): " + conceptAnswers);
-				}
-			} else if (parameters.get("answerClasses") != null) {
-				try {
-					for (StringTokenizer st = new StringTokenizer(parameters
-							.get("answerClasses"), ","); st.hasMoreTokens();) {
-						String className = st.nextToken().trim();
-						ConceptClass cc = Context.getConceptService()
-								.getConceptClassByName(className);
-						if (cc == null) {
-							throw new RuntimeException(
-									"Cannot find concept class " + className);
-						}
-						conceptAnswers.addAll(Context.getConceptService()
-								.getConceptsByClass(cc));
-					}
-					Collections.sort(conceptAnswers, conceptNameComparator);
-				} catch (Exception ex) {
-					throw new RuntimeException(
-							"Error in answer class list for concept "
-									+ concept.getConceptId() + " ("
-									+ ex.toString() + "): " + conceptAnswers);
-				}
-			}
-
-			if (answerConcept != null) {
-				// if there's also an answer concept specified, this is a single
-				// checkbox
-				answerLabel = parameters.get("answerLabel");
-				if (answerLabel == null) {
-					String answerCode = parameters.get("answerCode");
-					if (answerCode != null) {
-						answerLabel = context.getTranslator().translate(
-								userLocaleStr, answerCode);
-					} else {
-						answerLabel = answerConcept.getBestName(
-								Context.getLocale()).getName();
-					}
-				}
-				valueWidget = new CheckboxWidget(answerLabel, answerConcept
-						.getConceptId().toString());
-				if (existingObs != null) {
-					valueWidget.setInitialValue(existingObs.getValueCoded());
-				}
-			} else if ("true".equals(parameters.get("multiple"))) {
-				// if this is a select-multi, we need a group of checkboxes
-				throw new RuntimeException(
-						"Multi-select coded questions are not yet implemented");
-			} else {
-				// If no conceptAnswers are specified, 
-				if (conceptAnswers == null || conceptAnswers.isEmpty()) {
-					// if style = autocomplete
-					if("autocomplete".equals(parameters.get("style"))){
-						throw new RuntimeException(
-						"style \"autocomplete\" has to work with either \"answerClasses\" or \"answerConceptIds\" attribute");
-					}
-					// else use all available conceptAnswers
-					conceptAnswers = new ArrayList<Concept>();
-					for (ConceptAnswer ca : concept.getAnswers(false)) {
-						conceptAnswers.add(ca.getAnswerConcept());
-					}
-					Collections.sort(conceptAnswers, conceptNameComparator);
-				}
-				
-				if ("autocomplete".equals(parameters.get("style"))){
-					List<ConceptClass> cptClasses = new ArrayList<ConceptClass>();
-					if (parameters.get("answerClasses") != null) {
-						for (StringTokenizer st = new StringTokenizer(parameters
-								.get("answerClasses"), ","); st.hasMoreTokens();) {
-							String className = st.nextToken().trim();
-							ConceptClass cc = Context.getConceptService()
-									.getConceptClassByName(className);
-							cptClasses.add(cc);
-						}
-					}
-					valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
-				} else {
-					// Show Radio Buttons if specified, otherwise default to Drop
-					// Down 
-					boolean isRadio = "radio".equals(parameters.get("style"));
-					if (isRadio) {
-						valueWidget = new RadioButtonsWidget();
-					}
-					else {
-						valueWidget = new DropdownWidget();
-						((DropdownWidget) valueWidget).addOption(new Option());
-					}
-					for (int i = 0; i < conceptAnswers.size(); ++i) {
-						Concept c = conceptAnswers.get(i);
-						String label = null;
-						if (answerLabels != null && i < answerLabels.size()) {
-							label = answerLabels.get(i);
-						} else {
-							label = c.getBestName(Context.getLocale()).getName();
-						}
-						((SingleOptionWidget) valueWidget).addOption(new Option(
-							label, c.getConceptId().toString(), false));
-					}
-				}
-				if (existingObs != null) {
-					valueWidget.setInitialValue(existingObs.getValueCoded());
-				}
-			}
-		} else if (concept.getDatatype().isBoolean()) {
-			String noStr = parameters.get("noLabel");
-			if (StringUtils.isEmpty(noStr)) {
-				noStr = context.getTranslator().translate(userLocaleStr,
-						"general.no");
-			}
-			String yesStr = parameters.get("yesLabel");
-			if (StringUtils.isEmpty(yesStr)) {
-				yesStr = context.getTranslator().translate(userLocaleStr,
-						"general.yes");
-			}
-			if ("checkbox".equals(parameters.get("style"))) {
-				valueWidget = new CheckboxWidget(valueLabel, parameters
-						.get("value") != null ? parameters.get("value")
-						: "true");
-				valueLabel = "";
-				if (existingObs != null) {
-					valueWidget
-							.setInitialValue(existingObs.getValueAsBoolean());
-				}
-			} else if ("no_yes".equals(parameters.get("style"))) {
-				valueWidget = new RadioButtonsWidget();
-				((RadioButtonsWidget) valueWidget).addOption(new Option(noStr,
-						"false", false));
-				((RadioButtonsWidget) valueWidget).addOption(new Option(yesStr,
-						"true", false));
-				if (existingObs != null) {
-					valueWidget
-							.setInitialValue(existingObs.getValueAsBoolean());
-				}
-			} else if ("yes_no".equals(parameters.get("style"))) {
-				valueWidget = new RadioButtonsWidget();
-				((RadioButtonsWidget) valueWidget).addOption(new Option(yesStr,
-						"true", false));
-				((RadioButtonsWidget) valueWidget).addOption(new Option(noStr,
-						"false", false));
-				if (existingObs != null) {
-					valueWidget
-							.setInitialValue(existingObs.getValueAsBoolean());
-				}
-			} else if ("no_yes_dropdown".equals(parameters.get("style"))) {
-				valueWidget = new DropdownWidget();
-				((DropdownWidget) valueWidget).addOption(new Option());
-				((DropdownWidget) valueWidget).addOption(new Option(noStr,
-						"false", false));
-				((DropdownWidget) valueWidget).addOption(new Option(yesStr,
-						"true", false));
-				if (existingObs != null) {
-					valueWidget
-							.setInitialValue(existingObs.getValueAsBoolean());
-				}
-			} else if ("yes_no_dropdown".equals(parameters.get("style"))) {
-				valueWidget = new DropdownWidget();
-				((DropdownWidget) valueWidget).addOption(new Option());
-				((DropdownWidget) valueWidget).addOption(new Option(yesStr,
-						"true", false));
-				((DropdownWidget) valueWidget).addOption(new Option(noStr,
-						"false", false));
-				if (existingObs != null) {
-					valueWidget
-							.setInitialValue(existingObs.getValueAsBoolean());
-				}
-			} else {
-				throw new RuntimeException("Boolean with style = "
-						+ parameters.get("style")
-						+ " not yet implemented (concept = "
-						+ concept.getConceptId() + ")");
-			}
-		
-		// TODO: in 1.7-compatible version of the module, we can replace the H17 checks
-		// used below with the new isDate, isTime, and isDatetime
-		
-		// if it's a Date type
-		} else if (ConceptDatatype.DATE.equals(concept.getDatatype()
-				.getHl7Abbreviation())) {
-			valueWidget = new DateWidget();
-			if (existingObs != null)
-				valueWidget.setInitialValue(existingObs.getValueDatetime());
-		}
-		// if it's a Time type
-		else if (ConceptDatatype.TIME.equals(concept.getDatatype()
-				.getHl7Abbreviation())) {
-			valueWidget = new TimeWidget();
-			if (existingObs != null)
-				valueWidget.setInitialValue(existingObs.getValueDatetime());
-		}
-		// if it's a Date Time type
-		else if (ConceptDatatype.DATETIME.equals(concept.getDatatype()
-				.getHl7Abbreviation())) {
-			DateWidget dateWidget = new DateWidget();
-			TimeWidget timeWidget = new TimeWidget();
-				
-			valueWidget = new DateTimeWidget(dateWidget,timeWidget);
-			if (existingObs != null)
-				valueWidget.setInitialValue(existingObs.getValueDatetime());
-				
-			context.registerWidget(dateWidget);
-			context.registerWidget(timeWidget);
+		if (concepts != null){
+		    conceptLabels = new ArrayList<String>();
+		    if ("radio".equals(parameters.get("style"))) {
+	            valueWidget = new RadioButtonsWidget();
+	        } else { // dropdown
+	            valueWidget = new DropdownWidget();
+	            ((DropdownWidget) valueWidget).addOption(new Option());
+	        }
+	        for (int i = 0; i < concepts.size(); ++i) {
+	            Concept c = concepts.get(i);
+	            String label = null;
+	            if (conceptLabels != null && i < conceptLabels.size()) {
+	                label = conceptLabels.get(i);
+	            } else {
+	                label = c.getBestName(Context.getLocale()).getName();
+	            }
+	            ((SingleOptionWidget) valueWidget).addOption(new Option(
+	                label, c.getConceptId().toString(), false));
+	        }
+	        if (existingObs != null) {
+	            valueWidget.setInitialValue(existingObs.getConcept());
+	        }
+	        answerLabel = getValueLabel();
 		} else {
-			throw new RuntimeException("Cannot handle datatype: "
-					+ concept.getDatatype().getName() + " (for concept "
-					+ concept.getConceptId() + ")");
+    		if (concept.getDatatype().isNumeric()) {
+    			if (parameters.get("answers") != null) {
+    				try {
+    					for (StringTokenizer st = new StringTokenizer(parameters
+    							.get("answers"), ", "); st.hasMoreTokens();) {
+    						Number answer = Double.valueOf(st.nextToken());
+    						numericAnswers.add(answer);
+    					}
+    				} catch (Exception ex) {
+    					throw new RuntimeException(
+    							"Error in answer list for concept "
+    									+ concept.getConceptId() + " ("
+    									+ ex.toString() + "): " + conceptAnswers);
+    				}
+    			}
+    			ConceptNumeric cn = Context.getConceptService().getConceptNumeric(
+    					concept.getConceptId());
+    			if (numericAnswers.size() == 0) {
+    				valueWidget = new NumberFieldWidget(cn);
+    			} else {
+    				if ("radio".equals(parameters.get("style"))) {
+    					valueWidget = new RadioButtonsWidget();
+    				} else { // dropdown
+    					valueWidget = new DropdownWidget();
+    					((DropdownWidget) valueWidget).addOption(new Option());
+    				}
+    				// need to make sure we have the initialValue too
+    				Number lookFor = existingObs == null ? null : existingObs
+    						.getValueNumeric();
+    				for (int i = 0; i < numericAnswers.size(); ++i) {
+    					Number n = numericAnswers.get(i);
+    					if (lookFor != null && lookFor.equals(n))
+    						lookFor = null;
+    					String label = null;
+    					if (answerLabels != null && i < answerLabels.size()) {
+    						label = answerLabels.get(i);
+    					} else {
+    						label = n.toString();
+    					}
+    					((SingleOptionWidget) valueWidget).addOption(new Option(
+    							label, n.toString(), false));
+    				}
+    				// if lookFor is still non-null, we need to add it directly as
+    				// an option:
+    				if (lookFor != null)
+    					((SingleOptionWidget) valueWidget).addOption(new Option(
+    							lookFor.toString(), lookFor.toString(), true));
+    			}
+    			if (existingObs != null) {
+    				valueWidget.setInitialValue(existingObs.getValueNumeric());
+    			}
+    		} else if (concept.getDatatype().isText()) {
+    			if (parameters.get("answers") != null) {
+    				try {
+    					for (StringTokenizer st = new StringTokenizer(parameters
+    							.get("answers"), ","); st.hasMoreTokens();) {
+    						textAnswers.add(st.nextToken());
+    					}
+    				} catch (Exception ex) {
+    					throw new RuntimeException(
+    							"Error in answer list for concept "
+    									+ concept.getConceptId() + " ("
+    									+ ex.toString() + "): " + conceptAnswers);
+    				}
+    			}
+    			if ("location".equals(parameters.get("style"))) {
+    				valueWidget = new LocationWidget();
+    			} else {
+    				if (textAnswers.size() == 0) {
+    					Integer rows = null;
+    					Integer cols = null;
+    					try {
+    						rows = Integer.valueOf(parameters.get("rows"));
+    					} catch (Exception ex) {
+    					}
+    					try {
+    						cols = Integer.valueOf(parameters.get("cols"));
+    					} catch (Exception ex) {
+    					}
+    					if (rows != null || cols != null
+    							|| "textarea".equals(parameters.get("style"))) {
+    						valueWidget = new TextFieldWidget(rows, cols);
+    					} else {
+    						Integer size = null;
+    						try {
+    							size = Integer.valueOf(parameters.get("size"));
+    						} catch (Exception ex) {
+    						}
+    						valueWidget = new TextFieldWidget(size);
+    					}
+    				} else {
+    					if ("radio".equals(parameters.get("style"))) {
+    						valueWidget = new RadioButtonsWidget();
+    					} else { // dropdown
+    						valueWidget = new DropdownWidget();
+    						((DropdownWidget) valueWidget).addOption(new Option());
+    					}
+    					// need to make sure we have the initialValue too
+    					String lookFor = existingObs == null ? null : existingObs
+    							.getValueText();
+    					for (int i = 0; i < textAnswers.size(); ++i) {
+    						String s = textAnswers.get(i);
+    						if (lookFor != null && lookFor.equals(s))
+    							lookFor = null;
+    						String label = null;
+    						if (answerLabels != null && i < answerLabels.size()) {
+    							label = answerLabels.get(i);
+    						} else {
+    							label = s;
+    						}
+    						((SingleOptionWidget) valueWidget)
+    								.addOption(new Option(label, s, false));
+    					}
+    					// if lookFor is still non-null, we need to add it directly
+    					// as an option:
+    					if (lookFor != null)
+    						((SingleOptionWidget) valueWidget)
+    								.addOption(new Option(lookFor, lookFor, true));
+    				}
+    			}
+    			if (existingObs != null) {
+    				Object value;
+    				if ("location".equals(parameters.get("style"))) {
+    					value = Context.getLocationService().getLocation(
+    							Integer.valueOf(existingObs.getValueText()));
+    				} else {
+    					value = existingObs.getValueText();
+    				}
+    				valueWidget.setInitialValue(value);
+    			}
+    		} else if (concept.getDatatype().isCoded()) {
+    			if (parameters.get("answerConceptIds") != null) {
+    				try {
+    					for (StringTokenizer st = new StringTokenizer(parameters
+    							.get("answerConceptIds"), ", "); st.hasMoreTokens();) {
+    						Concept c = HtmlFormEntryUtil.getConcept(st.nextToken());
+    						if (c == null)
+    							throw new RuntimeException("Cannot find concept "
+    									+ st.nextToken());
+    						conceptAnswers.add(c);
+    					}
+    				} catch (Exception ex) {
+    					throw new RuntimeException(
+    							"Error in answer list for concept "
+    									+ concept.getConceptId() + " ("
+    									+ ex.toString() + "): " + conceptAnswers);
+    				}
+    			} else if (parameters.get("answerClasses") != null) {
+    				try {
+    					for (StringTokenizer st = new StringTokenizer(parameters
+    							.get("answerClasses"), ","); st.hasMoreTokens();) {
+    						String className = st.nextToken().trim();
+    						ConceptClass cc = Context.getConceptService()
+    								.getConceptClassByName(className);
+    						if (cc == null) {
+    							throw new RuntimeException(
+    									"Cannot find concept class " + className);
+    						}
+    						conceptAnswers.addAll(Context.getConceptService()
+    								.getConceptsByClass(cc));
+    					}
+    					Collections.sort(conceptAnswers, conceptNameComparator);
+    				} catch (Exception ex) {
+    					throw new RuntimeException(
+    							"Error in answer class list for concept "
+    									+ concept.getConceptId() + " ("
+    									+ ex.toString() + "): " + conceptAnswers);
+    				}
+    			}
+    
+    			if (answerConcept != null) {
+    				// if there's also an answer concept specified, this is a single
+    				// checkbox
+    				answerLabel = parameters.get("answerLabel");
+    				if (answerLabel == null) {
+    					String answerCode = parameters.get("answerCode");
+    					if (answerCode != null) {
+    						answerLabel = context.getTranslator().translate(
+    								userLocaleStr, answerCode);
+    					} else {
+    						answerLabel = answerConcept.getBestName(
+    								Context.getLocale()).getName();
+    					}
+    				}
+    				valueWidget = new CheckboxWidget(answerLabel, answerConcept
+    						.getConceptId().toString());
+    				if (existingObs != null) {
+    					valueWidget.setInitialValue(existingObs.getValueCoded());
+    				}
+    			} else if ("true".equals(parameters.get("multiple"))) {
+    				// if this is a select-multi, we need a group of checkboxes
+    				throw new RuntimeException(
+    						"Multi-select coded questions are not yet implemented");
+    			} else {
+    				// If no conceptAnswers are specified, 
+    				if (conceptAnswers == null || conceptAnswers.isEmpty()) {
+    					// if style = autocomplete
+    					if("autocomplete".equals(parameters.get("style"))){
+    						throw new RuntimeException(
+    						"style \"autocomplete\" has to work with either \"answerClasses\" or \"answerConceptIds\" attribute");
+    					}
+    					// else use all available conceptAnswers
+    					conceptAnswers = new ArrayList<Concept>();
+    					for (ConceptAnswer ca : concept.getAnswers(false)) {
+    						conceptAnswers.add(ca.getAnswerConcept());
+    					}
+    					Collections.sort(conceptAnswers, conceptNameComparator);
+    				}
+    				
+    				if ("autocomplete".equals(parameters.get("style"))){
+    					List<ConceptClass> cptClasses = new ArrayList<ConceptClass>();
+    					if (parameters.get("answerClasses") != null) {
+    						for (StringTokenizer st = new StringTokenizer(parameters
+    								.get("answerClasses"), ","); st.hasMoreTokens();) {
+    							String className = st.nextToken().trim();
+    							ConceptClass cc = Context.getConceptService()
+    									.getConceptClassByName(className);
+    							cptClasses.add(cc);
+    						}
+    					}
+    					valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
+    				} else {
+    					// Show Radio Buttons if specified, otherwise default to Drop
+    					// Down 
+    					boolean isRadio = "radio".equals(parameters.get("style"));
+    					if (isRadio) {
+    						valueWidget = new RadioButtonsWidget();
+    					}
+    					else {
+    						valueWidget = new DropdownWidget();
+    						((DropdownWidget) valueWidget).addOption(new Option());
+    					}
+    					for (int i = 0; i < conceptAnswers.size(); ++i) {
+    						Concept c = conceptAnswers.get(i);
+    						String label = null;
+    						if (answerLabels != null && i < answerLabels.size()) {
+    							label = answerLabels.get(i);
+    						} else {
+    							label = c.getBestName(Context.getLocale()).getName();
+    						}
+    						((SingleOptionWidget) valueWidget).addOption(new Option(
+    							label, c.getConceptId().toString(), false));
+    					}
+    				}
+    				if (existingObs != null) {
+    					valueWidget.setInitialValue(existingObs.getValueCoded());
+    				}
+    			}
+    		} else if (concept.getDatatype().isBoolean()) {
+    			String noStr = parameters.get("noLabel");
+    			if (StringUtils.isEmpty(noStr)) {
+    				noStr = context.getTranslator().translate(userLocaleStr,
+    						"general.no");
+    			}
+    			String yesStr = parameters.get("yesLabel");
+    			if (StringUtils.isEmpty(yesStr)) {
+    				yesStr = context.getTranslator().translate(userLocaleStr,
+    						"general.yes");
+    			}
+    			if ("checkbox".equals(parameters.get("style"))) {
+    				valueWidget = new CheckboxWidget(valueLabel, parameters
+    						.get("value") != null ? parameters.get("value")
+    						: "true");
+    				valueLabel = "";
+    				if (existingObs != null) {
+    					valueWidget
+    							.setInitialValue(existingObs.getValueAsBoolean());
+    				}
+    			} else if ("no_yes".equals(parameters.get("style"))) {
+    				valueWidget = new RadioButtonsWidget();
+    				((RadioButtonsWidget) valueWidget).addOption(new Option(noStr,
+    						"false", false));
+    				((RadioButtonsWidget) valueWidget).addOption(new Option(yesStr,
+    						"true", false));
+    				if (existingObs != null) {
+    					valueWidget
+    							.setInitialValue(existingObs.getValueAsBoolean());
+    				}
+    			} else if ("yes_no".equals(parameters.get("style"))) {
+    				valueWidget = new RadioButtonsWidget();
+    				((RadioButtonsWidget) valueWidget).addOption(new Option(yesStr,
+    						"true", false));
+    				((RadioButtonsWidget) valueWidget).addOption(new Option(noStr,
+    						"false", false));
+    				if (existingObs != null) {
+    					valueWidget
+    							.setInitialValue(existingObs.getValueAsBoolean());
+    				}
+    			} else if ("no_yes_dropdown".equals(parameters.get("style"))) {
+    				valueWidget = new DropdownWidget();
+    				((DropdownWidget) valueWidget).addOption(new Option());
+    				((DropdownWidget) valueWidget).addOption(new Option(noStr,
+    						"false", false));
+    				((DropdownWidget) valueWidget).addOption(new Option(yesStr,
+    						"true", false));
+    				if (existingObs != null) {
+    					valueWidget
+    							.setInitialValue(existingObs.getValueAsBoolean());
+    				}
+    			} else if ("yes_no_dropdown".equals(parameters.get("style"))) {
+    				valueWidget = new DropdownWidget();
+    				((DropdownWidget) valueWidget).addOption(new Option());
+    				((DropdownWidget) valueWidget).addOption(new Option(yesStr,
+    						"true", false));
+    				((DropdownWidget) valueWidget).addOption(new Option(noStr,
+    						"false", false));
+    				if (existingObs != null) {
+    					valueWidget
+    							.setInitialValue(existingObs.getValueAsBoolean());
+    				}
+    			} else {
+    				throw new RuntimeException("Boolean with style = "
+    						+ parameters.get("style")
+    						+ " not yet implemented (concept = "
+    						+ concept.getConceptId() + ")");
+    			}
+    		
+    		// TODO: in 1.7-compatible version of the module, we can replace the H17 checks
+    		// used below with the new isDate, isTime, and isDatetime
+    		
+    		// if it's a Date type
+    		} else if (ConceptDatatype.DATE.equals(concept.getDatatype()
+    				.getHl7Abbreviation())) {
+    			valueWidget = new DateWidget();
+    			if (existingObs != null)
+    				valueWidget.setInitialValue(existingObs.getValueDatetime());
+    		}
+    		// if it's a Time type
+    		else if (ConceptDatatype.TIME.equals(concept.getDatatype()
+    				.getHl7Abbreviation())) {
+    			valueWidget = new TimeWidget();
+    			if (existingObs != null)
+    				valueWidget.setInitialValue(existingObs.getValueDatetime());
+    		}
+    		// if it's a Date Time type
+    		else if (ConceptDatatype.DATETIME.equals(concept.getDatatype()
+    				.getHl7Abbreviation())) {
+    			DateWidget dateWidget = new DateWidget();
+    			TimeWidget timeWidget = new TimeWidget();
+    				
+    			valueWidget = new DateTimeWidget(dateWidget,timeWidget);
+    			if (existingObs != null)
+    				valueWidget.setInitialValue(existingObs.getValueDatetime());
+    				
+    			context.registerWidget(dateWidget);
+    			context.registerWidget(timeWidget);
+    		} else {
+    			throw new RuntimeException("Cannot handle datatype: "
+    					+ concept.getDatatype().getName() + " (for concept "
+    					+ concept.getConceptId() + ")");
+    		}
 		}
 		context.registerWidget(valueWidget);
 		context.registerErrorWidget(valueWidget, errorWidget);
@@ -530,7 +592,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 
 		ObsField field = new ObsField();
 		field.setName(valueLabel);
-		field.setQuestion(concept);
+		if (concept != null)
+		    field.setQuestion(concept);
 		if (answerConcept != null) {
 			ObsFieldAnswer ans = new ObsFieldAnswer();
 			ans.setDisplayName(getAnswerLabel());
@@ -546,7 +609,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 				field.getAnswers().add(ans);
 			}
 		}
-		if (context.getActiveObsGroup() != null) {
+		//conceptSelects should be excluded from obsGroup matching, because there's nothing to match on.
+		if (concept != null && context.getActiveObsGroup() != null) {
 			context.getActiveObsGroup().getChildren().add(field);
 		} else {
 			context.getSchema().addField(field);
@@ -688,6 +752,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	public void handleSubmission(FormEntrySession session,
 			HttpServletRequest submission) {
 		Object value = valueWidget.getValue(session.getContext(), submission);
+		if (concepts != null){
+		    try {
+	            if (value instanceof Concept)
+	                concept = (Concept) value;
+	            else
+	                concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+	        } catch (Exception ex){
+	            throw new RuntimeException("Unable to convert response to a concept!");
+	        }
+		}
 		Date obsDatetime = null;
 		String accessionNumberValue = null;
 		if (dateWidget != null)
@@ -699,13 +773,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
-			session.getSubmissionActions().modifyObs(existingObs, concept,
-					value, obsDatetime, accessionNumberValue);
+		    if (concepts != null)
+		        session.getSubmissionActions().modifyObs(existingObs, concept, answerConcept, obsDatetime, accessionNumberValue,true);
+		    else    
+		        session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue);
 		} else {
-			if (value != null && !"".equals(value)) {
-				session.getSubmissionActions().createObs(concept, value,
-						obsDatetime, accessionNumberValue);
-			}
+		    if (concepts != null && value != null && !"".equals(value) && concept != null) {
+                session.getSubmissionActions().createObs(concept, answerConcept,
+                        obsDatetime, accessionNumberValue);
+            } else if (value != null && !"".equals(value)) {
+                session.getSubmissionActions().createObs(concept, value,
+                        obsDatetime, accessionNumberValue);
+            }
 		}
 	}
 
@@ -765,5 +844,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	public String getAnswerLabel() {
 		return answerLabel;
 	}
+
+    public String getValueLabel() {
+        return valueLabel;
+    }
 
 }

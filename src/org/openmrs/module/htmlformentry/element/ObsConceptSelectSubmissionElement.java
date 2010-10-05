@@ -29,6 +29,7 @@ import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 
+@Deprecated
 public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
     
     private List<Concept> concepts = new ArrayList<Concept>(); //possible concepts
@@ -68,12 +69,10 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
         prepareWidgets(context, parameters);
     }
     
-    private void prepareWidgets(FormEntryContext context,
-            Map<String, String> parameters) {
+    private void prepareWidgets(FormEntryContext context,Map<String, String> parameters) {
         String userLocaleStr = Context.getLocale().toString();
         //find existing obs, if necessary
-        if (context.getCurrentObsGroupConcepts() != null
-                && context.getCurrentObsGroupConcepts().size() > 0) {
+        if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
             existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
         } else {
             existingObs = context.removeExistingObs(concepts, answerConcept);
@@ -93,7 +92,7 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
             valueLabel = context.getTranslator().translate(userLocaleStr,
                     parameters.get("labelCode"));
         } else {
-            valueLabel = valueLabel = answerConcept.getBestName(Context.getLocale()).getName();;
+            valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
         }
         if (parameters.get("conceptLabels") != null) {
             conceptLabels = Arrays.asList(parameters.get("conceptLabels").split(","));
