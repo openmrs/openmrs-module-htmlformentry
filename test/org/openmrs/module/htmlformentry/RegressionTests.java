@@ -345,7 +345,6 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					
 					// now add a third obsgroups of type ANOTHER ALLERGY CONSTRUCT that also contains a ALLERGY CODED obs with a different answer value
 					TestUtil.addObsGroup(e, 1004, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
-					//if 1004 contains 1003, then you should see 
 					
 					return e;
 				}
@@ -481,58 +480,17 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
                 }
                 
                 void testViewingEncounter(Encounter encounter, String html) {
-//                    Concept dstParent = Context.getConceptService().getConcept(3040);
-//                    for (ConceptSet s : dstParent.getConceptSets()){
-//                        System.out.println(s.getConcept() + " " + s.getConceptSet());
-//                        for (ConceptSet sInner :s.getConcept().getConceptSets()){
-//                            System.out.println(sInner.getConcept() + " " + sInner.getConceptSet());
-//                            for (ConceptAnswer a :sInner.getConcept().getAnswers()){
-//                                System.out.println(a.getConcept() + " has possible answer " + a.getAnswerConcept());
-//                               
-//                            }
-//                        }
-//                    }
-                   // System.out.println(html);
+                    //System.out.println(html);
                     TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
                     TestUtil.assertFuzzyContains("ISONIAZID <span class=\"value\">Resistant</span>", html);
                     TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200.0</span>", html);
                     TestUtil.assertFuzzyContains("DST Result Date <span class=\"value\">01/02/2003</span>", html);
                     TestUtil.assertFuzzyDoesNotContain("400", html);
-                    //this tests that the Ethionamide result *wasn't* returned
-                    //this is because the xml doens't expect the ethionamide result to include colonies, 
-                        //which we included.
                     TestUtil.assertFuzzyDoesNotContain("Intermediate", html);
-
                 }
                 
             }.run();
         
     }
-
-//	@Test
-//  public void testDSTModelSubmission() throws Exception {
-//      final Date date = new Date();
-//      new RegressionTestHelper() {
-//          
-//          String getFormName() {
-//              return "simplestForm";
-//          }
-//          
-//          String[] widgetLabels() {
-//              return new String[] { "Date:", "Location:", "Provider:" };
-//          }
-//          
-//          void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-//              request.addParameter(widgets.get("Date:"), dateAsString(date));
-//              request.addParameter(widgets.get("Location:"), "2");
-//              request.addParameter(widgets.get("Provider:"), "502");
-//          }
-//          
-//          void testResults(SubmissionResults results) {
-//              results.assertNoErrors();
-//              results.assertEncounterCreated();
-//          }
-//      }.run();
-//  }
 	
 }
