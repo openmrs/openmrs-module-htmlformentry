@@ -245,22 +245,6 @@ public class FormSubmissionActions {
         }
         return obs;
     }
-    /**
-     * 
-     * Modifies an existing Obs.
-     * <p/>
-     * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs to a list of Obs to create. 
-     * Note that this method does not commit the changes to the database--the changes are applied elsewhere in the framework.
-     * 
-     * @param existingObs
-     * @param concept
-     * @param newValue
-     * @param newDatetime
-     * @param accessionNumber
-     */
-    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
-        modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, false);
-    }
     
     /**
      * Modifies an existing Obs.
@@ -276,11 +260,7 @@ public class FormSubmissionActions {
      * @param accessionNumber new accession number for the Obs
      * @param compareConcepts also compare conceptId for differences
      */
-    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, boolean compareConcepts) {
-        if (!compareConcepts && !existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
-            // if the concepts don't match then something has gone wrong, and we fail hard
-            throw new RuntimeException("Programming error somewhere in this module. Please report this to OpenMRS. " + existingObs.getConcept().getBestName(Context.getLocale()) + " != " + concept.getBestName(Context.getLocale()));
-        } 
+    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
         if (newValue == null || "".equals(newValue)) {
             // we want to delete the existing obs
             if (log.isDebugEnabled())
@@ -306,7 +286,7 @@ public class FormSubmissionActions {
         boolean dateChanged = dateChangedHelper(existingObs.getObsDatetime(), newObs.getObsDatetime());
         boolean accessionNumberChanged = accessionNumberChangedHelper(existingObs.getAccessionNumber(), newObs.getAccessionNumber());
         boolean conceptsHaveChanged = false;
-        if (compareConcepts && !existingObs.getConcept().getConceptId().equals(concept.getConceptId())){
+        if (!existingObs.getConcept().getConceptId().equals(concept.getConceptId())){
             conceptsHaveChanged = true;
         }
         if (valueChanged || dateChanged || accessionNumberChanged || conceptsHaveChanged) {

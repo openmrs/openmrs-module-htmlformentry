@@ -774,7 +774,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
 		    if (concepts != null)
-		        session.getSubmissionActions().modifyObs(existingObs, concept, answerConcept, obsDatetime, accessionNumberValue,true);
+		        session.getSubmissionActions().modifyObs(existingObs, concept, answerConcept, obsDatetime, accessionNumberValue);
 		    else    
 		        session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue);
 		} else {
