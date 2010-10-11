@@ -2,5 +2,5 @@
 <dataset>
   <concept_source concept_source_id="1" uuid="931abfea-b2ca-49e7-b7ff-7420055f0ea1" name="XYZ" date_Created="2010-07-09 11:00:38" retired="false" creator="1" />
   <concept_map concept_map_id="1" uuid="26755d29-9cc3-43bc-bc86-1c1df20f698f" concept_id="5" source="1" source_code="HT" creator="1"  date_created="2010-07-09 11:00:38"/>
-  <logic_rule_token logic_rule_token_id="10" creator="1" date_created="2009-08-31 13:29:35.624" token="GENDER" class_name="org.openmrs.logic.rule.ReferenceRule" state="person.gender"/>
+  <!--<logic_rule_token logic_rule_token_id="10" creator="1" date_created="2009-08-31 13:29:35.624" token="GENDER" class_name="org.openmrs.logic.rule.ReferenceRule" state="person.gender"/>-->
 </dataset>

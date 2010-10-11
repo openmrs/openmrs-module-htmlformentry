@@ -5,9 +5,6 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.Concept;
-import org.openmrs.ConceptAnswer;
-import org.openmrs.ConceptSet;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
@@ -491,6 +488,32 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
                 
             }.run();
         
+    }
+	
+	@Test
+    public void viewSingleObsEncounterWithObsOfTextDatatype() throws Exception {
+        new RegressionTestHelper() {
+            
+            String getFormName() {
+                return "singleObsForm2";
+            }
+            
+            Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                TestUtil.addObs(e, 6, "blah blah", null); 
+                return e;
+            }
+            
+            void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyContains("blah blah", html);
+            }
+        }.run();
     }
 	
 }

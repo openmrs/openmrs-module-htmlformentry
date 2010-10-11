@@ -56,7 +56,7 @@ public class FormEntryContext {
     private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
-    Map<Obs, Set<Obs>> existingObsInGroups;
+    private Map<Obs, Set<Obs>> existingObsInGroups;
     
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
@@ -282,15 +282,21 @@ public class FormEntryContext {
         existingObsInGroups = new LinkedHashMap<Obs, Set<Obs>>();
                 if (encounter != null)
                     setupExistingObsInGroups(encounter.getObsAtTopLevel(false));
-             }
-             
-            public void setupExistingObsInGroups(Set<Obs> oSet){
-                for (Obs parent : oSet)       
-                    if (parent.isObsGrouping()){
-                        existingObsInGroups.put(parent, parent.getGroupMembers());
-                        setupExistingObsInGroups(parent.getGroupMembers());
-                    }    
-            }
+         }
+    
+    /**
+     * 
+     * Sets obs associated with an obs groups in existin obs groups.
+     * 
+     * @param oSet the obsGroup to add to existingObsInGroups
+     */     
+    public void setupExistingObsInGroups(Set<Obs> oSet){
+        for (Obs parent : oSet)       
+            if (parent.isObsGrouping()){
+                existingObsInGroups.put(parent, parent.getGroupMembers());
+                setupExistingObsInGroups(parent.getGroupMembers());
+            }    
+    }
             
      /**
       * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version

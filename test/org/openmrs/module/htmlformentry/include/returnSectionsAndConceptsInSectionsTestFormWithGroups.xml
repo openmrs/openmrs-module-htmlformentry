@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	
+	<section headerLabel="Section One">
+			<section headerLabel="Section One Inner One">
+				<obs conceptIds="2474,3017,1441" answerConceptId="656"/>
+				<obsgroup groupingConceptId="1004">
+						Hyper-Allergy 1: <obs conceptId="1005"/>
+				</obsgroup>
+			</section>
+			
+			<section headerLabel="Section One Inner Two">
+			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="S,I,R"/>
+			</section>
+			<obs conceptId="3032" labelText="DST Result Date"/>
+	</section>
+	
+	<section>
+	       numeric <obs conceptId="1"/>
+	       text <obs conceptId="6"/>
+	       <obsgroup groupingConceptId="7">
+				Allergy 2: <obs conceptId="1000"/>
+			</obsgroup>
+	</section>
+	
+	<submit/>
+</htmlform>
