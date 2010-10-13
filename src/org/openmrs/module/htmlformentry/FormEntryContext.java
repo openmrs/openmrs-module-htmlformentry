@@ -407,6 +407,7 @@ public class FormEntryContext {
         
         if (ret != null){
             existingObsInGroups.remove(ret);
+            existingObs.remove(ret);
             return ret;
         }
         return null;
