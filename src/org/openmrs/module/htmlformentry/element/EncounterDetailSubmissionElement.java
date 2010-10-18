@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.element;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
+import org.openmrs.module.htmlformentry.widget.PersonByNameComparator;
 import org.openmrs.module.htmlformentry.widget.PersonWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.util.OpenmrsConstants;
@@ -86,33 +88,50 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			providerWidget = new PersonWidget();
 			providerErrorWidget = new ErrorWidget();
 			
-			// If the "role" attribute is passed in, limit to users with this role
-			Role role = null;
-			if (parameters.get("role") != null) {
-				role = Context.getUserService().getRole((String) parameters.get("role"));
-				if (role == null) {
-					throw new RuntimeException("Cannot find role: " + parameters.get("role"));
+			List<Person> options = new ArrayList<Person>();
+			
+			// If specific persons are specified, display only those persons in order
+			String personsParam = (String)parameters.get("persons");
+			if (personsParam != null) {
+				for (String s : personsParam.split(",")) {
+					Person p = HtmlFormEntryUtil.getPerson(s);
+					if (p == null) {
+						throw new RuntimeException("Cannot find Person: " + s);
+					}
+					options.add(p);
 				}
 			}
-			// Otherwise, limit to users with the default OpenMRS PROVIDER role
-			else {
-				String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
-				role = Context.getUserService().getRole(defaultRole);
-			}
 			
-			List<User> users = new ArrayList<User>();
-			if (role != null) {
-				users = Context.getUserService().getUsersByRole(role);
-			}
-			
-			// If no users are found with the specified or default roles, show all users
-			if (users.isEmpty()) {
-				users = Context.getUserService().getAllUsers();
-			}
-			
-			List<Person> options = new ArrayList<Person>();
-			for (User u : users) {
-				options.add(u.getPerson());
+			// Only if specific person ids are not passed in do we get by user Role
+			if (options.isEmpty()) {
+				// If the "role" attribute is passed in, limit to users with this role
+				Role role = null;
+				if (parameters.get("role") != null) {
+					role = Context.getUserService().getRole((String) parameters.get("role"));
+					if (role == null) {
+						throw new RuntimeException("Cannot find role: " + parameters.get("role"));
+					}
+				}
+				// Otherwise, limit to users with the default OpenMRS PROVIDER role
+				else {
+					String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
+					role = Context.getUserService().getRole(defaultRole);
+				}
+				
+				List<User> users = new ArrayList<User>();
+				if (role != null) {
+					users = Context.getUserService().getUsersByRole(role);
+				}
+				
+				// If no users are found with the specified or default roles, show all users
+				if (users.isEmpty()) {
+					users = Context.getUserService().getAllUsers();
+				}
+				
+				for (User u : users) {
+					options.add(u.getPerson());
+				}
+				Collections.sort(options, new PersonByNameComparator());
 			}
 			providerWidget.setOptions(options);
 			
