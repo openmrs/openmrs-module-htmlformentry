@@ -3,10 +3,8 @@ package org.openmrs.module.htmlformentry.element;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,6 +25,7 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.PersonWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 
@@ -34,8 +33,7 @@ import org.springframework.util.StringUtils;
  * Holds the widgets used to represent an Encounter details, and serves as both the HtmlGeneratorElement 
  * and the FormSubmissionControllerAction for Encounter details.
  */
-public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
-		FormSubmissionControllerAction {
+public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
 	private DateWidget dateWidget;
 	private ErrorWidget dateErrorWidget;
@@ -46,24 +44,33 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 	private LocationWidget locationWidget;
 	private ErrorWidget locationErrorWidget;
 
-	public EncounterDetailSubmissionElement(FormEntryContext context,
-			Map<String, Object> parameters) {
+	/**
+	 * Construct a new EncounterDetailSubmissionElement
+	 * @param context
+	 * @param parameters
+	 */
+	public EncounterDetailSubmissionElement(FormEntryContext context, Map<String, Object> parameters) {
+		
+		// Register Date and Time widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("date"))) {
+			
 			dateWidget = new DateWidget();
 			dateErrorWidget = new ErrorWidget();
+			
 			if (context.getExistingEncounter() != null) {
-				dateWidget.setInitialValue(context.getExistingEncounter()
-						.getEncounterDatetime());
-			} else if (parameters.get("defaultDate") != null) {
+				dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+			} 
+			else if (parameters.get("defaultDate") != null) {
 				dateWidget.setInitialValue(parameters.get("defaultDate"));
 			}
+			
 			if ("true".equals(parameters.get("showTime"))) {
 				timeWidget = new TimeWidget();
 				timeErrorWidget = new ErrorWidget();
 				if (context.getExistingEncounter() != null) {
-					timeWidget.setInitialValue(context.getExistingEncounter()
-							.getEncounterDatetime());
-				} else if (parameters.get("defaultDate") != null) {
+					timeWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+				} 
+				else if (parameters.get("defaultDate") != null) {
 					timeWidget.setInitialValue(parameters.get("defaultDate"));
 				}
 				context.registerWidget(timeWidget);
@@ -72,37 +79,59 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, dateErrorWidget);
 		}
+		
+		// Register Provider widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("provider"))) {
+			
 			providerWidget = new PersonWidget();
-			if (parameters.get("role") != null) {
-				Role role = Context.getUserService().getRole(
-						(String) parameters.get("role"));
-				if (role == null)
-					throw new RuntimeException("Cannot find role: "
-							+ parameters.get("role"));
-				Set<Person> options = new LinkedHashSet<Person>();
-				for (User u : Context.getUserService().getUsersByRole(role)) {
-					options.add(u.getPerson());
-				}
-				providerWidget.setOptions(new ArrayList<Person>(options));
-			}
 			providerErrorWidget = new ErrorWidget();
+			
+			// If the "role" attribute is passed in, limit to users with this role
+			Role role = null;
+			if (parameters.get("role") != null) {
+				role = Context.getUserService().getRole((String) parameters.get("role"));
+				if (role == null) {
+					throw new RuntimeException("Cannot find role: " + parameters.get("role"));
+				}
+			}
+			// Otherwise, limit to users with the default OpenMRS PROVIDER role
+			else {
+				String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
+				role = Context.getUserService().getRole(defaultRole);
+			}
+			
+			List<User> users = new ArrayList<User>();
+			if (role != null) {
+				users = Context.getUserService().getUsersByRole(role);
+			}
+			
+			// If no users are found with the specified or default roles, show all users
+			if (users.isEmpty()) {
+				users = Context.getUserService().getAllUsers();
+			}
+			
+			List<Person> options = new ArrayList<Person>();
+			for (User u : users) {
+				options.add(u.getPerson());
+			}
+			providerWidget.setOptions(options);
+			
+			// Set default values as appropriate
 			if (context.getExistingEncounter() != null) {
-				providerWidget.setInitialValue(context.getExistingEncounter()
-						.getProvider());
-			} else {
+				providerWidget.setInitialValue(context.getExistingEncounter().getProvider());
+			} 
+			else {
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
 					Person defaultProvider = null;
 					if ("currentuser".equalsIgnoreCase(defParam)) {
 						defaultProvider = Context.getAuthenticatedUser().getPerson();
-					} else {
+					} 
+					else {
 						defaultProvider = HtmlFormEntryUtil.getPerson(defParam);
 					}
 					if (defaultProvider == null) {
-						throw new IllegalArgumentException(
-								"Invalid default provider specified for encounter: "
-										+ defParam);
+						throw new IllegalArgumentException("Invalid default provider specified for encounter: " + defParam);
 					}
 					providerWidget.setInitialValue(defaultProvider);
 				}
@@ -110,25 +139,32 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 			context.registerWidget(providerWidget);
 			context.registerErrorWidget(providerWidget, providerErrorWidget);
 		}
+		
+		// Register Location widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("location"))) {
+			
 			locationWidget = new LocationWidget();
+			locationErrorWidget = new ErrorWidget();
+			
+			// If the "order" attribute is passed in, limit to the specified locations in order
 			if (parameters.get("order") != null) {
 				List<Location> locations = new ArrayList<Location>();
 				String[] temp = ((String) parameters.get("order")).split(",");
 				for (String s : temp) {
 					Location loc = HtmlFormEntryUtil.getLocation(s);
-					if (loc == null)
-						throw new RuntimeException("Cannot find location: "
-								+ loc);
+					if (loc == null) {
+						throw new RuntimeException("Cannot find location: " + loc);
+					}
 					locations.add(loc);
 				}
 				locationWidget.setOptions(locations);
 			}
-			locationErrorWidget = new ErrorWidget();
+			
+			// Set default values
 			if (context.getExistingEncounter() != null) {
-				locationWidget.setInitialValue(context.getExistingEncounter()
-						.getLocation());
-			} else {
+				locationWidget.setInitialValue(context.getExistingEncounter().getLocation());
+			} 
+			else {
 				String defaultLocId = (String) parameters.get("default");
 				if (StringUtils.hasText(defaultLocId)) {
 					Location defaultLoc = HtmlFormEntryUtil.getLocation(defaultLocId);
@@ -140,6 +176,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 		}
 	}
 
+	/**
+	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
+	 */
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		if (dateWidget != null) {
@@ -166,9 +205,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 		return ret.toString();
 	}
 
-	public Collection<FormSubmissionError> validateSubmission(
-			FormEntryContext context, HttpServletRequest submission) {
+	/**
+	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
+	 */
+	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+		
 		try {
 			if (dateWidget != null) {
 				Date date = (Date) dateWidget.getValue(context, submission);
@@ -198,6 +240,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 					.getFieldName(providerErrorWidget), Context
 					.getMessageSourceService().getMessage(ex.getMessage())));
 		}
+		
 		try {
 			if (locationWidget != null) {
 				Object location = locationWidget.getValue(context, submission);
@@ -212,33 +255,27 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement,
 		return ret;
 	}
 
-	public void handleSubmission(FormEntrySession session,
-			HttpServletRequest submission) {
+	/**
+	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
+	 */
+	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		if (dateWidget != null) {
-			Date date = (Date) dateWidget.getValue(session.getContext(),
-					submission);
-			session.getSubmissionActions().getCurrentEncounter()
-					.setEncounterDatetime(date);
+			Date date = (Date) dateWidget.getValue(session.getContext(), submission);
+			session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
 		}
 		if (timeWidget != null) {
-			Date time = (Date) timeWidget.getValue(session.getContext(),
-					submission);
+			Date time = (Date) timeWidget.getValue(session.getContext(), submission);
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
-			Date dateAndTime = HtmlFormEntryUtil.combineDateAndTime(e
-					.getEncounterDatetime(), time);
+			Date dateAndTime = HtmlFormEntryUtil.combineDateAndTime(e.getEncounterDatetime(), time);
 			e.setEncounterDatetime(dateAndTime);
 		}
 		if (providerWidget != null) {
-			Person person = (Person) providerWidget.getValue(session
-					.getContext(), submission);
-			session.getSubmissionActions().getCurrentEncounter().setProvider(
-					person);
+			Person person = (Person) providerWidget.getValue(session.getContext(), submission);
+			session.getSubmissionActions().getCurrentEncounter().setProvider(person);
 		}
 		if (locationWidget != null) {
-			Location location = (Location) locationWidget.getValue(session
-					.getContext(), submission);
-			session.getSubmissionActions().getCurrentEncounter().setLocation(
-					location);
+			Location location = (Location) locationWidget.getValue(session.getContext(), submission);
+			session.getSubmissionActions().getCurrentEncounter().setLocation(location);
 		}
 	}
 }
