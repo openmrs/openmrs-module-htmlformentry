@@ -89,6 +89,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			providerErrorWidget = new ErrorWidget();
 			
 			List<Person> options = new ArrayList<Person>();
+			boolean sortOptions = false;
 			
 			// If specific persons are specified, display only those persons in order
 			String personsParam = (String)parameters.get("persons");
@@ -104,45 +105,50 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			
 			// Only if specific person ids are not passed in do we get by user Role
 			if (options.isEmpty()) {
+				
+				List<User> users = new ArrayList<User>();
+				
 				// If the "role" attribute is passed in, limit to users with this role
-				Role role = null;
 				if (parameters.get("role") != null) {
-					role = Context.getUserService().getRole((String) parameters.get("role"));
+					Role role = Context.getUserService().getRole((String) parameters.get("role"));
 					if (role == null) {
 						throw new RuntimeException("Cannot find role: " + parameters.get("role"));
 					}
+					else {
+						users = Context.getUserService().getUsersByRole(role);
+					}
 				}
-				// Otherwise, limit to users with the default OpenMRS PROVIDER role
+				
+				// Otherwise, limit to users with the default OpenMRS PROVIDER role, 
 				else {
 					String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
-					role = Context.getUserService().getRole(defaultRole);
-				}
-				
-				List<User> users = new ArrayList<User>();
-				if (role != null) {
-					users = Context.getUserService().getUsersByRole(role);
-				}
-				
-				// If no users are found with the specified or default roles, show all users
-				if (users.isEmpty()) {
-					users = Context.getUserService().getAllUsers();
+					Role role = Context.getUserService().getRole(defaultRole);
+					if (role != null) {
+						users = Context.getUserService().getUsersByRole(role);
+					}
+					// If this role isn't used, default to all Users
+					if (users.isEmpty()) {
+						users = Context.getUserService().getAllUsers();
+					}
 				}
 				
 				for (User u : users) {
 					options.add(u.getPerson());
 				}
-				Collections.sort(options, new PersonByNameComparator());
+				sortOptions = true;
 			}
-			providerWidget.setOptions(options);
 			
 			// Set default values as appropriate
+			Person defaultProvider = null;
 			if (context.getExistingEncounter() != null) {
-				providerWidget.setInitialValue(context.getExistingEncounter().getProvider());
-			} 
+				defaultProvider = context.getExistingEncounter().getProvider();
+				if (!options.contains(defaultProvider)) {
+					options.add(defaultProvider);
+				}
+			}
 			else {
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
-					Person defaultProvider = null;
 					if ("currentuser".equalsIgnoreCase(defParam)) {
 						defaultProvider = Context.getAuthenticatedUser().getPerson();
 					} 
@@ -152,9 +158,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					if (defaultProvider == null) {
 						throw new IllegalArgumentException("Invalid default provider specified for encounter: " + defParam);
 					}
-					providerWidget.setInitialValue(defaultProvider);
 				}
 			}
+			
+			if (sortOptions) {
+				Collections.sort(options, new PersonByNameComparator());
+			}
+			providerWidget.setOptions(options);
+			providerWidget.setInitialValue(defaultProvider);
+			
 			context.registerWidget(providerWidget);
 			context.registerErrorWidget(providerWidget, providerErrorWidget);
 		}
