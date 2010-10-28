@@ -65,4 +65,17 @@
 		</sql>
 	</diff>
 	
+	<diff>
+		<version>1.2.0</version>
+		<author>Darius Jazayeri</author>
+		<date>Oct 22 2010</date>
+		<description>
+			Remove name and description columns from html form table, since these should be inherited from the Form
+		</description>
+		<sql>
+			ALTER TABLE `htmlformentry_html_form` DROP COLUMN `name`;
+			ALTER TABLE `htmlformentry_html_form` DROP COLUMN `description`;
+		</sql>
+	</diff>
+	
 </sqldiff>

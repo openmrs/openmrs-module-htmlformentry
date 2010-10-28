@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <!-- Weight and CD4 concepts -->
+  <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <concept_datatype concept_datatype_id="3" name="Text" hl7_abbreviation="ST" description="Free text" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <concept_datatype concept_datatype_id="6" name="Date" hl7_abbreviation="DT" description="Absolute date" creator="1" date_created="2004-07-22 00:00:00.0" retired="false"/>
+
+  <concept concept_id="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="1" concept_id="1" name="CD4 COUNT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept_name voided="false" concept_name_id="2" concept_id="2" name="WEIGHT (KG)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="3" concept_id="2" name="POIDS (KG)" locale="fr" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  
+  <!-- Required metadata -->
+  <location location_id="1" name="Test Location" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  
+  <!-- Two forms -->
+  <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+  <form form_id="2" name="Form two" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+  <htmlformentry_html_form id="1" form_id="1" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="12e41146-e162-11df-9195-001e378eb67e"/>
+  <htmlformentry_html_form id="2" form_id="2" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="16914264-e162-11df-9195-001e378eb67e"/>
+
+</dataset>

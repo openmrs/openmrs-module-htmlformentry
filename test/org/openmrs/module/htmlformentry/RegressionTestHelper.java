@@ -44,6 +44,13 @@ public abstract class RegressionTestHelper {
 	String[] widgetLabels() {
 		return new String[0];
 	}
+
+	/**
+	 * Override this if you want to test what the generated html of the blank form looks like.
+	 * @param html
+	 */
+	void testBlankFormHtml(String html) {
+	}
 	
 	/**
 	 * (Override this if you want to test the submission of a form.) Set any request parameters that
@@ -107,7 +114,7 @@ public abstract class RegressionTestHelper {
 		Patient patient = getPatient();
 		FormEntrySession session = setupFormEntrySession(patient, getFormName());
 		String html = session.getHtmlToDisplay();
-//		System.out.println(html);
+		testBlankFormHtml(html);
 		
 		Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
 		MockHttpServletRequest request = new MockHttpServletRequest();

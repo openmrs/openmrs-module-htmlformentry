@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.db.hibernate;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -36,9 +37,8 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 
     @SuppressWarnings("unchecked")
     public List<HtmlForm> getAllHtmlForms() {
-        Criteria crit = sessionFactory.getCurrentSession().createCriteria(HtmlForm.class);
-        crit.addOrder(Order.asc("name"));
-        return (List<HtmlForm>) crit.list();
+    	Query query = sessionFactory.getCurrentSession().createQuery("from HtmlForm order by form.name asc");
+    	return (List<HtmlForm>) query.list();
     }
 
     @SuppressWarnings("unchecked")

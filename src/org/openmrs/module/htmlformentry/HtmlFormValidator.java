@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.validator.FormValidator;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -25,11 +26,18 @@ public class HtmlFormValidator implements Validator {
      * Validates the specified HTML Form, placing any errors in the Errors object passed to it
      */
     public void validate(Object obj, Errors errors) {
-        ValidationUtils.rejectIfEmpty(errors, "form", "error.null");
+        HtmlForm hf = (HtmlForm) obj;
+        // can't use ValidationUtil for this because toString of a new non-null form is ""
+        if (hf.getForm() == null)
+        	errors.rejectValue("form", "error.null");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "name", "error.null");
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "xmlData", "error.null");
 
-        HtmlForm hf = (HtmlForm) obj;
+        if (hf.getForm() != null) {
+	        errors.pushNestedPath("form");
+	        new FormValidator().validate(hf.getForm(), errors);
+	        errors.popNestedPath();
+        }
         if (hf.getXmlData() != null) {
             try {
                 @SuppressWarnings("unused")

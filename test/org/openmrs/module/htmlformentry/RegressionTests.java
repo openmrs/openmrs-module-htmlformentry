@@ -7,7 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -515,5 +517,18 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
             }
         }.run();
     }
-	
+
+	@Test
+	public void testVelocityExpressions() throws Exception {
+		LogicUtil.registerDefaultRules();
+		new RegressionTestHelper() {
+			String getFormName() {
+				return "velocityForm";
+			}
+			void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Last weight: 70.0", html);
+				TestUtil.assertFuzzyContains("Gender: M", html);
+			}
+		}.run();
+	}
 }

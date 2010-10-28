@@ -50,7 +50,7 @@ public class AdminList extends AdministrationSectionExt {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		
-			map.put("module/htmlformentry/htmlForm.list", "htmlformentry.manage");
+			map.put("module/htmlformentry/htmlForms.list", "htmlformentry.manage");
 			map.put("module/htmlformentry/htmlFormFromFile.form", "htmlformentry.preview");
 			
 		return map;

@@ -39,6 +39,38 @@ public class HtmlForm extends BaseOpenmrsMetadata {
     public void setForm(Form form) {
         this.form = form;
     }
+    
+    /**
+     * Gets the name (inherited from form)
+     */
+    @Override
+    public String getName() {
+    	return form != null ? form.getName() : null;
+    }
+    
+    /**
+     * Not supported (set the name on the form instead)
+     */
+    @Override
+    public void setName(String name) {
+    	throw new UnsupportedOperationException("Not supported. Set the name on form instead"); 
+    }
+    
+    /**
+     * Gets the description (inherited from form)
+     */
+    @Override
+    public String getDescription() {
+    	return form != null ? form.getDescription() : null;
+    }
+    
+    /**
+     * Not supported (set the description on the form instead)
+     */
+    @Override
+    public void setDescription(String description) {
+    	throw new UnsupportedOperationException("Not supported. Set the description on form instead"); 
+    }
 
     /** Gets the actual XML content of the form */
     public String getXmlData() {

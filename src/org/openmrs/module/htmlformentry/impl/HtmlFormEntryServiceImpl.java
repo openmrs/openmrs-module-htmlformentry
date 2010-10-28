@@ -64,7 +64,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
             htmlForm.setChangedBy(Context.getAuthenticatedUser());
             htmlForm.setDateChanged(new Date());
         }
-
+        Context.getFormService().saveForm(htmlForm.getForm());
         return dao.saveHtmlForm(htmlForm);
     }
     

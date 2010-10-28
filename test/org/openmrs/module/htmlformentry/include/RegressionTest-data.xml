@@ -22,6 +22,10 @@
   <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
   <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
 
+  <!-- Weight and Height obs for our patient -->
+  <obs obs_id="1" person_id="2" concept_id="2" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
+  <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
+
   <!-- Put two concepts DOSE and UNIT in a set -->
   <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4"/>
   <concept concept_id="5" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
