@@ -515,6 +515,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
             void testViewingEncounter(Encounter encounter, String html) {
                 TestUtil.assertFuzzyContains("blah blah", html);
             }
+            
         }.run();
     }
 
