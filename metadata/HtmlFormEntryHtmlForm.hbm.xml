@@ -29,8 +29,12 @@
 
 		<property name="retired" type="boolean" not-null="true" />
 						
+		<property name="deprecatedName" type="java.lang.String" column="name" length="255" />
+
 		<property name="uuid" type="string" length="38" not-null="true" />
 				
+		<property name="deprecatedDescription" type="java.lang.String" column="description" />
+		
 		<many-to-one name="retiredBy" class="org.openmrs.User" column="retired_by" />
 	
 		<property name="dateRetired" type="java.util.Date" column="date_retired" />

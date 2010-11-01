@@ -20,6 +20,15 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     
     private HtmlFormEntryDAO dao;
     private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
+
+	/*
+	 * Optimization to minimize database hits for the needs-name-and-description-migration check.
+	 * Once all forms have been migrated, we no longer need to hit the database on further checks
+	 * because there is no way to add more un-migrated forms. (In theory someone could add some 
+	 * directly to the database, so we use an instance variable here that will be reset whenever
+	 * the system is restarted or the module is reloaded.
+	 */
+    private boolean nameAndDescriptionMigrationDone = false;
     
     public void addHandler(String tagName, TagHandler handler) {
         handlers.put(tagName, handler);
@@ -78,6 +87,18 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 
     public HtmlForm getHtmlFormByForm(Form form) {
         return dao.getHtmlFormByForm(form);
-    }   
-
+    }
+    
+	@Override
+    public boolean needsNameAndDescriptionMigration() {
+		if (nameAndDescriptionMigrationDone) {
+			return false;
+		} else {
+			boolean needsMigration = dao.needsNameAndDescriptionMigration();
+			if (!needsMigration)
+				nameAndDescriptionMigrationDone = true;
+			return needsMigration;
+		}
+    }
+	
 }

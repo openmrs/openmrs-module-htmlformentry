@@ -18,6 +18,10 @@ public class HtmlForm extends BaseOpenmrsMetadata {
     /** Actual XML content of the form */
     private String xmlData;
     
+    /** Deprecated fields: this class now inherits its name and description from its form */
+    private String deprecatedName;
+    private String deprecatedDescription;
+    
     public HtmlForm() { }
 
     /** Gets the unique identifying id for this HTML Form */
@@ -82,7 +86,35 @@ public class HtmlForm extends BaseOpenmrsMetadata {
         this.xmlData = xmlData;
     }       
     
-    /** Allows HtmlForm to be shared via Metadata Sharing Module **/
+    /**
+     * @return the deprecatedName
+     */
+    public String getDeprecatedName() {
+    	return deprecatedName;
+    }
+	
+    /**
+     * @param deprecatedName the deprecatedName to set
+     */
+    public void setDeprecatedName(String deprecatedName) {
+    	this.deprecatedName = deprecatedName;
+    }
+	
+    /**
+     * @return the deprecatedDescription
+     */
+    public String getDeprecatedDescription() {
+    	return deprecatedDescription;
+    }
+	
+    /**
+     * @param deprecatedDescription the deprecatedDescription to set
+     */
+    public void setDeprecatedDescription(String deprecatedDescription) {
+    	this.deprecatedDescription = deprecatedDescription;
+    }
+
+	/** Allows HtmlForm to be shared via Metadata Sharing Module **/
     protected HtmlForm writeReplace() {
     	// default: includeMappedConcepts = true, includeLocations = true, includeProviders = false
     	return new ShareableHtmlForm(this, true, true, false);

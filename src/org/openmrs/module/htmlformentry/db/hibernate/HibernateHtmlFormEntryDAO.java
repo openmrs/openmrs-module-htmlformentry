@@ -1,9 +1,12 @@
 package org.openmrs.module.htmlformentry.db.hibernate;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Query;
+import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -51,6 +54,12 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
             return list.get(0);
         else
             return null;
+    }
+
+	@Override
+    public boolean needsNameAndDescriptionMigration() {
+		Query query = sessionFactory.getCurrentSession().createQuery("select count(*) from HtmlForm where deprecatedName is not null or deprecatedDescription is not null");
+		return ((Number) query.uniqueResult()).intValue() > 0;
     }
 
 }

@@ -13,10 +13,11 @@
  */
 package org.openmrs.module.htmlformentry.extension.html;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openmrs.module.Extension;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.web.extension.AdministrationSectionExt;
 import org.openmrs.util.OpenmrsConstants;
 
@@ -48,10 +49,13 @@ public class AdminList extends AdministrationSectionExt {
 	 */
 	public Map<String, String> getLinks() {
 		
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new LinkedHashMap<String, String>();
 		
 			map.put("module/htmlformentry/htmlForms.list", "htmlformentry.manage");
 			map.put("module/htmlformentry/htmlFormFromFile.form", "htmlformentry.preview");
+			if (HtmlFormEntryUtil.getService().needsNameAndDescriptionMigration()) {
+				map.put("module/htmlformentry/migrateNamesAndDescriptions.form", "htmlformentry.migrateNamesAndDescriptions");
+			}
 			
 		return map;
 	}

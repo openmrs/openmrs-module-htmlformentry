@@ -86,4 +86,16 @@ public interface HtmlFormEntryService extends OpenmrsService {
     @Transactional(readOnly=true)
     public Map<String, TagHandler> getHandlers();
 
+    /**
+     * In version 1.7 of the module we drop the name and description properties of the
+     * HtmlForm object, because those should really come from the underlying Form. However
+     * we don't actually drop the columns yet, to allow the user to migrate any names and
+     * descriptions that may differ. Once they've migrated the name and description for a
+     * form (or said they don't want to) we null out the name and description columns from
+     * the html_form table.
+     * @return true if there are some forms who haven't had their name and description migrated
+     */
+    @Transactional(readOnly=true)
+    public boolean needsNameAndDescriptionMigration();
+        
 }

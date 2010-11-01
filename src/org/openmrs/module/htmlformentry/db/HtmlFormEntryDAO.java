@@ -1,9 +1,11 @@
 package org.openmrs.module.htmlformentry.db;
 
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Form;
 import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 
 /**
  * Defines the methods that must be implemented by the Data Access Object
@@ -46,5 +48,10 @@ public interface HtmlFormEntryDAO {
      * @return
      */
     public List<HtmlForm> getAllHtmlForms();
+
+	/**
+	 * @see HtmlFormEntryService#needsNameAndDescriptionMigration()
+	 */
+	public boolean needsNameAndDescriptionMigration();
 
 }
