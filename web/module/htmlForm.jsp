@@ -25,12 +25,12 @@
 		updateRetiredReasonDisplay($j('#retired').checked);
 		<c:choose>
 			<c:when test="${empty htmlForm.id}">
-				$j('.later').hide(0);
+				$j('.show-later').hide(0);
 			</c:when>
 			<c:otherwise>
-				$j('.first').hide(0);
+				$j('.show-first').hide(0);
 				$j('#toggle-all-fields').click(function() {
-					$j('.first').toggle(0);
+					$j('.show-first').toggle(0);
 				});
 			</c:otherwise>
 		</c:choose>
@@ -68,7 +68,7 @@
 
 <form method="post">
 	<table>
-		<tr class="later">
+		<tr class="show-later">
 			<td><spring:message code="general.id"/></td>
 			<td>${htmlForm.id}</td>
 		</tr>
@@ -83,7 +83,7 @@
 				</spring:bind>
 			</td>
 		</tr>
-		<tr class="first">
+		<tr class="show-first">
 			<td valign="top"><spring:message code="general.description"/></td>
 			<td valign="top">
 				<spring:bind path="htmlForm.form.description">
@@ -94,7 +94,7 @@
 				</spring:bind>
 			</td>
 		</tr>
-		<tr class="first">
+		<tr class="show-first">
 			<td><spring:message code="Form.version"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.version">
@@ -105,7 +105,7 @@
 				</spring:bind>
 			</td>
 		</tr>
-		<tr class="first">
+		<tr class="show-first">
 			<td><spring:message code="Encounter.type"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.encounterType">
@@ -121,7 +121,7 @@
 				</spring:bind>
 			</td>
 		</tr>
-		<tr class="later">
+		<tr class="show-later">
 			<td><spring:message code="Form.published"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.published">
@@ -133,7 +133,7 @@
 				</spring:bind>
 			</td>
 		</tr>
-		<tr class="later">
+		<tr class="show-later">
 			<td><spring:message code="general.retired"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.retired">
@@ -156,7 +156,7 @@
 			</td>
 		</tr>
 		<c:if test="${htmlForm.form.retired}">
-			<tr class="later">
+			<tr class="show-later">
 				<td><spring:message code="general.retiredBy"/></td>
 				<td>
 					${htmlForm.form.retiredBy.personName} -
@@ -164,7 +164,7 @@
 				</td>
 			</tr>
 		</c:if>
-		<tr class="later">
+		<tr class="show-later">
 			<td><spring:message code="Form.formSchema"/>:</td>
 			<td>
 				<c:if test="${!empty htmlForm.xmlData}">
@@ -172,7 +172,7 @@
 				</c:if>
 			</td>
 		</tr>
-		<tr class="later">
+		<tr class="show-later">
 			<td valign="top"><spring:message code="htmlformentry.HtmlForm.html"/>:</td>
 			<td>
 				<spring:bind path="htmlForm.xmlData">

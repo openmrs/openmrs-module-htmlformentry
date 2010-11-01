@@ -90,7 +90,8 @@ public class FormEntrySession {
         this.patient = patient;
         context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
-        
+
+        // This code pattern is copied to HtmlFormEntryServiceImpl. Any bugfixes should be copied too. 
         // #1953 - Velocity errors in HTML form entry
         velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, 
         		"org.apache.velocity.runtime.log.CommonsLogLogChute");
@@ -127,7 +128,7 @@ public class FormEntrySession {
             for (PersonAttribute att : patient.getActiveAttributes()) {
                 String attName = att.getAttributeType().getName();
                 if (att.getValue() != null) {
-                	attributes.put(attName, att.getHydratedObject());
+                	attributes.put(attName.replaceAll("'", ""), att.getHydratedObject());
                 }
             }
             velocityContext.put("personAttributes", attributes);
@@ -193,7 +194,8 @@ public class FormEntrySession {
         submissionController = new FormSubmissionController();
         
         // avoid lazy initialization exceptions later
-        form.getEncounterType().getName();
+        if (form.getEncounterType() != null)
+        	form.getEncounterType().getName();
 
         htmlToDisplay = createForm(htmlForm.getXmlData());
     }
@@ -274,10 +276,16 @@ public class FormEntrySession {
         StringWriter writer = new StringWriter();
         try {
             velocityEngine.evaluate(velocityContext, writer, FormEntrySession.class.getName(), velocityExpression);
-            return writer.toString(); 
+            return writer.toString();
+        } catch (CannotBePreviewedException ex) {
+        	return "Cannot be previewed";
         } catch (Exception ex) {
-            log.error("Exception evaluating velocity expression", ex);
-            return "Velocity Error! " + ex.getMessage(); 
+            if (ex.getCause() != null && ex.getCause() instanceof CannotBePreviewedException) {
+            	return "Cannot be run in preview mode: " + velocityExpression;
+            } else {
+                log.error("Exception evaluating velocity expression", ex);
+            	return "Velocity Error! " + ex.getMessage();
+            }
         }
     }
 

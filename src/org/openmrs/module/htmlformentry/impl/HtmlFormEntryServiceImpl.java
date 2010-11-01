@@ -1,10 +1,17 @@
 package org.openmrs.module.htmlformentry.impl;
 
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Form;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
@@ -17,9 +24,12 @@ import org.openmrs.module.htmlformentry.handler.TagHandler;
  * Standard implementation of the HtmlFormEntryService
  */
 public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements HtmlFormEntryService {
+	
+    protected final Log log = LogFactory.getLog(getClass());
     
     private HtmlFormEntryDAO dao;
     private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
+    private String basicFormXmlTemplate;
 
 	/*
 	 * Optimization to minimize database hits for the needs-name-and-description-migration check.
@@ -60,7 +70,21 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         this.dao = dao;
     }
     
-    public HtmlForm getHtmlForm(Integer id) {
+    /**
+     * @return the basicFormXmlTemplate
+     */
+    public String getBasicFormXmlTemplate() {
+    	return basicFormXmlTemplate;
+    }
+	
+    /**
+     * @param basicFormXmlTemplate the basicFormXmlTemplate to set
+     */
+    public void setBasicFormXmlTemplate(String basicFormXmlTemplate) {
+    	this.basicFormXmlTemplate = basicFormXmlTemplate;
+    }
+
+	public HtmlForm getHtmlForm(Integer id) {
         return dao.getHtmlForm(id);
     }
     
@@ -99,6 +123,39 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 				nameAndDescriptionMigrationDone = true;
 			return needsMigration;
 		}
+    }
+
+	/**
+	 * @see HtmlFormEntryService#getStartingFormXml()
+	 */
+	@Override
+    public String getStartingFormXml(HtmlForm form) {
+		VelocityEngine velocityEngine = new VelocityEngine();
+        velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, 
+        		"org.apache.velocity.runtime.log.CommonsLogLogChute");
+        velocityEngine.setProperty(CommonsLogLogChute.LOGCHUTE_COMMONS_LOG_NAME,
+        		"htmlformentry_velocity");
+        try {
+            velocityEngine.init();
+        }
+        catch (Exception e) {
+            log.error("Error initializing Velocity engine", e);
+        }
+
+        VelocityContext velocityContext = new VelocityContext();
+        velocityContext.put("htmlForm", form);
+        velocityContext.put("identifierTypes", Context.getPatientService().getAllPatientIdentifierTypes(false));
+        velocityContext.put("personAttributeTypes", Context.getPersonService().getAllPersonAttributeTypes(false));
+        
+        StringWriter writer = new StringWriter();
+        try {
+            velocityEngine.evaluate(velocityContext, writer, "Basic HTML Form", getBasicFormXmlTemplate());
+            String result = writer.toString();
+            return result;
+        } catch (Exception ex) {
+            log.error("Exception evaluating velocity expression", ex);
+            return "<htmlform>Velocity Error! " + ex.getMessage() + "</htmlform>"; 
+        }
     }
 	
 }

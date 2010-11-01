@@ -12,6 +12,7 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.HtmlFormValidator;
 import org.openmrs.propertyeditor.EncounterTypeEditor;
@@ -92,14 +93,15 @@ public class HtmlFormController {
 	public String saveHtmlForm(Model model,
 	                           @ModelAttribute("htmlForm") HtmlForm htmlForm, BindingResult result,
 	                           WebRequest request) {
+		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
 		if (htmlForm.getId() == null && StringUtils.isBlank(htmlForm.getXmlData())) {
-			htmlForm.setXmlData("<htmlform></htmlform>");
+			htmlForm.setXmlData(service.getStartingFormXml(htmlForm));
 		}
 		new HtmlFormValidator().validate(htmlForm, result);
 		if (result.hasErrors()) {
 			return null;
 		} else {
-	        htmlForm = HtmlFormEntryUtil.getService().saveHtmlForm(htmlForm);
+	        htmlForm = service.saveHtmlForm(htmlForm);
 	        request.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Saved " + htmlForm.getForm().getName() + " " + htmlForm.getForm().getVersion(), WebRequest.SCOPE_SESSION);
 			return "redirect:htmlForm.form?id=" + htmlForm.getId();
 		}

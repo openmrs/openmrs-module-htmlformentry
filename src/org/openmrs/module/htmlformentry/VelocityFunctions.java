@@ -10,6 +10,7 @@ import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
+import org.openmrs.logic.result.EmptyResult;
 import org.openmrs.logic.result.Result;
 
 
@@ -21,16 +22,34 @@ public class VelocityFunctions {
 	
 	public VelocityFunctions(FormEntrySession session) {
 		this.session = session;
-		obsService = Context.getObsService();
-		logicService = Context.getLogicService();
 	}
 	
+	private ObsService getObsService() {
+		if (obsService == null)
+			obsService = Context.getObsService();
+		return obsService;
+	}
+	
+	private LogicService getLogicService() {
+		if (logicService == null)
+			logicService = Context.getLogicService();
+		return logicService;
+	}
+	
+	private void cannotBePreviewed() {
+		if ("testing-html-form-entry".equals(session.getPatient().getUuid()))
+			throw new CannotBePreviewedException();
+    }
+
 	public List<Obs> allObs(Integer conceptId) {
+		if (session.getPatient() == null)
+			return new ArrayList<Obs>();
+		cannotBePreviewed();
 		Patient p = session.getPatient();
 		if (p == null)
 			return new ArrayList<Obs>();
 		else
-			return obsService.getObservationsByPersonAndConcept(p, new Concept(conceptId));
+			return getObsService().getObservationsByPersonAndConcept(p, new Concept(conceptId));
 	}
 	
 	public Obs latestObs(Integer conceptId) {
@@ -50,8 +69,11 @@ public class VelocityFunctions {
 	}
 	
 	public Result logic(String expression) {
-		LogicCriteria lc = logicService.parse(expression);
-		return logicService.eval(session.getPatient(), lc);
+		if (session.getPatient() == null)
+			return new EmptyResult();
+		cannotBePreviewed();
+		LogicCriteria lc = getLogicService().parse(expression);
+		return getLogicService().eval(session.getPatient(), lc);
 	}
 
 }

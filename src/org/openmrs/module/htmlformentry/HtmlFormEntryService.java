@@ -97,5 +97,11 @@ public interface HtmlFormEntryService extends OpenmrsService {
      */
     @Transactional(readOnly=true)
     public boolean needsNameAndDescriptionMigration();
+
+    /**
+     * @param form the HTML Form this default content is being created for
+     * @return Example HTML Form content, to be used when a user creates a new form  
+     */
+	public String getStartingFormXml(HtmlForm form);
         
 }
