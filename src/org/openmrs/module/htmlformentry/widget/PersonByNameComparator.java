@@ -14,6 +14,10 @@ public class PersonByNameComparator implements Comparator<Person> {
 
 		PersonName name1 = person1.getPersonName();
 		PersonName name2 = person2.getPersonName();
+		if (name1 == null)
+			return 1;
+		else if (name2 == null)
+			return -1;
 		
 		int ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyName(), name2.getFamilyName());
 		
