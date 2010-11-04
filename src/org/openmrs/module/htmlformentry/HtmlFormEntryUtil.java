@@ -551,7 +551,8 @@ public class HtmlFormEntryUtil {
 	
 	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, String objectType) {
 		// pattern to find the specified attribute and pull out its values; regex matches any characters within quotes after an equals, i.e. ="a2-32" would match a232
-		Pattern substitutionPattern = Pattern.compile(attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
+		// (put a space before the attribute name so we don't get border= instead of order=
+		Pattern substitutionPattern = Pattern.compile(" " + attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = substitutionPattern.matcher(formXmlData);
 		
 		// list to keep track of any "repeat" keys we are going to have to substitute out as well
