@@ -37,10 +37,8 @@ public class ShareableHtmlForm extends HtmlForm {
 		this.setDateChanged(form.getDateChanged());
 		this.setDateCreated(form.getDateCreated());
 		this.setDateRetired(form.getDateRetired());
-		this.setDescription(form.getDescription());
 		this.setForm(form.getForm());
 		this.setId(form.getId());
-		this.setName(form.getName());
 		this.setRetired(form.getRetired());
 		this.setRetiredBy(form.getRetiredBy());
 		this.setRetireReason(form.getRetireReason());
