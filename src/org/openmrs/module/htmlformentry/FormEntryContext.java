@@ -208,8 +208,8 @@ public class FormEntryContext {
         if (!obsGroupStack.isEmpty()){
             obsGroupStack.pop();
             currentObsGroupConcepts.pop();
-        }  
-        getSchema().addField(activeObsGroup);  
+        }    
+        getSchema().addField(activeObsGroup);
         //put the parent obs group back
         if (!obsGroupStack.isEmpty()){
             Map<ObsGroup, List<Obs>> map = obsGroupStack.peek();
@@ -218,6 +218,8 @@ public class FormEntryContext {
                 activeObsGroup = e.getKey();
                 break;
             }
+        } else {
+            activeObsGroup = null;
         }
     }
     
