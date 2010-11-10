@@ -3,13 +3,19 @@ package org.openmrs.module.htmlformentry;
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
 import org.openmrs.Obs;
-import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
+import org.openmrs.module.htmlformentry.schema.ObsField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -532,4 +538,64 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
+	
+	
+	/**
+	 * This test verifies that a) a root Section gets created, and
+	 * b) that nested obsGroups are working correctly in the schema.  You know that 'a' is working 
+	 * if conceptId = 6 shows up in section 0, even though it is the last obs tag in the form.
+	 * 
+	 * you can inspect the results for 'b':
+	 * the 'ret' variable is a string representation of the schema where sections are enclosed 
+	 * by parentheses (), and obsGroup members are enclosed by brackets [].  
+	 */
+    @Test
+    public void shouldReturnObsGroupSchemaCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+        HtmlFormSchema hfs = session.getContext().getSchema();
+        String ret = "";
+        int count = 0;
+        for (HtmlFormSection fes : hfs.getSections()){
+            ret += "section " + count + " (";
+            for (HtmlFormField hff : fes.getFields()){
+                ret = shouldReturnObsGroupSchemaCorrectlyHelper(hff, count, ret);
+            }
+            ret += ") ";
+            count ++;
+        }
+        //System.out.println(ret);
+        Assert.assertTrue(ret.equals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) "));
+    } 
+    
+    /**
+     * 
+     * This iterates through nested obsGroups and is used by shouldReturnObsGroupSchemaCorrectly()
+     * 
+     * @param hff
+     * @param count
+     * @param ret
+     * @return
+     */
+    private String shouldReturnObsGroupSchemaCorrectlyHelper(HtmlFormField hff, int count, String  ret){
+        if (hff instanceof ObsField){
+            ObsField of = (ObsField) hff;
+            ret += " concept " + of.getQuestion() + " ";
+            
+        }  else if (hff instanceof ObsGroup){
+            ObsGroup og = (ObsGroup) hff;
+            ret += " ObsGroup=" + og.getConcept() + " [";
+            for (HtmlFormField hffInner : og.getChildren())
+                ret = shouldReturnObsGroupSchemaCorrectlyHelper(hffInner, count, ret);
+            ret += "]";
+        }
+        return ret;
+    }
 }

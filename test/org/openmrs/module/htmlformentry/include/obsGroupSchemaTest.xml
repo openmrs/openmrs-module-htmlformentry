@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<section headerLabel="Section One">
+			<section headerLabel="Section One Inner One">
+					<obsgroup groupingConceptId="1004">
+						<obsgroup groupingConceptId="7">
+							ALLERGY CODED 2: <obs conceptId="1000"/>
+						</obsgroup>
+						Hyper-Allergy 1: <obs conceptId="1005"/>
+				    </obsgroup>			
+				<obs conceptIds="2474,3017,1441" answerConceptId="656"/> ISONIAZID
+			</section>
+			<obs conceptId="3032" labelText="DST Result Date"/> DST START DATE
+	</section>
+	<obs conceptId="6"/>
+
+	<submit/>
+</htmlform>

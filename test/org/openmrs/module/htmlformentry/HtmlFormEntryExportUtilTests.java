@@ -1,0 +1,217 @@
+package org.openmrs.module.htmlformentry;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
+import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.test.Verifies;
+
+public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest {
+
+    protected final Log log = LogFactory.getLog(getClass());
+    
+    protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+    
+    protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
+    
+    @Before
+    public void setupDatabase() throws Exception {
+        initializeInMemoryDatabase();
+        authenticate();
+    }
+    
+    @Test
+    @Verifies(value = "should recognize and return section tags in xml", method = "getSectionNodes(HtmlForm)")
+    public void getSectionNodes_shouldReturnSectionNodesCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestForm.xml"));
+        Map<Integer, String> map = HtmlFormEntryExportUtil.getSectionIndex(htmlform);
+        String st = "";
+        for (Map.Entry<Integer, String> e : map.entrySet()){
+            st += "|" + e.getKey() + " : " + e.getValue();
+        }
+        //System.out.println(st);
+        TestUtil.assertFuzzyContains("Section One", st);
+        TestUtil.assertFuzzyContains("Section One Inner One", st);
+        TestUtil.assertFuzzyContains("Section One Inner Two", st);
+        TestUtil.assertFuzzyContains("no name specified", st);
+    }
+
+
+    @Test
+    @Verifies(value = "should return section as a new htmlform", method = "getSectionAsForm(HtmlForm)")
+    public void getSectionAsForm_shouldReturnStringCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestForm.xml"));
+        String newXml = HtmlFormEntryExportUtil.getSectionAsFormXml(htmlform, 1);
+        //System.out.println(newXML);
+        htmlform.setXmlData(newXml);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+        String html = session.getHtmlToDisplay();
+        //System.out.println(html);
+        TestUtil.assertFuzzyContains("<span class=\"sectionHeader\">Section One Inner One</span>", html);
+        TestUtil.assertFuzzyContains("ISONIAZID <select id=\"w2\" name=\"w2\"><option value=\"\" selected=\"true\"></option><option value=\"2474\">Susceptible</option><option value=\"3017\">Intermediate</option><option value=\"1441\">Resistant</option></select>", html);
+    }
+    
+
+    @Test
+    @Verifies(value = "should return trimmed encounter", method = "trimEncounterToMatchForm(Encounter e, HtmlForm htmlform)")
+    public void trimEncounterToMatchForm_shouldReturnEncounterCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+        String newXml = HtmlFormEntryExportUtil.getSectionAsFormXml(htmlform, 0);
+        htmlform.setXmlData(newXml);
+        
+
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        
+        TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date);
+        TestUtil.addObs(e, 3017, Context.getConceptService().getConcept(767), date);
+        TestUtil.addObs(e, 3032, new Date(), date); 
+        TestUtil.addObs(e, 1, 5000, date); 
+        TestUtil.addObs(e, 6, "blah blah", date); 
+            //1004 is ANOTHER ALLERGY CONSTRUCT, 1005 is HYPER-ALLERGY CODED, 1001 is PENICILLIN
+        TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1001), new Date()); 
+            //7 IS ALLERGY CONSTRUCT, 1000 IS ALLERGY CODED, 1003 IS OPENMRS
+        TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date()); 
+        Context.getEncounterService().saveEncounter(e);
+        e = HtmlFormEntryExportUtil.trimEncounterToMatchForm(e, htmlform);
+        if (log.isDebugEnabled()){
+            for (Obs otmp : e.getAllObs()){
+                log.debug("trimEncounterToMatchForm returned an obs with concept: " + otmp.getConcept());
+            }
+        }
+        //Note, this assertion corresponds to section index 0 in the form, so 5 obs should be returned
+            // the form has 6 obs under section 0, but we didn't create the obs for conceptId = 9
+        Assert.assertTrue(e.getAllObs().size() == 5);
+        
+    }
+    
+    @Test
+    @Verifies(value = "should return form schema", method = "generateColumnHeadersFromHtmlForm(Encounter e, HtmlForm htmlform)")
+    public void generateColumnHeadersFromHtmlForm_shouldReturnSchemaCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+        List<String> extraCols = new ArrayList<String>();
+        extraCols.add("valueModifier");
+        extraCols.add("accessionNumber");
+        extraCols.add("comment");
+        PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
+        String ret = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), pit);
+        //System.out.println("TESTHEADER " + ret);
+        Assert.assertTrue(ret.contains("\"ENCOUNTER_ID\"|\"ENCOUNTER_DATE\"|\"ENCOUNTER_LOCATION\"|\"ENCOUNTER_PROVIDER\"|\"INTERNAL_PATIENT_ID\"|\"Old Identification Number\"|\"ISONIAZID\"|\"ISONIAZID_DATE\"|\"ISONIAZID_PARENT\"|\"ISONIAZID_VALUE_MOD\"|\"ISONIAZID_ACCESSION_NUM\"|\"ISONIAZID_COMMENT\"|\"HYPER_ALLERGY_CODED\"|\"HYPER_ALLERGY_CODED_DATE\"|\"HYPER_ALLERGY_CODED_PARENT\"|\"HYPER_ALLERGY_CODED_VALUE_MOD\"|\"HYPER_ALLERGY_CODED_ACCESSION_NUM\"|\"HYPER_ALLERGY_CODED_COMMENT\"|\"ALLERGY_DATE\"|\"ALLERGY_DATE_DATE\"|\"ALLERGY_DATE_PARENT\"|\"ALLERGY_DATE_VALUE_MOD\"|\"ALLERGY_DATE_ACCESSION_NUM\"|\"ALLERGY_DATE_COMMENT\"|\"RIFAMPICIN\"|\"RIFAMPICIN_DATE\"|\"RIFAMPICIN_PARENT\"|\"RIFAMPICIN_VALUE_MOD\"|\"RIFAMPICIN_ACCESSION_NUM\"|\"RIFAMPICIN_COMMENT\"|\"DST_START_DATE\"|\"DST_START_DATE_DATE\"|\"DST_START_DATE_PARENT\"|\"DST_START_DATE_VALUE_MOD\"|\"DST_START_DATE_ACCESSION_NUM\"|\"DST_START_DATE_COMMENT\"|\"CD4_COUNT\"|\"CD4_COUNT_DATE\"|\"CD4_COUNT_PARENT\"|\"CD4_COUNT_VALUE_MOD\"|\"CD4_COUNT_ACCESSION_NUM\"|\"CD4_COUNT_COMMENT\"|\"MARRIED\"|\"MARRIED_DATE\"|\"MARRIED_PARENT\"|\"MARRIED_VALUE_MOD\"|\"MARRIED_ACCESSION_NUM\"|\"MARRIED_COMMENT\"|\"ALLERGY_CODED\"|\"ALLERGY_CODED_DATE\"|\"ALLERGY_CODED_PARENT\"|\"ALLERGY_CODED_VALUE_MOD\"|\"ALLERGY_CODED_ACCESSION_NUM\"|\"ALLERGY_CODED_COMMENT\""));
+    }    
+    
+    @Test
+    @Verifies(value = "should return encounter rows", method = "generateColumnDataFromHtmlForm(List<Encounter> encounters, HtmlForm form, List<String> extraCols, StringBuffer sb, Locale locale)")
+    public void generateColumnDataFromHtmlForm_shouldReturnRowsCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
+        List<String> extraCols = new ArrayList<String>();
+        extraCols.add("valueModifier");
+        extraCols.add("accessionNumber");
+        extraCols.add("comment");
+        PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
+        String header = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), pit);
+        //Build a couple of encounters for the form
+        List<Encounter> encounters = new ArrayList<Encounter>();
+        
+        
+        //encounter1
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        //top of form
+        TestUtil.addObs(e, 3032, date, date);
+        TestUtil.addObs(e, 1441, Context.getConceptService().getConcept(656), date);
+        TestUtil.addObsGroup(e, 1004, date, 1005, Context.getConceptService().getConcept(1001), new Date());
+        TestUtil.addObs(e, 9, new Date(), date);
+        TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(767), date);
+        //DST RESULT
+        Obs dstParent = TestUtil.createObs(e, 3040, null, date);
+        e.addObs(dstParent);
+        Obs resultParent = TestUtil.createObs(e, 3025, null, date);
+        dstParent.addGroupMember(resultParent);
+        Obs drugResult = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(656), date);
+        resultParent.addGroupMember(drugResult);
+        Obs colonies1 = TestUtil.createObs(e, 3016, 200, date);
+        resultParent.addGroupMember(colonies1);
+
+        //saving the enconter in order to see obsGroupId in export
+        Context.getEncounterService().saveEncounter(e);
+        encounters.add(e);
+
+        String ret = HtmlFormEntryExportUtil.generateColumnDataFromHtmlForm(encounters, htmlform, extraCols, new StringBuffer(""), new Locale("en"), pit);
+        
+        ArrayList<String> splitheader = new ArrayList<String>();
+        for (StringTokenizer st = new StringTokenizer(header, "|"); st.hasMoreTokens(); )
+            splitheader.add(st.nextToken().trim());
+        ArrayList<String> splitret = new ArrayList<String>();
+        for (StringTokenizer st = new StringTokenizer(ret, "|"); st.hasMoreTokens(); ) 
+            splitret.add(st.nextToken().trim());
+        Assert.assertTrue(splitret.size() == splitheader.size());
+//        for (int i = 0; i < splitheader.size(); i++){
+//            System.out.println(splitheader.get(i) + " = " + splitret.get(i));
+//        }
+        
+    }
+    
+    
+    
+}

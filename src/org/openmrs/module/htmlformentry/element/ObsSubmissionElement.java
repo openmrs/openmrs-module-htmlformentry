@@ -849,4 +849,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
         return valueLabel;
     }
 
+    public Obs getExistingObs() {
+        return existingObs;
+    }
+
 }

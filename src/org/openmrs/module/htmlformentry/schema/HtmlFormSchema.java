@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.schema;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Represents the schema of an HTML Form
@@ -10,6 +11,10 @@ public class HtmlFormSchema {
 
 	private String name;
 	private List<HtmlFormSection> sections = new ArrayList<HtmlFormSection>();
+	//for embedded sections
+	private Stack<HtmlFormSection> sectionsStack = new Stack<HtmlFormSection>();
+	//this captures the schema elements in the same order as the FormSubmissionAction list
+	private List<HtmlFormField> allFields = new ArrayList<HtmlFormField>();
     
     public HtmlFormSchema() { }
 
@@ -47,22 +52,17 @@ public class HtmlFormSchema {
 	 */
 	public void addSection(HtmlFormSection section) {
 		sections.add(section);
-	}
-
-	/**
-	 * Sets the sections of the schema
-	 * 
-	 * @param sections the sections to set
-	 */
-	public void setSections(List<HtmlFormSection> sections) {
-		this.sections = sections;
+		if (sectionsStack.size() > 0)
+		    sectionsStack.peek().addChildSection(section);
+		sectionsStack.push(section);
+		allFields.add(section);
 	}
 	
 	/**
 	 * Adds a new empty section to the end of the schema
 	 */
 	public void startNewSection() {
-		sections.add(new HtmlFormSection());
+		addSection(new HtmlFormSection());
 	}
 	
 	/**
@@ -70,11 +70,10 @@ public class HtmlFormSchema {
 	 * 
 	 * @return the last section of the schema
 	 */
-	public HtmlFormSection getLastSection() {
-		if (sections.isEmpty()) {
-			startNewSection();
-		}
-		return sections.get(sections.size()-1);
+	public HtmlFormSection getCurrentSection() {
+	    if (sectionsStack.size() == 0)
+	        startNewSection();
+		return sectionsStack.peek();
 	}
 	
 	/**
@@ -83,6 +82,31 @@ public class HtmlFormSchema {
 	 * @param field the field to add
 	 */
 	public void addField(HtmlFormField field) {
-		getLastSection().addField(field);
+		getCurrentSection().addField(field);
+		allFields.add(field);
 	}
+	
+	/**
+	 * 
+	 * Sets the current section to length - 2 of sections array, if it exists.
+	 *
+	 */
+	public void endSection(){
+	    sectionsStack.pop();
+	}
+
+	/**
+	 * 
+	 * returns the list of HtmlFormField in the same order as the FormSubmissionActions in the Session
+	 * 
+	 * @return allFields 
+	 */
+    public List<HtmlFormField> getAllFields() {
+        return allFields;
+    }
+	
+	
+	
+	
+	
 }

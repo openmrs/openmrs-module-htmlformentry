@@ -45,13 +45,14 @@ public class SectionTagHandler implements TagHandler {
         }
         
         session.getContext().getSchema().startNewSection();
-        session.getContext().getSchema().getLastSection().setName(headerLabel);
+        session.getContext().getSchema().getCurrentSection().setName(headerLabel);
         
         return true;
     }
 
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
     	out.print("</div>");
+    	session.getContext().getSchema().endSection();
     }
 
 }

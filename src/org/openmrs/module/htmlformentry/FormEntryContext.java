@@ -20,6 +20,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
@@ -65,6 +66,7 @@ public class FormEntryContext {
     public FormEntryContext(Mode mode) {
         this.mode = mode;
         setupExistingData((Encounter) null);
+        schema.addSection(new HtmlFormSection());
     }
     
     /**
@@ -208,17 +210,20 @@ public class FormEntryContext {
         if (!obsGroupStack.isEmpty()){
             obsGroupStack.pop();
             currentObsGroupConcepts.pop();
-        }    
-        getSchema().addField(activeObsGroup);
-        //put the parent obs group back
+        }
+
+        
+        //set the activeObsGroup back to parent, if there is one.
         if (!obsGroupStack.isEmpty()){
             Map<ObsGroup, List<Obs>> map = obsGroupStack.peek();
             for (Map.Entry<ObsGroup, List<Obs>> e : map.entrySet()){
+                e.getKey().addChild(activeObsGroup);
                 currentObsGroupMembers = e.getValue();
                 activeObsGroup = e.getKey();
                 break;
             }
         } else {
+            getSchema().addField(activeObsGroup);
             activeObsGroup = null;
         }
     }

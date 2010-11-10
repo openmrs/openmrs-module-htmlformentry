@@ -22,10 +22,11 @@
 	</section>
 	
 	<section>
-	       CD4 COUNT numeric <obs conceptId="1"/>
-	       MARRIED text <obs conceptId="6"/>
-	       <obsgroup groupingConceptId="7">
-				ALLERGY CODED 2: <obs conceptId="1000"/>
+			<obsgroup groupingConceptId="3040">
+		        <obsgroup groupingConceptId="3025">
+					<obs conceptIds="2474,3017,1441" answerConceptId="656"/> 
+					INH colonies: <obs conceptId="3016"/> 
+				</obsgroup>
 			</obsgroup>
 	</section>
 	

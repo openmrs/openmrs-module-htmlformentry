@@ -6,10 +6,11 @@ import java.util.List;
 /**
  * Represents a section in the HTML Form schema
  */
-public class HtmlFormSection {
+public class HtmlFormSection implements HtmlFormField {
 
 	private String name;
 	private List<HtmlFormField> fields = new ArrayList<HtmlFormField>();
+	private List<HtmlFormSection> sections = new ArrayList<HtmlFormSection>();
     
     public HtmlFormSection() { }
 
@@ -57,4 +58,12 @@ public class HtmlFormSection {
 	public void setFields(List<HtmlFormField> fields) {
 		this.fields = fields;
 	}
+	
+	public void addChildSection(HtmlFormSection section){
+	    this.sections.add(section);
+	}
+
+    public List<HtmlFormSection> getSections() {
+        return sections;
+    }
 }
