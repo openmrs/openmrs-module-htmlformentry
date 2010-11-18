@@ -205,14 +205,12 @@ public class FormEntryContext {
      * Closes the active {@see ObsGroup} and adds it to the Html Form Schema
      */
     public void endObsGroup() {
-        currentObsGroupMembers = null;
         //remove itself
         if (!obsGroupStack.isEmpty()){
             obsGroupStack.pop();
             currentObsGroupConcepts.pop();
         }
 
-        
         //set the activeObsGroup back to parent, if there is one.
         if (!obsGroupStack.isEmpty()){
             Map<ObsGroup, List<Obs>> map = obsGroupStack.peek();
@@ -223,6 +221,7 @@ public class FormEntryContext {
                 break;
             }
         } else {
+            currentObsGroupMembers = null;
             getSchema().addField(activeObsGroup);
             activeObsGroup = null;
         }

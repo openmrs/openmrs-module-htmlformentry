@@ -11,6 +11,7 @@ import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
+import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;

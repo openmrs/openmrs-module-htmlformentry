@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -128,7 +129,7 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
     }
     
     @Test
-    @Verifies(value = "should return form schema", method = "generateColumnHeadersFromHtmlForm(Encounter e, HtmlForm htmlform)")
+    @Verifies(value = "should return form schema", method = "generateColumnHeadersFromHtmlForm(HtmlForm htmlform, String[] extraCols, StringBuffer, List<PatientIdenitifierType> pitList)")
     public void generateColumnHeadersFromHtmlForm_shouldReturnSchemaCorrectly() throws Exception {
         executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
         
@@ -143,13 +144,13 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
         extraCols.add("accessionNumber");
         extraCols.add("comment");
         PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
-        String ret = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), pit);
+        String ret = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), Collections.singletonList(pit));
         //System.out.println("TESTHEADER " + ret);
-        Assert.assertTrue(ret.contains("\"ENCOUNTER_ID\"|\"ENCOUNTER_DATE\"|\"ENCOUNTER_LOCATION\"|\"ENCOUNTER_PROVIDER\"|\"INTERNAL_PATIENT_ID\"|\"Old Identification Number\"|\"ISONIAZID\"|\"ISONIAZID_DATE\"|\"ISONIAZID_PARENT\"|\"ISONIAZID_VALUE_MOD\"|\"ISONIAZID_ACCESSION_NUM\"|\"ISONIAZID_COMMENT\"|\"HYPER_ALLERGY_CODED\"|\"HYPER_ALLERGY_CODED_DATE\"|\"HYPER_ALLERGY_CODED_PARENT\"|\"HYPER_ALLERGY_CODED_VALUE_MOD\"|\"HYPER_ALLERGY_CODED_ACCESSION_NUM\"|\"HYPER_ALLERGY_CODED_COMMENT\"|\"ALLERGY_DATE\"|\"ALLERGY_DATE_DATE\"|\"ALLERGY_DATE_PARENT\"|\"ALLERGY_DATE_VALUE_MOD\"|\"ALLERGY_DATE_ACCESSION_NUM\"|\"ALLERGY_DATE_COMMENT\"|\"RIFAMPICIN\"|\"RIFAMPICIN_DATE\"|\"RIFAMPICIN_PARENT\"|\"RIFAMPICIN_VALUE_MOD\"|\"RIFAMPICIN_ACCESSION_NUM\"|\"RIFAMPICIN_COMMENT\"|\"DST_START_DATE\"|\"DST_START_DATE_DATE\"|\"DST_START_DATE_PARENT\"|\"DST_START_DATE_VALUE_MOD\"|\"DST_START_DATE_ACCESSION_NUM\"|\"DST_START_DATE_COMMENT\"|\"CD4_COUNT\"|\"CD4_COUNT_DATE\"|\"CD4_COUNT_PARENT\"|\"CD4_COUNT_VALUE_MOD\"|\"CD4_COUNT_ACCESSION_NUM\"|\"CD4_COUNT_COMMENT\"|\"MARRIED\"|\"MARRIED_DATE\"|\"MARRIED_PARENT\"|\"MARRIED_VALUE_MOD\"|\"MARRIED_ACCESSION_NUM\"|\"MARRIED_COMMENT\"|\"ALLERGY_CODED\"|\"ALLERGY_CODED_DATE\"|\"ALLERGY_CODED_PARENT\"|\"ALLERGY_CODED_VALUE_MOD\"|\"ALLERGY_CODED_ACCESSION_NUM\"|\"ALLERGY_CODED_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"ENCOUNTER_ID\",\"ENCOUNTER_DATE\",\"ENCOUNTER_LOCATION\",\"ENCOUNTER_PROVIDER\",\"INTERNAL_PATIENT_ID\",\"Old Identification Number\",\"ISONIAZID\",\"ISONIAZID_DATE\",\"ISONIAZID_PARENT\",\"ISONIAZID_VALUE_MOD\",\"ISONIAZID_ACCESSION_NUM\",\"ISONIAZID_COMMENT\",\"HYPER_ALLERGY_CODED\",\"HYPER_ALLERGY_CODED_DATE\",\"HYPER_ALLERGY_CODED_PARENT\",\"HYPER_ALLERGY_CODED_VALUE_MOD\",\"HYPER_ALLERGY_CODED_ACCESSION_NUM\",\"HYPER_ALLERGY_CODED_COMMENT\",\"ALLERGY_DATE\",\"ALLERGY_DATE_DATE\",\"ALLERGY_DATE_PARENT\",\"ALLERGY_DATE_VALUE_MOD\",\"ALLERGY_DATE_ACCESSION_NUM\",\"ALLERGY_DATE_COMMENT\",\"RIFAMPICIN\",\"RIFAMPICIN_DATE\",\"RIFAMPICIN_PARENT\",\"RIFAMPICIN_VALUE_MOD\",\"RIFAMPICIN_ACCESSION_NUM\",\"RIFAMPICIN_COMMENT\",\"DST_START_DATE\",\"DST_START_DATE_DATE\",\"DST_START_DATE_PARENT\",\"DST_START_DATE_VALUE_MOD\",\"DST_START_DATE_ACCESSION_NUM\",\"DST_START_DATE_COMMENT\",\"CD4_COUNT\",\"CD4_COUNT_DATE\",\"CD4_COUNT_PARENT\",\"CD4_COUNT_VALUE_MOD\",\"CD4_COUNT_ACCESSION_NUM\",\"CD4_COUNT_COMMENT\",\"MARRIED\",\"MARRIED_DATE\",\"MARRIED_PARENT\",\"MARRIED_VALUE_MOD\",\"MARRIED_ACCESSION_NUM\",\"MARRIED_COMMENT\",\"ALLERGY_CODED\",\"ALLERGY_CODED_DATE\",\"ALLERGY_CODED_PARENT\",\"ALLERGY_CODED_VALUE_MOD\",\"ALLERGY_CODED_ACCESSION_NUM\",\"ALLERGY_CODED_COMMENT\""));
     }    
     
     @Test
-    @Verifies(value = "should return encounter rows", method = "generateColumnDataFromHtmlForm(List<Encounter> encounters, HtmlForm form, List<String> extraCols, StringBuffer sb, Locale locale)")
+    @Verifies(value = "should return encounter rows", method = "generateColumnDataFromHtmlForm(List<Encounter> encounters, HtmlForm form, List<String> extraCols, StringBuffer sb, Locale locale),List<PatientIdentifierType> pitList")
     public void generateColumnDataFromHtmlForm_shouldReturnRowsCorrectly() throws Exception {
         executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
         
@@ -164,7 +165,7 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
         extraCols.add("accessionNumber");
         extraCols.add("comment");
         PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
-        String header = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), pit);
+        String header = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), Collections.singletonList(pit));
         //Build a couple of encounters for the form
         List<Encounter> encounters = new ArrayList<Encounter>();
         
@@ -197,13 +198,13 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
         Context.getEncounterService().saveEncounter(e);
         encounters.add(e);
 
-        String ret = HtmlFormEntryExportUtil.generateColumnDataFromHtmlForm(encounters, htmlform, extraCols, new StringBuffer(""), new Locale("en"), pit);
-        
+        String ret = HtmlFormEntryExportUtil.generateColumnDataFromHtmlForm(encounters, htmlform, extraCols, new StringBuffer(""), new Locale("en"), Collections.singletonList(pit));
+        System.out.println(ret);
         ArrayList<String> splitheader = new ArrayList<String>();
-        for (StringTokenizer st = new StringTokenizer(header, "|"); st.hasMoreTokens(); )
+        for (StringTokenizer st = new StringTokenizer(header, ","); st.hasMoreTokens(); )
             splitheader.add(st.nextToken().trim());
         ArrayList<String> splitret = new ArrayList<String>();
-        for (StringTokenizer st = new StringTokenizer(ret, "|"); st.hasMoreTokens(); ) 
+        for (StringTokenizer st = new StringTokenizer(ret, ","); st.hasMoreTokens(); ) 
             splitret.add(st.nextToken().trim());
         Assert.assertTrue(splitret.size() == splitheader.size());
 //        for (int i = 0; i < splitheader.size(); i++){
@@ -211,6 +212,101 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
 //        }
         
     }
+    
+    @Test
+    @Verifies(value = "should handle multiple identifier types correctly", method = "buildHtmlFormExport(List<Encounter> encounters, HtmlForm htmlForm, List<String> extraCols, StringBuffer sb, Locale locale,List<PatientIdentifierType> pitList)")
+    public void generateColumnDataFromHtmlForm_shouldReturnRowsCorrectlyWithMultipleIDTypes() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
+        List<String> extraCols = new ArrayList<String>();
+        extraCols.add("valueModifier");
+        extraCols.add("accessionNumber");
+        extraCols.add("comment");
+        PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
+        PatientIdentifierType pitTwo = Context.getPatientService().getPatientIdentifierType(1);
+        List<PatientIdentifierType> pitList = new ArrayList<PatientIdentifierType>();
+        pitList.add(pit);
+        pitList.add(pitTwo);
+        //Build a couple of encounters for the form
+        List<Encounter> encounters = new ArrayList<Encounter>();
+        
+        
+        //encounter1
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        
+        Context.getEncounterService().saveEncounter(e);
+        encounters.add(e);
+
+        StringBuffer ret = HtmlFormEntryExportUtil.buildHtmlFormExport(encounters, htmlform, extraCols, new StringBuffer(""), new Locale("en"),pitList);
+        
+        //System.out.println("HEADER " + ret.toString());
+        Assert.assertTrue(ret.toString().contains(",\"Old Identification Number\",\"Test Identifier Type\","));
+        Assert.assertTrue(ret.toString().contains(",\"101\",\"1234\","));
+        
+    }     
+    
+    
+    
+    @Test
+    @Verifies(value = "should render timestamps and datetimes correctly", method = "getObsValueAsString")
+    public void getObsValueAsString_shouldRenderCorrectly() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "datatypeRenderingTest.xml"));
+        List<String> extraCols = new ArrayList<String>();
+        extraCols.add("valueModifier");
+        extraCols.add("accessionNumber");
+        extraCols.add("comment");
+        PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
+        PatientIdentifierType pitTwo = Context.getPatientService().getPatientIdentifierType(1);
+        List<PatientIdentifierType> pitList = new ArrayList<PatientIdentifierType>();
+        pitList.add(pit);
+        pitList.add(pitTwo);
+        //Build a couple of encounters for the form
+        List<Encounter> encounters = new ArrayList<Encounter>();
+        
+        
+        //encounter1
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        
+        
+        TestUtil.addObs(e, 9, date, date);
+        TestUtil.addObs(e, 1007, date, date);
+        
+        Context.getEncounterService().saveEncounter(e);
+        encounters.add(e);
+
+        StringBuffer ret = HtmlFormEntryExportUtil.buildHtmlFormExport(encounters, htmlform, extraCols, new StringBuffer(""), new Locale("en"),pitList);
+        
+        Assert.assertTrue(ret.toString().contains("\"2003-02-01 00:00:00\",\"01/02/2003\",\"\",\"\",\"\",\"\",\"01/02/2003\",\"01/02/2003\","));
+        
+        
+    }
+    
+    
     
     
     

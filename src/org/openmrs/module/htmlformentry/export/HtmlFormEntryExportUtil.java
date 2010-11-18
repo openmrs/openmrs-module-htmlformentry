@@ -29,7 +29,6 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.ObsGroupComponent;
 import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
@@ -38,6 +37,8 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.util.Format;
+import org.openmrs.util.Format.FORMAT_TYPE;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -52,7 +53,7 @@ public class HtmlFormEntryExportUtil {
     
     private static final String DEFAULT_QUOTE = "\"";
 
-    private static final String DEFAULT_COLUMN_SEPARATOR = "|";
+    private static final String DEFAULT_COLUMN_SEPARATOR = ",";
 
     private static final String DEFAULT_LINE_SEPARATOR = "\n";
     
@@ -237,19 +238,23 @@ public class HtmlFormEntryExportUtil {
      * @return
      * @throws Exception
      */ 
-    public static String generateColumnHeadersFromHtmlForm(HtmlForm form, List<String> extraCols, StringBuffer sb, PatientIdentifierType pit) throws Exception {
+    public static String generateColumnHeadersFromHtmlForm(HtmlForm form, List<String> extraCols, StringBuffer sb, List<PatientIdentifierType> pitList) throws Exception {
         FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), form);
         HtmlFormSchema hfs = session.getContext().getSchema();
-        if (pit == null)
-            throw new RuntimeException("Please provide a patient identifier type for this export.");
         
         sb.
         append(DEFAULT_QUOTE).append("ENCOUNTER_ID").append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR).
         append(DEFAULT_QUOTE).append("ENCOUNTER_DATE").append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR).
         append(DEFAULT_QUOTE).append("ENCOUNTER_LOCATION").append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR).
         append(DEFAULT_QUOTE).append("ENCOUNTER_PROVIDER").append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR).
-        append(DEFAULT_QUOTE).append("INTERNAL_PATIENT_ID").append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR).
-        append(DEFAULT_QUOTE).append(pit.getName()).append(DEFAULT_QUOTE);
+        append(DEFAULT_QUOTE).append("INTERNAL_PATIENT_ID").append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
+        int index = 1;
+        for (PatientIdentifierType pit :  pitList){
+            sb.append(DEFAULT_QUOTE).append(pit.getName()).append(DEFAULT_QUOTE);
+            if (index < pitList.size())
+                sb.append(DEFAULT_COLUMN_SEPARATOR);
+            index ++;
+        }    
         
         for (HtmlFormField hfsec : hfs.getAllFields())
                 sb = generateColumnHeadersFromHtmlFormHelper(hfsec, extraCols, sb);
@@ -355,16 +360,21 @@ public class HtmlFormEntryExportUtil {
      * @return
      * @throws Exception
      */
-    public static String generateColumnDataFromHtmlForm(List<Encounter> encounters, HtmlForm form, List<String> extraCols, StringBuffer sb, Locale locale, PatientIdentifierType pit) throws Exception {
+    public static String generateColumnDataFromHtmlForm(List<Encounter> encounters, HtmlForm form, List<String> extraCols, StringBuffer sb, Locale locale,List<PatientIdentifierType> pitList) throws Exception {
         for (Encounter e: encounters){
             
             sb.append(DEFAULT_QUOTE).append(e.getEncounterId()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);         
             sb.append(DEFAULT_QUOTE).append(DATE_FORMATTER.format(e.getEncounterDatetime())).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
             sb.append(DEFAULT_QUOTE).append(e.getLocation().getName()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
             sb.append(DEFAULT_QUOTE).append(e.getProvider().getGivenName()+ " " + e.getProvider().getFamilyName()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
-            sb.append(DEFAULT_QUOTE).append((e.getPatient() != null ? e.getPatient().getPatientId() : EMPTY)).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);          
-            sb.append(DEFAULT_QUOTE).append(e.getPatient().getPatientIdentifier(pit)).append(DEFAULT_QUOTE);
-            
+            sb.append(DEFAULT_QUOTE).append((e.getPatient() != null ? e.getPatient().getPatientId() : EMPTY)).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);       
+            int index = 1;
+            for (PatientIdentifierType pit :  pitList){
+                sb.append(DEFAULT_QUOTE).append(e.getPatient().getPatientIdentifier(pit)).append(DEFAULT_QUOTE);
+                if (index < pitList.size())
+                    sb.append(DEFAULT_COLUMN_SEPARATOR);
+                index ++;
+            }
             
             FormEntrySession session = new FormEntrySession(e.getPatient(), e, Mode.VIEW, form);
             FormSubmissionController  fsa = session.getSubmissionController();
@@ -400,7 +410,7 @@ public class HtmlFormEntryExportUtil {
             sb.append(DEFAULT_COLUMN_SEPARATOR);
             sb.append(DEFAULT_QUOTE);
             if (ose.getConcept() != null)
-                sb.append((o != null) ? o.getValueAsString(locale):EMPTY);
+                sb.append((o != null) ? getObsValueAsString(Context.getLocale(), o):EMPTY);
             else 
                 sb.append((o != null) ? o.getConcept().getBestName(locale):EMPTY);
             sb.append(DEFAULT_QUOTE);
@@ -443,9 +453,55 @@ public class HtmlFormEntryExportUtil {
         if (o != null)
             while (o.getObsGroup() != null){
                 o = o.getObsGroup();
-                st.insert(0, o.getObsId() + ":");
+                st.insert(0, o.getObsId() + "|");
             }
         return st.toString();
+    }
+    
+    /**
+     * The main method for exporting an htmlform to a csv.
+     * 
+     * @param encounters
+     * @param form
+     * @param extraCols
+     * @param sb
+     * @param locale
+     * @param pitList
+     * @return the complete StringBuffer, ready for export
+     */
+    public static StringBuffer buildHtmlFormExport(List<Encounter> encounters, HtmlForm htmlForm, List<String> extraCols, StringBuffer sb, Locale locale,List<PatientIdentifierType> pitList){
+        try {
+            HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlForm, extraCols, sb, pitList);
+            HtmlFormEntryExportUtil.generateColumnDataFromHtmlForm(encounters, htmlForm, extraCols, sb, Context.getLocale(), pitList);
+        } catch (Exception ex){
+            ex.printStackTrace();
+            throw new RuntimeException("Unable to export form.  Check the log for details.  Underlying error was: " + ex.getMessage());
+        }
+        return sb;
+    }
+    
+    /**
+     * 
+     * format the obs value
+     * 
+     * @param locale
+     * @param o
+     * @return
+     */
+    public static String getObsValueAsString(Locale locale, Obs o){
+        String ret = "";
+        if (o.getConcept() != null){
+            String abbrev = o.getConcept().getDatatype().getHl7Abbreviation();
+            if (abbrev.equals("DT")){
+                return (o.getValueDatetime() == null ? "" : Context.getDateFormat().format(o.getValueDatetime()));
+            } else if (abbrev.equals("TS")){
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                return sdf.format(o.getValueDatetime());
+            } else {
+                ret = o.getValueAsString(locale);
+            }    
+        }
+        return ret;
     }
     
 }
