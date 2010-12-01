@@ -494,7 +494,7 @@ public class HtmlFormEntryExportUtil {
             String abbrev = o.getConcept().getDatatype().getHl7Abbreviation();
             if (abbrev.equals("DT")){
                 return (o.getValueDatetime() == null ? "" : Context.getDateFormat().format(o.getValueDatetime()));
-            } else if (abbrev.equals("TS")){
+            } else if (abbrev.equals("TS") && o.getValueDatetime() != null){
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 return sdf.format(o.getValueDatetime());
             } else {
