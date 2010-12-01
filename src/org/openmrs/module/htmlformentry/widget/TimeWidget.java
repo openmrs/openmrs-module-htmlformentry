@@ -87,7 +87,14 @@ public class TimeWidget implements Widget {
 					context.getFieldName(this) + "hours", Integer.class);
 			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
 					context.getFieldName(this) + "minutes", Integer.class);
+			if (h == null && m == null)
+				return null;
+			if (h == null)
+				h = 0;
+			if (m == null)
+				m = 0;
 			Calendar cal = Calendar.getInstance();
+			cal.set(1900, 1, 1);
 			cal.set(Calendar.HOUR_OF_DAY, h);
 			cal.set(Calendar.MINUTE, m);
 			cal.set(Calendar.SECOND, 0);

@@ -599,4 +599,39 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
         }
         return ret;
     }
+
+	
+	@Test
+	public void testDatatypes() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "dataTypesForm";
+			}
+			
+			String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Date Obs:", "Time Obs:" };
+			}
+			
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "70");
+				request.addParameter(widgets.get("Date Obs:"), dateAsString(date));
+				request.addParameter(widgets.get("Time Obs:"), "7");
+			}
+			
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsCreatedCount(3);
+				results.assertObsCreated(2, 70d);
+				results.assertObsCreated(1008, date);
+				results.assertObsCreated(1009, "07:00:00");
+			}
+		}.run();
+	}
+
 }

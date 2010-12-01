@@ -1,0 +1,10 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Weight: <obs conceptId="2"/>
+	Date Obs: <obs conceptId="1008"/>
+	Time Obs: <obs conceptId="1009"/>
+	DateTime Obs: <obs conceptId="1007"/>
+	<submit/>
+</htmlform>

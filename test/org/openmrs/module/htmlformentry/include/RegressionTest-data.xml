@@ -8,14 +8,17 @@
   <person_address person_address_id="2" person_id="2" preferred="false" address1="1050 Wishard Blvd." address2="RG5" city_village="Indianapolis" state_province="IN" postal_code="46202" country="USA" latitude="" longitude="" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
   <person_name person_name_id="2" preferred="true" person_id="2" prefix="Mr." given_name="Horatio" middle_name="Test" family_name="Hornblower" family_name_suffix="Esq." creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
   
+  <!-- Concept Datatypes -->
+  <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float (e.g., creatinine, weight)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4488-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="2" name="Coded" hl7_abbreviation="CWE" description="Value determined by term dictionary lookup (i.e., term identifier)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a48b6-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="3" name="Text" hl7_abbreviation="ST" description="Free text" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4ab4-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4c94-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="6" name="Date" hl7_abbreviation="DT" description="Absolute date" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a505e-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="7" name="Time" hl7_abbreviation="TM" description="Absolute time of day" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a591e-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="8" name="Datetime" hl7_abbreviation="TS" description="Absolute date and time" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a5af4-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="10" name="Boolean" hl7_abbreviation="BIT" description="Boolean value (yes/no, true/false)" creator="1" date_created="2004-08-26 00:00:00.0" retired="false" uuid="8d4a5cca-c2cc-11de-8d13-0010c6dffd0f"/>
+
   <!-- Weight and CD4 concepts -->
-  <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
-  <concept_datatype concept_datatype_id="3" name="Text" hl7_abbreviation="ST" description="Free text" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
-  <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
-  <concept_datatype concept_datatype_id="6" name="Date" hl7_abbreviation="DT" description="Absolute date" creator="1" date_created="2004-07-22 00:00:00.0" retired="false"/>
-  <concept_datatype concept_datatype_id="7" name="Date" hl7_abbreviation="TS" description="Timestamp" creator="1" date_created="2004-07-22 00:00:00.0" retired="false"/>
-  
-  	  
   <concept concept_id="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
   <concept_name voided="false" concept_name_id="1" concept_id="1" name="CD4 COUNT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
@@ -165,9 +168,13 @@
   <concept_set concept_set_id="3017" concept_id="3017" concept_set="3025" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
   <concept_set concept_set_id="1441" concept_id="1441" concept_set="3025" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
   <concept_set concept_set_id="3016" concept_id="3016" concept_set="3025" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
-
-  <concept concept_id="1007" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="7" uuid="32296060-03-102d-b0e3-001ec94a0dd3"/>
+  
+  <!-- Concepts for testing datatypes -->
+  <concept concept_id="1007" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="8" uuid="32296060-03-102d-b0e3-001ec94a0dd3"/>
   <concept_name voided="false" concept_name_id="1007" concept_id="1007" name="Timestamp Test" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
-  
-  
+  <concept concept_id="1008" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6" uuid="e6660638-fce1-11df-9692-001e378eb67e"/>
+  <concept_name voided="false" concept_name_id="1008" concept_id="1008" name="Date" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" /> 
+  <concept concept_id="1009" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="7" uuid="f5396f06-fce1-11df-9692-001e378eb67e"/>
+  <concept_name voided="false" concept_name_id="1010" concept_id="1009" name="Time" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+
 </dataset>

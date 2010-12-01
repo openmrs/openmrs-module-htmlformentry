@@ -57,7 +57,7 @@ public class HtmlForm extends BaseOpenmrsMetadata {
      */
     @Override
     public void setName(String name) {
-    	throw new UnsupportedOperationException("Not supported. Set the name on form instead"); 
+    	//throw new UnsupportedOperationException("Not supported. Set the name on form instead"); 
     }
     
     /**
@@ -73,7 +73,7 @@ public class HtmlForm extends BaseOpenmrsMetadata {
      */
     @Override
     public void setDescription(String description) {
-    	throw new UnsupportedOperationException("Not supported. Set the description on form instead"); 
+    	//throw new UnsupportedOperationException("Not supported. Set the description on form instead"); 
     }
 
     /** Gets the actual XML content of the form */

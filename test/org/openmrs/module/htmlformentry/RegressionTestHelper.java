@@ -260,7 +260,7 @@ public abstract class RegressionTestHelper {
 		}
 		
 		public void assertNoErrors() {
-			Assert.assertTrue(validationErrors == null || validationErrors.size() == 0);
+			Assert.assertTrue("" + validationErrors, validationErrors == null || validationErrors.size() == 0);
 		}
 		
 		public void assertErrors() {

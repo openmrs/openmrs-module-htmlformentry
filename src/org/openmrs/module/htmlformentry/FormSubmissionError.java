@@ -20,6 +20,10 @@ public class FormSubmissionError {
         this.id = id;
         this.error = error;
     }
+    
+    public String toString() {
+    	return sourceWidget.getClass().getSimpleName() + " -> " + error;
+    }
 
     /**
      * Gets the widget that is the source of the error.

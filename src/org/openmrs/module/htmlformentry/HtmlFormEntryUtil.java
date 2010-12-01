@@ -177,7 +177,9 @@ public class HtmlFormEntryUtil {
         } else if (dt.isBoolean()) {
             boolean booleanValue = value != null && !Boolean.FALSE.equals(value) && !"false".equals(value);
             obs.setValueNumeric(booleanValue ? 1.0 : 0.0);
-        } else if (dt.isDate()) {
+        } else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation()) ||
+        		ConceptDatatype.TIME.equals(dt.getHl7Abbreviation()) ||
+        		ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
             Date date = (Date) value;
             obs.setValueDatetime(date);
         } else if ("ZZ".equals(dt.getHl7Abbreviation())) {

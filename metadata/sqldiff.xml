@@ -73,14 +73,8 @@
 			Make name column nullable (because we're deprecating it)
 		</description>
 		<sql>
-			ALTER TABLE htmlformentry_html_form MODIFY COLUMN name varchar(100) DEFAULT NULL;
+			ALTER TABLE htmlformentry_html_form MODIFY COLUMN name varchar(255) DEFAULT NULL;
 		</sql>
 	</diff>
-	
-	<!--
-			Remove name and description columns from html form table, since these should be inherited from the Form
-			ALTER TABLE `htmlformentry_html_form` DROP COLUMN `name`;
-			ALTER TABLE `htmlformentry_html_form` DROP COLUMN `description`;
-	-->
 	
 </sqldiff>
