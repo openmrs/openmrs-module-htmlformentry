@@ -1,3 +1,16 @@
+/**
+ * The contents of this file are subject to the OpenMRS Public License
+ * Version 1.0 (the "License"); you may not use this file except in
+ * compliance with the License. You may obtain a copy of the License at
+ * http://license.openmrs.org
+ *
+ * Software distributed under the License is distributed on an "AS IS"
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
+ * License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
+ */
 package org.openmrs.module.htmlformentry.widget;
 
 import java.util.Comparator;
@@ -7,17 +20,22 @@ import org.openmrs.PersonName;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
- * A simple person comparator for sorting providers by name
+ * A simple person comparator for sorting persons by name. Sorts names based on the following
+ * precedence: FamilyName, FamilyName2, GivenName, MiddleName, FamilyNamePrefix, FamilyNameSuffix
  */
 public class PersonByNameComparator implements Comparator<Person> {
 	public int compare(Person person1, Person person2) {
 
+		// test for null cases (sorting them to be last in a list)
+		if (person1 == null || person1.getPersonName() == null) {
+			return 1;
+		} else if (person2 == null || person2.getPersonName() == null) {
+			return -1;
+		}
+		
+		// if neither are null, do the actual comparison
 		PersonName name1 = person1.getPersonName();
 		PersonName name2 = person2.getPersonName();
-		if (name1 == null)
-			return 1;
-		else if (name2 == null)
-			return -1;
 		
 		int ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyName(), name2.getFamilyName());
 		
