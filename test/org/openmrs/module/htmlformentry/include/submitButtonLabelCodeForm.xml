@@ -1,0 +1,13 @@
+<htmlform>
+<translations>
+    <code name="submit_button">
+        <variant locale="en" value="save"/>
+        <variant locale="fr" value="I don't think so"/>
+    </code>
+</translations>
+
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<submit submitCode="submit_button" />
+</htmlform>

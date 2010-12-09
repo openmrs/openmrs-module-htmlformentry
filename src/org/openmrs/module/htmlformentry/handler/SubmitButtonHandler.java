@@ -5,6 +5,7 @@ import java.util.Map;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
+import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
@@ -16,15 +17,33 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
             Map<String, String> parameters) {
 
-        // TODO translate
-        if (session.getContext().getMode() == Mode.VIEW) {
+        String submitLabel = null;
+        String submitStyleClass = "submitButton";
+
+    	//handle defaults
+    	if (session.getContext().getMode() == Mode.VIEW) {
             return "";
-        } else if (session.getContext().getMode() == Mode.EDIT) {
-            return "<input type=\"button\" value=\"" + Context.getMessageSourceService().getMessage("htmlformentry.saveChangesButton") + "\" onClick=\"submitHtmlForm()\"/>";
-        } else {
-            return "<input type=\"button\" value=\"" + Context.getMessageSourceService().getMessage("htmlformentry.enterFormButton") + "\" onClick=\"submitHtmlForm()\"/>";
         }
-        
+    	else if (session.getContext().getMode() == Mode.EDIT) {
+    		submitLabel = Context.getMessageSourceService().getMessage("htmlformentry.saveChangesButton");
+        } else {
+        	submitLabel = Context.getMessageSourceService().getMessage("htmlformentry.enterFormButton");
+        }
+
+    	//check for custom label & style
+        if (parameters.containsKey("submitLabel")) {
+        	submitLabel =  parameters.get("submitLabel");
+        }
+        if (parameters.containsKey("submitCode")) {
+	    	Translator trans = session.getContext().getTranslator();
+	    	submitLabel = trans.translate(Context.getLocale().toString(), parameters.get("submitCode"));
+        }
+        if (parameters.containsKey("submitStyle")) {
+	    	submitStyleClass = parameters.get("submitStyle");
+        }
+	
+        //render it
+    	return "<input type=\"button\" class=\"" + submitStyleClass + "\" value=\"" + submitLabel + "\" onClick=\"submitHtmlForm()\"/>";
     }
 
 }

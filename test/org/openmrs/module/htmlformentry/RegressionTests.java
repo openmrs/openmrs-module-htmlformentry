@@ -634,4 +634,54 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
+	@Test
+	public void testSubmitButtonLabelAndStyle() throws Exception {
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "simplestForm";
+			}
+			
+			void testBlankFormHtml(String html){
+				//simplest form should contain default label and class
+				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"htmlformentry.enterFormButton\"", html);
+				return;
+			}
+			
+		}.run();
+
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "submitButtonLabelAndStyleForm";
+			}
+									
+			void testBlankFormHtml(String html){
+				//submitButtonLabelAndStyleForm has both custom label and style
+				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"someOtherCSSClassReference\" value=\"submit label test\"", html);
+				return;
+			}
+			
+		}.run();
+
+		new RegressionTestHelper() {
+			
+			java.util.Locale locale = null;
+			String getFormName() {
+				locale = Context.getLocale(); //save off the locale 
+				Context.setLocale(new java.util.Locale("fr")); //set it to fr
+				return "submitButtonLabelCodeForm";
+			}
+									
+			void testBlankFormHtml(String html){
+				//submit_button has translation reference code
+				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"I don't think so\"", html);
+				Context.setLocale(locale); //switch back locale
+				return;
+			}
+			
+		}.run();
+		
+	}	
+	
 }
