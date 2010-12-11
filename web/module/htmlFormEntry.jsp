@@ -130,11 +130,11 @@
 	<c:if test="${!inPopup && (command.context.mode == 'ENTER' || command.context.mode == 'EDIT')}">
 		<spring:message var="backMessage" code="htmlformentry.discard"/>
 	</c:if>
-	<div style="float: left">
+	<div style="float: left" id="discardAndPrintDiv">
 		<c:if test="${!inPopup}">
-			<a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:history.go(-1);</c:otherwise></c:choose>">${backMessage}</a> | 
+			<span id="discardLinkSpan"><a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:history.go(-1);</c:otherwise></c:choose>">${backMessage}</a></span> | 
 		</c:if>
-		<a href= "javascript:window.print();"><spring:message code="htmlformentry.print"/></a> &nbsp;<br/>
+		<span id="printLinkSpan"><a href="javascript:window.print();"><spring:message code="htmlformentry.print"/></a></span> &nbsp;<br/>
 	</div>
 	<div style="float:right">
 		<c:if test="${command.context.mode == 'VIEW'}">
