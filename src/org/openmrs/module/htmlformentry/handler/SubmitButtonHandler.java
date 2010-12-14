@@ -18,7 +18,7 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
             Map<String, String> parameters) {
 
         String submitLabel = null;
-        String submitStyleClass = "submitButton";
+        String submitClass = "submitButton";
 
     	//handle defaults
     	if (session.getContext().getMode() == Mode.VIEW) {
@@ -38,12 +38,12 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
 	    	Translator trans = session.getContext().getTranslator();
 	    	submitLabel = trans.translate(Context.getLocale().toString(), parameters.get("submitCode"));
         }
-        if (parameters.containsKey("submitStyle")) {
-	    	submitStyleClass = parameters.get("submitStyle");
+        if (parameters.containsKey("submitClass")) {
+	    	submitClass = parameters.get("submitClass");
         }
 	
         //render it
-    	return "<input type=\"button\" class=\"" + submitStyleClass + "\" value=\"" + submitLabel + "\" onClick=\"submitHtmlForm()\"/>";
+    	return "<input type=\"button\" class=\"" + submitClass + "\" value=\"" + submitLabel + "\" onClick=\"submitHtmlForm()\"/>";
     }
 
 }
