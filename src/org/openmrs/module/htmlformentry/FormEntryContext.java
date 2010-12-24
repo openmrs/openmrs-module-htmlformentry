@@ -16,9 +16,13 @@ import java.util.Stack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
+import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
@@ -57,11 +61,11 @@ public class FormEntryContext {
     private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
+    private Map<Concept, List<Order>> existingOrders;
     private Map<Obs, Set<Obs>> existingObsInGroups;
     
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
-
     
     public FormEntryContext(Mode mode) {
         this.mode = mode;
@@ -269,26 +273,40 @@ public class FormEntryContext {
     /**
      * Sets the existing Encounter to associate with the context.
      * Also sets all the Obs associated with this Encounter as existing Obs
+     * Also sets all the Orders associated with this Encounter as existing Orders
      * 
      * @param encounter encounter to associate with the context
      */
-    public void setupExistingData(Encounter encounter) {
-        existingEncounter = encounter;
-        existingObs = new HashMap<Concept, List<Obs>>();
-        if (encounter != null) {
-            for (Obs obs : encounter.getObsAtTopLevel(false)) {
-                List<Obs> list = existingObs.get(obs.getConcept());
-                if (list == null) {
-                    list = new LinkedList<Obs>();
-                    existingObs.put(obs.getConcept(), list);
+	public void setupExistingData(Encounter encounter) {
+		existingEncounter = encounter;
+		existingObs = new HashMap<Concept, List<Obs>>();
+		existingOrders = new HashMap<Concept, List<Order>>();
+		if (encounter != null) {
+			for (Obs obs : encounter.getObsAtTopLevel(false)) {
+				List<Obs> list = existingObs.get(obs.getConcept());
+				if (list == null) {
+					list = new LinkedList<Obs>();
+					existingObs.put(obs.getConcept(), list);
+				}
+				list.add(obs);
+			}
+			for (Order order : encounter.getOrders()) {
+			  //load DrugOrders for later retrieval as DrugOrders
+                if (order.isDrugOrder()){
+                    order = (Order) Context.getOrderService().getOrder(order.getOrderId(), DrugOrder.class);
                 }
-                list.add(obs);
-            }
-        }
-        existingObsInGroups = new LinkedHashMap<Obs, Set<Obs>>();
-                if (encounter != null)
-                    setupExistingObsInGroups(encounter.getObsAtTopLevel(false));
-         }
+			    List<Order> list = existingOrders.get(order.getConcept());
+				if (list == null) {
+					list = new LinkedList<Order>();
+					existingOrders.put(order.getConcept(), list);
+				}
+				list.add(order);
+			}
+		}
+		existingObsInGroups = new LinkedHashMap<Obs, Set<Obs>>();
+		if (encounter != null)
+			setupExistingObsInGroups(encounter.getObsAtTopLevel(false));
+	}
     
     /**
      * 
@@ -345,7 +363,71 @@ public class FormEntryContext {
         return null;
     }
     
+	/**
+	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
+	 * 
+	 * TODO:  what about drug orders -- sshoudl
+	 * 
+	 * @param question the concept associated with the Obs to remove
+	 * @return
+	 */
+	public Order removeExistingOrder(Concept concept) {
+		List<Order> list = existingOrders.get(concept);
+		if (list != null) {
+			for (Iterator<Order> iter = list.iterator(); iter.hasNext();) {
+				Order test = iter.next();
+				if (equalConcepts(concept, test.getConcept())) {
+					iter.remove();
+					if (list.size() == 0)
+						existingOrders.remove(concept);
+					return test;
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	/**
+     * Removes an Order of the relevant Concept from existingOrders, and returns it.
+     * 
+     * TODO:  what about drug orders -- sshoudl
+     * 
+     * @param question the concept associated with the Obs to remove
+     * @return
+     */
+    public DrugOrder removeExistingDrugOrder(Drug drug) {
+        if (drug != null){
+            Concept concept = drug.getConcept();
+            List<Order> list = existingOrders.get(concept);
+            if (list != null) {
+                for (Iterator<Order> iter = list.iterator(); iter.hasNext();) {
+                    Order test = iter.next();
+                    if (test.isDrugOrder()){
+                        DrugOrder testDrugOrder = (DrugOrder) test;
+                        if (equalDrug(testDrugOrder.getDrug(), drug)) {
+                            iter.remove();
+                            if (list.size() == 0)
+                                existingOrders.remove(concept);
+                            return testDrugOrder;
+                        }
+                    }
+                    
+                    
+                }
+            }
+        }
+        return null;
+    }
+    
     /**
+     * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
+     */
+    private boolean equalDrug(Drug c1, Drug c2) {
+        return OpenmrsUtil.nullSafeEquals(c1 == null ? null : c1.getDrugId(), c2 == null ? null : c2.getDrugId());
+    }
+    
+   /**
      * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
      */
     private boolean equalConcepts(Concept c1, Concept c2) {
@@ -380,7 +462,6 @@ public class FormEntryContext {
     /**
      * Finds the best matching obsGroup at the at the right obsGroup hierarchy level
      *  <p/>
-
      * 
      * @param groupConcept the grouping concept associated with the {@see ObsGroups}
      * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
@@ -472,8 +553,11 @@ public class FormEntryContext {
     public Map<Obs, Set<Obs>> getExistingObsInGroups() {
         return existingObsInGroups;
     }
-
-
+    
+    public Map<Concept, List<Order>> getExistingOrders() {
+        return existingOrders;
+    }
+    
     /**
      * Sets up the necessary information so that the javascript getField, getValue and setValue
      * functions can work.

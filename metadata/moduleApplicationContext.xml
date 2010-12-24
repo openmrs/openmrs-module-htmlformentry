@@ -80,6 +80,14 @@
 								        <key><value>submit</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.SubmitButtonHandler"/>
 							      	</entry>
+							      	<entry>
+								        <key><value>patientField</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.PatientTagHandler"/>
+							      	</entry>
+							      	<entry>
+								        <key><value>drugOrder</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler"/>
+							      	</entry>
 							    </map>  
 							</property>
 							<property name="basicFormXmlTemplate">
@@ -250,11 +258,13 @@ FREE TEXT OBSERVATION
 		<property name="successView"><value>../../patientDashboard.form</value></property>
     </bean>
     
+        
     <bean id="deleteEncounterController" class="org.openmrs.module.htmlformentry.web.controller.DeleteEncounterController"/>
     
     <bean id="htmlFormValidator" class="org.openmrs.module.htmlformentry.HtmlFormValidator"/>
     
     <bean id="patientHtmlFormsPortletController" class="org.openmrs.module.htmlformentry.web.controller.PatientHtmlFormEntryPortletController" />
+    
     <!-- /Controllers -->
     
 </beans>

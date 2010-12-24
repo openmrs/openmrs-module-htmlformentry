@@ -135,7 +135,7 @@ public class FormEntrySession {
         }
 
         // For now, the relationship query breaks for non-saved patients, so do not run for Demo patient
-        if(!("testing-html-form-entry".equals(patient.getUuid()))) {
+        if(!("testing-html-form-entry".equals(patient.getUuid())) && patient.getUuid() != null) {
             List<Relationship> rels = Context.getPersonService().getRelationshipsByPerson(patient);
             // TODO put this is core in relationship service
             Map<String, List<Person>> relMap = new HashMap<String, List<Person>>();
@@ -185,7 +185,11 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, HtmlForm htmlForm) throws Exception {
-        this(patient, Mode.ENTER);
+    	this(patient, htmlForm, Mode.ENTER);
+    }
+	
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode) throws Exception {
+        this(patient, mode);
         this.htmlForm = htmlForm;
         this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated() : htmlForm.getDateChanged()).getTime();
         form = htmlForm.getForm();
@@ -337,6 +341,15 @@ public class FormEntrySession {
         }
     }
     
+    public void preparePersonForSubmit() {
+        submissionActions = new FormSubmissionActions();
+        try {
+            submissionActions.beginPerson(patient);
+        } catch (InvalidActionException e) {
+            log.error("Programming error: should be no errors starting a patient", e);
+        }
+    }
+    
     /**
      * Applies all the actions associated with a form submission--that is, create/update any Persons, Encounters, and Obs in the database
      * as necessary, and enroll Patient in any programs as needed
@@ -400,8 +413,19 @@ public class FormEntrySession {
                
         // TODO wrap this in a transaction
         if (submissionActions.getPersonsToCreate() != null) {
-            for (Person p : submissionActions.getPersonsToCreate())
+            for (Person p : submissionActions.getPersonsToCreate()){
+            	if(p instanceof Patient){
+            		Patient patient = (Patient)p;
+            		PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
+            		if (!StringUtils.hasText(patient.getGivenName()) || !StringUtils.hasText(patient.getFamilyName())
+            				|| !StringUtils.hasText(patient.getGender()) || patient.getBirthdate() == null
+            				|| patientIdentifier == null || !StringUtils.hasText(patientIdentifier.getIdentifier()) 
+            				|| patientIdentifier.getIdentifierType() == null || patientIdentifier.getLocation() == null){
+            			throw new BadFormDesignException("Please check the design of your form to make sure the following fields are mantatory to create a patient: <br/><b>&lt;personName/&gt;</b>, <b>&lt;birthDateOrAge/&gt;</b>, <b>&lt;gender/&gt;</b>, <b>&lt;identifierType/&gt;</b>, <b>&lt;identifier/&gt;</b>, and <b>&lt;identifierLocation/&gt;</b>");
+            		}
+            	}
                 Context.getPersonService().savePerson(p);
+            }
         }
         if (submissionActions.getEncountersToCreate() != null) {
             for (Encounter e : submissionActions.getEncountersToCreate()) {
@@ -449,14 +473,25 @@ public class FormEntrySession {
         	}
         }
         
+        ObsService obsService = Context.getObsService();
+        if (context.getMode() == Mode.EDIT && submissionActions.getObsToCreate() != null) {
+            for (Obs o : submissionActions.getObsToCreate())
+                obsService.saveObs(o, null);
+        }
+        
+        if (context.getMode() == Mode.EDIT && patient != null) {
+            Context.getPersonService().savePerson(patient);
+        }
+
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
-        if (context.getMode() == Mode.EDIT) {
+        if (context.getMode() == Mode.EDIT && encounter != null) {
             Context.getEncounterService().saveEncounter(encounter);
         }
                 
-        ObsService obsService = Context.getObsService();
-        /* This should propagate from above
+        /*
+         ObsService obsService = Context.getObsService();
+         This should propagate from above
         if (submissionActions.getObsToCreate() != null) {
             for (Obs o : submissionActions.getObsToCreate())
                 Context.getObsService().saveObs(o, null);
@@ -675,5 +710,4 @@ public class FormEntrySession {
         }
         return ret;
     }
-    
 }
