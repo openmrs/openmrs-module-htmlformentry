@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,14 +18,13 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
-import org.openmrs.Person;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
@@ -105,12 +105,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		List<Option> options = new ArrayList<Option>();
 		options.add(new Option("", "", false));
 
+		// drugNames is comma separated list which can contain ID, UUID or drugname
 		StringTokenizer tokenizer = new StringTokenizer(drugNames, ",");
 		while (tokenizer.hasMoreElements()) {
 			String drugName = (String) tokenizer.nextElement();
-			Drug drug = conceptService.getDrugByNameOrId(drugName.trim());
-			if (drug == null)
-			    drug = conceptService.getDrugByUuid(drugName.trim());
+			Drug drug = null;
+			// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
+			if (Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(drugName.trim()).matches()) {
+				drug = conceptService.getDrugByUuid(drugName.trim());
+			} else {
+				drug = conceptService.getDrugByNameOrId(drugName.trim());			
+			}
 			
 			if (drug != null) {
 				String displayText = drug.getName();
@@ -119,13 +124,16 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				}
 				
 				options.add(new Option(displayText, drug.getDrugId().toString(), false));
+				if (drugsUsedAsKey == null) {
+				    drugsUsedAsKey = new ArrayList<Drug>();
+				}
+				drugsUsedAsKey.add(drug);
 			}
-			if (drugsUsedAsKey == null) {
-			    drugsUsedAsKey = new ArrayList<Drug>();
-			}
-			drugsUsedAsKey.add(drug);
-		}
 
+		}
+		
+		if (drugsUsedAsKey == null)
+			throw new IllegalArgumentException("You must provide a valid drug name, or a valid ID or a valid UUID in " + parameters);
 
 		drugWidget.setOptions(options);
 		
@@ -200,29 +208,32 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	}
 
 	/**
-	 * Returns frequency
+	 * Static helper method to parse frequency string
 	 * 
-	 * 
+	 * @should return times per day which is part of frequency string
 	 * @param frequency (format "x/d y d/w")
 	 * @return x
 	 */
-	private String parseFrequencyDays(String frequency) {
+	private static String parseFrequencyDays(String frequency) {
 		String days = StringUtils.substringBefore(frequency, "/d");
 		return days;
 	}
 	
 	/**
-	 * Returns frequency
+	 * Static helper method to parse frequency string
 	 * 
+	 * @should return number of days per weeks which is part of frequency string
 	 * @param frequency (format "x/d y d/w")
 	 * @return y
 	 */
-	private String parseFrequencyWeek(String frequency) {
+	private static String parseFrequencyWeek(String frequency) {
 		String temp = StringUtils.substringAfter(frequency, "/d");
 		String weeks = StringUtils.substringBefore(temp, "d/");
 		return weeks;
 	}
+	
 	/**
+	 * @should return HTML snippet
 	 * @see org.openmrs.module.htmlformentry.element.HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
 	public String generateHtml(FormEntryContext context) {
@@ -324,6 +335,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     }
 
 	/**
+	 * @should return validation errors if doseWidget, startDateWidget or discontinuedDateWidget is invalid
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
 	 */
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
