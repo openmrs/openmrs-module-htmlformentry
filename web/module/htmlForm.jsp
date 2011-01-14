@@ -109,7 +109,7 @@
 			<td><spring:message code="Encounter.type"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.encounterType">
-					<select name="encounterType">
+					<select name="${status.expression}">
 						<option value=""></option>
 						<c:forEach items="${encounterTypes}" var="type">
 							<option value="${type.encounterTypeId}" <c:if test="${type.encounterTypeId == status.value}">selected</c:if>>${type.name}</option>
