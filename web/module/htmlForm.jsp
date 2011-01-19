@@ -16,21 +16,24 @@
 	
 	function updateRetiredReasonDisplay(b) {
 		if (b)
-			$j('#retiredReasonRow').show(0);
+			$j('#retiredReasonRow').show();
 		else
-			$j('#retiredReasonRow').hide(0);
+			$j('#retiredReasonRow').hide();
 	}
 
 	$j(document).ready(function() {
 		updateRetiredReasonDisplay($j('#retired').checked);
 		<c:choose>
 			<c:when test="${empty htmlForm.id}">
-				$j('.show-later').hide(0);
+				$j('.show-later').hide();
+				$j('.show-sometimes').hide();
 			</c:when>
 			<c:otherwise>
-				$j('.show-first').hide(0);
+				$j('.show-first').hide();
+				$j('.show-sometimes').hide();
 				$j('#toggle-all-fields').click(function() {
-					$j('.show-first').toggle(0);
+					$j('.show-first').toggle();
+					$j('.show-sometimes').toggle();
 				});
 			</c:otherwise>
 		</c:choose>
@@ -63,7 +66,7 @@
 </spring:hasBindErrors>
 
 <c:if test="${not empty htmlForm.id}">
-	<a id="toggle-all-fields"><spring:message code="htmlformentry.toggleAllFields"/></a>
+	<a id="toggle-all-fields" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"><spring:message code="htmlformentry.toggleAllFields"/></a>
 </c:if>
 
 <form method="post">
@@ -120,6 +123,20 @@
 					</c:if>
 				</spring:bind>
 			</td>
+		</tr>
+		<tr class="show-sometimes">
+			<td><spring:message code="general.createdBy"/></td>
+				<td>
+					${htmlForm.form.creator.personName} -
+					<openmrs:formatDate date="${htmlForm.form.dateCreated}" type="long" />
+				</td>
+		</tr>
+		<tr class="show-sometimes">
+			<td><spring:message code="general.changedBy"/></td>
+				<td>
+					${htmlForm.form.changedBy.personName} -
+					<openmrs:formatDate date="${htmlForm.form.dateChanged}" type="long" />
+				</td>
 		</tr>
 		<tr class="show-later">
 			<td><spring:message code="Form.published"/></td>
