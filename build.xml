@@ -56,14 +56,14 @@
 		
 		<!--  Compile module java files -->
 		<javac destdir="build" classpathref="classpath" debug="true" debuglevel="lines,source,vars">
-			<compilerarg line="-target 1.5" />
+			<compilerarg line="-target 1.6" />
 			<src path="src/" />
 			<include name="**/*.java" />
 		</javac>
 		
 		<!--  Compile module web java files -->
 		<javac destdir="build" classpathref="classpath" debug="true" debuglevel="lines,source,vars">
-			<compilerarg line="-target 1.5" />
+			<compilerarg line="-target 1.6" />
 			<compilerarg line="-g" />
 			<src path="web/src/" />
 			<include name="**/*.java" />
@@ -106,6 +106,12 @@
 		<jar destfile="dist/${module.id}-${module.version}.omod">
 			<fileset dir="build" includes="**/*" />
 		</jar>
+	</target>
+	
+	<target name="deploy-web-jetty" depends="package-module" description="Copy web files to webapp">
+			<copy todir="/home/djazayeri/workspace35/openmrs-trunk/webapp/src/main/webapp/WEB-INF/view/module/htmlformentry">
+				<fileset dir="web/module" includes="**/*" />
+			</copy>
 	</target>
 	
 	<target name="deploy-web-darius" depends="package-module" description="Copy web files to webapp">
