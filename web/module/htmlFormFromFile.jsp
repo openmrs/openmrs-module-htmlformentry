@@ -2,6 +2,8 @@
 
 <%@ include file="/WEB-INF/template/header.jsp"%>
 
+<%@ include file="localHeader.jsp" %>
+
 <openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
 
 <form method="get">
