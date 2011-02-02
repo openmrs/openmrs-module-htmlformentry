@@ -34,7 +34,7 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
 		
-		ShareableHtmlForm formClone = new ShareableHtmlForm(form, true, true, true);
+		ShareableHtmlForm formClone = new ShareableHtmlForm(form, true, true, true, true);
 		
 		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
 		
@@ -55,6 +55,14 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getProgramByUuid(
 			"da4a0391-ba62-4fad-ad66-1e3722d16380")));
 		
+		// make sure the drugs have been added to the dependencies
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(
+			"3cfcf118-931c-46f7-8ff6-7b876f0d4202")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(
+			"05ec820a-d297-44e3-be6e-698531d9dd3f")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(
+			"7e2323fa-0fa0-461f-9b59-6765997d849e")));
+		
 		// make sure the locations have been added to the dependencies
 		Assert.assertTrue(dependencies.contains(Context.getLocationService().getLocationByUuid(
 			"dc5c1fcc-0459-4201-bf70-0b90535ba362")));
@@ -69,12 +77,12 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should create cloned form without mapping concepts, locations and providers", method = "createCloneForExport(HtmlForm)")
+	@Verifies(value = "should create cloned form without mapping concepts, drugs, locations and providers", method = "createCloneForExport(HtmlForm)")
 	public void createCloneForExport_shouldCreateCloneButSkipLocationsAndProviders() throws Exception {
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
 		
-		ShareableHtmlForm formClone = new ShareableHtmlForm(form, false, false, false);
+		ShareableHtmlForm formClone = new ShareableHtmlForm(form, false, false, false, false);
 		
 		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
 		
@@ -88,5 +96,10 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 		Assert.assertFalse(dependencies.contains(Context.getLocationService().getLocationByUuid(
 			"9356400c-a5a2-4532-8f2b-2361b3446eb8")));
 		Assert.assertFalse(dependencies.contains(Context.getConceptService().getConcept("5")));
+		
+		// make sure the drug referenced by name has NOT been added to the dependencies
+		Assert.assertFalse(dependencies.contains(Context.getConceptService().getDrugByUuid(
+			"05ec820a-d297-44e3-be6e-698531d9dd3f")));
+		
 	}
 }

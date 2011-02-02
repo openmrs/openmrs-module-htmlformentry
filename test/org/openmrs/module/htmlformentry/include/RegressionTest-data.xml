@@ -177,4 +177,10 @@
   <concept concept_id="1009" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="7" uuid="f5396f06-fce1-11df-9692-001e378eb67e"/>
   <concept_name voided="false" concept_name_id="1010" concept_id="1009" name="Time" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
 
+  <!-- Some drugs -->
+  <drug drug_id="2" concept_id="792" name="Triomune-30" combination="true" dose_strength="1.0" units="tab(s)" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="3cfcf118-931c-46f7-8ff6-7b876f0d4202"/>
+  <drug drug_id="3" concept_id="88" name="Aspirin" combination="false" dose_strength="325.0" units="mg" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="05ec820a-d297-44e3-be6e-698531d9dd3f"/>
+  <drug drug_id="11" concept_id="3" name="NyQuil" combination="true" units="" creator="1" date_created="2008-08-15 15:34:03.0" retired="true" uuid="7e2323fa-0fa0-461f-9b59-6765997d849e"/>
+  
+
 </dataset>

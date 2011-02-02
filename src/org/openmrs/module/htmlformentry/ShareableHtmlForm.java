@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
@@ -25,11 +26,13 @@ public class ShareableHtmlForm extends HtmlForm {
 	
 	private Boolean includeMappedConcepts;
 	
+	private Boolean includeDrugsReferencedByName;
+	
 	private Boolean includeLocations;
 	
 	private Boolean includeProviders;
 	
-	public ShareableHtmlForm(HtmlForm form, Boolean includeMappedConcepts, Boolean includeLocations, Boolean includeProviders) {
+	public ShareableHtmlForm(HtmlForm form, Boolean includeMappedConcepts, Boolean includeDrugsReferencedByName, Boolean includeLocations, Boolean includeProviders) {
 		// first, make a clone of the form
 		// (do we need to worry about pass-by-reference?)
 		this.setChangedBy(form.getChangedBy());
@@ -47,6 +50,7 @@ public class ShareableHtmlForm extends HtmlForm {
 		
 		// set the parameters
 		this.includeMappedConcepts = includeMappedConcepts;
+		this.includeDrugsReferencedByName = includeDrugsReferencedByName;
 		this.includeLocations = includeLocations;
 		this.includeProviders = includeProviders;
 		
@@ -54,7 +58,7 @@ public class ShareableHtmlForm extends HtmlForm {
 		// default is to include locations, but not providers
 		stripLocalAttributesFromXml();
 		
-		// replace any Ids with Uuids
+		// within the form, replace any Ids with Uuids
 		HtmlFormEntryUtil.replaceIdsWithUuids(this);
 		
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
@@ -100,6 +104,10 @@ public class ShareableHtmlForm extends HtmlForm {
 			calculateMappedConceptDependencies();
 		}
 		
+		if (this.includeDrugsReferencedByName) {
+			calculateDrugsReferencedByNameDependencies();
+		}
+		
 		if (this.includeLocations) {
 			calculateLocationDependencies();
 		}
@@ -124,6 +132,8 @@ public class ShareableHtmlForm extends HtmlForm {
 				this.dependencies.add(Context.getProgramWorkflowService().getProgramByUuid(matcher.group()));
 			} else if (Context.getPersonService().getPersonByUuid(matcher.group()) != null) {
 				this.dependencies.add(Context.getPersonService().getPersonByUuid(matcher.group()));
+			} else if (Context.getConceptService().getDrugByUuid(matcher.group()) != null) {
+				this.dependencies.add(Context.getConceptService().getDrugByUuid(matcher.group()));
 			} else {
 				// there is a chance that the "uuid" pattern could match a non-uuid; one reason I'm
 				// choosing *not* to throw an exception or log an error here is to handle that case
@@ -170,6 +180,31 @@ public class ShareableHtmlForm extends HtmlForm {
 		}
 	}
 	
+	private void calculateDrugsReferencedByNameDependencies() {
+		// pattern matches drugNames="[anything]"; group(1) is set to [anything]
+		calculateDrugsReferencedByNameDependenciesHelper(Pattern.compile("drugNames=\"(.*?)\""));
+	}
+	
+	private void calculateDrugsReferencedByNameDependenciesHelper(Pattern pattern) {
+		
+		Matcher matcher = pattern.matcher(this.getXmlData());
+		
+		while (matcher.find()) {
+			
+			// split the group into the various ids
+			String[] ids = matcher.group(1).split(",");
+			
+			// check to see if this is a drug name
+			for (String id : ids) {
+				Drug drug = Context.getConceptService().getDrugByNameOrId(id);
+				
+				if (drug != null) {
+					this.dependencies.add(drug);
+				}
+			}
+		}
+	}
+	
 	private void calculateLocationDependencies() {
 		// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to [anything]
 		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* default=\"(.*?)\""));
@@ -187,7 +222,6 @@ public class ShareableHtmlForm extends HtmlForm {
 			String[] ids = matcher.group(1).split(",");
 			
 			for (String id : ids) {
-				
 				Location location = Context.getLocationService().getLocation(id);
 				
 				if (location != null) {

@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.Drug;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
@@ -540,6 +541,7 @@ public class HtmlFormEntryUtil {
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptIds"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "programId", "program"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "order", "location"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "drugNames", "drug"));
 		
 		// matches a "default" attribute within a encounterLocation tag--[^>] means any character except a >
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "<encounterLocation[^>]*default", "location"));
@@ -587,6 +589,10 @@ public class HtmlFormEntryUtil {
 					else if ("person".equalsIgnoreCase(objectType)) {
 						Person person = Context.getPersonService().getPerson(Integer.valueOf(id));
 						idBuffer.append(person.getUuid() + ",");
+					}
+					else if ("drug".equalsIgnoreCase(objectType)) {
+						Drug drug = Context.getConceptService().getDrug(Integer.valueOf(id));
+						idBuffer.append(drug.getUuid() + ",");
 					}
 				} else {
 					// otherwise, leave the id only
