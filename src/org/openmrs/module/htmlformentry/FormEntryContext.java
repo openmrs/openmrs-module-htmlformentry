@@ -291,16 +291,18 @@ public class FormEntryContext {
 				list.add(obs);
 			}
 			for (Order order : encounter.getOrders()) {
-			  //load DrugOrders for later retrieval as DrugOrders
-                if (order.isDrugOrder()){
-                    order = (Order) Context.getOrderService().getOrder(order.getOrderId(), DrugOrder.class);
-                }
-			    List<Order> list = existingOrders.get(order.getConcept());
-				if (list == null) {
-					list = new LinkedList<Order>();
-					existingOrders.put(order.getConcept(), list);
-				}
-				list.add(order);
+			    if (!order.isVoided()){
+    			  //load DrugOrders for later retrieval as DrugOrders
+                    if (order.isDrugOrder()){
+                        order = (Order) Context.getOrderService().getOrder(order.getOrderId(), DrugOrder.class);
+                    }
+    			    List<Order> list = existingOrders.get(order.getConcept());
+    				if (list == null) {
+    					list = new LinkedList<Order>();
+    					existingOrders.put(order.getConcept(), list);
+    				}
+    				list.add(order);
+			    }
 			}
 		}
 		existingObsInGroups = new LinkedHashMap<Obs, Set<Obs>>();
