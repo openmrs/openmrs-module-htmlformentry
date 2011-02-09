@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.element;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
+import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
@@ -67,8 +70,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	
 	public static final String FIELD_DATE_CREATED = "date_created";
 	
-	public static final String FIELD_AUTO_EXPIRE_DATE = "autoExpireDate";
-	
 	public static final String FIELD_INSTRUCTIONS_LABEL = "instructionsLabel";
 	
 	public static final String FIELD_DRUG_LABELS = "drugLabels";
@@ -78,6 +79,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	public static final String FIELD_CHECKBOX = "checkbox";
 	
 	public static final String FIELD_DISCONTINUED_REASON="discontinuedReasonConceptId";
+	
+	public static final String FIELD_SHOW_ORDER_DURATION = "showOrderDuration";
 	
 	private boolean validateDose = false;
 
@@ -101,6 +104,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	private Boolean checkbox = false;
 	private DropdownWidget discontinuedReasonWidget;
     private ErrorWidget discontinuedReasonErrorWidget;
+    private TextFieldWidget orderDurationWidget;
+    private ErrorWidget orderDurationErrorWidget;
 	
 	private DrugOrder existingOrder;
 	private List<Drug> drugsUsedAsKey;
@@ -139,6 +144,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		StringTokenizer tokenizer = new StringTokenizer(drugNames, ",");
 		int drugListIndexPos = 0;
         String displayText = "";
+        DrugOrderField dof = new DrugOrderField();
 		while (tokenizer.hasMoreElements()) {
 			String drugName = (String) tokenizer.nextElement();
 			Drug drug = null;
@@ -159,6 +165,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				    drugsUsedAsKey = new ArrayList<Drug>();
 				}
 				drugsUsedAsKey.add(drug);
+				DrugOrderAnswer doa = new DrugOrderAnswer(drug, displayText);
+				dof.addDrugOrderAnswer(doa);
 				drugListIndexPos ++;
 			} else if (drugName.length() > 0 && drugName.charAt(0) == '/' && drugName.charAt(drugName.length()-1) == '/'){
 			    options.add(new Option("[ " + drugName.substring(1,drugName.length()-1) + " ]", "~", false));
@@ -189,6 +197,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         context.registerWidget(drugWidget);
         drugErrorWidget = new ErrorWidget();
         context.registerErrorWidget(drugWidget, drugErrorWidget);
+        context.getSchema().addField(dof);
         
 		//start date
 		startDateWidget = new DateWidget();
@@ -289,7 +298,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             }	
 		}
 		
-      instructionsLabel = parameters.get(FIELD_INSTRUCTIONS_LABEL);
+        instructionsLabel = parameters.get(FIELD_INSTRUCTIONS_LABEL);
         if (instructionsLabel != null){
             instructionsWidget = new TextFieldWidget();
             if (existingOrder != null){
@@ -298,7 +307,25 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             instructionsErrorWidget = new ErrorWidget();
             context.registerWidget(instructionsWidget);
             context.registerErrorWidget(instructionsWidget, instructionsErrorWidget);
-        }   
+        }  
+        String orderDurationStr = parameters.get(FIELD_SHOW_ORDER_DURATION);
+        if (orderDurationStr != null && orderDurationStr.equals("true")){
+            orderDurationWidget = new TextFieldWidget(4);
+            if (existingOrder != null && existingOrder.getAutoExpireDate() != null){
+                //set duration from autoExpireDate in days
+                Long autoDateMilis = existingOrder.getAutoExpireDate().getTime(); 
+                Long startDateMilis = existingOrder.getStartDate().getTime();
+                Long diffInMSec = autoDateMilis - startDateMilis;
+                // Find date difference in days 
+                // (24 hours 60 minutes 60 seconds 1000 millisecond)
+                Long diffOfDays = diffInMSec / (24 * 60 * 60 * 1000);
+                orderDurationWidget.setInitialValue(String.valueOf(diffOfDays.intValue()));
+            }
+            orderDurationErrorWidget = new ErrorWidget();
+            context.registerWidget(orderDurationWidget);
+            context.registerErrorWidget(orderDurationWidget, orderDurationErrorWidget);
+        }
+        
 	}
 
 	/**
@@ -365,6 +392,13 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 			if (context.getMode() != Mode.VIEW)
 				ret.append(startDateErrorWidget.generateHtml(context));
 		}
+		if (orderDurationWidget != null){
+		    ret.append(mss.getMessage("htmlformentry.general.for") + " ");
+		    ret.append(orderDurationWidget.generateHtml(context));
+		    ret.append(" " + mss.getMessage("htmlformentry.general.days") + ", " + mss.getMessage("htmlformentry.general.or") + " ");
+		    if (context.getMode() != Mode.VIEW)
+                ret.append(orderDurationErrorWidget.generateHtml(context));
+		}
 		if (discontinuedDateWidget != null) {
 			ret.append(mss.getMessage("general.dateDiscontinued") + " ");
 			ret.append(discontinuedDateWidget.generateHtml(context) + " ");
@@ -397,6 +431,15 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    if (drugWidget.getValue(session.getContext(), submission) != null)
 	            drugID = ((String) drugWidget.getValue(session.getContext(), submission));
     	Date startDate =  startDateWidget.getValue(session.getContext(), submission);
+    	Integer orderDuration = null;
+    	if (orderDurationWidget != null){
+    	   String orderDurationStr = (String) orderDurationWidget.getValue(session.getContext(), submission);
+    	   try {
+    	       orderDuration = Integer.valueOf(orderDurationStr);
+    	   } catch (Exception ex){
+    	       //pass
+    	   }
+    	}
     	Date discontinuedDate = null;
     	if (discontinuedDateWidget != null){
     	    discontinuedDate = discontinuedDateWidget.getValue(session.getContext(), submission);
@@ -430,6 +473,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	drugOrder.setDose(dose);
     	    	drugOrder.setFrequency(frequency);
     	    	drugOrder.setStartDate(startDate);
+    	    	//order duration:
+    	    	if (orderDuration != null)
+    	    	    drugOrder.setAutoExpireDate(calculateAutoExpireDate(startDate, orderDuration));
     	    	drugOrder.setVoided(false);
     	    	drugOrder.setDrug(drug);
     	    	drugOrder.setConcept(drug.getConcept());
@@ -450,6 +496,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	existingOrder.setDose(dose);
     	    	existingOrder.setFrequency(frequency);
     	    	existingOrder.setStartDate(startDate);
+    	    	if (orderDuration != null)
+    	    	    existingOrder.setAutoExpireDate(calculateAutoExpireDate(startDate, orderDuration));
     	    	if (discontinuedDate != null){
     	    	    existingOrder.setDiscontinuedDate(discontinuedDate);
     	    	    existingOrder.setDiscontinued(true);
@@ -545,8 +593,31 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
                             .getFieldName(discontinuedReasonErrorWidget), Context
                             .getMessageSourceService().getMessage(ex.getMessage())));
                 }
+                try {
+                    if (orderDurationWidget != null && orderDurationWidget.getValue(context, submission) != null) {
+                        String orderDurationVal = (String) orderDurationWidget.getValue(context, submission);
+                        if (!orderDurationVal.equals("")){
+                            try {
+                                Integer.valueOf(orderDurationVal);
+                            } catch (Exception ex){
+                                throw new Exception("htmlformentry.error.durationMustBeEmptyOrNumeric");
+                            }
+                        }    
+                    }
+                } catch (Exception ex) {
+                    ret.add(new FormSubmissionError(context
+                            .getFieldName(orderDurationErrorWidget), Context
+                            .getMessageSourceService().getMessage(ex.getMessage())));
+                }
 			}
 			
 			return ret;
 	    }
+	
+	private Date calculateAutoExpireDate(Date startDate, Integer orderDuration){
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTime(startDate);
+	    cal.add(Calendar.DAY_OF_MONTH, orderDuration);
+	    return cal.getTime();
+	}
 }
