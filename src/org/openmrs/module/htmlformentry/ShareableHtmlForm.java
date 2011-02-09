@@ -11,6 +11,7 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 
 /**
@@ -98,29 +99,44 @@ public class ShareableHtmlForm extends HtmlForm {
 		
 		this.dependencies = new HashSet<OpenmrsObject>();
 		
-		calculateUuidDependencies();
+		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to 
+		// be applied to the form we are exporting so we copy the xml into a new string first
+		// (calculate Uuid dependencies should operate properly even with out this, but will be do this just to be safe)
+		
+		String xml = new String(this.getXmlData()); 
+		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator(); 
+		
+		try {
+			xml = generator.applyMacros(xml);
+			xml = generator.applyTemplates(xml);
+		}
+		catch (Exception e) {
+			throw new APIException ("Unable to process macros and templates when processing form to make it shareable", e);
+		}
+			
+		calculateUuidDependencies(xml);
 		
 		if (this.includeMappedConcepts) {
-			calculateMappedConceptDependencies();
+			calculateMappedConceptDependencies(xml);
 		}
 		
 		if (this.includeDrugsReferencedByName) {
-			calculateDrugsReferencedByNameDependencies();
+			calculateDrugsReferencedByNameDependencies(xml);
 		}
 		
 		if (this.includeLocations) {
-			calculateLocationDependencies();
+			calculateLocationDependencies(xml);
 		}
 		
 		if (this.includeProviders) {
-			calculateProviderDependencies();
+			calculateProviderDependencies(xml);
 		}
 	}
 	
-	private void calculateUuidDependencies() {
+	private void calculateUuidDependencies(String xml) {
 		// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
 		Pattern uuid = Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+");
-		Matcher matcher = uuid.matcher(this.getXmlData());
+		Matcher matcher = uuid.matcher(xml);
 		
 		while (matcher.find()) {
 			
@@ -142,22 +158,22 @@ public class ShareableHtmlForm extends HtmlForm {
 		}
 	}
 	
-	private void calculateMappedConceptDependencies() {
+	private void calculateMappedConceptDependencies(String xml) {
 		// pattern matches conceptId="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(Pattern.compile("conceptId=\"(.*?)\""));
+		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("conceptId=\"(.*?)\""));
 		// pattern matches conceptIds="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(Pattern.compile("conceptIds=\"(.*?)\""));
+		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("conceptIds=\"(.*?)\""));
 		// pattern matches groupingConceptId="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(Pattern.compile("groupingConceptId=\"(.*?)\""));
+		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("groupingConceptId=\"(.*?)\""));
 		// pattern matches answerConceptId="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(Pattern.compile("answerConceptId=\"(.*?)\""));
+		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("answerConceptId=\"(.*?)\""));
 		// pattern matches answerConceptIds="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(Pattern.compile("answerConceptIds=\"(.*?)\""));
+		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("answerConceptIds=\"(.*?)\""));
 	}
 	
-	private void calculateMappedConceptDependenciesHelper(Pattern pattern) {
+	private void calculateMappedConceptDependenciesHelper(String xml, Pattern pattern) {
 		
-		Matcher matcher = pattern.matcher(this.getXmlData());
+		Matcher matcher = pattern.matcher(xml);
 		
 		while (matcher.find()) {
 			
@@ -180,14 +196,14 @@ public class ShareableHtmlForm extends HtmlForm {
 		}
 	}
 	
-	private void calculateDrugsReferencedByNameDependencies() {
+	private void calculateDrugsReferencedByNameDependencies(String xml) {
 		// pattern matches drugNames="[anything]"; group(1) is set to [anything]
-		calculateDrugsReferencedByNameDependenciesHelper(Pattern.compile("drugNames=\"(.*?)\""));
+		calculateDrugsReferencedByNameDependenciesHelper(xml, Pattern.compile("drugNames=\"(.*?)\""));
 	}
 	
-	private void calculateDrugsReferencedByNameDependenciesHelper(Pattern pattern) {
+	private void calculateDrugsReferencedByNameDependenciesHelper(String xml, Pattern pattern) {
 		
-		Matcher matcher = pattern.matcher(this.getXmlData());
+		Matcher matcher = pattern.matcher(xml);
 		
 		while (matcher.find()) {
 			
@@ -205,16 +221,16 @@ public class ShareableHtmlForm extends HtmlForm {
 		}
 	}
 	
-	private void calculateLocationDependencies() {
+	private void calculateLocationDependencies(String xml) {
 		// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to [anything]
-		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* default=\"(.*?)\""));
+		calculateLocationDependenciesHelper(xml, Pattern.compile("<encounterLocation[^>]* default=\"(.*?)\""));
 		// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to [anything]
-		calculateLocationDependenciesHelper(Pattern.compile("<encounterLocation[^>]* order=\"(.*?)\""));
+		calculateLocationDependenciesHelper(xml, Pattern.compile("<encounterLocation[^>]* order=\"(.*?)\""));
 	}
 	
-	private void calculateLocationDependenciesHelper(Pattern pattern) {
+	private void calculateLocationDependenciesHelper(String xml, Pattern pattern) {
 		
-		Matcher matcher = pattern.matcher(this.getXmlData());
+		Matcher matcher = pattern.matcher(xml);
 		
 		while (matcher.find()) {
 			
@@ -232,7 +248,7 @@ public class ShareableHtmlForm extends HtmlForm {
 		
 	}
 	
-	private void calculateProviderDependencies() {
+	private void calculateProviderDependencies(String xml) {
 		
 		// TODO: method not implemented (or currently used)
 		// if we do start allowing providers to exported with forms, we need to decide how we want to handle this

@@ -289,4 +289,30 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());		
 	
 	}
+	
+	/**
+	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
+	 * @throws Exception 
+	 */
+	@Test
+	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
+	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithMacros() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		
+		HtmlForm form = new HtmlForm();
+		
+		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingWithMacrosTestForm.xml"));
+		HtmlFormEntryUtil.replaceIdsWithUuids(form);
+		
+		// make sure it's left the macro references alone
+		TestUtil.assertFuzzyContains("groupingConceptId=\"\\$allergyGroup\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("conceptId=\"\\$allergy\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("answerConceptIds=\"\\$allergyAnswers\"", form.getXmlData());
+
+		// test that the macros themselves have been substituted
+		TestUtil.assertFuzzyContains("allergyGroup=32296060-03-102d-b0e3-001ec94a0cc1", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergy=32296060-03-102d-b0e3-001ec94a0cc4", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergyAnswers=32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6", form.getXmlData());		
+	
+	}
 }

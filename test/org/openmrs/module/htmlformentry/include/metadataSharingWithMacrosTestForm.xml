@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	<macros>
+		allergyGroup=7
+		allergy=1000 allergyAnswers=1001,1002
+	</macros>
+	
+	
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	
+	<obsgroup groupingConceptId="$allergyGroup">
+		Allergy: <obs conceptId="$allergy" answerConceptIds="$allergyAnswers"/>
+	</obsgroup>
+	
+	<submit/>
+</htmlform>

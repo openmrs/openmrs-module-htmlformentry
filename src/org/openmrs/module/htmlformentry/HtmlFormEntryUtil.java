@@ -554,19 +554,35 @@ public class HtmlFormEntryUtil {
 	}
 	
 	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, String objectType) {
-		// pattern to find the specified attribute and pull out its values; regex matches any characters within quotes after an equals, i.e. ="a2-32" would match a232
-		// (put a space before the attribute name so we don't get border= instead of order=
-		Pattern substitutionPattern = Pattern.compile(" " + attribute + "=\"(.*?)\"", Pattern.CASE_INSENSITIVE);
+		return replaceIdsWithUuidsHelper(formXmlData, attribute,objectType, true);
+	}
+	
+	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, String objectType, Boolean includeQuotes) {
+		Pattern substitutionPattern;
+		
+		if (includeQuotes) {
+			// pattern to find the specified attribute and pull out its values; regex matches any characters within quotes after an equals, i.e. ="a2-32" would match a232
+			// we use () to break the match into three groups: 1) the characters up to the including the first quotes; 2) the characters in the quotes; and 3) then the trailing quote
+			// (put a space before the attribute name so we don't get border= instead of order=)
+			substitutionPattern = Pattern.compile("(\\s" + attribute + "=\")(.*?)(\")", Pattern.CASE_INSENSITIVE);
+		}	
+		else {
+			// the same pattern as above, but without the quotes (to handle the macro assignments),
+			// and with a blank space at the end (which we need to account for when we do the replace)	
+			substitutionPattern = Pattern.compile("(\\s" + attribute + "=)(.*?)(\\s)", Pattern.CASE_INSENSITIVE);
+		}
+			
 		Matcher matcher = substitutionPattern.matcher(formXmlData);
 		
-		// list to keep track of any "repeat" keys we are going to have to substitute out as well
-		Set<String> keysToReplace = new HashSet<String>();
+		// lists to keep track of any "repeat" keys and macros we are going to have to substitute out as well
+		Set<String> repeatKeysToReplace = new HashSet<String>();
+		Set<String> macrosToReplace = new HashSet<String>();
 		
 		StringBuffer buffer = new StringBuffer();
 		
 		while (matcher.find()) {	
 			// split the group into the various ids
-			String[] ids = matcher.group(1).split(",");
+			String[] ids = matcher.group(2).split(",");
 			
 			StringBuffer idBuffer = new StringBuffer();
 			// now loop through each id
@@ -598,11 +614,17 @@ public class HtmlFormEntryUtil {
 					// otherwise, leave the id only
 					idBuffer.append(id + ",");
 					
-					// also, if this id is a key (i.e., something in curly braces) we need to keep track of it so that we can perform key substitutions
+					// also, if this id is a repeat key (i.e., something in curly braces) we need to keep track of it so that we can perform key substitutions
 					// pattern matches one or more characters of any type within curly braces
-					Matcher keyMatcher = Pattern.compile("\\{(.+)\\}").matcher(id);
-					if(keyMatcher.find()) {
-						keysToReplace.add(keyMatcher.group(1));
+					Matcher repeatKeyMatcher = Pattern.compile("\\{(.+)\\}").matcher(id);
+					if(repeatKeyMatcher.find()) {
+						repeatKeysToReplace.add(repeatKeyMatcher.group(1));
+					}
+					
+					// also, if this id is a macro reference (i.e, something that starts with a $) we need to keep track of it so that we can perform macro substitution
+					Matcher macroMatcher = Pattern.compile("\\$(.+)").matcher(id);
+					if (macroMatcher.find()) {
+						macrosToReplace.add(macroMatcher.group(1));
 					}
 				}
 			}
@@ -611,8 +633,16 @@ public class HtmlFormEntryUtil {
 			idBuffer.deleteCharAt(idBuffer.length() - 1);
 			
 			// now do the replacement
-			// append to the buffer the matched sequence, substituting out group(1) with the updated ids
-			matcher.appendReplacement(buffer, matcher.group().substring(0, matcher.start(1) - matcher.start()) + idBuffer.toString() + "\"");
+			
+			// create the replacement string from the matched sequence, substituting out group(2) with the updated ids
+			String replacementString = matcher.group(1) + idBuffer.toString() + matcher.group(3);
+
+			// we need to escape any $ characters in the buffer or we run into errors with the appendReplacement method since 
+			// the $ has a special meaning to that method
+			replacementString = replacementString.replace("$", "\\$");
+				
+			// now append the replacement string to the buffer
+			matcher.appendReplacement(buffer, replacementString);
 		}
 		
 		// append the rest of htmlform
@@ -620,9 +650,14 @@ public class HtmlFormEntryUtil {
 		
 		formXmlData = buffer.toString();
 		
-		// now recursively handle any keys we have discovered during this substitution
-		for(String key : keysToReplace) {
-			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key);
+		// now handle any repeat keys we have discovered during this substitution
+		for (String key : repeatKeysToReplace) {
+			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, objectType);
+		}
+		
+		// and now handle any macros we have discovered during this substitution
+		for (String key : macrosToReplace) {
+			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, objectType, false);
 		}
 		
 		return formXmlData;
