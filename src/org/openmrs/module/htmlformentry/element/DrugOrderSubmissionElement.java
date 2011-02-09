@@ -585,7 +585,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
                     if (discontinuedReasonWidget != null && discontinuedDateWidget != null) {
                         String discReason = discontinuedReasonWidget.getValue(context, submission);
                         Date endDate = discontinuedDateWidget.getValue(context, submission);
-                        if (endDate == null && discReason != null)
+                        if (endDate == null && discReason != null && !discReason.equals(""))
                             throw new Exception("htmlformentry.error.discontinuedReasonEnteredWithoutDate");
                     }
                 } catch (Exception ex) {
