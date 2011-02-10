@@ -22,7 +22,7 @@ public class FormSubmissionError {
     }
     
     public String toString() {
-    	return sourceWidget.getClass().getSimpleName() + " -> " + error;
+    	return (sourceWidget != null ? sourceWidget.getClass().getSimpleName() : id) + " -> " + error;
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -540,6 +541,54 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
+	@Test
+	public void testEditSingleObsForm() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "singleObsForm";
+			}
+			
+			String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
+			}
+			
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "70");
+			}
+			
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsCreatedCount(1);
+				results.assertObsCreated(2, 70d);
+			}
+			
+			boolean doEditEncounter() {
+				return true;
+			}
+			
+			String[] widgetLabelsForEdit() {
+				return new String[] { "Weight:" };
+			};
+			
+			void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Weight:"), "75");
+			};
+			
+			void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterEdited();
+				results.assertObsCreated(2, 75d);
+				results.assertObsVoided(2, 70d);
+			};
+
+		}.run();
+	}
 	
 	/**
 	 * This test verifies that a) a root Section gets created, and
