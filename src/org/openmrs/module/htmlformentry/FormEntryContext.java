@@ -99,7 +99,8 @@ public class FormEntryContext {
         }
         String fieldName = "w" + thisVal;
         fieldNames.put(widget, fieldName);
-        log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
+        if (log.isTraceEnabled())
+        	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
         return fieldName;
     }
     
