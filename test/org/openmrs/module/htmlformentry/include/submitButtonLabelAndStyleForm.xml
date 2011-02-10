@@ -2,5 +2,5 @@
 	Date: <encounterDate/>
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
-	<submit submitLabel="submit label test" submitStyle="someOtherCSSClassReference"/>
+	<submit submitLabel="submit label test" submitClass="someOtherCSSClassReference"/>
 </htmlform>
