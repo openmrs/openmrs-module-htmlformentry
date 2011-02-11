@@ -591,6 +591,65 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
+	 * Regression test for HTML-135
+	 */
+	@Test
+	public void testEditMultipleObsForm() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "multipleObsForm";
+			}
+			
+			String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
+			}
+			
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "70");
+				request.addParameter(widgets.get("Allergy:"), "Bee stings");
+				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
+			}
+			
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsCreatedCount(3);
+				results.assertObsCreated(2, 70d);
+				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(9, date);
+			}
+			
+			boolean doEditEncounter() {
+				return true;
+			}
+			
+			String[] widgetLabelsForEdit() {
+				return new String[] { "Weight:", "Allergy:" };
+			};
+			
+			void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Weight:"), "75");
+				request.setParameter(widgets.get("Allergy:"), "Wasp stings");
+			};
+			
+			void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterEdited();
+				results.assertObsCreated(2, 75d);
+				results.assertObsVoided(2, 70d);
+				results.assertObsCreated(8, "Wasp stings");
+				results.assertObsVoided(8, "Bee stings");
+			};
+
+		}.run();
+	}
+	
+	/**
 	 * This test verifies that a) a root Section gets created, and
 	 * b) that nested obsGroups are working correctly in the schema.  You know that 'a' is working 
 	 * if conceptId = 6 shows up in section 0, even though it is the last obs tag in the form.
