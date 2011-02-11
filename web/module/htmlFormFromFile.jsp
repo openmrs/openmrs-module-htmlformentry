@@ -1,10 +1,16 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 
-<%@ include file="/WEB-INF/template/header.jsp"%>
+<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
 
+<c:set var="DO_NOT_INCLUDE_JQUERY" value="true"/>
+
+<%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="localHeader.jsp" %>
 
-<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.css" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.2.custom.min.js" />
+
 
 <form method="get">
 	<b>
