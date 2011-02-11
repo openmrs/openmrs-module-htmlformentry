@@ -474,21 +474,21 @@ public class FormEntrySession {
         }
         
         ObsService obsService = Context.getObsService();
-        if (context.getMode() == Mode.EDIT && submissionActions.getObsToCreate() != null) {
-            for (Obs o : submissionActions.getObsToCreate())
-                obsService.saveObs(o, null);
-        }
         
-        if (context.getMode() == Mode.EDIT && patient != null) {
-            Context.getPersonService().savePerson(patient);
-        }
-
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
-        if (context.getMode() == Mode.EDIT && encounter != null) {
-            Context.getEncounterService().saveEncounter(encounter);
+        // If there is no encounter (impossible at the time of writing this comment) we save the obs manually
+        if (context.getMode() == Mode.EDIT) {
+        	if (encounter != null) {
+        		Context.getEncounterService().saveEncounter(encounter);
+        	} else if (submissionActions.getObsToCreate() != null) {
+        		// this may not work right due to savehandlers (similar error to HTML-135) but this branch is
+        		// unreachable until html forms are allowed to edit data without an encounter 
+        		for (Obs o : submissionActions.getObsToCreate())
+        			obsService.saveObs(o, null);
+        	}
         }
-                
+
         /*
          ObsService obsService = Context.getObsService();
          This should propagate from above
@@ -509,6 +509,12 @@ public class FormEntrySession {
                 }
             } 
         }
+
+        // TODO we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
+        if (context.getMode() == Mode.EDIT && patient != null) {
+            Context.getPersonService().savePerson(patient);
+        }
+
     }
     
     /**
