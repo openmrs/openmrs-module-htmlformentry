@@ -1,7 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -591,59 +590,37 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * Regression test for HTML-135
+	 * This is supposed to be a regression test for HTML-135, but I couldn't get it to successfully fail.
+	 * There must be a difference between editing a form in production, versus in this unit test framework.
 	 */
 	@Test
 	public void testEditMultipleObsForm() throws Exception {
-		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			String getFormName() {
 				return "multipleObsForm";
 			}
 			
-			String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
-			}
-			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Weight:"), "70");
-				request.addParameter(widgets.get("Allergy:"), "Bee stings");
-				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
-			}
-			
-			void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 70d);
-				results.assertObsCreated(8, "Bee stings");
-				results.assertObsCreated(9, date);
-			}
-			
-			boolean doEditEncounter() {
-				return true;
+			Encounter getEncounterToEdit() {
+				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			String[] widgetLabelsForEdit() {
-				return new String[] { "Weight:", "Allergy:" };
+				return new String[] { "Weight:", "Allergy:", "Allergy Date:" };
 			};
 			
 			void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
-				request.setParameter(widgets.get("Allergy:"), "Wasp stings");
+				request.setParameter(widgets.get("Allergy:"), "Bee stings");
 			};
 			
 			void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterEdited();
 				results.assertObsCreated(2, 75d);
-				results.assertObsVoided(2, 70d);
-				results.assertObsCreated(8, "Wasp stings");
-				results.assertObsVoided(8, "Bee stings");
+				results.assertObsVoided(2, 50d);
+				results.assertObsCreated(8, "Bee stings");
+				results.assertObsVoided(8, "Penicillin");
 			};
 
 		}.run();

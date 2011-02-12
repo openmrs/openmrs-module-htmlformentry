@@ -114,9 +114,20 @@ public abstract class RegressionTestHelper {
 	
 	/**
 	 * Override this and return true if you want to have testEditFormHtml, testEditEncounter, etc run.
+	 * (If you override {@link #getEncounterToEdit()} to return a non-null value, you don't need to override
+	 * this one.) 
 	 */
 	boolean doEditEncounter() {
 		return false;
+	}
+	
+	/**
+	 * Override this if you want to edit a different encounter than the one created in the first part
+	 * of the test or viewed in the second part. (Returning a non-null value implies doEditEncounter = true.)
+	 * @return
+	 */
+	Encounter getEncounterToEdit() {
+		return null;
 	}
 	
 	/**
@@ -193,9 +204,14 @@ public abstract class RegressionTestHelper {
 		}
 		
 		// edit the encounter, and run tests on that
-		boolean doEditEncounter = doEditEncounter();
+		override = getEncounterToEdit();
+		boolean doEditEncounter = override != null || doEditEncounter();
 		if (doEditEncounter) {
-			session = setupFormEditSession(patient, toView, getFormName());
+			Encounter toEdit = toView;
+			if (override != null)
+				toEdit = override;
+
+			session = setupFormEditSession(patient, toEdit, getFormName());
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
 			
