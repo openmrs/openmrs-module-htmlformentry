@@ -149,6 +149,17 @@ public class FormEntryContext {
     }
     
     /**
+     * @return the widget that is registered for the given field name, or null if there is none
+     */
+	public Widget getWidgetByFieldName(String fieldName) {
+		for (Map.Entry<Widget, String> e : fieldNames.entrySet()) {
+			if (e.getValue().equals(fieldName))
+				return e.getKey();
+		}
+		return null;
+    }
+    
+    /**
      * Gets the field id used to identify a specific error widget within the HTML Form
      * 
      * @param widget the widget
