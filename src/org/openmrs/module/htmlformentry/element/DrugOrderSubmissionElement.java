@@ -80,6 +80,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	
 	public static final String FIELD_DISCONTINUED_REASON="discontinuedReasonConceptId";
 	
+	public static final String FIELD_DISCONTINUED_REASON_ANSWERS="discontinueReasonAnswers";
+	
+	public static final String FIELD_DISCONTINIUD_REASON_ANSWER_LABELS="discontinueReasonAnswerLabels";
+	
 	public static final String FIELD_SHOW_ORDER_DURATION = "showOrderDuration";
 	
 	private boolean validateDose = false;
@@ -259,8 +263,39 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		    
 		    List<Option> discOptions = new ArrayList<Option>();
 		    discOptions.add(new Option("", "", false));
-		    for (ConceptAnswer ca : discontineReasonConcept.getAnswers()){
-		        discOptions.add(new Option( ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept().getConceptId().toString(),false));
+		    
+		    if (parameters.get(FIELD_DISCONTINUED_REASON_ANSWERS) != null){
+		        //setup a list of the reason concepts
+		        List<Concept> discReasons = new ArrayList<Concept>();
+		        String discAnswersString = (String) parameters.get(FIELD_DISCONTINUED_REASON_ANSWERS);
+		        String[] strDiscAnswers = discAnswersString.split(",");
+		        for (int i = 0; i < strDiscAnswers.length; i++){
+		            String thisAnswer = strDiscAnswers[i];
+		            Concept answer = getDiscontinueAnswerReason(thisAnswer);
+	                discReasons.add(answer);
+		        }
+		       
+		        if (parameters.get(FIELD_DISCONTINIUD_REASON_ANSWER_LABELS) != null){
+		            // use the listed discontinueReasons, and use labels:
+		            String discLabelsString = parameters.get(FIELD_DISCONTINIUD_REASON_ANSWER_LABELS);
+		            String[] strDiscAnswerLabels = discLabelsString.split(",");
+		            //a little validation:
+		            if (strDiscAnswerLabels.length != discReasons.size())
+		                throw new RuntimeException("discontinueReasonAnswers and discontinueReasonAnswerLabels must contain the same number of members.");
+		            for (int i = 0; i < strDiscAnswerLabels.length; i ++ ){
+		                discOptions.add(new Option( strDiscAnswerLabels[i], discReasons.get(i).getConceptId().toString(),false));  
+		            }
+		        } else {
+		            // use the listed discontinueReasons, and use their ConceptNames.
+    		        for (Concept c: discReasons){
+    		            discOptions.add(new Option( c.getBestName(Context.getLocale()).getName(), c.getConceptId().toString(),false));
+    		        }
+		        }
+		    } else {
+		        //just use the conceptAnswers
+    		    for (ConceptAnswer ca : discontineReasonConcept.getAnswers()){
+    		        discOptions.add(new Option( ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept().getConceptId().toString(),false));
+    		    }
 		    }
 		    if (discOptions.size() == 1)
 		        throw new IllegalArgumentException("discontinue reason Concept doesn't have any ConceptAnswers");
@@ -619,5 +654,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    cal.setTime(startDate);
 	    cal.add(Calendar.DAY_OF_MONTH, orderDuration);
 	    return cal.getTime();
+	}
+	
+	private Concept getDiscontinueAnswerReason(String discReasonConceptStr){
+        Concept discontineReasonConcept = Context.getConceptService().getConceptByUuid(discReasonConceptStr);
+        if (discontineReasonConcept == null){
+            try {
+                discontineReasonConcept = Context.getConceptService().getConcept(Integer.valueOf(discReasonConceptStr));
+            } catch (Exception ex){}
+        }    
+        if (discontineReasonConcept == null)
+            throw new IllegalArgumentException("discontinueReasonAnswers includes a value that is not a valid conceptId or concept UUID");
+        return discontineReasonConcept;
 	}
 }

@@ -5,4 +5,4 @@
 	window.parent.${dialogToClose}();
 </script> 
 
-<%@ include file="/WEB-INF/template/headerMinimal.jsp" %>
+<%@ include file="/WEB-INF/template/footerMinimal.jsp" %>
