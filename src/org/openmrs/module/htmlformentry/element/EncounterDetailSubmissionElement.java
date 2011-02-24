@@ -2,7 +2,6 @@ package org.openmrs.module.htmlformentry.element;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -13,19 +12,18 @@ import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Person;
 import org.openmrs.Role;
-import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
-import org.openmrs.module.htmlformentry.widget.PersonByNameComparator;
-import org.openmrs.module.htmlformentry.widget.PersonWidget;
+import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
@@ -41,7 +39,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	private ErrorWidget dateErrorWidget;
 	private TimeWidget timeWidget;
 	private ErrorWidget timeErrorWidget;
-	private PersonWidget providerWidget;
+	private PersonStubWidget providerWidget;
 	private ErrorWidget providerErrorWidget;
 	private LocationWidget locationWidget;
 	private ErrorWidget locationErrorWidget;
@@ -85,11 +83,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		// Register Provider widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("provider"))) {
 			
-			providerWidget = new PersonWidget();
+			providerWidget = new PersonStubWidget();
 			providerErrorWidget = new ErrorWidget();
 			
-			List<Person> options = new ArrayList<Person>();
-			boolean sortOptions = false;
+			List<PersonStub> options = new ArrayList<PersonStub>();
+//			boolean sortOptions = false;
 			
 			// If specific persons are specified, display only those persons in order
 			String personsParam = (String)parameters.get("persons");
@@ -99,14 +97,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					if (p == null) {
 						throw new RuntimeException("Cannot find Person: " + s);
 					}
-					options.add(p);
+					options.add(new PersonStub(p));
 				}
 			}
 			
 			// Only if specific person ids are not passed in do we get by user Role
 			if (options.isEmpty()) {
 				
-				List<User> users = new ArrayList<User>();
+				List<PersonStub> users = new ArrayList<PersonStub>();
 				
 				// If the "role" attribute is passed in, limit to users with this role
 				if (parameters.get("role") != null) {
@@ -115,7 +113,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						throw new RuntimeException("Cannot find role: " + parameters.get("role"));
 					}
 					else {
-						users = Context.getUserService().getUsersByRole(role);
+						users = Context.getService(HtmlFormEntryService.class).getPersonStubs(role.getRole());
 					}
 				}
 				
@@ -124,18 +122,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
 					Role role = Context.getUserService().getRole(defaultRole);
 					if (role != null) {
-						users = Context.getUserService().getUsersByRole(role);
+						users = Context.getService(HtmlFormEntryService.class).getPersonStubs(role.getRole());
 					}
 					// If this role isn't used, default to all Users
 					if (users.isEmpty()) {
-						users = Context.getUserService().getAllUsers();
+						users = Context.getService(HtmlFormEntryService.class).getPersonStubs(null);
 					}
 				}
-				
-				for (User u : users) {
-					options.add(u.getPerson());
-				}
-				sortOptions = true;
+				options.addAll(users);
+//				sortOptions = true;
 			}
 			
 			// Set default values as appropriate
@@ -143,7 +138,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (context.getExistingEncounter() != null) {
 				defaultProvider = context.getExistingEncounter().getProvider();
 				if (!options.contains(defaultProvider)) {
-					options.add(defaultProvider);
+					options.add(new PersonStub(defaultProvider));
 				}
 			}
 			else {
@@ -161,11 +156,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 			}
 			
-			if (sortOptions) {
-				Collections.sort(options, new PersonByNameComparator());
-			}
+//			if (sortOptions) {
+//				Collections.sort(options, new PersonByNameComparator());
+//			}
+			
 			providerWidget.setOptions(options);
-			providerWidget.setInitialValue(defaultProvider);
+			providerWidget.setInitialValue(new PersonStub(defaultProvider));
 			
 			context.registerWidget(providerWidget);
 			context.registerErrorWidget(providerWidget, providerErrorWidget);

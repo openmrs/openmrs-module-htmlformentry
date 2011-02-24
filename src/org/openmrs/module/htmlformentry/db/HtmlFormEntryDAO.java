@@ -53,5 +53,10 @@ public interface HtmlFormEntryDAO {
 	 * @see HtmlFormEntryService#needsNameAndDescriptionMigration()
 	 */
 	public boolean needsNameAndDescriptionMigration();
+	
+	/**
+     * @see HtmlFormEntryService#getProviderStub()
+     */
+	public List<Object[]> getProviderStubs(String roleName);
 
 }

@@ -1,12 +1,10 @@
 package org.openmrs.module.htmlformentry.db.hibernate;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
-import org.hibernate.SQLQuery;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -61,5 +59,18 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 		Query query = sessionFactory.getCurrentSession().createQuery("select count(*) from HtmlForm where deprecatedName is not null or deprecatedDescription is not null");
 		return ((Number) query.uniqueResult()).intValue() > 0;
     }
+	
+	@SuppressWarnings("unchecked")
+	public List<Object[]> getProviderStubs(String roleName){
+	    
+	    String query = " select distinct u.person_id, pn.given_name, pn.family_name from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
+	    if (roleName != null)
+	        query += " and ur.role = '" + roleName + "' ";
+	     query += " order by family_name ";
+	    return sessionFactory.getCurrentSession().createSQLQuery(query)
+	        .addScalar("person_id", Hibernate.INTEGER)
+	        .addScalar("given_name", Hibernate.STRING)
+	        .addScalar("family_name", Hibernate.STRING).list();
+	}
 
 }

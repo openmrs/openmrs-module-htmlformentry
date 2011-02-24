@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.openmrs.Form;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,5 +104,15 @@ public interface HtmlFormEntryService extends OpenmrsService {
      * @return Example HTML Form content, to be used when a user creates a new form  
      */
 	public String getStartingFormXml(HtmlForm form);
+	
+	/**
+	 * 
+	 * Returns a ProviderStub, which provides userId, givenName, familyName
+	 * 
+	 * @param roleName
+	 * @return a List<ProviderStub>
+	 */
+	@Transactional(readOnly=true)
+	public List<PersonStub> getPersonStubs(String roleName);
         
 }

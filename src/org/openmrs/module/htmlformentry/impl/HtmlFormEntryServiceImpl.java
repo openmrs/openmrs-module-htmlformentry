@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.impl;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
+import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 
 /**
@@ -157,5 +159,24 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
             return "<htmlform>Velocity Error! " + ex.getMessage() + "</htmlform>"; 
         }
     }
+	
+
+	public List<PersonStub> getPersonStubs(String roleName){
+	    List<PersonStub> stubs = new ArrayList<PersonStub>();
+	    List<Object[]> objList =  dao.getProviderStubs(roleName);    
+	    if (objList != null){
+	        for (Object[] obj : objList){
+	            if (obj[0] != null){
+	                PersonStub stub = new PersonStub((Integer) obj[0]);
+	                if (obj[1] != null)
+	                    stub.setGivenName((String) obj[1]);
+	                if (obj[2] != null)
+	                    stub.setFamilyName((String) obj[2]);
+	                stubs.add(stub);
+	            }    
+	        }
+	    }
+	    return stubs;
+	}
 	
 }
