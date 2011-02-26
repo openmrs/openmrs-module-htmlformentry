@@ -8,9 +8,11 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
 import org.openmrs.Form;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
+import org.openmrs.module.htmlformentry.element.PersonStub;
 
 /**
  * Hibernate implementation of the Data Access Object
@@ -61,16 +63,18 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     }
 	
 	@SuppressWarnings("unchecked")
-	public List<Object[]> getProviderStubs(String roleName){
-	    
-	    String query = " select distinct u.person_id, pn.given_name, pn.family_name from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
+	public List<PersonStub> getUsersAsPersonStubs(String roleName){
+	    String query = " select distinct u.person_id as personId, pn.given_name as givenName, pn.family_name as familyName, pn.family_name2 as familyName2, pn.middle_name as middleName from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
 	    if (roleName != null)
 	        query += " and ur.role = '" + roleName + "' ";
-	     query += " order by family_name ";
-	    return sessionFactory.getCurrentSession().createSQLQuery(query)
-	        .addScalar("person_id", Hibernate.INTEGER)
-	        .addScalar("given_name", Hibernate.STRING)
-	        .addScalar("family_name", Hibernate.STRING).list();
+	     query += " order by familyName ";
+	    return (List<PersonStub>) sessionFactory.getCurrentSession().createSQLQuery(query)
+	    .addScalar("personId", Hibernate.INTEGER)
+	    .addScalar("givenName", Hibernate.STRING)
+	    .addScalar("familyName", Hibernate.STRING)
+	    .addScalar("middleName", Hibernate.STRING)
+	    .addScalar("familyName2", Hibernate.STRING)
+	    .setResultTransformer(Transformers.aliasToBean(PersonStub.class)).list();
 	}
 
 }

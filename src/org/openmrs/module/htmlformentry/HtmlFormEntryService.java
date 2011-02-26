@@ -107,12 +107,13 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	
 	/**
 	 * 
-	 * Returns a ProviderStub, which provides userId, givenName, familyName
+	 * Returns a list of PersonStubs of Users by Role, which provide personId, givenName, familyName, middleName, familyName2
+	 * Passing null into this method returns a PersonStub for all users
 	 * 
 	 * @param roleName
-	 * @return a List<ProviderStub>
+	 * @return a List<PersonStub>
 	 */
 	@Transactional(readOnly=true)
-	public List<PersonStub> getPersonStubs(String roleName);
+	public List<PersonStub> getUsersAsPersonStubs(String roleName);
         
 }

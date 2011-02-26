@@ -6,6 +6,7 @@ import java.util.Map;
 import org.openmrs.Form;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.element.PersonStub;
 
 /**
  * Defines the methods that must be implemented by the Data Access Object
@@ -57,6 +58,6 @@ public interface HtmlFormEntryDAO {
 	/**
      * @see HtmlFormEntryService#getProviderStub()
      */
-	public List<Object[]> getProviderStubs(String roleName);
+	public List<PersonStub> getUsersAsPersonStubs(String roleName);
 
 }

@@ -8,6 +8,8 @@ public class PersonStub {
 
     private String familyName;
     private String givenName;
+    private String middleName;
+    private String familyName2;
     private Integer personId;
     
     
@@ -43,6 +45,21 @@ public class PersonStub {
     public void setGivenName(String givenName) {
         this.givenName = givenName;
     }
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getFamilyName2() {
+        return familyName2;
+    }
+
+    public void setFamilyName2(String familyName2) {
+        this.familyName2 = familyName2;
+    }
     
     @Override
     public boolean equals(Object o){
@@ -53,5 +70,4 @@ public class PersonStub {
         }
         return false;
     }
-    
 }

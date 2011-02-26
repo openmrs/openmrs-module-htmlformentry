@@ -113,7 +113,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						throw new RuntimeException("Cannot find role: " + parameters.get("role"));
 					}
 					else {
-						users = Context.getService(HtmlFormEntryService.class).getPersonStubs(role.getRole());
+						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
 					}
 				}
 				
@@ -122,11 +122,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
 					Role role = Context.getUserService().getRole(defaultRole);
 					if (role != null) {
-						users = Context.getService(HtmlFormEntryService.class).getPersonStubs(role.getRole());
+						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
 					}
 					// If this role isn't used, default to all Users
 					if (users.isEmpty()) {
-						users = Context.getService(HtmlFormEntryService.class).getPersonStubs(null);
+						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(null);
 					}
 				}
 				options.addAll(users);
@@ -137,7 +137,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			Person defaultProvider = null;
 			if (context.getExistingEncounter() != null) {
 				defaultProvider = context.getExistingEncounter().getProvider();
-				if (!options.contains(defaultProvider)) {
+				if (!options.contains(new PersonStub(defaultProvider))) {
 					options.add(new PersonStub(defaultProvider));
 				}
 			}

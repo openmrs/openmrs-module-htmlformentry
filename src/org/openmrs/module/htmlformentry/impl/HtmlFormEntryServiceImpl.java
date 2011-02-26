@@ -160,23 +160,9 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         }
     }
 	
-
-	public List<PersonStub> getPersonStubs(String roleName){
-	    List<PersonStub> stubs = new ArrayList<PersonStub>();
-	    List<Object[]> objList =  dao.getProviderStubs(roleName);    
-	    if (objList != null){
-	        for (Object[] obj : objList){
-	            if (obj[0] != null){
-	                PersonStub stub = new PersonStub((Integer) obj[0]);
-	                if (obj[1] != null)
-	                    stub.setGivenName((String) obj[1]);
-	                if (obj[2] != null)
-	                    stub.setFamilyName((String) obj[2]);
-	                stubs.add(stub);
-	            }    
-	        }
-	    }
-	    return stubs;
+    @Override
+	public List<PersonStub> getUsersAsPersonStubs(String roleName){
+	    return  dao.getUsersAsPersonStubs(roleName);
 	}
 	
 }
