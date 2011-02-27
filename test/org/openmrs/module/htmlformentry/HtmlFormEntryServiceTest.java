@@ -40,10 +40,12 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
     @Verifies(value = "should return all ProviderStubs", method = "getProviderStub()")
     public void getProviderStub_shouldReturnAllProviderStubs() throws Exception {
         Assert.assertEquals(1, service.getUsersAsPersonStubs("Provider").size());
+        //make sure getDisplayValue is working:
+        Assert.assertTrue(service.getUsersAsPersonStubs("Provider").get(0).getDisplayValue().equals("Hippocrates of Cos"));
         Assert.assertEquals(0, service.getUsersAsPersonStubs("Clinician").size());
         
         //Create the Clinician role and add to the existing user, and see if user is returned.
-        Integer userId = service.getUsersAsPersonStubs("Provider").get(0).getPersonId();
+        Integer userId = service.getUsersAsPersonStubs("Provider").get(0).getId();
         Role role = new Role();
         role.setUuid(java.util.UUID.randomUUID().toString());
         role.setRole("Clinician");
@@ -64,7 +66,7 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
         PersonStub ps = service.getUsersAsPersonStubs("Clinician").get(0);
         Assert.assertNull(ps.getGivenName());
         Assert.assertNull(ps.getFamilyName());
-        Assert.assertNotNull(ps.getPersonId());
+        Assert.assertNotNull(ps.getId());
  
     }
 	

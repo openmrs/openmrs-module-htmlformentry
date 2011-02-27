@@ -64,12 +64,12 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 	
 	@SuppressWarnings("unchecked")
 	public List<PersonStub> getUsersAsPersonStubs(String roleName){
-	    String query = " select distinct u.person_id as personId, pn.given_name as givenName, pn.family_name as familyName, pn.family_name2 as familyName2, pn.middle_name as middleName from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
+	    String query = " select  u.person_id as id, pn.given_name as givenName, pn.family_name as familyName, pn.middle_name as middleName, pn.family_name2 as familyName2 from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
 	    if (roleName != null)
 	        query += " and ur.role = '" + roleName + "' ";
 	     query += " order by familyName ";
 	    return (List<PersonStub>) sessionFactory.getCurrentSession().createSQLQuery(query)
-	    .addScalar("personId", Hibernate.INTEGER)
+	    .addScalar("id", Hibernate.INTEGER)
 	    .addScalar("givenName", Hibernate.STRING)
 	    .addScalar("familyName", Hibernate.STRING)
 	    .addScalar("middleName", Hibernate.STRING)

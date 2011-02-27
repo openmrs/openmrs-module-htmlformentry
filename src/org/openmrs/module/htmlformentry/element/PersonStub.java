@@ -1,38 +1,31 @@
 package org.openmrs.module.htmlformentry.element;
 
+import org.hibernate.transform.Transformers;
 import org.openmrs.Person;
 import org.openmrs.util.OpenmrsUtil;
 
 
-public class PersonStub {
+public class PersonStub extends ValueStub {
 
     private String familyName;
     private String givenName;
     private String middleName;
     private String familyName2;
-    private Integer personId;
     
     
     public PersonStub(){}
     
     public PersonStub(Integer personId){
-        this.personId = personId;
+        this.setId(personId);
     }
     public PersonStub(Person person){
         if (person != null){
-            this.personId = person.getPersonId();
+            this.setId(person.getPersonId());
             this.givenName = person.getGivenName();
             this.familyName = person.getFamilyName();
         }
      }
     
-    public Integer getPersonId() {
-        return personId;
-    }
-
-    public void setPersonId(Integer personId) {
-        this.personId = personId;
-    } 
     public String getFamilyName() {
         return familyName;
     }
@@ -61,11 +54,22 @@ public class PersonStub {
         this.familyName2 = familyName2;
     }
     
+    /**
+     * 
+     * @see org.openmrs.module.htmlformentry.element.ValueStub#getDisplayValue()
+     * NOTE: setResultTransformer(Transformers.aliasToBean(PersonStub.class)) isn't compatible with the 
+     * mysql CONCAT function for some reason, so I wasn't able to build the display value in the Hibernate SQLQuery itself
+     */
+    @Override
+    public String getDisplayValue(){
+        return this.getGivenName() + " " + this.getFamilyName();
+    }
+    
     @Override
     public boolean equals(Object o){
         if (o != null && o instanceof PersonStub){
             PersonStub oOther = (PersonStub) o;
-            if (OpenmrsUtil.nullSafeEquals(oOther.getPersonId(), this.getPersonId()))
+            if (OpenmrsUtil.nullSafeEquals(oOther.getId(), this.getId()))
                     return true;
         }
         return false;

@@ -27,7 +27,7 @@ public class PersonStubWidget implements Widget {
     public String generateHtml(FormEntryContext context) {
         if (context.getMode() == Mode.VIEW) {
             if (person != null)
-                return WidgetFactory.displayValue(person.getGivenName() + " " + person.getFamilyName());
+                return WidgetFactory.displayValue(person.getDisplayValue());
             else
                 return "";
         }
@@ -51,7 +51,7 @@ public class PersonStubWidget implements Widget {
             sb.append("\n<option");
             if (person != null && person.equals(p))
                 sb.append(" selected=\"true\"");
-            sb.append(" value=\"" + p.getPersonId() + "\">").append(p.getGivenName() + " " + p.getFamilyName()).append("</option>");
+            sb.append(" value=\"" + p.getId() + "\">").append(p.getDisplayValue()).append("</option>");
         }
         sb.append("</select>");
         return sb.toString();
