@@ -31,6 +31,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
@@ -258,6 +259,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		    }    
 		    if (discontineReasonConcept == null)
 		        throw new IllegalArgumentException("discontinuedReasonConceptId is not set to a valid conceptId or concept UUID");
+		    dof.setDiscontinuedReasonQuestion(discontineReasonConcept);
+		    
 		    discontinuedReasonWidget = new DropdownWidget();
 		    discontinuedReasonErrorWidget = new ErrorWidget();
 		    
@@ -284,21 +287,25 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		                throw new RuntimeException("discontinueReasonAnswers and discontinueReasonAnswerLabels must contain the same number of members.");
 		            for (int i = 0; i < strDiscAnswerLabels.length; i ++ ){
 		                discOptions.add(new Option( strDiscAnswerLabels[i], discReasons.get(i).getConceptId().toString(),false));  
+		                dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(strDiscAnswerLabels[i], discReasons.get(i)));
 		            }
 		        } else {
 		            // use the listed discontinueReasons, and use their ConceptNames.
     		        for (Concept c: discReasons){
     		            discOptions.add(new Option( c.getBestName(Context.getLocale()).getName(), c.getConceptId().toString(),false));
+    		            dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(c.getBestName(Context.getLocale()).getName(), c));
     		        }
 		        }
 		    } else {
 		        //just use the conceptAnswers
     		    for (ConceptAnswer ca : discontineReasonConcept.getAnswers()){
     		        discOptions.add(new Option( ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept().getConceptId().toString(),false));
+    		        dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept()));
     		    }
 		    }
 		    if (discOptions.size() == 1)
 		        throw new IllegalArgumentException("discontinue reason Concept doesn't have any ConceptAnswers");
+		    
 		    discontinuedReasonWidget.setOptions(discOptions);
 		    context.registerWidget(discontinuedReasonWidget);
 	        context.registerErrorWidget(discontinuedReasonWidget, discontinuedReasonErrorWidget);

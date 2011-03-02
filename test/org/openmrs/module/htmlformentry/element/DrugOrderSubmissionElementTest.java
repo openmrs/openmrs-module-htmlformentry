@@ -57,17 +57,17 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
 	 *      DrugOrderSubmissionElement#DrugOrderSubmissionElement(FormEntryContext,Map<QString;
 	 *      QString;>)}
 	 */
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	@Verifies(value = "should only instantiate object if required parameter FIELD_DRUG_NAMES is passed", method = "DrugOrderSubmissionElement(FormEntryContext,Map<QString;QString;>)")
 	public void DrugOrderSubmissionElement_shouldInstantiateObject() throws Exception {
 		Map<String, String> parameters;
 		DrugOrderSubmissionElement element;
-		
 		// test parameters map, at least one valid drug name
 		parameters = new HashMap<String, String>();
 		parameters.put(DrugOrderSubmissionElement.FIELD_DRUG_NAMES, "3, INVALIDDRUGNAME");
+		
 		element = new DrugOrderSubmissionElement(context, parameters);
-		Assert.assertNotNull(element);
+		Assert.fail("IllegalArgumentException expected");
 	}
 	
 	/**
@@ -93,5 +93,5 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
 		Assert.assertTrue(resultHTML.length() > 0);
 		Assert.assertFalse(resultHTML.indexOf("<input") > 0);
 	}
-	
+
 }

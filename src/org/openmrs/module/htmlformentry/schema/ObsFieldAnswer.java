@@ -11,6 +11,11 @@ public class ObsFieldAnswer {
 	private Concept concept;
     
     public ObsFieldAnswer() { }
+    
+    public ObsFieldAnswer(String displayName, Concept concept) { 
+        this.displayName = displayName;
+        this.concept = concept;   
+    }
 
 	/**
 	 * Gets the display name for this answer
