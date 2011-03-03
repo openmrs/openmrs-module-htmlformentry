@@ -202,7 +202,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         context.registerWidget(drugWidget);
         drugErrorWidget = new ErrorWidget();
         context.registerErrorWidget(drugWidget, drugErrorWidget);
-        context.getSchema().addField(dof);
         
 		//start date
 		startDateWidget = new DateWidget();
@@ -287,7 +286,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		                throw new RuntimeException("discontinueReasonAnswers and discontinueReasonAnswerLabels must contain the same number of members.");
 		            for (int i = 0; i < strDiscAnswerLabels.length; i ++ ){
 		                discOptions.add(new Option( strDiscAnswerLabels[i], discReasons.get(i).getConceptId().toString(),false));  
-		                dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(strDiscAnswerLabels[i], discReasons.get(i)));
+		                dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(strDiscAnswerLabels[i].trim(), discReasons.get(i)));
 		            }
 		        } else {
 		            // use the listed discontinueReasons, and use their ConceptNames.
@@ -367,7 +366,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             context.registerWidget(orderDurationWidget);
             context.registerErrorWidget(orderDurationWidget, orderDurationErrorWidget);
         }
-        
+        context.getSchema().addField(dof);
 	}
 
 	/**
