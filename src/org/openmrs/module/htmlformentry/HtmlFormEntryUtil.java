@@ -542,6 +542,8 @@ public class HtmlFormEntryUtil {
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "programId", "program"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "order", "location"));
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "drugNames", "drug"));
+		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "discontinuedReasonConceptId"));
+        form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "discontinueReasonAnswers"));
 		
 		// matches a "default" attribute within a encounterLocation tag--[^>] means any character except a >
 		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "<encounterLocation[^>]*default", "location"));

@@ -169,6 +169,10 @@ public class ShareableHtmlForm extends HtmlForm {
 		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("answerConceptId=\"(.*?)\""));
 		// pattern matches answerConceptIds="[anything]"; group(1) is set to [anything]
 		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("answerConceptIds=\"(.*?)\""));
+		// pattern matches discontinuedReasonConceptId="[anything]"; group(1) is set to [anything]
+        calculateMappedConceptDependenciesHelper(xml, Pattern.compile("discontinuedReasonConceptId=\"(.*?)\""));
+        // pattern matches discontinueReasonAnswers="[anything]"; group(1) is set to [anything]
+        calculateMappedConceptDependenciesHelper(xml, Pattern.compile("discontinueReasonAnswers=\"(.*?)\""));
 	}
 	
 	private void calculateMappedConceptDependenciesHelper(String xml, Pattern pattern) {

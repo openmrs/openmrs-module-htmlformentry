@@ -187,4 +187,16 @@
   <obs obs_id="101" person_id="2" concept_id="2" encounter_id="101" obs_datetime="2008-07-01 00:00:00.0" location_id="1" value_numeric="50.0" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" uuid="39fb7f47-e80a-4056-9285-bd798be13fff"/>
   <obs obs_id="102" person_id="2" concept_id="8" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_text="Penicillin" comments="" creator="1" date_created="2008-08-18 14:11:13.0" voided="false" uuid="be48cdcb-6a76-47e3-9f2e-2635032f3fff"/>
 
+  <!-- Drug Order Discontinue Reasons -->
+  <concept concept_id="555" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2"  uuid="32296060-0370-102d-b0e3-123456789011"/>
+  <concept_name voided="false" concept_name_id="555" concept_id="555" name="REGIMEN DISCONTINUE REASON" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296061-0370-102d-b0e3-123456789012"/>
+  <concept concept_id="556" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296062-0370-102d-b0e3-123456789013"/>
+  <concept_name voided="false" concept_name_id="556" concept_id="556" name="TOXICITY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296063-0370-102d-b0e3-123456789014"/>
+  <concept concept_id="557" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296065-0370-102d-b0e3-123456789015"/>
+  <concept_name voided="false" concept_name_id="557" concept_id="557" name="TRANSFERRED OUT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296066-0370-102d-b0e3-123456789016"/>
+
+  <concept_answer concept_answer_id="555" concept_id="555" answer_concept="556" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="556" concept_id="555" answer_concept="557" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  	
+
 </dataset>
