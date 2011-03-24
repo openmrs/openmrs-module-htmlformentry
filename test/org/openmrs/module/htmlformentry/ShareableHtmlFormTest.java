@@ -6,7 +6,6 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.Concept;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -53,7 +52,7 @@ public class ShareableHtmlFormTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConcept("5")));
 		
 		//drug discontinue reason, corresponds to concept 555 in regressionTest-data
-		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConcept("32296060-0370-102d-b0e3-123456789011")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid("32296060-0370-102d-b0e3-123456789011")));
 		
 		// make sure the program has been added to the dependencies
 		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getProgramByUuid(
