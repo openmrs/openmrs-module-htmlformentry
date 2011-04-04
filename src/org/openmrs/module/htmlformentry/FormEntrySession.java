@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -18,6 +19,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
@@ -86,9 +88,11 @@ public class FormEntrySession {
      * 
      * @param patient
      * @param mode
+     * @param defaultLocation
      */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode) {
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation) {
         context = new FormEntryContext(mode);
+        context.setDefaultLocation(defaultLocation);
         this.patient = patient;
         context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
@@ -166,6 +170,16 @@ public class FormEntrySession {
     }
     
     /**
+     * Private constructor that creates a new Form Entry Session for the specified Patient in the specified {@Mode}
+     * 
+     * @param patient
+     * @param mode
+     */
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode){
+    	this(patient, mode, null);
+    }
+    
+    /**
      * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the specified xml string to create the HTML Form object
      * 
      * @param patient
@@ -190,8 +204,12 @@ public class FormEntrySession {
     	this(patient, htmlForm, Mode.ENTER);
     }
 	
-    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode) throws Exception {
-        this(patient, mode);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode) throws Exception {    
+    	this(patient, htmlForm, mode, null);
+    }
+    
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation) throws Exception {
+        this(patient, mode, defaultLocation);
         this.htmlForm = htmlForm;
         this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated() : htmlForm.getDateChanged()).getTime();
         form = htmlForm.getForm();
@@ -226,7 +244,7 @@ public class FormEntrySession {
     }
     
     /**
-     * Creates a new HTML Form Entry session for the specified patient, encounter, and {@see Mode}, using the specified HtmlForm
+     * Creates a new HTML Form Entry session for the specified patient, encounter, and {@see Mode}, using the specified HtmlForm and with default Location
      * 
      * @param patient
      * @param encounter
@@ -235,7 +253,21 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm) throws Exception {
-        this(patient, mode);
+    	this(patient, encounter, mode, htmlForm, null);
+    }
+    
+    /**
+     * Creates a new HTML Form Entry session for the specified patient, encounter, and {@see Mode}, using the specified HtmlForm
+     * 
+     * @param patient
+     * @param encounter
+     * @param mode
+     * @param htmlForm
+     * @param defaultLocation
+     * @throws Exception
+     */
+   	public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, Location defaultLocation) throws Exception {
+        this(patient, mode, defaultLocation);
         this.htmlForm = htmlForm;
         if (htmlForm != null) {
             if (htmlForm.getId() != null)
@@ -476,7 +508,27 @@ public class FormEntrySession {
         }
         
         ObsService obsService = Context.getObsService();
+        if (context.getMode() == Mode.EDIT && submissionActions.getObsToCreate() != null && encounter != null) {
+        	boolean obsNeedToSaveBeforePersonSave = false;
+        	
+        	Set<Obs> obs = encounter.getAllObs();
+        	for (Obs o : obs) {        	
+        		if (o.getObsId() == null){
+        			obsNeedToSaveBeforePersonSave = true;
+        			break;
+        		}
+        	}
+        	
+        	if (obsNeedToSaveBeforePersonSave || !submissionActions.getObsToCreate().isEmpty()){
+        		Context.getEncounterService().saveEncounter(encounter);
+        	}       	
+        }
         
+        // TODO we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
+        if (context.getMode() == Mode.EDIT && patient != null) {
+            Context.getPersonService().savePerson(patient);
+        }
+
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
         // If there is no encounter (impossible at the time of writing this comment) we save the obs manually
@@ -511,12 +563,6 @@ public class FormEntrySession {
                 }
             } 
         }
-
-        // TODO we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
-        if (context.getMode() == Mode.EDIT && patient != null) {
-            Context.getPersonService().savePerson(patient);
-        }
-
     }
     
     /**

@@ -188,16 +188,18 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 			
 			// Set default values
+			Location defaultLocation = null;
 			if (context.getExistingEncounter() != null) {
-				locationWidget.setInitialValue(context.getExistingEncounter().getLocation());
+				defaultLocation = context.getExistingEncounter().getLocation(); 
 			} 
 			else {
 				String defaultLocId = (String) parameters.get("default");
 				if (StringUtils.hasText(defaultLocId)) {
-					Location defaultLoc = HtmlFormEntryUtil.getLocation(defaultLocId);
-					locationWidget.setInitialValue(defaultLoc);
+					defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
 				}
 			}
+			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+			locationWidget.setInitialValue(defaultLocation);
 			context.registerWidget(locationWidget);
 			context.registerErrorWidget(locationWidget, locationErrorWidget);
 		}

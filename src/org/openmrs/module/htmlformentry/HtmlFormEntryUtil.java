@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -312,7 +313,7 @@ public class HtmlFormEntryUtil {
      * @return the "fake" person
      */
     public static Patient getFakePerson() {
-        Patient demo = new Patient();
+        Patient demo = new Patient(12345);
         demo.addName(new PersonName("Demo", "The", "Person"));
         Location l = Context.getLocationService().getAllLocations().iterator().next();
         for (PatientIdentifierType pit : Context.getPatientService().getAllPatientIdentifierTypes()) {
@@ -664,4 +665,9 @@ public class HtmlFormEntryUtil {
 		
 		return formXmlData;
 	}
+
+	public static List<PatientIdentifierType> getPatientIdentifierTypes(){
+		return Context.getPatientService().getAllPatientIdentifierTypes();
+	}
+
 }

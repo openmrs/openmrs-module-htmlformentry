@@ -15,5 +15,9 @@ public class HtmlFormEntryConstants {
    
     /** Constant used by {@see HtmlFormEntryUtil#documentToString(Document)} */
     public final static String ERROR_TRANSFORMER_2 = "Transformer.transform error:";
+    
+    public final static String[] ENCOUNTER_TAGS = {"encounterDate", "encounterLocation", "encounterProvider"};
+    
+    public final static String[] PATIENT_TAGS = {"patient"};
 
 }

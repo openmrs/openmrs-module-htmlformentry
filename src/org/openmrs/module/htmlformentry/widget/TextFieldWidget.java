@@ -16,6 +16,7 @@ public class TextFieldWidget implements Widget {
     private Integer textAreaRows;
     private Integer textAreaColumns;
     private String initialValue;
+    private Integer textFieldMaxLength;
     
     /**
      * Default constructor implements the text field as a simple input field, like {@code <input type="text"/>}.
@@ -105,14 +106,24 @@ public class TextFieldWidget implements Widget {
                     sb.append(" size=\"" + textFieldSize + "\"");
                 if (initialValue != null)
                     sb.append(" value=\"" + initialValue + "\"");
+                if (textFieldMaxLength != null && textFieldMaxLength.intValue() > 0){
+                	sb.append(" maxlength=\"" + textFieldMaxLength.intValue() + "\"");
+                }
                 sb.append("/>");
             }
         }
-        return sb.toString();
+        return sb.toString(); 
     }
 
-    public Object getValue(FormEntryContext context, HttpServletRequest request) {
+    public String getValue(FormEntryContext context, HttpServletRequest request) {
         return request.getParameter(context.getFieldName(this));
     }
 
+	public void setTextFieldMaxLength(Integer textFieldMaxLength) {
+		this.textFieldMaxLength = textFieldMaxLength;
+	}
+	
+	public void setTextFieldSize(Integer textFieldSize){
+		this.textFieldSize = textFieldSize;
+	}
 }

@@ -31,11 +31,12 @@ public class DateWidget implements Widget {
             }
         } else {
             StringBuilder sb = new StringBuilder();
-            sb.append("<input type=\"text\" size=\"10\" name=\"").append(context.getFieldName(this)).append("\"");
+            String fieldName = context.getFieldName(this);
+            sb.append("<input type=\"text\" size=\"10\" name=\"").append(fieldName).append("\"").append(" id=\"").append(fieldName).append("\"");
             if (initialValue != null)
                 sb.append(" value=\"" + Context.getDateFormat().format(initialValue) + "\"");
             sb.append(" onClick=\"showCalendar(this)\"");
-            sb.append("/>");
+            sb.append(" /> (dd/mm/yyyy)");
             return sb.toString();
         }
     }

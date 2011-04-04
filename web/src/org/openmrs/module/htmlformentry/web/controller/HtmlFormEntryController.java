@@ -17,7 +17,9 @@ import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
@@ -35,19 +37,29 @@ import org.springframework.web.servlet.view.RedirectView;
 public class HtmlFormEntryController extends SimpleFormController {
     
     protected final Log log = LogFactory.getLog(getClass());
+    protected boolean isEncounterEnabled = false;
+    protected boolean isPatientEnabled = false;
     
     private String closeDialogView;
     public final static String FORM_IN_PROGRESS_KEY = "HTML_FORM_IN_PROGRESS_KEY";
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
-    
+   
     public void setCloseDialogView(String closeDialogView) {
     	this.closeDialogView = closeDialogView;
     }
 
     @Override
-    protected FormEntrySession formBackingObject(HttpServletRequest request) throws Exception {
+    protected Object formBackingObject(HttpServletRequest request) throws Exception {
         long ts = System.currentTimeMillis();
         
+        Mode mode = Mode.VIEW;
+		if ("Enter".equalsIgnoreCase(request.getParameter("mode"))) {
+			mode = Mode.ENTER;
+		}
+		else if ("EDIT".equals(request.getParameter("mode"))) {
+            mode = Mode.EDIT;            
+		}
+		
         Integer encounterId = null;
         Encounter encounter = null;
         if (request.getParameter("encounterId") != null && !"".equals(request.getParameter("encounterId"))) {
@@ -61,10 +73,15 @@ public class HtmlFormEntryController extends SimpleFormController {
         	patient = encounter.getPatient();
         	personId = patient.getPersonId();
         } else {
-        	personId = Integer.valueOf(request.getParameter("personId"));
-        	patient = Context.getPatientService().getPatient(personId);
-            if (patient == null)
-                throw new IllegalArgumentException("No patient with id " + personId);
+			// register module uses patientId, htmlformentry uses personId
+			if (!StringUtils.hasText(request.getParameter("patientId"))) {
+				personId = Integer.valueOf(request.getParameter("personId"));
+			} else {
+				personId = Integer.valueOf(request.getParameter("patientId"));
+			}
+			patient = Context.getPatientService().getPatient(personId);
+			if (mode != Mode.ENTER && patient == null)
+				throw new IllegalArgumentException("No patient with id " + personId);
         }
         
         HtmlForm htmlForm = null;
@@ -93,18 +110,18 @@ public class HtmlFormEntryController extends SimpleFormController {
 	        	throw new IllegalArgumentException("You must specify either an htmlFormId or a formId");
 	        }
         }
-
-        FormEntrySession session;
-        if (encounter != null) {
-            Mode mode = Mode.VIEW;
-            if ("EDIT".equals(request.getParameter("mode"))) {
-                mode = Mode.EDIT;
-            }
-            session = new FormEntrySession(patient, encounter, mode, htmlForm);
-        } else {
-            session = new FormEntrySession(patient, htmlForm);
-        }
         
+        FormEntrySession session = null;
+		if (mode == Mode.ENTER && patient == null) {
+			patient = new Patient();			
+		}
+		if (encounter != null){
+			session = new FormEntrySession(patient, encounter, mode, htmlForm);				
+		} 
+		else {
+			session = new FormEntrySession(patient, htmlForm);
+		}
+
         String returnUrl = request.getParameter("returnUrl");
         if (StringUtils.hasText(returnUrl)) {
             session.setReturnUrl(returnUrl);
@@ -130,9 +147,12 @@ public class HtmlFormEntryController extends SimpleFormController {
             }
         }
         
+        isEncounterEnabled = hasEncouterTag(htmlForm.getXmlData());
+        isPatientEnabled = hasPatientTag(htmlForm.getXmlData());
+        
         Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
-        log.warn("Took " + (System.currentTimeMillis() - ts) + " ms");
+        log.info("Took " + (System.currentTimeMillis() - ts) + " ms");
         return session;
     }
 
@@ -157,21 +177,38 @@ public class HtmlFormEntryController extends SimpleFormController {
     protected ModelAndView onSubmit(HttpServletRequest request,
             HttpServletResponse response, Object commandObject, BindException errors)
             throws Exception {
-        FormEntrySession session = (FormEntrySession) commandObject;
-        try {
-            session.prepareForSubmit();
+    	
+    	FormEntrySession session = (FormEntrySession) commandObject;
+    	if(isPatientEnabled && !isEncounterEnabled){
+   			session.preparePersonForSubmit();
+    	}
+    	else {
+    		session.prepareForSubmit();
+    	}
+
+		if (session.getContext().getMode() == Mode.ENTER && isPatientEnabled
+				&& (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions().getPersonsToCreate().size() == 0))
+			throw new IllegalArgumentException("This form is not going to create an Patient");
+
+        if (session.getContext().getMode() == Mode.ENTER && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))
+            throw new IllegalArgumentException("This form is not going to create an encounter"); 
+        
+    	try {
+            
             session.getSubmissionController().handleFormSubmission(session, request);
-            if (session.getContext().getMode() == Mode.ENTER && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))
-                throw new IllegalArgumentException("This form is not going to create an encounter"); 
             session.applyActions();
             String successView = session.getReturnUrlWithParameters();
             if (successView == null)
-                successView = getSuccessView() + "?patientId=" + session.getPatient().getPersonId();
+                successView = getSuccessView() + getQueryPrameters(request, session);
             if (StringUtils.hasText(request.getParameter("closeAfterSubmission"))) {
             	return new ModelAndView(closeDialogView, "dialogToClose", request.getParameter("closeAfterSubmission"));
             } else {
             	return new ModelAndView(new RedirectView(successView));
             }
+        } catch (ValidationException ex) {
+            log.error("Invalid input:", ex);
+            errors.reject(ex.getMessage());
+            return showForm(request, response, errors);
         } catch (BadFormDesignException ex) {
             log.error("Bad Form Design:", ex);
             errors.reject(ex.getMessage());
@@ -184,5 +221,28 @@ public class HtmlFormEntryController extends SimpleFormController {
             return showForm(request, response, errors);
         }
     }
-    
+
+	protected String getQueryPrameters(HttpServletRequest request, FormEntrySession formEntrySession) {
+		return "?patientId=" + formEntrySession.getPatient().getPersonId();
+	}
+
+	protected boolean hasEncouterTag(String xmlData) {
+		for (String tag : HtmlFormEntryConstants.ENCOUNTER_TAGS) {
+			tag = "<" + tag;
+			if (xmlData.contains(tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	protected boolean hasPatientTag(String xmlData) {
+		for (String tag : HtmlFormEntryConstants.PATIENT_TAGS) {
+			tag = "<" + tag;
+			if (xmlData.contains(tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

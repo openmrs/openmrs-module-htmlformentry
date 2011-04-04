@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
  * Holds the widgets used to represent a Patient, and serves as both the HtmlGeneratorElement 
  * and the FormSubmissionControllerAction for a Patient.
  */
+@Deprecated
 public class PatientElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
 	private boolean allowCreate;

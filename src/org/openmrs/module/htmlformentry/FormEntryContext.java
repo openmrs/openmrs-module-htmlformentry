@@ -19,6 +19,7 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
@@ -66,6 +67,7 @@ public class FormEntryContext {
     
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
+    private Location defaultLocation;
     
     public FormEntryContext(Mode mode) {
         this.mode = mode;
@@ -621,5 +623,19 @@ public class FormEntryContext {
     public Map<String, String> getJavascriptFieldAccessorInfo() {
     	return javascriptFieldAccessorInfo;
     }
+
+	/**
+	 * @return the defaultLocation
+	 */
+	public Location getDefaultLocation() {
+		return defaultLocation;
+	}
+
+	/**
+	 * @param defaultLocation the defaultLocation to set
+	 */
+	public void setDefaultLocation(Location defaultLocation) {
+		this.defaultLocation = defaultLocation;
+	}
 	    
 }
