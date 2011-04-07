@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.w3c.dom.Node;
@@ -10,6 +11,11 @@ import org.w3c.dom.Node;
  */
 public interface TagHandler {
 
+	/**
+	 * Returns a list of attribute descriptors that specify the attributes associated with this tag  
+	 */
+	public List<AttributeDescriptor> getAttributeDescriptors();
+	
     /**
      * Handles the start tag for a specific tag type. Generates the appropriate HTML and adds it to the associated PrintWriter.
      * Also adds any necessary FormSubmissionControllerActions to the FormSubmissionController associated with the session.

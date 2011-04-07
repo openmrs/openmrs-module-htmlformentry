@@ -1,7 +1,6 @@
 package org.openmrs.module.htmlformentry.impl;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +13,8 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Form;
+import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.htmlformentry.HtmlForm;
@@ -164,5 +165,17 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	public List<PersonStub> getUsersAsPersonStubs(String roleName){
 	    return  dao.getUsersAsPersonStubs(roleName);
 	}
+
+    public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid) {
+    	return dao.getItemByUuid(type, uuid);
+    }
 	
+    public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
+	    return dao.getItemById(type, id);
+    }
+
+    public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name) {
+	    return dao.getItemByName(type, name);
+    }
+
 }

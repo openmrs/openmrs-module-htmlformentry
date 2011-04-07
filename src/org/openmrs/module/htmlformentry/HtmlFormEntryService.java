@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Form;
+import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -115,5 +117,19 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 */
 	@Transactional(readOnly=true)
 	public List<PersonStub> getUsersAsPersonStubs(String roleName);
-        
+	
+	/**
+	 * Given a uuid, fetch the OpenMRS object associated with that uuid
+	 */
+	public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid);
+	 
+	/**
+	 * Given an id and a class, fetch the OpenMRS object associated with that id
+	 */
+	public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id);
+	
+	/**
+	 * Given a name and a class, fetch the OpenMRS object associated with that id
+	 */
+    public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name);
 }

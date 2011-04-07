@@ -42,7 +42,7 @@ public class HtmlFormFromFileController extends SimpleFormController {
     
     @Override
     protected Map<String, Object> referenceData(HttpServletRequest request) throws Exception {
-    	System.out.println("In reference data...");
+    	log.debug("In reference data...");
         Map<String, Object> ret = new HashMap<String, Object>();
         ret.put("previewHtml", "");
         String message = "";

@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 /**
  * Handles the {@code <section>} tag
  */
-public class SectionTagHandler implements TagHandler {
+public class SectionTagHandler extends AbstractTagHandler {
 
 	/** The logger to use with this class */
     protected final Log log = LogFactory.getLog(getClass());

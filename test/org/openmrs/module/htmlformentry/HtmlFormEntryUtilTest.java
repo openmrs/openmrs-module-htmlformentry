@@ -96,10 +96,21 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 	 */
 	@Test
 	@Verifies(value = "should find a program by its uuid", method = "getProgram(String)")
-	public void getLocation_shouldFindAProgramByItsUuid() throws Exception {
+	public void getProgram_shouldFindAProgramByItsUuid() throws Exception {
 		Assert.assertEquals("MDR program", HtmlFormEntryUtil.getProgram("71779c39-d289-4dfe-91b5-e7cfaa27c78b").getName());
 	}
 
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
+	 * this is the name test
+	 */
+	@Test
+	@Verifies(value = "should find a program by its name", method = "getProgram(String)")
+	public void getProgram_shouldFindAProgramByItsName() throws Exception {
+		Assert.assertEquals("71779c39-d289-4dfe-91b5-e7cfaa27c78b", HtmlFormEntryUtil.getProgram("MDR-TB PROGRAM").getUuid());
+	}	
+	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
 	 */
@@ -236,6 +247,59 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
 	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getPatientIdentifierType(String)}
+	 * id test 
+	 */
+	@Test
+	@Verifies(value = "should find a patient identifier type by its Id", method = "getPatientIdentifierType(String)")
+	public void getPatientIdentifierType_shouldFindAPatientIdentifierTypeByItsId() throws Exception {
+		Assert.assertEquals("OpenMRS Identification Number", HtmlFormEntryUtil.getPatientIdentifierType("1").getName());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getPatientIdentifierType(String)}
+	 * this is the uuid test
+	 */
+	@Test
+	@Verifies(value = "should find a patient identifier type by its uuid", method = "getPatientIdentifierType(String)")
+	public void getPatientIdentifierType_shouldFindAPatientIdentifierTypeByItsUuid() throws Exception {
+		Assert.assertEquals("OpenMRS Identification Number", HtmlFormEntryUtil.getPatientIdentifierType("1a339fe9-38bc-4ab3-b180-320988c0b968").getName());
+	}
+
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getPatientIdentifierType(String)}
+	 * this is the name test
+	 */
+	@Test
+	@Verifies(value = "should find a program by its name", method = "getPatientIdentifierType(String)")
+	public void getPatientIdentifierType_shouldFindAPatientIdentifierTypeByItsName() throws Exception {
+		Assert.assertEquals("1a339fe9-38bc-4ab3-b180-320988c0b968", HtmlFormEntryUtil.getPatientIdentifierType("OpenMRS Identification Number").getUuid());
+	}	
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
+	 */
+	@Test
+	@Verifies(value = "should return null otherwise", method = "getProgram(String)")
+	public void getPatientIdentifierType_shouldReturnNullOtherwise() throws Exception {
+		String id = null;
+		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
+		
+		id = "";
+		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
+		
+		id = "100000";//not exist in the standardTestData
+		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
+		
+		id = "ASDFASDFEAF";//random string
+		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
+
+		id = "-";//uuid style
+		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
+	}
+	
 	
 	/**
 	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
@@ -257,6 +321,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("identifierTypeId=\"1a339fe9-38bc-4ab3-b180-320988c0b968\"", form.getXmlData());
 	}
 	
 	/**

@@ -13,6 +13,7 @@ import java.util.Properties;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
+import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.w3c.dom.Document;
@@ -299,6 +300,13 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
         
         handler.doEndTag(session, out, parent, node);
+    }
+    
+	/**
+	 * Provides default getAttributeDescriptors handling (returns null)
+	 */
+    public List<AttributeDescriptor> getAttributeDescriptors() {
+	    return null;
     }
     
     /** Provides default start tag handling for tags with no custom handler

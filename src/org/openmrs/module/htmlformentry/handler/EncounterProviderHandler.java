@@ -1,8 +1,13 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.openmrs.Person;
+import org.openmrs.Role;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
@@ -12,6 +17,13 @@ import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement
  */
 public class EncounterProviderHandler extends SubstitutionTagHandler {
 
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
+		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
+		attributeDescriptors.add(new AttributeDescriptor("default", Person.class));
+		attributeDescriptors.add(new AttributeDescriptor("role", Role.class));
+		return Collections.unmodifiableList(attributeDescriptors);
+	}
+	
     @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
             Map<String, String> parameters) {

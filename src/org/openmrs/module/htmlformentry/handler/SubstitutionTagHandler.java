@@ -17,11 +17,11 @@ import org.w3c.dom.Node;
  * 
  * Just override the getSubstitution() method.
  */
-public abstract class SubstitutionTagHandler implements TagHandler {
+public abstract class SubstitutionTagHandler extends AbstractTagHandler {
 
 	/** The logger to use with this class */
     protected final Log log = LogFactory.getLog(getClass());
-
+    
     /**
      * Generates and returns the HTML to substitute for a specific tag
      * 

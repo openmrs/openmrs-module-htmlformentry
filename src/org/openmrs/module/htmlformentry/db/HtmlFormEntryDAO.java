@@ -1,9 +1,10 @@
 package org.openmrs.module.htmlformentry.db;
 
 import java.util.List;
-import java.util.Map;
 
 import org.openmrs.Form;
+import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
@@ -59,5 +60,20 @@ public interface HtmlFormEntryDAO {
      * @see HtmlFormEntryService#getProviderStub()
      */
 	public List<PersonStub> getUsersAsPersonStubs(String roleName);
+	
+	/**
+	 * Given a uuid and a class, fetch the OpenMRS object associated with that uuid
+	 */
+	public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid);
+	 
+	/**
+	 * Given an id and a class, fetch the OpenMRS object associated with that id
+	 */
+	public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id);
+	
+	/**
+	 * Given a name and a class, fetch the OpenMRS object associated with that name
+	 */
+	public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name);
 
 }

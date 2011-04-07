@@ -7,8 +7,8 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -29,10 +29,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
-import org.openmrs.Drug;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -44,6 +44,8 @@ import org.openmrs.PersonName;
 import org.openmrs.Program;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
@@ -441,7 +443,6 @@ public class HtmlFormEntryUtil {
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid pattern
 			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
 				location  = Context.getLocationService().getLocationByUuid(id);
-				return location;
 			}
 			else {
 				// if it's neither a uuid or id, try location name
@@ -456,9 +457,12 @@ public class HtmlFormEntryUtil {
 	 * Get the program by: 
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   or 3) name of *associated concept* (not name of program), like "MDR-TB Program"
+	 *   	
 	 * @param Id
 	 * @return the program if exist, else null
 	 * @should find a program by its id
+	 * @should find a program by name of associated concept
      * @should find a program by its uuid
      * @should return null otherwise
 	 */
@@ -478,7 +482,11 @@ public class HtmlFormEntryUtil {
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
 			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
 				program  = Context.getProgramWorkflowService().getProgramByUuid(id);
-				return program;
+			}
+			else {
+				// if it's neither a uuid or id, try program name
+				// (note that this API method actually checks based on name of the associated concept, not the name of the program itself)
+				program = Context.getProgramWorkflowService().getProgramByName(id);			
 			}
 			
 		}
@@ -489,11 +497,12 @@ public class HtmlFormEntryUtil {
 	 * Get the person by: 
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
-	 *   or 3) a usernaem like "mgoodrich"
+	 *   or 3) a username like "mgoodrich"
 	 * @param Id
 	 * @return the person if exist, else null
 	 * @should find a person by its id
      * @should find a person by its uuid
+     * @should find a person by username of corresponding user
      * @should return null otherwise
 	 */
 	public static Person getPerson(String id){
@@ -512,7 +521,6 @@ public class HtmlFormEntryUtil {
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
 			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
 				person  = Context.getPersonService().getPersonByUuid(id);
-				return person;
 			}
 			// handle username
 			else {
@@ -526,41 +534,84 @@ public class HtmlFormEntryUtil {
 		return person;
 	}
 	
+	/***
+	 * Get the patient identifier type by: 
+	 * 		1)an integer id like 5090 
+	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   or 3) a name like "Temporary Identifier"
+	 * @param Id
+	 * @return the identifier type if exist, else null
+	 * @should find an identifier type by its id
+     * @should find an identifier type by its uuid
+     * @should find an identifier type by its name
+     * @should return null otherwise
+	 */
+	public static PatientIdentifierType getPatientIdentifierType(String id){
+		PatientIdentifierType identifierType = null;
+		
+		if(id != null){
+			
+			try{//handle integer: id
+				int identifierTypeId = Integer.parseInt(id);
+				identifierType = Context.getPatientService().getPatientIdentifierType(identifierTypeId);
+				return identifierType;
+			}catch (Exception ex){
+				//do nothing 
+			}
+			
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
+			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+				identifierType  = Context.getPatientService().getPatientIdentifierTypeByUuid(id);
+			}
+			// handle name
+			else {
+				// if it's neither a uuid or id, try identifier type name
+				identifierType = Context.getPatientService().getPatientIdentifierTypeByName(id);	
+			}
+		}
+		return identifierType;
+	}
 	
 	/**
-	 * Replaces all the concept ids in a form with uuids
+	 * Replaces all the ids in a form with uuids
+	 * 
+	 * This method operates using the AttributeDescriptors property of TagHandlers; if you have have a new attribute
+	 * that you want to configure for id-to-uuid substitution, add a descriptor for that attribute to the appropriate tag handler and
+	 * set the class property of that descriptor to the appropriate class
+	 * 
+	 * Can currently handle ids for the following classes: Concept, Program, Person, PatientIdentifierType, Location, and Drug
 	 * 
 	 * @return
 	 * @return
 	 */
 	public static void replaceIdsWithUuids(HtmlForm form) {
-		// go through each attribute that may contain an id
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "conceptId"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "conceptIds"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "groupingConceptId"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptId"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "answerConceptIds"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "programId", "program"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "order", "location"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "drugNames", "drug"));
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "discontinuedReasonConceptId"));
-        form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "discontinueReasonAnswers"));
+		// get the tag handlers so we can gain access to the attribute descriptors
+		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
 		
-		// matches a "default" attribute within a encounterLocation tag--[^>] means any character except a >
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "<encounterLocation[^>]*default", "location"));
-		// matches a "default" attribute within an encounterProvider tag--[^>] means any character except a >
-		form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), "<encounterProvider[^>]*default", "person"));  
+		// loop through all the attribute descriptors for all the tags that have been registered
+		for (String tagName : tagHandlers.keySet()) {
+			log.debug("Handling id-to-uuid substitutions for tag " + tagName);
+			
+			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
+				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
+					// we only need to deal with descriptors that have an associated class
+					if (attributeDescriptor.getClazz() != null) {
+						// build the attribute string we are searching for
+						// match any time that attribute name falls within the specified tag --- [^>]* means any character except a >
+						String pattern = "<" + tagName + "[^>]*" + attributeDescriptor.getName();
+						log.debug("id-to-uuid substitution pattern: " + pattern);
+						form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), pattern, attributeDescriptor.getClazz()));
+					}
+				}
+			}
+		}
 	}
 	
-	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute) {
-		return replaceIdsWithUuidsHelper(formXmlData, attribute, "concept");
+	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, Class<? extends OpenmrsObject> clazz) {
+		return replaceIdsWithUuidsHelper(formXmlData, attribute, clazz, true);
 	}
 	
-	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, String objectType) {
-		return replaceIdsWithUuidsHelper(formXmlData, attribute,objectType, true);
-	}
-	
-	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, String objectType, Boolean includeQuotes) {
+	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, Class<? extends OpenmrsObject> clazz, Boolean includeQuotes) {
 		Pattern substitutionPattern;
 		
 		if (includeQuotes) {
@@ -590,29 +641,11 @@ public class HtmlFormEntryUtil {
 			StringBuffer idBuffer = new StringBuffer();
 			// now loop through each id
 			for (String id : ids) {
-				// see if this is a concept id (i.e., is made up of one or more digits), as opposed to a mapping id or a uuid, or a key used in a repeat template)
+				// see if this is an id (i.e., is made up of one or more digits), as opposed to a mapping id or a uuid, or a key used in a repeat template)
 				if (id.matches("^\\d+$")) {
-					// now we need to fetch the appropriate object for this id, and append the uuid to the buffer
-					if ("concept".equalsIgnoreCase(objectType)) {
-						Concept concept = Context.getConceptService().getConcept(Integer.valueOf(id));
-						idBuffer.append(concept.getUuid() + ",");
-					}
-					else if ("location".equalsIgnoreCase(objectType)) {
-						Location location = Context.getLocationService().getLocation(Integer.valueOf(id));
-						idBuffer.append(location.getUuid() + ",");
-					}
-					else if ("program".equalsIgnoreCase(objectType)) {
-						Program program = Context.getProgramWorkflowService().getProgram(Integer.valueOf(id));
-						idBuffer.append(program.getUuid() + ",");
-					}
-					else if ("person".equalsIgnoreCase(objectType)) {
-						Person person = Context.getPersonService().getPerson(Integer.valueOf(id));
-						idBuffer.append(person.getUuid() + ",");
-					}
-					else if ("drug".equalsIgnoreCase(objectType)) {
-						Drug drug = Context.getConceptService().getDrug(Integer.valueOf(id));
-						idBuffer.append(drug.getUuid() + ",");
-					}
+					// try to find the OpenmrsObject referenced by this id, and convert the id to a uuid
+					OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemById(clazz, Integer.valueOf(id));
+					idBuffer.append(object.getUuid() + ",");
 				} else {
 					// otherwise, leave the id only
 					idBuffer.append(id + ",");
@@ -655,12 +688,12 @@ public class HtmlFormEntryUtil {
 		
 		// now handle any repeat keys we have discovered during this substitution
 		for (String key : repeatKeysToReplace) {
-			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, objectType);
+			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, clazz);
 		}
 		
 		// and now handle any macros we have discovered during this substitution
 		for (String key : macrosToReplace) {
-			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, objectType, false);
+			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, clazz, false);
 		}
 		
 		return formXmlData;

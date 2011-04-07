@@ -2,14 +2,19 @@ package org.openmrs.module.htmlformentry.db.hibernate;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
 import org.openmrs.Form;
+import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
@@ -19,6 +24,8 @@ import org.openmrs.module.htmlformentry.element.PersonStub;
  */
 public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 
+	private static Log log = LogFactory.getLog(HibernateHtmlFormEntryDAO.class);
+	
     private SessionFactory sessionFactory;
     
     public void setSessionFactory(SessionFactory sessionFactory) {
@@ -77,4 +84,45 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 	    .setResultTransformer(Transformers.aliasToBean(PersonStub.class)).list();
 	}
 
+	 public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid) {
+		try {
+			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(type);
+			criteria.add(Expression.eq("uuid", uuid));
+			OpenmrsObject result = (OpenmrsObject) criteria.uniqueResult();
+			return result;
+		}
+		catch(Exception e) {
+    		log.error("Error fetching item by uuid:" + e);
+    		return null;
+    	}
+	 }
+
+	
+	 public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
+    	 try {
+	    	 String idProperty = sessionFactory.getClassMetadata(type).getIdentifierPropertyName();
+		 	 Criteria criteria = sessionFactory.getCurrentSession().createCriteria(type);
+		 	 criteria.add(Expression.eq(idProperty, id));
+		 	 OpenmrsObject result = (OpenmrsObject) criteria.uniqueResult();
+		 	 return result;
+    	 }
+    	 catch(Exception e) {
+     		log.error("Error fetching item by id:" + e);
+     		return null;
+     	}
+	 }
+
+    public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name) {
+    	// we use a try/catch here to handle oddities like "Role" which don't have a directly-referenceable name property
+    	try {
+    		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(type);
+    		criteria.add(Expression.eq("name", name));
+    		OpenmrsObject result = (OpenmrsObject) criteria.uniqueResult();
+    		return result;
+    	}
+    	catch(Exception e) {
+    		log.error("Error fetching item by name:" + e);
+    		return null;
+    	}
+    }
 }

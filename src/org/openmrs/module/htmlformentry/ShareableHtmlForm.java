@@ -2,17 +2,24 @@ package org.openmrs.module.htmlformentry;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
-import org.openmrs.Drug;
 import org.openmrs.Location;
+import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.Person;
+import org.openmrs.Program;
+import org.openmrs.Role;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.TagHandler;
 
 /**
  * A clone of an HtmlForm, intended to be used by the Metadata sharing module. The clone includes a
@@ -25,15 +32,15 @@ public class ShareableHtmlForm extends HtmlForm {
 	
 	private Collection<OpenmrsObject> dependencies;
 	
-	private Boolean includeMappedConcepts;
-	
-	private Boolean includeDrugsReferencedByName;
-	
 	private Boolean includeLocations;
 	
-	private Boolean includeProviders;
+	private Boolean includePersons;
 	
-	public ShareableHtmlForm(HtmlForm form, Boolean includeMappedConcepts, Boolean includeDrugsReferencedByName, Boolean includeLocations, Boolean includeProviders) {
+	private Boolean includeRoles;
+	
+	private Boolean includePatientIdentifierTypes;
+	
+	public ShareableHtmlForm(HtmlForm form, Boolean includeLocations, Boolean includePersons, Boolean includeRoles, Boolean includePatientIdentifierTypes) {
 		// first, make a clone of the form
 		// (do we need to worry about pass-by-reference?)
 		this.setChangedBy(form.getChangedBy());
@@ -50,13 +57,13 @@ public class ShareableHtmlForm extends HtmlForm {
 		this.setXmlData(form.getXmlData());
 		
 		// set the parameters
-		this.includeMappedConcepts = includeMappedConcepts;
-		this.includeDrugsReferencedByName = includeDrugsReferencedByName;
 		this.includeLocations = includeLocations;
-		this.includeProviders = includeProviders;
+		this.includePersons = includePersons;
+		this.includeRoles = includeRoles;
+		this.includePatientIdentifierTypes = includePatientIdentifierTypes;
 		
-		// strip out any local attributes we don't want to pass one
-		// default is to include locations, but not providers
+		// first, strip out any local attributes we don't want to pass on
+		// default (set in HtmlForm.java) is to include locations, roles, and patient identitfier types, but not persons
 		stripLocalAttributesFromXml();
 		
 		// within the form, replace any Ids with Uuids
@@ -64,7 +71,7 @@ public class ShareableHtmlForm extends HtmlForm {
 		
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
 		calculateDependencies();
-		// TODO: update the calculate dependencies method to handle locations and persons specified by name...
+		// TODO: update the calculate dependencies method to handle persons specified by name...
 	}
 	
 	/** Allows HtmlForm to be shared via Metadata Sharing Module **/
@@ -94,8 +101,9 @@ public class ShareableHtmlForm extends HtmlForm {
 	public Collection<OpenmrsObject> getDependencies() {
 		return this.dependencies;
 	}
-	
-	public void calculateDependencies() {
+
+	@SuppressWarnings("unchecked")
+    public void calculateDependencies() {
 		
 		this.dependencies = new HashSet<OpenmrsObject>();
 		
@@ -113,178 +121,112 @@ public class ShareableHtmlForm extends HtmlForm {
 		catch (Exception e) {
 			throw new APIException ("Unable to process macros and templates when processing form to make it shareable", e);
 		}
+		
+		// now we need to loop through the attributes to find what other (non-uuid) dependencies we need to look for
+		// fetch the tag handlers so we can gain access to the attribute descriptors
+		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
+		
+		// loop through all the attribute descriptors for the registered handlers
+		for (String tagName : tagHandlers.keySet()) {
+			log.debug("Handling dependencies for tag " + tagName);
 			
-		calculateUuidDependencies(xml);
-		
-		if (this.includeMappedConcepts) {
-			calculateMappedConceptDependencies(xml);
-		}
-		
-		if (this.includeDrugsReferencedByName) {
-			calculateDrugsReferencedByNameDependencies(xml);
-		}
-		
-		if (this.includeLocations) {
-			calculateLocationDependencies(xml);
-		}
-		
-		if (this.includeProviders) {
-			calculateProviderDependencies(xml);
-		}
-	}
-	
-	private void calculateUuidDependencies(String xml) {
-		// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
-		Pattern uuid = Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+");
-		Matcher matcher = uuid.matcher(xml);
-		
-		while (matcher.find()) {
-			
-			if (Context.getConceptService().getConceptByUuid(matcher.group()) != null) {
-				this.dependencies.add(Context.getConceptService().getConceptByUuid(matcher.group()));
-			} else if (Context.getLocationService().getLocationByUuid(matcher.group()) != null) {
-				this.dependencies.add(Context.getLocationService().getLocationByUuid(matcher.group()));
-			} else if (Context.getProgramWorkflowService().getProgramByUuid(matcher.group()) != null) {
-				this.dependencies.add(Context.getProgramWorkflowService().getProgramByUuid(matcher.group()));
-			} else if (Context.getPersonService().getPersonByUuid(matcher.group()) != null) {
-				this.dependencies.add(Context.getPersonService().getPersonByUuid(matcher.group()));
-			} else if (Context.getConceptService().getDrugByUuid(matcher.group()) != null) {
-				this.dependencies.add(Context.getConceptService().getDrugByUuid(matcher.group()));
-			} else {
-				// there is a chance that the "uuid" pattern could match a non-uuid; one reason I'm
-				// choosing *not* to throw an exception or log an error here is to handle that case
-				log.warn("Unable to load OpenMrs object with uuid = " + matcher.group());
-			}
-		}
-	}
-	
-	private void calculateMappedConceptDependencies(String xml) {
-		// pattern matches conceptId="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("conceptId=\"(.*?)\""));
-		// pattern matches conceptIds="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("conceptIds=\"(.*?)\""));
-		// pattern matches groupingConceptId="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("groupingConceptId=\"(.*?)\""));
-		// pattern matches answerConceptId="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("answerConceptId=\"(.*?)\""));
-		// pattern matches answerConceptIds="[anything]"; group(1) is set to [anything]
-		calculateMappedConceptDependenciesHelper(xml, Pattern.compile("answerConceptIds=\"(.*?)\""));
-		// pattern matches discontinuedReasonConceptId="[anything]"; group(1) is set to [anything]
-        calculateMappedConceptDependenciesHelper(xml, Pattern.compile("discontinuedReasonConceptId=\"(.*?)\""));
-        // pattern matches discontinueReasonAnswers="[anything]"; group(1) is set to [anything]
-        calculateMappedConceptDependenciesHelper(xml, Pattern.compile("discontinueReasonAnswers=\"(.*?)\""));
-	}
-	
-	private void calculateMappedConceptDependenciesHelper(String xml, Pattern pattern) {
-		
-		Matcher matcher = pattern.matcher(xml);
-		
-		while (matcher.find()) {
-			
-			// split the group into the various ids
-			String[] ids = matcher.group(1).split(",");
-			
-			// check each id to see if it is a mapping, and, if so, fetch the appropriate concept
-			for (String id : ids) {
-				int index = id.indexOf(":");
-				if (index != -1) {
-					String mappingCode = id.substring(0, index).trim();
-					String conceptCode = id.substring(index + 1, id.length()).trim();
-					Concept concept = Context.getConceptService().getConceptByMapping(conceptCode, mappingCode);
-					
-					if (concept != null) {
-						this.dependencies.add(concept);
+			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
+				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
+					if (attributeDescriptor.getClazz() != null) {
+						// build the attribute string we are searching for
+						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
+						String pattern = "<" + tagName + "[^>]*" + attributeDescriptor.getName() + "=\"(.*?)\"";
+						log.debug("dependency substitution pattern: " + pattern);
+						
+						// now search through and find all matches
+						Matcher matcher = Pattern.compile(pattern).matcher(xml);
+						while (matcher.find()) {
+							// split the matched result group into the various ids
+							String[] ids = matcher.group(1).split(",");
+							
+							for (String id : ids) {
+								// if this id matches a uuid pattern, try to fetch the object by uuid
+								if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(attributeDescriptor.getClazz(), id);
+									if (object != null) {
+										this.dependencies.add(object);
+										continue;
+									}
+								}
+								
+								// if we haven't found anything by uuid, try by name
+								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) { 
+									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByName((Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
+									if (object != null) {
+										this.dependencies.add(object);
+										continue;
+									}
+								}								
+				
+								// finally, handle any special cases
+								// if it's a concept, we also need to handle concepts referenced by map
+								if (Concept.class.equals(attributeDescriptor.getClazz())) {
+									Concept concept = HtmlFormEntryUtil.getConcept(id);
+									if (concept != null) {
+										this.dependencies.add(concept);
+										continue;
+									}
+								}
+								// need to handle the special case where a program "name" is considered the "name" of the underlying concept
+								if (Program.class.equals(attributeDescriptor.getClazz())) {
+									Program program = HtmlFormEntryUtil.getProgram(id);
+									if (program != null) {
+										this.dependencies.add(program);
+										continue;
+									}
+								}
+								// need to special case of the name of a role
+								if (Role.class.equals(attributeDescriptor.getClazz())) {
+									Role role = Context.getUserService().getRole(id);
+									if (role != null) {
+										this.dependencies.add(role);
+										continue;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
 		}
 	}
 	
-	private void calculateDrugsReferencedByNameDependencies(String xml) {
-		// pattern matches drugNames="[anything]"; group(1) is set to [anything]
-		calculateDrugsReferencedByNameDependenciesHelper(xml, Pattern.compile("drugNames=\"(.*?)\""));
-	}
-	
-	private void calculateDrugsReferencedByNameDependenciesHelper(String xml, Pattern pattern) {
+	private void stripLocalAttributesFromXml() {
+		// get the tag handlers so we can gain access to the attribute descriptors
+		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
 		
-		Matcher matcher = pattern.matcher(xml);
-		
-		while (matcher.find()) {
+		// loop through all the attribute descriptors for this
+		for (String tagName : tagHandlers.keySet()) {
+			log.debug("Handling dependencies for tag " + tagName);
 			
-			// split the group into the various ids
-			String[] ids = matcher.group(1).split(",");
-			
-			// check to see if this is a drug name
-			for (String id : ids) {
-				Drug drug = Context.getConceptService().getDrugByNameOrId(id);
-				
-				if (drug != null) {
-					this.dependencies.add(drug);
+			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
+				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
+					if (attributeDescriptor.getClazz() != null) {
+						// build the attribute string we are searching for
+						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to attribute="[anything]"
+						String stripPattern = "<" + tagName + "[^>]*( " + attributeDescriptor.getName() + "=\".*?\")";
+						log.debug("stripping substitution pattern: " + stripPattern);
+						
+						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+						}
+						else if (!this.includePersons && attributeDescriptor.getClazz().equals(Person.class)) {
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+						}
+						else if (!this.includeRoles && attributeDescriptor.getClazz().equals(Role.class)) {
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+						}
+						else if (!this.includePatientIdentifierTypes && attributeDescriptor.getClazz().equals(PatientIdentifierType.class)) {
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+						}
+					}
 				}
 			}
-		}
-	}
-	
-	private void calculateLocationDependencies(String xml) {
-		// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to [anything]
-		calculateLocationDependenciesHelper(xml, Pattern.compile("<encounterLocation[^>]* default=\"(.*?)\""));
-		// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to [anything]
-		calculateLocationDependenciesHelper(xml, Pattern.compile("<encounterLocation[^>]* order=\"(.*?)\""));
-	}
-	
-	private void calculateLocationDependenciesHelper(String xml, Pattern pattern) {
-		
-		Matcher matcher = pattern.matcher(xml);
-		
-		while (matcher.find()) {
-			
-			// split the group into the various ids
-			String[] ids = matcher.group(1).split(",");
-			
-			for (String id : ids) {
-				Location location = Context.getLocationService().getLocation(id);
-				
-				if (location != null) {
-					this.dependencies.add(location);
-				}
-			}
-		}
-		
-	}
-	
-	private void calculateProviderDependencies(String xml) {
-		
-		// TODO: method not implemented (or currently used)
-		// if we do start allowing providers to exported with forms, we need to decide how we want to handle this
-		// should we export *all* persons who have roles assigned in the role="" parameter of encounterProvider?
-		
-		// TODO: this code has not been tested
-		// pattern matches <encounterProvider [anything but greater-than] default="[anything]"; group(1) is set to "[anything]"
-		/*	Matcher matcher = Pattern.compile("<encounterProvider[^>]* default=\"(.*?)\"").matcher(this.getXmlData);
-		
-		while (matcher.find()) {
-			User user = Context.getUserService().getUserByUsername(matcher.group(1));
-			
-			if (user != null) {
-				this.dependencies.add(user.getPerson());
-			}
-		} */
-
-	}
-	
-	public void stripLocalAttributesFromXml() {
-		if (!this.includeProviders) {
-			// pattern matches <encounterProvider [anything but greater-than] default="[anything]"; group(1) is set to default="[anything]"
-			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterProvider[^>]*( default=\".*?\")"));
-			// pattern matches <encounterProvider [anything but greater-than] role="[anything]"; group(1) is set to role="[anything]"
-			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterProvider[^>]*( role=\".*?\")"));
-		}
-		
-		if (!this.includeLocations) {
-			// pattern matches <encounterLocation [anything but greater-than] default="[anything]"; group(1) is set to default="[anything]"
-			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterLocation[^>]*( default=\".*?\")"));
-			// pattern matches <encounterLocation [anything but greater-than] order="[anything]"; group(1) is set to order="[anything]"
-			stripLocalAttributesFromXmlHelper(Pattern.compile("<encounterLocation[^>]*( order=\".*?\")"));
 		}
 	}
 	

@@ -1,6 +1,8 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +19,14 @@ import org.w3c.dom.Node;
 /**
  * Handles the {@code <obsGroup>} tag
  */
-public class ObsGroupTagHandler implements TagHandler {
-    
+public class ObsGroupTagHandler extends AbstractTagHandler {
+   
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
+		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();	
+		attributeDescriptors.add(new AttributeDescriptor("groupingConceptId", Concept.class));
+		return Collections.unmodifiableList(attributeDescriptors);
+	}
+	
     /**
      * @see org.openmrs.module.htmlformentry.handler.TagHandler#doStartTag(org.openmrs.module.htmlformentry.FormEntrySession, java.io.PrintWriter, org.w3c.dom.Node, org.w3c.dom.Node)
      */

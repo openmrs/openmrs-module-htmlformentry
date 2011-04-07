@@ -1,13 +1,5 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import org.openmrs.Concept;
-import org.openmrs.api.ConceptService;
-import org.openmrs.api.context.Context;
 
 /**
  * Currently unimplemented
