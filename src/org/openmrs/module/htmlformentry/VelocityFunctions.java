@@ -52,20 +52,28 @@ public class VelocityFunctions {
 			return getObsService().getObservationsByPersonAndConcept(p, new Concept(conceptId));
 	}
 	
+	/**
+	 * @return the most recent obs given the passed conceptId
+	 * @should return the most recent obs given the passed conceptId
+	 */
 	public Obs latestObs(Integer conceptId) {
 		List<Obs> obs = allObs(conceptId);
 		if (obs == null || obs.isEmpty())
 			return null;
 		else
-			return obs.get(obs.size() - 1);
+			return obs.get(0);
 	}
 	
+	/**
+	 * @return the first obs given the passed conceptId
+	 * @should return the first obs given the passed conceptId
+	 */
 	public Obs earliestObs(Integer conceptId) {
 		List<Obs> obs = allObs(conceptId);
 		if (obs == null || obs.isEmpty())
 			return null;
 		else
-			return obs.get(0);
+			return obs.get(obs.size() - 1);
 	}
 	
 	public Result logic(String expression) {
