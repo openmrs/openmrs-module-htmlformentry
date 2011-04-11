@@ -226,7 +226,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     			ConceptNumeric cn = Context.getConceptService().getConceptNumeric(
     					concept.getConceptId());
     			if (numericAnswers.size() == 0) {
-    				valueWidget = new NumberFieldWidget(cn);
+    			    valueWidget = new NumberFieldWidget(cn, parameters.get("size"));
     			} else {
     				if ("radio".equals(parameters.get("style"))) {
     					valueWidget = new RadioButtonsWidget();

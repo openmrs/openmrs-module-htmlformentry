@@ -16,6 +16,7 @@ public class NumberFieldWidget implements Widget {
     private boolean floatingPoint = true;
     private Double absoluteMinimum;
     private Double absoluteMaximum;
+    private Integer numberFieldSize = 5;
 
     /**
      * Creates a widget with certain absolute maximum and minimum values. Floating point numbers are allowed if floatingPoint=true.
@@ -34,12 +35,20 @@ public class NumberFieldWidget implements Widget {
      * Creates a widget with certain absolute maximum and minimum values as defined by a specific numeric Concept
      * 
      * @param concept
+     * @param size, the size of the text field to render
      */
-    public NumberFieldWidget(ConceptNumeric concept) {
+    public NumberFieldWidget(ConceptNumeric concept, String size) {
         if (concept != null) {
             setAbsoluteMaximum(concept.getHiAbsolute());
             setAbsoluteMinimum(concept.getLowAbsolute());
             setFloatingPoint(concept.getPrecise());
+            if (size != null && !size.equals("")){
+                try {
+                    setNumberFieldSize(Integer.valueOf(size));
+                } catch (Exception ex){
+                    throw new IllegalArgumentException("Value for 'size' attribute in numeric obs must be a number.");
+                }
+            }
         }
     }
     
@@ -115,7 +124,7 @@ public class NumberFieldWidget implements Widget {
         } else {
             String id = context.getFieldName(this);
             String errorId = context.getErrorFieldId(this);
-            sb.append("<input type=\"text\" size=\"5\" id=\"" + id + "\" name=\"" + id + "\"");
+            sb.append("<input type=\"text\" size=\"" + numberFieldSize + "\" id=\"" + id + "\" name=\"" + id + "\"");
             // TODO escape value
             if (initialValue != null)
                 sb.append(" value=\"" + initialValue + "\"");
@@ -139,5 +148,10 @@ public class NumberFieldWidget implements Widget {
             throw new IllegalArgumentException("Not a number");
         }
     }
+
+    public void setNumberFieldSize(Integer numberFieldSize) {
+        this.numberFieldSize = numberFieldSize;
+    }
+    
 
 }
