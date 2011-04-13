@@ -31,8 +31,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
-import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -625,26 +623,14 @@ public class FormEntrySession {
                 if (name.startsWith("w")) {
                     String val = lastSubmission.getParameter(name);
                     if (StringUtils.hasText(val)) {
-                    	if (isPopulatedCheckboxWidget(name, val)) {
-                        	sb.append("DWRUtil.setValue('" + name + "', " + JavaScriptUtils.javaScriptEscape(val) + ");\n");
-                    	} else {
-                        	sb.append("DWRUtil.setValue('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");                    		
-                    	}
+                    	sb.append("setValueByName('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
                     }
                 }
             }
             return sb.toString();
         }
     }
-    
-    /**
-     * @return checks whether field is a populated (not null) checkbox widget
-     */
-    private boolean isPopulatedCheckboxWidget(String name, String val) {
-        Widget tmpWidget = context.getWidgetByFieldName(name);
-        return (tmpWidget != null && tmpWidget instanceof CheckboxWidget && (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("false"))) ? true : false; 
-    }
-        
+            
     /**
      * Returns a fragment of javascript that will display any error widgets that had errors on
      * the last submission.
