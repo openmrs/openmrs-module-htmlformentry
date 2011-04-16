@@ -6,7 +6,11 @@ import java.util.List;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
+import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.ObsService;
+import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
@@ -19,6 +23,7 @@ public class VelocityFunctions {
 	private FormEntrySession session;
 	private ObsService obsService;
 	private LogicService logicService;
+	private ProgramWorkflowService programWorkflowService;
 	
 	public VelocityFunctions(FormEntrySession session) {
 		this.session = session;
@@ -34,6 +39,12 @@ public class VelocityFunctions {
 		if (logicService == null)
 			logicService = Context.getLogicService();
 		return logicService;
+	}
+	
+	private ProgramWorkflowService getProgramWorkflowService() {
+		if (programWorkflowService == null)
+			programWorkflowService = Context.getProgramWorkflowService();
+		return programWorkflowService;
 	}
 	
 	private void cannotBePreviewed() {
@@ -84,4 +95,57 @@ public class VelocityFunctions {
 		return getLogicService().eval(session.getPatient(), lc);
 	}
 
+	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId) {
+		Patient p = session.getPatient();
+		if (p == null || p.getId() == null) {
+			return null;
+		}
+		cannotBePreviewed();
+		ProgramWorkflow workflow = getProgramWorkflowService().getWorkflow(programWorkflowId); // not sure if and how I want to reference the UUID
+		List<PatientProgram> pps = getProgramWorkflowService().getPatientPrograms(p, workflow.getProgram(), null, null,
+		    null, null, false);
+		PatientProgram mostRecentPatientProgram = null;
+		for (PatientProgram pp : pps) {
+			// try to figure out which program enrollment is active or the most
+			// recent one; guess this would better fit somewhere in the
+			// ProgramWorkflowServive
+			if (!pp.isVoided()) {
+				if (mostRecentPatientProgram == null) {
+					mostRecentPatientProgram = pp;
+				} else {
+					if (mostRecentPatientProgram.getDateCompleted() != null && pp.getDateCompleted() == null) {
+						// found an uncompleted one
+						mostRecentPatientProgram = pp;
+					} else if (mostRecentPatientProgram.getDateCompleted() != null && pp.getDateCompleted() != null
+					        && pp.getDateCompleted().after(mostRecentPatientProgram.getDateCompleted())) {
+						// pp was completed later
+						// maybe the start date is also important
+						mostRecentPatientProgram = pp;
+					} else {
+						// let the states decide for uncompleted programs
+						// (_should_ not be necessary, but that's life,
+						// partially due
+						// to ProgramLocation module, or Reopening of old
+						// programs, or patient merge)
+						PatientState mostRecentState = mostRecentPatientProgram.getCurrentState(workflow);
+						PatientState ps = pp.getCurrentState(workflow);
+						if (mostRecentState == null || ps == null) {
+							// just do nothing
+						} else if (mostRecentState.getEndDate() != null && ps.getEndDate() == null) {
+							mostRecentPatientProgram = pp;
+						} else if (ps.getStartDate().after(mostRecentState.getStartDate())) {
+							mostRecentPatientProgram = pp;
+						}
+					}
+				}
+			}
+		}
+		if (mostRecentPatientProgram != null) {
+			PatientState ps = mostRecentPatientProgram.getCurrentState(workflow);
+			if (ps != null && ps.getState() != null && ps.getState().getConcept().getName() != null) {
+				return ps;
+			}
+		}
+		return null;
+	}
 }
