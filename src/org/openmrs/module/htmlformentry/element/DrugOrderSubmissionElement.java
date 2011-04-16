@@ -83,7 +83,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	
 	public static final String FIELD_DISCONTINUED_REASON_ANSWERS="discontinueReasonAnswers";
 	
-	public static final String FIELD_DISCONTINIUD_REASON_ANSWER_LABELS="discontinueReasonAnswerLabels";
+	public static final String FIELD_DISCONTINUED_REASON_ANSWER_LABELS="discontinueReasonAnswerLabels";
 	
 	public static final String FIELD_SHOW_ORDER_DURATION = "showOrderDuration";
 	
@@ -277,9 +277,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	                discReasons.add(answer);
 		        }
 		       
-		        if (parameters.get(FIELD_DISCONTINIUD_REASON_ANSWER_LABELS) != null){
+		        if (parameters.get(FIELD_DISCONTINUED_REASON_ANSWER_LABELS) != null){
 		            // use the listed discontinueReasons, and use labels:
-		            String discLabelsString = parameters.get(FIELD_DISCONTINIUD_REASON_ANSWER_LABELS);
+		            String discLabelsString = parameters.get(FIELD_DISCONTINUED_REASON_ANSWER_LABELS);
 		            String[] strDiscAnswerLabels = discLabelsString.split(",");
 		            //a little validation:
 		            if (strDiscAnswerLabels.length != discReasons.size())
