@@ -415,6 +415,26 @@ public class HtmlFormEntryUtil {
 		return cpt;
 	}
 	
+	/**
+	 * Gets a concept by id, mapping, or uuid. (See #getConcept(String) for precise details.)
+	 * If no concept is found, throws an IllegalArgumentException with the given message. 
+	 * @param id
+	 * @param errorMessageIfNotFound
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public static Concept getConcept(String id, String errorMessageIfNotFound) throws IllegalArgumentException {
+		Concept c = null;
+		try {
+			c = getConcept(id);
+		} catch (Exception ex) {
+			throw new IllegalArgumentException(errorMessageIfNotFound, ex);
+		}
+		if (c == null)
+			throw new IllegalArgumentException(errorMessageIfNotFound);
+		return c;
+	}
+	
 	/***
 	 * Get the location by: 
 	 * 		1)an integer id like 5090 

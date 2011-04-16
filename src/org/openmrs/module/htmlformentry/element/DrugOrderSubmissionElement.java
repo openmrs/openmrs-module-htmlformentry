@@ -28,6 +28,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
@@ -273,7 +274,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		        String[] strDiscAnswers = discAnswersString.split(",");
 		        for (int i = 0; i < strDiscAnswers.length; i++){
 		            String thisAnswer = strDiscAnswers[i];
-		            Concept answer = getDiscontinueAnswerReason(thisAnswer);
+		            Concept answer = HtmlFormEntryUtil.getConcept(thisAnswer, "discontinueReasonAnswers includes a value that is not a valid conceptId or concept UUID");
 	                discReasons.add(answer);
 		        }
 		       
@@ -662,15 +663,4 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    return cal.getTime();
 	}
 	
-	private Concept getDiscontinueAnswerReason(String discReasonConceptStr){
-        Concept discontineReasonConcept = Context.getConceptService().getConceptByUuid(discReasonConceptStr);
-        if (discontineReasonConcept == null){
-            try {
-                discontineReasonConcept = Context.getConceptService().getConcept(Integer.valueOf(discReasonConceptStr));
-            } catch (Exception ex){}
-        }    
-        if (discontineReasonConcept == null)
-            throw new IllegalArgumentException("discontinueReasonAnswers includes a value that is not a valid conceptId or concept UUID");
-        return discontineReasonConcept;
-	}
 }
