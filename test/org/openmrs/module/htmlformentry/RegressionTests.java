@@ -534,7 +534,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return "velocityForm";
 			}
 			void testBlankFormHtml(String html) {
-				TestUtil.assertFuzzyContains("Last weight: 70.0", html);
+				TestUtil.assertFuzzyContains("Last weight: 50.0", html);
 				TestUtil.assertFuzzyContains("Gender: M", html);
 			}
 		}.run();
@@ -767,6 +767,26 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 		
-	}	
+	}
+	
+	/**
+	 * TODO refactor this to the same format as the other tests
+	 */
+    @Test
+    public void testApplyMacros() throws Exception {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<htmlform>");
+        sb.append("<macros>");
+        sb.append("count=1, 2, 3");
+        sb.append("</macros>");
+        sb.append("You can count like $count");
+        sb.append("</htmlform>");
+        
+        HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
+        
+        String result = generator.applyMacros(sb.toString()).trim();
+        System.out.println(result);
+        Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
+    }
 	
 }

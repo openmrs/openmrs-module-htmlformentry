@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
@@ -33,6 +34,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should return correct xml after apply excludeIf tag", method = "applyExcludes(FormEntrySession,String)")
 	public void applyExcludes_shouldReturnCorrectXmlAfterApplyExcludeIfTag()
 			throws Exception {
+		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><excludeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</excludeIf><excludeIf logicTest=\"GENDER = M\">This shows a logic test for a man</excludeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertEquals(
@@ -48,6 +50,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should return correct xml after apply include tag", method = "applyIncludes(FormEntrySession,String)")
 	public void applyIncludes_shouldReturnCorrectXmlAfterApplyIncludeTag()
 			throws Exception {
+		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><includeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</includeIf><includeIf logicTest=\"GENDER = M\">This shows a logic test for a man</includeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertEquals(
@@ -80,6 +83,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should return a correct boolean value for logic test string", method = "processIncludeLogic(FormEntrySession,String)")
 	public void processIncludeLogic_shouldReturnACorrectBooleanValueForLogicTestString()
 			throws Exception {
+		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><includeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</includeIf><includeIf logicTest=\"GENDER = M\">This shows a logic test for a man</includeIf></htmlform>";
 		String testStr = "logicTest=\"GENDER = M\">";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
