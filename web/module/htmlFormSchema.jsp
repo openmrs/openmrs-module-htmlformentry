@@ -226,6 +226,6 @@
 <center>
 <FORM>
 <font size="3">
-<INPUT type="button" value="Close Preview" onClick="window.close()">
+<INPUT type="button" value="Close Schema" onClick="window.close()">
 </FORM> 
 </center>
