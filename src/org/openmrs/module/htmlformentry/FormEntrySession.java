@@ -373,6 +373,11 @@ public class FormEntrySession {
         }
     }
     
+    /**
+     * Prepares a form for submission by instantiating a FormSubmissionsActions object and initializing
+     * it with the Patient associated with the Form. (This should be used when you have a form that creates
+     * or edits a patient, but doesn't create or edit an encounter.)
+     */
     public void preparePersonForSubmit() {
         submissionActions = new FormSubmissionActions();
         try {
