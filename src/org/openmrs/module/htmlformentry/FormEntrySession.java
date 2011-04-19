@@ -115,31 +115,35 @@ public class FormEntrySession {
         
         {
             Map<String, List<String>> identifiers = new HashMap<String, List<String>>();
-            for (PatientIdentifier id : patient.getActiveIdentifiers()) {
-                String idType = id.getIdentifierType().getName();
-                List<String> list = identifiers.get(idType);
-                if (list == null) {
-                    list = new ArrayList<String>();
-                    identifiers.put(idType, list);
-                }
-                list.add(id.getIdentifier());
+            if (patient != null) {
+	            for (PatientIdentifier id : patient.getActiveIdentifiers()) {
+	                String idType = id.getIdentifierType().getName();
+	                List<String> list = identifiers.get(idType);
+	                if (list == null) {
+	                    list = new ArrayList<String>();
+	                    identifiers.put(idType, list);
+	                }
+	                list.add(id.getIdentifier());
+	            }
             }
             velocityContext.put("patientIdentifiers", identifiers);
         }
         
         {
             Map<String, Object> attributes = new HashMap<String, Object>();
-            for (PersonAttribute att : patient.getActiveAttributes()) {
-                String attName = att.getAttributeType().getName();
-                if (att.getValue() != null) {
-                	attributes.put(attName.replaceAll("'", ""), att.getHydratedObject());
-                }
+            if (patient != null) {
+	            for (PersonAttribute att : patient.getActiveAttributes()) {
+	                String attName = att.getAttributeType().getName();
+	                if (att.getValue() != null) {
+	                	attributes.put(attName.replaceAll("'", ""), att.getHydratedObject());
+	                }
+	            }
             }
             velocityContext.put("personAttributes", attributes);
         }
 
         // For now, the relationship query breaks for non-saved patients, so do not run for Demo patient
-        if(!("testing-html-form-entry".equals(patient.getUuid())) && patient.getUuid() != null) {
+        if (patient != null && !("testing-html-form-entry".equals(patient.getUuid())) && patient.getUuid() != null) {
             List<Relationship> rels = Context.getPersonService().getRelationshipsByPerson(patient);
             // TODO put this is core in relationship service
             Map<String, List<Person>> relMap = new HashMap<String, List<Person>>();

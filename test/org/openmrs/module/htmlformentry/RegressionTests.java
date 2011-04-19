@@ -10,6 +10,7 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
@@ -787,6 +788,107 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
         String result = generator.applyMacros(sb.toString()).trim();
         System.out.println(result);
         Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
+    }
+    
+    /**
+     * This test currently fails, perhaps because the ability to create a patient without simultaneously
+     * creating an encounter was not implemented in HTML-94.
+     */
+    @Test
+    public void testCreateMinimalPatient() throws Exception {
+    	final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "simpleCreatePatientForm";
+			}
+			
+			Patient getPatient() {
+				return new Patient();
+			}
+			
+			String[] widgetLabels() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName",
+						"Gender:", "Birthdate:", "Identifier:", "Identifier Location:" };
+			}
+
+			void testBlankFormHtml(String html) {
+				System.out.println(">>>>\n" + html);
+			}
+
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("PersonName.givenName"), "Given");
+				request.addParameter(widgets.get("PersonName.familyName"), "Family");
+				request.addParameter(widgets.get("Gender:"), "F");
+				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.addParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.addParameter("w17", "2");
+
+			}
+
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+    }
+    
+    
+    @Test
+    public void testCreatePatientAndEncounter() throws Exception {
+    	final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "simplePatientAndEncounterForm";
+			}
+			
+			Patient getPatient() {
+				return new Patient();
+			}
+			
+			String[] widgetLabels() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName",
+						"Gender:", "Birthdate:", "Identifier:", "Identifier Location:",
+						"Date:", "Encounter Location:", "Provider:" };
+			}
+
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("PersonName.givenName"), "Given");
+				request.addParameter(widgets.get("PersonName.familyName"), "Family");
+				request.addParameter(widgets.get("Gender:"), "F");
+				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.addParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.addParameter("w17", "2");
+				
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Encounter Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+			}
+
+			void testResults(SubmissionResults results) {
+				Date datePartOnly = stringToDate(dateAsString(date));
+				results.assertNoErrors();
+
+				results.assertPatient();
+				Assert.assertEquals("Given", results.getPatient().getPersonName().getGivenName());
+				Assert.assertEquals("Family", results.getPatient().getPersonName().getFamilyName());
+				Assert.assertEquals("F", results.getPatient().getGender());
+				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
+				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
+				Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+
+				results.assertEncounterCreated();
+				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
+				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
+				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+			}
+		}.run();
     }
 	
 }

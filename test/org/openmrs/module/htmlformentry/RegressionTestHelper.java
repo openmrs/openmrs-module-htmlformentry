@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -75,7 +76,8 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Optionally override this if you want to generate the form for a different patient
+	 * Optionally override this if you want to generate the form for a different patient, or if you
+	 * are testing a patient creation form
 	 * 
 	 * @return
 	 */
@@ -83,6 +85,35 @@ public abstract class RegressionTestHelper {
 		return Context.getPatientService().getPatient(2);
 	}
 	
+	/**
+	 * Optionally override this if you want to test out viewing a specific patient rather than the
+	 * one that was used earlier in this test case to fill out a form
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	Patient getPatientToView() throws Exception {
+		return null;
+	}
+	
+	/**
+	 * Override this and return true if you want to have testViewingPatient run. (If you override
+	 * getPatientToView to return something non-null, then you do not need to override this method
+	 * -- testViewingPatient will be called anyway.)
+	 */
+	boolean doViewPatient() {
+		return false;
+	}
+	
+	/**
+	 * Override this if you want to test out viewing a patient without an encounter
+	 * 
+	 * @param encounter
+	 * @param html
+	 */
+	void testViewingPatient(Patient patient, String html) {
+	}
+
 	/**
 	 * Optionally override this if you want to test out viewing a specific encounter rather than the
 	 * one that was created earlier in this test case.
@@ -93,7 +124,7 @@ public abstract class RegressionTestHelper {
 	Encounter getEncounterToView() throws Exception {
 		return null;
 	}
-	
+		
 	/**
 	 * Override this and return true if you want to have testViewingEncounter run. (If you override
 	 * getEncounterToView to return something non-null, then you do not need to override this method
@@ -104,7 +135,7 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you want to test out viewing
+	 * Override this if you want to test out viewing an encounter
 	 * 
 	 * @param encounter
 	 * @param html
@@ -185,11 +216,24 @@ public abstract class RegressionTestHelper {
 		Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		setupRequest(request, labeledWidgets);
-		Encounter toView = null;
+		Patient patientToView = null;
+		Encounter encounterToView = null;
 		if (request.getParameterMap().size() > 0) {
 			SubmissionResults results = doSubmission(session, request);
 			testResults(results);
-			toView = results.getEncounterCreated();
+			patientToView = results.getPatient();
+			encounterToView = results.getEncounterCreated();
+		}
+		
+		// view that patient and run tests on it
+		Patient overridePatient = getPatientToView();
+		boolean doViewPatient = overridePatient != null || doViewPatient();
+		if (doViewPatient) {
+			if (overridePatient != null)
+				patientToView = overridePatient;
+			session = setupFormViewSession(patientToView, null, getFormName());
+			html = session.getHtmlToDisplay();
+			testViewingPatient(patientToView, html);
 		}
 
 		// view that encounter and run tests on that
@@ -197,17 +241,17 @@ public abstract class RegressionTestHelper {
 		boolean doViewEncounter = override != null || doViewEncounter();
 		if (doViewEncounter) {
 			if (override != null)
-				toView = override;
-			session = setupFormViewSession(patient, toView, getFormName());
+				encounterToView = override;
+			session = setupFormViewSession(patientToView, encounterToView, getFormName());
 			html = session.getHtmlToDisplay();
-			testViewingEncounter(toView, html);
+			testViewingEncounter(encounterToView, html);
 		}
 		
 		// edit the encounter, and run tests on that
 		override = getEncounterToEdit();
 		boolean doEditEncounter = override != null || doEditEncounter();
 		if (doEditEncounter) {
-			Encounter toEdit = toView;
+			Encounter toEdit = encounterToView;
 			if (override != null)
 				toEdit = override;
 
@@ -336,6 +380,14 @@ public abstract class RegressionTestHelper {
 		return Context.getDateFormat().format(date);
 	}
 	
+	Date stringToDate(String dateString) {
+		try {
+	        return Context.getDateFormat().parse(dateString);
+        } catch (ParseException ex) {
+	        throw new RuntimeException(ex);
+        }
+	}
+	
 	String dateTodayAsString() {
 		return dateAsString(new Date());
 	}
@@ -377,6 +429,7 @@ public abstract class RegressionTestHelper {
 		                .getEncountersToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an encounter");
 		session.applyActions();
+		results.setPatient(session.getPatient());
 		results.setEncounterCreated(getLastEncounter(session.getPatient()));
 		return results;
 	}
@@ -399,6 +452,8 @@ public abstract class RegressionTestHelper {
 	class SubmissionResults {
 		
 		private List<FormSubmissionError> validationErrors;
+
+		private Patient patient;
 		
 		private Encounter encounterCreated;
 		
@@ -473,9 +528,33 @@ public abstract class RegressionTestHelper {
 		public Encounter getEncounterCreated() {
 			return encounterCreated;
 		}
-		
+				
 		public void setEncounterCreated(Encounter encounterCreated) {
 			this.encounterCreated = encounterCreated;
+		}
+		
+		public Patient getPatient() {
+			return patient;
+		}
+		
+		public void setPatient(Patient patient) {
+			this.patient = patient;
+		}
+		
+		/**
+		 * Fails if there is a patient (one was initially selected or one was created)
+		 */
+		public void assertNoPatient() {
+			Assert.assertNull(patient);
+		}
+		
+		/**
+		 * Fails if there is no patient (none was initially selected and none was created), or the patient
+		 * doesn't have a patientId assigned.
+		 */
+		public void assertPatient() {
+			Assert.assertNotNull(patient);
+			Assert.assertNotNull(patient.getPatientId());
 		}
 		
 		/**
