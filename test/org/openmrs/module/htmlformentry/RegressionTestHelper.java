@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -387,6 +388,14 @@ public abstract class RegressionTestHelper {
 	        throw new RuntimeException(ex);
         }
 	}
+	
+	Date ymdToDate(String dateString) {
+		try {
+			return new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
+		} catch (ParseException ex) {
+			throw new RuntimeException(ex);
+		}
+    }
 	
 	String dateTodayAsString() {
 		return dateAsString(new Date());

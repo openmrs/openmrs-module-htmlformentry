@@ -891,4 +891,62 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		}.run();
     }
 	
+
+    @Test
+    public void testEditPatientNameAndMultipleObs() throws Exception {
+    	final Date date = new Date();
+
+    	new RegressionTestHelper() {
+    		
+    		Date originalPatientDateChanged = getPatient().getDateChanged();
+			
+			String getFormName() {
+				return "patientAndEncounterFormWithMultipleObs";
+			}
+			
+			String[] widgetLabels() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName",
+						"Date:", "Encounter Location:", "Provider:",
+						"Weight:", "Allergy:", "Allergy Date:" };
+			}
+
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("PersonName.givenName"), "John");
+				request.addParameter(widgets.get("PersonName.familyName"), "Doe");
+				
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Encounter Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				
+				request.addParameter(widgets.get("Weight:"), "70");
+				request.addParameter(widgets.get("Allergy:"), "Bee stings");
+				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
+			}
+		
+			void testResults(SubmissionResults results) {
+				Date datePartOnly = stringToDate(dateAsString(date));
+				results.assertNoErrors();
+
+				results.assertPatient();
+				Assert.assertEquals("John", results.getPatient().getPersonName().getGivenName());
+				Assert.assertEquals("Doe", results.getPatient().getPersonName().getFamilyName());
+				Assert.assertEquals("M", results.getPatient().getGender());
+				//I'd like to assert that if you do not edit any of the patient's fields, then the patient
+				// should not have their dateChanged change. I suspect this will fail now, but we're not even
+				// getting this far.
+				// Assert.assertEquals(originalPatientDateChanged, results.getPatient().getDateChanged());
+
+				results.assertEncounterCreated();
+				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
+				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
+				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+				
+				results.assertObsCreatedCount(3);
+				results.assertObsCreated(2, 70d);
+				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(9, date);
+			}
+		}.run();
+    }
+
 }
