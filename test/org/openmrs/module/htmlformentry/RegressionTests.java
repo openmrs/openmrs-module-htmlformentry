@@ -946,6 +946,11 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				results.assertObsCreated(8, "Bee stings");
 				results.assertObsCreated(9, date);
 			}
+			
+			void testBlankFormHtml(String html) {
+				System.out.println(">>>>\n" + html);
+			}
+
 		}.run();
     }
 
