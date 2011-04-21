@@ -17,7 +17,6 @@ import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlForm;
-import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -37,9 +36,6 @@ import org.springframework.web.servlet.view.RedirectView;
 public class HtmlFormEntryController extends SimpleFormController {
     
     protected final Log log = LogFactory.getLog(getClass());
-    protected boolean isEncounterEnabled = false;
-    protected boolean isPatientEnabled = false;
-    
     private String closeDialogView;
     public final static String FORM_IN_PROGRESS_KEY = "HTML_FORM_IN_PROGRESS_KEY";
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
@@ -147,9 +143,6 @@ public class HtmlFormEntryController extends SimpleFormController {
             }
         }
         
-        isEncounterEnabled = hasEncouterTag(htmlForm.getXmlData());
-        isPatientEnabled = hasPatientTag(htmlForm.getXmlData());
-        
         Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
         log.info("Took " + (System.currentTimeMillis() - ts) + " ms");
@@ -179,18 +172,14 @@ public class HtmlFormEntryController extends SimpleFormController {
             throws Exception {
     	
     	FormEntrySession session = (FormEntrySession) commandObject;
-    	if(isPatientEnabled && !isEncounterEnabled){
-   			session.preparePersonForSubmit();
-    	}
-    	else {
-    		session.prepareForSubmit();
-    	}
+    	
+   		session.prepareForSubmit();
 
-		if (session.getContext().getMode() == Mode.ENTER && isPatientEnabled
+		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag()
 				&& (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions().getPersonsToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an Patient");
 
-        if (session.getContext().getMode() == Mode.ENTER && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))
+        if (session.getContext().getMode() == Mode.ENTER && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))
             throw new IllegalArgumentException("This form is not going to create an encounter"); 
         
     	try {
@@ -224,25 +213,5 @@ public class HtmlFormEntryController extends SimpleFormController {
 
 	protected String getQueryPrameters(HttpServletRequest request, FormEntrySession formEntrySession) {
 		return "?patientId=" + formEntrySession.getPatient().getPersonId();
-	}
-
-	protected boolean hasEncouterTag(String xmlData) {
-		for (String tag : HtmlFormEntryConstants.ENCOUNTER_TAGS) {
-			tag = "<" + tag;
-			if (xmlData.contains(tag)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	protected boolean hasPatientTag(String xmlData) {
-		for (String tag : HtmlFormEntryConstants.PATIENT_TAGS) {
-			tag = "<" + tag;
-			if (xmlData.contains(tag)) {
-				return true;
-			}
-		}
-		return false;
 	}
 }

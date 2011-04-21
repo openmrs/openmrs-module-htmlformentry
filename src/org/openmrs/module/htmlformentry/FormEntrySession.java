@@ -357,39 +357,40 @@ public class FormEntrySession {
         return xml;
     }
     
-    /**
-     * Prepares a form for submission by instantiating a FormSubmissionsActions object and initializing
-     * it with the Patient and Encounter associated with the Form
-     */
-    public void prepareForSubmit() {
-        if (context.getMode() == Mode.EDIT) {
-            if (encounter == null)
-                throw new RuntimeException("Programming exception: encounter shouldn't be null in EDIT mode");
-        } else {
-            encounter = new Encounter();
-        }
-        submissionActions = new FormSubmissionActions();
-        try {
-            submissionActions.beginPerson(patient);
-            submissionActions.beginEncounter(encounter);
-        } catch (InvalidActionException e) {
-            log.error("Programming error: should be no errors starting a patient and encounter", e);
-        }
-    }
-    
-    /**
-     * Prepares a form for submission by instantiating a FormSubmissionsActions object and initializing
-     * it with the Patient associated with the Form. (This should be used when you have a form that creates
-     * or edits a patient, but doesn't create or edit an encounter.)
-     */
-    public void preparePersonForSubmit() {
-        submissionActions = new FormSubmissionActions();
-        try {
-            submissionActions.beginPerson(patient);
-        } catch (InvalidActionException e) {
-            log.error("Programming error: should be no errors starting a patient", e);
-        }
-    }
+	/**
+	 * If the html form contains both PatientTags and Encounter tags then initialize it with the
+	 * Patient and Encounter associated with the Form else if htmlform only contains PatientTags
+	 * then initialize it with the Patient associated with the Form.
+	 */
+	public void prepareForSubmit() {
+		
+		submissionActions = new FormSubmissionActions();
+		
+		if (hasPatientTag() && !hasEncouterTag()) {
+			try {
+				submissionActions.beginPerson(patient);
+			}
+			catch (InvalidActionException e) {
+				log.error("Programming error: should be no errors starting a patient", e);
+			}
+		} else {
+			if (context.getMode() == Mode.EDIT) {
+				if (encounter == null)
+					throw new RuntimeException("Programming exception: encounter shouldn't be null in EDIT mode");
+			} else {
+				encounter = new Encounter();
+			}
+			try {
+				submissionActions.beginPerson(patient);
+				submissionActions.beginEncounter(encounter);
+			}
+			catch (InvalidActionException e) {
+				log.error("Programming error: should be no errors starting a patient and encounter", e);
+			}
+		}
+		
+	}
+
     
     /**
      * Applies all the actions associated with a form submission--that is, create/update any Persons, Encounters, and Obs in the database
@@ -772,4 +773,24 @@ public class FormEntrySession {
         }
         return ret;
     }
+	
+	public boolean hasEncouterTag() {
+		for (String tag : HtmlFormEntryConstants.ENCOUNTER_TAGS) {
+			tag = "<" + tag;
+			if (htmlForm.getXmlData().contains(tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasPatientTag() {
+		for (String tag : HtmlFormEntryConstants.PATIENT_TAGS) {
+			tag = "<" + tag;
+			if (htmlForm.getXmlData().contains(tag)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
