@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -87,9 +89,8 @@ public class NameWidget extends Gadget {
 	}
 
 	public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
-
+		
 		PersonName returnPersonName = new PersonName();
-
 		returnPersonName.setPrefix(getWidgetValue("prefix", context, request));
 		returnPersonName.setGivenName(getWidgetValue("givenName", context, request));
 		returnPersonName.setMiddleName(getWidgetValue("middleName", context, request));
@@ -98,15 +99,52 @@ public class NameWidget extends Gadget {
 		returnPersonName.setFamilyNamePrefix(getWidgetValue("familyNamePrefix", context, request));
 		returnPersonName.setFamilyNameSuffix(getWidgetValue("familyNameSuffix", context, request));
 		returnPersonName.setDegree(getWidgetValue("degree", context, request));
-
+		
 		if (context.getMode() == Mode.EDIT) {
-			PersonName preferedName = context.getExistingPatient().getPersonName();
-			if (preferedName != null && returnPersonName.equalsContent(preferedName)) {
-				returnPersonName = preferedName;
+			PersonName originalPreferedName = context.getExistingPatient().getPersonName();
+			
+			if (originalPreferedName != null && isPersonNameEqual(originalPreferedName, returnPersonName)) {
+				returnPersonName = originalPreferedName;
 			}
 		}
-
+		
 		return returnPersonName;
+	}
+	
+	private boolean isPersonNameEqual(PersonName personName1, PersonName personName2) {
+		
+		boolean returnValue = true;
+		
+		// these are the methods to compare. All are expected to be Strings
+		String[] methods = { "getGivenName", "getMiddleName", "getFamilyName" };
+		
+		Class nameClass = personName1.getClass();
+		
+		// loop over all of the selected methods and compare this and other
+		for (String methodName : methods) {
+			try {
+				Method method = nameClass.getMethod(methodName, new Class[] {});
+				
+				String person1Value = (String) method.invoke(personName1);
+				String person2Value = (String) method.invoke(personName2);
+				
+				if (person2Value != null && person2Value.length() > 0)
+					returnValue &= person2Value.equals(person1Value);
+				else if (person1Value != null && person1Value.length() > 0)
+					returnValue &= false;
+				
+			}
+			catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+			catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
+		}
+		return returnValue;
 	}
 
 	public void setInitialValue(Object value) {
