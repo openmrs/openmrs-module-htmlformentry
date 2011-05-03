@@ -154,11 +154,29 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
+	 * Override this and return true if you want to have testEditFormHtml, testEditPatient, etc run.
+	 * (If you override {@link #getPatientToEdit()} to return a non-null value, you don't need to override
+	 * this one.) 
+	 */
+	boolean doEditPatient() {
+		return false;
+	}
+	
+	/**
 	 * Override this if you want to edit a different encounter than the one created in the first part
 	 * of the test or viewed in the second part. (Returning a non-null value implies doEditEncounter = true.)
 	 * @return
 	 */
 	Encounter getEncounterToEdit() {
+		return null;
+	}
+	
+	/**
+	 * Override this if you want to edit a Patient than the one created in the first part
+	 * of the test or viewed in the second part. (Returning a non-null value implies doEditPatient = true.)
+	 * @return
+	 */
+	Patient getPatientToEdit() {
 		return null;
 	}
 	
@@ -236,7 +254,7 @@ public abstract class RegressionTestHelper {
 			html = session.getHtmlToDisplay();
 			testViewingPatient(patientToView, html);
 		}
-
+		
 		// view that encounter and run tests on that
 		Encounter override = getEncounterToView();
 		boolean doViewEncounter = override != null || doViewEncounter();
@@ -251,23 +269,33 @@ public abstract class RegressionTestHelper {
 		// edit the encounter, and run tests on that
 		override = getEncounterToEdit();
 		boolean doEditEncounter = override != null || doEditEncounter();
-		if (doEditEncounter) {
+		
+		overridePatient = getPatientToEdit();
+		boolean doEditPatient = overridePatient != null || doEditPatient();
+		
+		if (doEditEncounter || doEditPatient) {
 			Encounter toEdit = encounterToView;
 			if (override != null)
 				toEdit = override;
-
-			session = setupFormEditSession(patient, toEdit, getFormName());
+			
+			Patient patientToEdit = patientToView;
+			if (overridePatient != null)
+				patientToEdit = overridePatient;
+			
+			session = setupFormEditSession(patientToEdit, toEdit, getFormName());
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
 			
-			Map<String, String> labeledWidgetsForEdit = getLabeledWidgets(html, widgetLabelsForEdit());
+			Map<String, String> labeledWidgetsForEdit = getLabeledWidgets(editHtml, widgetLabelsForEdit());
 			MockHttpServletRequest editRequest = createEditRequest(editHtml);
 			setupEditRequest(editRequest, labeledWidgetsForEdit);
 			Encounter edited = null;
+			Patient editedPatient = null;
 			if (editRequest.getParameterMap().size() > 0) {
 				SubmissionResults results = doSubmission(session, editRequest);
 				testEditedResults(results);
 				edited = results.getEncounterCreated();
+				editedPatient = results.getPatient();
 			}
 		}
 		
@@ -433,8 +461,14 @@ public abstract class RegressionTestHelper {
 			return results;
 		}
 		session.getSubmissionController().handleFormSubmission(session, request);
-		if (session.getContext().getMode() == Mode.ENTER
-		        && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
+		
+		if (session.getContext().getMode() == Mode.ENTER 
+		        && session.hasPatientTag() && (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions()
+		                .getPersonsToCreate().size() == 0))
+			throw new IllegalArgumentException("This form is not going to create an patient");
+		
+		if (session.getContext().getMode() == Mode.ENTER 
+		        && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
 		                .getEncountersToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an encounter");
 		session.applyActions();

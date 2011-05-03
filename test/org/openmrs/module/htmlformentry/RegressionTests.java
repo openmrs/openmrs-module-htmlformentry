@@ -602,6 +602,10 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return "multipleObsForm";
 			}
 			
+			Patient getPatientToView() throws Exception {
+				return Context.getPatientService().getPatient(2);
+			};
+			
 			Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
@@ -610,7 +614,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:" };
 			};
 			
-			void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
 			};
@@ -892,66 +896,178 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
     }
 	
 
-    @Test
-    public void testEditPatientNameAndMultipleObs() throws Exception {
-    	final Date date = new Date();
-
-    	new RegressionTestHelper() {
-    		
-    		Date originalPatientDateChanged = getPatient().getDateChanged();
+	@Test
+	public void testEditPatientDetailsWithoutEditingEncounter() throws Exception {
+		new RegressionTestHelper() {
 			
 			String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
-			String[] widgetLabels() {
-				return new String[] { "PersonName.givenName", "PersonName.familyName",
-						"Date:", "Encounter Location:", "Provider:",
-						"Weight:", "Allergy:", "Allergy Date:" };
+			Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			boolean doViewEncounter() {
+				return true;
+			};
+			
+			Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
 			}
-
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonName.givenName"), "John");
-				request.addParameter(widgets.get("PersonName.familyName"), "Doe");
-				
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Encounter Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				
-				request.addParameter(widgets.get("Weight:"), "70");
-				request.addParameter(widgets.get("Allergy:"), "Bee stings");
-				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
+			
+			@Override
+			String[] widgetLabelsForEdit() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName" };
 			}
-		
-			void testResults(SubmissionResults results) {
+			
+			@Override
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Simon");
+				request.setParameter(widgets.get("PersonName.familyName"), "paul");
+			}
+			
+			void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				Assert.assertEquals("Simon", results.getPatient().getGivenName());
+				Assert.assertEquals("paul", results.getPatient().getFamilyName());
+				Assert.assertEquals("M", results.getPatient().getGender());
+				results.assertEncounterEdited();
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void testEditPatientDetailsAndEncounterDetails() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "patientAndEncounterFormWithMultipleObs";
+			}
+			
+			Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			Encounter getEncounterToEdit() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			String[] widgetLabelsForEdit() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Date:", "Encounter Location:" };
+			}
+			
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Mark");
+				request.setParameter(widgets.get("PersonName.familyName"), "waugh");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+			}
+			
+			void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = stringToDate(dateAsString(date));
 				results.assertNoErrors();
-
 				results.assertPatient();
-				Assert.assertEquals("John", results.getPatient().getPersonName().getGivenName());
-				Assert.assertEquals("Doe", results.getPatient().getPersonName().getFamilyName());
+				results.getPatient().getPersonName();
+				Assert.assertEquals("Mark", results.getPatient().getGivenName());
+				Assert.assertEquals("waugh", results.getPatient().getFamilyName());
 				Assert.assertEquals("M", results.getPatient().getGender());
-				//I'd like to assert that if you do not edit any of the patient's fields, then the patient
-				// should not have their dateChanged change. I suspect this will fail now, but we're not even
-				// getting this far.
-				// Assert.assertEquals(originalPatientDateChanged, results.getPatient().getDateChanged());
-
-				results.assertEncounterCreated();
+				
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
 				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
 				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+				results.assertEncounterEdited();
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	/**
+	 * TODO Testcase Fails with error
+	 * org.hibernate.PropertyValueException: not-null property references a null or transient value: org.openmrs.PersonName.dateCreated
+	 */
+	public void testEditPatientNameAndMultipleObs() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "patientAndEncounterFormWithMultipleObs";
+			}
+			
+			Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			String[] widgetLabelsForEdit() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Weight:" };
+			}
+			
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Mike");
+				request.setParameter(widgets.get("PersonName.familyName"), "Den");
+				request.setParameter(widgets.get("Weight:"), "100");
+			}
+			
+			void testEditedResults(SubmissionResults results) {
+				Date datePartOnly = stringToDate(dateAsString(date));
+				results.assertNoErrors();
+				results.assertPatient();
+				results.getPatient().getPersonName();
+				Assert.assertEquals("Mike", results.getPatient().getGivenName());
+				Assert.assertEquals("Den", results.getPatient().getFamilyName());
+				Assert.assertEquals("M", results.getPatient().getGender());
 				
-				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 70d);
-				results.assertObsCreated(8, "Bee stings");
-				results.assertObsCreated(9, date);
+				results.assertObsCreated(2, 100d);
+				
 			}
 			
 			void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
-
+			
 		}.run();
-    }
-
+	}
+	
+	@Test
+	public void testEditObsWithoutEditingPatient() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "patientAndEncounterFormWithMultipleObs";
+			}
+			
+			Patient getPatientToView() throws Exception {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			Encounter getEncounterToEdit() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			String[] widgetLabelsForEdit() {
+				return new String[] { "Weight:" };
+			};
+			
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Weight:"), "100");
+			};
+			
+			void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				results.assertEncounterEdited();
+				results.assertObsCreated(2, 100d);
+			};
+			
+		}.run();
+	}
 }
