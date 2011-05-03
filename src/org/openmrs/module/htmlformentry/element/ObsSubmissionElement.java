@@ -77,41 +77,46 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		Map<String, String> parameters) {
         String conceptId = parameters.get("conceptId");
         String conceptIds = parameters.get("conceptIds");
+        
         if (conceptId != null && conceptIds != null)
             throw new RuntimeException("You can't use conceptId and conceptIds in the same tag!");
         else if (conceptId == null && conceptIds == null)
             throw new RuntimeException("You must include either conceptId or conceptIds in an obs tag");
+        
         if (conceptId != null){
-            try {
-                concept = HtmlFormEntryUtil.getConcept(conceptId);
-                if (concept == null)
-                    throw new NullPointerException();
-            } catch (Exception ex) {
-                throw new IllegalArgumentException("Cannot find concept in "
-                        + parameters);
-            }
+            concept = HtmlFormEntryUtil.getConcept(conceptId);
+            if (concept == null)
+            	throw new IllegalArgumentException("Cannot find concept for value " + conceptId + " in conceptId attribute value. Parameters: " + parameters);
         } else {
             concepts = new ArrayList<Concept>();
-            try {
-                String answerConceptId = parameters.get("answerConceptId");
-                answerConcept = HtmlFormEntryUtil.getConcept(answerConceptId);
-                if (answerConcept == null)
-                    throw new NullPointerException();
-            } catch (Exception ex) {
-                throw new IllegalArgumentException("You must provide a valid answerConcept in "
-                        + parameters);
-            }
             for (StringTokenizer st = new StringTokenizer(conceptIds, ","); st.hasMoreTokens(); ) {
                 String s = st.nextToken().trim();
                 Concept concept = HtmlFormEntryUtil.getConcept(s);
                 if (concept == null)
-                    throw new IllegalArgumentException("Cannot find concept value " + s + " in conceptIds attribute value. Parameters: " + parameters);
+                    throw new IllegalArgumentException("Cannot find concept for value " + s + " in conceptIds attribute value. Parameters: " + parameters);
                 concepts.add(concept);
             }
             if (concepts.size() == 0)
                 throw new IllegalArgumentException("You must provide some valid conceptIds for the conceptIds attribute. Parameters: " + parameters);
         }
-	        
+	     
+        // test to make sure the answerConceptId, if it exists, is valid
+        String answerConceptId = parameters.get("answerConceptId");
+        if (StringUtils.isNotBlank(answerConceptId)) {
+        	if (HtmlFormEntryUtil.getConcept(answerConceptId) == null) 
+        		throw new IllegalArgumentException("Cannot find concept for value " + answerConceptId + " in answerConceptId attribute value. Parameters: " + parameters);
+        }
+        
+        // test to make sure the answerConceptIds, if they exist, are valid
+        String answerConceptIds = parameters.get("answerConceptIds");
+        if (StringUtils.isNotBlank(answerConceptIds)) {
+            for (StringTokenizer st = new StringTokenizer(answerConceptIds, ","); st.hasMoreTokens(); ) {
+                String s = st.nextToken().trim();
+                Concept concept = HtmlFormEntryUtil.getConcept(s);
+                if (concept == null)
+                    throw new IllegalArgumentException("Cannot find concept for value " + s + " in answerConceptIds attribute value. Parameters: " + parameters);
+            }
+        }        
 	        
 		if ("true".equals(parameters.get("allowFutureDates")))
 			allowFutureDates = true;
