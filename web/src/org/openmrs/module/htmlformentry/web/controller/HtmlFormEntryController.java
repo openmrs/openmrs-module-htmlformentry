@@ -175,7 +175,7 @@ public class HtmlFormEntryController extends SimpleFormController {
     	
    		session.prepareForSubmit();
 
-		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag()
+		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag() && session.getPatient() == null 
 				&& (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions().getPersonsToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an Patient");
 
