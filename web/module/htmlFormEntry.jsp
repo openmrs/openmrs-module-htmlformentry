@@ -34,7 +34,7 @@
 
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
-			$.post("deleteEncounter.form", 
+			$j.post("deleteEncounter.form", 
 				{ 	encounterId: "${command.encounter.encounterId}", 
 					returnUrl: "${command.returnUrlWithParameters}", 
 					reason: $j('#deleteReason').val()
