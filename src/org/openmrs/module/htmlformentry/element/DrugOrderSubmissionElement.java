@@ -25,9 +25,9 @@ import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
@@ -88,6 +88,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	
 	public static final String FIELD_SHOW_ORDER_DURATION = "showOrderDuration";
 	
+	public static final String CONFIG_DEFAULT_DOSE = "defaultDose";
+	
 	private boolean validateDose = false;
 
 	private Widget drugWidget;
@@ -112,6 +114,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     private ErrorWidget discontinuedReasonErrorWidget;
     private TextFieldWidget orderDurationWidget;
     private ErrorWidget orderDurationErrorWidget;
+    private Double defaultDose;
 	
 	private DrugOrder existingOrder;
 	private List<Drug> drugsUsedAsKey;
@@ -121,8 +124,13 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		ConceptService conceptService = Context.getConceptService();
 		MessageSourceService mss = Context.getMessageSourceService();
 		
+		
+		Boolean usingDurationField = false;
+		String orderDurationStr = parameters.get(FIELD_SHOW_ORDER_DURATION);
+		if (!StringUtils.isEmpty(orderDurationStr) && orderDurationStr.equals("true"))
+		    usingDurationField = true;
 		String hideDoseAndFreqStr = parameters.get(CONFIG_SHOW_DOSE_AND_FREQ);
-		if (hideDoseAndFreqStr != null && hideDoseAndFreqStr.equals("true"))
+		if (!StringUtils.isEmpty(hideDoseAndFreqStr) && hideDoseAndFreqStr.equals("true"))
 		    hideDoseAndFrequency = true;
 		
 		String checkboxStr = parameters.get(FIELD_CHECKBOX);
@@ -213,6 +221,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         if (!hideDoseAndFrequency){
     		// dose validation by drug is done in validateSubmission() 
     		doseWidget = new NumberFieldWidget(0d, 9999999d, true);
+    		//set default value (maybe temporarily)
+    		String defaultDoseStr = parameters.get(CONFIG_DEFAULT_DOSE);
+    		if (!StringUtils.isEmpty(defaultDoseStr)){
+    		    try {
+    		        defaultDose = Double.valueOf(defaultDoseStr);
+    		        doseWidget.setInitialValue(defaultDose);
+    		    } catch (Exception ex){
+    		            throw new RuntimeException("optional attribute 'defaultDose' must be numeric or empty.");
+    		    }        
+    		}
+    		    
     		doseErrorWidget = new ErrorWidget();
     		context.registerWidget(doseWidget);
     		context.registerErrorWidget(doseWidget, doseErrorWidget);
@@ -244,11 +263,12 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     		context.registerErrorWidget(frequencyWeekWidget, frequencyWeekErrorWidget);
         }
 
-		discontinuedDateWidget = new DateWidget();
-		discontinuedDateErrorWidget = new ErrorWidget();
-		context.registerWidget(discontinuedDateWidget);
-		context.registerErrorWidget(discontinuedDateWidget, discontinuedDateErrorWidget);
-		
+        if (!usingDurationField){
+    		discontinuedDateWidget = new DateWidget();
+    		discontinuedDateErrorWidget = new ErrorWidget();
+    		context.registerWidget(discontinuedDateWidget);
+    		context.registerErrorWidget(discontinuedDateWidget, discontinuedDateErrorWidget);
+        }
 		if (parameters.get(FIELD_DISCONTINUED_REASON) != null){
 		    String discReasonConceptStr = (String) parameters.get(FIELD_DISCONTINUED_REASON);
 		    Concept discontineReasonConcept = Context.getConceptService().getConceptByUuid(discReasonConceptStr);
@@ -330,9 +350,11 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    				    frequencyWidget.setInitialValue(parseFrequencyDays(drugOrder.getFrequency()));
     	    				    frequencyWeekWidget.setInitialValue(parseFrequencyWeek(drugOrder.getFrequency()));
     	    				}
-    	    				discontinuedDateWidget.setInitialValue(drugOrder.getDiscontinuedDate());
-    	    				if (discontinuedReasonWidget != null && drugOrder.getDiscontinuedReason() != null)
-    	    				    discontinuedReasonWidget.setInitialValue(drugOrder.getDiscontinuedReason().getConceptId());
+    	    				if (!usingDurationField){
+    	    				    discontinuedDateWidget.setInitialValue(drugOrder.getDiscontinuedDate());
+    	    				    if (discontinuedReasonWidget != null && drugOrder.getDiscontinuedReason() != null)
+    	    				        discontinuedReasonWidget.setInitialValue(drugOrder.getDiscontinuedReason().getConceptId());
+    	    				}
     	    				break;
 	    			    }
 	    				
@@ -350,8 +372,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             context.registerWidget(instructionsWidget);
             context.registerErrorWidget(instructionsWidget, instructionsErrorWidget);
         }  
-        String orderDurationStr = parameters.get(FIELD_SHOW_ORDER_DURATION);
-        if (orderDurationStr != null && orderDurationStr.equals("true")){
+        
+        if (usingDurationField){
             orderDurationWidget = new TextFieldWidget(4);
             if (existingOrder != null && existingOrder.getAutoExpireDate() != null){
                 //set duration from autoExpireDate in days
@@ -437,10 +459,11 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		if (orderDurationWidget != null){
 		    ret.append(mss.getMessage("htmlformentry.general.for") + " ");
 		    ret.append(orderDurationWidget.generateHtml(context));
-		    ret.append(" " + mss.getMessage("htmlformentry.general.days") + ", " + mss.getMessage("htmlformentry.general.or") + " ");
+		    ret.append(" " + mss.getMessage("htmlformentry.general.days") +  " ");
 		    if (context.getMode() != Mode.VIEW)
                 ret.append(orderDurationErrorWidget.generateHtml(context));
 		}
+		//duration and discontinuedDate are now mutually exclusive
 		if (discontinuedDateWidget != null) {
 			ret.append(mss.getMessage("general.dateDiscontinued") + " ");
 			ret.append(discontinuedDateWidget.generateHtml(context) + " ");
@@ -469,9 +492,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#handleSubmission(org.openmrs.module.htmlformentry.FormEntrySession, javax.servlet.http.HttpServletRequest)
 	 */
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-	    String drugID = null;
+	    String drugId = null;
 	    if (drugWidget.getValue(session.getContext(), submission) != null)
-	            drugID = ((String) drugWidget.getValue(session.getContext(), submission));
+	            drugId = ((String) drugWidget.getValue(session.getContext(), submission));
     	Date startDate =  startDateWidget.getValue(session.getContext(), submission);
     	Integer orderDuration = null;
     	if (orderDurationWidget != null){
@@ -493,9 +516,13 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	String instructions = null;
     	if (instructionsWidget != null)
     	    instructions = (String) instructionsWidget.getValue(session.getContext(), submission);
-    	if (drugID != null && !drugID.equals("") && !drugID.equals("~")){
-        	Drug drug = Context.getConceptService().getDrug(Integer.valueOf(drugID));
-        	Double dose = drug.getDoseStrength();
+    	if (!StringUtils.isEmpty(drugId) && !drugId.equals("~")){
+        	Drug drug = Context.getConceptService().getDrug(Integer.valueOf(drugId));
+        	Double dose;
+        	if (defaultDose == null)
+        	    dose = drug.getDoseStrength();
+        	else
+        	    dose = defaultDose;
         	String frequency = null;
         	if (!hideDoseAndFrequency){
                 dose = (Double) doseWidget.getValue(session.getContext(), submission);
@@ -522,16 +549,16 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	drugOrder.setDrug(drug);
     	    	drugOrder.setConcept(drug.getConcept());
     	    	drugOrder.setOrderType(Context.getOrderService().getOrderType(OpenmrsConstants.ORDERTYPE_DRUG)); 
-    	    	if (instructions != null && !instructions.equals(""))
+    	    	if (!StringUtils.isEmpty(instructions))
     	    	    drugOrder.setInstructions((String) instructions);
     	    	if (discontinuedDate != null){
     	    	    drugOrder.setDiscontinuedDate(discontinuedDate);
     	    	    drugOrder.setDiscontinued(true);
     	    	}    
-    	    	if (discontinuedReasonStr != null && !discontinuedReasonStr.equals(""))
+    	    	if (!StringUtils.isEmpty(discontinuedReasonStr))
     	    	    drugOrder.setDiscontinuedReason(Context.getConceptService().getConcept((Integer.valueOf(discontinuedReasonStr))));
-    			log.debug("adding new drug order, drugId is " + drugID + " and startDate is " + startDate);
-    
+    			log.debug("adding new drug order, drugId is " + drugId + " and startDate is " + startDate);
+    			drugOrder = setDiscontinueDateFromAutoExpire(drugOrder);
     			session.getSubmissionActions().getCurrentEncounter().addOrder(drugOrder);
     	    } else if (session.getContext().getMode() == Mode.EDIT) {
     	    	existingOrder.setDrug(drug);
@@ -544,13 +571,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	    existingOrder.setDiscontinuedDate(discontinuedDate);
     	    	    existingOrder.setDiscontinued(true);
                 } 
-    	    	if (discontinuedReasonStr != null && !discontinuedReasonStr.equals(""))
+    	    	if (!StringUtils.isEmpty(discontinuedReasonStr))
                     existingOrder.setDiscontinuedReason(Context.getConceptService().getConcept((Integer.valueOf(discontinuedReasonStr))));
                 
     	    	existingOrder.setConcept(drug.getConcept());  	
-    	    	if (instructions != null && !instructions.equals(""))
+    	    	if (!StringUtils.isEmpty(instructions))
     	    	    existingOrder.setInstructions((String) instructions);
-    			log.debug("modifying drug order, drugId is " + drugID + " and startDate is " + startDate);
+    			log.debug("modifying drug order, drugId is " + drugId + " and startDate is " + startDate);
+    			existingOrder = setDiscontinueDateFromAutoExpire(existingOrder);
     			session.getSubmissionActions().getCurrentEncounter().setDateChanged(new Date());
     		}
     	} else if (existingOrder != null){
@@ -627,7 +655,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
                     if (discontinuedReasonWidget != null && discontinuedDateWidget != null) {
                         String discReason = discontinuedReasonWidget.getValue(context, submission);
                         Date endDate = discontinuedDateWidget.getValue(context, submission);
-                        if (endDate == null && discReason != null && !discReason.equals(""))
+                        if (endDate == null && !StringUtils.isEmpty(discReason))
                             throw new Exception("htmlformentry.error.discontinuedReasonEnteredWithoutDate");
                     }
                 } catch (Exception ex) {
@@ -663,4 +691,15 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    return cal.getTime();
 	}
 	
+	
+	private DrugOrder setDiscontinueDateFromAutoExpire(DrugOrder dor){
+	    if (dor.getAutoExpireDate() != null){
+	        Date today = new Date();
+	        if (dor.getAutoExpireDate().getTime() < today.getTime()){
+	            dor.setDiscontinuedDate(dor.getAutoExpireDate());
+	            //TODO:  when discontinueReason is a String, set it.
+	        }    
+	    }
+	    return dor;
+	}
 }
