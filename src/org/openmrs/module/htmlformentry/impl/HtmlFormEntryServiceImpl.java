@@ -17,11 +17,17 @@ import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.schema.FormSchemaUpdater;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.ObsField;
 
 /**
  * Standard implementation of the HtmlFormEntryService
@@ -101,6 +107,10 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
             htmlForm.setDateChanged(new Date());
         }
         Context.getFormService().saveForm(htmlForm.getForm());
+        
+        FormSchemaUpdater updater = new FormSchemaUpdater(htmlForm);
+        updater.updateSchema();
+        
         return dao.saveHtmlForm(htmlForm);
     }
     

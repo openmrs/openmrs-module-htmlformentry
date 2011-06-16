@@ -128,6 +128,11 @@
 			<fileset dir="web/module" includes="**/*" />
 		</copy>
 	</target>
+	<target name="deploy-web-jportela" depends="package-module" description="Copy web files to webapp">
+		<copy todir="/Library/Tomcat/Home/webapps/openmrs162/WEB-INF/view/module/htmlformentry">
+			<fileset dir="web/module" includes="**/*" />
+		</copy>
+	</target>
 	
 	<target name="package-jar" depends="package-module" description="Packages class files into jar file to be included in other projects">
 		<!-- Create distributable jar file -->
