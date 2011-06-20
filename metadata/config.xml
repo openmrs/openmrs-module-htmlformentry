@@ -13,7 +13,7 @@
 
 	<activator>org.openmrs.module.htmlformentry.HtmlFormEntryActivator</activator>
 	
-	<updateURL>https://dev.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL>
+	<updateURL>https://modules.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL>
 	<!-- /Base Module Properties -->
 	
 	<require_version>1.6.0.11652</require_version>
