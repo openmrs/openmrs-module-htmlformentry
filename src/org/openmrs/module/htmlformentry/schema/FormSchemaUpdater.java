@@ -66,7 +66,8 @@ public class FormSchemaUpdater {
         findOrCreateDefaultSections();
         
         //iterates through the sections
-        handleSections(sections, null);
+        //the first section stores all sections... weird...
+        handleSections(sections.get(0).getSections(), null);
 	}
 	
 	/**
