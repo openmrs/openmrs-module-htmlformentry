@@ -1,6 +1,5 @@
 package org.openmrs.module.htmlformentry.schema;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,7 +72,7 @@ public class FormSchemaUpdater {
         //iterates through the sections
         //the first section stores all sections... weird...
         handleSections(sections.get(0).getSections(), null);
-        handleFields(sections.get(0).getFields(), null);
+        handleFields(sections.get(0).getFields(), obsSection);
 	}
 	
 	/**
@@ -104,6 +103,7 @@ public class FormSchemaUpdater {
 		else
 			return false;
 	}
+
 	
 	/**
 	 * Populates the "Section" and "Concept" field type from the DB. If it doesn't exist
