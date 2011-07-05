@@ -108,9 +108,10 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         }
         Context.getFormService().saveForm(htmlForm.getForm());
         
-        FormSchemaUpdater updater = new FormSchemaUpdater(htmlForm);
-        updater.updateSchema();
-        
+
+	    FormSchemaUpdater updater = new FormSchemaUpdater(htmlForm);
+	    updater.updateSchema();
+	    
         return dao.saveHtmlForm(htmlForm);
     }
     
