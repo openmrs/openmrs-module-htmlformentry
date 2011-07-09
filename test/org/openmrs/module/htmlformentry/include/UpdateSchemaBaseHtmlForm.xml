@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<section headerLabel="Section One">
+		<obs conceptId="1"/>
+		<obs conceptId="2"/>
+	</section>
+	<section headerLabel="Section Two">
+		<obs conceptId="2"/>
+		<obsgroup groupingConceptId="3">
+			<obs conceptId="4"/>
+			<obs conceptId="5"/>
+			<obs conceptId="6"/>
+		</obsgroup>
+	</section>
+	<submit/>
+</htmlform>

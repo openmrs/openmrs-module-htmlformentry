@@ -42,4 +42,5 @@
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.2.15986-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/logic-0.4.jar"/>
 	<classpathentry kind="output" path="build"/>
+	<classpathentry kind="lib" path="dist"/>
 </classpath>

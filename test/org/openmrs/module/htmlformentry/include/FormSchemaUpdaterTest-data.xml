@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <!-- A patient -->
+  <patient patient_id="2" creator="1" date_created="2005-09-22 00:00:00.0" changed_by="1" date_changed="2008-08-18 12:29:59.0" voided="false" void_reason=""/>
+  <patient_identifier patient_identifier_id="1" patient_id="2" identifier="101" identifier_type="2" preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  <patient_identifier_type patient_identifier_type_id="2" name="Old Identification Number" description="Number given out prior to the OpenMRS system (No check digit)" format="" check_digit="false" creator="1" date_created="2005-09-22 00:00:00.0" required="false" retired="false"/>
+  <person person_id="2" gender="M" dead="false" creator="1" date_created="2005-09-22 00:00:00.0" voided="false"/>
+  <person_address person_address_id="2" person_id="2" preferred="false" address1="1050 Wishard Blvd." address2="RG5" city_village="Indianapolis" state_province="IN" postal_code="46202" country="USA" latitude="" longitude="" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  <person_name person_name_id="2" preferred="true" person_id="2" prefix="Mr." given_name="Horatio" middle_name="Test" family_name="Hornblower" family_name_suffix="Esq." creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  
+  <!-- Concept Datatypes -->
+  <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float (e.g., creatinine, weight)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4488-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="2" name="Coded" hl7_abbreviation="CWE" description="Value determined by term dictionary lookup (i.e., term identifier)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a48b6-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="3" name="Text" hl7_abbreviation="ST" description="Free text" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4ab4-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4c94-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="6" name="Date" hl7_abbreviation="DT" description="Absolute date" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a505e-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="7" name="Time" hl7_abbreviation="TM" description="Absolute time of day" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a591e-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="8" name="Datetime" hl7_abbreviation="TS" description="Absolute date and time" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a5af4-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="10" name="Boolean" hl7_abbreviation="BIT" description="Boolean value (yes/no, true/false)" creator="1" date_created="2004-08-26 00:00:00.0" retired="false" uuid="8d4a5cca-c2cc-11de-8d13-0010c6dffd0f"/>
+
+  <!-- Generic concepts for testing -->
+  <concept concept_id="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="1" concept_id="1" name="GENERIC CONCEPT 1" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="2" concept_id="2" name="GENERIC CONCEPT 2" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="3" concept_id="3" name="GENERIC CONCEPT 3" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="4" concept_id="4" name="GENERIC CONCEPT 4" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="5" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="5" concept_id="5" name="GENERIC CONCEPT 5" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept concept_id="6" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="6" concept_id="6" name="GENERIC CONCEPT 6" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+
+  <!-- Required metadata -->
+  <location location_id="1" name="Test Location" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <field_type field_type_id="1" creator="1" date_created="2005-01-01 00:00:00.0" name="Concept" is_set="false" />
+  <field_type field_type_id="2" creator="1" date_created="2005-01-01 00:00:00.0" name="Database element" is_set="false" />
+  <field_type field_type_id="3" creator="1" date_created="2005-01-01 00:00:00.0" name="Set of Terms" is_set="true" />
+  <field_type field_type_id="4" creator="1" date_created="2005-01-01 00:00:00.0" name="Miscellaneous Set" is_set="true" />
+  <field_type field_type_id="5" creator="1" date_created="2005-01-01 00:00:00.0" name="Section" is_set="true" />
+  
+  <!-- A form and its fields -->
+  <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+  <field field_id="1" name="PATIENT" description="Patient section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="2" name="ENCOUNTER" description="Encounter section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="3" name="OBS" description="Obs section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="4" name="GENERIC CONCEPT 1" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="5" name="GENERIC CONCEPT 2" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="6" name="GENERIC CONCEPT 3" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="7" name="GENERIC CONCEPT 4" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />  
+  <field field_id="8" name="GENERIC CONCEPT 5" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />  
+  <field field_id="9" name="Section One" description="" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+
+  <field field_id="10" name="PATIENT.PATIENT_ID" description="" field_type="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+
+  <field field_id="11" name="ENCOUNTER.ENCOUNTER_DATETIME" description="" field_type="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+
+  <field field_id="12" name="ENCOUNTER.LOCATION_ID" description="" field_type="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+
+  <field field_id="13" name="ENCOUNTER.PROVIDER_ID" description="" field_type="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+
+  <field field_id="14" name="Section Two" description="" field_type="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+
+  <form_field form_field_id="1" form_id="1" field_id="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="100"/>
+  <form_field form_field_id="2" form_id="1" field_id="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="200"/>
+  <form_field form_field_id="3" form_id="1" field_id="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="300"/>
+  <form_field form_field_id="4" form_id="1" field_id="10" field_number="1" field_part="a" page_number="1" parent_form_field="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="400"/>
+  <form_field form_field_id="5" form_id="1" field_id="11" field_number="1" field_part="c" page_number="1" parent_form_field="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="600"/>
+  <form_field form_field_id="6" form_id="1" field_id="12" parent_form_field="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700" min_occurs="0" max_occurs="10"/>
+  <form_field form_field_id="7" form_id="1" field_id="13" parent_form_field="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
+  <form_field form_field_id="8" form_id="1" field_id="9" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="9" form_id="1" field_id="4" parent_form_field="8" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700"/>
+  <form_field form_field_id="10" form_id="1" field_id="5" parent_form_field="8" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
+  <form_field form_field_id="11" form_id="1" field_id="14" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="12" form_id="1" field_id="5" parent_form_field="11" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="13" form_id="1" field_id="6" parent_form_field="11" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="14" form_id="1" field_id="7" parent_form_field="13" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="15" form_id="1" field_id="8" parent_form_field="13" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+
+  <htmlformentry_html_form id="1" form_id="1" xml_data="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;htmlform&gt;Date: &lt;encounterDate/&gt;Location: &lt;encounterLocation/&gt;Provider: &lt;encounterProvider role=&quot;Provider&quot;/&gt;&lt;section headerLabel=&quot;Section One&quot;&gt;&lt;obs conceptId=&quot;1&quot;/&gt;&lt;obs conceptId=&quot;2&quot;/&gt;&lt;/section&gt;&lt;section headerLabel=&quot;Section Two&quot;&gt;&lt;obs conceptId=&quot;2&quot;/&gt;&lt;obsgroup groupingConceptId=&quot;3&quot;&gt;&lt;obs conceptId=&quot;4&quot;/&gt;&lt;obs conceptId=&quot;5&quot;/&gt;&lt;/obsgroup&gt;&lt;/section&gt;&lt;submit/&gt;&lt;/htmlform&gt;" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="12e41146-e162-11df-9195-001e378eb67e"/>
+  
+</dataset>
