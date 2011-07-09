@@ -41,6 +41,7 @@
 	<classpathentry kind="lib" path="lib-common/tests-openmrs-api-1.6.2.15986-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/web-openmrs-api-1.6.2.15986-dev.jar"/>
 	<classpathentry kind="lib" path="lib-common/logic-0.4.jar"/>
-	<classpathentry kind="output" path="build"/>
 	<classpathentry kind="lib" path="dist"/>
+	<classpathentry kind="lib" path="/Users/joao/.OpenMRS"/>
+	<classpathentry kind="output" path="build"/>
 </classpath>

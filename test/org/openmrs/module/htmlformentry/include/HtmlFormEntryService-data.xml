@@ -18,10 +18,7 @@
   <location location_id="1" name="Test Location" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
   <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
   
-  <!-- Two forms -->
-  <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
-  <form form_id="2" name="Form two" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+  <!-- HTML Form -->
   <htmlformentry_html_form id="1" form_id="1" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="12e41146-e162-11df-9195-001e378eb67e"/>
-  <htmlformentry_html_form id="2" form_id="2" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="16914264-e162-11df-9195-001e378eb67e"/>
 
 </dataset>

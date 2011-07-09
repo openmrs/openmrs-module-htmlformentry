@@ -48,11 +48,11 @@
   <field field_id="3" name="OBS" description="Obs section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   
   <field field_id="4" name="GENERIC CONCEPT 1" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
-  <field field_id="5" name="GENERIC CONCEPT 2" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="5" name="GENERIC CONCEPT 2" description="" field_type="1" concept_id="2" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   
-  <field field_id="6" name="GENERIC CONCEPT 3" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
-  <field field_id="7" name="GENERIC CONCEPT 4" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />  
-  <field field_id="8" name="GENERIC CONCEPT 5" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />  
+  <field field_id="6" name="GENERIC CONCEPT 3" description="" field_type="1" concept_id="3" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="7" name="GENERIC CONCEPT 4" description="" field_type="1" concept_id="4" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />  
+  <field field_id="8" name="GENERIC CONCEPT 5" description="" field_type="1" concept_id="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />  
   <field field_id="9" name="Section One" description="" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
 
   <field field_id="10" name="PATIENT.PATIENT_ID" description="" field_type="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
