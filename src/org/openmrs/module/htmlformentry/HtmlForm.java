@@ -147,9 +147,14 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	}
 	
 	/**
-	 * Allows HtmlForm to be shared via Metadata Sharing Module
+	 * Allows HtmlForm to be shared via Metadata Sharing Module.
+	 * <p>
+	 * The onSave method is called just before saving this form in the database on the destination
+	 * server. It is used to replace incoming uuids with existing uuids that will be used within
+	 * this form on the destination server.
 	 * 
-	 * @param incomingToExisting
+	 * @param incomingToExisting map from items included in this form to items existing in the
+	 *            destination server
 	 * @should throw exception if incoming uuid has not 36 characters
 	 * @should should replace uuids
 	 */
