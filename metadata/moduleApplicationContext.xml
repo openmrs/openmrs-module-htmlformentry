@@ -13,20 +13,6 @@
            http://www.springframework.org/schema/util
            http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-	<context:component-scan base-package="@MODULE_PACKAGE@" />
-
-    <bean id="htmlformentryUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
-    	<property name="order"><value>1</value></property>
-    	<property name="mappings">
-            <props>
-            	<prop key="module/htmlformentry/htmlFormSchema.form">htmlFormSchemaController</prop>
-            	<prop key="module/htmlformentry/htmlFormFromFile.form">htmlFormFromFileController</prop>
-				<prop key="module/htmlformentry/htmlFormEntry.form">htmlFormEntryController</prop>
-				<prop key="module/htmlformentry/deleteEncounter.form">deleteEncounterController</prop>
-	    	</props>
-		</property>
-    </bean>
-	
 	<!-- Service -->
 	<bean parent="serviceContext">
 		<property name="moduleService">
@@ -230,35 +216,7 @@ FREE TEXT OBSERVATION
 			</list>
 		</property>
 	</bean>
-	
-	
-    <!-- Controllers -->    
-    <bean id="htmlFormFromFileController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormFromFileController">
-    	<property name="sessionForm"><value>false</value></property>
-    	<property name="validator"><ref bean="htmlFormValidator"/></property>
-		<property name="commandName"><value>command</value></property>
-		<property name="formView"><value>/module/htmlformentry/htmlFormFromFile</value></property>
-		<property name="successView"><value>htmlFormFromFile.form</value></property>
-    </bean>
-    
-    <bean id="htmlFormSchemaController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormSchemaController">
-    	<property name="sessionForm"><value>false</value></property>
-		<property name="commandName"><value>command</value></property>
-		<property name="formView"><value>/module/htmlformentry/htmlFormSchema</value></property>
-		<property name="successView"><value>htmlFormSchema.form</value></property>
-    </bean>
-    
-    <!-- This is where we actually enter/view/edit a form -->
-    <bean id="htmlFormEntryController" class="org.openmrs.module.htmlformentry.web.controller.HtmlFormEntryController">
-    	<property name="sessionForm"><value>false</value></property>
-		<property name="commandName"><value>command</value></property>
-		<property name="formView"><value>/module/htmlformentry/htmlFormEntry</value></property>
-		<property name="closeDialogView"><value>/module/htmlformentry/closeDialog</value></property>
-		<property name="successView"><value>../../patientDashboard.form</value></property>
-    </bean>
-        
-    <bean id="deleteEncounterController" class="org.openmrs.module.htmlformentry.web.controller.DeleteEncounterController"/>
-    
+	   
     <bean id="htmlFormValidator" class="org.openmrs.module.htmlformentry.HtmlFormValidator"/>
     
     <!-- /Controllers -->

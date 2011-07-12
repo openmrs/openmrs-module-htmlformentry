@@ -14,66 +14,86 @@ import org.openmrs.Form;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindException;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.SimpleFormController;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
- * The controller for entering/viewing a form. This should always be set to sessionForm=false.
+ * The controller for entering/viewing a form.
  * <p/>
  * Handles {@code htmlFormEntry.form} requests. Renders view {@code htmlFormEntry.jsp}.
  * <p/>
  * TODO: This has a bit too much logic in the onSubmit method. Move that into the FormEntrySession.
  */
-public class HtmlFormEntryController extends SimpleFormController {
+@Controller
+public class HtmlFormEntryController {
     
     protected final Log log = LogFactory.getLog(getClass());
-    private String closeDialogView;
+    public final static String closeDialogView = "/module/htmlformentry/closeDialog";
     public final static String FORM_IN_PROGRESS_KEY = "HTML_FORM_IN_PROGRESS_KEY";
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
+    public final static String FORM_PATH = "/module/htmlformentry/htmlFormEntry";
    
-    public void setCloseDialogView(String closeDialogView) {
-    	this.closeDialogView = closeDialogView;
+    @RequestMapping(method=RequestMethod.GET, value=FORM_PATH)
+    public void showForm() {
+    	// Intentionally blank. All work is done in the getFormEntrySession method 
     }
-
-    @Override
-    protected Object formBackingObject(HttpServletRequest request) throws Exception {
+    
+    @ModelAttribute("command")
+    public FormEntrySession getFormEntrySession(HttpServletRequest request,
+                                                /*@RequestParam(value="mode", required=false) String modeParam,*/
+                                                /*@RequestParam(value="encounterId", required=false) Integer encounterId,*/
+                                                @RequestParam(value="patientId", required=false) Integer patientId,
+                                                @RequestParam(value="personId", required=false) Integer personId,
+                                                @RequestParam(value="formId", required=false) Integer formId,
+                                                @RequestParam(value="htmlformId", required=false) Integer htmlFormId,
+                                                @RequestParam(value="returnUrl", required=false) String returnUrl,
+                                                @RequestParam(value="formModifiedTimestamp", required=false) Long formModifiedTimestamp,
+                                                @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp) throws Exception {
+    	// @RequestParam doesn't pick up query parameters (in the url) in a POST, so I'm handling encounterId and modeParam specially:
+    	String modeParam = request.getParameter("mode");
+    	Integer encounterId = null;
+    	if (StringUtils.hasText(request.getParameter("encounterId")))
+    		encounterId = Integer.valueOf(request.getParameter("encounterId"));
+    	
         long ts = System.currentTimeMillis();
         
         Mode mode = Mode.VIEW;
-		if ("Enter".equalsIgnoreCase(request.getParameter("mode"))) {
+		if ("enter".equalsIgnoreCase(modeParam)) {
 			mode = Mode.ENTER;
 		}
-		else if ("EDIT".equals(request.getParameter("mode"))) {
+		else if ("edit".equalsIgnoreCase(modeParam)) {
             mode = Mode.EDIT;            
 		}
 		
-        Integer encounterId = null;
         Encounter encounter = null;
-        if (request.getParameter("encounterId") != null && !"".equals(request.getParameter("encounterId"))) {
-            encounterId = Integer.valueOf(request.getParameter("encounterId"));
+        if (encounterId != null) {
             encounter = Context.getEncounterService().getEncounter(encounterId);
         }
         
-        Integer personId = null;
         Patient patient = null;
         if (encounter != null) {
         	patient = encounter.getPatient();
         	personId = patient.getPersonId();
         } else {
 			// register module uses patientId, htmlformentry uses personId
-			if (!StringUtils.hasText(request.getParameter("patientId"))) {
-				personId = Integer.valueOf(request.getParameter("personId"));
-			} else {
-				personId = Integer.valueOf(request.getParameter("patientId"));
+			if (patientId != null) {
+				personId = patientId;
 			}
 			patient = Context.getPatientService().getPatient(personId);
 			if (mode != Mode.ENTER && patient == null)
@@ -83,27 +103,25 @@ public class HtmlFormEntryController extends SimpleFormController {
         HtmlForm htmlForm = null;
         
         if (encounter != null) {
-            String formIdParam = request.getParameter("formId");
-            if (StringUtils.hasText(formIdParam)) {
-                Form form = Context.getFormService().getForm(Integer.parseInt(formIdParam));
+            if (formId != null) {
+                Form form = Context.getFormService().getForm(formId);
                 htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
+                if (htmlForm == null)
+            		throw new IllegalArgumentException("No HtmlForm associated with formId " + formId);
             } else {
                 htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(encounter.getForm());
+                if (htmlForm == null)
+            		throw new IllegalArgumentException("The form for the specified encounter (" + encounter.getForm() + ") does not have an HtmlForm associated with it");
             }
-        	if (htmlForm == null)
-                    throw new IllegalArgumentException("The form for the specified encounter (" + encounter.getForm() + ") does not have an HtmlForm associated with it");
         } else {
-	        String htmlFormIdParam = request.getParameter("htmlFormId");
-	        if (StringUtils.hasText(htmlFormIdParam)) {
-	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlForm(Integer.valueOf(htmlFormIdParam));
-	        }
-	        String formIdParam = request.getParameter("formId");
-	        if (StringUtils.hasText(formIdParam)) {
-	        	Form form = Context.getFormService().getForm(Integer.parseInt(formIdParam));
+	        if (htmlFormId != null) {
+	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlForm(htmlFormId);
+	        } else if (formId != null) {
+	        	Form form = Context.getFormService().getForm(formId);
 	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
 	        }
 	        if (htmlForm == null) {
-	        	throw new IllegalArgumentException("You must specify either an htmlFormId or a formId");
+	        	throw new IllegalArgumentException("You must specify either an htmlFormId or a formId for a valid html form");
 	        }
         }
         
@@ -118,62 +136,57 @@ public class HtmlFormEntryController extends SimpleFormController {
 			session = new FormEntrySession(patient, htmlForm);
 		}
 
-        String returnUrl = request.getParameter("returnUrl");
         if (StringUtils.hasText(returnUrl)) {
             session.setReturnUrl(returnUrl);
         }
 
-        // In case we're not using a sessionForm, we need to check for the case where the underlying form was modified while a user was filling a form out
-        if (StringUtils.hasText(request.getParameter("formModifiedTimestamp"))) {
-            long submittedTimestamp = Long.valueOf(request.getParameter("formModifiedTimestamp"));
-            if (submittedTimestamp != session.getFormModifiedTimestamp()) {
+        // Since we're not using a sessionForm, we need to check for the case where the underlying form was modified while a user was filling a form out
+        if (formModifiedTimestamp != null) {
+            if (!OpenmrsUtil.nullSafeEquals(formModifiedTimestamp, session.getFormModifiedTimestamp())) {
                 throw new RuntimeException(Context.getMessageSourceService().getMessage("htmlformentry.error.formModifiedBeforeSubmission"));
             }
         }
 
-        // In case we're not using a sessionForm, we need to make sure this encounter hasn't been modified since the user opened it
+        // Since we're not using a sessionForm, we need to make sure this encounter hasn't been modified since the user opened it
         if (encounter != null) {
-            try {
-                long submittedTimestamp = Long.valueOf(request.getParameter("encounterModifiedTimestamp"));
-                if (submittedTimestamp != session.getEncounterModifiedTimestamp()) {
-                    throw new RuntimeException(Context.getMessageSourceService().getMessage("htmlformentry.error.encounterModifiedBeforeSubmission"));
-                }
-            } catch (NumberFormatException ex) {
-                // this is being opened for the first time, no worries 
-            }
+        	if (encounterModifiedTimestamp != null && !OpenmrsUtil.nullSafeEquals(encounterModifiedTimestamp, session.getEncounterModifiedTimestamp())) {
+        		throw new RuntimeException(Context.getMessageSourceService().getMessage("htmlformentry.error.encounterModifiedBeforeSubmission"));
+        	}
         }
         
         Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
         log.info("Took " + (System.currentTimeMillis() - ts) + " ms");
+        
         return session;
     }
-
-    @Override
-    protected void onBindAndValidate(HttpServletRequest request,
-            Object commandObject, BindException errors) throws Exception {
-        FormEntrySession session = (FormEntrySession) commandObject;
-        try {
+    
+    /*
+     * I'm using a return type of ModelAndView so I can use RedirectView rather than "redirect:" and preserve the fact that
+     * returnUrl values from the pre-annotated-controller days will have the context path already
+     */
+    @RequestMapping(method=RequestMethod.POST, value=FORM_PATH)
+    public ModelAndView handleSubmit(@ModelAttribute("command") FormEntrySession session,
+                               Errors errors,
+                               HttpServletRequest request,
+                               Model model) throws Exception {
+    	try {
             List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
-            if (validationErrors == null || validationErrors.size() == 0) {
-                return;
-            } else {
+            if (validationErrors != null && validationErrors.size() > 0) {
                 errors.reject("Fix errors");
             }
         } catch (Exception ex) {
             log.error("Exception during form validation", ex);
             errors.reject("Exception during form validation, see log for more details: " + ex);
         }
-    }
-
-    @Override
-    protected ModelAndView onSubmit(HttpServletRequest request,
-            HttpServletResponse response, Object commandObject, BindException errors)
-            throws Exception {
-    	
-    	FormEntrySession session = (FormEntrySession) commandObject;
-    	
-   		session.prepareForSubmit();
+        
+        if (errors.hasErrors()) {
+        	return new ModelAndView(FORM_PATH, "command", session);
+        }
+        
+        // no form validation errors, proceed with submission
+        
+        session.prepareForSubmit();
 
 		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag() && session.getPatient() == null 
 				&& (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions().getPersonsToCreate().size() == 0))
@@ -183,12 +196,11 @@ public class HtmlFormEntryController extends SimpleFormController {
             throw new IllegalArgumentException("This form is not going to create an encounter"); 
         
     	try {
-            
             session.getSubmissionController().handleFormSubmission(session, request);
             session.applyActions();
             String successView = session.getReturnUrlWithParameters();
             if (successView == null)
-                successView = getSuccessView() + getQueryPrameters(request, session);
+                successView = request.getContextPath() + "/patientDashboard.form" + getQueryPrameters(request, session);
             if (StringUtils.hasText(request.getParameter("closeAfterSubmission"))) {
             	return new ModelAndView(closeDialogView, "dialogToClose", request.getParameter("closeAfterSubmission"));
             } else {
@@ -197,18 +209,18 @@ public class HtmlFormEntryController extends SimpleFormController {
         } catch (ValidationException ex) {
             log.error("Invalid input:", ex);
             errors.reject(ex.getMessage());
-            return showForm(request, response, errors);
         } catch (BadFormDesignException ex) {
             log.error("Bad Form Design:", ex);
             errors.reject(ex.getMessage());
-            return showForm(request, response, errors);
         } catch (Exception ex) {
             log.error("Exception trying to submit form", ex);
             StringWriter sw = new StringWriter();
             ex.printStackTrace(new PrintWriter(sw));
             errors.reject("Exception! " + ex.getMessage() + "<br/>" + sw.toString());
-            return showForm(request, response, errors);
         }
+        
+        // if we get here it's because we caught an error trying to submit/apply
+        return new ModelAndView(FORM_PATH, "command", session);
     }
 
 	protected String getQueryPrameters(HttpServletRequest request, FormEntrySession formEntrySession) {

@@ -4,52 +4,42 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.BindException;
-import org.springframework.web.bind.ServletRequestDataBinder;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.SimpleFormController;
-import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * The controller for previewing a HtmlForm by loading the xml file that defines that HtmlForm.
+ * The controller for previewing a HtmlForm by loading the xml file that defines that HtmlForm from disk.
  * <p/>
  * Handles {@code htmlFormFromFile.form} requests. Renders view {@code htmlFormFromFile.jsp}.
  */
-public class HtmlFormFromFileController extends SimpleFormController {
+@Controller
+public class HtmlFormFromFileController {
 
     /** Logger for this class and subclasses */
-    protected final Log log = LogFactory.getLog(getClass());
+    protected final Log log = LogFactory.getLog(getClass());   
     
-    @Override
-    protected void initBinder(HttpServletRequest request, ServletRequestDataBinder binder) throws Exception {
-        super.initBinder(request, binder);
-    }
-    
-    @Override
-    protected Map<String, Object> referenceData(HttpServletRequest request) throws Exception {
+    @RequestMapping("/module/htmlformentry/htmlFormFromFile.form")
+    public void handleRequest(Model model,
+                              @RequestParam(value="filePath", required=false) String filePath,
+                              @RequestParam(value="patientId", required=false) Integer pId) throws Exception {
     	log.debug("In reference data...");
-        Map<String, Object> ret = new HashMap<String, Object>();
-        ret.put("previewHtml", "");
+        model.addAttribute("previewHtml", "");
         String message = "";
         
-        String filePath = request.getParameter("filePath");
         if (StringUtils.hasText(filePath)) {
-        	ret.put("filePath", filePath);
+        	model.addAttribute("filePath", filePath);
         	try {
         		File f = new File(filePath);
         		if (f != null && f.exists() && f.canRead()) {
@@ -70,9 +60,8 @@ public class HtmlFormFromFileController extends SimpleFormController {
         			String xml = sb.toString();
                     
         			Patient p = null;
-                    String pId = request.getParameter("patientId");
-                    if (StringUtils.hasText(pId)) {
-                    	p = Context.getPatientService().getPatient(Integer.parseInt(pId));
+                    if (pId != null) {
+                    	p = Context.getPatientService().getPatient(pId);
                     }
                     else {
                     	p = HtmlFormEntryUtil.getFakePerson();
@@ -80,7 +69,7 @@ public class HtmlFormFromFileController extends SimpleFormController {
                     HtmlForm fakeForm = new HtmlForm();
                     fakeForm.setXmlData(xml);
                     FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm);
-                    ret.put("previewHtml", fes.getHtmlToDisplay());
+                    model.addAttribute("previewHtml", fes.getHtmlToDisplay());
         		}
         		else {
         			message = "Please specify a valid file path.";
@@ -94,17 +83,7 @@ public class HtmlFormFromFileController extends SimpleFormController {
         else {
         	message = "You must specify a file path to preview from file";
         }
-        ret.put("message", message);
-        return ret;
+        model.addAttribute("message", message);
     }
 
-    @Override
-    protected Object formBackingObject(HttpServletRequest request) throws Exception {
-    	return "";
-    }
-
-    @Override
-    protected ModelAndView onSubmit(HttpServletRequest request, HttpServletResponse response, Object commandObject, BindException errors) throws Exception {
-    	return new ModelAndView(new RedirectView(getSuccessView()));
-    }
 }
