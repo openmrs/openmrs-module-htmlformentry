@@ -533,4 +533,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		return sb;
 	}
 
+	//TODO: Fix this
+	public String getName() { return "dummy"; }
+	
+	public String getDescription() { return "dummy"; }
+
 }

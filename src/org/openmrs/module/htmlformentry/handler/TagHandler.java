@@ -16,6 +16,10 @@ public interface TagHandler {
 	 */
 	public List<AttributeDescriptor> getAttributeDescriptors();
 	
+	public String getName();
+	
+	public String getDescription();
+	
     /**
      * Handles the start tag for a specific tag type. Generates the appropriate HTML and adds it to the associated PrintWriter.
      * Also adds any necessary FormSubmissionControllerActions to the FormSubmissionController associated with the session.
