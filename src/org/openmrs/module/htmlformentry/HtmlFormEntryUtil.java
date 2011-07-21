@@ -7,12 +7,8 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
@@ -32,7 +28,6 @@ import org.openmrs.ConceptDatatype;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
-import org.openmrs.OpenmrsObject;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -44,8 +39,6 @@ import org.openmrs.PersonName;
 import org.openmrs.Program;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
-import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
@@ -62,7 +55,7 @@ import org.xml.sax.InputSource;
  */
 public class HtmlFormEntryUtil {
 	
-	private static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
+	public static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
     
 	/**
 	 * Returns the HTML Form Entry service from the Context
@@ -641,134 +634,6 @@ public class HtmlFormEntryUtil {
 		return uuid.length() == 36 ? true : false;
 	}
 	
-	
-	/**
-	 * Replaces all the ids in a form with uuids
-	 * 
-	 * This method operates using the AttributeDescriptors property of TagHandlers; if you have have a new attribute
-	 * that you want to configure for id-to-uuid substitution, add a descriptor for that attribute to the appropriate tag handler and
-	 * set the class property of that descriptor to the appropriate class
-	 * 
-	 * Can currently handle ids for the following classes: Concept, Program, Person, PatientIdentifierType, Location, and Drug
-	 * 
-	 * @return
-	 * @return
-	 */
-	public static void replaceIdsWithUuids(HtmlForm form) {
-		// get the tag handlers so we can gain access to the attribute descriptors
-		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
-		
-		// loop through all the attribute descriptors for all the tags that have been registered
-		for (String tagName : tagHandlers.keySet()) {
-			log.debug("Handling id-to-uuid substitutions for tag " + tagName);
-			
-			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
-				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
-					// we only need to deal with descriptors that have an associated class
-					if (attributeDescriptor.getClazz() != null) {
-						// build the attribute string we are searching for
-						// match any time that attribute name falls within the specified tag --- [^>]* means any character except a >
-						String pattern = "<" + tagName + "[^>]*" + attributeDescriptor.getName();
-						log.debug("id-to-uuid substitution pattern: " + pattern);
-						form.setXmlData(replaceIdsWithUuidsHelper(form.getXmlData(), pattern, attributeDescriptor.getClazz()));
-					}
-				}
-			}
-		}
-	}
-	
-	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, Class<? extends OpenmrsObject> clazz) {
-		return replaceIdsWithUuidsHelper(formXmlData, attribute, clazz, true);
-	}
-	
-	private static String replaceIdsWithUuidsHelper(String formXmlData, String attribute, Class<? extends OpenmrsObject> clazz, Boolean includeQuotes) {
-		Pattern substitutionPattern;
-		
-		if (includeQuotes) {
-			// pattern to find the specified attribute and pull out its values; regex matches any characters within quotes after an equals, i.e. ="a2-32" would match a232
-			// we use () to break the match into three groups: 1) the characters up to the including the first quotes; 2) the characters in the quotes; and 3) then the trailing quote
-			// (put a space before the attribute name so we don't get border= instead of order=)
-			substitutionPattern = Pattern.compile("(\\s" + attribute + "=\")(.*?)(\")", Pattern.CASE_INSENSITIVE);
-		}	
-		else {
-			// the same pattern as above, but without the quotes (to handle the macro assignments),
-			// and with a blank space at the end (which we need to account for when we do the replace)	
-			substitutionPattern = Pattern.compile("(\\s" + attribute + "=)(.*?)(\\s)", Pattern.CASE_INSENSITIVE);
-		}
-			
-		Matcher matcher = substitutionPattern.matcher(formXmlData);
-		
-		// lists to keep track of any "repeat" keys and macros we are going to have to substitute out as well
-		Set<String> repeatKeysToReplace = new HashSet<String>();
-		Set<String> macrosToReplace = new HashSet<String>();
-		
-		StringBuffer buffer = new StringBuffer();
-		
-		while (matcher.find()) {	
-			// split the group into the various ids
-			String[] ids = matcher.group(2).split(",");
-			
-			StringBuffer idBuffer = new StringBuffer();
-			// now loop through each id
-			for (String id : ids) {
-				// see if this is an id (i.e., is made up of one or more digits), as opposed to a mapping id or a uuid, or a key used in a repeat template)
-				if (id.matches("^\\d+$")) {
-					// try to find the OpenmrsObject referenced by this id, and convert the id to a uuid
-					OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemById(clazz, Integer.valueOf(id));
-					idBuffer.append(object.getUuid() + ",");
-				} else {
-					// otherwise, leave the id only
-					idBuffer.append(id + ",");
-					
-					// also, if this id is a repeat key (i.e., something in curly braces) we need to keep track of it so that we can perform key substitutions
-					// pattern matches one or more characters of any type within curly braces
-					Matcher repeatKeyMatcher = Pattern.compile("\\{(.+)\\}").matcher(id);
-					if(repeatKeyMatcher.find()) {
-						repeatKeysToReplace.add(repeatKeyMatcher.group(1));
-					}
-					
-					// also, if this id is a macro reference (i.e, something that starts with a $) we need to keep track of it so that we can perform macro substitution
-					Matcher macroMatcher = Pattern.compile("\\$(.+)").matcher(id);
-					if (macroMatcher.find()) {
-						macrosToReplace.add(macroMatcher.group(1));
-					}
-				}
-			}
-			
-			// trim off the trailing comma
-			idBuffer.deleteCharAt(idBuffer.length() - 1);
-			
-			// now do the replacement
-			
-			// create the replacement string from the matched sequence, substituting out group(2) with the updated ids
-			String replacementString = matcher.group(1) + idBuffer.toString() + matcher.group(3);
-
-			// we need to escape any $ characters in the buffer or we run into errors with the appendReplacement method since 
-			// the $ has a special meaning to that method
-			replacementString = replacementString.replace("$", "\\$");
-				
-			// now append the replacement string to the buffer
-			matcher.appendReplacement(buffer, replacementString);
-		}
-		
-		// append the rest of htmlform
-		matcher.appendTail(buffer);
-		
-		formXmlData = buffer.toString();
-		
-		// now handle any repeat keys we have discovered during this substitution
-		for (String key : repeatKeysToReplace) {
-			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, clazz);
-		}
-		
-		// and now handle any macros we have discovered during this substitution
-		for (String key : macrosToReplace) {
-			formXmlData = replaceIdsWithUuidsHelper(formXmlData, key, clazz, false);
-		}
-		
-		return formXmlData;
-	}
-
 	public static List<PatientIdentifierType> getPatientIdentifierTypes(){
 		return Context.getPatientService().getAllPatientIdentifierTypes();
 	}

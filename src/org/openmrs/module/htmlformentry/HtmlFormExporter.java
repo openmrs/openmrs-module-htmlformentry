@@ -20,6 +20,7 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 
 /**
  * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
@@ -220,7 +221,9 @@ public class HtmlFormExporter {
 		stripLocalAttributesFromXml();
 		
 		// within the form, replace any Ids with Uuids
-		HtmlFormEntryUtil.replaceIdsWithUuids(formToExport);
+		HtmlFormSubstitutionUtils.replaceIdsWithUuids(formToExport);
+		// replace any programs referenced by name with uuids (since programs referenced by name are really referenced by the underlying concept which can cause issues during metadata sharing)
+		HtmlFormSubstitutionUtils.replaceProgramNamesWithUuids(formToExport);
 		
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
 		calculateDependencies();
