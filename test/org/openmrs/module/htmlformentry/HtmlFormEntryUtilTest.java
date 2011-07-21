@@ -224,6 +224,30 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 
 	/**
 	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
+	 * tests a uuid that is 36 characters long but has no dashes
+	 */
+	@Test
+	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
+	public void getConcept_shouldFindAConceptWithNonStandardUuid() throws Exception {
+		// concept from HtmlFormEntryTest-data3.xml
+		String id = "1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
+	 * tests a uuid that is in invalid format (less than 36 characters)
+	 */
+	@Test
+	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
+	public void getConcept_shouldNotFindAConceptWithInvalidUuid() throws Exception {
+		// concept from HtmlFormEntryTest-data3.xml
+		String id = "1000";
+		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
 	 */
 	@Test
 	@Verifies(value = "should return null otherwise", method = "getConcept(String)")
@@ -316,10 +340,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		
 		TestUtil.assertFuzzyContains("<encounterLocation default=\"9356400c-a5a2-4532-8f2b-2361b3446eb8\" order=\"dc5c1fcc-0459-4201-bf70-0b90535ba362,9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land\"",form.getXmlData());
 		TestUtil.assertFuzzyContains("<encounterProvider role=\"Provider\" default=\"c04ee3c8-b68f-43cc-bff3-5a831ee7225f\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("groupingConceptId=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("groupingConceptId=\"32296060-03aa-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("conceptId=\"32296060-03aa-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("conceptId=\"32296060-03aa-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03aa-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03aa-102d-b0e3-001ec94a0cc6,32296060-03aa-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("identifierTypeId=\"1a339fe9-38bc-4ab3-b180-320988c0b968\"", form.getXmlData());
 	}
@@ -344,14 +368,14 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		TestUtil.assertFuzzyContains("answerConceptIds=\"\\{allergyAnswers\\}\"", form.getXmlData());
 
 		// test that the first render tag has been substituted
-		TestUtil.assertFuzzyContains("allergyGroup=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergy=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6\"", form.getXmlData());		
+		TestUtil.assertFuzzyContains("allergyGroup=\"32296060-03aa-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergy=\"32296060-03aa-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03aa-102d-b0e3-001ec94a0cc5,32296060-03aa-102d-b0e3-001ec94a0cc6\"", form.getXmlData());		
 	
 		// test that the second render tag has been substituted
 		TestUtil.assertFuzzyContains("allergyGroup=\"42296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("allergy=\"52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());		
+		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03aa-102d-b0e3-001ec94a0cc6,32296060-03aa-102d-b0e3-001ec94a0cc7\"", form.getXmlData());		
 	
 	}
 	
@@ -375,9 +399,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		TestUtil.assertFuzzyContains("answerConceptIds=\"\\$allergyAnswers\"", form.getXmlData());
 
 		// test that the macros themselves have been substituted
-		TestUtil.assertFuzzyContains("allergyGroup=32296060-03-102d-b0e3-001ec94a0cc1", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergy=32296060-03-102d-b0e3-001ec94a0cc4", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergyAnswers=32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6", form.getXmlData());		
+		TestUtil.assertFuzzyContains("allergyGroup=32296060-03aa-102d-b0e3-001ec94a0cc1", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergy=32296060-03aa-102d-b0e3-001ec94a0cc4", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergyAnswers=32296060-03aa-102d-b0e3-001ec94a0cc5,32296060-03aa-102d-b0e3-001ec94a0cc6", form.getXmlData());		
 	
 	}
 }

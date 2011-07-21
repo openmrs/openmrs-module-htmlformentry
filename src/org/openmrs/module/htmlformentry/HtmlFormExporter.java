@@ -106,7 +106,7 @@ public class HtmlFormExporter {
 							
 							for (String id : ids) {
 								// if this id matches a uuid pattern, try to fetch the object by uuid
-								if (Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()) {
+								if (HtmlFormEntryUtil.isValidUuidFormat(id)) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
 									    attributeDescriptor.getClazz(), id);
 									if (object != null) {

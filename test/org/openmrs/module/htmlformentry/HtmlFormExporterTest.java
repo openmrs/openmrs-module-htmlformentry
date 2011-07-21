@@ -41,15 +41,15 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		
 		// make sure all the appropriate concepts have been added to the dependencies
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
-		    "32296060-03-102d-b0e3-001ec94a0cc1")));
+		    "32296060-03aa-102d-b0e3-001ec94a0cc1")));
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
-		    "32296060-03-102d-b0e3-001ec94a0cc4")));
+		    "32296060-03aa-102d-b0e3-001ec94a0cc4")));
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
-		    "32296060-03-102d-b0e3-001ec94a0cc5")));
+		    "32296060-03aa-102d-b0e3-001ec94a0cc5")));
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
-		    "32296060-03-102d-b0e3-001ec94a0cc6")));
+		    "32296060-03aa-102d-b0e3-001ec94a0cc6")));
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
-		    "32296060-03-102d-b0e3-001ec94a0cc3")));
+		    "32296060-03aa-102d-b0e3-001ec94a0cc3")));
 		// this is the mapped concept XYZ:HT found in HtmlFormEntryTest-data3
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
 		    "44d3611a-6699-4d52-823f-b4b788bac3e3")));

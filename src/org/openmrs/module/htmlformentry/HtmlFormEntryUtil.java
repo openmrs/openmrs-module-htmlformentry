@@ -386,29 +386,35 @@ public class HtmlFormEntryUtil {
 	public static Concept getConcept(String id){
 		Concept cpt = null;
 		
-		if(id != null){
+		if (id != null){
 			
-			try{//handle integer: id
+			// see if this is a parseable int; if so, try looking up concept by id
+			try { //handle integer: id
 				int conceptId = Integer.parseInt(id);
-				cpt  = Context.getConceptService().getConcept(conceptId);
-				return cpt;
-			}catch (Exception ex){
+				cpt  = Context.getConceptService().getConcept(conceptId);	
+				
+				if (cpt != null) {
+					return cpt;
+				} 
+			} catch (Exception ex){
 				//do nothing 
 			}
 			
-			//handle  mapping id: xyz:ht
+			// handle  mapping id: xyz:ht
 			int index = id.indexOf(":");
 			if(index != -1){
 				String mappingCode = id.substring(0,index).trim();
 				String conceptCode = id.substring(index+1,id.length()).trim();	
 				cpt = Context.getConceptService().getConceptByMapping(conceptCode,mappingCode);
-				return cpt;
+				
+				if (cpt != null) {
+					return cpt;
+				} 
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid pattern
-			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid format
+			if(isValidUuidFormat(id)){
 				cpt = Context.getConceptService().getConceptByUuid(id);
-				return cpt;
 			}
 		}
 		
@@ -452,17 +458,25 @@ public class HtmlFormEntryUtil {
 		
 		if(id != null){
 			
-			try{//handle integer: id
+			// see if this is parseable int; if so, try looking up by id
+			try {//handle integer: id
 				int locationId = Integer.parseInt(id);
 				location = Context.getLocationService().getLocation(locationId);
-				return location;
-			}catch (Exception ex){
+				
+				if (location != null) {
+					return location;
+				}
+			} catch (Exception ex){
 				//do nothing 
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid pattern
-			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format
+			if(isValidUuidFormat(id)){
 				location  = Context.getLocationService().getLocationByUuid(id);
+				
+				if (location != null) {
+					return location;
+				}
 			}
 			else {
 				// if it's neither a uuid or id, try location name
@@ -491,17 +505,25 @@ public class HtmlFormEntryUtil {
 		
 		if(id != null){
 			
+			// see if this is parseable int; if so, try looking up by id
 			try{//handle integer: id
 				int programId = Integer.parseInt(id);
 				program = Context.getProgramWorkflowService().getProgram(programId);
-				return program;
-			}catch (Exception ex){
+				
+				if (program != null) {
+					return program;
+				}
+			} catch (Exception ex){
 				//do nothing 
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
-			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
-				program  = Context.getProgramWorkflowService().getProgramByUuid(id);
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
+			if(isValidUuidFormat(id)){
+				program = Context.getProgramWorkflowService().getProgramByUuid(id);
+				
+				if (program != null) {
+					return program;
+				}
 			}
 			else {
 				// if it's neither a uuid or id, try program name
@@ -530,17 +552,25 @@ public class HtmlFormEntryUtil {
 		
 		if(id != null){
 			
-			try{//handle integer: id
+			// see if this is parseable int; if so, try looking up by id
+			try{ //handle integer: id
 				int personId = Integer.parseInt(id);
 				person = Context.getPersonService().getPerson(personId);
-				return person;
-			}catch (Exception ex){
+				
+				if (person != null) {
+					return person;
+				}
+			} catch (Exception ex){
 				//do nothing 
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
-			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
+			if(isValidUuidFormat(id)){
 				person  = Context.getPersonService().getPersonByUuid(id);
+				
+				if (person != null) {
+					return person;
+				}
 			}
 			// handle username
 			else {
@@ -571,17 +601,25 @@ public class HtmlFormEntryUtil {
 		
 		if(id != null){
 			
-			try{//handle integer: id
+			// see if this is parseable int; if so, try looking up by id
+			try{ //handle integer: id
 				int identifierTypeId = Integer.parseInt(id);
 				identifierType = Context.getPatientService().getPatientIdentifierType(identifierTypeId);
-				return identifierType;
-			}catch (Exception ex){
+				
+				if (identifierType != null) {
+					return identifierType;
+				}
+			} catch (Exception ex){
 				//do nothing 
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid pattern
-			if(Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()){
+			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
+			if(isValidUuidFormat(id)){
 				identifierType  = Context.getPatientService().getPatientIdentifierTypeByUuid(id);
+				
+				if (identifierType != null) {
+					return identifierType;
+				}
 			}
 			// handle name
 			else {
@@ -591,6 +629,18 @@ public class HtmlFormEntryUtil {
 		}
 		return identifierType;
 	}
+	
+	
+	/***
+	 * Determines if the passed string is in valid uuid format
+	 * By OpenMRS standards, a uuid must be 36 characters in length, but
+	 * we do not enforce that a uuid be in the "canonical" form, with alphanumerics
+	 * seperated by dashes, since the MVP dictionary does not use this format
+	 */
+	public static boolean isValidUuidFormat(String uuid) {
+		return uuid.length() == 36 ? true : false;
+	}
+	
 	
 	/**
 	 * Replaces all the ids in a form with uuids

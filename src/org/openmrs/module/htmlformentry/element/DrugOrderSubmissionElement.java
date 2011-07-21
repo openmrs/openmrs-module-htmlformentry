@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -162,10 +161,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		while (tokenizer.hasMoreElements()) {
 			String drugName = (String) tokenizer.nextElement();
 			Drug drug = null;
-			// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
-			if (Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(drugName.trim()).matches()) {
+			
+			// see if this is a uuid
+			if (HtmlFormEntryUtil.isValidUuidFormat(drugName.trim())) {
 				drug = conceptService.getDrugByUuid(drugName.trim());
-			} else {
+			} 
+			
+			// if we didn't find by id, find by uuid or name			
+			if (drug == null){
 				drug = conceptService.getDrugByNameOrId(drugName.trim());			
 			}
 			
