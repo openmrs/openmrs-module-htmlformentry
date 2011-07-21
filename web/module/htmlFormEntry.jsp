@@ -97,12 +97,13 @@
 	}
 
 	function showAuthenticateDialog() {
-		showDiv('passwordPopup');
+		$j('#passwordPopup').show();
 		tryingToSubmit = false;
 	}
 
 	function loginThenSubmitHtmlForm() {
-		hideDiv('passwordPopup');
+		
+		$j('#passwordPopup').hide();
 		var username = $j('#passwordPopupUsername').val();
 		var password = $j('#passwordPopupPassword').val();
 		$j('#passwordPopupUsername').val('');
@@ -117,11 +118,11 @@
 	}
 
 	function handleDeleteButton() {
-		showDiv('confirmDeleteFormPopup');
+		$j('#confirmDeleteFormPopup').show();
 	}
 
 	function cancelDeleteForm() {
-		hideDiv('confirmDeleteFormPopup');
+		$j('#confirmDeleteFormPopup').hide();
 	}
 </script>
 
