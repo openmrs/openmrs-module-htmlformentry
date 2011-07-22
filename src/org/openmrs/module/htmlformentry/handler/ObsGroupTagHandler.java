@@ -70,7 +70,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 //                if (parent != null){
 //                    NamedNodeMap attrs = parent.getAttributes();
 //                    try {
-//                        question = Context.getConceptService().getConcept(Integer.valueOf(attrs.getNamedItem("groupingConceptId").getNodeValue()));
+//                        question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue());
 //                    } catch (Exception ex){}    
 //                }
                  session.getContext().endObsGroup();

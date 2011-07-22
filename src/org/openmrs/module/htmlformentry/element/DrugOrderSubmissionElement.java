@@ -274,12 +274,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         }
 		if (parameters.get(FIELD_DISCONTINUED_REASON) != null){
 		    String discReasonConceptStr = (String) parameters.get(FIELD_DISCONTINUED_REASON);
-		    Concept discontineReasonConcept = Context.getConceptService().getConceptByUuid(discReasonConceptStr);
-		    if (discontineReasonConcept == null){
-		        try {
-		            discontineReasonConcept = Context.getConceptService().getConcept(Integer.valueOf(discReasonConceptStr));
-		        } catch (Exception ex){}
-		    }    
+		    Concept discontineReasonConcept = HtmlFormEntryUtil.getConcept(discReasonConceptStr);
 		    if (discontineReasonConcept == null)
 		        throw new IllegalArgumentException("discontinuedReasonConceptId is not set to a valid conceptId or concept UUID");
 		    dof.setDiscontinuedReasonQuestion(discontineReasonConcept);
@@ -559,7 +554,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	    drugOrder.setDiscontinued(true);
     	    	}    
     	    	if (!StringUtils.isEmpty(discontinuedReasonStr))
-    	    	    drugOrder.setDiscontinuedReason(Context.getConceptService().getConcept((Integer.valueOf(discontinuedReasonStr))));
+    	    	    drugOrder.setDiscontinuedReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
     			log.debug("adding new drug order, drugId is " + drugId + " and startDate is " + startDate);
     			drugOrder = setDiscontinueDateFromAutoExpire(drugOrder);
     			session.getSubmissionActions().getCurrentEncounter().addOrder(drugOrder);
@@ -575,7 +570,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	    existingOrder.setDiscontinued(true);
                 } 
     	    	if (!StringUtils.isEmpty(discontinuedReasonStr))
-                    existingOrder.setDiscontinuedReason(Context.getConceptService().getConcept((Integer.valueOf(discontinuedReasonStr))));
+                    existingOrder.setDiscontinuedReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
                 
     	    	existingOrder.setConcept(drug.getConcept());  	
     	    	if (!StringUtils.isEmpty(instructions))
