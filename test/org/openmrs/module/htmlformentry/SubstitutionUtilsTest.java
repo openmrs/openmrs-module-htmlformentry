@@ -112,7 +112,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	 * @throws Exception 
 	 */
 	@Test
-	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
+	@Verifies(value = "should replace program names with uuids", method = "replaceProgramNamesWithUuids(HtmlForm)")
 	public void replaceProgamNamesWithUuids_shouldReplaceProgramNamesWithUuids() throws Exception {
 	
 		HtmlForm form = new HtmlForm();

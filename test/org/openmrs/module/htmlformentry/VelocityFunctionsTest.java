@@ -10,6 +10,7 @@ import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
@@ -42,6 +43,38 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         Obs earliestWeight = functions.latestObs(5089);
         Assert.assertEquals(61, earliestWeight.getValueNumeric().intValue());
         Assert.assertEquals("2008-08-19", df.format(earliestWeight.getObsDatetime()));
+	}
+	
+	/**
+	 * @see VelocityFunctions@latestEncounter(EncounterType)
+	 * @verifies return the most recent encounter if encounter type is null
+	 */
+	@Test
+	public void latestEncounter_shouldReturnTheMostRecentEncounter() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7); 
+        Assert.assertEquals(new Integer(5), functions.latestEncounter().getEncounterId());
+	}
+	
+	/**
+	 * @see VelocityFunctions@latestEncounter(EncounterType)
+	 * @verifies return the most recent encounter if encounter type is null
+	 */
+	@Test
+	public void latestEncounter_shouldReturnTheMostRecentEncounterByType() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7); 
+		EncounterType type = Context.getEncounterService().getEncounterType(2);
+        Assert.assertEquals(new Integer(3), functions.latestEncounter(type).getEncounterId());
+	}
+	
+	/**
+	 * @see VelocityFunctions@latestEncounter(EncounterType)
+	 * @verifies return null if no matching encounter
+	 */
+	@Test
+	public void latestEncounter_shouldReturnNullIfNoMatchingEncounter() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7); 
+		EncounterType type = Context.getEncounterService().getEncounterType(6);
+        Assert.assertNull(functions.latestEncounter(type));
 	}
 	
 	/**

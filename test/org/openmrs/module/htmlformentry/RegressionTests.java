@@ -537,6 +537,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			void testBlankFormHtml(String html) {
 				TestUtil.assertFuzzyContains("Last weight: 50.0", html);
 				TestUtil.assertFuzzyContains("Gender: M", html);
+				TestUtil.assertFuzzyContains("Location: Test Location", html);
 			}
 		}.run();
 	}
