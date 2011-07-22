@@ -59,13 +59,21 @@ public class HtmlFormEntryController {
                                                 /*@RequestParam(value="mode", required=false) String modeParam,*/
                                                 /*@RequestParam(value="encounterId", required=false) Integer encounterId,*/
                                                 @RequestParam(value="patientId", required=false) Integer patientId,
-                                                @RequestParam(value="personId", required=false) Integer personId,
+                                                /*@RequestParam(value="personId", required=false) Integer personId,*/
                                                 @RequestParam(value="formId", required=false) Integer formId,
                                                 @RequestParam(value="htmlformId", required=false) Integer htmlFormId,
                                                 @RequestParam(value="returnUrl", required=false) String returnUrl,
                                                 @RequestParam(value="formModifiedTimestamp", required=false) Long formModifiedTimestamp,
                                                 @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp) throws Exception {
     	// @RequestParam doesn't pick up query parameters (in the url) in a POST, so I'm handling encounterId and modeParam specially:
+    	
+    	Integer personId = null;
+    	
+    	if (StringUtils.hasText(request.getParameter("personId"))) {
+    		personId = Integer.valueOf(request.getParameter("personId"));
+    	}
+    	
+    	
     	String modeParam = request.getParameter("mode");
     	Integer encounterId = null;
     	if (StringUtils.hasText(request.getParameter("encounterId")))
