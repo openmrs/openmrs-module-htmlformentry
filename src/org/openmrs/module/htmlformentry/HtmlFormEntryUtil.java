@@ -163,11 +163,11 @@ public class HtmlFormEntryUtil {
         } else if (dt.isText()) {
             if (value instanceof Location) {
             	Location location = (Location) value;
-            	obs.setValueText(location.getId().toString() + "|" + location.getName());
+            	obs.setValueText(location.getId().toString() + " - " + location.getName());
             } 
             else if (value instanceof Person) {
             	Person person = (Person) value;
-            	obs.setValueText(person.getId().toString() + "|" + person.getPersonName().toString());
+            	obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
             }
             else {
                 obs.setValueText(value.toString());
@@ -445,7 +445,7 @@ public class HtmlFormEntryUtil {
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 *   or 3) location name like "Boston"
- 	 *   or 4) an id/name pair like "501|Boston"  (this format is used when savin a location on a obs as a value text)
+ 	 *   or 4) an id/name pair like "501 - Boston"  (this format is used when saving a location on a obs as a value text)
 	 * @param Id
 	 * @return the location if exist, else null
 	 * @should find a location by its locationId
@@ -460,7 +460,7 @@ public class HtmlFormEntryUtil {
 		if(id != null){
 			
 			// see if this is parseable int; if so, try looking up by id
-			try {//handle integer: id
+			try { //handle integer: id
 				int locationId = Integer.parseInt(id);
 				location = Context.getLocationService().getLocation(locationId);
 				
@@ -487,9 +487,9 @@ public class HtmlFormEntryUtil {
 				return location;
 			}
 			
-			// try the "101|Cange" case
-			if (id.contains("|")) {
-				String [] values = id.split("\\|");
+			// try the "101 - Cange" case
+			if (id.contains(" ")) {
+				String [] values = id.split(" ");
 				try{ 
 					int locationId = Integer.parseInt(values[0]);
 					location = Context.getLocationService().getLocation(locationId);
@@ -561,7 +561,7 @@ public class HtmlFormEntryUtil {
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 *   or 3) a username like "mgoodrich"
-	 *   or 4) an id/name pair like "5090|Bob Jones"  (this format is used when saving a person on a obs as a value text)
+	 *   or 4) an id/name pair like "5090 - Bob Jones"  (this format is used when saving a person on a obs as a value text)
 	 * @param Id
 	 * @return the person if exist, else null
 	 * @should find a person by its id
@@ -602,9 +602,9 @@ public class HtmlFormEntryUtil {
 				return personByUsername.getPerson();
 			}
 			
-			// try the "5090|Bob Jones" case
-			if (id.contains("|")) {
-				String [] values = id.split("\\|");
+			// try the "5090 - Bob Jones" case
+			if (id.contains(" ")) {
+				String [] values = id.split(" ");
 				try{ 
 					int personId = Integer.parseInt(values[0]);
 					person = Context.getPersonService().getPerson(personId);

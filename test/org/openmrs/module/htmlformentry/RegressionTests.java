@@ -1114,7 +1114,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
-				TestUtil.addObs(e, 19, "2|Xanadu", null); // this is a location
+				TestUtil.addObs(e, 19, "2 - Xanadu", null); // this is a location
 				return e;
 			}
 			
@@ -1140,7 +1140,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
-				TestUtil.addObs(e, 19, "7|Collet Chebaskwony", null); 
+				TestUtil.addObs(e, 19, "7 - Collet Chebaskwony", null); 
 				return e;
 			}
 			
