@@ -18,13 +18,17 @@ import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptNumeric;
+import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.Person;
+import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
@@ -37,11 +41,13 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
@@ -264,7 +270,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     			if (existingObs != null) {
     				valueWidget.setInitialValue(existingObs.getValueNumeric());
     			}
-    		} else if (concept.getDatatype().isText()) {
+    		} 
+    		else if (concept.getDatatype().isText()) {
     			if (parameters.get("answers") != null) {
     				try {
     					for (StringTokenizer st = new StringTokenizer(parameters
@@ -280,6 +287,57 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     			}
     			if ("location".equals(parameters.get("style"))) {
     				valueWidget = new LocationWidget();
+    			} 
+    			else if ("person".equals(parameters.get("style"))) {
+    				
+    				List<PersonStub> options = new ArrayList<PersonStub>();
+    				
+    				// If specific persons are specified, display only those persons in order
+    				String personsParam = (String)parameters.get("persons");
+    				if (personsParam != null) {
+    					for (String s : personsParam.split(",")) {
+    						Person p = HtmlFormEntryUtil.getPerson(s);
+    						if (p == null) {
+    							throw new RuntimeException("Cannot find Person: " + s);
+    						}
+    						options.add(new PersonStub(p));
+    					}
+    				}
+    				
+    				// Only if specific person ids are not passed in do we get by user Role
+    				if (options.isEmpty()) {
+    					
+    					List<PersonStub> users = new ArrayList<PersonStub>();
+    					
+    					// If the "role" attribute is passed in, limit to users with this role
+    					if (parameters.get("role") != null) {
+    						Role role = Context.getUserService().getRole((String) parameters.get("role"));
+    						if (role == null) {
+    							throw new RuntimeException("Cannot find role: " + parameters.get("role"));
+    						}
+    						else {
+    							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+    						}
+    					}
+    					
+    					// Otherwise, limit to users with the default OpenMRS PROVIDER role, 
+    					else {
+    						String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
+    						Role role = Context.getUserService().getRole(defaultRole);
+    						if (role != null) {
+    							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+    						}
+    						// If this role isn't used, default to all Users
+    						if (users.isEmpty()) {
+    							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(null);
+    						}
+    					}
+    					options.addAll(users);
+//    					sortOptions = true;
+    				}
+    				
+    				valueWidget = new PersonStubWidget(options);
+    				
     			} else {
     				if (textAnswers.size() == 0) {
     					Integer rows = null;
@@ -336,14 +394,26 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     			if (existingObs != null) {
     				Object value;
     				if ("location".equals(parameters.get("style"))) {
-    					value = Context.getLocationService().getLocation(
-    							Integer.valueOf(existingObs.getValueText()));
-    				} else {
-    					value = existingObs.getValueText();
+    					Location l = HtmlFormEntryUtil.getLocation(existingObs.getValueText());
+    					if (l == null) {
+							throw new RuntimeException("Cannot find Location: " + existingObs.getValueText());
+						}
+    					valueWidget.setInitialValue(l);
+    				} 
+    				else if ("person".equals(parameters.get("style"))) {
+    					Person p = HtmlFormEntryUtil.getPerson(existingObs.getValueText());
+						if (p == null) {
+							throw new RuntimeException("Cannot find Person: " + existingObs.getValueText());
+						}
+    					valueWidget.setInitialValue(new PersonStub(p));
     				}
-    				valueWidget.setInitialValue(value);
+    				else {
+    					value = existingObs.getValueText();
+    					valueWidget.setInitialValue(value);
+    				}
     			}
-    		} else if (concept.getDatatype().isCoded()) {
+    		} 
+    		else if (concept.getDatatype().isCoded()) {
     			if (parameters.get("answerConceptIds") != null) {
     				try {
     					for (StringTokenizer st = new StringTokenizer(parameters

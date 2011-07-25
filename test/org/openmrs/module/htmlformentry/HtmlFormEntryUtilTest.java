@@ -60,6 +60,16 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 
 	/**
 	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 * this is the uuid test
+	 */
+	@Test
+	@Verifies(value = "should find a location by in Id|Name format", method = "getLocation(String)")
+	public void getLocation_shouldFindALocationInIdNameFormat() throws Exception {
+		Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("2|Xanadu").getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
 	 */
 	@Test
 	@Verifies(value = "should return null otherwise", method = "getLocation(String)")
@@ -163,6 +173,15 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		Assert.assertEquals("502", HtmlFormEntryUtil.getPerson("butch").getId().toString());
 	}
 	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getPerson(String)}
+	 * this is the username test
+	 */
+	@Test
+	@Verifies(value = "should find a person in id|name format", method = "getPerson(String)")
+	public void getPerson_shouldFindAPersonInIdNameFormat() throws Exception {			
+		Assert.assertEquals("Hornblower", HtmlFormEntryUtil.getPerson("2|Horatio Hornblower").getFamilyName());
+	}
 	/**
 	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
 	 */

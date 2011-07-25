@@ -163,7 +163,12 @@ public class HtmlFormEntryUtil {
         } else if (dt.isText()) {
             if (value instanceof Location) {
                 obs.setValueText(((Location) value).getLocationId().toString());
-            } else {
+            } 
+            else if (value instanceof Person) {
+            	Person person = (Person) value;
+            	obs.setValueText(person.getId().toString() + "|" + person.getPersonName().toString());
+            }
+            else {
                 obs.setValueText(value.toString());
             }
         } else if (dt.isCoded()) {
@@ -439,6 +444,7 @@ public class HtmlFormEntryUtil {
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 *   or 3) location name like "Boston"
+ 	 *   or 4) an id/name pair like "501|Boston"  (this format is used when savin a location on a obs as a value text)
 	 * @param Id
 	 * @return the location if exist, else null
 	 * @should find a location by its locationId
@@ -447,6 +453,7 @@ public class HtmlFormEntryUtil {
      * @should return null otherwise
 	 */
 	public static Location getLocation(String id){
+		
 		Location location = null;
 		
 		if(id != null){
@@ -471,13 +478,32 @@ public class HtmlFormEntryUtil {
 					return location;
 				}
 			}
-			else {
-				// if it's neither a uuid or id, try location name
-				location = Context.getLocationService().getLocation(id);
+			
+			// if it's neither a uuid or id, try location name
+			location = Context.getLocationService().getLocation(id);
+			
+			if (location != null) {
+				return location;
 			}
 			
+			// try the "101|Cange" case
+			if (id.contains("|")) {
+				String [] values = id.split("\\|");
+				try{ 
+					int locationId = Integer.parseInt(values[0]);
+					location = Context.getLocationService().getLocation(locationId);
+					
+					if (location != null) {
+						return location;
+					}
+				} catch (Exception ex){
+					//do nothing 
+				}
+			}
 		}
-		return location;
+		
+		// no match found, so return null
+		return null;
 	}
 	
 	/***
@@ -494,6 +520,7 @@ public class HtmlFormEntryUtil {
      * @should return null otherwise
 	 */
 	public static Program getProgram(String id){
+		
 		Program program = null;
 		
 		if(id != null){
@@ -533,6 +560,7 @@ public class HtmlFormEntryUtil {
 	 * 		1)an integer id like 5090 
 	 *   or 2) uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 *   or 3) a username like "mgoodrich"
+	 *   or 4) an id/name pair like "5090|Bob Jones"  (this format is used when saving a person on a obs as a value text)
 	 * @param Id
 	 * @return the person if exist, else null
 	 * @should find a person by its id
@@ -541,9 +569,10 @@ public class HtmlFormEntryUtil {
      * @should return null otherwise
 	 */
 	public static Person getPerson(String id){
+		
 		Person person = null;
 		
-		if(id != null){
+		if (id != null){
 			
 			// see if this is parseable int; if so, try looking up by id
 			try{ //handle integer: id
@@ -557,7 +586,7 @@ public class HtmlFormEntryUtil {
 				//do nothing 
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
 			if(isValidUuidFormat(id)){
 				person  = Context.getPersonService().getPersonByUuid(id);
 				
@@ -565,16 +594,31 @@ public class HtmlFormEntryUtil {
 					return person;
 				}
 			}
+			
 			// handle username
-			else {
-				User personByUsername = Context.getUserService().getUserByUsername(id);
-				
-				if (personByUsername != null) {
-					person = personByUsername.getPerson();
-				} 
+			User personByUsername = Context.getUserService().getUserByUsername(id);			
+			if (personByUsername != null) {
+				return personByUsername.getPerson();
+			}
+			
+			// try the "5090|Bob Jones" case
+			if (id.contains("|")) {
+				String [] values = id.split("\\|");
+				try{ 
+					int personId = Integer.parseInt(values[0]);
+					person = Context.getPersonService().getPerson(personId);
+					
+					if (person != null) {
+						return person;
+					}
+				} catch (Exception ex){
+					//do nothing 
+				}
 			}
 		}
-		return person;
+		
+		// no match found, so return null
+		return null;
 	}
 	
 	/***

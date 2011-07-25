@@ -1,10 +1,12 @@
 package org.openmrs.module.htmlformentry.element;
 
-import org.hibernate.transform.Transformers;
 import org.openmrs.Person;
 import org.openmrs.util.OpenmrsUtil;
 
 
+/**
+ * A "Stub" version of a person added for performance reasons when dealing with large numbers of persons
+ */
 public class PersonStub extends ValueStub {
 
     private String familyName;

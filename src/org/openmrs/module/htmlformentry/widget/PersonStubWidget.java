@@ -19,6 +19,10 @@ public class PersonStubWidget implements Widget {
     private List<PersonStub> options;
     
     public PersonStubWidget() { }
+    
+    public PersonStubWidget(List<PersonStub> options) {
+    	this.options = options;
+    }
 
     public void setInitialValue(Object initialValue) {
         person = (PersonStub) initialValue;
