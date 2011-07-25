@@ -343,4 +343,18 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
 	}
 	
+	@Test
+	@Verifies(value = "shoud return true valid uuid format", method = "isValidUuidFormat(String)")
+	public void isValidUuidFormat_shouldReturnTrueIfNotValidUuidFormat() throws Exception {
+		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));  // 36 characters
+		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));  // 38 characters
+	}
+	
+	@Test
+	@Verifies(value = "shoud return false if not valid uuid format", method = "isValidUuidFormat(String)")
+	public void isValidUuidFormat_shouldReturnFalseIfNotValidUuidFormat() throws Exception {
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("afasdfasd"));  // less than 36 characters
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("012345678901234567890123456789012345678"));  // more than 38 characters
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAA AAAAAAAAA AAAAAAAAAA AAAA"));  // includes whitespace
+	}
 }

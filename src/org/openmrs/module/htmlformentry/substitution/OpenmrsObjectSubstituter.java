@@ -78,7 +78,7 @@ public class OpenmrsObjectSubstituter implements Substituter {
 	 */
 	private String substituteName(String name, Class<?> clazz, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 		for (OpenmrsObject incoming : substitutionMap.keySet()) {
-			if (incoming.getClass().equals(clazz) 
+			if (incoming.getClass().equals(clazz) && incoming instanceof OpenmrsMetadata
 			        && StringUtils.equals(((OpenmrsMetadata) incoming).getName(), name)) {
 				return ((OpenmrsMetadata) substitutionMap.get(incoming)).getName();
 			}

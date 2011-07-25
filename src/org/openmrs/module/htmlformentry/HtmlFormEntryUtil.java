@@ -671,12 +671,18 @@ public class HtmlFormEntryUtil {
 	
 	/***
 	 * Determines if the passed string is in valid uuid format
-	 * By OpenMRS standards, a uuid must be 36 characters in length, but
+	 * By OpenMRS standards, a uuid must be 36 characters in length and not contain whitespace, but
 	 * we do not enforce that a uuid be in the "canonical" form, with alphanumerics
 	 * seperated by dashes, since the MVP dictionary does not use this format
+	 * (We also are being slightly lenient and accepting uuids that are 37 or 38 characters in
+	 * length, since the uuid data field is 38 characters long)
 	 */
 	public static boolean isValidUuidFormat(String uuid) {
-		return uuid.length() == 36 ? true : false;
+		if (uuid.length() < 36 || uuid.length() > 38 || uuid.contains(" ")) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public static List<PatientIdentifierType> getPatientIdentifierTypes(){
