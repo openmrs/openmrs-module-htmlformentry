@@ -1140,12 +1140,12 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
-				TestUtil.addObs(e, 19, "7 - Collet Chebaskwony", null); 
+				TestUtil.addObs(e, 19, "7 - Collet Test Chebaskwony", null); 
 				return e;
 			}
 			
 			void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertFuzzyContains("Collet Chebaskwony", html);   // make sure Collet Chebaskwony has been included
+				TestUtil.assertFuzzyContains("Collet Test Chebaskwony", html);   // make sure Collet Chebaskwony has been included
 			}
 		}.run();
 	}
