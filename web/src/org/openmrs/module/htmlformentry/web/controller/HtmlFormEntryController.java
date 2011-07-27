@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.web.controller;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -56,8 +57,10 @@ public class HtmlFormEntryController {
     
     @ModelAttribute("command")
     public FormEntrySession getFormEntrySession(HttpServletRequest request,
+                                                // @RequestParam doesn't pick up query parameters (in the url) in a POST, so I'm handling encounterId, modeParam, and which specially
                                                 /*@RequestParam(value="mode", required=false) String modeParam,*/
                                                 /*@RequestParam(value="encounterId", required=false) Integer encounterId,*/
+                                                /*@RequestParam(value="which", required=false) String which,*/
                                                 @RequestParam(value="patientId", required=false) Integer patientId,
                                                 /*@RequestParam(value="personId", required=false) Integer personId,*/
                                                 @RequestParam(value="formId", required=false) Integer formId,
@@ -65,7 +68,10 @@ public class HtmlFormEntryController {
                                                 @RequestParam(value="returnUrl", required=false) String returnUrl,
                                                 @RequestParam(value="formModifiedTimestamp", required=false) Long formModifiedTimestamp,
                                                 @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp) throws Exception {
-    	// @RequestParam doesn't pick up query parameters (in the url) in a POST, so I'm handling encounterId and modeParam specially:
+
+    	long ts = System.currentTimeMillis();
+
+        Mode mode = Mode.VIEW;
     	
     	Integer personId = null;
     	
@@ -75,69 +81,84 @@ public class HtmlFormEntryController {
     	
     	
     	String modeParam = request.getParameter("mode");
-    	Integer encounterId = null;
-    	if (StringUtils.hasText(request.getParameter("encounterId")))
-    		encounterId = Integer.valueOf(request.getParameter("encounterId"));
-    	
-        long ts = System.currentTimeMillis();
-        
-        Mode mode = Mode.VIEW;
 		if ("enter".equalsIgnoreCase(modeParam)) {
 			mode = Mode.ENTER;
 		}
 		else if ("edit".equalsIgnoreCase(modeParam)) {
             mode = Mode.EDIT;            
 		}
-		
-        Encounter encounter = null;
-        if (encounterId != null) {
-            encounter = Context.getEncounterService().getEncounter(encounterId);
-        }
-        
+
         Patient patient = null;
-        if (encounter != null) {
-        	patient = encounter.getPatient();
-        	personId = patient.getPersonId();
-        } else {
-			// register module uses patientId, htmlformentry uses personId
-			if (patientId != null) {
-				personId = patientId;
-			}
-			patient = Context.getPatientService().getPatient(personId);
-			if (mode != Mode.ENTER && patient == null)
-				throw new IllegalArgumentException("No patient with id " + personId);
-        }
-        
-        HtmlForm htmlForm = null;
-        
-        if (encounter != null) {
-            if (formId != null) {
-                Form form = Context.getFormService().getForm(formId);
+    	Encounter encounter = null;
+    	Form form = null;
+    	HtmlForm htmlForm = null;
+
+    	if (StringUtils.hasText(request.getParameter("encounterId"))) {
+    		
+    		Integer encounterId = Integer.valueOf(request.getParameter("encounterId"));
+    		encounter = Context.getEncounterService().getEncounter(encounterId);
+    		if (encounter == null)
+    			throw new IllegalArgumentException("No encounter with id=" + encounterId);
+    		patient = encounter.getPatient();
+    		patientId = patient.getPatientId();
+            personId = patient.getPersonId();
+            
+            if (formId != null) { // I think formId is allowed to differ from encounter.form.id because of HtmlFormFlowsheet
+                form = Context.getFormService().getForm(formId);
                 htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
                 if (htmlForm == null)
             		throw new IllegalArgumentException("No HtmlForm associated with formId " + formId);
             } else {
+            	form = encounter.getForm();
                 htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(encounter.getForm());
                 if (htmlForm == null)
             		throw new IllegalArgumentException("The form for the specified encounter (" + encounter.getForm() + ") does not have an HtmlForm associated with it");
             }
-        } else {
-	        if (htmlFormId != null) {
+
+    	} else { // no encounter specified
+
+    		// get person from patientId/personId (register module uses patientId, htmlformentry uses personId)
+			if (patientId != null) {
+				personId = patientId;
+			}
+			if (personId != null) {
+				patient = Context.getPatientService().getPatient(personId);
+			}
+			
+			// determine form
+			if (htmlFormId != null) {
 	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlForm(htmlFormId);
 	        } else if (formId != null) {
-	        	Form form = Context.getFormService().getForm(formId);
+	        	form = Context.getFormService().getForm(formId);
 	        	htmlForm = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
 	        }
 	        if (htmlForm == null) {
 	        	throw new IllegalArgumentException("You must specify either an htmlFormId or a formId for a valid html form");
 	        }
-        }
-        
+			
+			String which = request.getParameter("which");
+			if (StringUtils.hasText(which)) {
+	    		if (patient == null)
+	    			throw new IllegalArgumentException("Cannot specify 'which' without specifying a person/patient");
+	    		List<Encounter> encs = Context.getEncounterService().getEncounters(patient, null, null, null, Collections.singleton(form), null, null, false);
+	    		if (which.equals("first")) {
+	    			encounter = encs.get(0);
+	    		} else if (which.equals("last")) {
+	    			encounter = encs.get(encs.size() - 1);
+	    		} else {
+	    			throw new IllegalArgumentException("which must be 'first' or 'last'");
+	    		}
+	    	}
+    	}
+    	
+		if (mode != Mode.ENTER && patient == null)
+			throw new IllegalArgumentException("No patient with id of personId=" + personId + " or patientId=" + patientId);
+                
         FormEntrySession session = null;
 		if (mode == Mode.ENTER && patient == null) {
 			patient = new Patient();			
 		}
-		if (encounter != null){
+		if (encounter != null) {
 			session = new FormEntrySession(patient, encounter, mode, htmlForm);				
 		} 
 		else {
