@@ -16,6 +16,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 public class DateWidget implements Widget {
     
     private Date initialValue;
+    private String onChangeFunction;
     
     public DateWidget() { }
 
@@ -36,6 +37,8 @@ public class DateWidget implements Widget {
             if (initialValue != null)
                 sb.append(" value=\"" + Context.getDateFormat().format(initialValue) + "\"");
             sb.append(" onClick=\"showCalendar(this)\"");
+            if (onChangeFunction != null)
+            	sb.append(" onChange=\"" + onChangeFunction + "\" ");
             sb.append(" /> (dd/mm/yyyy)");
             return sb.toString();
         }
@@ -53,4 +56,10 @@ public class DateWidget implements Widget {
     public void setInitialValue(Object value) {
         initialValue = (Date) value;
     }
+
+	public void setOnChangeFunction(String onChangeFunction) {
+		this.onChangeFunction = onChangeFunction;
+	}
+    
+    
 }

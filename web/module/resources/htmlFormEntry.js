@@ -343,3 +343,41 @@ function checkboxSetterFunction(widgetId, value) {
 	var valueWhenOn = jQuery('#' + widgetId).val();
 	DWRUtil.setValue(widgetId, value == true || value == valueWhenOn);
 }
+
+
+//does an ajax lookup to see if this form has already been filled out for this encounter date.
+//valid instructions are 'block', and 'warn'
+//TODO:  would be nice if this used javascript confirm(), and 'cancel' meant history.go(-1) and/or closed the pop-up window (closing the popup being a bit harder)
+function existingEncounterOnDate(item, instruction){
+      
+	    if (!(instruction == 'block' || instruction == 'warn'))
+	    	return;
+     	
+		var date = $j(item).val();
+		var formId = $j('[name=htmlFormId]').val();
+		var patientId = $j('[name=personId]').val();
+		var dateFormat = "dd/MM/yyyy";
+		
+		if ($j('[name=encounterId]').val() == null)
+		{
+			$j.get(  
+	            "lastEnteredForm.form",  
+	            {formId: formId, patientId: patientId, date: date, dateFormat: dateFormat},  
+	            function(responseText){  
+       
+	                if(responseText == "true")
+	                {
+	                	if (instruction == "warn"){
+		                	alert("This form has already been entered for the patient on the date you have chosen, please confirm that you are not about to create a duplicate record.");
+	                	} else if (instruction == "block") {
+	                		alert("This form has already been entered for the patient on the date you have chosen.  If you have entered the wrong date, please enter the correct one.  If you have entered the correct date, please find the encounter that has already been entered.");
+		                	//clear the date and continue entering the form
+		                	$j(item).val('');
+	                	}
+	                } else {
+	                	//make sure everything is enabled
+	                }
+	            } 
+	        ); 
+	    }
+}
