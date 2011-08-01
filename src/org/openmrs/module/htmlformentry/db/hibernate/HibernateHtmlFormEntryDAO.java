@@ -125,4 +125,14 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     		return null;
     	}
     }
+    
+    @SuppressWarnings("unchecked")
+	public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue) {
+	    String query =  "select distinct(pa.person_id) from person_attribute pa, person_attribute_type pat where pa.person_attribute_type_id = pat.person_attribute_type_id and pat.name='" + attribute + "'";
+		if(attributeValue != null)
+		{
+			query = query + " and value='" + attributeValue + "'";
+		}
+	    return (List<Integer>)sessionFactory.getCurrentSession().createSQLQuery(query).list();
+    }
 }

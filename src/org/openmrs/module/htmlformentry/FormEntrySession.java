@@ -478,6 +478,44 @@ public class FormEntrySession {
                 Context.getEncounterService().saveEncounter(e);
             }
         }
+        
+        
+        //deal with relationships
+        if(submissionActions.getRelationshipsToCreate() != null)
+        {
+        	for(Relationship r : submissionActions.getRelationshipsToCreate())
+        	{
+        		if(log.isDebugEnabled())
+        		{
+        			log.debug("creating relationships" + r.getRelationshipType().getDescription());
+        			Context.getPersonService().saveRelationship(r);
+        		}
+        	}
+        }
+        
+        if(submissionActions.getRelationshipsToVoid() != null)
+        {
+       	for(Relationship r : submissionActions.getRelationshipsToVoid())
+       	{
+        		if(log.isDebugEnabled())
+        		{
+        			log.debug("voiding relationships" + r.getId());
+        			Context.getPersonService().voidRelationship(r, "htmlformentry");
+        		}
+        	}
+        }
+        
+        if(submissionActions.getRelationshipsToEdit() != null)
+        {
+        	for(Relationship r : submissionActions.getRelationshipsToCreate())
+        	{
+        		if(log.isDebugEnabled())
+        		{
+        			log.debug("editing relationships" + r.getId());
+        			Context.getPersonService().saveRelationship(r);
+        		}
+        	}
+        }
 
         // program enrollments are trickier since we need to make sure the patient isn't already enrolled
         // 1. if the patient is already enrolled on the given date, just skip this

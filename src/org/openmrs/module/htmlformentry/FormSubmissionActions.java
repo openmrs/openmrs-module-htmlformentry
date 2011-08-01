@@ -16,6 +16,7 @@ import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.Program;
+import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.OpenmrsUtil;
 
@@ -41,6 +42,9 @@ public class FormSubmissionActions {
     private List<Obs> obsToVoid = new Vector<Obs>();
     private List<Order> ordersToCreate = new Vector<Order>();
     private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
+    private List<Relationship> relationshipsToCreate = new Vector<Relationship>();
+    private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
+    private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
     
     /** The stack where state is stored */
     private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
@@ -472,4 +476,65 @@ public class FormSubmissionActions {
     	this.patientProgramsToCreate = patientProgramsToCreate;
     }
 
+	
+    /**
+     * Returns the list of Relationships that need to be created to process form submission
+     * 
+     * @return the relationshipsToCreate
+     */
+    public List<Relationship> getRelationshipsToCreate() {
+    	return relationshipsToCreate;
+    }
+
+	
+    /**
+     * Sets the list of Relationships that need to be creatd to process form submission
+     * 
+     * @param relationshipsToCreate the relationshipsToCreate to set
+     */
+    public void setRelationshipsToCreate(List<Relationship> relationshipsToCreate) {
+    	this.relationshipsToCreate = relationshipsToCreate;
+    }
+
+	
+    /**
+     * Returns the list of Relationships that need to be voided to process form submission
+     * 
+     * @return the relationshipsToVoid
+     */
+    public List<Relationship> getRelationshipsToVoid() {
+    	return relationshipsToVoid;
+    }
+
+	
+    /**
+     * Sets the list of Relationships that need to be voided to process form submission
+     * 
+     * @param relationshipsToVoid the relationshipsToVoid to set
+     */
+    public void setRelationshipsToVoid(List<Relationship> relationshipsToVoid) {
+    	this.relationshipsToVoid = relationshipsToVoid;
+    }
+
+	
+    /**
+     * Returns the list of Relationships that need to be edited to process form submission
+     * 
+     * @return the relationshipsToEdit
+     */
+    public List<Relationship> getRelationshipsToEdit() {
+    	return relationshipsToEdit;
+    }
+
+	
+    /**
+     * Sets the list of Relationships that need to be edited to process form submission
+     * 
+     * @param relationshipsToEdit the relationshipsToEdit to set
+     */
+    public void setRelationshipsToEdit(List<Relationship> relationshipsToEdit) {
+    	this.relationshipsToEdit = relationshipsToEdit;
+    }
+
+    
 }
