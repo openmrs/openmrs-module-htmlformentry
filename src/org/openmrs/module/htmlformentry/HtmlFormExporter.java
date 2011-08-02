@@ -9,12 +9,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Form;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.Person;
 import org.openmrs.Program;
+import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
@@ -90,7 +92,7 @@ public class HtmlFormExporter {
 		// loop through all the attribute descriptors for the registered handlers
 		for (String tagName : tagHandlers.keySet()) {
 			log.debug("Handling dependencies for tag " + tagName);
-			
+
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					if (attributeDescriptor.getClazz() != null) {
@@ -111,6 +113,15 @@ public class HtmlFormExporter {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
 									    attributeDescriptor.getClazz(), id);
 									if (object != null) {
+										//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
+										if (Form.class.equals(attributeDescriptor.getClazz())) {
+											Form form = (Form) object;
+											HtmlForm htmlForm = Context.getService(HtmlFormEntryService.class).getHtmlFormByForm(form);
+											if (htmlForm != null){
+												dependencies.add(htmlForm);
+												continue;
+											} 
+										}
 										dependencies.add(object);
 										continue;
 									}
@@ -148,6 +159,14 @@ public class HtmlFormExporter {
 									Role role = Context.getUserService().getRole(id);
 									if (role != null) {
 										dependencies.add(role);
+										continue;
+									}
+								}
+								//RelationshipType from the relationship tag, in case of lookup by name (which may or may not be implemented yet...)
+								if (RelationshipType.class.equals(attributeDescriptor.getClazz())) {
+									RelationshipType relationshipType = Context.getPersonService().getRelationshipTypeByName(id);
+									if (relationshipType != null) {
+										dependencies.add(relationshipType);
 										continue;
 									}
 								}
