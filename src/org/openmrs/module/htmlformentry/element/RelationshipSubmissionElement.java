@@ -66,7 +66,6 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 	public RelationshipSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		
 		relationshipWidget = new RelationshipWidget();
-		context.registerWidget(relationshipWidget);
 		
 		String relationshipsToBeCreated = parameters.get(FIELD_TYPE);
 		if(relationshipsToBeCreated != null)
@@ -81,7 +80,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 		                r = Context.getPersonService().getRelationshipType(Integer.valueOf(rel));
 		            } catch (Exception ex){}
 		        } 
-		        
+		        if (r == null)
+		        	throw new IllegalArgumentException("Relationship tag type parameter item " + rel + " is invalid.");
 		        relationshipsToCreate.add(r);
 			}
 			relationshipWidget.setRelationshipsToCreate(relationshipsToCreate);
@@ -147,6 +147,7 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 		
 		labelText = parameters.get(FIELD_LABEL_TEXT);
 		
+		context.registerWidget(relationshipWidget);
 	    context.registerErrorWidget(personWidget, personErrorWidget);
 	}
 
