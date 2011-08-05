@@ -55,7 +55,7 @@ public class RelationshipWidget implements Widget {
 				
 				RelationshipType rt = relationshipsToCreate.get(i);
 				String side = roleInRelationship.get(i);
-				sb.append("&nbsp;&nbsp");
+				sb.append("&nbsp;&nbsp;");
 				if(side.equals("A"))
 				{
 					sb.append(rt.getbIsToA());
