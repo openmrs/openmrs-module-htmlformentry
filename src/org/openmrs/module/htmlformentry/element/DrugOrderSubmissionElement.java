@@ -429,6 +429,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 			ret.append(drugWidget.generateHtml(context) + " ");
 			if (context.getMode() != Mode.VIEW)
 				ret.append(drugErrorWidget.generateHtml(context));
+			ret.append(" | ");
 		}
 		if (doseWidget != null) {
 			ret.append(mss.getMessage("DrugOrder.dose") + " ");
@@ -449,6 +450,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				ret.append(frequencyWeekErrorWidget.generateHtml(context));
 		}
 		if (startDateWidget != null) {
+			ret.append(" | ");
 			ret.append(mss.getMessage("general.dateStart") + " ");
 			ret.append(startDateWidget.generateHtml(context) + " ");
 			if (context.getMode() != Mode.VIEW)
@@ -469,7 +471,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				ret.append(discontinuedDateErrorWidget.generateHtml(context));
 		}
 		if (discontinuedReasonWidget != null){
-		    ret.append(mss.getMessage("general.discontinuedReason") + " ");
+		    ret.append(" | " + mss.getMessage("general.discontinuedReason") + " ");
             ret.append(discontinuedReasonWidget.generateHtml(context) + " ");
             if (context.getMode() != Mode.VIEW)
                 ret.append(discontinuedReasonErrorWidget.generateHtml(context));

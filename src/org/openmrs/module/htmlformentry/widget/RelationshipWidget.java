@@ -6,14 +6,11 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.openmrs.Person;
 import org.openmrs.Relationship;
 import org.openmrs.RelationshipType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.springframework.util.StringUtils;
 
 /**
  * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person 
