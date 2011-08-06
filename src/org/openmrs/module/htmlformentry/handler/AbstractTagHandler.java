@@ -60,6 +60,11 @@ public abstract class AbstractTagHandler implements TagHandler {
 	public String getDescription() {
 		return description;
 	}
+	
+	@Override
+	public boolean allowsChildren() {
+		return false;
+	}
 
 	abstract public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node);
 

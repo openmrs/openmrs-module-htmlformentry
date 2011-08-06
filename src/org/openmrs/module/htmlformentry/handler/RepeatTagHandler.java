@@ -1,9 +1,9 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
 import org.w3c.dom.NamedNodeMap;
@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 public abstract class RepeatTagHandler implements IteratingTagHandler {
 
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> attributes = new CaseInsensitiveMap();
         NamedNodeMap map = node.getAttributes();
         for (int i = 0; i < map.getLength(); ++i) {
             Node attribute = map.item(i);

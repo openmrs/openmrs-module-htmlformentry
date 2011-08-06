@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
@@ -40,7 +41,7 @@ public class EncounterDateHandler extends SubstitutionTagHandler {
                 }
             }
         }
-        Map<String, Object> temp = new HashMap<String, Object>();
+        Map<String, Object> temp = new CaseInsensitiveMap();
         temp.putAll(parameters);
         temp.put("date", true);
         temp.put("defaultDate", date);

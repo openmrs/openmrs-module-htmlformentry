@@ -1,12 +1,12 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -141,7 +141,7 @@ public class ObsGroupComponent {
           Node pTmp = node.getParentNode();
           while(pTmp.getParentNode() != null){
                         
-              Map<String, String> attributes = new HashMap<String, String>();        
+              Map<String, String> attributes = new CaseInsensitiveMap();        
               NamedNodeMap map = pTmp.getAttributes();
               if (map != null)
                   for (int i = 0; i < map.getLength(); ++i) {

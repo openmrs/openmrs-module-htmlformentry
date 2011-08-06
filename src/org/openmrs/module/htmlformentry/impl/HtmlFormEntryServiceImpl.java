@@ -2,10 +2,10 @@ package org.openmrs.module.htmlformentry.impl;
 
 import java.io.StringWriter;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -31,7 +31,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     protected final Log log = LogFactory.getLog(getClass());
     
     private HtmlFormEntryDAO dao;
-    private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
+    private static Map<String, TagHandler> handlers = new CaseInsensitiveMap();
     private String basicFormXmlTemplate;
 
 	/*

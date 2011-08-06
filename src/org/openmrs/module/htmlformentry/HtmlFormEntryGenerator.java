@@ -4,12 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
@@ -258,7 +258,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
     private void applyTagsHelper(FormEntrySession session, PrintWriter out, Node parent, Node node, Map<String, TagHandler> tagHandlerCache) {
 		if (tagHandlerCache == null)
-			tagHandlerCache = new HashMap<String, TagHandler>();
+			tagHandlerCache = new CaseInsensitiveMap();
 		TagHandler handler = null;
 		// Find the handler for this node
 		{
@@ -537,5 +537,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String getName() { return "dummy"; }
 	
 	public String getDescription() { return "dummy"; }
+
+	//nevermind
+	@Override
+	public boolean allowsChildren() {
+		return false;
+	}
 
 }

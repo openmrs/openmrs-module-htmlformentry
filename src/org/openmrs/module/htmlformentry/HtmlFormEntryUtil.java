@@ -6,7 +6,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -288,7 +288,7 @@ public class HtmlFormEntryUtil {
      * @return a Map containing all the attributes of the Node
      */
     public static Map<String, String> getNodeAttributes(Node node) {
-    	Map<String, String> ret = new HashMap<String, String>();
+    	Map<String, String> ret = new CaseInsensitiveMap();
         NamedNodeMap atts = node.getAttributes();
         for (int i=0; i<atts.getLength(); i++) {
             Node attribute = atts.item(i);

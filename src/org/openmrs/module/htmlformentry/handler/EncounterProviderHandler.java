@@ -2,10 +2,10 @@ package org.openmrs.module.htmlformentry.handler;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -28,7 +28,7 @@ public class EncounterProviderHandler extends SubstitutionTagHandler {
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
             Map<String, String> parameters) {
         
-        Map<String, Object> temp = new HashMap<String, Object>();
+        Map<String, Object> temp = new CaseInsensitiveMap();
         temp.putAll(parameters);
         temp.put("provider", true);
         EncounterDetailSubmissionElement element = new EncounterDetailSubmissionElement(session.getContext(), temp);

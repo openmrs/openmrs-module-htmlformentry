@@ -20,6 +20,9 @@ public interface TagHandler {
 	
 	public String getDescription();
 	
+	/** allows children elements inside it **/
+	public boolean allowsChildren();	
+	
     /**
      * Handles the start tag for a specific tag type. Generates the appropriate HTML and adds it to the associated PrintWriter.
      * Also adds any necessary FormSubmissionControllerActions to the FormSubmissionController associated with the session.

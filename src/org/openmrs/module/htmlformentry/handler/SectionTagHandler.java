@@ -25,16 +25,16 @@ public class SectionTagHandler extends AbstractTagHandler {
         NamedNodeMap map = node.getAttributes();
         for (int i = 0; i < map.getLength(); ++i) {
             Node attribute = map.item(i);
-            if (attribute.getNodeName().equals("sectionStyle")) {
+            if (attribute.getNodeName().equalsIgnoreCase("sectionStyle")) {
             	sectionStyleClass = attribute.getNodeValue();
             }
-            if (attribute.getNodeName().equals("headerStyle")) {
+            if (attribute.getNodeName().equalsIgnoreCase("headerStyle")) {
             	headerStyleClass = attribute.getNodeValue();
             }
-            if (attribute.getNodeName().equals("headerLabel")) {
+            if (attribute.getNodeName().equalsIgnoreCase("headerLabel")) {
             	headerLabel = attribute.getNodeValue();
             }
-            if (attribute.getNodeName().equals("headerCode")) {
+            if (attribute.getNodeName().equalsIgnoreCase("headerCode")) {
             	Translator trans = session.getContext().getTranslator();
             	headerLabel = trans.translate(Context.getLocale().toString(), attribute.getNodeValue());
             }
@@ -53,6 +53,11 @@ public class SectionTagHandler extends AbstractTagHandler {
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
     	out.print("</div>");
     	session.getContext().getSchema().endSection();
+    }
+    
+    @Override
+    public boolean allowsChildren() {
+    	return true;
     }
 
 }

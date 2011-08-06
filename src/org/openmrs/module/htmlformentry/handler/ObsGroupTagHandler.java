@@ -3,10 +3,10 @@ package org.openmrs.module.htmlformentry.handler;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -33,7 +33,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
     public boolean doStartTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         
-        Map<String, String> attributes = new HashMap<String, String>();        
+        Map<String, String> attributes = new CaseInsensitiveMap();        
         NamedNodeMap map = node.getAttributes();
         for (int i = 0; i < map.getLength(); ++i) {
             Node attribute = map.item(i);
@@ -77,4 +77,8 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
                  session.getSubmissionController().addAction(ObsGroupAction.end());
     }
     
+    @Override
+    public boolean allowsChildren() {
+    	return true;
+    }
 }
