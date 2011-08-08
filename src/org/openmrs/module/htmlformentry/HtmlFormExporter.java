@@ -102,7 +102,7 @@ public class HtmlFormExporter {
 						log.debug("dependency substitution pattern: " + pattern);
 						
 						// now search through and find all matches
-						Matcher matcher = Pattern.compile(pattern).matcher(xml);
+						Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(xml);
 						while (matcher.find()) {
 							// split the matched result group into the various ids
 							String[] ids = matcher.group(1).split(",");
@@ -196,14 +196,14 @@ public class HtmlFormExporter {
 						log.debug("stripping substitution pattern: " + stripPattern);
 						
 						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includePersons && attributeDescriptor.getClazz().equals(Person.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includeRoles && attributeDescriptor.getClazz().equals(Role.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includePatientIdentifierTypes
 						        && attributeDescriptor.getClazz().equals(PatientIdentifierType.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						}
 					}
 				}
