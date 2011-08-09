@@ -430,7 +430,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     									+ concept.getConceptId() + " ("
     									+ ex.toString() + "): " + conceptAnswers);
     				}
-    			} else if (parameters.get("answerClasses") != null) {
+    			} else if (parameters.get("answerClasses") != null && !"autocomplete".equals(parameters.get("style"))) {
     				try {
     					for (StringTokenizer st = new StringTokenizer(parameters
     							.get("answerClasses"), ","); st.hasMoreTokens();) {
@@ -477,14 +477,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     				throw new RuntimeException(
     						"Multi-select coded questions are not yet implemented");
     			} else {
-    				// If no conceptAnswers are specified, 
-    				if (conceptAnswers == null || conceptAnswers.isEmpty()) {
-    					// if style = autocomplete
-    					if("autocomplete".equals(parameters.get("style"))){
-    						throw new RuntimeException(
-    						"style \"autocomplete\" has to work with either \"answerClasses\" or \"answerConceptIds\" attribute");
-    					}
-    					// else use all available conceptAnswers
+    				// allow selecting one of multiple possible coded values
+    				
+    				// if no answers are specified explicitly (by conceptAnswers or conceptClasses), get them from concept.answers.
+    				if (!parameters.containsKey("answerConcepts") && !parameters.containsKey("answerClasses")) {
     					conceptAnswers = new ArrayList<Concept>();
     					for (ConceptAnswer ca : concept.getAnswers(false)) {
     						conceptAnswers.add(ca.getAnswerConcept());
@@ -503,6 +499,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     							cptClasses.add(cc);
     						}
     					}
+    					if ((conceptAnswers == null || conceptAnswers.isEmpty()) &&
+    							(cptClasses == null || cptClasses.isEmpty())) {
+    						throw new RuntimeException("style \"autocomplete\" but there are no possible answers. Looked for answerConcepts and answerClasses attributes, and answers for concept " + concept.getConceptId());
+    					}
+    						
     					valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
     				} else {
     					// Show Radio Buttons if specified, otherwise default to Drop
