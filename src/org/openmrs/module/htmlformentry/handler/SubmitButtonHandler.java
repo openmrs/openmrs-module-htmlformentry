@@ -1,18 +1,40 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.Translator;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
  * Handles the {@code <submit>} tag
  */
 public class SubmitButtonHandler extends SubstitutionTagHandler {
-
+	
+	@Override
+	public String getName() {
+		return "Submit Button";
+	}
+	
+	public String getDescription() {
+		return "Button for Form Submission (essential)";
+	}
+	
+	@Override
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
+		List<AttributeDescriptor> attrs = new ArrayList<AttributeDescriptor>();
+		
+		attrs.add(new AttributeDescriptor("submitLabel", "Button Label:", false, "", "text"));
+		attrs.add(new AttributeDescriptor("submitCodel", "Code:", false, "", "text"));
+		attrs.add(new AttributeDescriptor("submitStyle", "Style:", false, "", "text"));
+		
+		return attrs;
+	}
+	
     @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
             Map<String, String> parameters) {
