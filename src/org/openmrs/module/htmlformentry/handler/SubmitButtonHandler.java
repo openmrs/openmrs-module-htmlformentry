@@ -28,9 +28,9 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attrs = new ArrayList<AttributeDescriptor>();
 		
-		attrs.add(new AttributeDescriptor("submitLabel", "Button Label:", false, "", "text"));
-		attrs.add(new AttributeDescriptor("submitCodel", "Code:", false, "", "text"));
-		attrs.add(new AttributeDescriptor("submitStyle", "Style:", false, "", "text"));
+		attrs.add(new AttributeDescriptor("submitLabel", "Label:", false, "Allows you to set the text of the submit button.", "text"));
+		attrs.add(new AttributeDescriptor("submitCode", "Code:", false, "Allows you to set the text of the submit button using an htmlformentry translation code", "text"));
+		attrs.add(new AttributeDescriptor("submitStyle", "Style:", false, " Allows you to set the style class for the submit button.  This attribute gets written into the rendered submit tag as class=\"&lt;&lt;submitStyle Value&gt;&gt;\".", "text"));
 		
 		return attrs;
 	}
