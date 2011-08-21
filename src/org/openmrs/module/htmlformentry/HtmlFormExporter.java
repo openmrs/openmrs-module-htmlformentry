@@ -9,17 +9,20 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Form;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.Person;
 import org.openmrs.Program;
+import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 
 /**
  * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
@@ -89,7 +92,7 @@ public class HtmlFormExporter {
 		// loop through all the attribute descriptors for the registered handlers
 		for (String tagName : tagHandlers.keySet()) {
 			log.debug("Handling dependencies for tag " + tagName);
-			
+
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					if (attributeDescriptor.getClazz() != null) {
@@ -99,17 +102,26 @@ public class HtmlFormExporter {
 						log.debug("dependency substitution pattern: " + pattern);
 						
 						// now search through and find all matches
-						Matcher matcher = Pattern.compile(pattern).matcher(xml);
+						Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(xml);
 						while (matcher.find()) {
 							// split the matched result group into the various ids
 							String[] ids = matcher.group(1).split(",");
 							
 							for (String id : ids) {
 								// if this id matches a uuid pattern, try to fetch the object by uuid
-								if (Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(id).matches()) {
+								if (HtmlFormEntryUtil.isValidUuidFormat(id)) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
 									    attributeDescriptor.getClazz(), id);
 									if (object != null) {
+										//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
+										if (Form.class.equals(attributeDescriptor.getClazz())) {
+											Form form = (Form) object;
+											HtmlForm htmlForm = Context.getService(HtmlFormEntryService.class).getHtmlFormByForm(form);
+											if (htmlForm != null){
+												dependencies.add(htmlForm);
+												continue;
+											} 
+										}
 										dependencies.add(object);
 										continue;
 									}
@@ -150,6 +162,14 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
+								//RelationshipType from the relationship tag, in case of lookup by name (which may or may not be implemented yet...)
+								if (RelationshipType.class.equals(attributeDescriptor.getClazz())) {
+									RelationshipType relationshipType = Context.getPersonService().getRelationshipTypeByName(id);
+									if (relationshipType != null) {
+										dependencies.add(relationshipType);
+										continue;
+									}
+								}
 							}
 						}
 					}
@@ -176,14 +196,14 @@ public class HtmlFormExporter {
 						log.debug("stripping substitution pattern: " + stripPattern);
 						
 						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includePersons && attributeDescriptor.getClazz().equals(Person.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includeRoles && attributeDescriptor.getClazz().equals(Role.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includePatientIdentifierTypes
 						        && attributeDescriptor.getClazz().equals(PatientIdentifierType.class)) {
-							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern));
+							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						}
 					}
 				}
@@ -220,7 +240,9 @@ public class HtmlFormExporter {
 		stripLocalAttributesFromXml();
 		
 		// within the form, replace any Ids with Uuids
-		HtmlFormEntryUtil.replaceIdsWithUuids(formToExport);
+		HtmlFormSubstitutionUtils.replaceIdsWithUuids(formToExport);
+		// replace any programs referenced by name with uuids (since programs referenced by name are really referenced by the underlying concept which can cause issues during metadata sharing)
+		HtmlFormSubstitutionUtils.replaceProgramNamesWithUuids(formToExport);
 		
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
 		calculateDependencies();

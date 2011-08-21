@@ -130,8 +130,35 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
                 Assert.assertTrue(of.getConcept().getConceptId().equals(103));
             }
         }
-        
-
     }
-
+    
+    /**
+     * @see {@link
+     *      DrugOrderSubmissionElement#DrugOrderSubmissionElement(FormEntryContext,Map<QString;
+     *      QString;>)}
+     */
+    @Test
+    @Verifies(value = "should return valid drugOrder schema elements when referenced by mapping", method = "DrugOrderSubmissionElement(FormEntryContext,Map<QString;QString;>)")
+    public void DrugOrderSubmissionElementWhenReferencedByMapping_shouldReturnCorrectSchema() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("drugNames", "Aspirin,Triomune-30");
+        parameters.put("discontinuedReasonConceptId", "SNOMED CT:7345693");
+        parameters.put("discontinueReasonAnswers", "SNOMED CT:2332523,103");
+        parameters.put("discontinueReasonAnswerLabels", "DRUG1, DRUG2");
+        new DrugOrderSubmissionElement(context, parameters);
+        List<HtmlFormField> fields = context.getSchema().getAllFields();
+        for (HtmlFormField field : fields){
+            if (field instanceof DrugOrderField){
+                DrugOrderField dof = (DrugOrderField) field;
+                Assert.assertTrue(dof.getDrugOrderAnswers().size() == 2);
+                Assert.assertTrue(dof.getDiscontinuedReasonQuestion().getConceptId().equals(5497));
+                ObsFieldAnswer of = dof.getDiscontinuedReasonAnswers().get(0);
+                Assert.assertTrue(of.getDisplayName().equals("DRUG1"));
+                Assert.assertTrue(of.getConcept().getConceptId().equals(5089));
+                of = dof.getDiscontinuedReasonAnswers().get(1);
+                Assert.assertTrue(of.getDisplayName().equals("DRUG2"));
+                Assert.assertTrue(of.getConcept().getConceptId().equals(103));
+            }
+        }
+    }
 }

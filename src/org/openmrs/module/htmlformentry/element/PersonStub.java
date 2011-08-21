@@ -1,10 +1,14 @@
 package org.openmrs.module.htmlformentry.element;
 
-import org.hibernate.transform.Transformers;
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Person;
+import org.openmrs.PersonName;
 import org.openmrs.util.OpenmrsUtil;
 
 
+/**
+ * A "Stub" version of a person added for performance reasons when dealing with large numbers of persons
+ */
 public class PersonStub extends ValueStub {
 
     private String familyName;
@@ -21,8 +25,15 @@ public class PersonStub extends ValueStub {
     public PersonStub(Person person){
         if (person != null){
             this.setId(person.getPersonId());
-            this.givenName = person.getGivenName();
-            this.familyName = person.getFamilyName();
+            
+            PersonName name = person.getPersonName();
+            
+            if (name != null) {
+            	this.givenName = name.getGivenName();
+            	this.middleName = name.getMiddleName();
+            	this.familyName = name.getFamilyName(); 
+            	this.familyName2 = name.getFamilyName2();
+            }
         }
      }
     
@@ -60,12 +71,20 @@ public class PersonStub extends ValueStub {
      * NOTE: setResultTransformer(Transformers.aliasToBean(PersonStub.class)) isn't compatible with the 
      * mysql CONCAT function for some reason, so I wasn't able to build the display value in the Hibernate SQLQuery itself
      */
-    @Override
     public String getDisplayValue(){
-        return this.getGivenName() + " " + this.getFamilyName();
+        String displayValue = (StringUtils.isNotBlank(this.getGivenName()) ? this.getGivenName() + " " : "") + (StringUtils.isNotBlank(this.getMiddleName()) ? this.getMiddleName() + " " : "") +
+        						(StringUtils.isNotBlank(this.getFamilyName()) ? this.getFamilyName() + " " : "") + (StringUtils.isNotBlank(this.getFamilyName2()) ? this.getFamilyName2() : "");
+          
+        // remove the trailing space
+        displayValue = displayValue.replaceAll("\\s$", "");
+        
+        return displayValue;
     }
     
-    @Override
+    public String toString() {
+    	return getDisplayValue();
+    }
+    
     public boolean equals(Object o){
         if (o != null && o instanceof PersonStub){
             PersonStub oOther = (PersonStub) o;

@@ -35,4 +35,10 @@ div.formEntrySection {
 .required {
 	color:red;
 }
+
+div.loading {
+	color:red;
+	font-weight: bolder;
+	font-size: 1.1em;
+}
  

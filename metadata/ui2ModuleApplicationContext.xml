@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:component-scan base-package="@MODULE_PACKAGE@" />
+
+	<bean class="org.openmrs.ui2.core.page.PageFactory" autowire-candidate="false">
+		<property name="additionalViewProviders">
+			<map>
+				<entry key="htmlFormEntry-module">
+					<bean class="org.openmrs.ui2.core.page.SpringMvcPageViewProvider">
+						<property name="pages">
+							<map>
+								<entry key="enterHtmlForm" value="/module/htmlformentry/htmlFormEntry.form?mode=ENTER" />
+								<entry key="viewHtmlForm" value="/module/htmlformentry/htmlFormEntry.form?mode=VIEW" />
+							</map>
+						</property>
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean class="org.openmrs.ui2.core.fragment.FragmentFactory" autowire-candidate="false">
+		<property name="additionalViewProviders">
+			<map>
+				<entry key="htmlFormEntry-module-pages">
+					<bean
+						class="org.openmrs.ui2.core.fragment.SpringMvcPageAsFragmentViewProvider">
+						<property name="fragments">
+							<map>
+								<entry key="lastHtmlForm"
+									value="/module/htmlformentry/htmlFormEntry.form?pageFragment=true&amp;mode=VIEW&amp;which=last" />
+							</map>
+						</property>
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+    <!-- Extensions -->
+    
+    <bean id="htmlFormEntryExtension" class="org.openmrs.ui2.compatibility.extension.FormEntryExtensionFromHandler">
+    	<property name="description"><value></value></property>
+    	<property name="entryPage"><value>enterHtmlForm</value></property>
+    	<property name="openPage"><value>viewHtmlForm</value></property>
+    	<property name="delegate">
+    		<bean class="org.openmrs.module.htmlformentry.extension.html.FormEntryHandlerExtension"/>
+    	</property>   	
+    </bean>
+    
+    <!--
+    <bean id="growthChartPatientDashboardFragmentExtension" class="org.openmrs.ui2.core.extension.PatientFragmentExtension">
+    	<property name="fragment" value="growthChartForm"/>
+    	<property name="label" value="Growth Chart"/>
+    	<property name="description" value="Pediatric growth chart"/>
+    </bean>
+     -->
+    
+</beans>

@@ -1,9 +1,12 @@
 package org.openmrs.module.htmlformentry.impl;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.logging.Log;
@@ -12,9 +15,12 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
+import org.openmrs.Cohort;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.Person;
+import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.htmlformentry.HtmlForm;
@@ -177,5 +183,85 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name) {
 	    return dao.getItemByName(type, name);
     }
-
+    
+    public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue) {
+    		    
+    	return dao.getPersonIdHavingAttributes(attribute, attributeValue);
+    }
+	 	
+	public List<PersonStub> getPeopleAsPersonStubs(List<String> attributes, List<String> attributeValues, List<String> programIds){
+		List<PersonStub> stubs = new ArrayList<PersonStub>();
+		
+		Cohort cohort = null;
+		if(attributes != null)
+		{
+			for(int i = 0; i < attributes.size(); i++)
+			{
+				String attr = attributes.get(i);
+				String val = null;
+				if(attributeValues != null && attributeValues.size() > i)
+				{
+					val = attributeValues.get(i);
+				}
+				
+				List<Integer> ids = getPersonIdHavingAttributes(attr, val);
+				Set<Integer> setOfIds = new HashSet<Integer>();
+				setOfIds.addAll(ids);
+						
+				Cohort pp = new Cohort();
+				pp.setMemberIds(setOfIds);
+					
+				if(cohort != null)
+				{
+					cohort = cohort.intersect(cohort, pp);
+				}
+				else
+				{
+					cohort = pp;
+				}
+			}
+		}
+		
+		if(programIds != null)
+		{
+			for(String prog: programIds)
+		{
+				if(prog != null && prog.trim().length() > 0)
+				{
+					Program personProgram = Context.getProgramWorkflowService().getProgramByUuid(prog);
+					if(personProgram == null)
+					{
+						personProgram = Context.getProgramWorkflowService().getProgram(Integer.parseInt(prog));
+					}
+					if(personProgram != null)
+					{
+						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
+						if(cohort != null)
+						{
+							cohort = cohort.intersect(cohort, pp);
+						}
+					}
+				}
+			}
+		}
+		
+		if(cohort != null)
+		{
+			//now iterate through the cohort returning person stubs
+			for(Integer id: cohort.getMemberIds())
+			{
+				Person person = Context.getPersonService().getPerson(id);
+				if(person != null)
+				{
+					PersonStub pStub = new PersonStub();
+					pStub.setGivenName(person.getGivenName());
+					pStub.setFamilyName(person.getFamilyName());
+					pStub.setMiddleName(person.getMiddleName());
+				pStub.setId(id);
+					stubs.add(pStub);
+				}
+			}
+		}
+		return stubs;
+	}
 }

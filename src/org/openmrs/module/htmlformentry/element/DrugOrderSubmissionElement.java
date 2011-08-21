@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -162,10 +161,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		while (tokenizer.hasMoreElements()) {
 			String drugName = (String) tokenizer.nextElement();
 			Drug drug = null;
-			// pattern to match a uuid, i.e., five blocks of alphanumerics separated by hyphens
-			if (Pattern.compile("\\w+-\\w+-\\w+-\\w+-\\w+").matcher(drugName.trim()).matches()) {
+			
+			// see if this is a uuid
+			if (HtmlFormEntryUtil.isValidUuidFormat(drugName.trim())) {
 				drug = conceptService.getDrugByUuid(drugName.trim());
-			} else {
+			} 
+			
+			// if we didn't find by id, find by uuid or name			
+			if (drug == null){
 				drug = conceptService.getDrugByNameOrId(drugName.trim());			
 			}
 			
@@ -271,12 +274,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         }
 		if (parameters.get(FIELD_DISCONTINUED_REASON) != null){
 		    String discReasonConceptStr = (String) parameters.get(FIELD_DISCONTINUED_REASON);
-		    Concept discontineReasonConcept = Context.getConceptService().getConceptByUuid(discReasonConceptStr);
-		    if (discontineReasonConcept == null){
-		        try {
-		            discontineReasonConcept = Context.getConceptService().getConcept(Integer.valueOf(discReasonConceptStr));
-		        } catch (Exception ex){}
-		    }    
+		    Concept discontineReasonConcept = HtmlFormEntryUtil.getConcept(discReasonConceptStr);
 		    if (discontineReasonConcept == null)
 		        throw new IllegalArgumentException("discontinuedReasonConceptId is not set to a valid conceptId or concept UUID");
 		    dof.setDiscontinuedReasonQuestion(discontineReasonConcept);
@@ -431,6 +429,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 			ret.append(drugWidget.generateHtml(context) + " ");
 			if (context.getMode() != Mode.VIEW)
 				ret.append(drugErrorWidget.generateHtml(context));
+			ret.append(" | ");
 		}
 		if (doseWidget != null) {
 			ret.append(mss.getMessage("DrugOrder.dose") + " ");
@@ -451,6 +450,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				ret.append(frequencyWeekErrorWidget.generateHtml(context));
 		}
 		if (startDateWidget != null) {
+			ret.append(" | ");
 			ret.append(mss.getMessage("general.dateStart") + " ");
 			ret.append(startDateWidget.generateHtml(context) + " ");
 			if (context.getMode() != Mode.VIEW)
@@ -471,7 +471,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				ret.append(discontinuedDateErrorWidget.generateHtml(context));
 		}
 		if (discontinuedReasonWidget != null){
-		    ret.append(mss.getMessage("general.discontinuedReason") + " ");
+		    ret.append(" | " + mss.getMessage("general.discontinuedReason") + " ");
             ret.append(discontinuedReasonWidget.generateHtml(context) + " ");
             if (context.getMode() != Mode.VIEW)
                 ret.append(discontinuedReasonErrorWidget.generateHtml(context));
@@ -556,7 +556,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	    drugOrder.setDiscontinued(true);
     	    	}    
     	    	if (!StringUtils.isEmpty(discontinuedReasonStr))
-    	    	    drugOrder.setDiscontinuedReason(Context.getConceptService().getConcept((Integer.valueOf(discontinuedReasonStr))));
+    	    	    drugOrder.setDiscontinuedReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
     			log.debug("adding new drug order, drugId is " + drugId + " and startDate is " + startDate);
     			drugOrder = setDiscontinueDateFromAutoExpire(drugOrder);
     			session.getSubmissionActions().getCurrentEncounter().addOrder(drugOrder);
@@ -572,7 +572,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    	    existingOrder.setDiscontinued(true);
                 } 
     	    	if (!StringUtils.isEmpty(discontinuedReasonStr))
-                    existingOrder.setDiscontinuedReason(Context.getConceptService().getConcept((Integer.valueOf(discontinuedReasonStr))));
+                    existingOrder.setDiscontinuedReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
                 
     	    	existingOrder.setConcept(drug.getConcept());  	
     	    	if (!StringUtils.isEmpty(instructions))

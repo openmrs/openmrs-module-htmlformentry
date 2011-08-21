@@ -537,6 +537,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			void testBlankFormHtml(String html) {
 				TestUtil.assertFuzzyContains("Last weight: 50.0", html);
 				TestUtil.assertFuzzyContains("Gender: M", html);
+				TestUtil.assertFuzzyContains("Location: Test Location", html);
 			}
 		}.run();
 	}
@@ -1068,6 +1069,84 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				results.assertObsCreated(2, 100d);
 			};
 			
+		}.run();
+	}
+	
+	@Test
+	public void viewFormWithLocationObs() throws Exception {
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "singleLocationObsForm";
+			}
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				TestUtil.addObs(e, 19, "2", null); // this is a location
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Xanadu", html);   // make sure Xanadu has been included
+			}
+		}.run();
+	}
+	
+	@Test
+	public void viewFormWithLocationObsNewFormat() throws Exception {
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "singleLocationObsForm";
+			}
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				TestUtil.addObs(e, 19, "2 - Xanadu", null); // this is a location
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Xanadu", html);   // make sure Xanadu has been included
+			}
+		}.run();
+	}
+	
+	@Test
+	public void viewFormWithPersonObs() throws Exception {
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "singlePersonObsForm";
+			}
+			
+			Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				TestUtil.addObs(e, 19, "7 - Collet Test Chebaskwony", null); 
+				return e;
+			}
+			
+			void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Collet Test Chebaskwony", html);   // make sure Collet Chebaskwony has been included
+			}
 		}.run();
 	}
 }

@@ -13,7 +13,7 @@ import org.openmrs.test.Verifies;
  * Test agaist standardTestData.xml from org.openmrs.include + 
  * Data from HtmlFormEntryTest-data3.xml 
  */
-public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
+public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
     protected final Log log = LogFactory.getLog(getClass());
     
@@ -58,6 +58,16 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		Assert.assertEquals("Xanadu", HtmlFormEntryUtil.getLocation("9356400c-a5a2-4532-8f2b-2361b3446eb8").getName());
 	}
 
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
+	 * this is the uuid test
+	 */
+	@Test
+	@Verifies(value = "should find a location by in Id|Name format", method = "getLocation(String)")
+	public void getLocation_shouldFindALocationInIdNameFormat() throws Exception {
+		Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("2 - Xanadu").getId().toString());
+	}
+	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
 	 */
@@ -164,6 +174,15 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 	}
 	
 	/**
+	 * @see {@link HtmlFormEntryUtil#getPerson(String)}
+	 * this is the username test
+	 */
+	@Test
+	@Verifies(value = "should find a person in id|name format", method = "getPerson(String)")
+	public void getPerson_shouldFindAPersonInIdNameFormat() throws Exception {			
+		Assert.assertEquals("Hornblower", HtmlFormEntryUtil.getPerson("2 - Horatio Hornblower").getFamilyName());
+	}
+	/**
 	 * @see {@link HtmlFormEntryUtil#getProgram(String)}
 	 */
 	@Test
@@ -222,6 +241,30 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
 	}
 
+	/**
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
+	 * tests a uuid that is 36 characters long but has no dashes
+	 */
+	@Test
+	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
+	public void getConcept_shouldFindAConceptWithNonStandardUuid() throws Exception {
+		// concept from HtmlFormEntryTest-data3.xml
+		String id = "1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
+	 * tests a uuid that is in invalid format (less than 36 characters)
+	 */
+	@Test
+	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
+	public void getConcept_shouldNotFindAConceptWithInvalidUuid() throws Exception {
+		// concept from HtmlFormEntryTest-data3.xml
+		String id = "1000";
+		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
+	}
+	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
 	 */
@@ -300,84 +343,18 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest{
 		Assert.assertNull(HtmlFormEntryUtil.getPatientIdentifierType(id));
 	}
 	
-	
-	/**
-	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
-	 */
 	@Test
-	@Verifies(value = "should convert ids to uuids", method = "replaceConceptIdsWithUuids(HtmlForm)")
-	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuids() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-		
-		HtmlForm form = new HtmlForm();
-		
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
-		HtmlFormEntryUtil.replaceIdsWithUuids(form);
-		
-		TestUtil.assertFuzzyContains("<encounterLocation default=\"9356400c-a5a2-4532-8f2b-2361b3446eb8\" order=\"dc5c1fcc-0459-4201-bf70-0b90535ba362,9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land\"",form.getXmlData());
-		TestUtil.assertFuzzyContains("<encounterProvider role=\"Provider\" default=\"c04ee3c8-b68f-43cc-bff3-5a831ee7225f\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("groupingConceptId=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("conceptId=\"32296060-03-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("identifierTypeId=\"1a339fe9-38bc-4ab3-b180-320988c0b968\"", form.getXmlData());
+	@Verifies(value = "shoud return true valid uuid format", method = "isValidUuidFormat(String)")
+	public void isValidUuidFormat_shouldReturnTrueIfNotValidUuidFormat() throws Exception {
+		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));  // 36 characters
+		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"));  // 38 characters
 	}
 	
-	/**
-	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
-	 * @throws Exception 
-	 */
 	@Test
-	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
-	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithinRepeatTags() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-		
-		HtmlForm form = new HtmlForm();
-		
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingWithRepeatTestForm.xml"));
-		HtmlFormEntryUtil.replaceIdsWithUuids(form);
-		
-		// make sure it's left the keys alone
-		TestUtil.assertFuzzyContains("groupingConceptId=\"\\{allergyGroup\\}\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("conceptId=\"\\{allergy\\}\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("answerConceptIds=\"\\{allergyAnswers\\}\"", form.getXmlData());
-
-		// test that the first render tag has been substituted
-		TestUtil.assertFuzzyContains("allergyGroup=\"32296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergy=\"32296060-03-102d-b0e3-001ec94a0cc4\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6\"", form.getXmlData());		
-	
-		// test that the second render tag has been substituted
-		TestUtil.assertFuzzyContains("allergyGroup=\"42296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergy=\"52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03-102d-b0e3-001ec94a0cc6,32296060-03-102d-b0e3-001ec94a0cc7\"", form.getXmlData());		
-	
-	}
-	
-	/**
-	 * see {@link HtmlFormEntryUtil#replaceIdsWithUuids(HtmlForm)}
-	 * @throws Exception 
-	 */
-	@Test
-	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
-	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithMacros() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-		
-		HtmlForm form = new HtmlForm();
-		
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingWithMacrosTestForm.xml"));
-		HtmlFormEntryUtil.replaceIdsWithUuids(form);
-		
-		// make sure it's left the macro references alone
-		TestUtil.assertFuzzyContains("groupingConceptId=\"\\$allergyGroup\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("conceptId=\"\\$allergy\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("answerConceptIds=\"\\$allergyAnswers\"", form.getXmlData());
-
-		// test that the macros themselves have been substituted
-		TestUtil.assertFuzzyContains("allergyGroup=32296060-03-102d-b0e3-001ec94a0cc1", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergy=32296060-03-102d-b0e3-001ec94a0cc4", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergyAnswers=32296060-03-102d-b0e3-001ec94a0cc5,32296060-03-102d-b0e3-001ec94a0cc6", form.getXmlData());		
-	
+	@Verifies(value = "shoud return false if not valid uuid format", method = "isValidUuidFormat(String)")
+	public void isValidUuidFormat_shouldReturnFalseIfNotValidUuidFormat() throws Exception {
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("afasdfasd"));  // less than 36 characters
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("012345678901234567890123456789012345678"));  // more than 38 characters
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAA AAAAAAAAA AAAAAAAAAA AAAA"));  // includes whitespace
 	}
 }

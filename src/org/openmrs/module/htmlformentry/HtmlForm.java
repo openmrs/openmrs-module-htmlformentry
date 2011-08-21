@@ -2,11 +2,11 @@ package org.openmrs.module.htmlformentry;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.openmrs.BaseOpenmrsMetadata;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 
 /**
  * The basic HTML Form data object
@@ -150,23 +150,14 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	 * Allows HtmlForm to be shared via Metadata Sharing Module.
 	 * <p>
 	 * The onSave method is called just before saving this form in the database on the destination
-	 * server. It is used to replace incoming uuids with existing uuids that will be used within
+	 * server. It is used to replace references to incoming OpenMrs objects with references to existing OpenMrs objects that will be used within
 	 * this form on the destination server.
 	 * 
 	 * @param incomingToExisting map from items included in this form to items existing in the
 	 *            destination server
-	 * @should throw exception if incoming uuid has not 36 characters
-	 * @should should replace uuids
+	 * @should should replace uuids and names
 	 */
 	protected void onSave(Map<OpenmrsObject, OpenmrsObject> incomingToExisting) {
-		for (Entry<OpenmrsObject, OpenmrsObject> entry : incomingToExisting.entrySet()) {
-			if (!entry.getKey().getUuid().equals(entry.getValue().getUuid())) {
-				if (entry.getKey().getUuid().length() != 36) {
-					throw new IllegalArgumentException("UUID has an supported format " + "[" + entry.getKey().getUuid()
-					        + "]");
-				}
-				xmlData = xmlData.replace(entry.getKey().getUuid(), entry.getValue().getUuid());
-			}
-		}
+		HtmlFormSubstitutionUtils.replaceIncomingOpenmrsObjectsWithExistingOpenmrsObjects(this, incomingToExisting);
 	}
 }

@@ -34,7 +34,7 @@
 
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
-			$j.post("deleteEncounter.form", 
+			$j.post("<c:url value="/module/htmlformentry/deleteEncounter.form"/>", 
 				{ 	encounterId: "${command.encounter.encounterId}", 
 					returnUrl: "${command.returnUrlWithParameters}", 
 					reason: $j('#deleteReason').val()
@@ -97,12 +97,13 @@
 	}
 
 	function showAuthenticateDialog() {
-		showDiv('passwordPopup');
+		$j('#passwordPopup').show();
 		tryingToSubmit = false;
 	}
 
 	function loginThenSubmitHtmlForm() {
-		hideDiv('passwordPopup');
+		
+		$j('#passwordPopup').hide();
 		var username = $j('#passwordPopupUsername').val();
 		var password = $j('#passwordPopupPassword').val();
 		$j('#passwordPopupUsername').val('');
@@ -117,11 +118,11 @@
 	}
 
 	function handleDeleteButton() {
-		showDiv('confirmDeleteFormPopup');
+		$j('#confirmDeleteFormPopup').show();
 	}
 
 	function cancelDeleteForm() {
-		hideDiv('confirmDeleteFormPopup');
+		$j('#confirmDeleteFormPopup').hide();
 	}
 </script>
 
@@ -140,7 +141,7 @@
 		<c:if test="${command.context.mode == 'VIEW'}">
 			<c:if test="${!inPopup}">
 				<openmrs:hasPrivilege privilege="Edit Encounters,Edit Observations">
-					<c:url var="editUrl" value="htmlFormEntry.form">
+					<c:url var="editUrl" value="/module/htmlformentry/htmlFormEntry.form">
 						<c:forEach var="p" items="${param}">
 							<c:if test="${p.key != 'mode'}">
 								<c:param name="${p.key}" value="${p.value}"/>

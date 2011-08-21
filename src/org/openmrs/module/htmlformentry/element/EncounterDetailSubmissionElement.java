@@ -14,11 +14,11 @@ import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
@@ -62,6 +62,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			} 
 			else if (parameters.get("defaultDate") != null) {
 				dateWidget.setInitialValue(parameters.get("defaultDate"));
+			}
+			
+			if (parameters.get("disallowMultipleEncountersOnDate") != null && StringUtils.hasText((String) parameters.get("disallowMultipleEncountersOnDate"))){
+				dateWidget.setOnChangeFunction("existingEncounterOnDate(this, '" + parameters.get("disallowMultipleEncountersOnDate") + "') ");
 			}
 			
 			if ("true".equals(parameters.get("showTime"))) {

@@ -74,6 +74,10 @@
 								        <bean class="org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler"/>
 							      	</entry>
 							      	<entry>
+								        <key><value>relationship</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.RelationshipTagHandler"/>
+							      	</entry>
+							      	<entry>
 								        <key><value>designerWidget</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.DesignerWidgetHandler"/>
 							      	</entry>
