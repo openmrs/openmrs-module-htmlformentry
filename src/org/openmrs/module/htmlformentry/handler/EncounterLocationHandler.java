@@ -16,10 +16,20 @@ import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement
  */
 public class EncounterLocationHandler extends SubstitutionTagHandler {
 
+	@Override
+	public String getName() {
+		return "Encounter Location";
+	}
+	
+	@Override
+	public String getDescription() {
+		return "Data entry widget for recording location of the encounter. Along with encounterDate and encounterProvider, encounterLocation should be present on every HTML form.";
+	}
+	
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
-		attributeDescriptors.add(new AttributeDescriptor("order", Location.class));
-		attributeDescriptors.add(new AttributeDescriptor("default", Location.class));
+		attributeDescriptors.add(new AttributeDescriptor("order", Location.class, "Order", false, "Determines which locations appear in the list, and specifies the order in which they appear.", "text"));
+		attributeDescriptors.add(new AttributeDescriptor("default", Location.class, "Default", false, "Sets default value for the widget.", "text"));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	

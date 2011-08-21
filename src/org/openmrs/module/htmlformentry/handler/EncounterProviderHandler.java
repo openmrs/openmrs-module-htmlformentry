@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
+import org.openmrs.Location;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -17,10 +18,21 @@ import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement
  */
 public class EncounterProviderHandler extends SubstitutionTagHandler {
 
+	@Override
+	public String getName() {
+		return "Encounter Provider";
+	}
+	
+	@Override
+	public String getDescription() {
+		return "Data entry widget for recording provider for the encounter. Along with encounterDate and encounterLocation, encounterProvider should be present on every HTML form.";
+	}
+	
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
-		attributeDescriptors.add(new AttributeDescriptor("default", Person.class));
-		attributeDescriptors.add(new AttributeDescriptor("role", Role.class));
+		attributeDescriptors.add(new AttributeDescriptor("default", Person.class, "Default", false, "Sets default value for the widget.", "text"));
+		attributeDescriptors.add(new AttributeDescriptor("role", Role.class, "Role", false, "Filters the list of persons to only those users with the specified role.", "text"));
+		attributeDescriptors.add(new AttributeDescriptor("persons", "Persons", false, "Determines which persons appear in the list, and specifies the order in which they appear.", "text"));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	

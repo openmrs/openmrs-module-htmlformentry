@@ -20,17 +20,18 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
 		return "Submit Button";
 	}
 	
+	@Override
 	public String getDescription() {
-		return "Button for Form Submission (essential)";
+		return "You need to put a submit tag at the bottom of your form, or else your users will be very disappointed in you.";
 	}
 	
 	@Override
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attrs = new ArrayList<AttributeDescriptor>();
 		
-		attrs.add(new AttributeDescriptor("submitLabel", "Label:", false, "Allows you to set the text of the submit button.", "text"));
-		attrs.add(new AttributeDescriptor("submitCode", "Code:", false, "Allows you to set the text of the submit button using an htmlformentry translation code", "text"));
-		attrs.add(new AttributeDescriptor("submitStyle", "Style:", false, " Allows you to set the style class for the submit button.  This attribute gets written into the rendered submit tag as class=\"&lt;&lt;submitStyle Value&gt;&gt;\".", "text"));
+		attrs.add(new AttributeDescriptor("submitLabel", "Label", false, "Allows you to set the text of the submit button.", "text"));
+		attrs.add(new AttributeDescriptor("submitCode", "Code", false, "Allows you to set the text of the submit button using an htmlformentry translation code", "text"));
+		attrs.add(new AttributeDescriptor("submitStyle", "Style", false, " Allows you to set the style class for the submit button.  This attribute gets written into the rendered submit tag as class=\"&lt;&lt;submitStyle Value&gt;&gt;\".", "text"));
 		
 		return attrs;
 	}

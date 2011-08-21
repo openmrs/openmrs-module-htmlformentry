@@ -11,8 +11,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
- * Handles the {@code <designerWidget>} tag
- * Actually, it only specifies children nodes should be handled
+ * Handles the {@code <designerWidget>} tag, by ignoring it
+ * Actually, it only specifies that children nodes should be handled
  */
 public class DesignerWidgetHandler extends AbstractTagHandler {
 
@@ -20,7 +20,7 @@ public class DesignerWidgetHandler extends AbstractTagHandler {
     protected final Log log = LogFactory.getLog(getClass());
     
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        //ignores... children nodes should be handled
+        //the htmlformentry module simply ignores this tag... children nodes should be handled
         return true;
     }
 

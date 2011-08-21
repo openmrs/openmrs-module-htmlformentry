@@ -15,7 +15,7 @@ public class AttributeDescriptor {
     //Helper attributes for the designer
     boolean required;	// is this required or optional?
     String description;	// short description of how to use this attribute
-    String uiWidget;	// the uiWidget to choose
+    String uiWidget;	// the uiWidget to choose. See AttributeTag from HTML Form Entry Designer
     String label;		// label of the attribute
     Map<String, String> args; // arguments for the uiWidget 
 	
@@ -30,10 +30,20 @@ public class AttributeDescriptor {
 	    this.clazz = clazz;
 	    this.required = false;
 	    this.description = "";
-	    this.uiWidget = "textfield";
+	    this.uiWidget = "text";
 	    this.label = name;
 	    this.args = new HashMap<String, String>();
     }
+	
+	public AttributeDescriptor(String name, Class<? extends OpenmrsObject> clazz, String label, boolean required, String description, String uiWidget) {
+		this.name = name;
+		this.label = label;
+		this.required = required;
+		this.description = description;
+		this.uiWidget = uiWidget;
+		this.clazz = clazz;
+	    this.args = new HashMap<String, String>();
+	}
 	
 	public AttributeDescriptor(String name, String label, boolean required, String description, String uiWidget) {
 		this.name = name;

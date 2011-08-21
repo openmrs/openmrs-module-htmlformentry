@@ -1,6 +1,8 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +19,16 @@ public class SectionTagHandler extends AbstractTagHandler {
 
 	/** The logger to use with this class */
     protected final Log log = LogFactory.getLog(getClass());
+    
+    @Override
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
+		List<AttributeDescriptor> attrs = new ArrayList<AttributeDescriptor>();
+		
+		attrs.add(new AttributeDescriptor("headerLabel", "Label", false, "The label to use in the section header.", "text"));
+			
+		return attrs;
+	}
+	
     
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
         String sectionStyleClass = "section";

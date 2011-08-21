@@ -2,9 +2,14 @@ package org.openmrs.module.htmlformentry.handler;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
+import org.openmrs.Person;
+import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
@@ -15,6 +20,24 @@ import org.springframework.util.StringUtils;
  */
 public class VelocityHandler extends SubstitutionTagHandler {
 
+	@Override
+	public String getName() {
+		return "Lookup";
+	}
+	
+	@Override
+	public String getDescription() {
+		return "Allows you to evaluation of velocity expressions.";
+	}
+	
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
+		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
+		attributeDescriptors.add(new AttributeDescriptor("complexExpression", "Complex Expression", false, "", "text"));
+		attributeDescriptors.add(new AttributeDescriptor("class", Role.class, "Class", false, "", "text"));
+		attributeDescriptors.add(new AttributeDescriptor("expression", "Expression", false, "", "text"));
+		return attributeDescriptors;
+	}
+	
     @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters) {
         String expression = parameters.get("expression");
