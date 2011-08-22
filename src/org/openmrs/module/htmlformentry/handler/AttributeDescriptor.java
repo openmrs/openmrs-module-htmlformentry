@@ -22,7 +22,10 @@ public class AttributeDescriptor {
 	// the clazz that the attribute values references (may be null if the attribute does not reference any OpenMRS objects)
     Class<? extends OpenmrsObject> clazz;
 
-    //Helper attributes for the designer
+    /** 
+     * Used for the HTML Form Entry Designer
+     */
+    
     boolean required;	// is this required or optional?
     String description;	// short description of how to use this attribute
     String uiWidget;	// the uiWidget to choose. See AttributeTag from HTML Form Entry Designer
