@@ -480,7 +480,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     				// allow selecting one of multiple possible coded values
     				
     				// if no answers are specified explicitly (by conceptAnswers or conceptClasses), get them from concept.answers.
-    				if (!parameters.containsKey("answerConcepts") && !parameters.containsKey("answerClasses")) {
+    				if (!parameters.containsKey("answerConceptIds") && !parameters.containsKey("answerClasses")) {
     					conceptAnswers = new ArrayList<Concept>();
     					for (ConceptAnswer ca : concept.getAnswers(false)) {
     						conceptAnswers.add(ca.getAnswerConcept());
