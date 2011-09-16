@@ -452,6 +452,13 @@ public class FormEntrySession {
         			pp.setDateEnrolled(encounter.getEncounterDatetime());
         	}
         }
+        
+        if (submissionActions.getPatientProgramsToComplete() != null) {
+        	for (PatientProgram pp : submissionActions.getPatientProgramsToComplete()) {
+        		if (pp.getDateCompleted() == null)
+        			pp.setDateCompleted(encounter.getEncounterDatetime());
+        	}
+        }
                
         // TODO wrap this in a transaction
         if (submissionActions.getPersonsToCreate() != null) {
@@ -550,6 +557,15 @@ public class FormEntrySession {
         			// just enroll as requested
         			Context.getProgramWorkflowService().savePatientProgram(toCreate);
         		}
+        	}
+        }
+        
+       //complete any necessary programs
+        if(submissionActions.getPatientProgramsToComplete() != null)
+        {
+        	for (PatientProgram toComplete: submissionActions.getPatientProgramsToComplete())
+        	{
+        		Context.getProgramWorkflowService().savePatientProgram(toComplete);
         	}
         }
         

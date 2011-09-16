@@ -42,6 +42,7 @@ public class FormSubmissionActions {
     private List<Obs> obsToVoid = new Vector<Obs>();
     private List<Order> ordersToCreate = new Vector<Order>();
     private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
+    private List<PatientProgram> patientProgramsToComplete = new Vector<PatientProgram>();
     private List<Relationship> relationshipsToCreate = new Vector<Relationship>();
     private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
     private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
@@ -333,6 +334,30 @@ public class FormSubmissionActions {
     }
 	
 	/**
+     * Ends a Patient program.
+     * <p/>
+     * Note that this method does not commit the program enrollment change to the database but instead adds
+     * the Program to a list of programs to remove. The changes are applied elsewhere in the framework
+     * 
+     * @param program Program to end the enrollment for the patient in
+     */
+	public void completeProgram(Program program) {
+        if (program == null)
+            throw new IllegalArgumentException("Cannot end a blank program");
+        
+        Patient patient = highestOnStack(Patient.class);
+        if (patient == null)
+            throw new IllegalArgumentException("Cannot find program without a patient");
+        Encounter encounter = highestOnStack(Encounter.class);
+        if (encounter == null)
+        	throw new IllegalArgumentException("Cannot end enrollment in a program outside of an Encounter");
+
+        List<PatientProgram> pp = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, encounter.getEncounterDatetime(), new Date(), null, false);
+       
+        patientProgramsToComplete.addAll(pp);
+    }
+	
+	/**
      * This method compares Timestamps to plain Dates by dropping the nanosecond precision
      */
     private boolean dateChangedHelper(Date oldVal, Date newVal) {
@@ -476,6 +501,23 @@ public class FormSubmissionActions {
     	this.patientProgramsToCreate = patientProgramsToCreate;
     }
 
+    /**
+     * Returns the list of Patient Programs that need to be completed to process form submission
+     * 
+     * @return the patientProgramsToComplete the list of Programs to completed
+     */
+    public List<PatientProgram> getPatientProgramsToComplete() {
+    	return patientProgramsToComplete;
+    }
+	
+    /**
+     * Sets the list of Patient Programs that need to be completed to process form submission
+     * 
+     * @param patientProgramsToComplete the list of Programs to completed
+     */
+    public void setPatientProgramsToComplete(List<PatientProgram> patientProgramsToComplete) {
+    	this.patientProgramsToComplete = patientProgramsToComplete;
+    }
 	
     /**
      * Returns the list of Relationships that need to be created to process form submission

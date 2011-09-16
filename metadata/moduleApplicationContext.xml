@@ -54,6 +54,10 @@
 							        	<bean class="org.openmrs.module.htmlformentry.handler.EnrollInProgramHandler"/>
 							      	</entry>
 							      	<entry>
+								        <key><value>completeProgram</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.CompleteProgramHandler"/>
+							      	</entry>
+							      	<entry>
 								        <key><value>section</value></key>
 							        	<bean class="org.openmrs.module.htmlformentry.handler.SectionTagHandler"/>
 							      	</entry>
