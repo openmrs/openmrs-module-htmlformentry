@@ -1149,4 +1149,27 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
+	
+	@Test
+	public void answerConceptIdsShouldMapToAnswerLabels() throws Exception {
+		new RegressionTestHelper() {
+			
+			String getFormName() {
+				return "singleObsWithAnswersAndLabels";
+			}
+			
+			void testBlankFormHtml(String html) {
+								
+				// test to make sure that the concept ids have been mapped to the correct labels
+				// we search for the value attribute (ie. value="1001"), and then make sure the corresponding label
+				// (ie. PENCILLIN) appears following it before a new tag starts ( [^<]* means zero or more characters of any type except "<")
+				
+				TestUtil.assertFuzzyContains("value=\"1001\"[^<]*PENICILLIN", html);
+				TestUtil.assertFuzzyContains("value=\"1002\"[^<]*CATS", html);
+				TestUtil.assertFuzzyContains("value=\"1003\"[^<]*OPENMRS", html);
+			}
+			
+		}.run();
+		
+	}
 }
