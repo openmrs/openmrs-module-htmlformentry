@@ -85,7 +85,7 @@ public class HtmlFormExporter {
 			throw new APIException("Unable to process macros and templates when processing form to make it shareable", e);
 		}
 		
-		// now we need to loop through the attributes to find what other (non-uuid) dependencies we need to look for
+		// now we need to loop through the attributes to find what dependencies we need to look for
 		// fetch the tag handlers so we can gain access to the attribute descriptors
 		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
 		
@@ -98,7 +98,7 @@ public class HtmlFormExporter {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
-						String pattern = "<" + tagName + "[^>]*" + attributeDescriptor.getName() + "=\"(.*?)\"";
+						String pattern = "<" + tagName + "[^>]* " + attributeDescriptor.getName() + "=\"(.*?)\"";
 						log.debug("dependency substitution pattern: " + pattern);
 						
 						// now search through and find all matches

@@ -75,7 +75,7 @@ public class HtmlFormSubstitutionUtils {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// match any time that attribute name falls within the specified tag --- [^>]* means any character except a >
-						String pattern = "<" + tagName + "[^>]*" + attributeDescriptor.getName();
+						String pattern = "<" + tagName + "[^>]* " + attributeDescriptor.getName();
 						HtmlFormEntryUtil.log.debug("substitution pattern: " + pattern);
 						form.setXmlData(HtmlFormSubstitutionUtils.performSubstitutionHelper(form.getXmlData(), pattern,
 						    attributeDescriptor.getClazz(), substituter, substitutionMap, true));

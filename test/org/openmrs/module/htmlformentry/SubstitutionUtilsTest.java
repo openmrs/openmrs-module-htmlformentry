@@ -49,6 +49,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03aa-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03aa-102d-b0e3-001ec94a0cc6,32296060-03aa-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("identifierTypeId=\"1a339fe9-38bc-4ab3-b180-320988c0b968\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("conceptId=\"aa52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
 	}
 	
 	/**
@@ -77,7 +78,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	
 		// test that the second render tag has been substituted
 		TestUtil.assertFuzzyContains("allergyGroup=\"42296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("allergy=\"52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("allergy=\"aa52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("allergyAnswers=\"32296060-03aa-102d-b0e3-001ec94a0cc6,32296060-03aa-102d-b0e3-001ec94a0cc7\"", form.getXmlData());		
 	
 	}

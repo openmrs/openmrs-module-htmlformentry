@@ -50,6 +50,8 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		    "32296060-03aa-102d-b0e3-001ec94a0cc6")));
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
 		    "32296060-03aa-102d-b0e3-001ec94a0cc3")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
+			"aa52296060-03-102d-b0e3-001ec94a0cc1")));
 		// this is the mapped concept XYZ:HT found in HtmlFormEntryTest-data3
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
 		    "44d3611a-6699-4d52-823f-b4b788bac3e3")));
