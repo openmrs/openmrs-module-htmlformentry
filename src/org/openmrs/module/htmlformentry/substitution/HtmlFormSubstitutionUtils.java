@@ -88,7 +88,7 @@ public class HtmlFormSubstitutionUtils {
 	/**
 	 * Helper method used by performSubstitution
 	 */
-	private static String performSubstitutionHelper(String formXmlData, String attribute,
+	private static String performSubstitutionHelper(String formXmlData, String tagAndAttribute,
 	                                                Class<? extends OpenmrsObject> clazz, Substituter substituter,
 	                                                Map<OpenmrsObject, OpenmrsObject> substitutionMap, Boolean includeQuotes) {
 		Pattern substitutionPattern;
@@ -97,11 +97,11 @@ public class HtmlFormSubstitutionUtils {
 			// pattern to find the specified attribute and pull out its values; regex matches any characters within quotes after an equals, i.e. ="a2-32" would match a232
 			// we use () to break the match into three groups: 1) the characters up to the including the first quotes; 2) the characters in the quotes; and 3) then the trailing quote
 			// (put a space before the attribute name so we don't get border= instead of order=)
-			substitutionPattern = Pattern.compile("(\\s" + attribute + "=\")(.*?)(\")", Pattern.CASE_INSENSITIVE);
+			substitutionPattern = Pattern.compile("(" + tagAndAttribute + "=\")(.*?)(\")", Pattern.CASE_INSENSITIVE);
 		} else {
 			// the same pattern as above, but without the quotes (to handle the macro assignments),
 			// and with a blank space at the end (which we need to account for when we do the replace)	
-			substitutionPattern = Pattern.compile("(\\s" + attribute + "=)(.*?)(\\s)", Pattern.CASE_INSENSITIVE);
+			substitutionPattern = Pattern.compile("(" + tagAndAttribute + "=)(.*?)(\\s)", Pattern.CASE_INSENSITIVE);
 		}
 		
 		Matcher matcher = substitutionPattern.matcher(formXmlData);

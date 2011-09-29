@@ -6,7 +6,9 @@
 	Location: <encounterLocation default="2" order="1,9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land"/>
 	Provider: <EncounterProvider role="Provider" default="9"/>
 	<obsgroup GROUPINGCONCEPTID="7">
-		Allergy 1: <obs conceptId="1000" answerConceptIds="1001,XYZ:HT,1002,32296060-03aa-102d-b0e3-001ec94a0cc7"/> Allergy Date 1: <obs conceptId="9"/>
+	
+		<!-- <td> added below to test HTML-213 -->
+		Allergy 1: <td><obs conceptId="1000" answerConceptIds="1001,XYZ:HT,1002,32296060-03aa-102d-b0e3-001ec94a0cc7"/></td> Allergy Date 1: <obs conceptId="9"/>
 		Hyperallergy: <obs conceptId="1005" answerConceptId="1001"/>
 		
 	</obsgroup>
