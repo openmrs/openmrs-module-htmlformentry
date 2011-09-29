@@ -36,6 +36,7 @@
 		$j('#deleteButton').click(function() {
 			$j.post("<c:url value="/module/htmlformentry/deleteEncounter.form"/>", 
 				{ 	encounterId: "${command.encounter.encounterId}", 
+				    htmlFormId: "${command.htmlFormId}",
 					returnUrl: "${command.returnUrlWithParameters}", 
 					reason: $j('#deleteReason').val()
 			 	}, 

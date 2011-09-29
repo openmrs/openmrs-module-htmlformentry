@@ -4,6 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Encounter;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +27,16 @@ public class DeleteEncounterController {
 
 	@RequestMapping(method=RequestMethod.POST, value="/module/htmlformentry/deleteEncounter")
     public ModelAndView handleRequest(@RequestParam("encounterId") Integer encounterId,
+    								  @RequestParam("htmlFormId") Integer htmlFormId,
                                       @RequestParam(value="reason", required=false) String reason,
                                       @RequestParam(value="returnUrl", required=false) String returnUrl,
                                       HttpServletRequest request) throws Exception {
         Encounter enc = Context.getEncounterService().getEncounter(encounterId);
         Integer ptId = enc.getPatientId();
-        Context.getEncounterService().voidEncounter(enc, reason);
+        HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
+        HtmlForm form = hfes.getHtmlForm(htmlFormId);
+        HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(enc, form, reason);
+        Context.getEncounterService().saveEncounter(enc);
         if (!StringUtils.hasText(returnUrl)) {
         	returnUrl = request.getContextPath() + "/patientDashboard.form?patientId=" + ptId;
         }
