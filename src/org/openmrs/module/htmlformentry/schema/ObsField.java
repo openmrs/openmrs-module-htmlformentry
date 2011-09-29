@@ -13,6 +13,7 @@ public class ObsField implements HtmlFormField {
 	private String name;
 	private Concept question;
 	private List<ObsFieldAnswer> answers = new ArrayList<ObsFieldAnswer>();
+	private List<ObsFieldAnswer> questions = new ArrayList<ObsFieldAnswer>(); //for concept selects
     
     public ObsField() { }
 
@@ -69,4 +70,26 @@ public class ObsField implements HtmlFormField {
 	public void setAnswers(List<ObsFieldAnswer> answers) {
 		this.answers = answers;
 	}
+
+	/**
+	 * 
+	 * gets the possible questions when doing a concept select
+	 * 
+	 * @return List<ObsFieldAnswer>
+	 */
+	public List<ObsFieldAnswer> getQuestions() {
+		return questions;
+	}
+	
+	/**
+	 * 
+	 * sets the possible questions when doing a concept select
+	 * 
+	 * @param questions
+	 */
+	public void setQuestions(List<ObsFieldAnswer> questions) {
+		this.questions = questions;
+	}
+	
+	
 }

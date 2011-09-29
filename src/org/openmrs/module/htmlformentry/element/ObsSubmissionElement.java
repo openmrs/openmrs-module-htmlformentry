@@ -197,6 +197,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		}
 		if (concepts != null){
 		    conceptLabels = new ArrayList<String>();
+		    if (parameters.get("conceptLabels") != null) 
+				conceptLabels = Arrays.asList(parameters.get("conceptLabels").split(","));
+		    if (conceptLabels.size() != 0 && (conceptLabels.size() != concepts.size()))
+		    		throw new IllegalArgumentException("If you want to use the conceptLabels attribute, you must to provide the same number of conceptLabels as there are conceptIds.  Parameters: " + parameters);
 		    if ("radio".equals(parameters.get("style"))) {
 	            valueWidget = new RadioButtonsWidget();
 	        } else { // dropdown
@@ -668,8 +672,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 
 		ObsField field = new ObsField();
 		field.setName(valueLabel);
-		if (concept != null)
+		if (concept != null){
 		    field.setQuestion(concept);
+		} else if (concepts != null && concepts.size() > 0) { //for concept selects
+			for (int i = 0; i < concepts.size(); i++) {
+				ObsFieldAnswer ans = new ObsFieldAnswer();
+				ans.setConcept(concepts.get(i));
+				if (i < conceptLabels.size()) {
+					ans.setDisplayName(conceptLabels.get(i));
+				}
+				field.getQuestions().add(ans);
+			}
+		}
 		if (answerConcept != null) {
 			ObsFieldAnswer ans = new ObsFieldAnswer();
 			ans.setDisplayName(getAnswerLabel());
