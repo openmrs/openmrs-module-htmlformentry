@@ -702,4 +702,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    }
 	    return dor;
 	}
+
+	public DrugOrder getExistingOrder() {
+		return existingOrder;
+	}
+	
+	
 }

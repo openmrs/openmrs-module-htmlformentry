@@ -20,6 +20,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
@@ -43,6 +44,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	private ErrorWidget providerErrorWidget;
 	private LocationWidget locationWidget;
 	private ErrorWidget locationErrorWidget;
+	private CheckboxWidget voidWidget;
+	private ErrorWidget voidErrorWidget;
 
 	/**
 	 * Construct a new EncounterDetailSubmissionElement
@@ -207,6 +210,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			context.registerWidget(locationWidget);
 			context.registerErrorWidget(locationWidget, locationErrorWidget);
 		}
+		
+		if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
+			voidWidget = new CheckboxWidget();
+			voidWidget.setLabel(" " + Context.getMessageSourceService().getMessage("general.voided"));
+			voidErrorWidget = new ErrorWidget();
+			if (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true))
+				voidWidget.setInitialValue("true");
+			context.registerWidget(voidWidget);
+			context.registerErrorWidget(voidWidget, voidErrorWidget);
+		}
+		
 	}
 
 	/**
@@ -234,6 +248,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			ret.append(locationWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW)
 				ret.append(locationErrorWidget.generateHtml(context));
+		}
+		if (voidWidget != null){
+			if (context.getMode() == Mode.EDIT) //only show void option if the encounter already exists.
+				ret.append(voidWidget.generateHtml(context));
 		}
 		return ret.toString();
 	}
@@ -309,6 +327,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (locationWidget != null) {
 			Location location = (Location) locationWidget.getValue(session.getContext(), submission);
 			session.getSubmissionActions().getCurrentEncounter().setLocation(location);
+		}
+		if (voidWidget != null){
+			if ("true".equals(voidWidget.getValue(session.getContext(), submission))){	
+				session.setVoidEncounter(true);
+			} else if ("false".equals(voidWidget.getValue(session.getContext(), submission))){
+				//nothing..  the session.voidEncounter property will be false, and the encounter will be un-voided if already voided
+				//otherwise, nothing will happen.  99% of the time the encounter won't be voided to begin with.
+			}
 		}
 	}
 }

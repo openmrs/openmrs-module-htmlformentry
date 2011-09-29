@@ -1,11 +1,20 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Order;
+import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
@@ -356,5 +365,198 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("afasdfasd"));  // less than 36 characters
 		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("012345678901234567890123456789012345678"));  // more than 38 characters
 		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAA AAAAAAAAA AAAAAAAAAA AAAA"));  // includes whitespace
+	}
+	
+	@Test
+	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
+	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterVoided() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        
+        //add a bunch of obs...
+	    TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date);  //matches
+
+ 
+	 	Form form = new Form();
+	    HtmlForm htmlform = new HtmlForm();
+	    htmlform.setForm(form);
+	    form.setEncounterType(new EncounterType());
+	    htmlform.setDateChanged(new Date());
+	    htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+   	    HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
+   	    
+   	    //this is going to test out the voided state of the obs in the encounter after processing:
+   	    Assert.assertTrue(e.isVoided());
+
+	}
+	
+	@Test
+	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
+	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterCorrectly() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        
+        //add a bunch of obs...
+	    TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date);  //matches
+	    TestUtil.addObs(e, 3017, Context.getConceptService().getConcept(767), date);  //matches
+	    TestUtil.addObs(e, 3032, new Date(), date);  //matches
+	    TestUtil.addObs(e, 1, 5000, date);  //   matches
+	    TestUtil.addObs(e, 2, 5000, date); //not in form schema
+	    TestUtil.addObs(e, 3, 5000, date); //not in form schema
+	    TestUtil.addObs(e, 6, "blah blah", date); //   matches
+	        //1004 is ANOTHER ALLERGY CONSTRUCT, 1005 is HYPER-ALLERGY CODED, 1001 is PENICILLIN
+	    TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1001), new Date()); //matches
+	        //7 IS ALLERGY CONSTRUCT, 1000 IS ALLERGY CODED, 1003 IS OPENMRS
+	    TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());   //matches
+	    TestUtil.addObsGroup(e, 1000, new Date(), 7, Context.getConceptService().getConcept(1003), new Date());   //does not match	    
+	    Context.getEncounterService().saveEncounter(e);
+ 
+	 	Form form = new Form();
+	    HtmlForm htmlform = new HtmlForm();
+	    htmlform.setForm(form);
+	    form.setEncounterType(new EncounterType());
+	    htmlform.setDateChanged(new Date());
+	    htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+   	    HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
+   	    
+   	    //this is going to test out the voided state of the obs in the encounter after processing:
+	    Assert.assertTrue(!e.isVoided());
+	    for (Obs o : e.getAllObs(true)){
+	    	if (o.getConcept().getConceptId().equals(2474))
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(3017))
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(3032))
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(1))
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(2))
+	    		Assert.assertTrue(!o.isVoided()); //not matched
+	    	if (o.getConcept().getConceptId().equals(3))
+	    		Assert.assertTrue(!o.isVoided());//not matched
+	    	if (o.getConcept().getConceptId().equals(6))
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(1004))
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(1005))
+	    		Assert.assertTrue(o.isVoided());
+	    	
+	    	//obsGroups
+	    	if (o.getConcept().getConceptId().equals(7) && o.isObsGrouping())
+	    		Assert.assertTrue(o.isVoided());
+	    	if (o.getConcept().getConceptId().equals(7) && !o.isObsGrouping())
+	    		Assert.assertTrue(!o.isVoided());//not matched
+	    	if (o.getConcept().getConceptId().equals(1000) && o.isObsGrouping())
+	    		Assert.assertTrue(!o.isVoided());//not matched
+	    	if (o.getConcept().getConceptId().equals(1000) && !o.isObsGrouping())
+	    		Assert.assertTrue(o.isVoided());
+	    }
+	}
+
+	@Test
+	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
+	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectly() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        TestUtil.addObs(e, 1, 5000, date); //a matching obs
+        
+        DrugOrder dor = new DrugOrder();
+        dor.setVoided(false);
+        dor.setConcept(Context.getConceptService().getConcept(792));
+        dor.setCreator(Context.getUserService().getUser(1));
+        dor.setDateCreated(new Date());
+        dor.setDiscontinued(false);
+        dor.setDrug(Context.getConceptService().getDrug(2));
+        dor.setOrderType(Context.getOrderService().getOrderType(1));
+        dor.setPatient(Context.getPatientService().getPatient(2));
+        dor.setStartDate(new Date());
+        e.addOrder(dor);
+        
+        Context.getEncounterService().saveEncounter(e);
+        
+	 	Form form = new Form();
+	    HtmlForm htmlform = new HtmlForm();
+	    htmlform.setForm(form);
+	    form.setEncounterType(new EncounterType());
+	    htmlform.setDateChanged(new Date());
+	    htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+   	    
+	    HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, "test void reason");
+   	    
+   	    //this is going to test out the voided state of the obs in the encounter after processing:
+	    //order was matched, so order was voided, and because that's the only thing in the encounter, encounter was voided too.
+	    Assert.assertTrue(e.isVoided());
+	    Assert.assertTrue(e.getVoidReason().equals("test void reason"));
+	    for (Order o :e.getOrders()){
+	    	Assert.assertTrue(o.isVoided());
+	    	Assert.assertTrue(o.getVoidReason().equals("test void reason"));
+	    }
+	    for (Obs o : e.getAllObs(true)){
+	    	Assert.assertTrue(o.getVoidReason().equals("test void reason"));
+	    }
+	}
+	
+	@Test
+	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
+	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderAndObsCorrectly() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        TestUtil.addObs(e, 3, 5000, date);//adding an un-matched Obs
+        
+        DrugOrder dor = new DrugOrder();
+        dor.setVoided(false);
+        dor.setConcept(Context.getConceptService().getConcept(792));
+        dor.setCreator(Context.getUserService().getUser(1));
+        dor.setDateCreated(new Date());
+        dor.setDiscontinued(false);
+        dor.setDrug(Context.getConceptService().getDrug(2));
+        dor.setOrderType(Context.getOrderService().getOrderType(1));
+        dor.setPatient(Context.getPatientService().getPatient(2));
+        dor.setStartDate(new Date());
+        e.addOrder(dor);
+        
+        Context.getEncounterService().saveEncounter(e);
+        
+	 	Form form = new Form();
+	    HtmlForm htmlform = new HtmlForm();
+	    htmlform.setForm(form);
+	    form.setEncounterType(new EncounterType());
+	    htmlform.setDateChanged(new Date());
+	    htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+   	    
+	    HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
+   	    
+   	    //order was matched, obs was not, so order should be voided, obs not, encounter not.
+	    Assert.assertTrue(!e.isVoided());
+	    for (Order o :e.getOrders()){
+	    	Assert.assertTrue(o.isVoided());
+	    }
+	    for (Obs o : e.getObs()){
+	    	Assert.assertTrue(!o.isVoided());
+	    }
 	}
 }

@@ -153,6 +153,7 @@ public class HtmlFormEntryExportUtil {
      * 
      * Returns the encounter with the obs that aren't used when populating form are removed.  
      * This *doesn't* save the encounter.
+     * TODO: handle Orders?
      * 
      * @param e
      * @param htmlform
@@ -205,7 +206,7 @@ public class HtmlFormEntryExportUtil {
                     }   
                 }
             } 
-            if (session.getContext().getExistingObsInGroups() != null){
+            if (!found && session.getContext().getExistingObsInGroups() != null){
                 for (Map.Entry<Obs, Set<Obs>> mapEntry : session.getContext().getExistingObsInGroups().entrySet()){
                     if (mapEntry.getKey().equals(oTest)){
                         found = true;

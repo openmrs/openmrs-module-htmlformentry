@@ -80,6 +80,8 @@ public class FormEntrySession {
 
     private VelocityEngine velocityEngine;
     private VelocityContext velocityContext;
+    
+    private boolean voidEncounter = false;
 
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the specified {@Mode}
@@ -405,14 +407,23 @@ public class FormEntrySession {
         // if any encounter to be created by this form is missing a required field, throw an error
         // (If there's a widget but it was left blank, that would have been caught earlier--this
         // is for when there was no widget in the first place.) 
-        {
+        
+    	{
             for (Encounter e : submissionActions.getEncountersToCreate()) {
                 if (e.getProvider() == null || e.getEncounterDatetime() == null || e.getLocation() == null) {
                     throw new BadFormDesignException("Please check the design of your form to make sure it has all three tags: <b>&lt;encounterDate/&gt</b>;, <b>&lt;encounterLocation/&gt</b>;, and <b>&lt;encounterProvider/&gt;</b>");
                 }
             }
         }
-        
+    	
+    	//if we're un-voiding an existing voided encounter.  This won't get hit 99.9% of the time.  See EncounterDetailSubmissionElement
+    	if (!voidEncounter && encounter != null && encounter.isVoided()){
+    		encounter.setVoided(false);
+    		encounter.setVoidedBy(null);
+    		encounter.setVoidReason(null);
+    		encounter.setDateVoided(null);
+    	}
+    
         // remove any obs groups that don't contain children 
         for (Iterator<Obs> iter = submissionActions.getObsToCreate().iterator(); iter.hasNext(); ) {
             Obs o = iter.next();
@@ -596,6 +607,13 @@ public class FormEntrySession {
         // If there is no encounter (impossible at the time of writing this comment) we save the obs manually
         if (context.getMode() == Mode.EDIT) {
         	if (encounter != null) {
+        		if (voidEncounter){
+        			try {
+        				HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(encounter, htmlForm, null);
+        			} catch (Exception ex){
+        				throw new RuntimeException("Unable to void encounter." , ex);
+        			}
+        		}
         		Context.getEncounterService().saveEncounter(encounter);
         	} else if (submissionActions.getObsToCreate() != null) {
         		// this may not work right due to savehandlers (similar error to HTML-135) but this branch is
@@ -847,4 +865,10 @@ public class FormEntrySession {
 		}
 		return false;
 	}
+
+	public void setVoidEncounter(boolean voidEncounter) {
+		this.voidEncounter = voidEncounter;
+	}
+	
+	
 }

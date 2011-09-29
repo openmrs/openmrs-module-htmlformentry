@@ -2,13 +2,20 @@ package org.openmrs.module.htmlformentry;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
@@ -25,9 +32,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.Encounter;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -39,6 +48,11 @@ import org.openmrs.PersonName;
 import org.openmrs.Program;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.action.ObsGroupAction;
+import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
+import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
@@ -688,5 +702,263 @@ public class HtmlFormEntryUtil {
 	public static List<PatientIdentifierType> getPatientIdentifierTypes(){
 		return Context.getPatientService().getAllPatientIdentifierTypes();
 	}
+	
+	
+	/**
+	 * Utility method that sets all matched obs and orders to voided, and voids encounter if all obs and orders in encounter are voided.
+	 * 
+	 * Does not call save, just updates the voided fields on all objects in encounter
+	 * Uses a 'dummy' FormEntrySession to use htmlformentry schema matching mechanism, and then examines the leftover Obs, Orders from the FormEntrySession constructor
+	 * 
+	 * 
+	 * @param session
+	 */
+	public static void voidEncounterByHtmlFormSchema(Encounter e, HtmlForm htmlform, String voidReason) throws Exception {
+		if (e != null && htmlform != null){
+			if (voidReason == null)
+				voidReason = "htmlformentry";
+		    boolean shouldVoidEncounter = true;
+		    Map<Obs,Obs> replacementObs = new HashMap<Obs,Obs>();//new, then source
+		    Map<Order,Order> replacementOrders = new HashMap<Order,Order>();//new, then source
+		    Encounter eTmp = returnEncounterCopy(e,replacementObs, replacementOrders);
+			FormEntrySession session = new FormEntrySession(eTmp.getPatient(), eTmp, Mode.VIEW, htmlform);
+			List<FormSubmissionControllerAction> actions = session.getSubmissionController().getActions();
+			Set<Obs> matchedObs = new HashSet<Obs>();
+			Set<Order> matchedOrders = new HashSet<Order>();
+			for (FormSubmissionControllerAction lfca : actions){
+				if (lfca instanceof ObsSubmissionElement){
+					ObsSubmissionElement ose = (ObsSubmissionElement) lfca;
+					if (ose.getExistingObs() != null){
+						matchedObs.add(ose.getExistingObs());
+					}	
+				}	
+				if (lfca instanceof ObsGroupAction){
+					ObsGroupAction oga = (ObsGroupAction) lfca;
+					if (oga.getExistingGroup() != null){
+						matchedObs.add(oga.getExistingGroup());						
+					}	
+				}
+				if (lfca instanceof DrugOrderSubmissionElement){
+					DrugOrderSubmissionElement dse = (DrugOrderSubmissionElement) lfca;
+					if (dse.getExistingOrder() != null){
+						matchedOrders.add(dse.getExistingOrder());
+					}
+				}
+			}
 
+			for (Obs o : e.getAllObs(true)){
+				boolean matched = false;
+				for (Obs oMatched : matchedObs){
+					if (replacementObs.get(oMatched) != null && replacementObs.get(oMatched).equals(o)){
+						o.setVoided(true);
+						o.setVoidedBy(Context.getAuthenticatedUser());
+						o.setVoidReason(voidReason);
+						o.setDateVoided(new Date());
+						matched = true;
+						break;
+					}
+				}
+				if (!matched)
+					shouldVoidEncounter = false;
+			}
+			
+			for (Order o : e.getOrders()){
+				boolean matched = false;
+				for (Order oMatched : matchedOrders){
+					//Order.equals only checks Id value
+					if (replacementOrders.get(oMatched) != null && replacementOrders.get(oMatched).equals(o)){
+						o.setVoided(true);
+						o.setVoidedBy(Context.getAuthenticatedUser());
+						o.setVoidReason(voidReason);
+						o.setDateVoided(new Date());
+						matched = true;
+						break;
+					}
+				}
+				if (!matched)
+					shouldVoidEncounter = false;
+			}
+			
+	        if (shouldVoidEncounter){
+	        	e.setVoided(true);
+	        	e.setVoidedBy(Context.getAuthenticatedUser());
+	        	e.setVoidReason(voidReason);
+	        	e.setDateVoided(new Date());
+	        }
+	        eTmp = null;
+		}
+	}
+
+	/**
+	 * Method that returns a copy of an Encounter.  Includes copies of all Obs tree structures and Orders.
+	 * 
+	 * @param source
+	 * @param replacementObs
+	 * @param replacementOrders
+	 * @return
+	 * @throws Exception
+	 */
+	private static Encounter returnEncounterCopy(Encounter source, Map<Obs,Obs> replacementObs, Map<Order,Order> replacementOrders) throws Exception {
+		if (source != null){
+			Encounter encNew = new Encounter();
+			encNew.setChangedBy(source.getChangedBy());
+			encNew.setCreator(source.getCreator());
+			encNew.setDateChanged(source.getDateChanged());
+			encNew.setDateCreated(source.getDateCreated());
+			encNew.setDateVoided(source.getDateVoided());
+			encNew.setEncounterDatetime(source.getEncounterDatetime());
+			encNew.setEncounterId(source.getEncounterId());
+			encNew.setEncounterType(source.getEncounterType());
+			encNew.setForm(source.getForm());
+			encNew.setLocation(source.getLocation());
+			encNew.setPatient(source.getPatient());
+			encNew.setProvider(source.getProvider());
+			encNew.setVoided(source.getVoided());
+			encNew.setVoidedBy(source.getVoidedBy());
+			encNew.setVoidReason(source.getVoidReason());
+
+			//note: we can do this because we're not going to manipulate anything about these obs or orders, and this copy won't be persisted...
+
+			Set<Obs> newObs = new HashSet<Obs>();
+			for (Obs o :source.getAllObs(true)){
+				Obs oNew = cloneObs(o, replacementObs);
+				newObs.add(oNew);
+			}
+			encNew.setObs(newObs);
+			
+			Set<Order> newOrders = new HashSet<Order>();
+			for (Order o : source.getOrders()){
+				Order oNew = (Order) returnOrderCopy(o, replacementOrders);
+				newOrders.add(oNew);
+			}
+			encNew.setOrders(newOrders);
+			return encNew;
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns a copy of an Obs.  Recurses through GroupMembers to return copies of those also, so the whole Obs tree is a copy.
+	 * 
+	 * @param obsToCopy
+	 * @param replacements
+	 * @return
+	 */
+	private static Obs cloneObs(Obs obsToCopy, Map<Obs, Obs> replacements){
+		Obs newObs = new Obs(obsToCopy.getPerson(), obsToCopy.getConcept(), obsToCopy.getObsDatetime(), obsToCopy
+		        .getLocation());		
+		newObs.setObsGroup(obsToCopy.getObsGroup());
+		newObs.setAccessionNumber(obsToCopy.getAccessionNumber());
+		newObs.setValueCoded(obsToCopy.getValueCoded());
+		newObs.setValueDrug(obsToCopy.getValueDrug());
+		newObs.setValueGroupId(obsToCopy.getValueGroupId());
+		newObs.setValueDatetime(obsToCopy.getValueDatetime());
+		newObs.setValueNumeric(obsToCopy.getValueNumeric());
+		newObs.setValueModifier(obsToCopy.getValueModifier());
+		newObs.setValueText(obsToCopy.getValueText());
+		newObs.setComment(obsToCopy.getComment());
+		newObs.setOrder(obsToCopy.getOrder());
+		newObs.setEncounter(obsToCopy.getEncounter());
+		newObs.setDateStarted(obsToCopy.getDateStarted());
+		newObs.setDateStopped(obsToCopy.getDateStopped());
+		newObs.setCreator(obsToCopy.getCreator());
+		newObs.setDateCreated(obsToCopy.getDateCreated());
+		newObs.setVoided(obsToCopy.getVoided());
+		newObs.setVoidedBy(obsToCopy.getVoidedBy());
+		newObs.setDateVoided(obsToCopy.getDateVoided());
+		newObs.setVoidReason(obsToCopy.getVoidReason());
+		
+		newObs.setValueComplex(obsToCopy.getValueComplex());
+		newObs.setComplexData(obsToCopy.getComplexData());
+		if (obsToCopy.isObsGrouping()){
+			newObs.setGroupMembers(null);
+			for (Obs oinner : obsToCopy.getGroupMembers()){
+				Obs oinnerNew = cloneObs(oinner, replacements);
+				newObs.addGroupMember(oinnerNew);
+			}
+		}
+		replacements.put(newObs, obsToCopy );
+		return newObs;
+	}
+	
+	/**
+	 * 
+	 * Utility to return a copy of an Order.  Uses reflection so that this code will support any subclassing of Order, such as DrugOrder 
+	 * 
+	 * @param source
+	 * @param replacementOrders
+	 * @return A copy of an Order
+	 * @throws Exception
+	 */
+	private static Object returnOrderCopy(Order source, Map<Order,Order> replacementOrders) throws Exception {
+		Class<? extends Object> clazz = source.getClass();
+		Object ret = clazz.newInstance();
+		Set<String> fieldNames = new HashSet<String>();
+		List<Field>   fields = new ArrayList<Field>();
+		addSuperclassFields(fields, clazz);		
+		for (Field f : fields){
+			fieldNames.add(f.getName());
+		}
+		for (String root:fieldNames){
+			for (Method getter : clazz.getMethods()){
+				if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase()) && getter.getParameterTypes().length == 0){
+					Method setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
+					if (setter != null && methodsSupportSameArgs(getter, setter)){
+						Object o = getter.invoke(source, Collections.EMPTY_LIST.toArray());
+						if (o != null){
+								//NOTE:  there are no collections in Order or DrugOrder.  This gets nastier if so...
+								setter.invoke(ret, o);
+						}
+					}
+				}
+			}
+		}
+		replacementOrders.put((Order) ret, source);
+		return ret ;
+	}
+	
+	/**
+	 * Performs a case insensitive search on a class for a method by name.
+	 * @param clazz
+	 * @param methodName
+	 * @return the found Method
+	 */
+	private static Method getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName){
+		for (Method m : clazz.getMethods()){
+			if (m.getName().toUpperCase().equals(methodName.toUpperCase())){
+				return m;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * compares getter return types to setter parameter types.
+	 * @param getter
+	 * @param setter
+	 * @return true if getter return types are the same as setter parameter types.  Else false.
+	 */
+	private static boolean methodsSupportSameArgs(Method getter, Method setter){
+			if (getter != null && setter != null 
+				&& setter.getParameterTypes() != null 
+				&& setter.getParameterTypes().length == 1
+				&& getter.getReturnType() != null
+				&& getter.getReturnType().equals(setter.getParameterTypes()[0]))
+			return true;
+		return false;
+	}
+	
+	/**
+	 * recurses through all superclasses of a class and adds the fields from that superclass
+	 * @param fields
+	 * @param clazz
+	 */
+	private static void addSuperclassFields(List<Field> fields, Class<? extends Object> clazz){
+		fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+		if (clazz.getSuperclass() != null){
+			addSuperclassFields(fields, clazz.getSuperclass());
+		}	
+	}
+	
+	
 }

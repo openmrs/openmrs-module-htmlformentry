@@ -79,5 +79,10 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
         return groupingConcept;
     }
 
+	public Obs getExistingGroup() {
+		return existingGroup;
+	}
+    
+    
 
 }

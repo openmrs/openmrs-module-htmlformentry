@@ -16,7 +16,7 @@
 			</section>
 			
 			<section headerLabel="Section One Inner Two">
-			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="S,I,R"/>  RIFAMPIN
+			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="S,I"/>  RIFAMPIN
 			</section>
 			<obs conceptId="3032" labelText="DST Result Date"/> DST START DATE
 	</section>
@@ -27,6 +27,11 @@
 	       <obsgroup groupingConceptId="7">
 				ALLERGY CODED 2: <obs conceptId="1000"/>
 			</obsgroup>
+	</section>
+	
+	<section>
+		<drugOrder drugNames="2,3" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
+		<drugOrder drugNames="11" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
 	</section>
 	
 	<submit/>

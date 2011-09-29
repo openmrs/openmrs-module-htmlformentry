@@ -50,6 +50,10 @@
 							        	<bean class="org.openmrs.module.htmlformentry.handler.EncounterLocationHandler"/>
 							      	</entry>
 							      	<entry>
+								        <key><value>encounterVoided</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.EncounterVoidHandler"/>
+							      	</entry>
+							      	<entry>
 								        <key><value>enrollInProgram</value></key>
 							        	<bean class="org.openmrs.module.htmlformentry.handler.EnrollInProgramHandler"/>
 							      	</entry>

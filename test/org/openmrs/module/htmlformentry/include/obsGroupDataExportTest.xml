@@ -16,7 +16,7 @@
 			</section>
 			
 			<section headerLabel="Section One Inner Two">
-			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="S,I,R"/>  RIFAMPIN
+			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="Susc,Interm"/>  RIFAMPIN
 			</section>
 			<obs conceptId="3032" labelText="DST Result Date"/> DST START DATE
 	</section>

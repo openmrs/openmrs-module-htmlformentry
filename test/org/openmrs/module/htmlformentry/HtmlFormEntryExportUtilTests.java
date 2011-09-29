@@ -77,7 +77,7 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
         htmlform.setXmlData(newXml);
         FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
         String html = session.getHtmlToDisplay();
-        //System.out.println(html);
+        System.out.println(html);
         TestUtil.assertFuzzyContains("<span class=\"sectionHeader\">Section One Inner One</span>", html);
         TestUtil.assertFuzzyContains("ISONIAZID <select id=\"w2\" name=\"w2\"><option value=\"\" selected=\"true\"></option><option value=\"2474\">Susceptible</option><option value=\"3017\">Intermediate</option><option value=\"1441\">Resistant</option></select>", html);
     }
@@ -110,6 +110,8 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
         TestUtil.addObs(e, 3017, Context.getConceptService().getConcept(767), date);
         TestUtil.addObs(e, 3032, new Date(), date); 
         TestUtil.addObs(e, 1, 5000, date); 
+        TestUtil.addObs(e, 2, 5000, date); //not in form schema, should not be included after trimEncounter
+        TestUtil.addObs(e, 3, 5000, date); //not in form schema, should not be included after trimEncounter
         TestUtil.addObs(e, 6, "blah blah", date); 
             //1004 is ANOTHER ALLERGY CONSTRUCT, 1005 is HYPER-ALLERGY CODED, 1001 is PENICILLIN
         TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1001), new Date()); 
@@ -307,6 +309,28 @@ public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest
     }
     
     
+    /**
+     * calls session.createForm on a form that has both conceptIds with labels, and conceptIds without labels in obs tags.
+     * Verifies that the dropdown options for selecting a concept are correctly labeled.
+     * @throws Exception
+     */
+    @Test
+    @Verifies(value = "should test labels generation for concept selects on dropdown options", method = "")
+    public void getSectionNodes_shouldReturnDropdownForConceptSelects() throws Exception {
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        
+        Form form = new Form();
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setForm(form);
+        form.setEncounterType(new EncounterType());
+        htmlform.setDateChanged(new Date());
+        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+        String xml = session.createForm(htmlform.getXmlData());
+//        System.out.println(xml);
+        Assert.assertTrue(xml.contains("<option value=\"\" selected=\"true\"></option><option value=\"2474\">Susc</option><option value=\"3017\">Interm</option>"));
+        Assert.assertTrue(xml.contains("<option value=\"\" selected=\"true\"></option><option value=\"2474\">Susceptible</option><option value=\"3017\">Intermediate</option><option value=\"1441\">Resistant</option>"));
+    }
     
     
     
