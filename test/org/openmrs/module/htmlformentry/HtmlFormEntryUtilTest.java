@@ -559,4 +559,56 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	    	Assert.assertTrue(!o.isVoided());
 	    }
 	}
+	
+	@Test
+	@Verifies(value = "should delete encounter correctly", method = "voidEncounterByHtmlFormSchema")
+	public void testVoidEncounterByHtmlFormSchema_shouldDeleteEncounter() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+        Encounter e = new Encounter();
+        e.setPatient(Context.getPatientService().getPatient(2));
+        Date date = Context.getDateFormat().parse("01/02/2003");
+        e.setDateCreated(new Date());
+        e.setEncounterDatetime(date);
+        e.setLocation(Context.getLocationService().getLocation(2));
+        e.setProvider(Context.getPersonService().getPerson(502));
+        TestUtil.addObs(e, 3, 5000, date);//adding an un-matched, voided Obs
+        for (Obs o : e.getAllObs(true)){
+        	o.setVoided(true);
+        	o.setVoidedBy(Context.getUserService().getUser(1));
+        	o.setVoidReason("blah");
+        	o.setDateVoided(new Date());
+        }
+        
+        //and adding a voided drug order
+        DrugOrder dor = new DrugOrder();
+        dor.setVoided(false);
+        dor.setConcept(Context.getConceptService().getConcept(792));
+        dor.setCreator(Context.getUserService().getUser(1));
+        dor.setDateCreated(new Date());
+        dor.setDiscontinued(false);
+        dor.setDrug(Context.getConceptService().getDrug(2));
+        dor.setOrderType(Context.getOrderService().getOrderType(1));
+        dor.setPatient(Context.getPatientService().getPatient(2));
+        dor.setVoided(true);
+        dor.setVoidedBy(Context.getUserService().getUser(1));
+        dor.setVoidReason("blah");
+        dor.setDateVoided(new Date());
+        dor.setStartDate(new Date());
+        e.addOrder(dor);
+        
+        
+        Context.getEncounterService().saveEncounter(e);
+        
+	 	Form form = new Form();
+	    HtmlForm htmlform = new HtmlForm();
+	    htmlform.setForm(form);
+	    form.setEncounterType(new EncounterType());
+	    htmlform.setDateChanged(new Date());
+	    htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+   	    
+	    HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
+   	    
+   	    //encounter had no non-voided objects, should be voided
+	    Assert.assertTrue(e.isVoided());
+	}
 }

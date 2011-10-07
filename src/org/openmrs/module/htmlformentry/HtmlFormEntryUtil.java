@@ -746,7 +746,7 @@ public class HtmlFormEntryUtil {
 				}
 			}
 
-			for (Obs o : e.getAllObs(true)){
+			for (Obs o : e.getAllObs(false)){ //ignore voided obs
 				boolean matched = false;
 				for (Obs oMatched : matchedObs){
 					if (replacementObs.get(oMatched) != null && replacementObs.get(oMatched).equals(o)){
@@ -763,20 +763,22 @@ public class HtmlFormEntryUtil {
 			}
 			
 			for (Order o : e.getOrders()){
-				boolean matched = false;
-				for (Order oMatched : matchedOrders){
-					//Order.equals only checks Id value
-					if (replacementOrders.get(oMatched) != null && replacementOrders.get(oMatched).equals(o)){
-						o.setVoided(true);
-						o.setVoidedBy(Context.getAuthenticatedUser());
-						o.setVoidReason(voidReason);
-						o.setDateVoided(new Date());
-						matched = true;
-						break;
+				if (!o.isVoided()){ //ignore voided orders
+					boolean matched = false;
+					for (Order oMatched : matchedOrders){
+						//Order.equals only checks Id value
+						if (replacementOrders.get(oMatched) != null && replacementOrders.get(oMatched).equals(o) && !o.isVoided()){
+							o.setVoided(true);
+							o.setVoidedBy(Context.getAuthenticatedUser());
+							o.setVoidReason(voidReason);
+							o.setDateVoided(new Date());
+							matched = true;
+							break;
+						}
 					}
+					if (!matched)
+						shouldVoidEncounter = false;
 				}
-				if (!matched)
-					shouldVoidEncounter = false;
 			}
 			
 	        if (shouldVoidEncounter){
