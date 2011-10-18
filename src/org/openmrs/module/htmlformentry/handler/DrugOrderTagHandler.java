@@ -20,7 +20,7 @@ public class DrugOrderTagHandler extends SubstitutionTagHandler {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("drugNames", Drug.class));
 		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));
-		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonConceptAnswers", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonAnswers", Concept.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
