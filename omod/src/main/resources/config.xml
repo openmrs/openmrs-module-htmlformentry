@@ -4,7 +4,7 @@
 	<!-- Base Module Properties -->
 	<id>htmlformentry</id>
 	<name>HTML Form Entry</name>
-	<version>1.7.3.999</version>
+	<version>1.7.4</version>
 	<package>org.openmrs.module.htmlformentry</package>
 	<author>Darius Jazayeri</author>
 	<description>
@@ -16,7 +16,7 @@
 	<updateURL>https://modules.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL>
 	<!-- /Base Module Properties -->
 	
-	<require_version>1.6.0.11652</require_version>
+	<require_version>1.6.1</require_version>
 	
 	<!-- Extensions -->
 	<extension>
@@ -101,7 +101,7 @@
 	<!-- /Internationalization -->
 	
 	<mappingFiles>
-		HtmlFormEntryHtmlForm.hbm.xml
+		${omodHbmConfig}
 	</mappingFiles>
 	
 </module>
