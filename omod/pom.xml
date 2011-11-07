@@ -20,11 +20,6 @@
 			<version>${project.parent.version}</version>
 		</dependency>		
 		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>logic</artifactId>
-			<version>0.4</version>
-		</dependency>	
-		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
 			<type>jar</type>
@@ -40,6 +35,18 @@
 			<type>jar</type>
 			<scope>test</scope>
 		</dependency>
+	
+		<!-- jars we need to provide for compile but that will be provided at runtime (scope=provided) -->
+	
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>logic</artifactId>
+			<version>0.4</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- jars required only to run test scripts (scope=test) -->
+	
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy</artifactId>
@@ -54,6 +61,7 @@
 			<type>jar</type>
 			<scope>test</scope>
 		</dependency>
+	
 	</dependencies>
 
 	<build>
