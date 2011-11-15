@@ -146,7 +146,8 @@ public class VelocityFunctions {
 		return getLogicService().eval(session.getPatient(), lc);
 	}
 
-	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId) {
+	@SuppressWarnings("deprecation")
+    public PatientState currentProgramWorkflowStatus(Integer programWorkflowId) {
 		Patient p = session.getPatient();
 		if (p == null || p.getId() == null) {
 			return null;

@@ -15,7 +15,8 @@ import org.openmrs.module.htmlformentry.element.EnrollInProgramElement;
  */
 public class EnrollInProgramHandler extends SubstitutionTagHandler implements TagHandler {
 	
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("programId", Program.class));
 		return Collections.unmodifiableList(attributeDescriptors);

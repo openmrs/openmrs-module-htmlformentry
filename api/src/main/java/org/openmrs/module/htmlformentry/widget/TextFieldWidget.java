@@ -67,10 +67,12 @@ public class TextFieldWidget implements Widget {
     /**
      * @param initialValue the initialValue to set
      */
+    @Override
     public void setInitialValue(Object initialValue) {
         this.initialValue = (String) initialValue;
     }
 
+    @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
         if (context.getMode().equals(Mode.VIEW)) {
@@ -115,6 +117,7 @@ public class TextFieldWidget implements Widget {
         return sb.toString(); 
     }
 
+    @Override
     public String getValue(FormEntryContext context, HttpServletRequest request) {
         return request.getParameter(context.getFieldName(this));
     }

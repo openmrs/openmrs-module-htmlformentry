@@ -33,21 +33,24 @@ public class AdminList extends AdministrationSectionExt {
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getMediaType()
 	 */
-	public Extension.MEDIA_TYPE getMediaType() {
+	@Override
+    public Extension.MEDIA_TYPE getMediaType() {
 		return Extension.MEDIA_TYPE.html;
 	}
 	
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getTitle()
 	 */
-	public String getTitle() {
+	@Override
+    public String getTitle() {
 		return "htmlformentry.title";
 	}
 	
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getLinks()
 	 */
-	public Map<String, String> getLinks() {
+	@Override
+    public Map<String, String> getLinks() {
 		
 		Map<String, String> map = new LinkedHashMap<String, String>();
 		

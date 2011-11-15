@@ -16,7 +16,8 @@ import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
  */
 public class DrugOrderTagHandler extends SubstitutionTagHandler {
 
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("drugNames", Drug.class));
 		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));

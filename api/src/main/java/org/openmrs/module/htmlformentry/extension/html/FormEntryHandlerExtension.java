@@ -27,6 +27,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	/**
      * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getFormEntryUrl()
      */
+    @Override
     public String getFormEntryUrl() {
 	    return "module/htmlformentry/htmlFormEntry.form";
     }
@@ -34,6 +35,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	/**
      * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getViewFormUrl()
      */
+    @Override
     public String getViewFormUrl() {
     	return "module/htmlformentry/htmlFormEntry.form";
     }
@@ -41,6 +43,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	/**
      * @see org.openmrs.module.web.extension.FormEntryHandler#getEditFormUrl()
      */
+    @Override
     public String getEditFormUrl() {
     	return "module/htmlformentry/htmlFormEntry.form?mode=EDIT";
     }
@@ -48,6 +51,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
     /**
      * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getFormList()
      */
+    @Override
     public List<Form> getFormsModuleCanEnter(FormEntryContext formEntryContext) {
     	return addAllHtmlForms(new ArrayList<Form>());
     }
@@ -55,6 +59,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	/**
      * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getFormsModuleCanView()
      */
+    @Override
     public Set<Form> getFormsModuleCanView() {
     	return addAllHtmlForms(new HashSet<Form>());
     }
@@ -62,6 +67,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	/**
      * @see org.openmrs.module.web.extension.FormEntryHandler#getFormsModuleCanEdit()
      */
+    @Override
     public Set<Form> getFormsModuleCanEdit() {
     	return addAllHtmlForms(new HashSet<Form>());
     }

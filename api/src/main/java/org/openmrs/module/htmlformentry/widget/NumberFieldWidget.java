@@ -106,10 +106,12 @@ public class NumberFieldWidget implements Widget {
         this.absoluteMaximum = maximum;
     }
 
+    @Override
     public void setInitialValue(Object initialValue) {
         this.initialValue = (Number) initialValue;
     }
 
+    @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
         if (context.getMode() == Mode.VIEW) {
@@ -136,6 +138,7 @@ public class NumberFieldWidget implements Widget {
         return sb.toString();
     }
 
+    @Override
     public Double getValue(FormEntryContext context, HttpServletRequest request) {
         try {
             Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);

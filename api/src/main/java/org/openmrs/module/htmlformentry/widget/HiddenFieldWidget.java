@@ -26,11 +26,13 @@ public class HiddenFieldWidget implements Widget {
 	 * @param initialValue
 	 *            the initialValue to set
 	 */
-	public void setInitialValue(Object initialValue) {
+	@Override
+    public void setInitialValue(Object initialValue) {
 		this.initialValue = (String) initialValue;
 	}
 
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode() != Mode.VIEW) {
 			sb.append("<input type=\"hidden\" name=\"" + context.getFieldName(this) + "\" id=\"" + context.getFieldName(this) + "\"");
@@ -41,7 +43,8 @@ public class HiddenFieldWidget implements Widget {
 		return sb.toString();
 	}
 
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		return request.getParameter(context.getFieldName(this));
 	}
 

@@ -23,6 +23,7 @@ public class LocationWidget implements Widget {
     
     public LocationWidget() { }
 
+    @Override
     public String generateHtml(FormEntryContext context) {
         if (context.getMode() == Mode.VIEW) {
             if (location != null)
@@ -42,6 +43,7 @@ public class LocationWidget implements Widget {
         } else {
             useLocations = Context.getLocationService().getAllLocations();
             Collections.sort(useLocations, new Comparator<Location>() {
+                @Override
                 public int compare(Location left, Location right) {
                     return left.getName().compareTo(right.getName());
                 }
@@ -57,6 +59,7 @@ public class LocationWidget implements Widget {
         return sb.toString();
     }
 
+    @Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
         String val = request.getParameter(context.getFieldName(this));
         if (StringUtils.hasText(val))
@@ -64,6 +67,7 @@ public class LocationWidget implements Widget {
         return null;
     }
 
+    @Override
     public void setInitialValue(Object initialValue) {
         location = (Location) initialValue;
     }

@@ -289,13 +289,11 @@ public abstract class RegressionTestHelper {
 			Map<String, String> labeledWidgetsForEdit = getLabeledWidgets(editHtml, widgetLabelsForEdit());
 			MockHttpServletRequest editRequest = createEditRequest(editHtml);
 			setupEditRequest(editRequest, labeledWidgetsForEdit);
-			Encounter edited = null;
-			Patient editedPatient = null;
 			if (editRequest.getParameterMap().size() > 0) {
 				SubmissionResults results = doSubmission(session, editRequest);
 				testEditedResults(results);
-				edited = results.getEncounterCreated();
-				editedPatient = results.getPatient();
+				results.getEncounterCreated();
+				results.getPatient();
 			}
 		}
 		
@@ -485,7 +483,8 @@ public abstract class RegressionTestHelper {
 		if (encs.size() == 1)
 			return encs.get(0);
 		Collections.sort(encs, new Comparator<Encounter>() {
-			public int compare(Encounter left, Encounter right) {
+			@Override
+            public int compare(Encounter left, Encounter right) {
 				return OpenmrsUtil.compareWithNullAsEarliest(left.getEncounterDatetime(), right.getEncounterDatetime());
 			}
 		});
@@ -762,7 +761,8 @@ public abstract class RegressionTestHelper {
 			value = val;
 		}
 		
-		public String toString() {
+		@Override
+        public String toString() {
 			return conceptId + "->" + value;
 		}
 		

@@ -195,6 +195,7 @@ public class FormSubmissionActions {
     /**
      * Utility method that returns the object of a specified class that was most recently added to the stack
      */
+    @SuppressWarnings("unchecked")
     private <T> T highestOnStack(Class<T> clazz) {
         for (ListIterator<Object> iter = stack.listIterator(stack.size()); iter.hasPrevious(); ) {
             Object o = iter.previous();

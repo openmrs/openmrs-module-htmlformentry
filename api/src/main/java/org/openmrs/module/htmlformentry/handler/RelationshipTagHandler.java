@@ -16,7 +16,8 @@ import org.openmrs.module.htmlformentry.element.RelationshipSubmissionElement;
 public class RelationshipTagHandler extends SubstitutionTagHandler {
 
 	
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("type", RelationshipType.class));
 		return Collections.unmodifiableList(attributeDescriptors);

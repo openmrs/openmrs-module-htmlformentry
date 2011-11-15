@@ -21,11 +21,14 @@ public abstract class AbstractTagHandler implements TagHandler {
 		return null;
 	}
 	
-	public List<AttributeDescriptor> getAttributeDescriptors() {
+	@Override
+    public List<AttributeDescriptor> getAttributeDescriptors() {
 		return attributeDescriptors;
 	}
 	
+    @Override
     abstract public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node);
 
+    @Override
     abstract public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node);
 }

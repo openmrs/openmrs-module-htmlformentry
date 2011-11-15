@@ -32,25 +32,30 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
         this.sessionFactory = sessionFactory;
     }
     
+    @Override
     public HtmlForm getHtmlForm(Integer id) {
         return (HtmlForm) sessionFactory.getCurrentSession().get(HtmlForm.class, id);
     }
     
+    @Override
     public HtmlForm saveHtmlForm(HtmlForm htmlForm) {
         sessionFactory.getCurrentSession().saveOrUpdate(htmlForm);
         return htmlForm;
     }
     
+    @Override
     public void deleteHtmlForm(HtmlForm htmlForm) {
         sessionFactory.getCurrentSession().delete(htmlForm);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public List<HtmlForm> getAllHtmlForms() {
     	Query query = sessionFactory.getCurrentSession().createQuery("from HtmlForm order by form.name asc");
     	return (List<HtmlForm>) query.list();
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public HtmlForm getHtmlFormByForm(Form form) {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(HtmlForm.class);
@@ -69,7 +74,8 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 		return ((Number) query.uniqueResult()).intValue() > 0;
     }
 	
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
 	public List<PersonStub> getUsersAsPersonStubs(String roleName){
 	    String query = " select  u.person_id as id, pn.given_name as givenName, pn.family_name as familyName, pn.middle_name as middleName, pn.family_name2 as familyName2 from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
 	    if (roleName != null)
@@ -84,7 +90,8 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 	    .setResultTransformer(Transformers.aliasToBean(PersonStub.class)).list();
 	}
 
-	 public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid) {
+	 @Override
+    public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid) {
 		try {
 			Criteria criteria = sessionFactory.getCurrentSession().createCriteria(type);
 			criteria.add(Expression.eq("uuid", uuid));
@@ -98,7 +105,8 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 	 }
 
 	
-	 public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
+	 @Override
+    public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
     	 try {
 	    	 String idProperty = sessionFactory.getClassMetadata(type).getIdentifierPropertyName();
 		 	 Criteria criteria = sessionFactory.getCurrentSession().createCriteria(type);
@@ -112,6 +120,7 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
      	}
 	 }
 
+    @Override
     public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name) {
     	// we use a try/catch here to handle oddities like "Role" which don't have a directly-referenceable name property
     	try {
@@ -126,6 +135,7 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     	}
     }
     
+    @Override
     @SuppressWarnings("unchecked")
 	public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue) {
 	    String query =  "select distinct(pa.person_id) from person_attribute pa, person_attribute_type pat where pa.person_attribute_type_id = pat.person_attribute_type_id and pat.name='" + attribute + "'";

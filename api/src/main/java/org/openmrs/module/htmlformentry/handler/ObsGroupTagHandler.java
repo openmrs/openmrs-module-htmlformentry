@@ -21,7 +21,8 @@ import org.w3c.dom.Node;
  */
 public class ObsGroupTagHandler extends AbstractTagHandler {
    
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();	
 		attributeDescriptors.add(new AttributeDescriptor("groupingConceptId", Concept.class));
 		return Collections.unmodifiableList(attributeDescriptors);
@@ -30,6 +31,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
     /**
      * @see org.openmrs.module.htmlformentry.handler.TagHandler#doStartTag(org.openmrs.module.htmlformentry.FormEntrySession, java.io.PrintWriter, org.w3c.dom.Node, org.w3c.dom.Node)
      */
+    @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         
@@ -65,6 +67,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
     }
 
+    @Override
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
 //                Concept question = null;
 //                if (parent != null){

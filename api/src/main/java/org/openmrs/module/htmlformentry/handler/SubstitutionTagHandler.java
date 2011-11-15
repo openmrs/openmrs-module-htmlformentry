@@ -32,6 +32,7 @@ public abstract class SubstitutionTagHandler extends AbstractTagHandler {
      */
     abstract protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters);
     
+    @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
         Map<String, String> attributes = new HashMap<String, String>();        
         NamedNodeMap map = node.getAttributes();
@@ -45,6 +46,7 @@ public abstract class SubstitutionTagHandler extends AbstractTagHandler {
         return false; // skip contents/children
     }
 
+    @Override
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
         // do nothing
     }

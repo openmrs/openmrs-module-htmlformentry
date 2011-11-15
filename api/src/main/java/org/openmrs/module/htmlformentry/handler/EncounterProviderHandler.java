@@ -17,7 +17,8 @@ import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement
  */
 public class EncounterProviderHandler extends SubstitutionTagHandler {
 
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("default", Person.class));
 		attributeDescriptors.add(new AttributeDescriptor("role", Role.class));

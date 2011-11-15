@@ -24,10 +24,12 @@ public class PersonStubWidget implements Widget {
     	this.options = options;
     }
 
+    @Override
     public void setInitialValue(Object initialValue) {
         person = (PersonStub) initialValue;
     }
     
+    @Override
     public String generateHtml(FormEntryContext context) {
         if (context.getMode() == Mode.VIEW) {
             if (person != null)
@@ -70,6 +72,7 @@ public class PersonStubWidget implements Widget {
         this.options = options;
     }
     
+    @Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
         String val = request.getParameter(context.getFieldName(this));
         if (StringUtils.hasText(val))

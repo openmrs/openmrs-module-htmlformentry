@@ -36,18 +36,22 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void testSimplestFormFailure() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "simplestForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertErrors(3); // date, location, and provider are required
 				results.assertNoEncounterCreated();
 			}
@@ -59,21 +63,25 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "simplestForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 			}
@@ -85,22 +93,26 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleObsForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				request.addParameter(widgets.get("Weight:"), "70");
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsCreatedCount(1);
@@ -114,15 +126,18 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "multipleObsForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -131,7 +146,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsCreatedCount(3);
@@ -147,15 +163,18 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleObsGroupForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -164,7 +183,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Allergy Date:"), dateAsString(date));
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsGroupCreatedCount(1);
@@ -180,16 +200,19 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "multipleObsGroupForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Allergy 1:", "Allergy Date 1:", "Allergy 3:",
 				        "Allergy Date 3:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// for fun let's fill out part of allergy 1 and allergy 3, but leave allergy 2 blank.
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
@@ -199,7 +222,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Allergy 3:"), "Penicillin");
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsGroupCreatedCount(2);
@@ -214,11 +238,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewEmptyEncounterSuccess() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "simplestForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				Date date = Context.getDateFormat().parse("01/02/2003");
 				e.setDateCreated(new Date());
@@ -228,7 +254,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
 			}
 		}.run();
@@ -238,11 +265,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewSingleObsEncounterSuccess() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleObsForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -254,7 +283,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
 			}
 		}.run();
@@ -264,11 +294,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewSingleObsEncounterWithObsOfAnotherConcept() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleObsForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -280,7 +312,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
 			}
 		}.run();
@@ -290,11 +323,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewObsgroupsWithCodedValues() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "obsGroupsWithCodedValuesForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -314,7 +349,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Allergy \\d: CATS", html);
 				TestUtil.assertFuzzyContains("Allergy \\d: OPENMRS", html);
 				TestUtil.assertFuzzyContains("Allergy \\d: PENICILLIN", html);
@@ -333,11 +369,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 			
 			new RegressionTestHelper() {
 				
-				String getFormName() {
+				@Override
+                String getFormName() {
 					return "obsGroupsWithDifferentGroupingConceptsButSameMemberConceptsForm";
 				}
 				
-				Encounter getEncounterToView() throws Exception {
+				@Override
+                Encounter getEncounterToView() throws Exception {
 					Encounter e = new Encounter();
 					e.setPatient(getPatient());
 					Date date = Context.getDateFormat().parse("01/02/2003");
@@ -356,7 +394,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					return e;
 				}
 				
-				void testViewingEncounter(Encounter encounter, String html) {
+				@Override
+                void testViewingEncounter(Encounter encounter, String html) {
 					// assert that in the rendered form view the value for the ALLERGY CODED obs within the OTHER ALLERGY CONSTRUCT 
 					// is OPENMRS (i.e., concept 1003)
 					TestUtil.assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
@@ -372,11 +411,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		for (int rep = 1; rep < 30; rep++) {
 			new RegressionTestHelper() {
 				
-				String getFormName() {
+				@Override
+                String getFormName() {
 					return "obsGroupsWithSameGroupingConceptButDifferentMemberConceptsForm";
 				}
 				
-				Encounter getEncounterToView() throws Exception {
+				@Override
+                Encounter getEncounterToView() throws Exception {
 					Encounter e = new Encounter();
 					e.setPatient(getPatient());
 					Date date = Context.getDateFormat().parse("01/02/2003");
@@ -395,7 +436,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 					return e;
 				}
 				
-				void testViewingEncounter(Encounter encounter, String html) {
+				@Override
+                void testViewingEncounter(Encounter encounter, String html) {
 					// assert that in the rendered form view the view for grouping concept_id 1004 doesn't find a group -- it shouldn't
 				    // because all obs groups are concept_id 7.
 				    TestUtil.assertFuzzyContains("Hyper-Allergy 1: <span class=\"emptyValue\">____</span>", html);
@@ -425,10 +467,12 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
             new RegressionTestHelper() {
                 
 
+                @Override
                 String getFormName() {
                     return "multiLevelObsGroup1";
                 }
                 
+                    @Override
                     Encounter getEncounterToView() throws Exception {
                     Encounter e = new Encounter();
                     e.setPatient(getPatient());
@@ -486,6 +530,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
                     return e;
                 }
                 
+                @Override
                 void testViewingEncounter(Encounter encounter, String html) {
                     //System.out.println(html);
                     TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
@@ -504,10 +549,12 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
     public void viewSingleObsEncounterWithObsOfTextDatatype() throws Exception {
         new RegressionTestHelper() {
             
+            @Override
             String getFormName() {
                 return "singleObsForm2";
             }
             
+            @Override
             Encounter getEncounterToView() throws Exception {
                 Encounter e = new Encounter();
                 e.setPatient(getPatient());
@@ -520,6 +567,7 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
                 return e;
             }
             
+            @Override
             void testViewingEncounter(Encounter encounter, String html) {
                 TestUtil.assertFuzzyContains("blah blah", html);
             }
@@ -531,10 +579,12 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void testVelocityExpressions() throws Exception {
 		LogicUtil.registerDefaultRules();
 		new RegressionTestHelper() {
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "velocityForm";
 			}
-			void testBlankFormHtml(String html) {
+			@Override
+            void testBlankFormHtml(String html) {
 				TestUtil.assertFuzzyContains("Last weight: 50.0", html);
 				TestUtil.assertFuzzyContains("Gender: M", html);
 				TestUtil.assertFuzzyContains("Location: Test Location", html);
@@ -547,41 +597,49 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleObsForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				request.addParameter(widgets.get("Weight:"), "70");
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsCreatedCount(1);
 				results.assertObsCreated(2, 70d);
 			}
 			
-			boolean doEditEncounter() {
+			@Override
+            boolean doEditEncounter() {
 				return true;
 			}
 			
-			String[] widgetLabelsForEdit() {
+			@Override
+            String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:" };
 			};
 			
-			void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
 			};
 			
-			void testEditedResults(SubmissionResults results) {
+			@Override
+            void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterEdited();
 				results.assertObsCreated(2, 75d);
@@ -599,28 +657,34 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void testEditMultipleObsForm() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "multipleObsForm";
 			}
 			
-			Patient getPatientToView() throws Exception {
+			@Override
+            Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
-			Encounter getEncounterToEdit() {
+			@Override
+            Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
-			String[] widgetLabelsForEdit() {
+			@Override
+            String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:" };
 			};
 			
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
 			};
 			
-			void testEditedResults(SubmissionResults results) {
+			@Override
+            void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterEdited();
 				results.assertObsCreated(2, 75d);
@@ -697,15 +761,18 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "dataTypesForm";
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Date Obs:", "Time Obs:" };
 			}
 			
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -714,7 +781,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Time Obs:"), "7");
 			}
 			
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsCreatedCount(3);
@@ -729,11 +797,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void testSubmitButtonLabelAndStyle() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "simplestForm";
 			}
 			
-			void testBlankFormHtml(String html){
+			@Override
+            void testBlankFormHtml(String html){
 				//simplest form should contain default label and class
 				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"htmlformentry.enterFormButton\"", html);
 				return;
@@ -743,11 +813,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "submitButtonLabelAndStyleForm";
 			}
 									
-			void testBlankFormHtml(String html){
+			@Override
+            void testBlankFormHtml(String html){
 				//submitButtonLabelAndStyleForm has both custom label and style
 				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"someOtherCSSClassReference\" value=\"submit label test\"", html);
 				return;
@@ -758,13 +830,15 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			java.util.Locale locale = null;
-			String getFormName() {
+			@Override
+            String getFormName() {
 				locale = Context.getLocale(); //save off the locale 
 				Context.setLocale(new java.util.Locale("fr")); //set it to fr
 				return "submitButtonLabelCodeForm";
 			}
 									
-			void testBlankFormHtml(String html){
+			@Override
+            void testBlankFormHtml(String html){
 				//submit_button has translation reference code
 				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"I don't think so\"", html);
 				Context.setLocale(locale); //switch back locale
@@ -804,24 +878,29 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
     	final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "simpleCreatePatientForm";
 			}
 			
-			Patient getPatient() {
+			@Override
+            Patient getPatient() {
 				return new Patient();
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName",
 						"Gender:", "Birthdate:", "Identifier:", "Identifier Location:" };
 			}
 
-			void testBlankFormHtml(String html) {
+			@Override
+            void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("PersonName.givenName"), "Given");
 				request.addParameter(widgets.get("PersonName.familyName"), "Family");
 				request.addParameter(widgets.get("Gender:"), "F");
@@ -833,7 +912,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 
 			}
 
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				results.assertNoEncounterCreated();
@@ -847,21 +927,25 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
     	final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "simplePatientAndEncounterForm";
 			}
 			
-			Patient getPatient() {
+			@Override
+            Patient getPatient() {
 				return new Patient();
 			}
 			
-			String[] widgetLabels() {
+			@Override
+            String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName",
 						"Gender:", "Birthdate:", "Identifier:", "Identifier Location:",
 						"Date:", "Encounter Location:", "Provider:" };
 			}
 
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("PersonName.givenName"), "Given");
 				request.addParameter(widgets.get("PersonName.familyName"), "Family");
 				request.addParameter(widgets.get("Gender:"), "F");
@@ -876,7 +960,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Provider:"), "502");
 			}
 
-			void testResults(SubmissionResults results) {
+			@Override
+            void testResults(SubmissionResults results) {
 				Date datePartOnly = stringToDate(dateAsString(date));
 				results.assertNoErrors();
 
@@ -901,19 +986,23 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void testEditPatientDetailsWithoutEditingEncounter() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
-			Patient getPatientToEdit() {
+			@Override
+            Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
-			boolean doViewEncounter() {
+			@Override
+            boolean doViewEncounter() {
 				return true;
 			};
 			
-			Encounter getEncounterToView() {
+			@Override
+            Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
@@ -928,7 +1017,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "paul");
 			}
 			
-			void testEditedResults(SubmissionResults results) {
+			@Override
+            void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				Assert.assertEquals("Simon", results.getPatient().getGivenName());
@@ -945,30 +1035,36 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
-			Patient getPatientToEdit() {
+			@Override
+            Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
-			Encounter getEncounterToEdit() {
+			@Override
+            Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
-			String[] widgetLabelsForEdit() {
+			@Override
+            String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Date:", "Encounter Location:" };
 			}
 			
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Mark");
 				request.setParameter(widgets.get("PersonName.familyName"), "waugh");
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
 				request.setParameter(widgets.get("Encounter Location:"), "2");
 			}
 			
-			void testEditedResults(SubmissionResults results) {
+			@Override
+            void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = stringToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
@@ -995,30 +1091,37 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
-			Patient getPatientToEdit() {
+			@Override
+            Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
-			Encounter getEncounterToView() {
+			@Override
+            Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
-			String[] widgetLabelsForEdit() {
+			@Override
+            String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Weight:" };
 			}
 			
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Mike");
 				request.setParameter(widgets.get("PersonName.familyName"), "Den");
 				request.setParameter(widgets.get("Weight:"), "100");
 			}
 			
-			void testEditedResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+			@Override
+            void testEditedResults(SubmissionResults results) {
+				@SuppressWarnings("unused")
+                Date datePartOnly = stringToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
 				results.getPatient().getPersonName();
@@ -1030,7 +1133,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				
 			}
 			
-			void testBlankFormHtml(String html) {
+			@Override
+            void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 			
@@ -1039,30 +1143,35 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testEditObsWithoutEditingPatient() throws Exception {
-		final Date date = new Date();
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
-			Patient getPatientToView() throws Exception {
+			@Override
+            Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
-			Encounter getEncounterToEdit() {
+			@Override
+            Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
-			String[] widgetLabelsForEdit() {
+			@Override
+            String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:" };
 			};
 			
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "100");
 			};
 			
-			void testEditedResults(SubmissionResults results) {
+			@Override
+            void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				results.assertEncounterEdited();
@@ -1076,11 +1185,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewFormWithLocationObs() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleLocationObsForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -1092,7 +1203,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Xanadu", html);   // make sure Xanadu has been included
 			}
 		}.run();
@@ -1102,11 +1214,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewFormWithLocationObsNewFormat() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleLocationObsForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -1118,7 +1232,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Xanadu", html);   // make sure Xanadu has been included
 			}
 		}.run();
@@ -1128,11 +1243,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void viewFormWithPersonObs() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singlePersonObsForm";
 			}
 			
-			Encounter getEncounterToView() throws Exception {
+			@Override
+            Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -1144,7 +1261,8 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 				return e;
 			}
 			
-			void testViewingEncounter(Encounter encounter, String html) {
+			@Override
+            void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Collet Test Chebaskwony", html);   // make sure Collet Chebaskwony has been included
 			}
 		}.run();
@@ -1154,11 +1272,13 @@ public class RegressionTests extends BaseModuleContextSensitiveTest {
 	public void answerConceptIdsShouldMapToAnswerLabels() throws Exception {
 		new RegressionTestHelper() {
 			
-			String getFormName() {
+			@Override
+            String getFormName() {
 				return "singleObsWithAnswersAndLabels";
 			}
 			
-			void testBlankFormHtml(String html) {
+			@Override
+            void testBlankFormHtml(String html) {
 								
 				// test to make sure that the concept ids have been mapped to the correct labels
 				// we search for the value attribute (ie. value="1001"), and then make sure the corresponding label

@@ -33,14 +33,16 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	/**
 	 * @see org.openmrs.module.htmlformentry.element.HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 	    return "";
     }
 
 	/**
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#handleSubmission(org.openmrs.module.htmlformentry.FormEntrySession, javax.servlet.http.HttpServletRequest)
 	 */
-	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+	@Override
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 	    if (session.getContext().getMode() == Mode.ENTER) {
 	    	session.getSubmissionActions().enrollInProgram(program);
 	    }
@@ -49,7 +51,8 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	/**
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
 	 */
-	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+	@Override
+    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 	    return Collections.emptySet();
     }
 

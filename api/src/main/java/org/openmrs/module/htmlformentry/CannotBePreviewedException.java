@@ -6,6 +6,8 @@ package org.openmrs.module.htmlformentry;
  */
 public class CannotBePreviewedException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
 	public CannotBePreviewedException() {
 		super();
 	}

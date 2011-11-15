@@ -693,8 +693,8 @@ public class FormEntrySession {
      * Returns the last AJAX submission made
      * TODO: Update this so it is actually right
      */
-    @SuppressWarnings("unchecked")
-	public String getSetLastSubmissionFieldsJavascript() {
+    @SuppressWarnings("rawtypes")
+    public String getSetLastSubmissionFieldsJavascript() {
         HttpServletRequest lastSubmission = submissionController.getLastSubmission();
         if (lastSubmission == null) {
             return "";

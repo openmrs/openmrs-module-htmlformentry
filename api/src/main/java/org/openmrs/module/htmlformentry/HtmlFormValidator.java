@@ -17,7 +17,8 @@ public class HtmlFormValidator implements Validator {
 	/** 
      * Tests whether the validator supports the specified class
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
+    @Override
     public boolean supports(Class clazz) {
         return HtmlForm.class.equals(clazz);
     }
@@ -25,6 +26,7 @@ public class HtmlFormValidator implements Validator {
     /**
      * Validates the specified HTML Form, placing any errors in the Errors object passed to it
      */
+    @Override
     public void validate(Object obj, Errors errors) {
         HtmlForm hf = (HtmlForm) obj;
         // can't use ValidationUtil for this because toString of a new non-null form is ""

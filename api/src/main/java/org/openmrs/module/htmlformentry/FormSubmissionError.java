@@ -21,6 +21,7 @@ public class FormSubmissionError {
         this.error = error;
     }
     
+    @Override
     public String toString() {
     	return (sourceWidget != null ? sourceWidget.getClass().getSimpleName() : id) + " -> " + error;
     }

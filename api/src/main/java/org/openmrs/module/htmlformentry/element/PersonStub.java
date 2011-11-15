@@ -71,6 +71,7 @@ public class PersonStub extends ValueStub {
      * NOTE: setResultTransformer(Transformers.aliasToBean(PersonStub.class)) isn't compatible with the 
      * mysql CONCAT function for some reason, so I wasn't able to build the display value in the Hibernate SQLQuery itself
      */
+    @Override
     public String getDisplayValue(){
         String displayValue = (StringUtils.isNotBlank(this.getGivenName()) ? this.getGivenName() + " " : "") + (StringUtils.isNotBlank(this.getMiddleName()) ? this.getMiddleName() + " " : "") +
         						(StringUtils.isNotBlank(this.getFamilyName()) ? this.getFamilyName() + " " : "") + (StringUtils.isNotBlank(this.getFamilyName2()) ? this.getFamilyName2() : "");
@@ -81,10 +82,12 @@ public class PersonStub extends ValueStub {
         return displayValue;
     }
     
+    @Override
     public String toString() {
     	return getDisplayValue();
     }
     
+    @Override
     public boolean equals(Object o){
         if (o != null && o instanceof PersonStub){
             PersonStub oOther = (PersonStub) o;

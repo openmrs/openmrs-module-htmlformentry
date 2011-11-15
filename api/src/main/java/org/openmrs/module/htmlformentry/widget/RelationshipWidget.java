@@ -24,12 +24,14 @@ public class RelationshipWidget implements Widget {
 	
 	public RelationshipWidget() { }
 
-	public void setInitialValue(Object initialValue) {
+	@Override
+    public void setInitialValue(Object initialValue) {
 	 
     }
 	
 	
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
      
         StringBuilder sb = new StringBuilder();
         
@@ -131,7 +133,8 @@ public class RelationshipWidget implements Widget {
         return sb.toString();
     }
 
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		
         return null;
     }

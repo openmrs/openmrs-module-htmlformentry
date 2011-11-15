@@ -16,7 +16,8 @@ import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement
  */
 public class EncounterLocationHandler extends SubstitutionTagHandler {
 
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("order", Location.class));
 		attributeDescriptors.add(new AttributeDescriptor("default", Location.class));

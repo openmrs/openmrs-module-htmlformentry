@@ -16,7 +16,8 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
  */
 public class OpenmrsObjectSubstituter implements Substituter {
 	
-	public String substitute(String value, Class<?> clazz, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
+	@Override
+    public String substitute(String value, Class<?> clazz, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 		
 		// see if this value is a uuid referenced in the substitutionMap
 		if (HtmlFormEntryUtil.isValidUuidFormat(value)) {

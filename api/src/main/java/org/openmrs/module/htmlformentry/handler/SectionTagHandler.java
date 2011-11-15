@@ -18,6 +18,7 @@ public class SectionTagHandler extends AbstractTagHandler {
 	/** The logger to use with this class */
     protected final Log log = LogFactory.getLog(getClass());
     
+    @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
         String sectionStyleClass = "section";
         String headerStyleClass = "sectionHeader";
@@ -50,6 +51,7 @@ public class SectionTagHandler extends AbstractTagHandler {
         return true;
     }
 
+    @Override
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
     	out.print("</div>");
     	session.getContext().getSchema().endSection();

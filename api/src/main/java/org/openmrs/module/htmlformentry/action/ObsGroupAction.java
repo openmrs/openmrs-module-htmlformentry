@@ -51,12 +51,14 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
             this.groupingConcept.getDatatype();
     }
 
+    @Override
     public Collection<FormSubmissionError> validateSubmission(
             FormEntryContext context, HttpServletRequest submission) {
         // this cannot fail validation
         return null;
     }
 
+    @Override
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         try {
             if (start) {

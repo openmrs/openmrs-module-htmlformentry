@@ -49,14 +49,17 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	 */
     private boolean nameAndDescriptionMigrationDone = false;
     
+    @Override
     public void addHandler(String tagName, TagHandler handler) {
         handlers.put(tagName, handler);
     }
     
+    @Override
     public TagHandler getHandlerByTagName(String tagName){
         return handlers.get(tagName);
     }
     
+    @Override
     public Map<String, TagHandler> getHandlers(){
         return handlers;
     }
@@ -93,10 +96,12 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     	this.basicFormXmlTemplate = basicFormXmlTemplate;
     }
 
-	public HtmlForm getHtmlForm(Integer id) {
+	@Override
+    public HtmlForm getHtmlForm(Integer id) {
         return dao.getHtmlForm(id);
     }
     
+    @Override
     public HtmlForm saveHtmlForm(HtmlForm htmlForm) {
         if (htmlForm.getCreator() == null)
             htmlForm.setCreator(Context.getAuthenticatedUser());
@@ -110,14 +115,17 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         return dao.saveHtmlForm(htmlForm);
     }
     
+    @Override
     public void purgeHtmlForm(HtmlForm htmlForm) {
         dao.deleteHtmlForm(htmlForm);
     }
 
+    @Override
     public List<HtmlForm> getAllHtmlForms() {
         return dao.getAllHtmlForms();
     }
 
+    @Override
     public HtmlForm getHtmlFormByForm(Form form) {
         return dao.getHtmlFormByForm(form);
     }
@@ -172,24 +180,29 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	    return  dao.getUsersAsPersonStubs(roleName);
 	}
 
+    @Override
     public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid) {
     	return dao.getItemByUuid(type, uuid);
     }
 	
+    @Override
     public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
 	    return dao.getItemById(type, id);
     }
 
+    @Override
     public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name) {
 	    return dao.getItemByName(type, name);
     }
     
+    @Override
     public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue) {
     		    
     	return dao.getPersonIdHavingAttributes(attribute, attributeValue);
     }
 	 	
-	public List<PersonStub> getPeopleAsPersonStubs(List<String> attributes, List<String> attributeValues, List<String> programIds){
+	@Override
+    public List<PersonStub> getPeopleAsPersonStubs(List<String> attributes, List<String> attributeValues, List<String> programIds){
 		List<PersonStub> stubs = new ArrayList<PersonStub>();
 		
 		Cohort cohort = null;
@@ -213,7 +226,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					
 				if(cohort != null)
 				{
-					cohort = cohort.intersect(cohort, pp);
+					cohort = Cohort.intersect(cohort, pp);
 				}
 				else
 				{
@@ -238,7 +251,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
 						if(cohort != null)
 						{
-							cohort = cohort.intersect(cohort, pp);
+							cohort = Cohort.intersect(cohort, pp);
 						}
 					}
 				}

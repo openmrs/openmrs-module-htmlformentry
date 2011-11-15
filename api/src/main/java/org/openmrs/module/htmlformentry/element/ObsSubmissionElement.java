@@ -707,7 +707,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		}
 	}
 
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		if (id != null) {
 			ret.append("<span id='" + id + "'>");
@@ -787,7 +788,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	    return null;
     }
 
-	public Collection<FormSubmissionError> validateSubmission(
+	@Override
+    public Collection<FormSubmissionError> validateSubmission(
 			FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		Object value = null;
@@ -839,7 +841,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 		return ret;
 	}
 
-	public void handleSubmission(FormEntrySession session,
+	@Override
+    public void handleSubmission(FormEntrySession session,
 			HttpServletRequest submission) {
 		Object value = valueWidget.getValue(session.getContext(), submission);
 		if (concepts != null){
@@ -879,7 +882,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	}
 
 	private Comparator<Concept> conceptNameComparator = new Comparator<Concept>() {
-		public int compare(Concept c1, Concept c2) {
+		@Override
+        public int compare(Concept c1, Concept c2) {
 			String n1 = c1.getBestName(Context.getLocale()).getName();
 			String n2 = c2.getBestName(Context.getLocale()).getName();
 			return n1.compareTo(n2);

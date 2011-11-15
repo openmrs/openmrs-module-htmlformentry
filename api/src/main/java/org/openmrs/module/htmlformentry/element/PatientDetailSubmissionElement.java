@@ -396,7 +396,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		return patientIdentifierType;
 	}
 
-	@Override
+	@SuppressWarnings("unused")
+    @Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest request) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 

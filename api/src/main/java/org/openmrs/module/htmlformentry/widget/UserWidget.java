@@ -21,6 +21,7 @@ public class UserWidget implements Widget {
     
     public UserWidget() { }
 
+    @Override
     public String generateHtml(FormEntryContext context) {
         if (context.getMode() == Mode.VIEW) {
             if (user != null)
@@ -51,6 +52,7 @@ public class UserWidget implements Widget {
         return sb.toString();
     }
 
+    @Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
         String val = request.getParameter(context.getFieldName(this));
         if (StringUtils.hasText(val))
@@ -58,6 +60,7 @@ public class UserWidget implements Widget {
         return null;
     }
 
+    @Override
     public void setInitialValue(Object initialValue) {
         user = (User) initialValue;
     }

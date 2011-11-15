@@ -24,7 +24,8 @@ import org.openmrs.util.OpenmrsUtil;
  * precedence: FamilyName, FamilyName2, GivenName, MiddleName, FamilyNamePrefix, FamilyNameSuffix
  */
 public class PersonByNameComparator implements Comparator<Person> {
-	public int compare(Person person1, Person person2) {
+	@Override
+    public int compare(Person person1, Person person2) {
 
 		// test for null cases (sorting them to be last in a list)
 		if (person1 == null || person1.getPersonName() == null) {

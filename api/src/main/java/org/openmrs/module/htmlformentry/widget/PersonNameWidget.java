@@ -19,7 +19,8 @@ public class PersonNameWidget implements Widget {
 	public PersonNameWidget() {
 	}
 	
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
         if (context.getMode() == Mode.VIEW) {
             String toPrint = "";
@@ -49,7 +50,8 @@ public class PersonNameWidget implements Widget {
         return sb.toString();
 	}
 	
-	public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
 		String family = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "_family", String.class);
 		String given = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "_give", String.class);
 		if (StringUtils.hasText(family) || StringUtils.hasText(given)) {
@@ -59,7 +61,8 @@ public class PersonNameWidget implements Widget {
 		}
 	}
 	
-	public void setInitialValue(Object initialValue) {
+	@Override
+    public void setInitialValue(Object initialValue) {
 		this.initialValue = (PersonName) initialValue;
 	}
 	

@@ -39,7 +39,8 @@ public class DateTimeWidget implements Widget {
 	 /**
      * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
      */
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		// have the date and time widgets generate their HTML
 		String dateHTML = dateWidget.generateHtml(context);
 		String timeHTML = timeWidget.generateHtml(context);
@@ -51,7 +52,8 @@ public class DateTimeWidget implements Widget {
 	 /**
      * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
      */
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 
 		// get the values from the associated date and time widgets
 		Date date = dateWidget.getValue(context, request);
@@ -63,7 +65,8 @@ public class DateTimeWidget implements Widget {
 	 /**
      * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
      */
-	public void setInitialValue(Object value) {
+	@Override
+    public void setInitialValue(Object value) {
 		initialValue = (Date) value;
 
 		// set the underlying date and time widgets with the initial value

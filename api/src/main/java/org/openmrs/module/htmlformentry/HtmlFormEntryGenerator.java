@@ -305,6 +305,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	/**
 	 * Provides default getAttributeDescriptors handling (returns null)
 	 */
+    @Override
     public List<AttributeDescriptor> getAttributeDescriptors() {
 	    return null;
     }
@@ -314,6 +315,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML
      * tags are left as is.
      */
+    @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         if (node.getNodeType() == Node.TEXT_NODE) {
@@ -344,6 +346,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML
      * tags are left as is.
      */
+    @Override
     public void doEndTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
         if (node.getNodeType() == Node.TEXT_NODE) {

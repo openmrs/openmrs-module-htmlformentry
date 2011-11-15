@@ -1,15 +1,12 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.openmrs.Cohort;
 import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.api.PatientService;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 
 
 @Controller
@@ -32,14 +28,15 @@ public class PopupWidgetController {
 		
 	}
 	
-	@RequestMapping("/module/htmlformentry/personResultTable")
+	@SuppressWarnings("unchecked")
+    @RequestMapping("/module/htmlformentry/personResultTable")
 	public void personSearch(ModelMap model, @RequestParam(value="pSearch",required=false) String searchPhrase, 
 	                                 @RequestParam(value="pAttribute",required=false) String searchAttribute,
 	                                 @RequestParam(value="pAttributeValue",required=false) String attributeValue,
 	                                 @RequestParam(value="pProgram",required=false) String searchProgram) throws Exception {
 		
 		List<Integer> personId = new ArrayList<Integer>();
-		List personList = new ArrayList();
+		List<Object> personList = new ArrayList<Object>();
 		
 		//first we are going to search by name for patients
 		PatientService patientService = Context.getPatientService();
@@ -98,7 +95,7 @@ public class PopupWidgetController {
 				
 					if(cohort != null)
 					{
-						cohort = cohort.intersect(cohort, pp);
+						cohort = Cohort.intersect(cohort, pp);
 					}
 					else
 					{
@@ -127,7 +124,7 @@ public class PopupWidgetController {
 						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
 						if(cohort != null)
 						{
-							cohort = cohort.intersect(cohort, pp);
+							cohort = Cohort.intersect(cohort, pp);
 						}
 						else
 						{
@@ -140,7 +137,7 @@ public class PopupWidgetController {
 		//not iterate through the person list and filter based on the cohort
 		if(cohort != null)
 		{
-			List filteredList = new ArrayList();
+			List<Object> filteredList = new ArrayList<Object>();
 			for(Object o: personList)
 			{
 				PersonListItem pli = (PersonListItem)o;

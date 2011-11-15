@@ -226,7 +226,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		if (dateWidget != null) {
 			ret.append(dateWidget.generateHtml(context));
@@ -259,7 +260,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	/**
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
-	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+	@Override
+    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		
 		try {
@@ -309,7 +311,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	/**
 	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
 	 */
-	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+	@Override
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		if (dateWidget != null) {
 			Date date = (Date) dateWidget.getValue(session.getContext(), submission);
 			session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);

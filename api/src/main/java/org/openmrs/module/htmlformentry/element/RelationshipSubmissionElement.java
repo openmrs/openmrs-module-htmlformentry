@@ -156,7 +156,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 	 * @should return HTML snippet
 	 * @see org.openmrs.module.htmlformentry.element.HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		
 		StringBuilder ret = new StringBuilder();
 		
@@ -287,7 +288,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 	 *  
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#handleSubmission(org.openmrs.module.htmlformentry.FormEntrySession, javax.servlet.http.HttpServletRequest)
 	 */
-	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+	@Override
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 	    Person relatedPerson = null;
 	    
 	    if(personWidget != null && personWidget.getValue(session.getContext(), submission) != null)
@@ -375,7 +377,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 	 * @should return validation errors if value is not filled in and required
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
 	 */
-	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+	@Override
+    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 	

@@ -35,12 +35,14 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	}
 	
 	/** Gets the unique identifying id for this HTML Form */
-	public Integer getId() {
+	@Override
+    public Integer getId() {
 		return id;
 	}
 	
 	/** Sets the unique identifying id for this HTML Form */
-	public void setId(Integer id) {
+	@Override
+    public void setId(Integer id) {
 		this.id = id;
 	}
 	

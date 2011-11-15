@@ -419,7 +419,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	 * @should return HTML snippet
 	 * @see org.openmrs.module.htmlformentry.element.HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		MessageSourceService mss = Context.getMessageSourceService();
 		
@@ -491,7 +492,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	 *  
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#handleSubmission(org.openmrs.module.htmlformentry.FormEntrySession, javax.servlet.http.HttpServletRequest)
 	 */
-	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+	@Override
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 	    String drugId = null;
 	    if (drugWidget.getValue(session.getContext(), submission) != null)
 	            drugId = ((String) drugWidget.getValue(session.getContext(), submission));
@@ -594,7 +596,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	 * @should return validation errors if doseWidget, startDateWidget or discontinuedDateWidget is invalid
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
 	 */
-	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+	@Override
+    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 
 			List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 			try {

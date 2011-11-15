@@ -22,7 +22,8 @@ public class PersonWidget implements Widget {
 	
 	public PersonWidget() { }
 
-	public void setInitialValue(Object initialValue) {
+	@Override
+    public void setInitialValue(Object initialValue) {
 	    person = (Person) initialValue;
     }
 	
@@ -35,7 +36,8 @@ public class PersonWidget implements Widget {
         this.options = options;
     }
 	
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
             if (person != null)
                 return WidgetFactory.displayValue(person.getPersonName().toString());
@@ -68,7 +70,8 @@ public class PersonWidget implements Widget {
         return sb.toString();
     }
 
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		String val = request.getParameter(context.getFieldName(this));
         if (StringUtils.hasText(val))
             return HtmlFormEntryUtil.convertToType(val, Person.class);

@@ -15,7 +15,8 @@ import org.openmrs.module.htmlformentry.element.PatientDetailSubmissionElement;
  */
 public class PatientTagHandler extends SubstitutionTagHandler {
 	
-	protected List<AttributeDescriptor> createAttributeDescriptors() {
+	@Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();	
 		attributeDescriptors.add(new AttributeDescriptor("identifierTypeId", PatientIdentifierType.class));
 		return Collections.unmodifiableList(attributeDescriptors);
@@ -24,7 +25,8 @@ public class PatientTagHandler extends SubstitutionTagHandler {
 	/**
 	 * @see org.openmrs.module.htmlformentry.handler.SubstitutionTagHandler#getSubstitution(org.openmrs.module.htmlformentry.FormEntrySession, org.openmrs.module.htmlformentry.FormSubmissionController, java.util.Map)
 	 */
-	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	@Override
+    protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
 			Map<String, String> parameters) {
 		
 		PatientDetailSubmissionElement element = new PatientDetailSubmissionElement(session.getContext(), parameters);

@@ -30,7 +30,8 @@ public class HtmlFormEntryActivator implements Activator {
 	 * 
 	 * @see org.openmrs.module.Activator#startup()
 	 */
-	public void startup() {
+	@Override
+    public void startup() {
 		log.info("Starting HTML Form Entry Module");
 	}
 	
@@ -39,7 +40,8 @@ public class HtmlFormEntryActivator implements Activator {
 	 * 
 	 *  @see org.openmrs.module.Activator#shutdown()
 	 */
-	public void shutdown() {
+	@Override
+    public void shutdown() {
 		log.info("Shutting down HTML Form Entry Module");
 	}
 	

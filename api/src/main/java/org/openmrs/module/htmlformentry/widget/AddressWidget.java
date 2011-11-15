@@ -46,7 +46,8 @@ public class AddressWidget extends Gadget {
 		setInitialValue(personAddress);
 	}
 
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
 		AddressTemplate defaultLayoutTemplate = AddressSupport.getInstance().getDefaultLayoutTemplate();
 		TextFieldWidget textFieldWidget;
@@ -91,7 +92,8 @@ public class AddressWidget extends Gadget {
 		return sb.toString();
 	}
 
-	public PersonAddress getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public PersonAddress getValue(FormEntryContext context, HttpServletRequest request) {
 
 		PersonAddress returnPersonAddress = new PersonAddress();
 
@@ -127,7 +129,8 @@ public class AddressWidget extends Gadget {
 		widgetMap.get(fieldName).setInitialValue(value);
 	}
 
-	public void setInitialValue(Object value) {
+	@Override
+    public void setInitialValue(Object value) {
 		if (value != null) {
 			initialValue = (PersonAddress) value;
 

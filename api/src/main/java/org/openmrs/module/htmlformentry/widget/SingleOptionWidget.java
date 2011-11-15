@@ -24,6 +24,7 @@ public abstract class SingleOptionWidget implements Widget {
     /**
      * @see Widget#setInitialValue(java.lang.Object)
      */
+    @Override
     public void setInitialValue(Object initialValue) {
         if (initialValue == null)
             this.initialValue = null;
@@ -42,6 +43,7 @@ public abstract class SingleOptionWidget implements Widget {
     /**
      * @see Widget#getValue(FormEntryContext, HttpServletRequest)
      */
+    @Override
     public String getValue(FormEntryContext context, HttpServletRequest request) {
         return request.getParameter(context.getFieldName(this));
     }

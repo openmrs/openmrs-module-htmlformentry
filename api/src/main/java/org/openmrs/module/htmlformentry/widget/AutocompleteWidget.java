@@ -49,7 +49,8 @@ public class AutocompleteWidget implements Widget {
 	}
 
 
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		// hardcoded for concept search
 
 		StringBuilder sb = new StringBuilder();
@@ -89,12 +90,14 @@ public class AutocompleteWidget implements Widget {
 	}
 
 
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		return request.getParameter(context.getFieldName(this) + "_hid");
 	}
 
 
-	public void setInitialValue(Object initialValue) {
+	@Override
+    public void setInitialValue(Object initialValue) {
 		// TODO Auto-generated method stub
 		this.initialValue = (Concept) initialValue;
 	}

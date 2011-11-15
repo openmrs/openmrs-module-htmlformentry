@@ -20,6 +20,7 @@ public class DateWidget implements Widget {
     
     public DateWidget() { }
 
+    @Override
     public String generateHtml(FormEntryContext context) {
         if (context.getMode() == Mode.VIEW) {
             String toPrint = "";
@@ -44,6 +45,7 @@ public class DateWidget implements Widget {
         }
     }
 
+    @Override
     public Date getValue(FormEntryContext context, HttpServletRequest request) {
         try {
             Date d = (Date) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Date.class);
@@ -53,6 +55,7 @@ public class DateWidget implements Widget {
         }
     }
 
+    @Override
     public void setInitialValue(Object value) {
         initialValue = (Date) value;
     }

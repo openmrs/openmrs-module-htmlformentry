@@ -42,7 +42,8 @@ public class NameWidget extends Gadget {
 		setInitialValue(personName);
 	}
 
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
 		NameTemplate defaultLayoutTemplate = NameSupport.getInstance().getDefaultLayoutTemplate();
 		TextFieldWidget textFieldWidget;
@@ -88,7 +89,8 @@ public class NameWidget extends Gadget {
 		return sb.toString();
 	}
 
-	public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
 		
 		PersonName returnPersonName = new PersonName();
 		returnPersonName.setPrefix(getWidgetValue("prefix", context, request));
@@ -118,7 +120,7 @@ public class NameWidget extends Gadget {
 		// these are the methods to compare. All are expected to be Strings
 		String[] methods = { "getGivenName", "getMiddleName", "getFamilyName" };
 		
-		Class nameClass = personName1.getClass();
+		Class<? extends PersonName> nameClass = personName1.getClass();
 		
 		// loop over all of the selected methods and compare this and other
 		for (String methodName : methods) {
@@ -147,7 +149,8 @@ public class NameWidget extends Gadget {
 		return returnValue;
 	}
 
-	public void setInitialValue(Object value) {
+	@Override
+    public void setInitialValue(Object value) {
 		if (value != null) {
 			PersonName initialValue = (PersonName) value;
 			setWidgetValue("prefix", initialValue.getPrefix());

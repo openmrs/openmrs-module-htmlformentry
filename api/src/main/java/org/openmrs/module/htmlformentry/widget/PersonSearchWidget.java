@@ -23,12 +23,14 @@ public class PersonSearchWidget implements Widget {
 	
 	public PersonSearchWidget() { }
 
-	public void setInitialValue(Object initialValue) {
+	@Override
+    public void setInitialValue(Object initialValue) {
 	    person = (Person) initialValue;
     }
 	
 	
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		
 		if (context.getMode() == Mode.VIEW) {
             if (person != null)
@@ -145,7 +147,8 @@ public class PersonSearchWidget implements Widget {
         return sb.toString();
     }
 
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		
 		String val = request.getParameter(context.getFieldName(this));
         if (StringUtils.hasText(val))

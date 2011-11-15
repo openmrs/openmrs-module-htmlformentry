@@ -26,7 +26,8 @@ public class TimeWidget implements Widget {
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
-	public String generateHtml(FormEntryContext context) {
+	@Override
+    public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
 			String toPrint = "";
 			if (initialValue != null) {
@@ -81,7 +82,8 @@ public class TimeWidget implements Widget {
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext,
 	 *      javax.servlet.http.HttpServletRequest)
 	 */
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	@Override
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
 			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
 					context.getFieldName(this) + "hours", Integer.class);
@@ -108,7 +110,8 @@ public class TimeWidget implements Widget {
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
 	 */
-	public void setInitialValue(Object value) {
+	@Override
+    public void setInitialValue(Object value) {
 		initialValue = (Date) value;
 	}
 

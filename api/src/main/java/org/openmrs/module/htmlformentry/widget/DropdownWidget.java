@@ -17,6 +17,7 @@ public class DropdownWidget extends SingleOptionWidget {
      * 
      * @see Widget#generateHtml(FormEntryContext)
      */
+    @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
         if (context.getMode() == Mode.VIEW) {

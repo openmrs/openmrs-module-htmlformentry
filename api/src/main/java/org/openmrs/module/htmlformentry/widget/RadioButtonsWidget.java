@@ -18,6 +18,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
     /**
      * @see Widget#generateHtml(FormEntryContext)
      */
+    @Override
     public String generateHtml(FormEntryContext context) {
         String id = context.getFieldName(this);
         StringBuilder sb = new StringBuilder();

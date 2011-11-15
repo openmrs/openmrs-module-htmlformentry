@@ -14,7 +14,8 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
  */
 public class IdToUuidSubstituter implements Substituter {
 
-	@SuppressWarnings("unchecked")
+	@Override
+    @SuppressWarnings("unchecked")
     public String substitute(String value, Class<?> clazz, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 	   
 		// if this is not a reference to an OpenMRS object, no substitution to perform

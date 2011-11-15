@@ -64,6 +64,7 @@ public class CheckboxWidget implements Widget {
     /**
      * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
      */
+    @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
         if (context.getMode() == Mode.VIEW) {
@@ -91,6 +92,7 @@ public class CheckboxWidget implements Widget {
     /**
      * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
      */
+    @Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
         return request.getParameter(context.getFieldName(this));
     }
@@ -98,6 +100,7 @@ public class CheckboxWidget implements Widget {
     /**
      * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
      */
+    @Override
     public void setInitialValue(Object initialValue) {
         this.initialValue = value;
     }

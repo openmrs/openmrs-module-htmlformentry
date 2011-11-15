@@ -65,6 +65,7 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      * @param session
      * @param submission
      */
+    @Override
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         beforeHandleSubmission(session, submission);
         for (FormSubmissionControllerAction action : repeatingActions)
@@ -78,6 +79,7 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      * @param context
      * @param submission
      */
+    @Override
     public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
         beforeValidateSubmission(context, submission);
         Collection<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
