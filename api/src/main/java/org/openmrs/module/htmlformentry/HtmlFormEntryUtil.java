@@ -241,15 +241,6 @@ public class HtmlFormEntryUtil {
     public static String documentToString(Document document) throws Exception {
         //set up a transformer
         Transformer trans = null;
-        
-        // jmiranda - setting the transformer factory in order to assure that 
-        // the XML is rendered correctly (the resolver was picking up 
-        // net.sf.saxon.TransformerFactoryImpl as the transform factory class.
-        // Setting the transform factory ensures that we instantiate the 
-        // Sun transform factory which has been show
-        System.setProperty("javax.xml.transform.TransformerFactory",  
-                "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl");
-        
         TransformerFactory transfac = TransformerFactory.newInstance();
         
         try {
