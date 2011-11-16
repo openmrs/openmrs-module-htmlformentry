@@ -351,7 +351,7 @@ public abstract class RegressionTestHelper {
 	}
 	
 	private FormEntrySession setupFormEntrySession(Patient patient, String filename) throws Exception {
-		String xml = loadXmlFromFile(RegressionTests.XML_DATASET_PATH + filename + ".xml");
+		String xml = loadXmlFromFile(RegressionTest.XML_DATASET_PATH + filename + ".xml");
 		
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
@@ -361,7 +361,7 @@ public abstract class RegressionTestHelper {
 	}
 	
 	private FormEntrySession setupFormViewSession(Patient patient, Encounter encounter, String filename) throws Exception {
-		String xml = loadXmlFromFile(RegressionTests.XML_DATASET_PATH + filename + ".xml");
+		String xml = loadXmlFromFile(RegressionTest.XML_DATASET_PATH + filename + ".xml");
 		
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
@@ -371,7 +371,7 @@ public abstract class RegressionTestHelper {
 	}
 	
 	private FormEntrySession setupFormEditSession(Patient patient, Encounter encounter, String filename) throws Exception {
-		String xml = loadXmlFromFile(RegressionTests.XML_DATASET_PATH + filename + ".xml");
+		String xml = loadXmlFromFile(RegressionTest.XML_DATASET_PATH + filename + ".xml");
 		
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);

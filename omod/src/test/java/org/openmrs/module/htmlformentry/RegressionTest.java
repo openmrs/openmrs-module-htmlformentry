@@ -21,7 +21,7 @@ import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class RegressionTests extends BaseModuleContextSensitiveTest {
+public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	

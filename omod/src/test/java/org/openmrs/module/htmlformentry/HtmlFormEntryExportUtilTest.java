@@ -23,7 +23,7 @@ import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
-public class HtmlFormEntryExportUtilTests extends BaseModuleContextSensitiveTest {
+public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest {
 
     protected final Log log = LogFactory.getLog(getClass());
     
