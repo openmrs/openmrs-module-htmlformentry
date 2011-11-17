@@ -50,6 +50,7 @@ public class FormEntryContext {
     /** Logger for this class and subclasses */
     protected final Log log = LogFactory.getLog(getClass());
     
+    
     private Mode mode;
     private Map<Widget, String> fieldNames = new HashMap<Widget, String>();
     private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
