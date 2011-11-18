@@ -25,6 +25,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -241,11 +242,8 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 		{
 				if(prog != null && prog.trim().length() > 0)
 				{
-					Program personProgram = Context.getProgramWorkflowService().getProgramByUuid(prog);
-					if(personProgram == null)
-					{
-						personProgram = Context.getProgramWorkflowService().getProgram(Integer.parseInt(prog));
-					}
+					Program personProgram = HtmlFormEntryUtil.getProgram(prog);
+					
 					if(personProgram != null)
 					{
 						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
