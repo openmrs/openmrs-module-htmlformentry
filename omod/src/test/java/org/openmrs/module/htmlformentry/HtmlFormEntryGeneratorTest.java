@@ -9,6 +9,7 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.test.SkipBaseSetup;
 import org.openmrs.test.Verifies;
 
 public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
@@ -22,7 +23,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Before
 	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PACKAGE_PATH);
-
 		patient = Context.getPatientService().getPatient(2);
 	}
 

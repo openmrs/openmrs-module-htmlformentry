@@ -23,8 +23,6 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		initializeInMemoryDatabase();
-		authenticate();
 		executeDataSet(XML_DATASET_PACKAGE_PATH);
 	}
 	

@@ -29,19 +29,14 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
     
     protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
     
-    protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
-    
     @Before
     public void setupDatabase() throws Exception {
-        initializeInMemoryDatabase();
-        authenticate();
+        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
     }
     
     @Test
     @Verifies(value = "should recognize and return section tags in xml", method = "getSectionNodes(HtmlForm)")
-    public void getSectionNodes_shouldReturnSectionNodesCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
+    public void getSectionNodes_shouldReturnSectionNodesCorrectly() throws Exception {      
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -63,9 +58,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 
     @Test
     @Verifies(value = "should return section as a new htmlform", method = "getSectionAsForm(HtmlForm)")
-    public void getSectionAsForm_shouldReturnStringCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
+    public void getSectionAsForm_shouldReturnStringCorrectly() throws Exception {  
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -86,8 +79,6 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
     @Test
     @Verifies(value = "should return trimmed encounter", method = "trimEncounterToMatchForm(Encounter e, HtmlForm htmlform)")
     public void trimEncounterToMatchForm_shouldReturnEncounterCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -133,8 +124,6 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
     @Test
     @Verifies(value = "should return form schema", method = "generateColumnHeadersFromHtmlForm(HtmlForm htmlform, String[] extraCols, StringBuffer, List<PatientIdenitifierType> pitList)")
     public void generateColumnHeadersFromHtmlForm_shouldReturnSchemaCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -148,14 +137,67 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
         String ret = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), Collections.singletonList(pit));
         //System.out.println("TESTHEADER " + ret);
-        Assert.assertTrue(ret.contains("\"ENCOUNTER_ID\",\"ENCOUNTER_DATE\",\"ENCOUNTER_LOCATION\",\"ENCOUNTER_PROVIDER\",\"INTERNAL_PATIENT_ID\",\"Old Identification Number\",\"ISONIAZID\",\"ISONIAZID_DATE\",\"ISONIAZID_PARENT\",\"ISONIAZID_VALUE_MOD\",\"ISONIAZID_ACCESSION_NUM\",\"ISONIAZID_COMMENT\",\"HYPER_ALLERGY_CODED\",\"HYPER_ALLERGY_CODED_DATE\",\"HYPER_ALLERGY_CODED_PARENT\",\"HYPER_ALLERGY_CODED_VALUE_MOD\",\"HYPER_ALLERGY_CODED_ACCESSION_NUM\",\"HYPER_ALLERGY_CODED_COMMENT\",\"ALLERGY_DATE\",\"ALLERGY_DATE_DATE\",\"ALLERGY_DATE_PARENT\",\"ALLERGY_DATE_VALUE_MOD\",\"ALLERGY_DATE_ACCESSION_NUM\",\"ALLERGY_DATE_COMMENT\",\"RIFAMPICIN\",\"RIFAMPICIN_DATE\",\"RIFAMPICIN_PARENT\",\"RIFAMPICIN_VALUE_MOD\",\"RIFAMPICIN_ACCESSION_NUM\",\"RIFAMPICIN_COMMENT\",\"DST_START_DATE\",\"DST_START_DATE_DATE\",\"DST_START_DATE_PARENT\",\"DST_START_DATE_VALUE_MOD\",\"DST_START_DATE_ACCESSION_NUM\",\"DST_START_DATE_COMMENT\",\"CD4_COUNT\",\"CD4_COUNT_DATE\",\"CD4_COUNT_PARENT\",\"CD4_COUNT_VALUE_MOD\",\"CD4_COUNT_ACCESSION_NUM\",\"CD4_COUNT_COMMENT\",\"MARRIED\",\"MARRIED_DATE\",\"MARRIED_PARENT\",\"MARRIED_VALUE_MOD\",\"MARRIED_ACCESSION_NUM\",\"MARRIED_COMMENT\",\"ALLERGY_CODED\",\"ALLERGY_CODED_DATE\",\"ALLERGY_CODED_PARENT\",\"ALLERGY_CODED_VALUE_MOD\",\"ALLERGY_CODED_ACCESSION_NUM\",\"ALLERGY_CODED_COMMENT\""));
+        
+        Assert.assertTrue(ret.contains("\"ENCOUNTER_ID\""));
+        Assert.assertTrue(ret.contains("\"ENCOUNTER_DATE\""));
+        Assert.assertTrue(ret.contains("\"ENCOUNTER_LOCATION\""));
+        Assert.assertTrue(ret.contains("\"ENCOUNTER_PROVIDER\""));
+        Assert.assertTrue(ret.contains("\"INTERNAL_PATIENT_ID\""));
+        Assert.assertTrue(ret.contains("\"Old Identification Number\""));
+        Assert.assertTrue(ret.contains("\"ISONIAZID\""));
+        Assert.assertTrue(ret.contains("\"ISONIAZID_DATE\""));
+        Assert.assertTrue(ret.contains("\"ISONIAZID_PARENT\""));
+        Assert.assertTrue(ret.contains("\"ISONIAZID_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"ISONIAZID_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"ISONIAZID_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"HYPER_ALLERGY_CODED\""));
+        Assert.assertTrue(ret.contains("\"HYPER_ALLERGY_CODED_DATE\""));
+        Assert.assertTrue(ret.contains("\"HYPER_ALLERGY_CODED_PARENT\""));
+        Assert.assertTrue(ret.contains("\"HYPER_ALLERGY_CODED_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"HYPER_ALLERGY_CODED_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"HYPER_ALLERGY_CODED_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_DATE\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_DATE_DATE\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_DATE_PARENT\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_DATE_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_DATE_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_DATE_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"RIFAMPICIN\""));
+        Assert.assertTrue(ret.contains("\"RIFAMPICIN_DATE\""));
+        Assert.assertTrue(ret.contains("\"RIFAMPICIN_PARENT\""));
+        Assert.assertTrue(ret.contains("\"RIFAMPICIN_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"RIFAMPICIN_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"RIFAMPICIN_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"DST_START_DATE\""));
+        Assert.assertTrue(ret.contains("\"DST_START_DATE_DATE\""));
+        Assert.assertTrue(ret.contains("\"DST_START_DATE_PARENT\""));
+        Assert.assertTrue(ret.contains("\"DST_START_DATE_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"DST_START_DATE_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"DST_START_DATE_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"CD4_COUNT\""));
+        Assert.assertTrue(ret.contains("\"CD4_COUNT_DATE\""));
+        Assert.assertTrue(ret.contains("\"CD4_COUNT_PARENT\""));
+        Assert.assertTrue(ret.contains("\"CD4_COUNT_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"CD4_COUNT_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"CD4_COUNT_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"MARRIED\""));
+        Assert.assertTrue(ret.contains("\"MARRIED_DATE\""));
+        Assert.assertTrue(ret.contains("\"MARRIED_PARENT\""));
+        Assert.assertTrue(ret.contains("\"MARRIED_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"MARRIED_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"MARRIED_COMMENT\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_CODED\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_CODED_DATE\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_CODED_PARENT\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_CODED_VALUE_MOD\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_CODED_ACCESSION_NUM\""));
+        Assert.assertTrue(ret.contains("\"ALLERGY_CODED_COMMENT\""));
+   
     }    
     
     @Test
     @Verifies(value = "should return encounter rows", method = "generateColumnDataFromHtmlForm(List<Encounter> encounters, HtmlForm form, List<String> extraCols, StringBuffer sb, Locale locale),List<PatientIdentifierType> pitList")
     public void generateColumnDataFromHtmlForm_shouldReturnRowsCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -218,8 +260,6 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
     @Test
     @Verifies(value = "should handle multiple identifier types correctly", method = "buildHtmlFormExport(List<Encounter> encounters, HtmlForm htmlForm, List<String> extraCols, StringBuffer sb, Locale locale,List<PatientIdentifierType> pitList)")
     public void generateColumnDataFromHtmlForm_shouldReturnRowsCorrectlyWithMultipleIDTypes() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -264,8 +304,6 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
     @Test
     @Verifies(value = "should render timestamps and datetimes correctly", method = "getObsValueAsString")
     public void getObsValueAsString_shouldRenderCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
@@ -317,8 +355,6 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
     @Test
     @Verifies(value = "should test labels generation for concept selects on dropdown options", method = "")
     public void getSectionNodes_shouldReturnDropdownForConceptSelects() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
