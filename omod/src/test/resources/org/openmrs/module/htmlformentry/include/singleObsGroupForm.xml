@@ -5,7 +5,7 @@
 	Weight: <obs conceptId="2"/> 
 	<obsgroup groupingConceptId="7">
 		Allergy: <obs conceptId="8"/>
-		Allergy Date: <obs conceptId="9"/>
+		Allergy Date: <obs conceptId="1119"/>
 	</obsgroup>
 	<submit/>
 </htmlform>

@@ -35,12 +35,12 @@
   <!-- And put ALLERGY and ALLERGY DATE in a set -->
   <concept concept_id="7" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4"/>
   <concept concept_id="8" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3"/>
-  <concept concept_id="9" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6"/>
+  <concept concept_id="1119" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6"/>
   <concept_name voided="false" concept_name_id="8" concept_id="7" name="ALLERGY CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept_name voided="false" concept_name_id="9" concept_id="8" name="ALLERGY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
-  <concept_name voided="false" concept_name_id="10" concept_id="9" name="ALLERGY DATE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
+  <concept_name voided="false" concept_name_id="10" concept_id="1119" name="ALLERGY DATE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />
   <concept_set concept_set_id="993" concept_id="8" concept_set="7" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
-  <concept_set concept_set_id="994" concept_id="9" concept_set="7" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="994" concept_id="1119" concept_set="7" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
   
   <!-- A person with only a patient attached -->
   <person person_id="2" dead="false" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" gender="M" />
@@ -73,7 +73,7 @@
   
   <field field_id="10" name="Allergy and date construct" description="" field_type="3" concept_id="7" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   <field field_id="11" name="Allergy" description="" field_type="1" concept_id="8" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
-  <field field_id="12" name="Date" description="" field_type="1" concept_id="9" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="12" name="Date" description="" field_type="1" concept_id="1119" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
   
   <form_field form_field_id="5" form_id="1" field_id="5" field_number="1" field_part="b" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="500"/>
   <form_field form_field_id="1" form_id="1" field_id="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="100"/>

@@ -11,7 +11,7 @@
 						Hyper-Allergy 1: <obs conceptId="1005"/>
 				</obsgroup>
 				<section headerLabel="3rd Level Section">
-					<obs conceptId="9"/> ALLERGY DATE
+					<obs conceptId="1119"/> ALLERGY DATE
 				</section>
 			</section>
 			

@@ -153,7 +153,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsCreatedCount(3);
 				results.assertObsCreated(2, 70d);
 				results.assertObsCreated(8, "Bee stings");
-				results.assertObsCreated(9, date);
+				results.assertObsCreated(1119, date);
 			}
 		}.run();
 	}
@@ -190,7 +190,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsGroupCreatedCount(1);
 				results.assertObsLeafCreatedCount(3); // 2 in the obs group, 1 for weight
 				results.assertObsCreated(2, 70);
-				results.assertObsGroupCreated(7, 8, "Bee stings", 9, date); // allergy construct
+				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date); // allergy construct
 			}
 		}.run();
 	}
@@ -228,7 +228,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertEncounterCreated();
 				results.assertObsGroupCreatedCount(2);
 				results.assertObsLeafCreatedCount(3);
-				results.assertObsGroupCreated(7, 8, "Bee stings", 9, date);
+				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date);
 				results.assertObsGroupCreated(7, 8, "Penicillin");
 			}
 		}.run();
@@ -339,11 +339,11 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
 				// create three obsgroups with the identical structures but with different answer values for the ALLERGY CODED obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 9, date,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 1119, date,
 				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 9, date,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 1119, date,
 				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 9, date,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 1119, date,
 				    new Date());
 				
 				return e;

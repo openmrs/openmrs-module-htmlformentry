@@ -226,7 +226,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         TestUtil.addObs(e, 3032, date, date);
         TestUtil.addObs(e, 1441, Context.getConceptService().getConcept(656), date);
         TestUtil.addObsGroup(e, 1004, date, 1005, Context.getConceptService().getConcept(1001), new Date());
-        TestUtil.addObs(e, 9, new Date(), date);
+        TestUtil.addObs(e, 1119, new Date(), date);
         TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(767), date);
         //DST RESULT
         Obs dstParent = TestUtil.createObs(e, 3040, null, date);
@@ -333,7 +333,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         e.setProvider(Context.getPersonService().getPerson(502));
         
         
-        TestUtil.addObs(e, 9, date, date);
+        TestUtil.addObs(e, 1119, date, date);
         TestUtil.addObs(e, 1007, date, date);
         
         Context.getEncounterService().saveEncounter(e);
