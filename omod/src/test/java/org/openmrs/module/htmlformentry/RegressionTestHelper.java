@@ -767,8 +767,11 @@ public abstract class RegressionTestHelper {
 		}
 		
 		public boolean matches(Obs obs) {
-			if (obs.getConcept().getConceptId() != conceptId)
+			
+			if (!obs.getConcept().getConceptId().equals(conceptId)) {
 				return false;
+			}
+			
 			return OpenmrsUtil.nullSafeEquals(TestUtil.valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
 		}
 	}	
