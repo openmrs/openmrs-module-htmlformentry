@@ -581,21 +581,6 @@ public class FormEntrySession {
         }
         
         ObsService obsService = Context.getObsService();
-        if (context.getMode() == Mode.EDIT && submissionActions.getObsToCreate() != null && encounter != null) {
-        	boolean obsNeedToSaveBeforePersonSave = false;
-        	
-        	Set<Obs> obs = encounter.getAllObs();
-        	for (Obs o : obs) {        	
-        		if (o.getObsId() == null){
-        			obsNeedToSaveBeforePersonSave = true;
-        			break;
-        		}
-        	}
-        	
-        	if (obsNeedToSaveBeforePersonSave || !submissionActions.getObsToCreate().isEmpty()){
-        		Context.getEncounterService().saveEncounter(encounter);
-        	}       	
-        }
         
         // TODO we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
         if (context.getMode() == Mode.EDIT && patient != null) {

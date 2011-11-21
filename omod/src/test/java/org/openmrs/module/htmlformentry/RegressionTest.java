@@ -1182,6 +1182,68 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
+	public void testEditPatientNameAndMultipleObsAndEncounter() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+            String getFormName() {
+				return "patientAndEncounterFormWithMultipleObs";
+			}
+			
+			@Override
+            Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			@Override
+            Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			@Override
+            String[] widgetLabelsForEdit() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Weight:", "Date:", "Encounter Location:"};
+			}
+			
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Mike");
+				request.setParameter(widgets.get("PersonName.familyName"), "Den");
+				request.setParameter(widgets.get("Weight:"), "100");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+			
+			}
+			
+			@Override
+            void testEditedResults(SubmissionResults results) {
+                Date datePartOnly = stringToDate(dateAsString(date));
+				results.assertNoErrors();
+				results.assertPatient();
+				results.getPatient().getPersonName();
+				Assert.assertEquals("Mike", results.getPatient().getGivenName());
+				Assert.assertEquals("Den", results.getPatient().getFamilyName());
+				Assert.assertEquals("M", results.getPatient().getGender());
+				
+				results.assertObsCreated(2, 100d);
+				
+				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
+				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
+				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+				results.assertEncounterEdited();
+			}
+			
+			@Override
+            void testBlankFormHtml(String html) {
+				System.out.println(">>>>\n" + html);
+			}
+			
+		}.run();
+	}
+	
+	
+	@Test
 	public void viewFormWithLocationObs() throws Exception {
 		new RegressionTestHelper() {
 			
