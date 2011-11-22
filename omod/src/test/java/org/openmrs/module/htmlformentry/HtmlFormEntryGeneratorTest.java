@@ -16,7 +16,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 
 	protected final Log log = LogFactory.getLog(getClass());
 
-	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
+	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml";
 
 	private Patient patient = null;
 

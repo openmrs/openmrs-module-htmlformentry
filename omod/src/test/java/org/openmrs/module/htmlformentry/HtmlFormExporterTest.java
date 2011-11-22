@@ -27,7 +27,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	public void createCloneForExport_shouldCreateCloneWithDependencies() throws Exception {
 		
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
@@ -50,7 +50,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		    "32296060-03aa-102d-b0e3-001ec94a0cc3")));
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
 			"aa52296060-03-102d-b0e3-001ec94a0cc1")));
-		// this is the mapped concept XYZ:HT found in HtmlFormEntryTest-data3
+		// this is the mapped concept XYZ:HT found in HtmlFormEntryTest-data
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
 		    "44d3611a-6699-4d52-823f-b4b788bac3e3")));
 		
@@ -103,7 +103,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	public void createCloneForExport_shouldCreateCloneButSkipLocationsAndProviders() throws Exception {
 		
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));

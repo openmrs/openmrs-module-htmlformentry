@@ -20,7 +20,7 @@ import org.openmrs.test.Verifies;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + 
- * Data from HtmlFormEntryTest-data3.xml 
+ * Data from HtmlFormEntryTest-data.xml 
  */
 public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
@@ -28,7 +28,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
     
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
     
-    protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
+    protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml";
     
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
     
@@ -257,7 +257,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
 	public void getConcept_shouldFindAConceptWithNonStandardUuid() throws Exception {
-		// concept from HtmlFormEntryTest-data3.xml
+		// concept from HtmlFormEntryTest-data.xml
 		String id = "1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
 	}
@@ -269,7 +269,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
 	public void getConcept_shouldNotFindAConceptWithInvalidUuid() throws Exception {
-		// concept from HtmlFormEntryTest-data3.xml
+		// concept from HtmlFormEntryTest-data.xml
 		String id = "1000";
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}

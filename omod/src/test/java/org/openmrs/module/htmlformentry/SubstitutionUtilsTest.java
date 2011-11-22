@@ -10,7 +10,7 @@ import org.openmrs.test.Verifies;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + 
- * Data from HtmlFormEntryTest-data3.xml 
+ * Data from HtmlFormEntryTest-data.xml 
  */
 public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	 
@@ -18,7 +18,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	    
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	    
-	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
+	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml";
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	    

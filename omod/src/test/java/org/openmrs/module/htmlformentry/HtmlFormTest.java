@@ -33,7 +33,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	@Test
 	public void onSave_shouldShouldReplaceUuids() throws Exception {
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
@@ -80,7 +80,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	@Test
 	public void onSave_shouldShouldReplaceNames() throws Exception {
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
@@ -152,7 +152,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	@Test(expected = IllegalArgumentException.class)
 	public void onSave_shouldThrowExceptionIfExistingUuidHasNot36Characters() throws Exception {
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
