@@ -21,39 +21,7 @@
 		<module>api</module>
 		<module>omod</module>
 	</modules>
-
-	<dependencyManagement>
-		<dependencies>			
-			<dependency>
-				<groupId>org.openmrs.api</groupId>
-				<artifactId>openmrs-api</artifactId>
-				<version>${openMRSVersion}</version>
-				<type>jar</type>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.web</groupId>
-				<artifactId>openmrs-web</artifactId>
-				<version>${openMRSVersion}</version>
-				<type>jar</type>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.test</groupId>
-				<artifactId>openmrs-test</artifactId>
-				<version>${openMRSVersion}</version>
-				<type>jar</type>
-				<scope>test</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
-
-	<properties>
-		<openMRSVersion>1.6.1</openMRSVersion>
-		<openMRSMinorVersion>1.6</openMRSMinorVersion>
-		<logicVersion>0.4</logicVersion>
-	</properties>
-
+	
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -96,14 +64,140 @@
 	
 	<!-- different profiles for building/testing against different version of openmrs -->
 	<profiles>
+	
+		<profile>
+			<id>openmrs-1.6</id>
+	
+			<properties>
+				<openMRSVersion>1.6.3</openMRSVersion>
+				<openMRSMinorVersion>1.6</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		    
+		    <dependencyManagement>
+				<dependencies>			
+					<dependency>
+						<groupId>org.openmrs.api</groupId>
+						<artifactId>openmrs-api</artifactId>
+						<version>${openMRSVersion}</version>
+						<type>jar</type>
+						<scope>provided</scope>
+					</dependency>
+					<dependency>
+						<groupId>org.openmrs.web</groupId>
+						<artifactId>openmrs-web</artifactId>
+						<version>${openMRSVersion}</version>
+						<type>jar</type>
+						<scope>provided</scope>
+					</dependency>
+					<dependency>
+						<groupId>org.openmrs.test</groupId>
+						<artifactId>openmrs-test</artifactId>
+						<version>${openMRSVersion}</version>
+						<type>jar</type>
+						<scope>test</scope>
+					</dependency>
+				</dependencies>
+			</dependencyManagement>
+		</profile>
+	
+	
+		<profile>
+			<id>openmrs-1.7</id>
+			
+			<properties>
+				<openMRSVersion>1.7.2</openMRSVersion>
+				<openMRSMinorVersion>1.7</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		    
+		     <dependencyManagement>
+				<dependencies>			
+					<dependency>
+						<groupId>org.openmrs.api</groupId>
+						<artifactId>openmrs-api</artifactId>
+						<version>${openMRSVersion}</version>
+						<type>jar</type>
+						<scope>provided</scope>
+					</dependency>
+					<dependency>
+						<groupId>org.openmrs.web</groupId>
+						<artifactId>openmrs-web</artifactId>
+						<version>${openMRSVersion}</version>
+						<type>jar</type>
+						<scope>provided</scope>
+					</dependency>
+					<dependency>
+						<groupId>org.openmrs.test</groupId>
+						<artifactId>openmrs-test</artifactId>
+						<version>${openMRSVersion}</version>
+						<type>jar</type>
+						<scope>test</scope>
+					</dependency>
+				</dependencies>
+			</dependencyManagement>
+		</profile>
+	
+	
+		<profile>
+			<id>openmrs-1.8</id>
+		    
+		    <properties>
+				<openMRSVersion>1.8.2</openMRSVersion>
+				<openMRSMinorVersion>1.8</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		    
+		    <dependencyManagement>
+			    <dependencies>
+					<dependency>
+					    <groupId>org.openmrs.api</groupId>
+					    <artifactId>openmrs-api</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>jar</type>
+					    <scope>provided</scope>
+					</dependency>
+					<dependency>
+					    <groupId>org.openmrs.api</groupId>
+					    <artifactId>openmrs-api</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>test-jar</type>
+					    <scope>test</scope>
+					</dependency>
+					<dependency>
+					    <groupId>org.openmrs.web</groupId>
+					    <artifactId>openmrs-web</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>jar</type>
+					    <scope>provided</scope>
+					</dependency>
+					<dependency>
+					    <groupId>org.openmrs.web</groupId>
+					    <artifactId>openmrs-web</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>test-jar</type>
+					    <scope>test</scope>
+					</dependency>
+					<dependency>
+					    <groupId>org.openmrs.test</groupId>
+					    <artifactId>openmrs-test</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>pom</type>
+					    <scope>test</scope>
+					</dependency>
+				</dependencies>
+			</dependencyManagement>
+		</profile>
+	
 		<profile>
 			<id>openmrs-1.6.1</id>
 			<properties>
-				<openMRSVersion>1.6.1</openMRSVersion>
+				<openMRSVersion>1.6.2</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 				<logicVersion>0.4</logicVersion>
 			</properties>
 		</profile>
+	
 		<profile>
 			<id>openmrs-1.6.2</id>
 			<properties>
@@ -112,6 +206,7 @@
 				<logicVersion>0.4</logicVersion>
 			</properties>
 		</profile>
+	
 		<profile>
 			<id>openmrs-1.6.3</id>
 			<properties>
@@ -120,6 +215,7 @@
 				<logicVersion>0.5</logicVersion>
 			</properties>
 		</profile>
+	
 		<profile>
 			<id>openmrs-1.7.0</id>
 			<properties>
@@ -128,14 +224,7 @@
 				<logicVersion>0.4</logicVersion>
 			</properties>
 		</profile>
-		<profile>
-			<id>openmrs-1.7.1</id>
-			<properties>
-				<openMRSVersion>1.7.1</openMRSVersion>
-				<openMRSMinorVersion>1.7</openMRSMinorVersion>
-				<logicVersion>0.5</logicVersion>
-			</properties>
-		</profile>
+		
 		<profile>
 			<id>openmrs-1.7.2</id>
 			<properties>
@@ -144,6 +233,34 @@
 				<logicVersion>0.5</logicVersion>
 			</properties>
 		</profile>
+		
+		<profile>
+			<id>openmrs-1.8.0</id>
+			<properties>
+				<openMRSVersion>1.8.0</openMRSVersion>
+				<openMRSMinorVersion>1.8</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>openmrs-1.8.1</id>
+			<properties>
+				<openMRSVersion>1.8.1</openMRSVersion>
+				<openMRSMinorVersion>1.8</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>openmrs-1.8.2</id>
+			<properties>
+				<openMRSVersion>1.8.2</openMRSVersion>
+				<openMRSMinorVersion>1.8</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		
 	</profiles>
 
 </project>

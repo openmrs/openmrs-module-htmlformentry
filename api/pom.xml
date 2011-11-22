@@ -13,22 +13,82 @@
 	<name>HTML Form Entry API</name>
 	<description>API project for HTML Form Entry</description>
 
-	<dependencies>	
-		<dependency>
-			<groupId>org.openmrs.api</groupId>
-			<artifactId>openmrs-api</artifactId>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.web</groupId>
-			<artifactId>openmrs-web</artifactId>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.test</groupId>
-			<artifactId>openmrs-test</artifactId>
-			<type>jar</type>
-		</dependency>
-	</dependencies>
+	<!-- different profiles for building/testing against different version of openmrs -->
+	<profiles>
+		<profile>
+			<id>openmrs-1.6</id>
+			<dependencies>	
+				<dependency>
+					<groupId>org.openmrs.api</groupId>
+					<artifactId>openmrs-api</artifactId>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.openmrs.web</groupId>
+					<artifactId>openmrs-web</artifactId>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.openmrs.test</groupId>
+					<artifactId>openmrs-test</artifactId>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</profile>
+	
+		<profile>
+			<id>openmrs-1.7</id>
+			<dependencies>	
+				<dependency>
+					<groupId>org.openmrs.api</groupId>
+					<artifactId>openmrs-api</artifactId>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.openmrs.web</groupId>
+					<artifactId>openmrs-web</artifactId>
+					<type>jar</type>
+				</dependency>
+				<dependency>
+					<groupId>org.openmrs.test</groupId>
+					<artifactId>openmrs-test</artifactId>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</profile>
+		
+		<profile>
+			<id>openmrs-1.8</id>
+			<dependencies>				
+				<dependency>
+				    <groupId>org.openmrs.api</groupId>
+				    <artifactId>openmrs-api</artifactId>
+				    <type>jar</type>
+				</dependency>
+				<dependency>
+				    <groupId>org.openmrs.api</groupId>
+				    <artifactId>openmrs-api</artifactId>
+				    <type>test-jar</type>
+				</dependency>
+				<dependency>
+				    <groupId>org.openmrs.web</groupId>
+				    <artifactId>openmrs-web</artifactId>
+				    <type>jar</type>
+				    <scope>provided</scope>
+				</dependency>
+				<dependency>
+				    <groupId>org.openmrs.web</groupId>
+				    <artifactId>openmrs-web</artifactId>
+				    <type>test-jar</type>
+				</dependency>
+				<dependency>
+				    <groupId>org.openmrs.test</groupId>
+				    <artifactId>openmrs-test</artifactId>
+				    <type>pom</type>
+				</dependency>
+			</dependencies>
+		</profile>
+	
+	</profiles>
 
 </project>
