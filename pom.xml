@@ -36,6 +36,13 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!-- default property values, required for eclipse build path configuration -->
+	<properties>
+		<openMRSVersion>1.6.3</openMRSVersion>
+		<openMRSMinorVersion>1.6</openMRSMinorVersion>
+		<logicVersion>0.5</logicVersion>
+	</properties>
+
 	<modules>
 		<module>api</module>
 		<module>omod</module>
