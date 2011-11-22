@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
@@ -19,18 +20,13 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
-	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/include/standardTestDataset.xml";
-	
-	protected static final String XML_DRUG_ORDER_ELEMENT_FILE = "drugOrderElement.xml";
+	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElementDataSet";
 	
 	private FormEntryContext context;
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		initializeInMemoryDatabase();
-		authenticate();
-		executeDataSet(XML_DATASET_PACKAGE_PATH);
-		executeDataSet(XML_DATASET_PATH + XML_DRUG_ORDER_ELEMENT_FILE);
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
 	}
 	
 	@Before

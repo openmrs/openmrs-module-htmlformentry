@@ -30,6 +30,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
     
     protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
     
+	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+    
     @Before
     public void setupDatabase() throws Exception {
         executeDataSet(XML_DATASET_PACKAGE_PATH);
@@ -368,7 +370,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterVoided() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
         Encounter e = new Encounter();
         e.setPatient(Context.getPatientService().getPatient(2));
         Date date = Context.getDateFormat().parse("01/02/2003");
@@ -397,7 +399,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterCorrectly() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
         Encounter e = new Encounter();
         e.setPatient(Context.getPatientService().getPatient(2));
         Date date = Context.getDateFormat().parse("01/02/2003");
@@ -466,7 +468,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectly() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
         Encounter e = new Encounter();
         e.setPatient(Context.getPatientService().getPatient(2));
         Date date = Context.getDateFormat().parse("01/02/2003");
@@ -515,7 +517,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderAndObsCorrectly() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
         Encounter e = new Encounter();
         e.setPatient(Context.getPatientService().getPatient(2));
         Date date = Context.getDateFormat().parse("01/02/2003");
@@ -561,7 +563,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should delete encounter correctly", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldDeleteEncounter() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
         Encounter e = new Encounter();
         e.setPatient(Context.getPatientService().getPatient(2));
         Date date = Context.getDateFormat().parse("01/02/2003");

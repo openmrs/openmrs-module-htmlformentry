@@ -50,6 +50,8 @@
 
 	<properties>
 		<openMRSVersion>1.6.1</openMRSVersion>
+		<openMRSMinorVersion>1.6</openMRSMinorVersion>
+		<logicVersion>0.4</logicVersion>
 	</properties>
 
 	<build>
@@ -90,5 +92,58 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+	
+	
+	<!-- different profiles for building/testing against different version of openmrs -->
+	<profiles>
+		<profile>
+			<id>openmrs-1.6.1</id>
+			<properties>
+				<openMRSVersion>1.6.1</openMRSVersion>
+				<openMRSMinorVersion>1.6</openMRSMinorVersion>
+				<logicVersion>0.4</logicVersion>
+			</properties>
+		</profile>
+		<profile>
+			<id>openmrs-1.6.2</id>
+			<properties>
+				<openMRSVersion>1.6.2</openMRSVersion>
+				<openMRSMinorVersion>1.6</openMRSMinorVersion>
+				<logicVersion>0.4</logicVersion>
+			</properties>
+		</profile>
+		<profile>
+			<id>openmrs-1.6.3</id>
+			<properties>
+				<openMRSVersion>1.6.3</openMRSVersion>
+				<openMRSMinorVersion>1.6</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		<profile>
+			<id>openmrs-1.7.0</id>
+			<properties>
+				<openMRSVersion>1.7.0</openMRSVersion>
+				<openMRSMinorVersion>1.7</openMRSMinorVersion>
+				<logicVersion>0.4</logicVersion>
+			</properties>
+		</profile>
+		<profile>
+			<id>openmrs-1.7.1</id>
+			<properties>
+				<openMRSVersion>1.7.1</openMRSVersion>
+				<openMRSMinorVersion>1.7</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		<profile>
+			<id>openmrs-1.7.2</id>
+			<properties>
+				<openMRSVersion>1.7.2</openMRSVersion>
+				<openMRSMinorVersion>1.7</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>

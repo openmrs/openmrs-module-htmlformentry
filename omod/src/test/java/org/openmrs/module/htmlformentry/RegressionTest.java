@@ -25,11 +25,11 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
-	protected static final String XML_CONCEPT_DATASET_PATH = XML_DATASET_PATH + "RegressionTest-data.xml";
+	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	@Before
 	public void loadConcepts() throws Exception {
-		executeDataSet(XML_CONCEPT_DATASET_PATH);
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 	}
 	
 	@Test
@@ -706,9 +706,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	 * by parentheses (), and obsGroup members are enclosed by brackets [].  
 	 */
     @Test
-    public void shouldReturnObsGroupSchemaCorrectly() throws Exception {
-        executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
-        
+    public void shouldReturnObsGroupSchemaCorrectly() throws Exception {      
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);

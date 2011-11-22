@@ -19,6 +19,8 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	    
 	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data3.xml";
+	
+	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	    
     @Before
     public void setupDatabase() throws Exception {
@@ -31,7 +33,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuids() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
 		
@@ -58,7 +60,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithinRepeatTags() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
 		
@@ -89,7 +91,7 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithMacros() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
 		

@@ -16,11 +16,15 @@ import org.openmrs.test.Verifies;
 
 public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 
+	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
+	protected static final String XML_HTML_FORM_ENTRY_SERVICE_DATASET = "htmlFormEntryServiceDataSet";
+	
 	private HtmlFormEntryService service;
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryService-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_SERVICE_DATASET));
 		service = Context.getService(HtmlFormEntryService.class);
 	}
 	

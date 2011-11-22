@@ -19,11 +19,11 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
-	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/RegressionTest-data.xml";
+	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PACKAGE_PATH);
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 	}
 	
 	/**
