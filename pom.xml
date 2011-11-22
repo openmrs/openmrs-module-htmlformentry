@@ -16,6 +16,25 @@
 		<developerConnection>scm:svn:http://svn.openmrs.org/openmrs-modules/htmlformentry/trunk/</developerConnection>
 		<url>http://svn.openmrs.org/openmrs-modules/htmlformentry/trunk/</url>
 	</scm>
+	
+	 <dependencyManagement>
+		<dependencies>
+			<dependency>
+			    <groupId>org.openmrs.api</groupId>
+			    <artifactId>openmrs-api</artifactId>
+			    <version>${openMRSVersion}</version>
+			    <type>jar</type>
+			    <scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openmrs.web</groupId>
+				<artifactId>openmrs-web</artifactId>
+				<version>${openMRSVersion}</version>
+				<type>jar</type>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<modules>
 		<module>api</module>
@@ -75,21 +94,7 @@
 			</properties>
 		    
 		    <dependencyManagement>
-				<dependencies>			
-					<dependency>
-						<groupId>org.openmrs.api</groupId>
-						<artifactId>openmrs-api</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>jar</type>
-						<scope>provided</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.openmrs.web</groupId>
-						<artifactId>openmrs-web</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>jar</type>
-						<scope>provided</scope>
-					</dependency>
+				<dependencies>		
 					<dependency>
 						<groupId>org.openmrs.test</groupId>
 						<artifactId>openmrs-test</artifactId>
@@ -113,20 +118,6 @@
 		    
 		     <dependencyManagement>
 				<dependencies>			
-					<dependency>
-						<groupId>org.openmrs.api</groupId>
-						<artifactId>openmrs-api</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>jar</type>
-						<scope>provided</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.openmrs.web</groupId>
-						<artifactId>openmrs-web</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>jar</type>
-						<scope>provided</scope>
-					</dependency>
 					<dependency>
 						<groupId>org.openmrs.test</groupId>
 						<artifactId>openmrs-test</artifactId>
@@ -154,22 +145,8 @@
 					    <groupId>org.openmrs.api</groupId>
 					    <artifactId>openmrs-api</artifactId>
 					    <version>${openMRSVersion}</version>
-					    <type>jar</type>
-					    <scope>provided</scope>
-					</dependency>
-					<dependency>
-					    <groupId>org.openmrs.api</groupId>
-					    <artifactId>openmrs-api</artifactId>
-					    <version>${openMRSVersion}</version>
 					    <type>test-jar</type>
 					    <scope>test</scope>
-					</dependency>
-					<dependency>
-					    <groupId>org.openmrs.web</groupId>
-					    <artifactId>openmrs-web</artifactId>
-					    <version>${openMRSVersion}</version>
-					    <type>jar</type>
-					    <scope>provided</scope>
 					</dependency>
 					<dependency>
 					    <groupId>org.openmrs.web</groupId>

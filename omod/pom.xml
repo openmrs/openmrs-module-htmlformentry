@@ -20,6 +20,17 @@
 			<version>${project.parent.version}</version>
 		</dependency>		
 		
+		<dependency>
+			<groupId>org.openmrs.api</groupId>
+			<artifactId>openmrs-api</artifactId>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.openmrs.web</groupId>
+			<artifactId>openmrs-web</artifactId>
+			<type>jar</type>
+		</dependency>
+		
 		<!-- jars we need to provide for compile but that will be provided at runtime (scope=provided) -->
 	
 		<dependency>
@@ -183,16 +194,6 @@
 			<id>openmrs-1.6</id>
 			<dependencies>
 				<dependency>
-					<groupId>org.openmrs.api</groupId>
-					<artifactId>openmrs-api</artifactId>
-					<type>jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>jar</type>
-				</dependency>
-				<dependency>
 					<groupId>org.openmrs.test</groupId>
 					<artifactId>openmrs-test</artifactId>
 					<type>jar</type>
@@ -204,16 +205,6 @@
 		<profile>
 			<id>openmrs-1.7</id>	
 			<dependencies>
-				<dependency>
-					<groupId>org.openmrs.api</groupId>
-					<artifactId>openmrs-api</artifactId>
-					<type>jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>jar</type>
-				</dependency>
 				<dependency>
 					<groupId>org.openmrs.test</groupId>
 					<artifactId>openmrs-test</artifactId>
@@ -229,17 +220,7 @@
 				<dependency>
 				    <groupId>org.openmrs.api</groupId>
 				    <artifactId>openmrs-api</artifactId>
-				    <type>jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.openmrs.api</groupId>
-				    <artifactId>openmrs-api</artifactId>
 				    <type>test-jar</type>
-				</dependency>
-				<dependency>
-				    <groupId>org.openmrs.web</groupId>
-				    <artifactId>openmrs-web</artifactId>
-				    <type>jar</type>
 				</dependency>
 				<dependency>
 				    <groupId>org.openmrs.web</groupId>
