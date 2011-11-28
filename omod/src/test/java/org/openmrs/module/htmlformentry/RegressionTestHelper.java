@@ -509,7 +509,7 @@ public abstract class RegressionTestHelper {
 		
 		public void assertEncounterEdited() {
 			Assert.assertNotNull("No encounter found", encounterCreated);
-			Assert.assertNotNull("No encounter found", encounterCreated.getDateChanged());
+			Assert.assertNotNull("Encounter date changed not set on edit", encounterCreated.getDateChanged());
 		}
 		
 		public void assertNoErrors() {
