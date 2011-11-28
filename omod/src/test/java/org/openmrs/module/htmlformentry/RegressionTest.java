@@ -1350,6 +1350,107 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 		}.run();
-		
 	}
+	
+	@Test
+	public void submittingFormWithoutPatientTagsShouldNotUpdatePatientDateChanged() throws Exception {
+		final Date date = new Date();
+		
+		new RegressionTestHelper() {
+			
+			public Date patientDateChanged;
+	
+			@Override
+			Patient getPatient() {
+				Patient patient = Context.getPatientService().getPatient(2);
+				patientDateChanged = patient.getDateChanged();
+				return patient;
+			}
+			
+			@Override
+            String getFormName() {
+				return "singleObsForm";
+			}
+			
+			@Override
+            String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
+			}
+			
+			@Override
+            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "70");
+			}
+			
+			@Override
+			boolean doViewPatient() {
+				return true;
+			}
+			
+			@Override
+			void testViewingPatient(Patient patient, String html) {
+				// confirm that the patient date changed has not changed
+				Assert.assertTrue("patient date changed has been errorneously changed", patient.getDateChanged() == null && patientDateChanged == null || patient.getDateChanged().equals(patientDateChanged));
+			}
+			
+			
+		}.run();
+	}
+	
+	@Test
+	public void editingFormWithoutPatientTagsShouldNotUpdatePatientDateChanged() throws Exception {
+		new RegressionTestHelper() {
+			
+			public Date patientDateChanged;
+			
+			@Override
+			Patient getPatient() {
+				Patient patient = Context.getPatientService().getPatient(2);
+				patientDateChanged = patient.getDateChanged();
+				return patient;
+			}
+			
+			@Override
+            String getFormName() {
+				return "multipleObsForm";
+			}
+			
+			@Override
+            Patient getPatientToView() throws Exception {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			@Override
+            Encounter getEncounterToEdit() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			@Override
+            String[] widgetLabelsForEdit() {
+				return new String[] { "Weight:", "Allergy:", "Allergy Date:" };
+			};
+			
+			@Override
+            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Weight:"), "75");
+				request.setParameter(widgets.get("Allergy:"), "Bee stings");
+			};
+			
+			@Override
+			boolean doViewPatient() {
+				return true;
+			}
+			
+			@Override
+			void testViewingPatient(Patient patient, String html) {
+				// confirm that the patient date changed has not changed
+				Assert.assertTrue("patient date changed has been errorneously changed", patient.getDateChanged() == null && patientDateChanged == null || patient.getDateChanged().equals(patientDateChanged));
+			}
+
+		}.run();
+	}
+	
 }
