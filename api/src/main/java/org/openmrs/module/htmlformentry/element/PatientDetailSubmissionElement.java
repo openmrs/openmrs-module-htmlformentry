@@ -32,6 +32,7 @@ import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
 import org.openmrs.api.IdentifierNotUniqueException;
+import org.openmrs.api.PatientIdentifierException;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -380,7 +381,16 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				pi.setIdentifier(identifier);
 				pi.setIdentifierType(getIdentifierType(identifierType.toString()));
 
-				PatientIdentifierValidator.validateIdentifier(pi);
+				// note that this is a bit of a hack; we can't call the PatientIdentifierValidator.validateIdentifier(identifier) method
+				// because it (as of 1.8) also tests to make sure that an identifier has a location associated with it; when validating an
+				// individual identifier widget, there will be no location because the location is collected in another widget
+				PatientIdentifierValidator.validateIdentifier(pi.getIdentifier(), pi.getIdentifierType());
+				
+				if (Context.getPatientService().isIdentifierInUseByAnotherPatient(pi)) {
+					throw new IdentifierNotUniqueException(Context.getMessageSourceService().getMessage(
+					    "PatientIdentifier.error.notUniqueWithParameter", new Object[] { pi.getIdentifier() },
+					    Context.getLocale()));
+				}
 			}
 			catch (Exception e) {
 				throw new ValidationException(e.getMessage());
@@ -452,17 +462,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			String identifierValue = (String) identifierTypeValueWidget.getValue(context, request);
 			if(StringUtils.hasText(identifierValue)){
 				try {
-					PatientIdentifier pi = new PatientIdentifier();
-		
-					pi.setIdentifier(identifierValue);
-					pi.setIdentifierType(getIdentifierType(identifierTypeId));
-		
-					PatientIdentifierValidator.validateIdentifier(pi);
-				}
-				catch(IdentifierNotUniqueException e){
-					if (context.getMode() == Mode.ENTER){
-						ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
-					}
+					validateIdentifier(Integer.getInteger(identifierTypeId), identifierValue);
 				}
 				catch (Exception e) {
 					ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
