@@ -19,6 +19,8 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
+	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
+	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	@Before
@@ -33,7 +35,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	@Test
 	public void onSave_shouldShouldReplaceUuids() throws Exception {
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
@@ -80,7 +82,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	@Test
 	public void onSave_shouldShouldReplaceNames() throws Exception {
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
@@ -152,7 +154,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 	@Test(expected = IllegalArgumentException.class)
 	public void onSave_shouldThrowExceptionIfExistingUuidHasNot36Characters() throws Exception {
 		// include this set so that we get the mapping concept
-		executeDataSet("org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml");
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));

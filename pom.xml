@@ -172,6 +172,42 @@
 				</dependencies>
 			</dependencyManagement>
 		</profile>
+		
+		<profile>
+			<id>openmrs-1.9</id>
+		    
+		    <properties>
+				<openMRSVersion>1.9.0-alpha</openMRSVersion>
+				<openMRSMinorVersion>1.9</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		    
+		    <dependencyManagement>
+			    <dependencies>
+					<dependency>
+					    <groupId>org.openmrs.api</groupId>
+					    <artifactId>openmrs-api</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>test-jar</type>
+					    <scope>test</scope>
+					</dependency>
+					<dependency>
+					    <groupId>org.openmrs.web</groupId>
+					    <artifactId>openmrs-web</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>test-jar</type>
+					    <scope>test</scope>
+					</dependency>
+					<dependency>
+					    <groupId>org.openmrs.test</groupId>
+					    <artifactId>openmrs-test</artifactId>
+					    <version>${openMRSVersion}</version>
+					    <type>pom</type>
+					    <scope>test</scope>
+					</dependency>
+				</dependencies>
+			</dependencyManagement>
+		</profile>
 	
 		<profile>
 			<id>openmrs-1.6.1</id>

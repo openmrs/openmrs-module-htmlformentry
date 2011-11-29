@@ -9,20 +9,21 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.openmrs.test.SkipBaseSetup;
 import org.openmrs.test.Verifies;
 
 public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 
 	protected final Log log = LogFactory.getLog(getClass());
 
-	protected static final String XML_DATASET_PACKAGE_PATH = "org/openmrs/module/htmlformentry/include/HtmlFormEntryTest-data.xml";
+	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
+	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
 
 	private Patient patient = null;
 
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PACKAGE_PATH);
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
 		patient = Context.getPatientService().getPatient(2);
 	}
 
