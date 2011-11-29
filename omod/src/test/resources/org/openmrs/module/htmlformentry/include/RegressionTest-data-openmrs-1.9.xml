@@ -181,11 +181,15 @@
   <drug drug_id="2" concept_id="792" name="Triomune-30" combination="true" dose_strength="1.0" units="tab(s)" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="3cfcf118-931c-46f7-8ff6-7b876f0d4202"/>
   <drug drug_id="3" concept_id="88" name="Aspirin" combination="false" dose_strength="325.0" units="mg" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="05ec820a-d297-44e3-be6e-698531d9dd3f"/>
   <drug drug_id="11" concept_id="3" name="NyQuil" combination="true" units="" creator="1" date_created="2008-08-15 15:34:03.0" retired="true" uuid="7e2323fa-0fa0-461f-9b59-6765997d849e"/>
-  
+    
   <!-- An encounter (with a couple obs) to test editing forms -->
-  <encounter encounter_id="101" encounter_type="1" patient_id="2" provider_id="502" location_id="1" form_id="1" encounter_datetime="2008-08-01 00:00:00.0" creator="1" date_created="2008-08-18 14:09:05.0" voided="false" void_reason="" uuid="6519d653-393b-4118-9c83-a3715b82dfff"/>
+  <encounter encounter_id="101" encounter_type="1" patient_id="2" location_id="1" form_id="1" encounter_datetime="2008-08-01 00:00:00.0" creator="1" date_created="2008-08-18 14:09:05.0" voided="false" void_reason="" uuid="6519d653-393b-4118-9c83-a3715b82dfff"/>
   <obs obs_id="101" person_id="2" concept_id="2" encounter_id="101" obs_datetime="2008-07-01 00:00:00.0" location_id="1" value_numeric="50.0" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" uuid="39fb7f47-e80a-4056-9285-bd798be13fff"/>
   <obs obs_id="102" person_id="2" concept_id="8" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_text="Penicillin" comments="" creator="1" date_created="2008-08-18 14:11:13.0" voided="false" uuid="be48cdcb-6a76-47e3-9f2e-2635032f3fff"/>
+
+  <!-- New (since 1.9) provider model -->
+  <provider provider_id="1" person_id="502"/>
+  <encounter_provider encounter_provider_id="1" provider_id="1" encounter_id="101"/>
 
   <!-- Drug Order Discontinue Reasons -->
   <concept concept_id="555" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2"  uuid="32296060-0370-102d-b0e3-123456789011"/>
