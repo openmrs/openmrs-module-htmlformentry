@@ -596,7 +596,6 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
         dor.setStartDate(new Date());
         e.addOrder(dor);
         
-        
         Context.getEncounterService().saveEncounter(e);
         
 	 	Form form = new Form();

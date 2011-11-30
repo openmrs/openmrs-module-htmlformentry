@@ -694,6 +694,38 @@ public class HtmlFormEntryUtil {
 		return Context.getPatientService().getAllPatientIdentifierTypes();
 	}
 	
+	/**
+	 * Utility method to void an encounter. If the voidEncounterByHtmlFormSchema global property has been set to true,
+	 * OR if the Html Form Flowsheet module has been started AND the voidEncounterByHtmlFormSchema global property
+	 * has not been explicitly set to false, void the encounter via the special voidEncounterByHtmlFormSchema
+	 * algorithm.  Otherwise simply void the encounter normally.
+	 * 
+	 *  This test is done because when using the Html Form Flowsheet module we only want to void observations associated
+	 *  with the current form, not the entire encounter 
+	 */
+	public static void voidEncounter(Encounter e, HtmlForm htmlform, String voidReason) throws Exception {
+		if (voidReason == null) {
+			voidReason = "htmlformentry";
+		}
+		
+		if (HtmlFormEntryGlobalProperties.VOID_ENCOUNTER_BY_HTML_FORM_SCHEMA() != null) {
+			
+			if (HtmlFormEntryGlobalProperties.VOID_ENCOUNTER_BY_HTML_FORM_SCHEMA() == true) {
+				voidEncounterByHtmlFormSchema(e, htmlform, voidReason);
+			}
+			else {
+				Context.getEncounterService().voidEncounter(e, voidReason);
+			}
+				
+		}
+		else if (HtmlFormEntryGlobalProperties.HTML_FORM_FLOWSHEET_STARTED() != null && HtmlFormEntryGlobalProperties.HTML_FORM_FLOWSHEET_STARTED() == true) {
+			voidEncounterByHtmlFormSchema(e, htmlform, voidReason);
+		}
+		else {
+			Context.getEncounterService().voidEncounter(e, voidReason);
+		}	
+	}
+	
 	
 	/**
 	 * Utility method that sets all matched obs and orders to voided, and voids encounter if all obs and orders in encounter are voided.
@@ -705,7 +737,7 @@ public class HtmlFormEntryUtil {
 	 * @param session
 	 */
 	public static void voidEncounterByHtmlFormSchema(Encounter e, HtmlForm htmlform, String voidReason) throws Exception {
-		if (e != null && htmlform != null){
+		if (e != null && htmlform != null){	
 			if (voidReason == null)
 				voidReason = "htmlformentry";
 		    boolean shouldVoidEncounter = true;

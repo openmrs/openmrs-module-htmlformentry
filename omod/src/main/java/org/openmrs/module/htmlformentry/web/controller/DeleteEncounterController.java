@@ -35,7 +35,7 @@ public class DeleteEncounterController {
         Integer ptId = enc.getPatientId();
         HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
         HtmlForm form = hfes.getHtmlForm(htmlFormId);
-        HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(enc, form, reason);
+        HtmlFormEntryUtil.voidEncounter(enc, form, reason);
         Context.getEncounterService().saveEncounter(enc);
         if (!StringUtils.hasText(returnUrl)) {
         	returnUrl = request.getContextPath() + "/patientDashboard.form?patientId=" + ptId;

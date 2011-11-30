@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -596,7 +595,7 @@ public class FormEntrySession {
         	if (encounter != null) {
         		if (voidEncounter){
         			try {
-        				HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(encounter, htmlForm, null);
+        				HtmlFormEntryUtil.voidEncounter(encounter, htmlForm, "voided via htmlformentry form submission");
         			} catch (Exception ex){
         				throw new RuntimeException("Unable to void encounter." , ex);
         			}

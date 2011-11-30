@@ -477,7 +477,7 @@ public abstract class RegressionTestHelper {
 	
 	private Encounter getLastEncounter(Patient patient) {
 		List<Encounter> encs = Context.getEncounterService().getEncounters(patient, null, null, null, null, null, null,
-		    false);
+		    true);
 		if (encs == null || encs.size() == 0)
 			return null;
 		if (encs.size() == 1)
@@ -510,6 +510,14 @@ public abstract class RegressionTestHelper {
 		public void assertEncounterEdited() {
 			Assert.assertNotNull("No encounter found", encounterCreated);
 			Assert.assertNotNull("Encounter date changed not set on edit", encounterCreated.getDateChanged());
+		}
+		
+		public void assertEncounterVoided() {
+			Assert.assertTrue("Encounter not voided", encounterCreated.isVoided());
+		}
+		
+		public void assertEncounterNotVoided() {
+			Assert.assertFalse("Encounter voided", encounterCreated.isVoided());
 		}
 		
 		public void assertNoErrors() {

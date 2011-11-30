@@ -1,0 +1,10 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<!--  removed the weight entry so we can test voiding by obs schema -->
+	Allergy: <obs conceptId="8"/>
+	Allergy Date: <obs conceptId="1119"/>
+	Void: <encounterVoided />
+	<submit/>
+</htmlform>
