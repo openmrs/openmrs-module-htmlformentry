@@ -583,7 +583,8 @@ public class FormEntrySession {
         
         ObsService obsService = Context.getObsService();
         
-        // TODO we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
+        // save the patient 
+        // TODO: we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
         if (context.getMode() == Mode.EDIT && patient != null) {
             Context.getPersonService().savePerson(patient);
         }

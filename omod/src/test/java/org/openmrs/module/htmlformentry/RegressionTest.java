@@ -84,6 +84,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 			}
 		}.run();
 	}
@@ -115,6 +117,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertObsCreatedCount(1);
 				results.assertObsCreated(2, 70d);
 			}
@@ -150,6 +154,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertObsCreatedCount(3);
 				results.assertObsCreated(2, 70d);
 				results.assertObsCreated(8, "Bee stings");
@@ -187,6 +193,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertObsGroupCreatedCount(1);
 				results.assertObsLeafCreatedCount(3); // 2 in the obs group, 1 for weight
 				results.assertObsCreated(2, 70);
@@ -226,6 +234,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertObsGroupCreatedCount(2);
 				results.assertObsLeafCreatedCount(3);
 				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date);
@@ -619,6 +629,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertObsCreatedCount(1);
 				results.assertObsCreated(2, 70d);
 			}
@@ -784,6 +796,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
             void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertObsCreatedCount(3);
 				results.assertObsCreated(2, 70d);
 				results.assertObsCreated(1008, date);
@@ -974,8 +988,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 				results.assertEncounterCreated();
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
-				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
-				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+				results.assertProvider(502);
+				results.assertLocation(2);
 			}
 		}.run();
     }
@@ -1073,8 +1087,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("M", results.getPatient().getGender());
 				
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
-				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
-				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertEncounterEdited();
 			}
 			
@@ -1227,8 +1241,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsCreated(2, 100d);
 				
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
-				Assert.assertEquals(Integer.valueOf(2), results.getEncounterCreated().getLocation().getId());
-				Assert.assertEquals(Integer.valueOf(502), results.getEncounterCreated().getProvider().getId());
+				results.assertProvider(502);
+				results.assertLocation(2);
 				results.assertEncounterEdited();
 			}
 			

@@ -600,6 +600,40 @@ public abstract class RegressionTestHelper {
 		}
 		
 		/**
+		 * Fails if there is no provider with an assigned id associated with the encounter
+		 */
+		public void assertProvider() {
+			assertEncounterCreated();
+			Assert.assertNotNull(getEncounterCreated().getProvider());
+			Assert.assertNotNull(getEncounterCreated().getProvider().getPersonId());
+		}
+		
+		/**
+		 * Fails if there is no provider or if the provider id does not match the expected id
+		 */
+		public void assertProvider(Integer expectedProviderId) {
+			assertProvider();
+			Assert.assertEquals(expectedProviderId, getEncounterCreated().getProvider().getPersonId());
+		}
+		
+		/**
+		 * Fails if there is no location with an assigned id associated with the encounter
+		 */
+		public void assertLocation() {
+			assertEncounterCreated();
+			Assert.assertNotNull(getEncounterCreated().getLocation());
+			Assert.assertNotNull(getEncounterCreated().getLocation().getLocationId());
+		}
+		
+		/**
+		 * Fails if there is no location or if the location id does not match the expected location id
+		 */
+		public void assertLocation(Integer expectedLocationId) {
+			assertLocation();
+			Assert.assertEquals(expectedLocationId, getEncounterCreated().getLocation().getLocationId());
+		}
+		
+		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'
 		 * 
 		 * @param expected
