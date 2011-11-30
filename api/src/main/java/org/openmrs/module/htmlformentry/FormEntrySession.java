@@ -144,8 +144,9 @@ public class FormEntrySession {
             velocityContext.put("personAttributes", attributes);
         }
 
-        // For now, the relationship query breaks for non-saved patients, so do not run for Demo patient
-        if (patient != null && !("testing-html-form-entry".equals(patient.getUuid())) && patient.getUuid() != null) {
+        // the relationship query only makes sense in the context of saved patients, so only call it if this patient
+        // has already been persisted (i.e., assigned an id and uuid)
+        if (patient != null && patient.getId() != null && patient.getUuid() != null && !("testing-html-form-entry".equals(patient.getUuid()))) {
             List<Relationship> rels = Context.getPersonService().getRelationshipsByPerson(patient);
             // TODO put this is core in relationship service
             Map<String, List<Person>> relMap = new HashMap<String, List<Person>>();
