@@ -31,6 +31,11 @@
 
 <script type="text/javascript">
 	var propertyAccessorInfo = new Array();
+	
+	// individual forms can define their own functions to execute before a form validation or submission by adding them to these lists
+	// if any function returns false, no further functions are called and the validation or submission is cancelled
+	var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
+	var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
 
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
@@ -84,16 +89,38 @@
 		i.e. only authenticated user can see the error msg of
 	*/
 	function checkIfLoggedInAndErrorsCallback(isLoggedIn) {
+		
+		var state_beforeValidation=true;
+		
 		if (!isLoggedIn) {
 			showAuthenticateDialog();
 		}else{
-			var anyErrors = findAndHighlightErrors();
-        	if (anyErrors) {
-            	tryingToSubmit = false;
-            	return;
-        	}else{
-        		doSubmitHtmlForm();
-        	}
+			
+			// first call any beforeValidation functions that may have been defined by the html form
+			if (beforeValidation.length > 0){
+				for (var i=0, l = beforeValidation.length; i < l; i++){
+					if (state_beforeValidation){
+						var fncn=beforeValidation[i];						
+						state_beforeValidation=eval(fncn);
+					}
+					else{
+						// forces the end of the loop
+						i=l;
+					}
+				}
+			}
+			
+			// only do the validation if all the beforeValidationk functions returned "true"
+			if (state_beforeValidation){
+				var anyErrors = findAndHighlightErrors();
+			
+        		if (anyErrors) {
+            		tryingToSubmit = false;
+            		return;
+        		}else{
+        			doSubmitHtmlForm();
+        		}
+			}
 		}
 	}
 
@@ -113,8 +140,27 @@
 	}
 
 	function doSubmitHtmlForm() {
-		var form = document.getElementById('htmlform');
-		form.submit();
+		
+		// first call any beforeSubmit functions that may have been defined by the form
+		var state_beforeSubmit=true;
+		if (beforeSubmit.length > 0){
+			for (var i=0, l = beforeSubmit.length; i < l; i++){
+				if (state_beforeSubmit){
+					var fncn=beforeSubmit[i];						
+					state_beforeSubmit=fncn();					
+				}
+				else{
+					// forces the end of the loop
+					i=l;
+				}
+			}
+		}
+		
+		// only do the submit if all the beforeSubmit functions returned "true"
+		if (state_beforeSubmit){
+			var form = document.getElementById('htmlform');
+			form.submit();			
+		}
 		tryingToSubmit = false;
 	}
 
