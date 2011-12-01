@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -825,28 +826,13 @@ public class HtmlFormEntryUtil {
 	 */
 	private static Encounter returnEncounterCopy(Encounter source, Map<Obs,Obs> replacementObs, Map<Order,Order> replacementOrders) throws Exception {
 		if (source != null){
-			Encounter encNew = new Encounter();
-			encNew.setChangedBy(source.getChangedBy());
-			encNew.setCreator(source.getCreator());
-			encNew.setDateChanged(source.getDateChanged());
-			encNew.setDateCreated(source.getDateCreated());
-			encNew.setDateVoided(source.getDateVoided());
-			encNew.setEncounterDatetime(source.getEncounterDatetime());
-			encNew.setEncounterId(source.getEncounterId());
-			encNew.setEncounterType(source.getEncounterType());
-			encNew.setForm(source.getForm());
-			encNew.setLocation(source.getLocation());
-			encNew.setPatient(source.getPatient());
-			encNew.setProvider(source.getProvider());
-			encNew.setVoided(source.getVoided());
-			encNew.setVoidedBy(source.getVoidedBy());
-			encNew.setVoidReason(source.getVoidReason());
+			Encounter encNew = (Encounter) returnCopy(source);
 
 			//note: we can do this because we're not going to manipulate anything about these obs or orders, and this copy won't be persisted...
 
 			Set<Obs> newObs = new HashSet<Obs>();
 			for (Obs o :source.getAllObs(true)){
-				Obs oNew = cloneObs(o, replacementObs);
+				Obs oNew = returnObsCopy(o, replacementObs);
 				newObs.add(oNew);
 			}
 			encNew.setObs(newObs);
@@ -868,40 +854,19 @@ public class HtmlFormEntryUtil {
 	 * @param obsToCopy
 	 * @param replacements
 	 * @return
+	 * @throws Exception 
 	 */
-	private static Obs cloneObs(Obs obsToCopy, Map<Obs, Obs> replacements){
-		Obs newObs = new Obs(obsToCopy.getPerson(), obsToCopy.getConcept(), obsToCopy.getObsDatetime(), obsToCopy
-		        .getLocation());		
-		newObs.setObsGroup(obsToCopy.getObsGroup());
-		newObs.setAccessionNumber(obsToCopy.getAccessionNumber());
-		newObs.setValueCoded(obsToCopy.getValueCoded());
-		newObs.setValueDrug(obsToCopy.getValueDrug());
-		newObs.setValueGroupId(obsToCopy.getValueGroupId());
-		newObs.setValueDatetime(obsToCopy.getValueDatetime());
-		newObs.setValueNumeric(obsToCopy.getValueNumeric());
-		newObs.setValueModifier(obsToCopy.getValueModifier());
-		newObs.setValueText(obsToCopy.getValueText());
-		newObs.setComment(obsToCopy.getComment());
-		newObs.setOrder(obsToCopy.getOrder());
-		newObs.setEncounter(obsToCopy.getEncounter());
-		newObs.setDateStarted(obsToCopy.getDateStarted());
-		newObs.setDateStopped(obsToCopy.getDateStopped());
-		newObs.setCreator(obsToCopy.getCreator());
-		newObs.setDateCreated(obsToCopy.getDateCreated());
-		newObs.setVoided(obsToCopy.getVoided());
-		newObs.setVoidedBy(obsToCopy.getVoidedBy());
-		newObs.setDateVoided(obsToCopy.getDateVoided());
-		newObs.setVoidReason(obsToCopy.getVoidReason());
+	private static Obs returnObsCopy(Obs obsToCopy, Map<Obs, Obs> replacements) throws Exception{
+		Obs newObs = (Obs) returnCopy(obsToCopy);
 		
-		newObs.setValueComplex(obsToCopy.getValueComplex());
-		newObs.setComplexData(obsToCopy.getComplexData());
 		if (obsToCopy.isObsGrouping()){
 			newObs.setGroupMembers(null);
 			for (Obs oinner : obsToCopy.getGroupMembers()){
-				Obs oinnerNew = cloneObs(oinner, replacements);
+				Obs oinnerNew = returnObsCopy(oinner, replacements);
 				newObs.addGroupMember(oinnerNew);
 			}
 		}
+		
 		replacements.put(newObs, obsToCopy );
 		return newObs;
 	}
@@ -916,6 +881,22 @@ public class HtmlFormEntryUtil {
 	 * @throws Exception
 	 */
 	private static Object returnOrderCopy(Order source, Map<Order,Order> replacementOrders) throws Exception {
+		Object ret = returnCopy(source);
+		replacementOrders.put((Order) ret, (Order) source);
+		return ret;
+	}
+	
+	/**
+	 * 
+	 * Utility to return a copy of an Object.  Copies all properties that are referencese by
+	 * getters and setters and *are not* collection
+	 * 
+	 * @param source
+	 * @param replacements
+	 * @return A copy of an object
+	 * @throws Exception
+	 */
+    private static Object returnCopy(Object source) throws Exception {
 		Class<? extends Object> clazz = source.getClass();
 		Object ret = clazz.newInstance();
 		Set<String> fieldNames = new HashSet<String>();
@@ -928,19 +909,19 @@ public class HtmlFormEntryUtil {
 			for (Method getter : clazz.getMethods()){
 				if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase()) && getter.getParameterTypes().length == 0){
 					Method setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
-					if (setter != null && methodsSupportSameArgs(getter, setter)){
+					//NOTE: Collection properties are not copied
+					if (setter != null && methodsSupportSameArgs(getter, setter) && !(getter.getReturnType().isInstance(Collection.class))){
 						Object o = getter.invoke(source, Collections.EMPTY_LIST.toArray());
 						if (o != null){
-								//NOTE:  there are no collections in Order or DrugOrder.  This gets nastier if so...
 								setter.invoke(ret, o);
 						}
 					}
 				}
 			}
 		}
-		replacementOrders.put((Order) ret, source);
 		return ret ;
 	}
+	
 	
 	/**
 	 * Performs a case insensitive search on a class for a method by name.
