@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -259,6 +260,31 @@ public class TestUtil {
         }
         obs.setDateCreated(new Date());
         return obs;
+	}
+	
+	/**
+	 * Compares two dates, ignoring their time components
+	 */
+	public static Boolean dateEquals(Date date1, Date date2) {
+		return clearTimeComponent(date1).equals(clearTimeComponent(date2));
+	}
+	
+	
+	/**
+	 * Given a Date object, returns a Date object for the same date but with the time component (hours, minutes, seconds & milliseconds) removed
+	 */
+	public static Date clearTimeComponent(Date date) {
+		// Get Calendar object set to the date and time of the given Date object  
+		Calendar cal = Calendar.getInstance();  
+		cal.setTime(date);  
+		  
+		// Set time fields to zero  
+		cal.set(Calendar.HOUR_OF_DAY, 0);  
+		cal.set(Calendar.MINUTE, 0);  
+		cal.set(Calendar.SECOND, 0);  
+		cal.set(Calendar.MILLISECOND, 0);  
+		  	
+		return cal.getTime();
 	}
 	
 }

@@ -14,7 +14,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 	
-protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
