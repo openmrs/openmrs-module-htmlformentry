@@ -40,7 +40,7 @@ public class DateWidget implements Widget {
             sb.append(" onClick=\"showCalendar(this)\"");
             if (onChangeFunction != null)
             	sb.append(" onChange=\"" + onChangeFunction + "\" ");
-            sb.append(" /> (dd/mm/yyyy)");
+            sb.append(" /> (" + Context.getDateFormat().toPattern().toLowerCase() + ")");
             return sb.toString();
         }
     }
