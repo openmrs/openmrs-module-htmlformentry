@@ -6,6 +6,7 @@ import java.util.Map;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.Person;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -133,30 +134,31 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 */
     public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name);
     
-        /**
-    	 * 
-    	 * Returns a list of Person ids of people having a given attribute type (passed in using the person_attribute_id).
-    	 * The method also takes in a value of the attribute to match to, if left null then all people having the 
-    	 * given attribute will be returned.
-    	 * 
-    	 * @param attribute the name of the person_attribute
-    	 * @param attributeValue optional value to match against the person attribute
-    	 * @return a List<Integer>
-    	 */
-    	@Transactional(readOnly=true)
-    	public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue);
-    	
-    	/**
-    	 * 
-    	 * Returns a list of Person stubs for people matching the attributes and programs parameters passed in.
-    	 * The method takes in multiple attributes and program ids, if the corresponding attribute value is null
-    	 * then all people having that attribute will be returned. The attributeValues list should either be null
-    	 * or contain the same number of values as the attributeIds list.
-    	 * 
-    	 * @param attributeIds the optional list of Person_attribute_id for the given person attribute
-    	 * @param attributeValues the list of optional values to match against the person attribute
-    	 * @param programIds the optional list of prorgramIds 
-    	 * @return a List<Integer>
-    	 */
-    	public List<PersonStub> getPeopleAsPersonStubs(List<String> attributeIds, List<String> attributeValues, List<String> programIds);
+    /**
+	 * 
+	 * Returns a list of Person ids of people having a given attribute type (passed in using the person_attribute_id).
+	 * The method also takes in a value of the attribute to match to, if left null then all people having the 
+	 * given attribute will be returned.
+	 * 
+	 * @param attribute the name of the person_attribute
+	 * @param attributeValue optional value to match against the person attribute
+	 * @return a List<Integer>
+	 */
+	@Transactional(readOnly=true)
+	public List<Integer> getPersonIdsHavingAttributes(String attribute, String attributeValue);
+	
+	/**
+	 * 
+	 * Returns a list of Person stubs for people matching the attributes and programs parameters passed in.
+	 * The method takes in multiple attributes and program ids, if the corresponding attribute value is null
+	 * then all people having that attribute will be returned. The attributeValues list should either be null
+	 * or contain the same number of values as the attributeIds list.
+	 * 
+	 * @param attributeIds the optional list of Person_attribute_id for the given person attribute
+	 * @param attributeValues the list of optional values to match against the person attribute
+	 * @param programIds the optional list of programIds 
+	 * @param personsToExclude optional list of persons to exclude from the results list
+	 * @return a List<Integer>
+	 */
+	public List<PersonStub> getPeopleAsPersonStubs(List<String> attributeIds, List<String> attributeValues, List<String> programIds, List<Person> personsToExclude);
 }

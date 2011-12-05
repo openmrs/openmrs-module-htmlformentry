@@ -77,7 +77,7 @@ public interface HtmlFormEntryDAO {
 	public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name);
 	
 	/**
-     * @see HtmlFormEntryService#getPersonIdHavingAttributes(String attributeId, String attributeValue)
+     * @see HtmlFormEntryService#getPersonIdsHavingAttributes(String attributeId, String attributeValue)
      */      
 	public List<Integer> getPersonIdHavingAttributes(String attributeId, String attributeValue);
 

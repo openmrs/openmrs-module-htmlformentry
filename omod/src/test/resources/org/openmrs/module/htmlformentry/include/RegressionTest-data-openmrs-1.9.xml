@@ -205,5 +205,10 @@
   <!-- Enroll a patient in a program -->
   <patient_program patient_program_id="1" patient_id="2" program_id="1" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32296060-03aa-102d-b0e3-001ec94a0cc5"/>
   
+   <!-- Define a relationship type (this relationship type is defined in standard test data, but the id is changed from 5 to 2 between 1.7 and 1.8 so we define our own version here with id = 4 -->
+  <relationship_type relationship_type_id="4" a_is_to_b="Parent" b_is_to_a="Child" preferred="0" weight="0" description="parent and child" creator="1" date_created="2008-08-15 15:55:18.0" retired="false" uuid="2a5f4ff4-a179-4b8a-aa4c-40f71956efeg"/>
+  
+  <!-- Add a person attribute (for one of the Relationship tests) -->
+  <person_attribute person_attribute_id="14" person_id="8" value="6" person_attribute_type_id="8" creator="1" date_created="2008-08-18 11:56:42.0" voided="false" uuid="63a5a4a0-dd44-46ac-b8c0-c6bfb5a5f878"/>
 
 </dataset>

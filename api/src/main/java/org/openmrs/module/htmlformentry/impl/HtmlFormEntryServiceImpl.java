@@ -197,16 +197,18 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     }
     
     @Override
-    public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue) {
+    public List<Integer> getPersonIdsHavingAttributes(String attribute, String attributeValue) {
     		    
     	return dao.getPersonIdHavingAttributes(attribute, attributeValue);
     }
 	 	
 	@Override
-    public List<PersonStub> getPeopleAsPersonStubs(List<String> attributes, List<String> attributeValues, List<String> programIds){
+    public List<PersonStub> getPeopleAsPersonStubs(List<String> attributes, List<String> attributeValues, List<String> programIds, List<Person> personsToExclude){
 		List<PersonStub> stubs = new ArrayList<PersonStub>();
 		
-		Cohort cohort = null;
+		Set<Integer> attributeMatches = null;
+		Set<Integer> programMatches = null;
+		
 		if(attributes != null)
 		{
 			for(int i = 0; i < attributes.size(); i++)
@@ -218,20 +220,16 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					val = attributeValues.get(i);
 				}
 				
-				List<Integer> ids = getPersonIdHavingAttributes(attr, val);
 				Set<Integer> setOfIds = new HashSet<Integer>();
-				setOfIds.addAll(ids);
-						
-				Cohort pp = new Cohort();
-				pp.setMemberIds(setOfIds);
+				setOfIds.addAll(getPersonIdsHavingAttributes(attr, val));
 					
-				if(cohort != null)
+				if(attributeMatches != null)
 				{
-					cohort = Cohort.intersect(cohort, pp);
+					attributeMatches.retainAll(setOfIds);
 				}
 				else
 				{
-					cohort = pp;
+					attributeMatches = setOfIds;
 				}
 			}
 		}
@@ -247,22 +245,40 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					if(personProgram != null)
 					{
 						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
-						if(cohort != null)
+						if(programMatches != null)
 						{
-							cohort = Cohort.intersect(cohort, pp);
+							programMatches.retainAll(pp.getMemberIds());
+						}
+						else 
+						{
+							programMatches = pp.getMemberIds();
 						}
 					}
 				}
 			}
 		}
 		
-		if(cohort != null)
+		Set<Integer> results;
+		
+		if (attributeMatches == null) {
+			results = programMatches;
+		}
+		else if (programMatches == null) {
+			results = attributeMatches;
+		}
+		else {
+			results = programMatches;
+			results.retainAll(attributeMatches);
+		}
+		
+		
+		if(results != null)
 		{
-			//now iterate through the cohort returning person stubs
-			for(Integer id: cohort.getMemberIds())
+			//now iterate through the results, returning person stubs
+			for(Integer id : results)
 			{
 				Person person = Context.getPersonService().getPerson(id);
-				if(person != null)
+				if(person != null && !personsToExclude.contains(person))
 				{
 					PersonStub pStub = new PersonStub();
 					pStub.setGivenName(person.getGivenName());

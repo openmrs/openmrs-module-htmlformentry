@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -188,8 +190,12 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 						//need to find out the value from the current patient
 						if(split[1].indexOf("${currentPatientAttribute(") == 0)
 						{
-							String patientAttr = split[1].substring(27, split[1].length()-2);
-			
+							// we want to pull out whatever is within the quotes
+							Pattern withinQuotes = Pattern.compile("[\"\'](.*)[\"\']");
+							Matcher matcher = withinQuotes.matcher(split[1]);
+							matcher.find();
+							String patientAttr = matcher.group(1);
+							
 							PersonAttribute pa = context.getExistingPatient().getAttribute(patientAttr);
 							if(pa != null)
 							{
@@ -199,6 +205,10 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 							{
 								attributeValues.add(null);
 							}
+						}
+						// add the value to the attribute list
+						else {
+							attributeValues.add(split[1]);
 						}
 					}
 					else
@@ -254,8 +264,11 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 						progIds.add(progId);
 					}
 				}
-				
-				personStubWidget.setOptions(Context.getService(HtmlFormEntryService.class).getPeopleAsPersonStubs(searchAttributes, attributeValues, progIds));
+			
+				List<Person> personsToExclude = new ArrayList<Person>();
+				// exclude the exisiting patient from any results
+				personsToExclude.add(context.getExistingPatient());
+				personStubWidget.setOptions(Context.getService(HtmlFormEntryService.class).getPeopleAsPersonStubs(searchAttributes, attributeValues, progIds, personsToExclude));
 			}
 			
 			if(relationshipWidget != null)

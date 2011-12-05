@@ -86,7 +86,7 @@ public class PopupWidgetController {
 				}
 				if(attr != null && attr.trim().length() > 0)
 				{
-					List<Integer> ids = Context.getService(HtmlFormEntryService.class).getPersonIdHavingAttributes(attr, val);
+					List<Integer> ids = Context.getService(HtmlFormEntryService.class).getPersonIdsHavingAttributes(attr, val);
 					Set<Integer> setOfIds = new HashSet<Integer>();
 					setOfIds.addAll(ids);
 					
