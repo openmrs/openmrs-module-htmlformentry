@@ -260,10 +260,10 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 		
 		Set<Integer> results;
 		
-		if (attributeMatches == null) {
+		if (attributes == null) {
 			results = programMatches;
 		}
-		else if (programMatches == null) {
+		else if (programIds == null) {
 			results = attributeMatches;
 		}
 		else {
@@ -271,13 +271,14 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 			results.retainAll(attributeMatches);
 		}
 		
-		
 		if(results != null)
 		{
 			//now iterate through the results, returning person stubs
 			for(Integer id : results)
 			{
 				Person person = Context.getPersonService().getPerson(id);
+				
+				// exclude any persons in the exclusion list
 				if(person != null && !personsToExclude.contains(person))
 				{
 					PersonStub pStub = new PersonStub();
