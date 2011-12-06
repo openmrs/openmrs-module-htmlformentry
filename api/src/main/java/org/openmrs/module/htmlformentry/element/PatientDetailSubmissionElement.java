@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,15 +33,14 @@ import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
 import org.openmrs.api.IdentifierNotUniqueException;
-import org.openmrs.api.PatientIdentifierException;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.AddressWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
@@ -275,6 +275,16 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 					}
 				}
 			}
+			
+			// HACK: we need to set the date created and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
+			if (name.getDateCreated() == null) {
+				name.setDateCreated(new Date());
+			}
+			if (name.getUuid() == null) {
+				name.setUuid(UUID.randomUUID().toString());
+			}
+			
+			
 			name.setPreferred(true);
 			patient.addName(name);
 		}
@@ -303,6 +313,9 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
 			if (patientIdentifier == null) {
 				patientIdentifier = new PatientIdentifier();
+				// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
+				patientIdentifier.setDateChanged(new Date());
+				patientIdentifier.setUuid(UUID.randomUUID().toString());
 				patient.addIdentifier(patientIdentifier);
 			}
 
@@ -318,6 +331,9 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
 			if (patientIdentifier == null) {
 				patientIdentifier = new PatientIdentifier();
+				// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
+				patientIdentifier.setDateChanged(new Date());
+				patientIdentifier.setUuid(UUID.randomUUID().toString());
 				patient.addIdentifier(patientIdentifier);
 			}
 

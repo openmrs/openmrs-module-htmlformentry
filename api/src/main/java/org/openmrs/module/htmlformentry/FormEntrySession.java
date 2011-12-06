@@ -582,12 +582,6 @@ public class FormEntrySession {
         
         ObsService obsService = Context.getObsService();
         
-        // save the patient 
-        // TODO: we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
-        if (context.getMode() == Mode.EDIT && patient != null) {
-            Context.getPersonService().savePerson(patient);
-        }
-
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
         // If there is no encounter (impossible at the time of writing this comment) we save the obs manually
@@ -629,6 +623,18 @@ public class FormEntrySession {
                 }
             } 
         }
+        
+        // save the patient 
+        // TODO: we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
+        // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
+        // we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
+        // sometimes a flush can be called before these methods are called. This should be resolved once we move save handling out of Spring AOP and 
+        // into a Hibernate Interceptor (which happens in 1.9)
+        if (context.getMode() == Mode.EDIT && patient != null) {
+            Context.getPersonService().savePerson(patient);
+        }
+
+   
     }
     
     /**
