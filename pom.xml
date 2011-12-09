@@ -212,7 +212,7 @@
 		<profile>
 			<id>openmrs-1.6.1</id>
 			<properties>
-				<openMRSVersion>1.6.2</openMRSVersion>
+				<openMRSVersion>1.6.1</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 				<logicVersion>0.4</logicVersion>
 			</properties>
