@@ -235,6 +235,16 @@
 				<logicVersion>0.5</logicVersion>
 			</properties>
 		</profile>
+		
+		
+		<profile>
+			<id>openmrs-1.6.4</id>
+			<properties>
+				<openMRSVersion>1.6.4</openMRSVersion>
+				<openMRSMinorVersion>1.6</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
 	
 		<profile>
 			<id>openmrs-1.7.0</id>
