@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -223,6 +225,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 	        }
 	        answerLabel = getValueLabel();
 		} else {
+
+			// Obs of datatypes date, time, and datetime support the attributes
+			// defaultDatetime. Make sure this date format string matches the
+			// format documented at
+			// https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference#HTMLFormEntryModuleHTMLReference-%3Cobs%3E
+			// See <obs> section, attributes defaultDatetime and
+			// defaultObsDatetime
+			String defaultDatetimeFormat = "yyyy-MM-dd-HH-mm";
+
     		if (concept.getDatatype().isNumeric()) {
     			if (parameters.get("answers") != null) {
     				try {
@@ -612,16 +623,25 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     		} else if (ConceptDatatype.DATE.equals(concept.getDatatype()
     				.getHl7Abbreviation())) {
     			valueWidget = new DateWidget();
-    			if (existingObs != null)
+    			if (existingObs != null){
     				valueWidget.setInitialValue(existingObs.getValueDatetime());
-    		}
+                } else if (parameters.get("defaultDatetime") != null) {
+					valueWidget.setInitialValue(HtmlFormEntryUtil.translateDatetimeParam(parameters.get("defaultDatetime"),
+					    defaultDatetimeFormat));
+				}
+             }
     		// if it's a Time type
     		else if (ConceptDatatype.TIME.equals(concept.getDatatype()
     				.getHl7Abbreviation())) {
     			valueWidget = new TimeWidget();
-    			if (existingObs != null)
+    			if (existingObs != null) {
     				valueWidget.setInitialValue(existingObs.getValueDatetime());
-    		}
+                } else if (parameters.get("defaultDatetime") != null) {
+                                valueWidget.setInitialValue(HtmlFormEntryUtil.translateDatetimeParam(parameters.get("defaultDatetime"),
+                                    defaultDatetimeFormat));
+                }
+
+            }
     		// if it's a Date Time type
     		else if (ConceptDatatype.DATETIME.equals(concept.getDatatype()
     				.getHl7Abbreviation())) {
@@ -629,9 +649,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     			TimeWidget timeWidget = new TimeWidget();
     				
     			valueWidget = new DateTimeWidget(dateWidget,timeWidget);
-    			if (existingObs != null)
+    			if (existingObs != null){
     				valueWidget.setInitialValue(existingObs.getValueDatetime());
-    				
+                } else if (parameters.get("defaultDatetime") != null) {
+                                valueWidget.setInitialValue(HtmlFormEntryUtil.translateDatetimeParam(parameters.get("defaultDatetime"),
+                                    defaultDatetimeFormat));
+                }
+
     			context.registerWidget(dateWidget);
     			context.registerWidget(timeWidget);
     		} else {
@@ -653,6 +677,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
 			context.registerErrorWidget(dateWidget, errorWidget);
 			if (existingObs != null) {
 				dateWidget.setInitialValue(existingObs.getObsDatetime());
+			}
+            else if (parameters.get("defaultObsDatetime") != null) {
+				// Make sure this format continues to match
+				// the <obs> attribute defaultObsDatetime documentation at
+				// https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference#HTMLFormEntryModuleHTMLReference-%3Cobs%3E
+				String supportedDateFormat = "yyyy-MM-dd-HH-mm";
+				dateWidget.setInitialValue(HtmlFormEntryUtil.translateDatetimeParam(parameters.get("defaultObsDatetime"),
+				    supportedDateFormat));
 			}
 		}
 

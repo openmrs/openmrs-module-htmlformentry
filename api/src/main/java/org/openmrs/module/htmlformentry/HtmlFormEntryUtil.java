@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -965,6 +966,49 @@ public class HtmlFormEntryUtil {
 			addSuperclassFields(fields, clazz.getSuperclass());
 		}	
 	}
-	
+
+    /**
+	 * Translates a String into a Date.
+	 *
+	 * @param value use "now" for the current timestamp, "today" for the current date with a
+	 *            timestamp of 00:00, or a date string that can be parsed by SimpleDateFormat with
+	 *            the format parameter.
+	 * @param format the pattern SimpleDateTime will use to parse the value, if other than "now" or
+	 *            "today".
+	 * @return Date on success; null for an invalid value
+	 * @throws IllegalArgumentException if a date string cannot be parsed with the format string you
+	 *             provided
+	 * @see java.text.SimpleDateFormat
+	 * @should return a Date object with current date and time for "now"
+	 * @shold return a Date with current date, but time of 00:00:00:00, for "today"
+	 * @should return a Date object matching the value param if a format is specified
+	 * @should return null for null value
+	 * @should return null if format is null and value not in [ null, "now", "today" ]
+	 * @should fail if date parsing fails
+	 */
+	public static Date translateDatetimeParam(String value, String format) {
+		if (value == null)
+			return null;
+		if ("now".equals(value)) {
+			return new Date();
+		} else if ("today".equals(value)) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 0);
+			return cal.getTime();
+		} else if (format != null) { // the value is a timestamp; parse it with
+			                         // the format pattern
+			try {
+				SimpleDateFormat df = new SimpleDateFormat(format);
+				return df.parse(value);
+			}
+			catch (ParseException ex) {
+				throw new IllegalArgumentException(ex);
+			}
+		}
+		return null;
+	}
 	
 }
