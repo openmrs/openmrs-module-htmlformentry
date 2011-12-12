@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
+import java.util.Calendar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -610,4 +611,119 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
    	    //encounter had no non-voided objects, should be voided
 	    Assert.assertTrue(e.isVoided());
 	}
+
+    /**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 */
+	@Test
+	@Verifies(value = "should return a Date with current date, but time of 00:00:00:00, for 'today'", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldReturnDateForToday()
+			throws Exception {
+
+		Date testDate = HtmlFormEntryUtil.translateDatetimeParam("today", null);
+		Assert.assertTrue(HtmlFormEntryUtil.translateDatetimeParam("today",
+				null) instanceof java.util.Date);
+
+		java.util.Calendar referenceCalendar = Calendar.getInstance();
+		referenceCalendar.setTime(new java.util.Date());
+		java.util.Calendar testCal = Calendar.getInstance();
+		testCal.setTime(testDate);
+		// date matches today?
+		Assert.assertEquals(referenceCalendar.get(java.util.Calendar.YEAR),
+				testCal.get(java.util.Calendar.YEAR));
+		Assert.assertEquals(
+				referenceCalendar.get(java.util.Calendar.DAY_OF_YEAR),
+				testCal.get(java.util.Calendar.DAY_OF_YEAR));
+
+		// check the time fields are zeroed out
+		Assert.assertEquals(0, testCal.get(java.util.Calendar.HOUR));
+		Assert.assertEquals(0, testCal.get(java.util.Calendar.MINUTE));
+		Assert.assertEquals(0, testCal.get(java.util.Calendar.SECOND));
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 * @see wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference
+	 *      for the date format the Obs defaultDatetime and defaultObsDatetime
+	 *      attributes support
+	 */
+	@Test
+	@Verifies(value = "should return a Date object matching the value param if a format is specified", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldParseDate() throws Exception {
+		String datetimeFormat = "yyyy-MM-dd-HH-mm"; // this is the date format
+													// the Obs defaultDatetime
+													// attribute uses
+		String dateString = "1990-01-02-13-59";
+		Date refDate = (new java.text.SimpleDateFormat(datetimeFormat))
+				.parse(dateString);
+		Assert.assertEquals(refDate, HtmlFormEntryUtil.translateDatetimeParam(
+				dateString, datetimeFormat));
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 */
+	@Test
+	@Verifies(value = "should return null for null value", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldReturnNullForNullValue()
+			throws Exception {
+		Assert.assertNull(HtmlFormEntryUtil.translateDatetimeParam(null,
+				"yyyy-MM-dd-HH-mm"));
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 *
+	 */
+	@Test
+	@Verifies(value = "should  return a Date object with current date and time for 'now'", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldReturnDateForNow()
+			throws Exception {
+		Date referenceDate = new Date();
+		Date testDate = HtmlFormEntryUtil.translateDatetimeParam("now", null);
+
+		Assert.assertNotNull(testDate);
+		Assert.assertTrue(HtmlFormEntryUtil.translateDatetimeParam("now", null) instanceof java.util.Date);
+		// some millis elapsed between Date() calls - allow it a 1000 ms buffer
+		Assert.assertEquals(referenceDate.getTime() / 1000,
+				testDate.getTime() / 1000);
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 */
+	@Test
+	@Verifies(value = "should return null if format is null and value not in [ null, 'now', 'today' ]", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldReturnNullForNullFormat()
+			throws Exception {
+		Assert.assertNull(HtmlFormEntryUtil.translateDatetimeParam(
+				"1990-01-02-13-59", null));
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 */
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Verifies(value = "should return null if format is null and value not in [ null, 'now', 'today' ]", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldReturnNullForInvalidDate()
+			throws Exception {
+		// java.text.SimpleDateFormat parses invalid numerical dates without
+		// error, e.g. 9999-99-99-99-99-99 is parsed to Mon Jun 11 04:40:39 EDT
+		// 10007
+		// Text strings are unparseable, however.
+		HtmlFormEntryUtil.translateDatetimeParam("c'est ne pas une date",
+				"yyyy-MM-dd-HH-mm");
+	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
+	 */
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Verifies(value = "should fail if date parsing fails", method = "translateDatetimeParam(String,String)")
+	public void translateDatetimeParam_shouldFailForBadDateFormat()
+			throws Exception {
+		HtmlFormEntryUtil.translateDatetimeParam("1990-01-02-13-59",
+				"a bogus date format that will throw an error");
+	}
+
 }
