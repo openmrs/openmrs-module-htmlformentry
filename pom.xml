@@ -38,7 +38,7 @@
 
 	<!-- default property values, required for eclipse build path configuration -->
 	<properties>
-		<openMRSVersion>1.6.3</openMRSVersion>
+		<openMRSVersion>1.6.4</openMRSVersion>
 		<openMRSMinorVersion>1.6</openMRSMinorVersion>
 		<logicVersion>0.5</logicVersion>
 	</properties>
@@ -95,7 +95,7 @@
 			<id>openmrs-1.6</id>
 	
 			<properties>
-				<openMRSVersion>1.6.3</openMRSVersion>
+				<openMRSVersion>1.6.4</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
@@ -118,7 +118,7 @@
 			<id>openmrs-1.7</id>
 			
 			<properties>
-				<openMRSVersion>1.7.2</openMRSVersion>
+				<openMRSVersion>1.7.3</openMRSVersion>
 				<openMRSMinorVersion>1.7</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
@@ -141,7 +141,7 @@
 			<id>openmrs-1.8</id>
 		    
 		    <properties>
-				<openMRSVersion>1.8.2</openMRSVersion>
+				<openMRSVersion>1.8.3</openMRSVersion>
 				<openMRSMinorVersion>1.8</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
@@ -303,6 +303,15 @@
 		</profile>
 		
 		<profile>
+			<id>openmrs-1.7.3</id>
+			<properties>
+				<openMRSVersion>1.7.3</openMRSVersion>
+				<openMRSMinorVersion>1.7</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		
+		<profile>
 			<id>openmrs-1.8.0</id>
 			<properties>
 				<openMRSVersion>1.8.0</openMRSVersion>
@@ -324,6 +333,15 @@
 			<id>openmrs-1.8.2</id>
 			<properties>
 				<openMRSVersion>1.8.2</openMRSVersion>
+				<openMRSMinorVersion>1.8</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+		
+		<profile>
+			<id>openmrs-1.8.3</id>
+			<properties>
+				<openMRSVersion>1.8.3</openMRSVersion>
 				<openMRSMinorVersion>1.8</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
