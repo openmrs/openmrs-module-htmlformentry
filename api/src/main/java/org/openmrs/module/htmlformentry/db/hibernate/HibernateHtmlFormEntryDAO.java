@@ -82,11 +82,11 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 	        query += " and ur.role = '" + roleName + "' ";
 	     query += " order by familyName ";
 	    return (List<PersonStub>) sessionFactory.getCurrentSession().createSQLQuery(query)
-	    .addScalar("id", Hibernate.INTEGER)
-	    .addScalar("givenName", Hibernate.STRING)
-	    .addScalar("familyName", Hibernate.STRING)
-	    .addScalar("middleName", Hibernate.STRING)
-	    .addScalar("familyName2", Hibernate.STRING)
+	    .addScalar("id")
+	    .addScalar("givenName")
+	    .addScalar("familyName")
+	    .addScalar("middleName")
+	    .addScalar("familyName2")
 	    .setResultTransformer(Transformers.aliasToBean(PersonStub.class)).list();
 	}
 
