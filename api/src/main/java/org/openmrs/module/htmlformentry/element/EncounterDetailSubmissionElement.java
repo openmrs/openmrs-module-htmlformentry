@@ -1,13 +1,18 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Person;
@@ -106,6 +111,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					}
 					options.add(new PersonStub(p));
 				}
+				removeNonProviders(options);
 			}
 			
 			// Only if specific person ids are not passed in do we get by user Role
@@ -124,16 +130,24 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					}
 				}
 				
-				// Otherwise, limit to users with the default OpenMRS PROVIDER role, 
+				// Otherwise, do the appropriate default options for providers in the underlying OpenMRS version 
 				else {
-					String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
-					Role role = Context.getUserService().getRole(defaultRole);
-					if (role != null) {
-						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+					if (doesNotSupportProviders()) {
+						//limit to users with the default OpenMRS PROVIDER role,
+						
+						String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
+						Role role = Context.getUserService().getRole(defaultRole);
+						if (role != null) {
+							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+						}
+						// If this role isn't used, default to all Users
+						if (users.isEmpty()) {
+							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(null);
+						}
 					}
-					// If this role isn't used, default to all Users
-					if (users.isEmpty()) {
-						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(null);
+					else {
+						// all providers
+						users = getAllProvidersThatArePersonsAsPersonStubs();
 					}
 				}
 				options.addAll(users);
@@ -222,6 +236,104 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		
 	}
+
+	/**
+     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+     * without having to branch the module. We should remove this method when do a proper
+     * implementation. 
+     * 
+     * @param options
+     */
+    private void removeNonProviders(List<PersonStub> persons) {
+    	if (doesNotSupportProviders())
+    		return;
+	    Set<Integer> legalPersonIds = getAllProviderPersonIds();
+	    for (Iterator<PersonStub> i = persons.iterator(); i.hasNext(); ) {
+	    	PersonStub candidate = i.next();
+	    	if (!legalPersonIds.contains(candidate.getId()))
+	    		i.remove();
+	    }
+    }
+
+	/**
+     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+     * without having to branch the module. We should remove this method when do a proper
+     * implementation.
+     * 
+     * @return
+     */
+    private boolean doesNotSupportProviders() {
+    	return OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.9");
+    }
+    
+    /**
+     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+     * without having to branch the module. We should remove this method when do a proper
+     * implementation. 
+     * 
+     * @return all providers that are attached to persons
+     */
+    private List<Object> getAllProvidersThatArePersons() {
+    	if (doesNotSupportProviders())
+    		throw new RuntimeException("Programming error in HTML Form Entry module. This method should not be called before OpenMRS 1.9.");
+    	try {
+	        Object providerService = Context.getService(Context.loadClass("org.openmrs.api.ProviderService"));
+	        Method getProvidersMethod = providerService.getClass().getMethod("getAllProviders");
+	        List allProviders = (List) getProvidersMethod.invoke(providerService);
+	        List<Object> ret = new ArrayList<Object>();
+	        for (Object provider : allProviders) {
+	        	Person person = (Person) PropertyUtils.getProperty(provider, "person");
+	        	if (person != null)
+	        		ret.add(provider);
+	        }
+	        return ret;
+        }
+        catch (Exception ex) {
+	        throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
+        }
+    }
+    
+    /**
+     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+     * without having to branch the module. We should remove this method when do a proper
+     * implementation. 
+     * 
+     * @return person stubs for all providers that are attached to persons
+     */
+    private List<PersonStub> getAllProvidersThatArePersonsAsPersonStubs() {
+    	try {
+	    	List<PersonStub> ret = new ArrayList<PersonStub>();
+	    	for (Object provider : getAllProvidersThatArePersons()) {
+	    		Person person = (Person) PropertyUtils.getProperty(provider, "person");
+	    		ret.add(new PersonStub(person));
+	    	}
+	    	return ret;
+    	} catch (Exception ex) {
+    		throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
+    	}
+    }
+
+	/**
+     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+     * without having to branch the module. We should remove this method when do a proper
+     * implementation. 
+     * 
+     * @return personIds of all providers that are attached to persons
+     */
+    private Set<Integer> getAllProviderPersonIds() {
+    	try {
+	        Set<Integer> ret = new HashSet<Integer>();
+	        for (Object candidate : getAllProvidersThatArePersons()) {
+	        	Person person = (Person) PropertyUtils.getProperty(candidate, "person");
+	        	if (person != null)
+	        		ret.add(person.getPersonId());
+	        }
+	        return ret;
+    	}
+        catch (Exception ex) {
+	        throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
+        }
+    }
 
 	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
