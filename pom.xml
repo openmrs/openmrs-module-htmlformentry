@@ -177,7 +177,7 @@
 			<id>openmrs-1.9</id>
 			
 		    <properties>
-				<openMRSVersion>1.9.0-alpha</openMRSVersion>
+				<openMRSVersion>1.9.0-beta</openMRSVersion>
 				<openMRSMinorVersion>1.9</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
