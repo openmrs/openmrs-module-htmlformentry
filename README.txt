@@ -10,3 +10,6 @@ clicks the submit button.
 Currently a form submission creates one encounter for one patient.
 
 Please look at https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module for more details.
+
+The fox jumped over the dog.
+
