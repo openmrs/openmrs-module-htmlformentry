@@ -12,6 +12,9 @@
 <br /><br />
 
 <div class="boxHeader">
+    <span style="float: right">
+        <a href="#" id="showRetired" onClick="return toggleRowVisibilityForClass('formTable', 'voided');"><spring:message code="general.toggle.retired"/></a>
+    </span>
 	<b><spring:message code="htmlformentry.manage.header" /></b>
 </div>
 
@@ -24,7 +27,7 @@
 			<th> <spring:message code="Form.published" /> </th>
 		</tr>
 		<c:forEach var="form" items="${forms}" varStatus="status">
-			<tr class='${status.index % 2 == 0 ? "evenRow" : "oddRow"}'>
+			<tr class='${status.index % 2 == 0 ? "evenRow" : "oddRow"} ${form.form.retired ? "voided" : ""}'>
 				<td valign="top" style="white-space: nowrap"><a href="htmlForm.form?id=${form.id}">${form.form.name}</a></td>
 				<td valign="top">${form.form.version}</td>
 				<td valign="top">${form.form.description}</td>
@@ -33,7 +36,8 @@
 		</c:forEach>
 	</table>
 </div>
-
-
+<script type="text/javascript">
+	toggleRowVisibilityForClass("formTable", "voided");
+</script>
 
 <%@ include file="/WEB-INF/template/footer.jsp"%>
