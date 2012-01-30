@@ -63,6 +63,7 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
         user.addRole(role);
         user.getPersonName().setFamilyName(null);
         user.getPersonName().setGivenName(null);
+        user.getPersonName().setMiddleName("middleName");
         Context.getUserService().saveUser(user, null);
         Assert.assertEquals(1, service.getUsersAsPersonStubs("Clinician").size());
         
