@@ -1,7 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +16,9 @@ import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
@@ -298,6 +301,18 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		
 		id = "-";//uuid style
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
+	 */
+	@Test
+	@Verifies(value = "should find a concept by its mapping with a space in between", method = "getConcept(String)")
+	public void getConcept_shouldFindAConceptByItsMappingWithASpaceInBetween() throws Exception {
+		String id = "XYZ: HT";
+		Concept cpt = HtmlFormEntryUtil.getConcept(id);
+		Assert.assertEquals("XYZ", cpt.getConceptMappings().iterator().next().getSource().getName());
+		Assert.assertEquals("HT", cpt.getConceptMappings().iterator().next().getSourceCode());
 	}
 	
 	/**

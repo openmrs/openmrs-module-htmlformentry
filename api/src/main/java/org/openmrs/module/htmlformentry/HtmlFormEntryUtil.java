@@ -388,6 +388,7 @@ public class HtmlFormEntryUtil {
      * @should find a concept by its mapping 
      * @should find a concept by its uuid
      * @should return null otherwise
+     * @should find a concept by its mapping with a space in between
 	 */
 	public static Concept getConcept(String id){
 		Concept cpt = null;
