@@ -244,7 +244,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
      * @return
      */
     private boolean openmrsVersionDoesNotSupportProviders() {
-        return OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.9");
+        return OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.8");
     }
 
     /**
