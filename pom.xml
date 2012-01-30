@@ -68,8 +68,9 @@
 	<modules>
 		<module>api</module>
 		<module>omod</module>
-	</modules>
-
+        <module>release-tests</module>
+    </modules>
+	
 	<build>
 		<pluginManagement>
 			<plugins>
