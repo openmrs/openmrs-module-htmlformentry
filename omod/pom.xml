@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
 		<version>1.8.3-SNAPSHOT</version>
 	</parent>
-	
+
 	<artifactId>htmlformentry-omod</artifactId>
 	<packaging>omod</packaging>
 	<name>HTML Form Entry OMOD</name>
@@ -18,49 +18,15 @@
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>htmlformentry-api</artifactId>
 			<version>${project.parent.version}</version>
-		</dependency>		
-		
+		</dependency>
+
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
-			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.web</groupId>
 			<artifactId>openmrs-web</artifactId>
-			<type>jar</type>
-		</dependency>
-		
-		<!-- jars we need to provide for compile but that will be provided at runtime (scope=provided) -->
-	
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>logic</artifactId>
-			<version>${logicVersion}</version>
-			<scope>provided</scope>
-		</dependency>
-		
-		<!-- jars required only to run test scripts (scope=test) -->
-	
-		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy</artifactId>
-			<version>1.8.3</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>2.2.2</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-  			<groupId>xalan</groupId>
-  			<artifactId>xalan</artifactId>
- 			<version>2.7.1</version>
- 			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -87,15 +53,8 @@
 				</includes>
 				<targetPath>web/module</targetPath>
 			</resource>
-			<!--  filter the test classes since we dynamically substitute some of the test data filenames based on build profile -->
-			<resource>
-				<directory>src/test/java</directory>
-				<filtering>true</filtering>
-				<targetPath>java</targetPath>
-			</resource>
 		</resources>
 		<testResources>
-			
 			<testResource>
 				<directory>src/test/resources</directory>
 				<filtering>true</filtering>
@@ -115,69 +74,49 @@
 				</excludes>
 			</testResource>
 		</testResources>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<artifactId>maven-resources-plugin</artifactId>
-					<configuration>
-						<includeEmptyDirs>true</includeEmptyDirs>
-					</configuration>
-				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.openmrs.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-openmrs-plugin
-										</artifactId>
-										<versionRange>
-											[1.0.1,)
-										</versionRange>
-										<goals>
-											<goal>
-												initialize-module
-											</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+
 		<plugins>
 			<plugin>
 				<groupId>org.openmrs.maven.plugins</groupId>
 				<artifactId>maven-openmrs-plugin</artifactId>
 				<extensions>true</extensions>
-				<configuration>
-					<verifyOmod>false</verifyOmod>
-				</configuration>
+				<executions>
+					<execution>
+						<id>init</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>initialize-module</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>pack</id>
+						<phase>package</phase>
+						<goals>
+							<goal>package-module</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
-			<!-- manually configure tests so we exclude TestUtil testing -->
-		      <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-surefire-plugin</artifactId>
-		        <version>2.9</version>
-		        <configuration>
-		          <excludes>
-		            <exclude>**/TestUtil.java</exclude>
-		          </excludes>
-		        </configuration>
-		      </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>Expand moduleApplicationContext and messages</id>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<includeGroupIds>${project.parent.groupId}</includeGroupIds>
+							<includeArtifactIds>${project.parent.artifactId}-api</includeArtifactIds>
+							<excludeTransitive>true</excludeTransitive>
+							<includes>**/*</includes>
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -187,8 +126,9 @@
 		<MODULE_VERSION>${project.parent.version}</MODULE_VERSION>
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
 	</properties>
-	
-	<!-- different profiles for building/testing against different version of openmrs -->
+
+	<!-- different profiles for building/testing against different version of 
+		openmrs -->
 	<profiles>
 		<profile>
 			<id>openmrs-1.6</id>
@@ -199,11 +139,11 @@
 					<type>jar</type>
 					<scope>test</scope>
 				</dependency>
-			</dependencies>	
+			</dependencies>
 		</profile>
-		
+
 		<profile>
-			<id>openmrs-1.7</id>	
+			<id>openmrs-1.7</id>
 			<dependencies>
 				<dependency>
 					<groupId>org.openmrs.test</groupId>
@@ -211,72 +151,72 @@
 					<type>jar</type>
 					<scope>test</scope>
 				</dependency>
-			</dependencies>	
+			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>openmrs-1.8</id>
-			<dependencies>				
+			<dependencies>
 				<dependency>
-				    <groupId>org.openmrs.api</groupId>
-				    <artifactId>openmrs-api</artifactId>
-				    <type>test-jar</type>
+					<groupId>org.openmrs.api</groupId>
+					<artifactId>openmrs-api</artifactId>
+					<type>test-jar</type>
 				</dependency>
 				<dependency>
-				    <groupId>org.openmrs.web</groupId>
-				    <artifactId>openmrs-web</artifactId>
-				    <type>test-jar</type>
+					<groupId>org.openmrs.web</groupId>
+					<artifactId>openmrs-web</artifactId>
+					<type>test-jar</type>
 				</dependency>
 				<dependency>
-				    <groupId>org.openmrs.test</groupId>
-				    <artifactId>openmrs-test</artifactId>
-				    <type>pom</type>
+					<groupId>org.openmrs.test</groupId>
+					<artifactId>openmrs-test</artifactId>
+					<type>pom</type>
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>openmrs-1.9</id>
-			<dependencies>				
+			<dependencies>
 				<dependency>
-				    <groupId>org.openmrs.api</groupId>
-				    <artifactId>openmrs-api</artifactId>
-				    <type>test-jar</type>
+					<groupId>org.openmrs.api</groupId>
+					<artifactId>openmrs-api</artifactId>
+					<type>test-jar</type>
 				</dependency>
 				<dependency>
-				    <groupId>org.openmrs.web</groupId>
-				    <artifactId>openmrs-web</artifactId>
-				    <type>test-jar</type>
+					<groupId>org.openmrs.web</groupId>
+					<artifactId>openmrs-web</artifactId>
+					<type>test-jar</type>
 				</dependency>
 				<dependency>
-				    <groupId>org.openmrs.test</groupId>
-				    <artifactId>openmrs-test</artifactId>
-				    <type>pom</type>
+					<groupId>org.openmrs.test</groupId>
+					<artifactId>openmrs-test</artifactId>
+					<type>pom</type>
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 		<profile>
 			<id>openmrs-1.10</id>
-			<dependencies>				
+			<dependencies>
 				<dependency>
-				    <groupId>org.openmrs.api</groupId>
-				    <artifactId>openmrs-api</artifactId>
-				    <type>test-jar</type>
+					<groupId>org.openmrs.api</groupId>
+					<artifactId>openmrs-api</artifactId>
+					<type>test-jar</type>
 				</dependency>
 				<dependency>
-				    <groupId>org.openmrs.web</groupId>
-				    <artifactId>openmrs-web</artifactId>
-				    <type>test-jar</type>
+					<groupId>org.openmrs.web</groupId>
+					<artifactId>openmrs-web</artifactId>
+					<type>test-jar</type>
 				</dependency>
 				<dependency>
-				    <groupId>org.openmrs.test</groupId>
-				    <artifactId>openmrs-test</artifactId>
-				    <type>pom</type>
+					<groupId>org.openmrs.test</groupId>
+					<artifactId>openmrs-test</artifactId>
+					<type>pom</type>
 				</dependency>
 			</dependencies>
 		</profile>
-		
+
 	</profiles>
 
 </project>

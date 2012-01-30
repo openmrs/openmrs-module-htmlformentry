@@ -101,7 +101,7 @@
 	<!-- /Internationalization -->
 	
 	<mappingFiles>
-		${omodHbmConfig}
+		HtmlFormEntryHtmlForm.hbm.xml
 	</mappingFiles>
 	
 </module>

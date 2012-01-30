@@ -5,7 +5,7 @@
 
 <hibernate-configuration>
 	<session-factory>
-		${hbmConfig}
+		<mapping resource="HtmlFormEntryHtmlForm.hbm.xml" />
 		<mapping resource="LogicRuleToken.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>
