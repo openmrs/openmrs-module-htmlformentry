@@ -432,7 +432,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement,
     			if (parameters.get("answerConceptIds") != null) {
     				try {
     					for (StringTokenizer st = new StringTokenizer(parameters
-    							.get("answerConceptIds"), ", "); st.hasMoreTokens();) {
+    							.get("answerConceptIds"), ","); st.hasMoreTokens();) {
     						Concept c = HtmlFormEntryUtil.getConcept(st.nextToken());
     						if (c == null)
     							throw new RuntimeException("Cannot find concept "
