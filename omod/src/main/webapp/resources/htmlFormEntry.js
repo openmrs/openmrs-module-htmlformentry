@@ -399,3 +399,120 @@ function existingEncounterOnDate(item, instruction){
 	        ); 
 	    }
 }
+
+function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector, initialDateYMD) {
+	if (jsLocale && jsLocale != 'en' && jsLocale != 'en-US') {
+		if (!jQuery.datepicker.regional[jsLocale])
+			setupDatePickerLocalization(jsLocale);
+	}
+	
+	var jq = jQuery(displaySelector)
+	jq.datepicker({
+		dateFormat: jsDateFormat,
+		altField: valueSelector,
+		altFormat: 'yy-mm-dd',
+		gotoCurrent: true,
+		changeMonth: true,
+		changeYear: true,
+		showOtherMonths: true,
+		selectOtherMonths: true
+	});
+	if (jsLocale && jQuery.datepicker.regional[jsLocale])
+		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
+	if (initialDateYMD)
+		jq.datepicker('setDate', jQuery.datepicker.parseDate('yy-mm-dd', initialDateYMD));
+}
+
+function setupDatePickerLocalization(locale) {
+	if (locale == 'es') {
+		jQuery.datepicker.regional['es'] = {
+			closeText: 'Cerrar',
+			prevText: '&#x3c;Ant',
+			nextText: 'Sig&#x3e;',
+			currentText: 'Hoy',
+			monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+			    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+			monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun',
+			    'Jul','Ago','Sep','Oct','Nov','Dic'],
+			dayNames: ['Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','S&aacute;bado'],
+			dayNamesShort: ['Dom','Lun','Mar','Mi&eacute;','Juv','Vie','S&aacute;b'],
+			dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','S&aacute;'],
+			weekHeader: 'Sm',
+			//dateFormat: 'dd/mm/yy',
+			isRTL: false,
+			showMonthAfterYear: false,
+			yearSuffix: ''};
+	} else if (locale == 'en-GB') {
+		jQuery.datepicker.regional['en-GB'] = {
+				closeText: 'Done',
+				prevText: 'Prev',
+				nextText: 'Next',
+				currentText: 'Today',
+				monthNames: ['January','February','March','April','May','June',
+				    'July','August','September','October','November','December'],
+				monthNamesShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+				    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+				dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+				dayNamesShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+				dayNamesMin: ['Su','Mo','Tu','We','Th','Fr','Sa'],
+				weekHeader: 'Wk',
+				//dateFormat: 'dd/mm/yy',
+				isRTL: false,
+				showMonthAfterYear: false,
+				yearSuffix: ''};
+	} else if (locale == 'fr') {
+		jQuery.datepicker.regional['fr'] = {clearText: 'Effacer', clearStatus: '',
+			closeText: 'Fermer', closeStatus: 'Fermer sans modifier',
+			prevText: '<Pr&#233;c', prevStatus: 'Voir le mois pr&#233;c&#233;dent',
+			nextText: 'Suiv>', nextStatus: 'Voir le mois suivant',
+			currentText: 'Courant', currentStatus: 'Voir le mois courant',
+			monthNames: ['Janvier','F&#233;vrier','Mars','Avril','Mai','Juin',
+			'Juillet','Ao&#251;t','Septembre','Octobre','Novembre','D&#233;cembre'],
+			monthNamesShort: ['Jan','F&#233;v','Mar','Avr','Mai','Jun',
+			'Jul','Ao&#251;','Sep','Oct','Nov','D&#233;c'],
+			monthStatus: 'Voir un autre mois', yearStatus: 'Voir un autre ann&#233;e',
+			weekHeader: 'Sm', weekStatus: '',
+			dayNames: ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+			dayNamesShort: ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'],
+			dayNamesMin: ['Di','Lu','Ma','Me','Je','Ve','Sa'],
+			dayStatus: 'Utiliser DD comme premier jour de la semaine', dateStatus: 'Choisir le DD, MM d',
+			//dateFormat: 'dd/mm/yy', firstDay: 0, 
+			initStatus: 'Choisir la date', isRTL: false};
+	} else if (locale == 'it') {
+		jQuery.datepicker.regional['it'] = {
+			closeText: 'Chiudi',
+			prevText: '&#x3c;Prec',
+			nextText: 'Succ&#x3e;',
+			currentText: 'Oggi',
+			monthNames: ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno',
+				'Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'],
+			monthNamesShort: ['Gen','Feb','Mar','Apr','Mag','Giu',
+				'Lug','Ago','Set','Ott','Nov','Dic'],
+			dayNames: ['Domenica','Luned&#236','Marted&#236','Mercoled&#236','Gioved&#236','Venerd&#236','Sabato'],
+			dayNamesShort: ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'],
+			dayNamesMin: ['Do','Lu','Ma','Me','Gi','Ve','Sa'],
+			weekHeader: 'Sm',
+			//dateFormat: 'dd/mm/yy',
+			isRTL: false,
+			showMonthAfterYear: false,
+			yearSuffix: ''};
+	} else if (locale == 'pt') {
+		jQuery.datepicker.regional['pt'] = {
+			closeText: 'Fechar',
+			prevText: '&#x3c;Anterior',
+			nextText: 'Pr&oacute;ximo&#x3e;',
+			currentText: 'Hoje',
+			monthNames: ['Janeiro','Fevereiro','Mar&ccedil;o','Abril','Maio','Junho',
+			    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'],
+			monthNamesShort: ['Jan','Fev','Mar','Abr','Mai','Jun',
+			    'Jul','Ago','Set','Out','Nov','Dez'],
+			dayNames: ['Domingo','Segunda-feira','Ter&ccedil;a-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sabado'],
+			dayNamesShort: ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'],
+			dayNamesMin: ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'],
+			weekHeader: 'Sm',
+			//dateFormat: 'dd/mm/yy',
+			isRTL: false,
+			showMonthAfterYear: false,
+			yearSuffix: ''};
+	}
+}

@@ -44,17 +44,15 @@
 	 /Required Privileges -->
 
 
-	<!-- Required Global Properties 
+	<!-- Required Global Properties --> 
 	<globalProperty>
-		<property>@MODULE_ID@.someProperty</property>
+		<property>htmlformentry.dateFormat</property>
 		<defaultValue></defaultValue>
 		<description>
-			A description of the global property goes here.  The description
-			should explain enough for administrators to understand the purpose
-			and possible values for the global property.
+			Always display dates in HTML Forms in this (Java) date format. E.g. "dd/MMM/yyyy" for 31/Jan/2012. 
 		</description>
 	</globalProperty>
-	/Required Global Properties -->
+	<!-- /Required Global Properties -->
 	
 	<dwr>
 		<allow>

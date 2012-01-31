@@ -347,6 +347,18 @@ public abstract class RegressionTestHelper {
 				}
 			}
 		}
+		
+		// setupDatePicker(jsDateFormat, jsLocale, displaySelector, '#something', '2012-01-30')
+		{
+			Pattern forDatePicker = Pattern.compile("setupDatePicker\\(.*?, .*?, .*?, '#(.+?)', '(.+?)'\\)");
+			Matcher matcher = forDatePicker.matcher(html);
+			while (matcher.find()) {
+				String name = matcher.group(1);
+				String value = matcher.group(2);
+				ret.addParameter(name, value);
+			}
+		}
+		
 		return ret;
 	}
 	
@@ -404,17 +416,9 @@ public abstract class RegressionTestHelper {
 	}
 	
 	String dateAsString(Date date) {
-		return Context.getDateFormat().format(date);
+		return new SimpleDateFormat("yyyy-MM-dd").format(date);
 	}
-	
-	Date stringToDate(String dateString) {
-		try {
-	        return Context.getDateFormat().parse(dateString);
-        } catch (ParseException ex) {
-	        throw new RuntimeException(ex);
-        }
-	}
-	
+		
 	Date ymdToDate(String dateString) {
 		try {
 			return new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
