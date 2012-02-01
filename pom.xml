@@ -60,7 +60,7 @@
 
 	<!-- default property values, required for eclipse build path configuration -->
 	<properties>
-		<openMRSVersion>1.6.4</openMRSVersion>
+		<openMRSVersion>1.6.5</openMRSVersion>
 		<openMRSMinorVersion>1.6</openMRSMinorVersion>
 		<logicVersion>0.5</logicVersion>
 	</properties>
@@ -182,7 +182,7 @@
 			<id>openmrs-1.6</id>
 
 			<properties>
-				<openMRSVersion>1.6.4</openMRSVersion>
+				<openMRSVersion>1.6.5</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
@@ -366,6 +366,15 @@
 			<id>openmrs-1.6.4</id>
 			<properties>
 				<openMRSVersion>1.6.4</openMRSVersion>
+				<openMRSMinorVersion>1.6</openMRSMinorVersion>
+				<logicVersion>0.5</logicVersion>
+			</properties>
+		</profile>
+
+		<profile>
+			<id>openmrs-1.6.5</id>
+			<properties>
+				<openMRSVersion>1.6.5</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
