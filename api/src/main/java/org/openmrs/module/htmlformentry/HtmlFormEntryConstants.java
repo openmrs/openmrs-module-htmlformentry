@@ -20,4 +20,5 @@ public class HtmlFormEntryConstants {
     
     public final static String[] PATIENT_TAGS = {"patient"};
 
+    public final static String GP_DATE_FORMAT = "htmlformentry.dateFormat";
 }

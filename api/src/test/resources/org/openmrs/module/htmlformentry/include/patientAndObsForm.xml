@@ -1,0 +1,17 @@
+<htmlform>
+    Name: <patient field="name"/>
+    Gender: <patient field="gender"/>
+    Birthdate: <patient field="birthDate"/>
+    Identifier: <patient field="identifier"/>
+    Identifier Location: <patient field="identifierLocation"/>
+    
+    Date: <encounterDate/>
+    Encounter Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    
+    Weight: <obs conceptId="2"/>
+    Allergy: <obs conceptId="8"/>
+	Allergy Date: <obs conceptId="1119"/>
+    
+    <submit/>
+</htmlform>

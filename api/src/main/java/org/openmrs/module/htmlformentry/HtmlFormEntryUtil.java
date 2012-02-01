@@ -116,8 +116,9 @@ public class HtmlFormEntryUtil {
             ed.setAsText(val);
             return ed.getValue();
         } else if (Date.class.isAssignableFrom(clazz)) {
+        	// all HTML Form Entry dates should be submitted as yyyy-mm-dd
             try {
-                DateFormat df = Context.getDateFormat();
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                 df.setLenient(false);
                 return df.parse(val);
             } catch (ParseException e) {
