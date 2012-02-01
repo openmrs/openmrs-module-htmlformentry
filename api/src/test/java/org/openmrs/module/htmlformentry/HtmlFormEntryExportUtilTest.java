@@ -297,7 +297,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         
         //System.out.println("HEADER " + ret.toString());
         Assert.assertTrue(ret.toString().contains(",\"Old Identification Number\",\"Test Identifier Type\","));
-        Assert.assertTrue(ret.toString().contains(",\"101\",\"1234\","));
+        Assert.assertTrue(ret.toString().contains(",\"101\",\"a-D\","));
         
     }     
     

@@ -114,8 +114,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+            void testResults(SubmissionResults results) {
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				
 				results.assertPatient();
@@ -216,8 +216,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+            void testEditedResults(SubmissionResults results) {
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
 				results.getPatient().getPersonName();
@@ -273,7 +273,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			void testEditedResults(SubmissionResults results) {
 				@SuppressWarnings("unused")
-				Date datePartOnly = stringToDate(dateAsString(date));
+                Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
 				results.getPatient().getPersonName();
@@ -370,8 +370,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+            void testEditedResults(SubmissionResults results) {
+                Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
 				results.getPatient().getPersonName();
@@ -571,7 +571,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void testResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
 				
@@ -648,7 +648,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void testResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
 				
@@ -723,7 +723,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void testResults(SubmissionResults results) {
-				Date datePartOnly = stringToDate(dateAsString(date));
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
 				
