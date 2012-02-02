@@ -29,7 +29,7 @@
   <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
 
   <!-- Put two concepts DOSE and UNIT in a set -->
-  <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4"/>
+  <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="10"/>
   <concept concept_id="5" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
   <concept concept_id="6" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3"/>
   <concept_name voided="false" concept_name_id="5" concept_id="4" name="DOSAGE CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" />

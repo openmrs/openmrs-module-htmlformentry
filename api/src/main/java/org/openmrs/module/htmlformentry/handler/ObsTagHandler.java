@@ -16,7 +16,7 @@ import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 public class ObsTagHandler extends SubstitutionTagHandler {
 	
 	@Override
-    protected List<AttributeDescriptor> createAttributeDescriptors() {
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("conceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("conceptIds", Concept.class));
