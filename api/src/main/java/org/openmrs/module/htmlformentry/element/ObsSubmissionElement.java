@@ -643,7 +643,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				// TODO: in 1.7-compatible version of the module, we can replace the H17 checks
 				// used below with the new isDate, isTime, and isDatetime
 				
-			} else if (ConceptDatatype.DATE.equals(concept.getDatatype().getHl7Abbreviation())) {
+			} else {
 				DateWidget dateWidget = null;
 				TimeWidget timeWidget = null;
 				
