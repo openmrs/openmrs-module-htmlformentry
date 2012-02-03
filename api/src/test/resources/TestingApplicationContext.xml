@@ -26,6 +26,9 @@
 		<!--  default properties must be set in the hibernate.default.properties -->
 	</bean>
 	
+	
+	<!--  we definite the address support and name support beans here so that we can access them to test functions that use them -->
+	
     <!-- specialTokens ordered so that the subset string 'familyName' is last -->
     <bean id="nameSupport" class="org.openmrs.layout.web.name.NameSupport">
         <property name="defaultLayoutFormat"><value>spain</value></property>
@@ -73,5 +76,7 @@
             </list>
         </property>
     </bean>
+    
+    
 	
 </beans>
