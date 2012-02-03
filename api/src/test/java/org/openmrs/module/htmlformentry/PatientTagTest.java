@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
@@ -14,7 +13,12 @@ import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.ContextConfiguration;
 
+
+/** Note that we have added this context here so that we have access to the Address Template for the testAddPatientAddress **/
+@ContextConfiguration(locations = { "classpath:openmrs-servlet.xml", "classpath*:webModuleApplicationContext.xml" }, 
+inheritLocations = true)
 public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
@@ -26,10 +30,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 	}
 	
-	/**
-	 * This test currently fails, perhaps because the ability to create a patient without
-	 * simultaneously creating an encounter was not implemented in HTML-94.
-	 */
 	@Test
 	public void testCreateMinimalPatient() throws Exception {
 		final Date date = new Date();
@@ -768,21 +768,173 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
-	/**
-	 * Tests that address data is captured, not that this should typically check fields defined in
-	 * the default template layout. This test fails if we run it against 1.6 version because of the
-	 * logic in AddressSupport.getInstance() in 1.6
-	 * 
-	 * @throws Exception
-	 */
+	
 	@Test
-	@Ignore
-	public void testAddPatientAddress() throws Exception {
+	public void testCreatePatientWithAddress() throws Exception {
+		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
 			String getFormName() {
 				return "patientAddressForm";
+			}
+			
+			@Override
+			Patient getPatient() {
+				return new Patient();
+			}
+			
+			@Override
+			String[] widgetLabels() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
+				        "Identifier:", "Identifier Location:", "Location.address1", "Location.address2", "Location.city",
+				        "Location.state", "Location.zipCode" };
+			}
+			
+			@Override
+			void testBlankFormHtml(String html) {
+				System.out.println(">>>>\n" + html);
+			}
+			
+			@Override
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.setParameter("w17", "2");
+				request.addParameter(widgets.get("Location.address1"), "410 w 10th St.");
+				request.addParameter(widgets.get("Location.address2"), "Suite 2000");
+				request.addParameter(widgets.get("Location.city"), "Indianapolis");
+				request.addParameter(widgets.get("Location.state"), "Indiana");
+				request.addParameter(widgets.get("Location.zipCode"), "46202");
+				
+			}
+			
+			@Override
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				PersonAddress address = results.getPatient().getPersonAddress();
+				Assert.assertEquals("410 w 10th St.", address.getAddress1());
+				Assert.assertEquals("Suite 2000", address.getAddress2());
+				Assert.assertEquals("Indianapolis", address.getCityVillage());
+				Assert.assertEquals("Indiana", address.getStateProvince());
+				Assert.assertEquals("46202", address.getPostalCode());
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testEditPatientWithAddress() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			String getFormName() {
+				return "patientAddressForm";
+			}
+			
+			@Override
+			Patient getPatient() {
+				return new Patient();
+			}
+			
+			@Override
+			String[] widgetLabels() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
+				        "Identifier:", "Identifier Location:", "Location.address1", "Location.address2", "Location.city",
+				        "Location.state", "Location.zipCode" };
+			}
+			
+			@Override
+			String[] widgetLabelsForEdit() {
+				return new String[] {"Location.address1", "Location.address2", "Location.city",
+				        "Location.state", "Location.zipCode" };
+			}
+			
+			@Override
+			void testBlankFormHtml(String html) {
+				System.out.println(">>>>\n" + html);
+			}
+			
+			@Override
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.setParameter("w17", "2");
+				request.addParameter(widgets.get("Location.address1"), "410 w 10th St.");
+				request.addParameter(widgets.get("Location.address2"), "Suite 2000");
+				request.addParameter(widgets.get("Location.city"), "Indianapolis");
+				request.addParameter(widgets.get("Location.state"), "Indiana");
+				request.addParameter(widgets.get("Location.zipCode"), "46202");
+				
+			}
+			
+			@Override
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				PersonAddress address = results.getPatient().getPersonAddress();
+				Assert.assertEquals("410 w 10th St.", address.getAddress1());
+				Assert.assertEquals("Suite 2000", address.getAddress2());
+				Assert.assertEquals("Indianapolis", address.getCityVillage());
+				Assert.assertEquals("Indiana", address.getStateProvince());
+				Assert.assertEquals("46202", address.getPostalCode());
+				results.assertNoEncounterCreated();
+			}
+			
+			@Override
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location.address1"), "273 Beaver Dam Rd.");
+				request.addParameter(widgets.get("Location.address2"), "");
+				request.addParameter(widgets.get("Location.city"), "Scituate");
+				request.addParameter(widgets.get("Location.state"), "MA");
+				request.addParameter(widgets.get("Location.zipCode"), "02066");	
+			}
+			
+			@Override
+			void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				PersonAddress address = results.getPatient().getPersonAddress();
+				Assert.assertEquals("273 Beaver Dam Rd.", address.getAddress1());
+				Assert.assertEquals("", address.getAddress2());
+				Assert.assertEquals("Scituate", address.getCityVillage());
+				Assert.assertEquals("MA", address.getStateProvince());
+				Assert.assertEquals("02066", address.getPostalCode());
+				results.assertNoEncounterCreated();
+			}
+		
+		}.run();
+	}
+	
+	
+	/**
+	 * Tests that the age value wins in case both the age and birthdate are provided
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreatePatientBirthdateByAge() throws Exception {
+		final Integer expectedAge = 40;
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -expectedAge);
+		final Date expectedBirthDate = cal.getTime();
+		new RegressionTestHelper() {
+			
+			@Override
+			String getFormName() {
+				return "editPatientBirthdateForm";
 			}
 			
 			@Override
@@ -801,43 +953,34 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			String[] widgetLabels() {
-				return new String[] { "PersonAddress.address1", "PersonAddress.address2", "PersonAddress.cityVillage",
-				        "PersonAddress.stateProvince", "PersonAddress.postalCode" };
+			String[] widgetLabelsForEdit() {
+				return new String[] { "Age:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonAddress.address1"), "410 w 10th St.");
-				request.addParameter(widgets.get("PersonAddress.address2"), "Suite 2000");
-				request.addParameter(widgets.get("PersonAddress.cityVillage"), "Indianapolis");
-				request.addParameter(widgets.get("PersonAddress.stateProvince"), "Indiana");
-				request.addParameter(widgets.get("PersonAddress.postalCode"), "46202");
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Age:"), expectedAge.toString());
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
-				PersonAddress address = results.getPatient().getPersonAddress();
-				Assert.assertEquals("410 w 10th St.", address.getAddress1());
-				Assert.assertEquals("Suite 2000", address.getAddress2());
-				Assert.assertEquals("Indianapolis", address.getCityVillage());
-				Assert.assertEquals("Indiana", address.getStateProvince());
-				Assert.assertEquals("46202", address.getPostalCode());
-				results.assertNoEncounterCreated();
+				//the birthdate should have been computed basing on the entered age
+				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
+				results.assertEncounterEdited();
 			}
 		}.run();
 	}
 	
 	/**
-	 * Tests that the age value wins in case both the age and birthdate are provided
+	 * Tests that the birthdate value wins in case both the age and birthdate are provided
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	@Ignore
-	public void testCreatePatientBirthdateByAge() throws Exception {
+	public void testCreatePatientBirthdateByBirthdateAndAge() throws Exception {
+		
 		final Integer expectedAge = 40;
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.YEAR, -expectedAge);
@@ -872,7 +1015,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Age:"), expectedAge.toString());
-				request.setParameter(widgets.get("Birthdate:"), dateAsString(new Date()));
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(expectedBirthDate));
 			}
 			
 			@Override
