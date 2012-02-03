@@ -56,14 +56,14 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonName.givenName"), "Given");
-				request.addParameter(widgets.get("PersonName.familyName"), "Family");
-				request.addParameter(widgets.get("Gender:"), "F");
-				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
-				request.addParameter(widgets.get("Identifier Location:"), "2");
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.addParameter("w17", "2");
+				request.setParameter("w17", "2");
 				
 			}
 			
@@ -99,22 +99,22 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonName.givenName"), "Given");
-				request.addParameter(widgets.get("PersonName.familyName"), "Family");
-				request.addParameter(widgets.get("Gender:"), "F");
-				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
-				request.addParameter(widgets.get("Identifier Location:"), "2");
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.addParameter("w17", "2");
+				request.setParameter("w17", "2");
 				
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Encounter Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			void testResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				
@@ -216,7 +216,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
@@ -273,7 +273,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			void testEditedResults(SubmissionResults results) {
 				@SuppressWarnings("unused")
-                Date datePartOnly = ymdToDate(dateAsString(date));
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
 				results.getPatient().getPersonName();
@@ -370,8 +370,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
-                Date datePartOnly = ymdToDate(dateAsString(date));
+			void testEditedResults(SubmissionResults results) {
+				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
 				results.getPatient().getPersonName();
@@ -422,10 +422,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Weight:"), "70");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Weight:"), "70");
 			}
 			
 			@Override
@@ -551,18 +551,18 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonName.givenName"), "Given");
-				request.addParameter(widgets.get("PersonName.familyName"), "Family");
-				request.addParameter(widgets.get("Gender:"), "F");
-				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
-				request.addParameter(widgets.get("Identifier Location:"), "2");
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.addParameter("w17", "2");
+				request.setParameter("w17", "2");
 				
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Encounter Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
 				
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
@@ -597,7 +597,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Ignore("This test needs to be fixed. It is either the test, the regressionTestHelper or the module")
 	public void testEditPatientAndCreatingObs() throws Exception {
 		final Date date = new Date();
 		
@@ -620,26 +619,25 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			String[] widgetLabels() {
-				return new String[] {  "Date:", "Encounter Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
-			}
-			
-			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonName.givenName"), "Given");
-				request.addParameter(widgets.get("PersonName.familyName"), "Family");
-				request.addParameter(widgets.get("Gender:"), "F");
-				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
-				request.addParameter(widgets.get("Identifier Location:"), "2");
-				// hack because identifier type is a hidden input with no label
-				request.addParameter("w17", "2");
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
+				        "Identifier:", "Identifier Location:", "Date:", "Encounter Location:", "Provider:", "Weight:",
+				        "Allergy:", "Allergy Date:" };
 			}
 			
 			@Override
 			void setupRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Encounter Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.setParameter("w17", "2");
+				
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
 				
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
@@ -647,7 +645,36 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
+			void setupEditRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.setParameter("w17", "2");
+			}
+			
+			@Override
 			void testResults(SubmissionResults results) {
+				Date datePartOnly = ymdToDate(dateAsString(date));
+				
+				results.assertNoErrors();
+				
+				results.assertEncounterCreated();
+				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				results.assertObsCreatedCount(3);
+				results.assertObsCreated(2, 75);
+				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(1119, datePartOnly);
+			}
+			
+			@Override
+			void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
@@ -659,16 +686,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
 				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
 				Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
-				
-				results.assertEncounterCreated();
-				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
-				results.assertProvider(502);
-				results.assertLocation(2);
-				
-				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 75);
-				results.assertObsCreated(8, "Bee stings");
-				results.assertObsCreated(1119, datePartOnly);
 			}
 		}.run();
 	}
@@ -703,18 +720,18 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("PersonName.givenName"), "Given");
-				request.addParameter(widgets.get("PersonName.familyName"), "Family");
-				request.addParameter(widgets.get("Gender:"), "F");
-				request.addParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.addParameter(widgets.get("Identifier:"), "9234923dfasd2");
-				request.addParameter(widgets.get("Identifier Location:"), "2");
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.addParameter("w17", "2");
+				request.setParameter("w17", "2");
 				
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Encounter Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
 				
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
@@ -722,7 +739,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();

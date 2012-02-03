@@ -465,11 +465,6 @@ public abstract class RegressionTestHelper {
 		session.getSubmissionController().handleFormSubmission(session, request);
 		
 		if (session.getContext().getMode() == Mode.ENTER 
-		        && session.hasPatientTag() && (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions()
-		                .getPersonsToCreate().size() == 0))
-			throw new IllegalArgumentException("This form is not going to create an patient");
-		
-		if (session.getContext().getMode() == Mode.ENTER 
 		        && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
 		                .getEncountersToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an encounter");
