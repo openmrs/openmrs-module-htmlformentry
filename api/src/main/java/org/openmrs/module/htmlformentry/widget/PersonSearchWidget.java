@@ -131,7 +131,6 @@ public class PersonSearchWidget implements Widget {
     	sb.append(context.getFieldName(this));
     	sb.append("()'> \n");
     	
-    	sb.append("</div>");
     	sb.append("<input name='");
     	sb.append(context.getFieldName(this));
     	sb.append("name' id='");
