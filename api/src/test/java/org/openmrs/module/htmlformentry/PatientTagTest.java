@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
+import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -236,8 +238,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	/**
-	 * TODO Testcase Fails with error
-	 * org.hibernate.PropertyValueException: not-null property references a null or transient value: org.openmrs.PersonName.dateCreated
+	 * TODO Testcase Fails with error org.hibernate.PropertyValueException: not-null property
+	 * references a null or transient value: org.openmrs.PersonName.dateCreated
 	 */
 	public void testEditPatientNameAndMultipleObs() throws Exception {
 		final Date date = new Date();
@@ -623,6 +625,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				        "Identifier:", "Identifier Location:", "Date:", "Encounter Location:", "Provider:", "Weight:",
 				        "Allergy:", "Allergy Date:" };
 			}
+
 			
 			@Override
 			void setupRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
@@ -765,4 +768,121 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
+	/**
+	 * Tests that address data is captured, not that this should typically check fields defined in
+	 * the default template layout. This test fails if we run it against 1.6 version because of the
+	 * logic in AddressSupport.getInstance() in 1.6
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	@Ignore
+	public void testAddPatientAddress() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			String getFormName() {
+				return "patientAddressForm";
+			}
+			
+			@Override
+			Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			@Override
+			boolean doViewEncounter() {
+				return true;
+			};
+			
+			@Override
+			Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			@Override
+			String[] widgetLabels() {
+				return new String[] { "PersonAddress.address1", "PersonAddress.address2", "PersonAddress.cityVillage",
+				        "PersonAddress.stateProvince", "PersonAddress.postalCode" };
+			}
+			
+			@Override
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("PersonAddress.address1"), "410 w 10th St.");
+				request.addParameter(widgets.get("PersonAddress.address2"), "Suite 2000");
+				request.addParameter(widgets.get("PersonAddress.cityVillage"), "Indianapolis");
+				request.addParameter(widgets.get("PersonAddress.stateProvince"), "Indiana");
+				request.addParameter(widgets.get("PersonAddress.postalCode"), "46202");
+			}
+			
+			@Override
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				PersonAddress address = results.getPatient().getPersonAddress();
+				Assert.assertEquals("410 w 10th St.", address.getAddress1());
+				Assert.assertEquals("Suite 2000", address.getAddress2());
+				Assert.assertEquals("Indianapolis", address.getCityVillage());
+				Assert.assertEquals("Indiana", address.getStateProvince());
+				Assert.assertEquals("46202", address.getPostalCode());
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
+	
+	/**
+	 * Tests that the age value wins in case both the age and birthdate are provided
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	@Ignore
+	public void testCreatePatientBirthdateByAge() throws Exception {
+		final Integer expectedAge = 40;
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -expectedAge);
+		final Date expectedBirthDate = cal.getTime();
+		new RegressionTestHelper() {
+			
+			@Override
+			String getFormName() {
+				return "editPatientBirthdateForm";
+			}
+			
+			@Override
+			Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			@Override
+			boolean doViewEncounter() {
+				return true;
+			};
+			
+			@Override
+			Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			@Override
+			String[] widgetLabelsForEdit() {
+				return new String[] { "Age:", "Birthdate:" };
+			}
+			
+			@Override
+			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Age:"), expectedAge.toString());
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(new Date()));
+			}
+			
+			@Override
+			void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				//the birthdate should have been computed basing on the entered age
+				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
+				results.assertEncounterEdited();
+			}
+		}.run();
+	}
 }
