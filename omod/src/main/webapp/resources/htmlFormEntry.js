@@ -241,7 +241,10 @@ function setValueByName(ele, val, options) {
         ele.checked = (val == true);
       }
     }
-    else ele.value = val;
+    else {
+    	setDatePickerValue('#' + orig + '-display.hasDatepicker', val); // hack for datepicker's display
+    	ele.value = val;
+    }
 
     return;
   }
@@ -420,7 +423,15 @@ function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector,
 	if (jsLocale && jQuery.datepicker.regional[jsLocale])
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
 	if (initialDateYMD)
-		jq.datepicker('setDate', jQuery.datepicker.parseDate('yy-mm-dd', initialDateYMD));
+		setDatePickerValue(displaySelector, initialDateYMD);
+}
+
+function setDatePickerValue(displaySelector, ymd) {
+	try {
+		jQuery(displaySelector).datepicker('setDate', jQuery.datepicker.parseDate('yy-mm-dd', ymd));
+	} catch (err) {
+		// make this safe to call with misformatted dates
+	}
 }
 
 function setupDatePickerLocalization(locale) {
