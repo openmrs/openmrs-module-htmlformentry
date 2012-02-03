@@ -52,6 +52,13 @@
 			Always display dates in HTML Forms in this (Java) date format. E.g. "dd/MMM/yyyy" for 31/Jan/2012. 
 		</description>
 	</globalProperty>
+	<globalProperty>
+		<property>htmlformentry.showDateFormat</property>
+		<defaultValue>true</defaultValue>
+		<description>
+			Set to true if you want static text for the date format to be displayed next to date widgets, else set to false. 
+		</description>
+	</globalProperty>
 	<!-- /Required Global Properties -->
 	
 	<dwr>
