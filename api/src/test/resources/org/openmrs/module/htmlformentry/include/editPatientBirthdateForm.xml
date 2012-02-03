@@ -1,0 +1,5 @@
+<htmlform>
+	Age: <patient field="age" />
+    Birthdate: <patient field="birthDate" />
+    <submit/>
+</htmlform>

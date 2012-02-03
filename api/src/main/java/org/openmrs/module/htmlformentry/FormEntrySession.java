@@ -351,11 +351,7 @@ public class FormEntrySession {
         xml = htmlGenerator.applyTemplates(xml);
         xml = htmlGenerator.applyTranslations(xml, context);
         xml = htmlGenerator.applyTags(this, xml);
-        int endOfFirstTag = xml.indexOf('>');
-        int startOfLastTag = xml.lastIndexOf('<');
-        if (endOfFirstTag < 0 || startOfLastTag < 0 || endOfFirstTag > startOfLastTag)
-            return "";
-        xml = xml.substring(endOfFirstTag + 1, startOfLastTag);
+        xml = htmlGenerator.wrapInDiv(xml);
         return xml;
     }
     

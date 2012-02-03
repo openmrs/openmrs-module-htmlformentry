@@ -193,6 +193,7 @@ public class TestUtil {
 		string = string.replaceAll("<span class=\"emptyvalue\">.*</span>", "");
 		string = string.replaceAll("\\s", "");
 		string = string.replaceAll("<htmlform>(.*)</htmlform>", "$1");
+		string = string.replaceAll("<div class=\"htmlform\">(.*)</div>", "$1");
 		return string;
 	}
 	

@@ -308,8 +308,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				calculateBirthDate(patient, formatter.format(value), null);
 			}
 		}
-
-		if (identifierTypeValueWidget != null) {
+ 
+		if (identifierTypeValueWidget != null && identifierTypeWidget != null) {
 			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
 			if (patientIdentifier == null) {
 				patientIdentifier = new PatientIdentifier();
@@ -318,33 +318,18 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				patientIdentifier.setUuid(UUID.randomUUID().toString());
 				patient.addIdentifier(patientIdentifier);
 			}
-
+			
 			String identifier = (String) identifierTypeValueWidget.getValue(context, request);
-			if (identifier != null && !identifier.equals(patientIdentifier.getIdentifier()) && patientIdentifier.getIdentifierType() != null) {
-				validateIdentifier(patientIdentifier.getIdentifierType().getPatientIdentifierTypeId(), identifier);
+			
+			PatientIdentifierType identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
+
+			if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
+				validateIdentifier(identifierType.getId(), identifier);
 			}
+			
+			patientIdentifier.setIdentifierType(identifierType);
 			patientIdentifier.setIdentifier(identifier);
 			patientIdentifier.setPreferred(true);
-		}
-
-		if (identifierTypeWidget != null) {
-			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
-			if (patientIdentifier == null) {
-				patientIdentifier = new PatientIdentifier();
-				// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
-				patientIdentifier.setDateChanged(new Date());
-				patientIdentifier.setUuid(UUID.randomUUID().toString());
-				patient.addIdentifier(patientIdentifier);
-			}
-
-			PatientIdentifierType pit = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
-
-			if (!pit.equals(patientIdentifier.getIdentifierType())) {
-				validateIdentifier(pit.getPatientIdentifierTypeId(), patientIdentifier.getIdentifier());
-			}
-			patientIdentifier.setIdentifierType(pit);
-			patientIdentifier.setPreferred(true);
-
 		}
 
 		if (identifierLocationWidget != null) {
@@ -372,20 +357,6 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 			personAddress.setPreferred(true);
 			patient.addAddress(personAddress);
-		}
-
-		if (context.getMode() == Mode.ENTER) {
-			Integer identifierType = null;
-			String identifier = null;
-			if (patient.getPatientIdentifier() != null) {
-				if (patient.getPatientIdentifier().getIdentifierType() != null) {
-					identifierType = patient.getPatientIdentifier().getIdentifierType().getPatientIdentifierTypeId();
-				}
-				identifier = patient.getPatientIdentifier().getIdentifier();
-			}
-			if (identifierType != null && identifier != null) {
-				validateIdentifier(identifierType, identifier);
-			}
 		}
 	}
 

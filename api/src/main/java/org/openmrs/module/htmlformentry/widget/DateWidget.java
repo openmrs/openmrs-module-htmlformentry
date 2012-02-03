@@ -78,7 +78,12 @@ public class DateWidget implements Widget {
             sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
             if (onChangeFunction != null)
             	sb.append(" onChange=\"" + onChangeFunction + "\" ");
-            sb.append(" /> (" + dateFormat().toPattern().toLowerCase() + ")");
+            sb.append(" />");
+            
+            if ("true".equals(Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_SHOW_DATE_FORMAT))) {
+            	sb.append(" (" + dateFormat().toPattern().toLowerCase() + ")");
+            }
+            
             sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
             if (initialValue != null)
             	sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
@@ -112,5 +117,4 @@ public class DateWidget implements Widget {
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
-
 }
