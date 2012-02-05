@@ -15,6 +15,7 @@ import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Order;
+import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
@@ -705,6 +706,39 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should fail if date parsing fails", method = "translateDatetimeParam(String,String)")
 	public void translateDatetimeParam_shouldFailForBadDateFormat() throws Exception {
 		HtmlFormEntryUtil.translateDatetimeParam("1990-01-02-13-59", "a bogus date format that will throw an error");
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should return the state with a concept with a matching preferred name in the current locale", method = "getState(String,Program)")
+	public void getState_shouldReturnTheStateWithAConceptWithAMatchingPreferredNameInTheCurrentLocale() throws Exception {
+		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
+		    HtmlFormEntryUtil.getState("died", Context.getProgramWorkflowService().getProgram(1)).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should return the state with the matching id", method = "getState(String,Program)")
+	public void getState_shouldReturnTheStateWithTheMatchingId() throws Exception {
+		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
+		    HtmlFormEntryUtil.getState("1", Context.getProgramWorkflowService().getProgram(1)).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,Program)")
+	public void getState_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
+		Assert.assertEquals(
+		    "1",
+		    HtmlFormEntryUtil
+		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1))
+		            .getId().toString());
 	}
 	
 }

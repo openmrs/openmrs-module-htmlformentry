@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
 import org.openmrs.FormField;
 import org.openmrs.Location;
@@ -48,6 +49,8 @@ import org.openmrs.PersonAttribute;
 import org.openmrs.PersonAttributeType;
 import org.openmrs.PersonName;
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.ProgramWorkflowState;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -60,6 +63,7 @@ import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
+import org.openmrs.util.OpenmrsUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1018,4 +1022,35 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	/**
+	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
+	 * programWorkflowStateId, uuid or the associated concept with a preferred name that matches the
+	 * specified identifier
+	 * 
+	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
+	 * @param program
+	 * @return
+	 * @should return the state with the matching id
+	 * @should return the state with the matching uuid
+	 * @should return the state with a concept with a matching preferred name in the current locale
+	 */
+	public static ProgramWorkflowState getState(String identifier, Program program) {
+		if (StringUtils.isNotBlank(identifier) && program != null) {
+			for (ProgramWorkflow wf : program.getWorkflows()) {
+				for (ProgramWorkflowState wfState : wf.getStates(false)) {
+					String preferredName = null;
+					ConceptName preferredConceptName = wfState.getConcept().getPreferredName(Context.getLocale());
+					if (preferredConceptName != null)
+						preferredName = preferredConceptName.getName().toLowerCase();
+					
+					if (wfState.getId().toString().equals(identifier) || wfState.getUuid().equals(identifier)
+					        || OpenmrsUtil.nullSafeEquals(preferredName, identifier.toLowerCase())) {
+						return wfState;
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
 }
