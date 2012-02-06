@@ -113,6 +113,7 @@ public class FormEntrySession {
         velocityContext.put("locale", Context.getLocale());
         velocityContext.put("patient", patient);
         velocityContext.put("fn", new VelocityFunctions(this));
+        velocityContext.put("user", Context.getAuthenticatedUser());
         
         {
             Map<String, List<String>> identifiers = new HashMap<String, List<String>>();
