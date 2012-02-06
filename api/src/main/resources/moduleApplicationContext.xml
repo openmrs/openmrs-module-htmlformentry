@@ -85,6 +85,10 @@
 								        <key><value>relationship</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.RelationshipTagHandler"/>
 							      	</entry>
+							      	<entry>
+								        <key><value>workflowState</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.WorkflowStateTagHandler"/>
+							      	</entry>
 							    </map>  
 							</property>
 							<property name="basicFormXmlTemplate">
