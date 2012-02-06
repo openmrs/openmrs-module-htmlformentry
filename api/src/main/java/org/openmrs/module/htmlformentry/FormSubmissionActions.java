@@ -16,6 +16,7 @@ import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.OpenmrsUtil;
@@ -46,6 +47,7 @@ public class FormSubmissionActions {
     private List<Relationship> relationshipsToCreate = new Vector<Relationship>();
     private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
     private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
+    private List<PatientProgram> patientProgramsToEdit = new Vector<PatientProgram>();
     
     /** The stack where state is stored */
     private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
@@ -358,6 +360,25 @@ public class FormSubmissionActions {
         patientProgramsToComplete.addAll(pp);
     }
 	
+	public void transitionToState(ProgramWorkflowState state) {
+		if (state == null)
+            throw new IllegalArgumentException("Cannot change to a blank state");
+        
+        Patient patient = highestOnStack(Patient.class);
+        if (patient == null)
+            throw new IllegalArgumentException("Cannot change state without a patient");
+        Encounter encounter = highestOnStack(Encounter.class);
+        if (encounter == null)
+        	throw new IllegalArgumentException("Cannot end enrollment in a program outside of an Encounter");
+        
+        List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, state.getProgramWorkflow().getProgram(), null, null, encounter.getEncounterDatetime(), null, false);
+        
+        PatientProgram patientProgram = patientPrograms.iterator().next();
+        patientProgram.transitionToState(state, encounter.getEncounterDatetime());
+        
+        patientProgramsToEdit.add(patientProgram);
+	}
+	
 	/**
      * This method compares Timestamps to plain Dates by dropping the nanosecond precision
      */
@@ -577,6 +598,22 @@ public class FormSubmissionActions {
      */
     public void setRelationshipsToEdit(List<Relationship> relationshipsToEdit) {
     	this.relationshipsToEdit = relationshipsToEdit;
+    }
+
+	
+    /**
+     * @return the patientProgramsToEdit
+     */
+    public List<PatientProgram> getPatientProgramsToEdit() {
+    	return patientProgramsToEdit;
+    }
+
+	
+    /**
+     * @param patientProgramsToEdit the patientProgramsToEdit to set
+     */
+    public void setPatientProgramsToEdit(List<PatientProgram> patientProgramsToEdit) {
+    	this.patientProgramsToEdit = patientProgramsToEdit;
     }
 
     

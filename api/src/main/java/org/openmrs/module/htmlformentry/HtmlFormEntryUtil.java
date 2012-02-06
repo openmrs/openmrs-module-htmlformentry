@@ -1022,6 +1022,21 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	public static ProgramWorkflow getWorkflow(String identifier) {
+		ProgramWorkflow workflow = null;
+		try {
+			Integer id = Integer.valueOf(identifier);
+			workflow = Context.getProgramWorkflowService().getWorkflow(id);
+		} catch (NumberFormatException e) {
+		}
+		
+		if (workflow == null) {
+			workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
+		}
+		
+		return workflow;
+	}
+	
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
 	 * programWorkflowStateId, uuid or the associated concept with a preferred name that matches the
