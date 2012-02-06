@@ -9,11 +9,10 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
-import org.openmrs.GlobalProperty;
 import org.openmrs.Patient;
+import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.RegressionTestHelper.SubmissionResults;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -926,17 +925,17 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	 * @throws Exception
 	 */
 	@Test
-	@Ignore
 	public void testCreatePatientBirthdateByAge() throws Exception {
 		final Integer expectedAge = 40;
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.YEAR, -expectedAge);
-		final Date expectedBirthDate = cal.getTime();
+		Person person = new Person();
+		person.setBirthdateFromAge(expectedAge, new Date());
+		final Date expectedBirthDate = person.getBirthdate();
+		
 		new RegressionTestHelper() {
 			
 			@Override
 			String getFormName() {
-				return "editPatientBirthdateForm";
+				return "createPatientBirthdateByAgeForm";
 			}
 			
 			@Override
@@ -969,7 +968,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered age
-				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
+				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), ymdToDate(dateAsString(results.getPatient().getBirthdate())));
 				results.assertEncounterEdited();
 			}
 		}.run();
