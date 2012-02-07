@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.openmrs.Concept;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.Program;
@@ -76,7 +77,17 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			Set<String> workflowsAndStates = new HashSet<String>();
 			for (String value : stateIdsUuidsOrPrefNames) {
 				value = value.trim();
-				ProgramWorkflowState state = HtmlFormEntryUtil.getState(value, program);
+				ProgramWorkflowState state = null;
+				if (value.indexOf(":") > -1) {
+					//search state by its underlying concept that matched the mapping
+					String[] sourceAndCode = value.split(":");
+					Concept concept = Context.getConceptService().getConceptByMapping(sourceAndCode[1].trim(),
+					    sourceAndCode[0].trim());
+					if (concept != null)
+						value = concept.getUuid();
+				}
+				
+				state = HtmlFormEntryUtil.getState(value, program);
 				if (state == null) {
 					throw new FormEntryException(
 					        "Cannot find program work flow state with its id or uuid or associated concept as '" + value

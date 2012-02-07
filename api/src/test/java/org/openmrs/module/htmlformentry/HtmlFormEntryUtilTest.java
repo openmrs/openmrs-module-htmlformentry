@@ -7,7 +7,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
@@ -713,17 +712,6 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@Test
-	@Ignore
-	@Verifies(value = "should return the state with a concept with a matching preferred name in the current locale", method = "getState(String,Program)")
-	public void getState_shouldReturnTheStateWithAConceptWithAMatchingPreferredNameInTheCurrentLocale() throws Exception {
-		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
-		    HtmlFormEntryUtil.getState("died", Context.getProgramWorkflowService().getProgram(1)).getUuid());
-	}
-	
-	/**
-	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
-	 */
-	@Test
 	@Verifies(value = "should return the state with the matching id", method = "getState(String,Program)")
 	public void getState_shouldReturnTheStateWithTheMatchingId() throws Exception {
 		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
@@ -741,6 +729,18 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		    HtmlFormEntryUtil
 		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1))
 		            .getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should return the state with a concept that has a uuid that matches the specified identifier", method = "getState(String,Program)")
+	public void getState_shouldReturnTheStateWithAConceptThatHasAUuidThatMatchesTheSpecifiedIdentifier() throws Exception {
+		Assert.assertEquals(
+		    "92584cdc-6a20-4c84-a659-e035e45d36b0",
+		    HtmlFormEntryUtil.getState("7d104a6f-8337-4afa-b936-41083a5d9d88",
+		        Context.getProgramWorkflowService().getProgram(1)).getUuid());
 	}
 	
 }

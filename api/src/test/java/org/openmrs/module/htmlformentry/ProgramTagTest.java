@@ -9,9 +9,12 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
+import org.openmrs.ConceptMap;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
@@ -211,5 +214,66 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 		String htmlform = "<htmlform>Enroll In Program: <enrollInProgram programId=\"1\" showDate=\"true\" stateIds=\"2\" /><submit/></htmlform>";
 		FormEntrySession session = new FormEntrySession(Context.getPatientService().getPatient(2), htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("setupDatePicker") == -1);
+	}
+	
+	@Test
+	public void enrollInProgram_shouldEnrollAPatientWhenTheStateIsDefinedByAConceptMapping() throws Exception {
+		final Integer patientId = 2;
+		final Integer programId = 10;
+		//sanity check
+		Assert.assertEquals(0,
+		    pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null, null, null, null, false)
+		            .size());
+		
+		//create a test mapping
+		ConceptService cs = Context.getConceptService();
+		Concept concept = cs.getConcept(10002);
+		ConceptMap cm = new ConceptMap();
+		cm.setSourceCode("Test Code");
+		cm.setSource(cs.getConceptSourceByName("SNOMED CT"));
+		cm.setCreator(Context.getAuthenticatedUser());
+		cm.setDateCreated(new Date());
+		concept.addConceptMapping(cm);
+		
+		final Date encounterDate = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.set(2012, 00, 31);
+		final Date enrollmentDate = cal.getTime();
+		new RegressionTestHelper() {
+			
+			@Override
+			String getFormName() {
+				return "enrollPatientInProgramByConceptMappingForm";
+			}
+			
+			@Override
+			Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+			
+			@Override
+			String[] widgetLabels() {
+				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+			
+			@Override
+			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Enrollment Date:"), dateAsString(enrollmentDate));
+				
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
+				request.setParameter(widgets.get("Encounter Location:"), "2");
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+			
+			@Override
+			void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
+				    null, null, null, false);
+				Assert.assertEquals(1, pps.size());
+			};
+			
+		}.run();
 	}
 }
