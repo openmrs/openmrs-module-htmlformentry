@@ -1027,8 +1027,8 @@ public class HtmlFormEntryUtil {
 		try {
 			Integer id = Integer.valueOf(identifier);
 			workflow = Context.getProgramWorkflowService().getWorkflow(id);
-		} catch (NumberFormatException e) {
 		}
+		catch (NumberFormatException e) {}
 		
 		if (workflow == null) {
 			workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
