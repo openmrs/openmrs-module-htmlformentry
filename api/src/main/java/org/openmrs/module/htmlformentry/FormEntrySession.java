@@ -407,7 +407,7 @@ public class FormEntrySession {
         
     	{
             for (Encounter e : submissionActions.getEncountersToCreate()) {
-                if (e.getProvider() == null || e.getEncounterDatetime() == null || e.getLocation() == null) {
+                if (!HtmlFormEntryUtil.hasProvider(e) || e.getEncounterDatetime() == null || e.getLocation() == null) {
                     throw new BadFormDesignException("Please check the design of your form to make sure it has all three tags: <b>&lt;encounterDate/&gt</b>;, <b>&lt;encounterLocation/&gt</b>;, and <b>&lt;encounterProvider/&gt;</b>");
                 }
             }

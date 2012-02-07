@@ -35,12 +35,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAtoB";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// as a sanity check, make sure this relationship hasn't already been created
 				
 				// now make sure the relationship has been created
@@ -53,12 +53,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			};
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -67,7 +67,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -93,12 +93,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormBtoA";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// as a sanity check, make sure this relationship hasn't already been created
 				
 				// now make sure the relationship has been created
@@ -111,12 +111,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			};
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -125,7 +125,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -151,17 +151,17 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormBtoA";
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -179,18 +179,18 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAtoB";
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:", "Weight:", "Allergy:",
 				        "Allergy Date:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -204,7 +204,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -234,17 +234,17 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormMultiple";
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -257,7 +257,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -289,17 +289,17 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormMultiple";
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -310,7 +310,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -342,12 +342,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAtoB";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// preemptively create a relationship
 				RelationshipType type = Context.getPersonService().getRelationshipType(1);
 				Patient parent = Context.getPatientService().getPatient(2);
@@ -362,12 +362,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			};
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -376,7 +376,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -398,17 +398,17 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testRelationshipTag_shouldNotOverrideExistingRelationshipIfChangeExistingRelationshipIsFalse()
-	                                                                                                          throws Exception {
+	    throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAtoB";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// preemptively create a relationship
 				RelationshipType type = Context.getPersonService().getRelationshipType(1);
 				Patient parent = Context.getPatientService().getPatient(2);
@@ -423,12 +423,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			};
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -437,7 +437,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -466,12 +466,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormChangeExisting";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// preemptively create a relationship
 				RelationshipType type = Context.getPersonService().getRelationshipType(1);
 				Patient parent = Context.getPatientService().getPatient(2);
@@ -486,12 +486,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			};
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -500,7 +500,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -529,17 +529,17 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormRequired";
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -548,7 +548,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics--assert that there has been a validation error
 				results.assertErrors(1);
@@ -564,12 +564,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormRequired";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// preemptively create a relationship
 				RelationshipType type = Context.getPersonService().getRelationshipType(1);
 				Patient parent = Context.getPatientService().getPatient(2);
@@ -584,12 +584,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			};
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Relationship:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -598,7 +598,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				
 				// check the basics
 				results.assertNoErrors();
@@ -616,18 +616,18 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormSingleProgram";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// note that we are using patient 6 instead of patient 2 here
 				return Context.getPatientService().getPatient(6);
 			};
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// John Doe (from standard test data) is enrolled in program 1
 				TestUtil.assertFuzzyContains("select name = \"w7\".*John Doe", html);
 			}
@@ -641,41 +641,40 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormSingleProgram";
 			}
 			
 			// use the standard patient #2 here
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// John Doe (patient 2) is the current patient in this case, and so should be excluded
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*John Doe", html);
 			}
 		}.run();
 	}
-		
 	
 	// test that if multiple program is are specified, to be in the list the person must be in BOTH programs
 	
 	@Test
 	public void testRelationshipTag_shouldShowAllPersonsEnrolledInProgramsAsOptionsShouldIntersectMultiplePrograms()
-	                                                                                                                throws Exception {
+	    throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormTwoPrograms";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// note that we are using patient 6 instead of patient 2 here
 				return Context.getPatientService().getPatient(6);
 			};
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// John Doe (from standard test data) is enrolled in program 1, but not in program 3, so he SHOULDN'T appear
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*John Doe", html);
 			}
@@ -689,12 +688,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormSingleAttribute";
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// all the patients with a "Race" attribute 
 				TestUtil.assertFuzzyContains("select name = \"w7\".*Johnny Test Doe", html);
 				TestUtil.assertFuzzyContains("select name = \"w7\".*Collet Test Chebaskwony", html);
@@ -712,12 +711,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormMultipleAttributes";
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// all the patients with a "Race" and "Civil Status" attribute 
 				TestUtil.assertFuzzyContains("select name = \"w7\".*Johnny Test Doe", html);
 				TestUtil.assertFuzzyContains("select name = \"w7\".*Collet Test Chebaskwony", html);
@@ -737,12 +736,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAttributeValue";
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// patient with Civil Status = 5 
 				TestUtil.assertFuzzyContains("select name = \"w7\".*Johnny Test Doe", html);
 				
@@ -762,15 +761,15 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAttributeValueFromPatient";
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// patient with Civil Status = 6
 				TestUtil.assertFuzzyContains("select name = \"w7\".*Anet Test Oloo", html);
-			
+				
 				// All others that were previously included should not be excluded
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Johnny Test Doe", html);
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Bruno Otterbourg", html);
@@ -781,30 +780,29 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	// test that the form displays the proper of possible person matches when specified by person attribute AND program
-
+	
 	@Test
 	public void testRelationshipTag_shouldShowAllPersonsWithSpecificAttributeAndProgram() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormAttributeAndProgram";
 			}
 			
-			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				// note that we are using patient 6 instead of patient 2 here
 				return Context.getPatientService().getPatient(6);
 			};
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// should contain John Doe (patient 2)
 				TestUtil.assertFuzzyContains("select name = \"w7\".*John Doe", html);
 				
 				// patients with attribute, but not with program, should be excluded
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Anet Test Oloo", html);			
+				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Anet Test Oloo", html);
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Johnny Test Doe", html);
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Bruno Otterbourg", html);
 				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Collet Test Chebaskwony", html);
@@ -819,13 +817,12 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "relationshipFormBtoA";
 			}
 			
-			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				// confirm the existing relationship has been displayed
 				TestUtil.assertFuzzyContains("Doctor: Hippocrates Of Cos", html);
 			}

@@ -17,8 +17,6 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-
-
 public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
@@ -36,28 +34,28 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "simpleCreatePatientForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return new Patient();
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:" };
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -70,7 +68,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				results.assertNoEncounterCreated();
@@ -84,23 +82,23 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "simplePatientAndEncounterForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return new Patient();
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:", "Date:", "Encounter Location:", "Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -116,7 +114,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				
@@ -141,38 +139,38 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			boolean doViewEncounter() {
+			public boolean doViewEncounter() {
 				return true;
 			};
 			
 			@Override
-			Encounter getEncounterToView() {
+			public Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Simon");
 				request.setParameter(widgets.get("PersonName.familyName"), "paul");
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				Assert.assertEquals("Simon", results.getPatient().getGivenName());
@@ -190,27 +188,27 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Date:", "Encounter Location:" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Mark");
 				request.setParameter(widgets.get("PersonName.familyName"), "waugh");
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
@@ -218,7 +216,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
@@ -246,34 +244,34 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			}
 			
 			@Override
-			Encounter getEncounterToView() {
+			public Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Weight:" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Mike");
 				request.setParameter(widgets.get("PersonName.familyName"), "Den");
 				request.setParameter(widgets.get("Weight:"), "100");
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				@SuppressWarnings("unused")
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
@@ -288,7 +286,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 			
@@ -300,32 +298,32 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
 			@Override
-			Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:" };
 			};
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "100");
 			};
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				results.assertEncounterEdited();
@@ -341,28 +339,28 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndEncounterFormWithMultipleObs";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			Encounter getEncounterToView() {
+			public Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Weight:", "Date:",
 				        "Encounter Location:" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Mike");
 				request.setParameter(widgets.get("PersonName.familyName"), "Den");
 				request.setParameter(widgets.get("Weight:"), "100");
@@ -372,7 +370,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				results.assertNoErrors();
 				results.assertPatient();
@@ -390,7 +388,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 			
@@ -406,24 +404,24 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			public Date patientDateChanged;
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				Patient patient = Context.getPatientService().getPatient(2);
 				patientDateChanged = patient.getDateChanged();
 				return patient;
 			}
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "singleObsForm";
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -431,12 +429,12 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			boolean doViewPatient() {
+			public boolean doViewPatient() {
 				return true;
 			}
 			
 			@Override
-			void testViewingPatient(Patient patient, String html) {
+			public void testViewingPatient(Patient patient, String html) {
 				// confirm that the patient date changed has not changed
 				Assert.assertTrue("patient date changed has been errorneously changed", patient.getDateChanged() == null
 				        && patientDateChanged == null || patient.getDateChanged().equals(patientDateChanged));
@@ -452,45 +450,45 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			public Date patientDateChanged;
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				Patient patient = Context.getPatientService().getPatient(2);
 				patientDateChanged = patient.getDateChanged();
 				return patient;
 			}
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "multipleObsForm";
 			}
 			
 			@Override
-			Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:" };
 			};
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
 			};
 			
 			@Override
-			boolean doViewPatient() {
+			public boolean doViewPatient() {
 				return true;
 			}
 			
 			@Override
-			void testViewingPatient(Patient patient, String html) {
+			public void testViewingPatient(Patient patient, String html) {
 				// confirm that the patient date changed has not changed
 				Assert.assertTrue("patient date changed has been errorneously changed", patient.getDateChanged() == null
 				        && patientDateChanged == null || patient.getDateChanged().equals(patientDateChanged));
@@ -504,12 +502,12 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "singlePersonObsForm";
 			}
 			
 			@Override
-			Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -522,7 +520,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testViewingEncounter(Encounter encounter, String html) {
+			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Collet Test Chebaskwony", html); // make sure Collet Chebaskwony has been included
 			}
 		}.run();
@@ -535,24 +533,24 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndObsForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return new Patient();
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:", "Identifier Type:", "Date:", "Encounter Location:",
 				        "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -572,7 +570,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
@@ -605,30 +603,30 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndObsForm";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:" };
 			}
 			
-			String[] widgetLabels() {
+			@Override
+			public String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:", "Date:", "Encounter Location:", "Provider:", "Weight:",
 				        "Allergy:", "Allergy Date:" };
 			}
-
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -648,7 +646,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -660,7 +658,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
@@ -677,7 +675,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
@@ -700,29 +698,29 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAndObsForm";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			}
 			
 			@Override
-			Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:", "Date:", "Encounter Location:", "Provider:", "Weight:",
 				        "Allergy:", "Allergy Date:" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -742,7 +740,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				Date datePartOnly = ymdToDate(dateAsString(date));
 				
 				results.assertNoErrors();
@@ -785,29 +783,29 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAddressForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return new Patient();
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:", "Location.address1", "Location.cityVillage",
 				        "Location.stateProvince", "Location.postalCode" };
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -823,7 +821,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				PersonAddress address = results.getPatient().getPersonAddress();
@@ -851,35 +849,35 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "patientAddressForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return new Patient();
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
 				        "Identifier:", "Identifier Location:", "Location.address1", "Location.cityVillage",
 				        "Location.stateProvince", "Location.postalCode" };
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] {"Location.address1", "Location.cityVillage",
 				        "Location.stateProvince", "Location.postalCode" };
 			}
 			
 			@Override
-			void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
@@ -896,7 +894,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				PersonAddress address = results.getPatient().getPersonAddress();
@@ -908,7 +906,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location.address1"), "273 Beaver Dam Rd.");
 				request.addParameter(widgets.get("Location.cityVillage"), "Scituate");
 				request.addParameter(widgets.get("Location.stateProvince"), "MA");
@@ -916,7 +914,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				PersonAddress address = results.getPatient().getPersonAddress();
@@ -926,7 +924,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("02066", address.getPostalCode());
 				results.assertNoEncounterCreated();
 			}
-		
+			
 		}.run();
 	}
 	
@@ -945,41 +943,42 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "createPatientBirthdateByAgeForm";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			boolean doViewEncounter() {
+			public boolean doViewEncounter() {
 				return true;
 			};
 			
 			@Override
-			Encounter getEncounterToView() {
+			public Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Age:" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Age:"), expectedAge.toString());
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered age
-				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), ymdToDate(dateAsString(results.getPatient().getBirthdate())));
+				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), ymdToDate(dateAsString(results.getPatient()
+				        .getBirthdate())));
 				results.assertEncounterEdited();
 			}
 		}.run();
@@ -1000,38 +999,38 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "editPatientBirthdateForm";
 			}
 			
 			@Override
-			Patient getPatientToEdit() {
+			public Patient getPatientToEdit() {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-			boolean doViewEncounter() {
+			public boolean doViewEncounter() {
 				return true;
 			};
 			
 			@Override
-			Encounter getEncounterToView() {
+			public Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-			String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Age:", "Birthdate:" };
 			}
 			
 			@Override
-			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Age:"), expectedAge.toString());
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(expectedBirthDate));
 			}
 			
 			@Override
-			void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered birthdate

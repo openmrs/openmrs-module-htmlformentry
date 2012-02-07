@@ -1061,4 +1061,22 @@ public class HtmlFormEntryUtil {
 		
 		return null;
 	}
+
+	/**
+     * Checks whether the encounter has a provider specified (including ugly reflection code for 1.9+)
+     * 
+     * @param e
+     * @return whether e has one or more providers specified
+     */
+    @SuppressWarnings("rawtypes")
+    public static boolean hasProvider(Encounter e) {
+    	try {
+	    	Method method = e.getClass().getMethod("getProvidersByRoles");
+	    	// this is a Map<EncounterRole, Set<Provider>>
+	    	Map providersByRoles = (Map) method.invoke(e);
+	    	return providersByRoles != null && providersByRoles.size() > 0;
+    	} catch (Exception ex) {
+    		return e.getProvider() != null;
+    	}
+    }
 }
