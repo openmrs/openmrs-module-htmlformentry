@@ -6,14 +6,15 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
+import org.openmrs.GlobalProperty;
 import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 
@@ -768,10 +769,19 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testCreatePatientWithAddress() throws Exception {
 		
+		// only run this test on OpenMRS 1.9 and above (since we have not configured it to work with old Address model)
+		int majorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[0]);
+		int minorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[1]);
+		if (majorVersion == 1 && minorVersion < 9) {
+			return;
+		}
+		
+		setupAddressTemplate();	
+		
 		final Date date = new Date();
+	
 		new RegressionTestHelper() {
 			
 			@Override
@@ -787,8 +797,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
-				        "Identifier:", "Identifier Location:", "Location.address1", "Location.address2", "Location.city",
-				        "Location.state", "Location.zipCode" };
+				        "Identifier:", "Identifier Location:", "Location.address1", "Location.cityVillage",
+				        "Location.stateProvince", "Location.postalCode" };
 			}
 			
 			@Override
@@ -807,11 +817,9 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				// hack because identifier type is a hidden input with no label
 				request.setParameter("w17", "2");
 				request.addParameter(widgets.get("Location.address1"), "410 w 10th St.");
-				request.addParameter(widgets.get("Location.address2"), "Suite 2000");
-				request.addParameter(widgets.get("Location.city"), "Indianapolis");
-				request.addParameter(widgets.get("Location.state"), "Indiana");
-				request.addParameter(widgets.get("Location.zipCode"), "46202");
-				
+				request.addParameter(widgets.get("Location.cityVillage"), "Indianapolis");
+				request.addParameter(widgets.get("Location.stateProvince"), "Indiana");
+				request.addParameter(widgets.get("Location.postalCode"), "46202");
 			}
 			
 			@Override
@@ -820,7 +828,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertPatient();
 				PersonAddress address = results.getPatient().getPersonAddress();
 				Assert.assertEquals("410 w 10th St.", address.getAddress1());
-				Assert.assertEquals("Suite 2000", address.getAddress2());
 				Assert.assertEquals("Indianapolis", address.getCityVillage());
 				Assert.assertEquals("Indiana", address.getStateProvince());
 				Assert.assertEquals("46202", address.getPostalCode());
@@ -830,9 +837,17 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Ignore
 	public void testEditPatientWithAddress() throws Exception {
+		
+		// only run this test on OpenMRS 1.9 and above (since we have not configured it to work with old Address model)
+		int majorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[0]);
+		int minorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[1]);
+		if (majorVersion == 1 && minorVersion < 9) {
+			return;
+		}
+				
 		final Date date = new Date();
+		
 		new RegressionTestHelper() {
 			
 			@Override
@@ -848,14 +863,14 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			String[] widgetLabels() {
 				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
-				        "Identifier:", "Identifier Location:", "Location.address1", "Location.address2", "Location.city",
-				        "Location.state", "Location.zipCode" };
+				        "Identifier:", "Identifier Location:", "Location.address1", "Location.cityVillage",
+				        "Location.stateProvince", "Location.postalCode" };
 			}
 			
 			@Override
 			String[] widgetLabelsForEdit() {
-				return new String[] {"Location.address1", "Location.address2", "Location.city",
-				        "Location.state", "Location.zipCode" };
+				return new String[] {"Location.address1", "Location.cityVillage",
+				        "Location.stateProvince", "Location.postalCode" };
 			}
 			
 			@Override
@@ -874,10 +889,9 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				// hack because identifier type is a hidden input with no label
 				request.setParameter("w17", "2");
 				request.addParameter(widgets.get("Location.address1"), "410 w 10th St.");
-				request.addParameter(widgets.get("Location.address2"), "Suite 2000");
-				request.addParameter(widgets.get("Location.city"), "Indianapolis");
-				request.addParameter(widgets.get("Location.state"), "Indiana");
-				request.addParameter(widgets.get("Location.zipCode"), "46202");
+				request.addParameter(widgets.get("Location.cityVillage"), "Indianapolis");
+				request.addParameter(widgets.get("Location.stateProvince"), "Indiana");
+				request.addParameter(widgets.get("Location.postalCode"), "46202");
 				
 			}
 			
@@ -887,7 +901,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertPatient();
 				PersonAddress address = results.getPatient().getPersonAddress();
 				Assert.assertEquals("410 w 10th St.", address.getAddress1());
-				Assert.assertEquals("Suite 2000", address.getAddress2());
 				Assert.assertEquals("Indianapolis", address.getCityVillage());
 				Assert.assertEquals("Indiana", address.getStateProvince());
 				Assert.assertEquals("46202", address.getPostalCode());
@@ -897,10 +910,9 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location.address1"), "273 Beaver Dam Rd.");
-				request.addParameter(widgets.get("Location.address2"), "");
-				request.addParameter(widgets.get("Location.city"), "Scituate");
-				request.addParameter(widgets.get("Location.state"), "MA");
-				request.addParameter(widgets.get("Location.zipCode"), "02066");	
+				request.addParameter(widgets.get("Location.cityVillage"), "Scituate");
+				request.addParameter(widgets.get("Location.stateProvince"), "MA");
+				request.addParameter(widgets.get("Location.postalCode"), "02066");	
 			}
 			
 			@Override
@@ -909,7 +921,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertPatient();
 				PersonAddress address = results.getPatient().getPersonAddress();
 				Assert.assertEquals("273 Beaver Dam Rd.", address.getAddress1());
-				Assert.assertEquals("", address.getAddress2());
 				Assert.assertEquals("Scituate", address.getCityVillage());
 				Assert.assertEquals("MA", address.getStateProvince());
 				Assert.assertEquals("02066", address.getPostalCode());
@@ -1028,5 +1039,30 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertEncounterEdited();
 			}
 		}.run();
+	}
+	
+	private void setupAddressTemplate() {
+		
+		GlobalProperty property = new GlobalProperty ("layout.address.format", "<org.openmrs.layout.web.address.AddressTemplate>" +
+																					"<nameMappings class=\"properties\">"+ 
+																					"<property name=\"postalCode\" value=\"Location.postalCode\"/>" +
+																					"<property name=\"address1\" value=\"Location.address1\"/>" +
+																					"<property name=\"stateProvince\" value=\"Location.stateProvince\"/>" +
+																					"<property name=\"cityVillage\" value=\"Location.cityVillage\"/>" +
+																					"</nameMappings>" + 
+																					"<sizeMappings class=\"properties\">" +
+																					"<property name=\"postalCode\" value=\"10\"/>" +
+																					"<property name=\"address1\" value=\"40\"/>" +
+																					"<property name=\"stateProvince\" value=\"10\"/>" +
+																					"<property name=\"cityVillage\" value=\"10\"/>" +
+																					"</sizeMappings>" +						
+        																			"<lineByLineFormat>" +
+        																			"<string>address1</string>" +
+        																			"<string>cityVillage stateProvince postalCode</string>" +
+        																			"</lineByLineFormat>" +
+        																			"</org.openmrs.layout.web.address.AddressTemplate>");	
+		
+		Context.getAdministrationService().saveGlobalProperty(property);
+		
 	}
 }
