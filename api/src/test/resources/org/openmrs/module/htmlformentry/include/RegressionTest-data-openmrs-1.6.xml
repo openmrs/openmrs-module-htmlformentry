@@ -204,4 +204,23 @@
   <!-- Add a person attribute (for one of the Relationship tests) -->
   <person_attribute person_attribute_id="14" person_id="8" value="6" person_attribute_type_id="8" creator="1" date_created="2008-08-18 11:56:42.0" voided="false" uuid="63a5a4a0-dd44-46ac-b8c0-c6bfb5a5f878"/>
 
+  <!-- Add a new program -->
+  <concept concept_id="10000" datatype_id="4" class_id="16" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3093de5c-5140-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20000" concept_id="10000" name="TEST PROGRAM" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" voided="false" uuid="36122a96-5140-11e1-a3e3-00248140a5eb"/>
+	
+  <concept concept_id="10001" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="e73079ba-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20001" concept_id="10001" name="TEST WORKFLOW" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" voided="false" uuid="f7ff174c-5143-11e1-a3e3-00248140a5eb"/>
+	
+  <concept concept_id="10002" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="36142ffa-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20002" concept_id="10002" name="START STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" voided="false" uuid="3accabda-5143-11e1-a3e3-00248140a5eb"/>
+	
+  <concept concept_id="10003" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3fe89e62-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20003" concept_id="10003" name="END STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" voided="false" uuid="44c8dd98-5143-11e1-a3e3-00248140a5eb"/>
+	
+  <program program_id="10" concept_id="10000" creator="1" date_created="2008-08-15 16:07:11.0" changed_by="1" date_changed="2008-08-15 17:04:50.0" retired="false" name="Test Program" description="testing program" uuid="67bad8f4-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow program_workflow_id="100" program_id="10" concept_id="10001" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="72a90efc-5140-11e1-a3e3-00248140a5eb"/>
+		
+  <program_workflow_state program_workflow_state_id="200" program_workflow_id="100" concept_id="10002" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="89d1a292-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="201" program_workflow_id="100" concept_id="10003" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="8ef66ca8-5140-11e1-a3e3-00248140a5eb"/>
+
 </dataset>

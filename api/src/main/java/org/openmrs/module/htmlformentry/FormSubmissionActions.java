@@ -335,8 +335,24 @@ public class FormSubmissionActions {
 	 * the Program to a list of programs to add. The changes are applied elsewhere in the framework
 	 * 
 	 * @param program Program to enroll the patient in
+	 * @see #enrollInProgram(Program, Date, List)
 	 */
 	public void enrollInProgram(Program program) {
+		enrollInProgram(program, null, null);
+	}
+	
+	/**
+	 * Enrolls the Patient most recently added to the stack in the specified Program setting the
+	 * enrollment date as the date specified and setting initial states from the specified state
+	 * <p/>
+	 * Note that this method does not commit the program enrollment to the database but instead adds
+	 * the Program to a list of programs to add. The changes are applied elsewhere in the framework
+	 * 
+	 * @param program Program to enroll the patient in
+	 * @param enrollmentDate the date to enroll the patient in the program
+	 * @param states list of states to set as initial in their workflows
+	 */
+	public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
 		if (program == null)
 			throw new IllegalArgumentException("Cannot enroll in a blank program");
 		
@@ -350,6 +366,15 @@ public class FormSubmissionActions {
 		PatientProgram pp = new PatientProgram();
 		pp.setPatient(patient);
 		pp.setProgram(program);
+		if (enrollmentDate != null)
+			pp.setDateEnrolled(enrollmentDate);
+		
+		if (states != null) {
+			for (ProgramWorkflowState programWorkflowState : states) {
+				pp.transitionToState(programWorkflowState,
+				    (enrollmentDate != null) ? enrollmentDate : encounter.getEncounterDatetime());
+			}
+		}
 		patientProgramsToCreate.add(pp);
 	}
 	
