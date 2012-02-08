@@ -103,7 +103,7 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void editPatientProgram_shouldChangeEnrollmentDateIfItIsAftertSelectedDate() throws Exception {
+	public void editPatientProgram_shouldChangeEnrollmentDateIfItIsAfterSelectedDate() throws Exception {
 		executeDataSet(XML_DATASET_PATH + "ProgramTagTest-otherPatientStates.xml");
 		final Integer patientId = 2;
 		final Integer idForStateStartedOnEnrollmentDate = 10;
@@ -212,6 +212,13 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 		pws.savePatientProgram(pp);
 		
 		String htmlform = "<htmlform>Enroll In Program: <enrollInProgram programId=\"1\" showDate=\"true\" stateIds=\"2\" /><submit/></htmlform>";
+		FormEntrySession session = new FormEntrySession(Context.getPatientService().getPatient(2), htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("setupDatePicker") == -1);
+	}
+	
+	@Test
+	public void editPatientProgram_shouldNotDisplayEnrollmentDateWidgetIfShowDateFalse() throws Exception {		
+		String htmlform = "<htmlform>Enroll In Program: <enrollInProgram programId=\"1\" showDate=\"false\" stateIds=\"2\" /><submit/></htmlform>";
 		FormEntrySession session = new FormEntrySession(Context.getPatientService().getPatient(2), htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("setupDatePicker") == -1);
 	}
