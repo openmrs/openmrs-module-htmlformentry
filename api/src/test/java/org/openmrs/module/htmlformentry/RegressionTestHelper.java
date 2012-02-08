@@ -448,6 +448,7 @@ public abstract class RegressionTestHelper {
 		for (String label : labels) {
 			int toSkip = 0;
 			// something like EncounterAndRole!!1 means the *second* widget after "EncounterAndRole"
+			String origLabel = label;
 			if (label.indexOf("!!") > 0) {
 				String[] temp = label.split("!!");
 				toSkip = Integer.valueOf(temp[1]);
@@ -462,7 +463,7 @@ public abstract class RegressionTestHelper {
 					index = html.indexOf('"', index) + 1;
 				}
 				String val = html.substring(index, html.indexOf('"', index + 1));
-				ret.put(label, val);
+				ret.put(origLabel, val);
 			}
 			catch (Exception ex) {
 				// do nothing
