@@ -57,22 +57,22 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "enrollPatientInProgramForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return ps.getPatient(patientId);
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Enrollment Date:"), dateAsString(enrollmentDate));
 				
 				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
@@ -81,7 +81,7 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
@@ -117,22 +117,22 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "editProgramDateEnrolledForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return ps.getPatient(patientId);
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Enrollment Date:"), dateAsString(enrollmentDate));
 				
 				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
@@ -141,7 +141,7 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				PatientProgram pp = pws.getPatientProgram(patientProgramId);
@@ -179,22 +179,22 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "invalidPatientStatesForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return ps.getPatient(patientId);
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Enrollment Date:"), dateAsString(enrollmentDate));
 				
 				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
@@ -242,22 +242,22 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			String getFormName() {
+			public String getFormName() {
 				return "enrollPatientInProgramByConceptMappingForm";
 			}
 			
 			@Override
-			Patient getPatient() {
+			public Patient getPatient() {
 				return ps.getPatient(patientId);
 			}
 			
 			@Override
-			String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
 			}
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Enrollment Date:"), dateAsString(enrollmentDate));
 				
 				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
@@ -266,7 +266,7 @@ public class ProgramTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
