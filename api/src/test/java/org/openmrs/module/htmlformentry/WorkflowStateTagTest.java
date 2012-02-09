@@ -13,25 +13,33 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
+import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  *
  */
 public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+	
+	public static final String XML_FORM_NAME = "workflowStateForm";
 	
 	public static final String START_STATE = "89d1a292-5140-11e1-a3e3-00248140a5eb";
 	
@@ -40,6 +48,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public static final String END_STATE = "8ef66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	public static final String DIFFERENT_PROGRAM_STATE = "72a90efc-5140-11e1-a3e3-00248140a5eb";
+	
+	public static final Date DATE = new Date();
+	
+	public static final Date PAST_DATE = new Date(DATE.getTime() - 31536000000L);
+	
+	public static final Date FUTURE_DATE = new Date(DATE.getTime() + 31536000000L);
 	
 	private Patient patient;
 	
@@ -299,7 +313,346 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String label = "Some label text";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" label=\"" + label + "\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
-		assertPresent(session, "<spring:message code=\"" + label + "\" />");
+		assertPresent(session, label);
+	}
+	
+	@Test
+	public void shouldEnrollInProgramAndTransitionToState() throws Exception {
+		//Given: Patient has no workflow state
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				
+				//When: Html form is entered in which workflow state Y is selected
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: Workflow state Y is created with a start date of the encounter date
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldTransitionToStateBeforeAnotherState() throws Exception {
+		//Given: Patient has a workflow state of X starting in Jan 2012
+		transitionToState(END_STATE, DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				
+				//When: Html form is being back entered with an encounter date of June 2011, in which the workflow state selected is Y
+				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: Workflow state Y is created with a start date of June 2011 and a stop date of Jan 2012. Workflow state X stays as is.
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				
+				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
+		
+	}
+	
+	@Test
+	public void shouldTransitionToStateAfterAnotherState() throws Exception {
+		//Given: Patient has a workflow state of X starting in June 2011
+		transitionToState(START_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is being entered with an encounter date of Jan 2012, in which workflow state Y is selected
+				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: Workflow state X is stopped with a stop date of Jan 2012, Workflow state Y is created with a start date of Jan 2012 and is still current
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				
+				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldNotTransitionToSameState() throws Exception {
+		//Given: Patient has a workflow state of X starting in June 2011 (still current)
+		transitionToState(START_STATE, PAST_DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state X is selected
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: No change to workflow state
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldTransitionToStateAfterCurrent() throws Exception {
+		//Given: Patient has a workflow state of X starting in Jan 2012 (still current)
+		transitionToState(START_STATE, DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of June 2011 in which workflow state X is selected 
+				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: A new workflow state X is created with a Start date of June 2011 and a stop date of Jan 2012
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				
+				patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldTransitonToStateInBetweenStates() throws Exception {
+		//Given: Patient has a workflow state of X from June 2011 to Jan 2012, then a workflow state of Y from Jan 2012 to current
+		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(END_STATE, FUTURE_DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of Sept 2011 in which workflow state Z is selected
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: Workflow X is changed to a stop date of Sept 2011, Workflow Z is created with a start date of Sept 2011 and a stop date of Jan 2012
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				
+				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(FUTURE_DATE), dateAsString(patientState.getEndDate()));
+				
+				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
+				patientProgram = getPatientProgramByState(results.getPatient(), state, FUTURE_DATE);
+				patientState = getPatientState(patientProgram, state, FUTURE_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(FUTURE_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldNotTransitionIfNotAnswered() throws Exception {
+		//Given: Patient has a workflow state of X
+		transitionToState(START_STATE, PAST_DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Question on Html form is not answered 
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), "");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: No action
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
 	}
 	
 	/**
@@ -318,18 +671,89 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	private void transitionToState(String state) {
+		transitionToState(state, new Date());
+	}
+	
+	private void transitionToState(String state, Date date) {
 		ProgramWorkflowState workflowState = Context.getProgramWorkflowService().getStateByUuid(state);
 		
-		PatientProgram patientProgram = new PatientProgram();
-		patientProgram.setPatient(patient);
-		patientProgram.setProgram(workflowState.getProgramWorkflow().getProgram());
+		PatientProgram patientProgram = getPatientProgramByWorkflow(patient, workflowState.getProgramWorkflow(), date);
+		if (patientProgram == null) {
+			patientProgram = new PatientProgram();
+			patientProgram.setPatient(patient);
+			patientProgram.setProgram(workflowState.getProgramWorkflow().getProgram());
+			patientProgram.setDateEnrolled(date);
+		}
 		
-		PatientState patientState = new PatientState();
-		patientState.setPatientProgram(patientProgram);
-		patientState.setState(workflowState);
-		patientProgram.getStates().add(patientState);
+		patientProgram.transitionToState(workflowState, date);
 		
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
+	}
+	
+	/**
+	 * @param results
+	 * @param state
+	 * @return
+	 */
+	private PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow, Date activeDate) {
+		if (activeDate == null) {
+			activeDate = new Date();
+		}
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
+		    workflow.getProgram(), null, null, null, null, false);
+		for (PatientProgram patientProgram : patientPrograms) {
+			for (PatientState patientState : patientProgram.getStates()) {
+				if (patientState.getState().getProgramWorkflow().equals(workflow)) {
+					if (patientState.getActive(activeDate)) {
+						return patientProgram;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @param results
+	 * @param state
+	 * @return
+	 */
+	private PatientProgram getPatientProgramByState(Patient patient, ProgramWorkflowState state, Date activeDate) {
+		if (activeDate == null) {
+			activeDate = new Date();
+		}
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
+		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);
+		for (PatientProgram patientProgram : patientPrograms) {
+			for (PatientState patientState : patientProgram.getStates()) {
+				if (patientState.getState().equals(state)) {
+					if (patientState.getActive(activeDate)) {
+						return patientProgram;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @param patientProgram
+	 * @param state
+	 * @param activeDate
+	 * @return
+	 */
+	private PatientState getPatientState(PatientProgram patientProgram, ProgramWorkflowState state, Date activeDate) {
+		if (activeDate == null) {
+			activeDate = new Date();
+		}
+		for (PatientState patientState : patientProgram.getStates()) {
+			if (patientState.getState().equals(state)) {
+				if (patientState.getActive(activeDate)) {
+					return patientState;
+				}
+			}
+		}
+		return null;
 	}
 	
 }

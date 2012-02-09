@@ -24,8 +24,8 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.PatientProgram;
-import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
@@ -111,24 +111,17 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			}
 		}
 		
-		ProgramWorkflowState currentState = null;
-		
-		List<PatientProgram> programs = Context.getProgramWorkflowService().getPatientPrograms(context.getExistingPatient(),
-		    workflow.getProgram(), null, null, null, null, false);
-		
 		Date encounterDatetime = new Date();
 		if (context.getExistingEncounter() != null) {
 			encounterDatetime = context.getExistingEncounter().getEncounterDatetime();
 		}
 		
-		for (PatientProgram program : programs) {
-			if (Boolean.TRUE.equals(program.getActive(encounterDatetime))) {
-				PatientState state = program.getCurrentState(workflow);
-				if (state != null) {
-					currentState = state.getState();
-					break;
-				}
-			}
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(context.getExistingPatient(), workflow,
+		    encounterDatetime);
+		
+		ProgramWorkflowState currentState = null;
+		if (patientProgram != null) {
+			currentState = patientProgram.getCurrentState(workflow).getState();
 		}
 		
 		if (currentState == null) {
@@ -143,6 +136,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		
 		if (tagParams.getStyle().equals("hidden")) {
 			widget = new HiddenFieldWidget();
+			widget.setInitialValue(states.entrySet().iterator().next().getValue().getUuid());
 		} else if (tagParams.getStyle().equals("checkbox")) {
 			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
 			widget = new CheckboxWidget(state.getKey(), state.getValue().getUuid());
@@ -150,6 +144,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			SingleOptionWidget singleOption;
 			if (tagParams.getStyle().equals("dropdown")) {
 				singleOption = new DropdownWidget();
+				singleOption.addOption(new Option("", "", false));
 			} else {
 				singleOption = new RadioButtonsWidget();
 			}
@@ -158,6 +153,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 				boolean select = state.equals(currentState);
 				singleOption.addOption(new Option(state.getKey(), state.getValue().getUuid(), select));
 			}
+			
 			widget = singleOption;
 		}
 		
@@ -184,8 +180,11 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-		Object value = widget.getValue(session.getContext(), submission);
-		
+		String stateUuid = (String) widget.getValue(session.getContext(), submission);
+		if (!StringUtils.isBlank(stateUuid)) {
+			ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
+			session.getSubmissionActions().transitionToState(state);
+		}
 	}
 	
 	/**
@@ -195,7 +194,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		if (tagParams.getLabel() != null) {
-			ret.append("<spring:message code=\"" + tagParams.getLabel() + "\" /> ");
+			ret.append(tagParams.getLabel());
 		}
 		ret.append(widget.generateHtml(context));
 		return ret.toString();

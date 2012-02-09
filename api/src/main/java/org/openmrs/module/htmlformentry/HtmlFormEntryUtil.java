@@ -42,6 +42,8 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.PersonAttribute;
@@ -1020,6 +1022,32 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	public static PatientProgram getPatientProgram(Patient patient, ProgramWorkflow workflow, Date encounterDatetime) {
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
+		    workflow.getProgram(), null, null, null, null, false);
+		
+		PatientProgram patientProgram = null;
+		
+		for (PatientProgram eachPatientProgram : patientPrograms) {
+			boolean foundState = false;
+			for (PatientState patientState : eachPatientProgram.getStates()) {
+				if (patientState.getState().getProgramWorkflow().equals(workflow)) {
+					foundState = true;
+				}
+			}
+			
+			if (foundState) {
+				if (patientProgram != null) {
+					throw new IllegalStateException("Does not support multiple programs");
+				} else {
+					patientProgram = eachPatientProgram;
+				}
+			}
+		}
+		
+		return patientProgram;
+	}
+	
 	public static ProgramWorkflow getWorkflow(String identifier) {
 		identifier = identifier.trim();
 		if (StringUtils.isBlank(identifier)) {
@@ -1066,22 +1094,24 @@ public class HtmlFormEntryUtil {
 		
 		return null;
 	}
-
+	
 	/**
-     * Checks whether the encounter has a provider specified (including ugly reflection code for 1.9+)
-     * 
-     * @param e
-     * @return whether e has one or more providers specified
-     */
-    @SuppressWarnings("rawtypes")
-    public static boolean hasProvider(Encounter e) {
-    	try {
-	    	Method method = e.getClass().getMethod("getProvidersByRoles");
-	    	// this is a Map<EncounterRole, Set<Provider>>
-	    	Map providersByRoles = (Map) method.invoke(e);
-	    	return providersByRoles != null && providersByRoles.size() > 0;
-    	} catch (Exception ex) {
-    		return e.getProvider() != null;
-    	}
-    }
+	 * Checks whether the encounter has a provider specified (including ugly reflection code for
+	 * 1.9+)
+	 * 
+	 * @param e
+	 * @return whether e has one or more providers specified
+	 */
+	@SuppressWarnings("rawtypes")
+	public static boolean hasProvider(Encounter e) {
+		try {
+			Method method = e.getClass().getMethod("getProvidersByRoles");
+			// this is a Map<EncounterRole, Set<Provider>>
+			Map providersByRoles = (Map) method.invoke(e);
+			return providersByRoles != null && providersByRoles.size() > 0;
+		}
+		catch (Exception ex) {
+			return e.getProvider() != null;
+		}
+	}
 }

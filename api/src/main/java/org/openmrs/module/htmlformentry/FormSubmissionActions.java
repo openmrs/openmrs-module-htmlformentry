@@ -1,9 +1,12 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -14,6 +17,7 @@ import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
@@ -49,13 +53,13 @@ public class FormSubmissionActions {
 	
 	private List<PatientProgram> patientProgramsToComplete = new Vector<PatientProgram>();
 	
+	private List<PatientProgram> patientProgramsToUpdate = new Vector<PatientProgram>();
+	
 	private List<Relationship> relationshipsToCreate = new Vector<Relationship>();
 	
 	private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
 	
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
-	
-	private List<PatientProgram> patientProgramsToEdit = new Vector<PatientProgram>();
 	
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
@@ -415,16 +419,90 @@ public class FormSubmissionActions {
 		if (encounter == null)
 			throw new IllegalArgumentException("Cannot change state without an Encounter");
 		
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
-		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(patient, state.getProgramWorkflow(),
+		    encounter.getEncounterDatetime());
 		
-		for (PatientProgram patientProgram : patientPrograms) {
-			if (Boolean.TRUE.equals(patientProgram.getActive(encounter.getEncounterDatetime()))) {
-				patientProgram.transitionToState(state, encounter.getEncounterDatetime());
-				patientProgramsToEdit.add(patientProgram);
+		if (patientProgram == null) {
+			patientProgram = new PatientProgram();
+			patientProgram.setPatient(patient);
+			patientProgram.setProgram(state.getProgramWorkflow().getProgram());
+			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
+		}
+		
+		for (PatientState patientState : patientProgram.getStates()) {
+			if (patientState.getActive(encounter.getEncounterDatetime())) {
+				if (patientState.getState().equals(state)) {
+					return;
+				}
+			}
+		}
+		
+		PatientState previousState = null;
+		PatientState nextState = null;
+		PatientState newState = new PatientState();
+		newState.setPatientProgram(patientProgram);
+		newState.setState(state);
+		newState.setStartDate(encounter.getEncounterDatetime());
+		
+		Collection<PatientState> sortedStates = new TreeSet<PatientState>(new Comparator<PatientState>() {
+			
+			@Override
+			public int compare(PatientState o1, PatientState o2) {
+				int result = OpenmrsUtil.compareWithNullAsEarliest(o1.getStartDate(), o2.getStartDate());
+				if (result == 0) {
+					result = OpenmrsUtil.compareWithNullAsLatest(o1.getEndDate(), o2.getEndDate());
+				}
+				return result;
+			}
+			
+		});
+		sortedStates.addAll(patientProgram.getStates());
+		for (PatientState currentState : sortedStates) {
+			if (!currentState.getState().getProgramWorkflow().equals(state.getProgramWorkflow())) {
+				continue;
+			}
+			
+			if (currentState.getEndDate() != null) {
+				if (currentState.getEndDate().before(newState.getStartDate())) {
+					previousState = currentState;
+				} else {
+					if (currentState.getStartDate().after(newState.getStartDate())) {
+						nextState = currentState;
+						break;
+					} else {
+						previousState = currentState;
+					}
+				}
+			} else if (currentState.getStartDate().before(newState.getStartDate())) {
+				previousState = currentState;
+				nextState = null;
+				break;
+			} else {
+				nextState = currentState;
 				break;
 			}
 		}
+		
+		if (previousState != null) {
+			if (previousState.getEndDate() != null && previousState.getEndDate().after(newState.getStartDate())) {
+				previousState.setEndDate(newState.getStartDate());
+			} else if (previousState.getEndDate() == null) {
+				previousState.setEndDate(newState.getStartDate());
+			}
+		}
+		
+		if (nextState != null) {
+			if (nextState.getStartDate().before(newState.getStartDate())) {
+				newState.setEndDate(nextState.getEndDate());
+				nextState.setEndDate(newState.getStartDate());
+			} else {
+				newState.setEndDate(nextState.getStartDate());
+			}
+		}
+		
+		patientProgram.getStates().add(newState);
+		
+		patientProgramsToUpdate.add(patientProgram);
 	}
 	
 	/**
@@ -563,7 +641,7 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Sets the list of Patient Programs that need to be creatd to process form submission
+	 * Sets the list of Patient Programs that need to be created to process form submission
 	 * 
 	 * @param patientProgramsToCreate the list of Programs to create
 	 */
@@ -644,17 +722,16 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * @return the patientProgramsToEdit
+	 * @return the patientProgramsToUpdate
 	 */
-	public List<PatientProgram> getPatientProgramsToEdit() {
-		return patientProgramsToEdit;
+	public List<PatientProgram> getPatientProgramsToUpdate() {
+		return patientProgramsToUpdate;
 	}
 	
 	/**
-	 * @param patientProgramsToEdit the patientProgramsToEdit to set
+	 * @param patientProgramsToUpdate the patientProgramsToUpdate to set
 	 */
-	public void setPatientProgramsToEdit(List<PatientProgram> patientProgramsToEdit) {
-		this.patientProgramsToEdit = patientProgramsToEdit;
+	public void setPatientProgramsToUpdate(List<PatientProgram> patientProgramsToUpdate) {
+		this.patientProgramsToUpdate = patientProgramsToUpdate;
 	}
-	
 }

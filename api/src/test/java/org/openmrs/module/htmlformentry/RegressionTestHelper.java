@@ -27,6 +27,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.util.OpenmrsUtil;
@@ -608,7 +609,7 @@ public abstract class RegressionTestHelper {
 		public void setPatient(Patient patient) {
 			this.patient = patient;
 		}
-		
+
 		/**
 		 * Fails if there is a patient (one was initially selected or one was created)
 		 */

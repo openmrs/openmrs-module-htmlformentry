@@ -577,8 +577,8 @@ public class FormEntrySession {
         	}
         }
         
-        if (submissionActions.getPatientProgramsToEdit() != null) {
-        	for (PatientProgram patientProgram: submissionActions.getPatientProgramsToEdit()) {
+        if (submissionActions.getPatientProgramsToUpdate() != null) {
+        	for (PatientProgram patientProgram : submissionActions.getPatientProgramsToUpdate()) {
 	            Context.getProgramWorkflowService().savePatientProgram(patientProgram);
             }
         }

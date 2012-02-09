@@ -141,7 +141,7 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 								patientState.setStartDate(selectedDate);
 						}
 						pp.setDateEnrolled(selectedDate);
-						session.getSubmissionActions().getPatientProgramsToEdit().add(pp);
+						session.getSubmissionActions().getPatientProgramsToCreate().add(pp);
 					}
 					//else: patient is enrolled in the program or the program ended, return
 					
