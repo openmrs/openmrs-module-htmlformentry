@@ -74,8 +74,11 @@ public class HtmlFormSubstitutionUtils {
 					// we only need to deal with descriptors that have an associated class
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
-						// match any time that attribute name falls within the specified tag --- [^>]* means any character except a >
-						String pattern = "<" + tagName + "[^>]* " + attributeDescriptor.getName();
+						// pattern matches <tagName .* attribute
+						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference
+						// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
+						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
+						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName();
 						HtmlFormEntryUtil.log.debug("substitution pattern: " + pattern);
 						form.setXmlData(HtmlFormSubstitutionUtils.performSubstitutionHelper(form.getXmlData(), pattern,
 						    attributeDescriptor.getClazz(), substituter, substitutionMap, true));

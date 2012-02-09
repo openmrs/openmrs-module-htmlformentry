@@ -98,7 +98,10 @@ public class HtmlFormExporter {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
-						String pattern = "<" + tagName + "[^>]* " + attributeDescriptor.getName() + "=\"(.*?)\"";
+						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;
+						// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
+						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
+						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName() + "=\"(.*?)\"";
 						log.debug("dependency substitution pattern: " + pattern);
 						
 						// now search through and find all matches
@@ -192,7 +195,8 @@ public class HtmlFormExporter {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to attribute="[anything]"
-						String stripPattern = "<" + tagName + "[^>]*( " + attributeDescriptor.getName() + "=\".*?\")";
+						// see above mehtod for more detail
+						String stripPattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)(" + attributeDescriptor.getName() + "=\".*?\")";
 						log.debug("stripping substitution pattern: " + stripPattern);
 						
 						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {
