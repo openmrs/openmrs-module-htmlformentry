@@ -413,15 +413,18 @@ public class FormSubmissionActions {
 			throw new IllegalArgumentException("Cannot change state without a patient");
 		Encounter encounter = highestOnStack(Encounter.class);
 		if (encounter == null)
-			throw new IllegalArgumentException("Cannot end enrollment in a program outside of an Encounter");
+			throw new IllegalArgumentException("Cannot change state without an Encounter");
 		
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
-		    state.getProgramWorkflow().getProgram(), null, null, encounter.getEncounterDatetime(), null, false);
+		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);
 		
-		PatientProgram patientProgram = patientPrograms.iterator().next();
-		patientProgram.transitionToState(state, encounter.getEncounterDatetime());
-		
-		patientProgramsToEdit.add(patientProgram);
+		for (PatientProgram patientProgram : patientPrograms) {
+			if (Boolean.TRUE.equals(patientProgram.getActive(encounter.getEncounterDatetime()))) {
+				patientProgram.transitionToState(state, encounter.getEncounterDatetime());
+				patientProgramsToEdit.add(patientProgram);
+				break;
+			}
+		}
 	}
 	
 	/**

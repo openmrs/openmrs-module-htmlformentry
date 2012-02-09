@@ -1021,6 +1021,11 @@ public class HtmlFormEntryUtil {
 	}
 	
 	public static ProgramWorkflow getWorkflow(String identifier) {
+		identifier = identifier.trim();
+		if (StringUtils.isBlank(identifier)) {
+			return null;
+		}
+		
 		ProgramWorkflow workflow = null;
 		try {
 			Integer id = Integer.valueOf(identifier);

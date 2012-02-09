@@ -15,6 +15,7 @@ package org.openmrs.module.htmlformentry.element;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +24,6 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
@@ -113,16 +113,21 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		
 		ProgramWorkflowState currentState = null;
 		
-		Patient patient = context.getExistingPatient();
-		List<PatientProgram> programs = Context.getProgramWorkflowService().getPatientPrograms(patient,
+		List<PatientProgram> programs = Context.getProgramWorkflowService().getPatientPrograms(context.getExistingPatient(),
 		    workflow.getProgram(), null, null, null, null, false);
 		
+		Date encounterDatetime = new Date();
+		if (context.getExistingEncounter() != null) {
+			encounterDatetime = context.getExistingEncounter().getEncounterDatetime();
+		}
+		
 		for (PatientProgram program : programs) {
-			if (program.getDateCompleted() != null) {
-			PatientState state = program.getCurrentState(workflow);
-			if (state != null) {
-				currentState = state.getState();
-			}
+			if (Boolean.TRUE.equals(program.getActive(encounterDatetime))) {
+				PatientState state = program.getCurrentState(workflow);
+				if (state != null) {
+					currentState = state.getState();
+					break;
+				}
 			}
 		}
 		

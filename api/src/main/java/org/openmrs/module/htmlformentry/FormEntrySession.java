@@ -577,6 +577,12 @@ public class FormEntrySession {
         	}
         }
         
+        if (submissionActions.getPatientProgramsToEdit() != null) {
+        	for (PatientProgram patientProgram: submissionActions.getPatientProgramsToEdit()) {
+	            Context.getProgramWorkflowService().savePatientProgram(patientProgram);
+            }
+        }
+        
         ObsService obsService = Context.getObsService();
         
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
