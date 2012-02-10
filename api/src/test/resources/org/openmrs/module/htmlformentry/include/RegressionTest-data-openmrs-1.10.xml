@@ -220,10 +220,18 @@
 	
   <concept concept_id="10003" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3fe89e62-5143-11e1-a3e3-00248140a5eb"/>
   <concept_name concept_name_id="20003" concept_id="10003" name="END STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="44c8dd98-5143-11e1-a3e3-00248140a5eb"/>
-	
+
+  <concept concept_id="10004" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="33e89e62-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20004" concept_id="10004" name="MIDDLE STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="80c8dd98-5143-11e1-a3e3-00248140a5eb"/>
+  
+  <concept concept_id="10005" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="65e89e62-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20005" concept_id="10005" name="RETIRED STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="90c8dd98-5143-11e1-a3e3-00248140a5eb"/>	
+  
   <program program_id="10" concept_id="10000" creator="1" date_created="2008-08-15 16:07:11.0" changed_by="1" date_changed="2008-08-15 17:04:50.0" retired="false" name="Test Program" description="testing program" uuid="67bad8f4-5140-11e1-a3e3-00248140a5eb"/>
   <program_workflow program_workflow_id="100" program_id="10" concept_id="10001" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="72a90efc-5140-11e1-a3e3-00248140a5eb"/>
 		
   <program_workflow_state program_workflow_state_id="200" program_workflow_id="100" concept_id="10002" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="89d1a292-5140-11e1-a3e3-00248140a5eb"/>
-  <program_workflow_state program_workflow_state_id="201" program_workflow_id="100" concept_id="10003" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="8ef66ca8-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="201" program_workflow_id="100" concept_id="10003" initial="false" terminal="true" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="8ef66ca8-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="202" program_workflow_id="100" concept_id="10004" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="99f66ca8-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="203" program_workflow_id="100" concept_id="10005" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="true" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="91f66ca8-5140-11e1-a3e3-00248140a5eb"/>
 </dataset>

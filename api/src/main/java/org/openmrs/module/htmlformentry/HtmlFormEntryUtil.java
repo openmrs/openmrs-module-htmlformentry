@@ -1065,6 +1065,20 @@ public class HtmlFormEntryUtil {
 			workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
 		}
 		
+		if (workflow == null) {
+			Concept concept = HtmlFormEntryUtil.getConcept(identifier);
+			if (concept != null) {
+				for (Program program : Context.getProgramWorkflowService().getAllPrograms()) {
+					for (ProgramWorkflow programWorkflow : program.getAllWorkflows()) {
+						if (programWorkflow.getConcept().equals(concept)) {
+							workflow = programWorkflow;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
 		return workflow;
 	}
 	
@@ -1082,10 +1096,13 @@ public class HtmlFormEntryUtil {
 	 */
 	public static ProgramWorkflowState getState(String identifier, Program program) {
 		if (StringUtils.isNotBlank(identifier) && program != null) {
+			
+			Concept concept = HtmlFormEntryUtil.getConcept(identifier);
+			
 			for (ProgramWorkflow wf : program.getWorkflows()) {
 				for (ProgramWorkflowState wfState : wf.getStates(false)) {
 					if (wfState.getId().toString().equals(identifier) || wfState.getUuid().equals(identifier)
-					        || wfState.getConcept().getUuid().equalsIgnoreCase(identifier)) {
+					        || wfState.getConcept().equals(concept)) {
 						return wfState;
 					}
 				}

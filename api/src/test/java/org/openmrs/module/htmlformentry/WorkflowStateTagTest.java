@@ -20,6 +20,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.ConceptMap;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
@@ -39,6 +40,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
+	public static final String XML_TEST_DATASET = "htmlFormEntryTestDataSet";
+	
 	public static final String XML_FORM_NAME = "workflowStateForm";
 	
 	public static final String START_STATE = "89d1a292-5140-11e1-a3e3-00248140a5eb";
@@ -54,6 +57,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public static final Date PAST_DATE = new Date(DATE.getTime() - 31536000000L);
 	
 	public static final Date FUTURE_DATE = new Date(DATE.getTime() + 31536000000L);
+
+	private static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	private Patient patient;
 	
@@ -91,6 +96,15 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
+	public void shouldNotDisplayRetiredStates() throws Exception {
+		transitionToState(START_STATE);
+		
+		String htmlform = "<htmlform><workflowState workflowId=\"100\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		assertNotPresent(session, RETIRED_STATE);
+	}
+	
+	@Test
 	public void shouldDisplayDropdownIfNoStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
@@ -119,7 +133,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndHiddenStyle() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"checkbox\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"hidden\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
@@ -174,6 +188,25 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		assertNotPresent(session, MIDDLE_STATE);
 		assertNotPresent(session, END_STATE);
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("checkbox"));
+	}
+	
+	@Test
+	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_TEST_DATASET));
+		
+		ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+		
+		ConceptMap conceptMap = new ConceptMap();
+		conceptMap.setConcept(state.getConcept());
+		conceptMap.setSource(Context.getConceptService().getConceptSource(1));
+		conceptMap.setSourceCode(state.getConcept().getId().toString());
+		
+		state.getConcept().addConceptMapping(conceptMap);
+		Context.getConceptService().saveConcept(state.getConcept());
+		
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"XYZ:10002\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		assertPresent(session, START_STATE);
 	}
 	
 	@Test

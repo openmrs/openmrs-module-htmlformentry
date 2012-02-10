@@ -73,41 +73,27 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			for (int i = 0; i < tagParams.getStateIds().size(); i++) {
 				String stateId = tagParams.getStateIds().get(i);
 				
-				Integer id = null;
-				try {
-					id = Integer.valueOf(stateId);
-				}
-				catch (NumberFormatException e) {}
+				ProgramWorkflowState state = HtmlFormEntryUtil.getState(stateId, workflow.getProgram());
 				
-				boolean stateIdfound = false;
-				
-				for (ProgramWorkflowState workflowState : workflow.getStates()) {
-					if (workflowState.getId().equals(id) || workflowState.getUuid().equals(stateId)) {
-						String label = workflowState.getConcept().getName().getName();
-						if (tagParams.getStateLabels() != null) {
-							label = tagParams.getStateLabels().get(i);
-						}
-						states.put(label, workflowState);
-						
-						stateIdfound = true;
-						break;
-					}
-				}
-				
-				if (!stateIdfound) {
+				if (state == null) {
 					throw new IllegalArgumentException("workflow with id " + workflow.getId() + " does not have state id "
 					        + stateId);
 				}
-			}
-		} else {
-			int i = 0;
-			for (ProgramWorkflowState state : workflow.getStates()) {
+				
 				String label = state.getConcept().getName().getName();
 				if (tagParams.getStateLabels() != null) {
 					label = tagParams.getStateLabels().get(i);
 				}
 				states.put(label, state);
-				i++;
+			}
+		} else {
+			for (ProgramWorkflowState state : workflow.getStates()) {
+				if (state.isRetired()) {
+					continue;
+				}
+				
+				String label = state.getConcept().getName().getName();
+				states.put(label, state);
 			}
 		}
 		
