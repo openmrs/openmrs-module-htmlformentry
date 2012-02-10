@@ -241,7 +241,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 			if (existingObs != null) {
 				valueWidget.setInitialValue(existingObs.getConcept());
-			} else if (defaultValue != null) {
+			} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 				Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
 				if (initialValue == null) {
 					throw new IllegalArgumentException("Invalid default value. Cannot find concept: " + defaultValue);
@@ -304,7 +304,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				}
 				if (existingObs != null) {
 					valueWidget.setInitialValue(existingObs.getValueNumeric());
-				} else if (defaultValue != null) {
+				} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 					try {
 						Double initialValue = Double.valueOf(defaultValue);
 						valueWidget.setInitialValue(initialValue);
@@ -426,7 +426,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 				
-				String initialValue = defaultValue;
+				String initialValue = null;
+				if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+					initialValue = defaultValue;
+				}
 				if (existingObs != null) {
 					initialValue = existingObs.getValueText();
 				}
@@ -497,7 +500,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
 					if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
-					} else if (defaultValue != null) {
+					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
 						if (initialValue == null) {
 							throw new IllegalArgumentException("Invalid default value. Cannot find concept: " + defaultValue);
@@ -565,7 +568,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 					if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
-					} else if (defaultValue != null) {
+					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
 						if (initialValue == null) {
 							throw new IllegalArgumentException("Invalid default value. Cannot find concept: " + defaultValue);
@@ -622,7 +625,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				
 				if (existingObs != null) {
 					valueWidget.setInitialValue(existingObs.getValueAsBoolean());
-				} else if (defaultValue != null) {
+				} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 					defaultValue = defaultValue.trim();
 					
 					//Check the default value. Do not use Boolean.valueOf as it only tests for 'true'.
@@ -669,7 +672,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				
 				if (existingObs != null) {
 					valueWidget.setInitialValue(existingObs.getValueDatetime());
-				} else if (defaultValue != null) {
+				} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 					valueWidget.setInitialValue(HtmlFormEntryUtil
 					        .translateDatetimeParam(defaultValue, defaultDatetimeFormat));
 				}
