@@ -19,7 +19,6 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
-import org.openmrs.Order;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
@@ -51,8 +50,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	
 	protected final Log log = LogFactory.getLog(DrugOrderSubmissionElement.class);
 	
-	public static final String FIELD_DRUG = "drug";
-	
 	public static final String FIELD_DRUG_NAMES = "drugNames";
 	
 	public static final String FIELD_DOSE = "dose";
@@ -64,8 +61,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	public static final String FIELD_DISCONTINUED = "discontinued";
 	
 	public static final String FIELD_FREQUENCY = "frequency";
-	
-	public static final String FIELD_DRUG_ID = "drugID";
 	
 	public static final String FIELD_QUANTITY = "quantity";
 	
@@ -122,7 +117,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	public DrugOrderSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		ConceptService conceptService = Context.getConceptService();
 		MessageSourceService mss = Context.getMessageSourceService();
-		
 		
 		Boolean usingDurationField = false;
 		String orderDurationStr = parameters.get(FIELD_SHOW_ORDER_DURATION);
@@ -329,10 +323,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	        context.registerErrorWidget(discontinuedReasonWidget, discontinuedReasonErrorWidget);
 		}
 		// populate values drug order from database (VIEW, EDIT)
-		Map<Concept, List<Order>> existingOrders = context.getExistingOrders();
-		if (context.getMode() != Mode.ENTER && existingOrders != null) {		
+		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {		
 			for (Drug drug : drugsUsedAsKey) {
-	            if (existingOrders.containsKey(drug.getConcept())) {
+	            if (context.getExistingOrders().containsKey(drug.getConcept())) {
+	            		//this will return null if Order is not a DrugOrder even if matched by Concept
 	    			    DrugOrder drugOrder = (DrugOrder) context.removeExistingDrugOrder(drug);
 	    			    if (drugOrder != null){
     	    				existingOrder = drugOrder;
