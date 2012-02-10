@@ -189,11 +189,11 @@ public class TestUtil {
 	
 	private static String stripTagsAndWhitespace(String string) {
 		string = string.toLowerCase();
-		string = string.replaceAll("<span class=\"value\">(.*)</span>", "$1");
-		string = string.replaceAll("<span class=\"emptyvalue\">.*</span>", "");
+		string = string.replaceAll("(?s)<span class=\"value\">(.*)</span>", "$1");
+		string = string.replaceAll("(?s)<span class=\"emptyvalue\">.*</span>", "");
+		string = string.replaceAll("(?s)<div class=\"htmlform\">(.*)</div>", "$1");
 		string = string.replaceAll("\\s", "");
 		string = string.replaceAll("<htmlform>(.*)</htmlform>", "$1");
-		string = string.replaceAll("<div class=\"htmlform\">(.*)</div>", "$1");
 		return string;
 	}
 	
