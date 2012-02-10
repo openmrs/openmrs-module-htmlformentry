@@ -354,6 +354,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (id != null) {
 			ret.append("<span id='" + id + "'>");
 			
+			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
 			if (dateWidget != null) {
 				context.registerPropertyAccessorInfo(id + ".dateValue", context.getFieldNameIfRegistered(dateWidget), null, null,
 					null);

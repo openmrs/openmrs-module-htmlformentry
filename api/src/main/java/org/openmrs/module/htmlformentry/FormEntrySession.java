@@ -685,8 +685,8 @@ public class FormEntrySession {
     }
     
     /** 
-     * Returns the last AJAX submission made
-     * TODO: Update this so it is actually right
+     * Creates the Javascript necessary to set form fields to the values entered during last submission
+     * Used to maintain previously-entered field values when redisplaying a form with validation errors
      */
     @SuppressWarnings("rawtypes")
     public String getSetLastSubmissionFieldsJavascript() {
@@ -699,9 +699,7 @@ public class FormEntrySession {
                 String name = (String) e.nextElement();
                 if (name.startsWith("w")) {
                     String val = lastSubmission.getParameter(name);
-                    if (StringUtils.hasText(val)) {
-                    	sb.append("setValueByName('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
-                    }
+                    sb.append("setValueByName('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
                 }
             }
             return sb.toString();
