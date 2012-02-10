@@ -76,7 +76,6 @@
 	<modules>
 		<module>api</module>
 		<module>omod</module>
-		<module>release-tests</module>
 	</modules>
 
 	<build>
@@ -460,6 +459,13 @@
 				<openMRSMinorVersion>1.8</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
+		</profile>
+		
+		<profile>
+			<id>release-tests</id>
+			<modules>
+				<module>release-tests</module>
+			</modules>
 		</profile>
 
 	</profiles>
