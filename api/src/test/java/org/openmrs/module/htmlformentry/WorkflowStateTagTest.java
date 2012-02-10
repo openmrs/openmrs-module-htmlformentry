@@ -57,7 +57,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public static final Date PAST_DATE = new Date(DATE.getTime() - 31536000000L);
 	
 	public static final Date FUTURE_DATE = new Date(DATE.getTime() + 31536000000L);
-
+	
 	private static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	private Patient patient;
@@ -588,6 +588,56 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
+	public void shouldTransitionToStateAfterCurrentOnTheSameDay() throws Exception {
+		//Given: Patient has a workflow state of X starting in Jan 2012 (still current)
+		transitionToState(START_STATE, DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state Y is selected 
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				//Then: Workflow state X is stopped with a stop date of Jan 2012, Workflow state Y is created with a start date of Jan 2012 and is still current
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, null);
+				PatientState patientState = getPatientState(patientProgram, state, null);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				
+				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				patientProgram = getPatientProgramByState(results.getPatient(), state, null);
+				patientState = getPatientState(patientProgram, state, null);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
+	}
+	
+	@Test
 	public void shouldTransitonToStateInBetweenStates() throws Exception {
 		//Given: Patient has a workflow state of X from June 2011 to Jan 2012, then a workflow state of Y from Jan 2012 to current
 		transitionToState(START_STATE, PAST_DATE);
@@ -729,15 +779,16 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	 * @return
 	 */
 	private PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow, Date activeDate) {
-		if (activeDate == null) {
-			activeDate = new Date();
-		}
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    workflow.getProgram(), null, null, null, null, false);
 		for (PatientProgram patientProgram : patientPrograms) {
 			for (PatientState patientState : patientProgram.getStates()) {
 				if (patientState.getState().getProgramWorkflow().equals(workflow)) {
-					if (patientState.getActive(activeDate)) {
+					if (activeDate != null) {
+						if (patientState.getActive(activeDate)) {
+							return patientProgram;
+						}
+					} else {
 						return patientProgram;
 					}
 				}
@@ -752,15 +803,16 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	 * @return
 	 */
 	private PatientProgram getPatientProgramByState(Patient patient, ProgramWorkflowState state, Date activeDate) {
-		if (activeDate == null) {
-			activeDate = new Date();
-		}
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);
 		for (PatientProgram patientProgram : patientPrograms) {
 			for (PatientState patientState : patientProgram.getStates()) {
 				if (patientState.getState().equals(state)) {
-					if (patientState.getActive(activeDate)) {
+					if (activeDate != null) {
+						if (patientState.getActive(activeDate)) {
+							return patientProgram;
+						}
+					} else {
 						return patientProgram;
 					}
 				}
@@ -776,12 +828,13 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	 * @return
 	 */
 	private PatientState getPatientState(PatientProgram patientProgram, ProgramWorkflowState state, Date activeDate) {
-		if (activeDate == null) {
-			activeDate = new Date();
-		}
 		for (PatientState patientState : patientProgram.getStates()) {
 			if (patientState.getState().equals(state)) {
-				if (patientState.getActive(activeDate)) {
+				if (activeDate != null) {
+					if (patientState.getActive(activeDate)) {
+						return patientState;
+					}
+				} else {
 					return patientState;
 				}
 			}
