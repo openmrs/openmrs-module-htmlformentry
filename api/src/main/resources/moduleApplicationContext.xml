@@ -89,6 +89,10 @@
 								        <key><value>workflowState</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.WorkflowStateTagHandler"/>
 							      	</entry>
+							      	<entry>
+								        <key><value>standardRegimen</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.StandardRegimenTagHandler"/>
+							      	</entry>
 							    </map>  
 							</property>
 							<property name="basicFormXmlTemplate">
