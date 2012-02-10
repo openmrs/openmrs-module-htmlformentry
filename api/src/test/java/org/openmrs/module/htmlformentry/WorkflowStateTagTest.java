@@ -13,7 +13,6 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,6 @@ import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -458,7 +456,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testEditFormHtml(String html) {
-				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">MIDDLE STATE"));
+				Assert.assertTrue("Edit should contain current state: " + html,
+				    html.contains("selected=\"true\">MIDDLE STATE"));
 			}
 		}.run();
 		
@@ -667,7 +666,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testEditFormHtml(String html) {
-				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">MIDDLE STATE"));
+				Assert.assertTrue("Edit should contain current state: " + html,
+				    html.contains("selected=\"true\">MIDDLE STATE"));
 			}
 		}.run();
 	}
@@ -741,7 +741,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testEditFormHtml(String html) {
-				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">MIDDLE STATE"));
+				Assert.assertTrue("Edit should contain current state: " + html,
+				    html.contains("selected=\"true\">MIDDLE STATE"));
 			}
 		}.run();
 	}
@@ -800,7 +801,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testEditFormHtml(String html) {
-				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">START STATE"));
+				Assert.assertTrue("Edit should contain current state: " + html,
+				    html.contains("selected=\"true\">START STATE"));
 			}
 		}.run();
 	}
