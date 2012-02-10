@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
+import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
@@ -106,14 +107,9 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		
 		ProgramWorkflowState currentState = null;
 		
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(context.getExistingPatient(), workflow,
-		    encounterDatetime);
-		if (patientProgram != null) {
-			for (PatientState patientState : patientProgram.getStates()) {
-	            if (patientState.getActive(encounterDatetime)) {
-	            	currentState = patientState.getState();
-	            }
-            }
+		PatientState activePatientState = getActivePatientState(context.getExistingPatient(), encounterDatetime, workflow);
+		if (activePatientState != null) {
+			currentState = activePatientState.getState();
 		}
 		
 		if (currentState == null) {
@@ -128,7 +124,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		
 		if (tagParams.getStyle().equals("hidden")) {
 			widget = new HiddenFieldWidget();
-			widget.setInitialValue(states.entrySet().iterator().next().getValue().getUuid());
+			widget.setInitialValue(states.entrySet().iterator().next());
 		} else if (tagParams.getStyle().equals("checkbox")) {
 			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
 			widget = new CheckboxWidget(state.getKey(), state.getValue().getUuid());
@@ -157,6 +153,25 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	}
 	
 	/**
+	 * @param context
+	 * @param encounterDatetime
+	 * @param workflow
+	 * @return
+	 */
+	private PatientState getActivePatientState(Patient patient, Date encounterDatetime, ProgramWorkflow workflow) {
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(patient, workflow, encounterDatetime);
+		if (patientProgram != null) {
+			for (PatientState patientState : patientProgram.getStates()) {
+				if (patientState.getState().getProgramWorkflow().equals(workflow)
+				        && patientState.getActive(encounterDatetime)) {
+					return patientState;
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext,
 	 *      javax.servlet.http.HttpServletRequest)
 	 */
@@ -173,9 +188,20 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		String stateUuid = (String) widget.getValue(session.getContext(), submission);
+		
 		if (!StringUtils.isBlank(stateUuid)) {
-			ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
-			session.getSubmissionActions().transitionToState(state);
+			if (Mode.EDIT.equals(session.getContext().getMode())) {
+				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
+				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
+				        .getEncounter().getEncounterDatetime(), workflow);
+				if (!newState.equals(oldPatientState.getState())) {
+					oldPatientState.setState(newState);
+					session.getSubmissionActions().getPatientProgramsToUpdate().add(oldPatientState.getPatientProgram());
+				}
+			} else {
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
+				session.getSubmissionActions().transitionToState(state);
+			}
 		}
 	}
 	
