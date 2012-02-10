@@ -1,5 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -8,6 +11,8 @@ import java.util.ListIterator;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+
+import javax.management.RuntimeErrorException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -462,47 +467,71 @@ public class FormSubmissionActions {
 				continue;
 			}
 			
-			if (currentState.getEndDate() != null) {
-				if (currentState.getEndDate().before(newState.getStartDate())) {
-					previousState = currentState;
-				} else {
-					if (currentState.getStartDate().after(newState.getStartDate())) {
+			Date newStartDate = newState.getStartDate();
+			Date currentStartDate = currentState.getStartDate();
+			Date currentEndDate = currentState.getEndDate();
+			if (!hasTime(newStartDate)) {
+				currentStartDate = removeTime(currentStartDate);
+				currentEndDate = (currentEndDate != null) ? removeTime(currentEndDate) : null;
+			}
+			
+			if (currentEndDate != null) {
+				if (currentEndDate.after(newStartDate)) {
+					if (currentStartDate.after(newStartDate)) {
 						nextState = currentState;
 						break;
 					} else {
 						previousState = currentState;
 					}
+				} else {
+					previousState = currentState;
 				}
-			} else if (currentState.getStartDate().before(newState.getStartDate())) {
+			} else if (currentStartDate.after(newStartDate)) {
+				nextState = currentState;
+				break;
+			} else {
 				previousState = currentState;
 				nextState = null;
 				break;
-			} else {
-				nextState = currentState;
-				break;
 			}
 		}
 		
-		if (previousState != null) {
-			if (previousState.getEndDate() != null && previousState.getEndDate().after(newState.getStartDate())) {
-				previousState.setEndDate(newState.getStartDate());
-			} else if (previousState.getEndDate() == null) {
+		if (nextState == null) {
+			if (previousState != null) {
 				previousState.setEndDate(newState.getStartDate());
 			}
-		}
-		
-		if (nextState != null) {
-			if (nextState.getStartDate().before(newState.getStartDate())) {
-				newState.setEndDate(nextState.getEndDate());
-				nextState.setEndDate(newState.getStartDate());
-			} else {
-				newState.setEndDate(nextState.getStartDate());
+		} else {
+			if (previousState != null) {
+				previousState.setEndDate(newState.getStartDate());
 			}
+			newState.setEndDate(nextState.getStartDate());
 		}
 		
 		patientProgram.getStates().add(newState);
 		
 		patientProgramsToUpdate.add(patientProgram);
+	}
+	
+	private boolean hasTime(Date date) {
+		Date noTime = removeTime(date);
+		return !date.equals(noTime);
+	}
+	
+	/**
+	 * Removes hours, seconds, ...
+	 * 
+	 * @param date
+	 * @return
+	 */
+	private Date removeTime(Date date) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			return dateFormat.parse(dateFormat.format(date));
+			
+		}
+		catch (ParseException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
