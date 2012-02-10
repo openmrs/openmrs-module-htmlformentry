@@ -13,6 +13,7 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.ConceptMap;
+import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
@@ -28,6 +30,7 @@ import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -441,6 +444,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {
+				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">MIDDLE STATE"));
+			}
 		}.run();
 		
 	}
@@ -634,6 +653,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {
+				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">MIDDLE STATE"));
+			}
 		}.run();
 	}
 	
@@ -692,6 +727,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(dateAsString(FUTURE_DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {
+				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">MIDDLE STATE"));
+			}
 		}.run();
 	}
 	
@@ -734,6 +785,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNotNull(patientProgram);
 				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {
+				Assert.assertTrue("Edit should contain current state: " + html, html.contains("selected=\"true\">START STATE"));
 			}
 		}.run();
 	}

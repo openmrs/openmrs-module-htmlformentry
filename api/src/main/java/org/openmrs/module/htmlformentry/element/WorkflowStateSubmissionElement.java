@@ -26,10 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -102,12 +104,16 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			encounterDatetime = context.getExistingEncounter().getEncounterDatetime();
 		}
 		
+		ProgramWorkflowState currentState = null;
+		
 		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(context.getExistingPatient(), workflow,
 		    encounterDatetime);
-		
-		ProgramWorkflowState currentState = null;
 		if (patientProgram != null) {
-			currentState = patientProgram.getCurrentState(workflow).getState();
+			for (PatientState patientState : patientProgram.getStates()) {
+	            if (patientState.getActive(encounterDatetime)) {
+	            	currentState = patientState.getState();
+	            }
+            }
 		}
 		
 		if (currentState == null) {
