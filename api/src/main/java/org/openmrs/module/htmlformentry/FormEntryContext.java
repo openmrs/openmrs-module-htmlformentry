@@ -382,8 +382,6 @@ public class FormEntryContext {
 	/**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
 	 * 
-	 * TODO:  what about drug orders -- sshoudl
-	 * 
 	 * @param question the concept associated with the Obs to remove
 	 * @return
 	 */
@@ -403,11 +401,25 @@ public class FormEntryContext {
 		return null;
 	}
 	
+	/**
+	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
+	 * @return the list of orders
+	 */
+	public List<Order> getRemainingExistingOrders(){
+		List<Order> ret = new ArrayList<Order>();
+		if (this.getExistingOrders() != null){
+			for (Map.Entry<Concept, List<Order>> e : this.getExistingOrders().entrySet()){
+				List<Order> ords = e.getValue();
+				for (Order o : ords)
+					ret.add(o);
+			}
+		}
+		return ret;
+	}
+	
 	
 	/**
-     * Removes an Order of the relevant Concept from existingOrders, and returns it.
-     * 
-     * TODO:  what about drug orders -- sshoudl
+     * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
      * 
      * @param question the concept associated with the Obs to remove
      * @return
