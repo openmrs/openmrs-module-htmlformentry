@@ -36,6 +36,7 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.order.RegimenSuggestion;
+import org.openmrs.util.OpenmrsUtil;
 
 
 /**
@@ -181,7 +182,8 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 					regDrugOrders.add(context.removeExistingDrugOrder(dor.getDrug()));
 					regWidget.setInitialValue(existingStandardRegimen.getCodeName());
 				}
-				 discontinuedDateWidget.setInitialValue(regDrugOrders.get(0).getDiscontinuedDate());
+				//TODO:  only set this if the discontinued dates are all the same...
+				 discontinuedDateWidget.setInitialValue(getCommonDiscontinueDate(regDrugOrders));
 				    if (discontinuedReasonWidget != null && regDrugOrders.get(0).getDiscontinuedReason() != null)
 				        discontinuedReasonWidget.setInitialValue(regDrugOrders.get(0).getDiscontinuedReason().getConceptId());
 			}
@@ -189,6 +191,19 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		if (regDrugOrders != null && regDrugOrders.size() > 0)
         	startDateWidget.setInitialValue(regDrugOrders.get(0).getStartDate());
         context.getSchema().addField(srf);
+	}
+	
+	private Date getCommonDiscontinueDate(List<DrugOrder> orders){
+		Date candidate = null;
+		for (DrugOrder dor : orders){
+			if (!OpenmrsUtil.nullSafeEquals(dor.getDiscontinuedDate(), candidate))
+				return null;
+			else
+				candidate = dor.getDiscontinuedDate();
+		}
+		
+		
+		return candidate;
 	}
 
 	@Override

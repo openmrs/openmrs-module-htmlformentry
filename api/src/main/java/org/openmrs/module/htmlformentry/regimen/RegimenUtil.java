@@ -20,7 +20,7 @@ import org.openmrs.util.OpenmrsConstants;
 /**
  * Helper for standardRegimen tag.
  * 
- * NOTE:  matching regimens to existing DrugOrders does NOT take dose or frequency into account.  All matching is by drug.
+ * NOTE:  matching regimens to existing DrugOrders does NOT take dose or frequency into account.  All matching is by drug, start date, discontinued date.
  * 
  * @author dthomas
  *
@@ -46,11 +46,22 @@ public class RegimenUtil {
 		int numComponents = 0;
 		if (regimenCandidates != null && drugOrders != null){
 			for (RegimenSuggestion rs :  regimenCandidates){
-				List<DrugOrder> matchHolder = new ArrayList<DrugOrder>();
-				boolean allFound = true;
+				List<DrugOrder> matchHolder = new ArrayList<DrugOrder>(); //collects drug matches between encounter and RegimenSuggestion
+				boolean allFound = true; //true until a DrugSuggestion from the RegimenSuggestion isn't matched.
+				Date startDate = null;  //if all DrugSuggestions are matched but have different start dates, we can't match.
 				for (DrugSuggestion dc : rs.getDrugComponents()){
-					if (drugIdFoundInDrugSet(dc, drugOrders) != null){
-						matchHolder.add(drugIdFoundInDrugSet(dc, drugOrders));
+					DrugOrder dorToInspect = drugIdFoundInDrugSet(dc, drugOrders); //assumes patient will never have multiple drug orders of same drug in same encounter...
+					if (dorToInspect != null){ // there was a match by drug
+						if (startDate == null) // setup standard regimen start date
+							startDate = dorToInspect.getStartDate();
+						if (startDate.equals(dorToInspect.getStartDate())) //this will always be true for first drug matched.
+							matchHolder.add(drugIdFoundInDrugSet(dc, drugOrders));
+						else {
+							//the drug was matched on drug type, but the start date was different.  This tag assumes equal start and stop dates to be a standard regimen.
+							allFound = false;
+							break;
+						}
+							
 					} else {
 						allFound = false;
 						break;
@@ -67,8 +78,8 @@ public class RegimenUtil {
 	}
 	
 	/**
-	 * Finds a drug in a set of drugs by id or uuid; exludes voided DrugOrders from consideration
-	 * Does NOT compare based on 
+	 * Finds a drug in a set of drugs by id or uuid; excludes voided DrugOrders from consideration
+	 * 
 	 * 
 	 */
 	private static DrugOrder drugIdFoundInDrugSet(DrugSuggestion ds, List<Order> dors){
