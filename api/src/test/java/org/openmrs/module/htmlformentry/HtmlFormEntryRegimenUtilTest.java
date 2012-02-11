@@ -139,7 +139,37 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Assert.assertTrue(rs.getCodeName().equals("all3"));
 	}
 	
-	
+	@Test
+	@Verifies(value = "should not match multiple drug orders with different start dates", method = "findStrongestStandardRegimenInDrugOrders(List<RegimenSuggestion>, List<Order>)")
+	public void findStrongestStandardRegimenInDrugOrders_shouldReturnSingle() throws Exception {
+		//Build drug orders according to drug1only
+		Integer encId = regimenTestBuildEncounterHelper("all3");
+		Context.flushSession();
+		Context.clearSession();
+		
+		//update orders to have different start dates
+		Encounter e = Context.getEncounterService().getEncounter(encId);
+		int aDay = 1000*60*60*24;
+		int counter = 1;
+		for (Order dor : e.getOrders()){
+			dor.setStartDate(new Date((dor.getStartDate().getTime()) - (aDay * counter)));
+			counter ++;
+			log.debug("drugOrder now has start date " + dor.getStartDate());
+		}
+		Context.getEncounterService().saveEncounter(e);
+		Context.flushSession();
+		Context.clearSession();
+		
+		//check to see that method returns drug1only
+		e = Context.getEncounterService().getEncounter(encId);
+		List<Order> dors = new ArrayList<Order>();
+		dors.addAll(e.getOrders());
+		Map<RegimenSuggestion, List<DrugOrder>>  m = RegimenUtil.findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(),dors);
+		Assert.assertTrue(m.size() > 0);
+		RegimenSuggestion rs = m.keySet().iterator().next();
+		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
+		Assert.assertTrue(rs.getCodeName().equals("drug1only"));
+	}
 	
 	
 	/**

@@ -201,8 +201,6 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 			else
 				candidate = dor.getDiscontinuedDate();
 		}
-		
-		
 		return candidate;
 	}
 
