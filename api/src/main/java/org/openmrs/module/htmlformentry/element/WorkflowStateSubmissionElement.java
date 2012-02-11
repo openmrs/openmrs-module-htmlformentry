@@ -124,8 +124,11 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		
 		if (tagParams.getStyle().equals("hidden")) {
 			widget = new HiddenFieldWidget();
-			widget.setInitialValue(states.entrySet().iterator().next());
+			//There is only one state
+			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
+			widget.setInitialValue(state.getValue().getUuid());
 		} else if (tagParams.getStyle().equals("checkbox")) {
+			//There is only one state
 			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
 			widget = new CheckboxWidget(state.getKey(), state.getValue().getUuid());
 		} else {
