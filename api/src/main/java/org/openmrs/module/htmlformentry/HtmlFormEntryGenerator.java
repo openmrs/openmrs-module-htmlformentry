@@ -286,30 +286,37 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		
 		if (handler == null)
 			handler = this; // do default actions
-			
-		boolean handleContents = handler.doStartTag(session, out, parent, node);
 		
-		// Unless the handler told us to skip them, then iterate over any children
-		if (handleContents) {
-			if (handler != null && handler instanceof IteratingTagHandler) {
-				// recurse as many times as the tag wants
-				IteratingTagHandler iteratingHandler = (IteratingTagHandler) handler;
-				while (iteratingHandler.shouldRunAgain(session, out, parent, node)) {
+		try {
+			boolean handleContents = handler.doStartTag(session, out, parent, node);
+			
+			// Unless the handler told us to skip them, then iterate over any children
+			if (handleContents) {
+				if (handler != null && handler instanceof IteratingTagHandler) {
+					// recurse as many times as the tag wants
+					IteratingTagHandler iteratingHandler = (IteratingTagHandler) handler;
+					while (iteratingHandler.shouldRunAgain(session, out, parent, node)) {
+						NodeList list = node.getChildNodes();
+						for (int i = 0; i < list.getLength(); ++i) {
+							applyTagsHelper(session, out, node, list.item(i), tagHandlerCache);
+						}
+					}
+					
+				} else { // recurse to contents once
 					NodeList list = node.getChildNodes();
 					for (int i = 0; i < list.getLength(); ++i) {
 						applyTagsHelper(session, out, node, list.item(i), tagHandlerCache);
 					}
 				}
-				
-			} else { // recurse to contents once
-				NodeList list = node.getChildNodes();
-				for (int i = 0; i < list.getLength(); ++i) {
-					applyTagsHelper(session, out, node, list.item(i), tagHandlerCache);
-				}
 			}
-		}
-		
-		handler.doEndTag(session, out, parent, node);
+			
+			handler.doEndTag(session, out, parent, node);
+		} catch (BadFormDesignException e) {
+	        out.print("<div class=\"error\">" + handler + " reported an error in the design of the form. Consult your administrator.<br/><pre>");
+	        e.printStackTrace(out);
+	        out.print("</pre></div>");
+        }
+
 	}
 	
 	/**
