@@ -470,10 +470,6 @@ public class FormSubmissionActions {
 			Date newStartDate = newState.getStartDate();
 			Date currentStartDate = currentState.getStartDate();
 			Date currentEndDate = currentState.getEndDate();
-			if (!hasTime(newStartDate)) {
-				currentStartDate = removeTime(currentStartDate);
-				currentEndDate = (currentEndDate != null) ? removeTime(currentEndDate) : null;
-			}
 			
 			if (currentEndDate != null) {
 				if (currentEndDate.after(newStartDate)) {
@@ -510,28 +506,6 @@ public class FormSubmissionActions {
 		patientProgram.getStates().add(newState);
 		
 		patientProgramsToUpdate.add(patientProgram);
-	}
-	
-	private boolean hasTime(Date date) {
-		Date noTime = removeTime(date);
-		return !date.equals(noTime);
-	}
-	
-	/**
-	 * Removes hours, seconds, ...
-	 * 
-	 * @param date
-	 * @return
-	 */
-	private Date removeTime(Date date) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		try {
-			return dateFormat.parse(dateFormat.format(date));
-			
-		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
 	}
 	
 	/**

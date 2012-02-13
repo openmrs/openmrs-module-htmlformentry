@@ -57,6 +57,10 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	
 	private Map<String, ProgramWorkflowState> states;
 	
+	private PatientState activePatientState;
+	
+	private String label;
+	
 	private Widget widget;
 	
 	/**
@@ -107,7 +111,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		
 		ProgramWorkflowState currentState = null;
 		
-		PatientState activePatientState = getActivePatientState(context.getExistingPatient(), encounterDatetime, workflow);
+		activePatientState = getActivePatientState(context.getExistingPatient(), encounterDatetime, workflow);
 		if (activePatientState != null) {
 			currentState = activePatientState.getState();
 		}
@@ -120,6 +124,14 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 					it.remove();
 				}
 			}
+		}
+		
+		if (tagParams.getLabelCode() != null) {
+			label = context.getTranslator().translate(Context.getLocale().toString(), tagParams.getLabelCode());
+		}
+		
+		if (label == null && tagParams.getLabelText() != null) {
+			label = tagParams.getLabelText();
 		}
 		
 		if (tagParams.getStyle().equals("hidden")) {
@@ -141,7 +153,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			}
 			
 			for (Entry<String, ProgramWorkflowState> state : states.entrySet()) {
-				boolean select = state.equals(currentState);
+				boolean select = state.getValue().equals(currentState);
 				singleOption.addOption(new Option(state.getKey(), state.getValue().getUuid(), select));
 			}
 			
@@ -214,8 +226,8 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
-		if (tagParams.getLabel() != null) {
-			ret.append(tagParams.getLabel());
+		if (label != null) {
+			ret.append(label);
 		}
 		ret.append(widget.generateHtml(context));
 		return ret.toString();

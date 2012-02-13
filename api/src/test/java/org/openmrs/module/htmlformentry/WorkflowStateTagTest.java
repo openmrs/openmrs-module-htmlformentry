@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.ConceptMap;
 import org.openmrs.Encounter;
@@ -191,7 +192,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("checkbox"));
 	}
 	
-	@Test
+	@Test //It'll fail for OMRS 1.9 and OMRS 1.10 until we fix TRUNK-3057: Creating concept mappings fails with legacy code
 	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_TEST_DATASET));
 		
@@ -607,8 +608,61 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldTransitionToStateAfterCurrentOnTheSameDay() throws Exception {
-		//Given: Patient has a workflow state of X starting in Jan 2012 (still current)
-		transitionToState(START_STATE, DATE);
+		//Given: Patient has a workflow state of X starting in Jan 2012 (active) (still current)
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, null);
+				PatientState patientState = getPatientState(patientProgram, state, null);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {
+				Assert.assertTrue("Edit should contain current state: " + html,
+				    html.contains("selected=\"true\">START STATE"));
+			}
+		}.run();
+		
+		
 		new RegressionTestHelper() {
 			
 			@Override
@@ -803,6 +857,146 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditFormHtml(String html) {
 				Assert.assertTrue("Edit should contain current state: " + html,
 				    html.contains("selected=\"true\">START STATE"));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldAllowToEditStateWithSameDate() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+		}.run();
+	}
+	
+	@Test
+	@Ignore //Not implemented yet
+	public void shouldFailIfEncounterDateEdited() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			public void testEditedResults(SubmissionResults results) {
+				results.assertErrors(1);
 			}
 		}.run();
 	}

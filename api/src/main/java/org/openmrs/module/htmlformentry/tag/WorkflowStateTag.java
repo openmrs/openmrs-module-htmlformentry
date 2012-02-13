@@ -35,7 +35,9 @@ public class WorkflowStateTag {
 	
 	private final String style;
 	
-	private final String label;
+	private final String labelText;
+	
+	private final String labelCode;
 	
 	private final Set<String> allowedStyles;
 	
@@ -107,10 +109,22 @@ public class WorkflowStateTag {
 			stateLabels = Collections.unmodifiableList(Arrays.asList(labels));
 		}
 		
-		if (!StringUtils.isBlank(parameters.get("label"))) {
-			label = parameters.get("label").trim();
+		if (!StringUtils.isBlank(parameters.get("labelText"))) {
+			labelText = parameters.get("labelText").trim();
 		} else {
-			label = null;
+			labelText = null;
+		}
+		
+		if (!StringUtils.isBlank(parameters.get("labelCode"))) {
+			labelCode = parameters.get("labelCode").trim();
+		} else {
+			labelCode = null;
+		}
+		
+		if (style.equals("hidden")) {
+			if (labelText != null || labelCode != null) {
+				throw new IllegalArgumentException("labelText and labelCode are not allowed for the hidden style");
+			}
 		}
 	}
 	
@@ -143,10 +157,17 @@ public class WorkflowStateTag {
 	}
 	
 	/**
-	 * @return the label
+	 * @return the labelText
 	 */
-	public String getLabel() {
-		return label;
+	public String getLabelText() {
+		return labelText;
+	}
+	
+	/**
+	 * @return the labelCode
+	 */
+	public String getLabelCode() {
+		return labelCode;
 	}
 	
 	/**
