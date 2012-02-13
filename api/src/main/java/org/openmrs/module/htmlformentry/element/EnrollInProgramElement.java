@@ -12,7 +12,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.openmrs.Concept;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.Program;
@@ -53,20 +52,11 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			throw new IllegalArgumentException("Couldn't find program in: " + parameters);
 		}
 		
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(
-		    context.getExistingPatient(), program, null, null, null, null, false);
-		PatientProgram pp = null;
-		if (patientPrograms.size() == 1)
-			pp = patientPrograms.get(0);
-		
 		if ("true".equalsIgnoreCase(parameters.get("showDate"))) {
-			//don't show the enroll date widget for completed programs
-			if (pp == null || pp.getDateCompleted() == null) {
-				dateWidget = new DateWidget();
-				dateErrorWidget = new ErrorWidget();
-				context.registerWidget(dateWidget);
-				context.registerErrorWidget(dateWidget, dateErrorWidget);
-			}
+			dateWidget = new DateWidget();
+			dateErrorWidget = new ErrorWidget();
+			context.registerWidget(dateWidget);
+			context.registerErrorWidget(dateWidget, dateErrorWidget);
 		}
 		
 		String stateIdsStr = parameters.get("stateIds");
@@ -75,23 +65,19 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			String[] stateIdsUuidsOrPrefNames = stateIdsStr.split(",");
 			//set to store unique work flow state combinations so as to determine multiple states in same work flow
 			Set<String> workflowsAndStates = new HashSet<String>();
+			boolean isEnrolled = HtmlFormEntryUtil.isEnrolledInProgram(context.getExistingPatient(), program, new Date());
 			for (String value : stateIdsUuidsOrPrefNames) {
 				value = value.trim();
-				ProgramWorkflowState state = null;
-				if (value.indexOf(":") > -1) {
-					//search state by its underlying concept that matched the mapping
-					String[] sourceAndCode = value.split(":");
-					Concept concept = Context.getConceptService().getConceptByMapping(sourceAndCode[1].trim(),
-					    sourceAndCode[0].trim());
-					if (concept != null)
-						value = concept.getUuid();
-				}
-				
-				state = HtmlFormEntryUtil.getState(value, program);
+				ProgramWorkflowState state = HtmlFormEntryUtil.getState(value, program);
 				if (state == null) {
-					throw new FormEntryException(
-					        "Cannot find program work flow state with its id or uuid or associated concept as '" + value
-					                + "'");
+					String errorMsgPart = "with an id or uuid";
+					if (value.indexOf(":") > -1)
+						errorMsgPart = "associated to a concept with a concept mapping";
+					throw new FormEntryException("Cannot find a program work flow state " + errorMsgPart + " that matches '"
+					        + value + "'");
+				} else if (!state.getInitial() && !isEnrolled) {
+					throw new FormEntryException("The program work flow state that matches '" + value
+					        + "' is not marked as initial");
 				} else if (!workflowsAndStates.add(state.getProgramWorkflow().getUuid())) {
 					throw new FormEntryException("A patient cannot be in multiple states in the same workflow");
 				}
@@ -126,25 +112,22 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			Date selectedDate = null;
 			if (dateWidget != null) {
 				selectedDate = (Date) dateWidget.getValue(session.getContext(), submission);
-				List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(
-				    session.getContext().getExistingPatient(), program, null, null, null, null, false);
-				
-				//if patient is already enrolled in program
-				if (patientPrograms.size() == 1) {
-					PatientProgram pp = patientPrograms.get(0);
-					//if the program is not yet completed and date enrolled is after selectedDate, use selected date
-					if (pp.getDateCompleted() == null
-					        && OpenmrsUtil.compareWithNullAsGreatest(selectedDate, pp.getDateEnrolled()) < 0) {
+				PatientProgram pp = null;
+				if (HtmlFormEntryUtil.isEnrolledInProgram(session.getContext().getExistingPatient(), program, selectedDate)) {
+					pp = Context
+					        .getProgramWorkflowService()
+					        .getPatientPrograms(session.getContext().getExistingPatient(), program, null, null, null, null,
+					            false).get(0);
+					//if the enrollment has changed, make the relevant changes
+					if (selectedDate.compareTo(pp.getDateEnrolled()) != 0) {
 						//set the start dates of all stated with a start date equal to the enrollment date to the selected date
 						for (PatientState patientState : pp.getStates()) {
 							if (OpenmrsUtil.nullSafeEquals(patientState.getStartDate(), pp.getDateEnrolled()))
 								patientState.setStartDate(selectedDate);
 						}
 						pp.setDateEnrolled(selectedDate);
-						session.getSubmissionActions().getPatientProgramsToCreate().add(pp);
+						session.getSubmissionActions().getPatientProgramsToUpdate().add(pp);
 					}
-					//else: patient is enrolled in the program or the program ended, return
-					
 					return;
 				}
 			}

@@ -64,6 +64,7 @@ import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
+import org.openmrs.util.OpenmrsUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1130,5 +1131,37 @@ public class HtmlFormEntryUtil {
 		catch (Exception ex) {
 			return e.getProvider() != null;
 		}
+	}
+	
+	/**
+	 * Checks if the user is enrolled in a program at the specified date
+	 * 
+	 * @param patient the patient that should be enrolled in the program
+	 * @param program the program the patient be enrolled in
+	 * @param date the date at which to check
+	 * @return
+	 * @should return true if the patient is enrolled in the program at the specified date
+	 * @should return false if the patient is not enrolled in the program
+	 * @should return false if the program was completed
+	 * @should return false if the date is before the existing patient program enrollment date
+	 */
+	public static boolean isEnrolledInProgram(Patient patient, Program program, Date date) {
+		if (date == null)
+			throw new IllegalArgumentException("date should not be null");
+		
+		boolean isInProgram = false;
+		if (patient != null && program != null) {
+			List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+			    null, null, null, null, false);
+			if (patientPrograms.size() == 1) {
+				PatientProgram pp = patientPrograms.get(0);
+				if (pp.getDateCompleted() == null) {
+					//date can't be null here, probably only pp.getDateEnrolled() can return null
+					if (OpenmrsUtil.compareWithNullAsEarliest(date, pp.getDateEnrolled()) >= 0)
+						isInProgram = true;
+				}
+			}
+		}
+		return isInProgram;
 	}
 }
