@@ -27,7 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 /**
  * Tests of the various program-related tags
  */
-public class ProgramTagTest extends BaseModuleContextSensitiveTest {
+public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
