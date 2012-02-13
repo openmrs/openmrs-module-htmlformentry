@@ -108,7 +108,7 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-		if (session.getContext().getMode() == Mode.ENTER) {
+		if (session.getContext().getMode() != Mode.VIEW) {
 			Date selectedDate = null;
 			if (dateWidget != null) {
 				selectedDate = (Date) dateWidget.getValue(session.getContext(), submission);
