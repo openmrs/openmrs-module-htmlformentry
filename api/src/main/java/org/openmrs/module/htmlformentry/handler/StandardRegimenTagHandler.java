@@ -9,6 +9,7 @@ import org.openmrs.Concept;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.StandardRegimenElement;
+import org.openmrs.order.RegimenSuggestion;
 
 
 public class StandardRegimenTagHandler extends SubstitutionTagHandler {
@@ -18,6 +19,7 @@ public class StandardRegimenTagHandler extends SubstitutionTagHandler {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonAnswers", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("standardRegimen", RegimenSuggestion.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	

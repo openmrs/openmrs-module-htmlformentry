@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.Form;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsMetadata;
@@ -19,10 +21,13 @@ import org.openmrs.Program;
 import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
+import org.openmrs.order.DrugSuggestion;
+import org.openmrs.order.RegimenSuggestion;
 
 /**
  * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
@@ -112,9 +117,9 @@ public class HtmlFormExporter {
 							
 							for (String id : ids) {
 								// if this id matches a uuid pattern, try to fetch the object by uuid
-								if (HtmlFormEntryUtil.isValidUuidFormat(id)) {
+								if (HtmlFormEntryUtil.isValidUuidFormat(id) && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
-									    attributeDescriptor.getClazz(), id);
+									    (Class<? extends OpenmrsObject>) attributeDescriptor.getClazz(), id);
 									if (object != null) {
 										//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
 										if (Form.class.equals(attributeDescriptor.getClazz())) {
@@ -139,7 +144,6 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								
 								// finally, handle any special cases
 								// if it's a concept, we also need to handle concepts referenced by map
 								if (Concept.class.equals(attributeDescriptor.getClazz())) {
@@ -171,6 +175,24 @@ public class HtmlFormExporter {
 									if (relationshipType != null) {
 										dependencies.add(relationshipType);
 										continue;
+									}
+								}
+								//RegimenSuggestion -- see global property 'dashboard.regimen.standardRegimens'
+								if (RegimenSuggestion.class.equals(attributeDescriptor.getClazz())){
+									List<RegimenSuggestion> stRegimens = Context.getOrderService().getStandardRegimens();
+									if (stRegimens != null){
+										ConceptService cs = Context.getConceptService();
+										for (RegimenSuggestion rs : stRegimens){
+											if (rs.getCodeName().equals(id) && rs.getDrugComponents() != null){
+												for (DrugSuggestion ds : rs.getDrugComponents()){
+													Drug drug = cs.getDrugByNameOrId(ds.getDrugId());
+													if (drug == null)
+														 drug = cs.getDrugByUuid(ds.getDrugId());
+													if (drug != null)
+														dependencies.add(drug);
+												}
+											}
+										}
 									}
 								}
 							}
