@@ -81,8 +81,8 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 				} else if (!workflowsAndStates.add(state.getProgramWorkflow().getUuid())) {
 					throw new FormEntryException("A patient cannot be in multiple states in the same workflow");
 				}
-				
-				states.add(state);
+				if (!states.contains(state))
+					states.add(state);
 			}
 			
 		}
