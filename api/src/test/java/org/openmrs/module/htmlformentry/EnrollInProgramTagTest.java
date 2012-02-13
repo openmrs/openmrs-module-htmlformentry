@@ -4,20 +4,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.Concept;
-import org.openmrs.ConceptMap;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
-import org.openmrs.api.ConceptService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
@@ -367,9 +365,6 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 		final Integer patientProgramId = 1;
 		final Date encounterDate = new Date();
 		final Date currentEnrollmentDate = pws.getPatientProgram(patientProgramId).getDateEnrolled();
-		
-		System.out.println("date enrolled = " + currentEnrollmentDate);
-		
 		Calendar cal = Calendar.getInstance();
 		cal.set(2004, 00, 31);
 		final Date newEnrollmentDate = cal.getTime();
@@ -485,17 +480,6 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 		    pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null, null, null, null, false)
 		            .size());
 		
-		//create a test mapping
-		ConceptService cs = Context.getConceptService();
-		Concept concept = cs.getConcept(10002);
-		ConceptMap cm = new ConceptMap();
-		cm.setSourceCode("Test Code");
-		cm.setSource(cs.getConceptSourceByName("SNOMED CT"));
-		cm.setCreator(Context.getAuthenticatedUser());
-		cm.setDateCreated(new Date());
-		concept.addConceptMapping(cm);
-		cs.saveConcept(concept);
-		
 		final Date encounterDate = new Date();
 		Calendar cal = Calendar.getInstance();
 		cal.set(2012, 00, 31);
@@ -533,6 +517,11 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
 				    null, null, null, false);
 				Assert.assertEquals(1, pps.size());
+				
+				// make sure the state has been set
+				Set<PatientState> states = pps.get(0).getStates();
+				Assert.assertEquals(1, states.size());
+				Assert.assertTrue(((PatientState) states.toArray()[0]).getState().equals(Context.getProgramWorkflowService().getStateByUuid("6de7ed10-53ad-11e1-8cb6-00248140a5eb")));
 			};
 			
 		}.run();

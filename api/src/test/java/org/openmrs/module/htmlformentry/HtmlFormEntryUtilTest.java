@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
-import org.openmrs.ConceptMap;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -19,7 +18,6 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
-import org.openmrs.api.ConceptService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -742,19 +740,11 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
 	public void getState_shouldLookUpAStateByAConceptMapping() throws Exception {
-		//create a test mapping
-		ConceptService cs = Context.getConceptService();
-		Concept concept = cs.getConcept(14);
-		ConceptMap cm = new ConceptMap();
-		cm.setSourceCode("Test Code");
-		cm.setSource(cs.getConceptSourceByName("SNOMED CT"));
-		cm.setCreator(Context.getAuthenticatedUser());
-		cm.setDateCreated(new Date());
-		concept.addConceptMapping(cm);
-		cs.saveConcept(concept);
+		// load this data set so that we get the additional patient program with concept mapping
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
-		Assert.assertEquals("0d5f1bb4-2edb-4dd1-8d9f-34489bb4d9ea",
-		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(1)).getUuid());
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
 	
 	/**

@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openmrs.ConceptMap;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
@@ -53,6 +52,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public static final String END_STATE = "8ef66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	public static final String DIFFERENT_PROGRAM_STATE = "72a90efc-5140-11e1-a3e3-00248140a5eb";
+	
+	public static final String MAPPED_STATE = "6de7ed10-53ad-11e1-8cb6-00248140a5eb";
 	
 	public static final Date DATE = new Date();
 	
@@ -192,23 +193,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("checkbox"));
 	}
 	
-	@Test //It'll fail for OMRS 1.9 and OMRS 1.10 until we fix TRUNK-3057: Creating concept mappings fails with legacy code
+	@Test 
 	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_TEST_DATASET));
-		
-		ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-		
-		ConceptMap conceptMap = new ConceptMap();
-		conceptMap.setConcept(state.getConcept());
-		conceptMap.setSource(Context.getConceptService().getConceptSource(1));
-		conceptMap.setSourceCode(state.getConcept().getId().toString());
-		
-		state.getConcept().addConceptMapping(conceptMap);
-		Context.getConceptService().saveConcept(state.getConcept());
-		
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"XYZ:10002\"/></htmlform>";
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_TEST_DATASET));	
+		String htmlform = "<htmlform><workflowState workflowId=\"108\" stateId=\"SNOMED CT:Test Code\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
-		assertPresent(session, START_STATE);
+		assertPresent(session, MAPPED_STATE);
 	}
 	
 	@Test
