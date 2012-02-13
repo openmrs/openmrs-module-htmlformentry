@@ -346,7 +346,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayLabel() throws Exception {
 		String label = "Some label text";
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" label=\"" + label + "\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" labelText=\"" + label + "\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		assertPresent(session, label);
 	}
