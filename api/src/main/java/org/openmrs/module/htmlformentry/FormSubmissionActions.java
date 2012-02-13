@@ -1,8 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -11,8 +8,6 @@ import java.util.ListIterator;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
-
-import javax.management.RuntimeErrorException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -361,7 +356,7 @@ public class FormSubmissionActions {
 	 * @param enrollmentDate the date to enroll the patient in the program
 	 * @param states list of states to set as initial in their workflows
 	 */
-	public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
+    public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
 		if (program == null)
 			throw new IllegalArgumentException("Cannot enroll in a blank program");
 		
@@ -372,19 +367,48 @@ public class FormSubmissionActions {
 		if (encounter == null)
 			throw new IllegalArgumentException("Cannot enroll in a program outside of an Encounter");
 		
-		PatientProgram pp = new PatientProgram();
-		pp.setPatient(patient);
-		pp.setProgram(program);
-		if (enrollmentDate != null)
-			pp.setDateEnrolled(enrollmentDate);
+		// if an enrollment date has not been specified, enrollment date is the encounter date
+		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : encounter.getEncounterDatetime();
 		
-		if (states != null) {
-			for (ProgramWorkflowState programWorkflowState : states) {
-				pp.transitionToState(programWorkflowState,
-				    (enrollmentDate != null) ? enrollmentDate : encounter.getEncounterDatetime());
+		if (enrollmentDate == null)
+			throw new IllegalArgumentException("Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
+		
+		// only need to do some if the patient is not enrolled in the specified program on the specified date
+		if (!HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, enrollmentDate)) {
+ 			
+			// see if the patient is enrolled in this program in the future
+			PatientProgram pp = HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, enrollmentDate);
+			
+			if (pp != null) {	
+				//set the start dates of all states with a start date equal to the enrollment date to the selected date
+				for (PatientState patientState : pp.getStates()) {
+					if (OpenmrsUtil.nullSafeEquals(patientState.getStartDate(), pp.getDateEnrolled())) {
+						patientState.setStartDate(enrollmentDate);
+					}
+				}
+				
+				// set the program enrollment date to the newly selected date
+				pp.setDateEnrolled(enrollmentDate);
+				
+				patientProgramsToUpdate.add(pp);
 			}
+			// otherwise, create the new program
+			else {
+				pp = new PatientProgram();
+				pp.setPatient(patient);
+				pp.setProgram(program);
+				if (enrollmentDate != null)
+					pp.setDateEnrolled(enrollmentDate);
+				
+				if (states != null) {
+					for (ProgramWorkflowState programWorkflowState : states) {
+						pp.transitionToState(programWorkflowState, enrollmentDate);
+					}
+				}
+				patientProgramsToCreate.add(pp);
+			}
+			
 		}
-		patientProgramsToCreate.add(pp);
 	}
 	
 	/**

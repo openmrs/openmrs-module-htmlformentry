@@ -78,11 +78,9 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past", Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));	
 				
-				for (PatientProgram pp : Context.getProgramWorkflowService().getPatientPrograms(patient)) {
-					if (pp.getProgram().equals(program)) {
-						Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
-					}
-				}
+				// confirm that the proper program has been closed
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgramByUuid("32296060-03aa-102d-b0e3-001ec94a0cc5");
+				Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
 			};
 
 		}.run();
@@ -131,11 +129,9 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past", Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));	
 				
-				for (PatientProgram pp : Context.getProgramWorkflowService().getPatientPrograms(patient)) {
-					if (pp.getProgram().equals(program)) {
-						Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
-					}
-				}
+				// confirm that the proper program has been closed
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgramByUuid("32296060-03aa-102d-b0e3-001ec94a0cc5");
+				Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
 			};
 			
 

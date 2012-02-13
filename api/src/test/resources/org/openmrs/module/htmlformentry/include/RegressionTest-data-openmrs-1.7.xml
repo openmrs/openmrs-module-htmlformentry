@@ -197,6 +197,7 @@
   	
   <!-- Enroll a patient in a program -->
   <patient_program patient_program_id="1" patient_id="2" program_id="1" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32296060-03aa-102d-b0e3-001ec94a0cc5"/>
+  <patient_program patient_program_id="101" patient_id="2" program_id="1" creator="1" date_enrolled="2001-01-01 00:00:00.0" date_created="2001-01-01 00:00:00.0" date_completed="2003-05-01 00:00:00.0" voided="false" uuid="32596060-03aa-102d-b0e3-001ec94a0cc5"/>
   
     <!-- Define a relationship type (this relationship type is defined in standard test data, but the id is changed from 5 to 2 between 1.7 and 1.8 so we define our own version here with id = 4 -->
   <relationship_type relationship_type_id="4" a_is_to_b="Parent" b_is_to_a="Child" preferred="0" weight="0" description="parent and child" creator="1" date_created="2008-08-15 15:55:18.0" retired="false" uuid="2a5f4ff4-a179-4b8a-aa4c-40f71956efeg"/>

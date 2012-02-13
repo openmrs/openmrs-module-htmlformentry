@@ -64,7 +64,6 @@ import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
-import org.openmrs.util.OpenmrsUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1049,7 +1048,8 @@ public class HtmlFormEntryUtil {
 		return patientProgram;
 	}
 	
-	public static ProgramWorkflow getWorkflow(String identifier) {
+	@SuppressWarnings("deprecation")
+    public static ProgramWorkflow getWorkflow(String identifier) {
 		identifier = identifier.trim();
 		if (StringUtils.isBlank(identifier)) {
 			return null;
@@ -1145,23 +1145,43 @@ public class HtmlFormEntryUtil {
 	 * @should return false if the program was completed
 	 * @should return false if the date is before the existing patient program enrollment date
 	 */
-	public static boolean isEnrolledInProgram(Patient patient, Program program, Date date) {
+	public static boolean isEnrolledInProgramOnDate(Patient patient, Program program, Date date) {
+		if (patient == null)
+			throw new IllegalArgumentException("patient should not be null");
+		if (program == null)
+			throw new IllegalArgumentException("program should not be null");
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
 		
-		boolean isInProgram = false;
-		if (patient != null && program != null) {
-			List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
-			    null, null, null, null, false);
-			if (patientPrograms.size() == 1) {
-				PatientProgram pp = patientPrograms.get(0);
-				if (pp.getDateCompleted() == null) {
-					//date can't be null here, probably only pp.getDateEnrolled() can return null
-					if (OpenmrsUtil.compareWithNullAsEarliest(date, pp.getDateEnrolled()) >= 0)
-						isInProgram = true;
-				}
-			}
-		}
-		return isInProgram;
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+		
+		return (patientPrograms.size() > 0);
+		
 	}
+
+	/**
+	 * Checks to see if the patient has a program enrollment in the specified program after the given date
+	 * If multiple patient programs, returns the earliest enrollment
+	 * If no enrollments, returns null
+	 */
+	public static PatientProgram getClosestFutureProgramEnrollment(Patient patient, Program program, Date date) {
+		if (patient == null)
+			throw new IllegalArgumentException("patient should not be null");
+		if (program == null)
+			throw new IllegalArgumentException("program should not be null");
+		if (date == null)
+			throw new IllegalArgumentException("date should not be null");
+		
+		PatientProgram closestProgram = null;
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, date, null, null , null, false);
+	    
+		for (PatientProgram pp: patientPrograms) {
+			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled())) && pp.getDateEnrolled().after(date)) {
+				closestProgram = pp;
+			}
+			
+		}
+		
+		return closestProgram;
+    }
 }
