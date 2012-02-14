@@ -69,6 +69,8 @@ public class FormEntryContext {
     private List<Obs> currentObsGroupMembers;
     private Location defaultLocation;
     
+    private boolean guessingInd = false;
+    
     public FormEntryContext(Mode mode) {
         this.mode = mode;
         setupExistingData((Encounter) null);
@@ -319,6 +321,7 @@ public class FormEntryContext {
 			    }
 			}
 		}
+		guessingInd = false;
 		existingObsInGroups = new LinkedHashMap<Obs, Set<Obs>>();
 		if (encounter != null)
 			setupExistingObsInGroups(encounter.getObsAtTopLevel(false));
@@ -382,8 +385,6 @@ public class FormEntryContext {
 	/**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
 	 * 
-	 * TODO:  what about drug orders -- sshoudl
-	 * 
 	 * @param question the concept associated with the Obs to remove
 	 * @return
 	 */
@@ -403,11 +404,25 @@ public class FormEntryContext {
 		return null;
 	}
 	
+	/**
+	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
+	 * @return the list of orders
+	 */
+	public List<Order> getRemainingExistingOrders(){
+		List<Order> ret = new ArrayList<Order>();
+		if (this.getExistingOrders() != null){
+			for (Map.Entry<Concept, List<Order>> e : this.getExistingOrders().entrySet()){
+				List<Order> ords = e.getValue();
+				for (Order o : ords)
+					ret.add(o);
+			}
+		}
+		return ret;
+	}
+	
 	
 	/**
-     * Removes an Order of the relevant Concept from existingOrders, and returns it.
-     * 
-     * TODO:  what about drug orders -- sshoudl
+     * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
      * 
      * @param question the concept associated with the Obs to remove
      * @return
@@ -476,7 +491,7 @@ public class FormEntryContext {
 
     
     /**
-     * Finds the best matching obsGroup at the at the right obsGroup hierarchy level
+     * Finds the best matching obsGroup at the right obsGroup hierarchy level
      *  <p/>
      * 
      * @param groupConcept the grouping concept associated with the {@see ObsGroups}
@@ -500,12 +515,29 @@ public class FormEntryContext {
         // if there are multiple contenders, then we only return obsGroups that match the questionsAndAnswers
         // meaning, that if an obsGroup has an extra obs besides what's expected, it won't be returned.
         } else {
+        	List<Obs> rankTable = new ArrayList<Obs>();
+        	int topRanking = 0;
             for (Obs parentObs:contenders){
-                if (ObsGroupComponent.supports(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs))){
-                    ret = parentObs;
-                    break;
+                int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs));
+                if (rank == topRanking) {
+                	rankTable.add(parentObs);
+                } else if (rank > topRanking) {
+                	topRanking = rank;
+                	rankTable.clear();
+                	rankTable.add(parentObs);
                 }
             } 
+            
+            if (rankTable.size() == 0) {
+            	// Problem! no matching obsGroup found!!
+            } else if (rankTable.size() == 1) {
+                ret = rankTable.get(0);
+            } else if (rankTable.size() > 1) {
+            	//We have a potential problem: multiple obsgroups support obs set, flagging as guessing to warn user....
+            	guessingInd = true;
+            	// Just return the first one despite the potential mismatch...
+                ret = rankTable.get(0);
+            }
         }
         
         if (ret != null){
@@ -636,6 +668,18 @@ public class FormEntryContext {
 	 */
 	public void setDefaultLocation(Location defaultLocation) {
 		this.defaultLocation = defaultLocation;
+	}
+
+	public boolean isGuessingInd() {
+		return guessingInd;
+	}
+
+	public void setGuessingInd(boolean guessingInd) {
+		this.guessingInd = guessingInd;
+	}
+	    
+	public String getGuessingInd() {
+		return guessingInd ? "true" : "false";
 	}
 	    
 }

@@ -168,6 +168,23 @@ public class TestUtil {
 	}
 	
 	/**
+	 * Tests whether the substring is contained in the actual string. Allows for inclusion of
+	 * regular expressions in the substring.
+	 */
+	public static void assertContains(String substring, String actual) {
+		if (substring == null) {
+			return;
+		}
+		if (actual == null) {
+			Assert.fail(substring + " is not contained in " + actual);
+		}
+		
+		if (!Pattern.compile(substring).matcher(actual).find()) {
+			Assert.fail(substring + " is not contained in " + actual);
+		}
+	}
+	
+	/**
      * Tests whether the substring is NOT contained in the actual string. Allows for inclusion of
      * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
      * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
@@ -191,9 +208,8 @@ public class TestUtil {
 		string = string.toLowerCase();
 		string = string.replaceAll("<span class=\"value\">(.*)</span>", "$1");
 		string = string.replaceAll("<span class=\"emptyvalue\">.*</span>", "");
+		string = string.replaceAll("(?s)<div class=\"htmlform\">(.*)</div>", "$1");
 		string = string.replaceAll("\\s", "");
-		string = string.replaceAll("<htmlform>(.*)</htmlform>", "$1");
-		string = string.replaceAll("<div class=\"htmlform\">(.*)</div>", "$1");
 		return string;
 	}
 	
