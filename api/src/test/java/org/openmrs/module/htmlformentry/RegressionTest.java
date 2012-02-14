@@ -963,5 +963,355 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueFirstScrambleEntryOrder() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+            public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+            public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+					    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueFirstReverseEntryOrder() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+					    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+					    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueFirst() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueMiddle() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueLast() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
 	
+	@Test
+	public void testMultipleObsGroupsTwoEmptyValues() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsThreeEmptyValues() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo2", html);
+
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+
 }

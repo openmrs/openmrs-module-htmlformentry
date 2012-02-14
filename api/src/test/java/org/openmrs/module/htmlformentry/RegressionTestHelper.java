@@ -224,11 +224,39 @@ public abstract class RegressionTestHelper {
 	 */
 	public void testEditedResults(SubmissionResults results) {
 	}
+
+	/**
+	 * (Override this if you want to test the an attribute of FormEntrySession in
+	 * form entry (ENTER) mode.)
+	 * 
+	 * @param FormEntrySession object, useful in test state of session object
+	 */
+	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession) {
+	}
 	
+	/**
+	 * (Override this if you want to test the an attribute of FormEntrySession in
+	 * form view mode.)
+	 * 
+	 * @param FormEntrySession object, useful in test state of session object
+	 */
+	public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+	}
+	
+	/**
+	 * (Override this if you want to test the an attribute of FormEntrySession in
+	 * form edit mode.)
+	 * 
+	 * @param FormEntrySession object, useful in test state of session object
+	 */
+	public void testFormEditSessionAttribute(FormEntrySession formEntrySession) {
+	}
+
 	public void run() throws Exception {
 		// setup the blank form for the specified patient
 		Patient patient = getPatient();
 		FormEntrySession session = setupFormEntrySession(patient, getFormName());
+		testFormEntrySessionAttribute(session);
 		String html = session.getHtmlToDisplay();
 		testBlankFormHtml(html);
 		
@@ -252,6 +280,7 @@ public abstract class RegressionTestHelper {
 			if (overridePatient != null)
 				patientToView = overridePatient;
 			session = setupFormViewSession(patientToView, null, getFormName());
+			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingPatient(patientToView, html);
 		}
@@ -263,6 +292,7 @@ public abstract class RegressionTestHelper {
 			if (override != null)
 				encounterToView = override;
 			session = setupFormViewSession(patientToView, encounterToView, getFormName());
+			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingEncounter(encounterToView, html);
 		}
@@ -284,6 +314,7 @@ public abstract class RegressionTestHelper {
 				patientToEdit = overridePatient;
 			
 			session = setupFormEditSession(patientToEdit, toEdit, getFormName());
+			testFormEditSessionAttribute(session);
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
 			
