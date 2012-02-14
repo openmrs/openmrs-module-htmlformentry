@@ -356,14 +356,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			
 			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
 			if (dateWidget != null) {
-				context.registerPropertyAccessorInfo(id + ".dateValue", context.getFieldNameIfRegistered(dateWidget), null, null,
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget), null, null,
 					null);
-				context.registerPropertyAccessorInfo(id + ".dateError", context.getFieldNameIfRegistered(dateErrorWidget), null, null,
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null, null,
 					null);			
-				context.registerPropertyAccessorInfo(id + ".timeValue", context.getFieldNameIfRegistered(timeWidget), null, null,
-					null);
-				context.registerPropertyAccessorInfo(id + ".timeError", context.getFieldNameIfRegistered(timeErrorWidget), null, null,
-					null);
 			}
 			else if (providerWidget != null) {
 				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null, null,

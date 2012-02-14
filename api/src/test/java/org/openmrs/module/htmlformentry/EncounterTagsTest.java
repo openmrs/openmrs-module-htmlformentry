@@ -27,26 +27,8 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 	public void shouldDisplayDatePropertyAccessor() throws Exception {
 	String htmlform = "<htmlform><encounterDate id=\"myEncounter\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
-				
-		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.dateValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.dateError'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.timeValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.timeError'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
-	}
-	
-	@Test
-	public void shouldDisplayDateAndTimePropertyAccessor() throws Exception {
-	String htmlform = "<htmlform><encounterDate id=\"myEncounter\" showTime=\"true\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
-				
-		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.dateValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.dateError'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.timeValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.timeError'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
 	}
 	
 	@Test
@@ -56,10 +38,6 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 				
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.dateValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.dateError'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.timeValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.timeError'\\]", session.getFieldAccessorJavascript());
 	}
 	
 	@Test
@@ -69,10 +47,6 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 				
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.dateValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.dateError'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.timeValue'\\]", session.getFieldAccessorJavascript());
-		TestUtil.assertFuzzyDoesNotContain("propertyAccessorInfo\\['myEncounter.timeError'\\]", session.getFieldAccessorJavascript());
 	}
 	
 }

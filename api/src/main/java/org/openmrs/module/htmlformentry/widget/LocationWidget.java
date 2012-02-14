@@ -33,7 +33,7 @@ public class LocationWidget implements Widget {
         }
            
         StringBuilder sb = new StringBuilder();
-        sb.append("<select name=\"" + context.getFieldName(this) + "\">");
+        sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
         sb.append("\n<option value=\"\">");
         sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"));
         sb.append("</option>");

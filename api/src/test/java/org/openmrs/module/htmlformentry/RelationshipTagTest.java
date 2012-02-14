@@ -629,7 +629,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// John Doe (from standard test data) is enrolled in program 1
-				TestUtil.assertFuzzyContains("select name = \"w7\".*John Doe", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*John Doe", html);
 			}
 		}.run();
 	}
@@ -650,7 +650,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// John Doe (patient 2) is the current patient in this case, and so should be excluded
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*John Doe", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*John Doe", html);
 			}
 		}.run();
 	}
@@ -676,7 +676,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// John Doe (from standard test data) is enrolled in program 1, but not in program 3, so he SHOULDN'T appear
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*John Doe", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*John Doe", html);
 			}
 		}.run();
 	}
@@ -695,11 +695,11 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// all the patients with a "Race" attribute 
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Johnny Test Doe", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Collet Test Chebaskwony", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Anet Test Oloo", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Bruno Otterbourg", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Hippocrates Of Cos", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Johnny Test Doe", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Collet Test Chebaskwony", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Bruno Otterbourg", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Hippocrates Of Cos", html);
 			}
 		}.run();
 	}
@@ -718,13 +718,13 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// all the patients with a "Race" and "Civil Status" attribute 
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Johnny Test Doe", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Collet Test Chebaskwony", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Anet Test Oloo", html);
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Hippocrates Of Cos", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Johnny Test Doe", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Collet Test Chebaskwony", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Hippocrates Of Cos", html);
 				
 				// Bruno should now be excluded, since he doesn't have a civil status
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Bruno Otterbourg", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Bruno Otterbourg", html);
 			}
 		}.run();
 	}
@@ -743,13 +743,13 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// patient with Civil Status = 5 
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Johnny Test Doe", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Johnny Test Doe", html);
 				
 				// All others that were previously included should not be excluded
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Bruno Otterbourg", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Collet Test Chebaskwony", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Anet Test Oloo", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Hippocrates Of Cos", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Bruno Otterbourg", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Collet Test Chebaskwony", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Hippocrates Of Cos", html);
 			}
 		}.run();
 	}
@@ -768,13 +768,13 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// patient with Civil Status = 6
-				TestUtil.assertFuzzyContains("select name = \"w7\".*Anet Test Oloo", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);
 				
 				// All others that were previously included should not be excluded
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Johnny Test Doe", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Bruno Otterbourg", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Collet Test Chebaskwony", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Hippocrates Of Cos", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Johnny Test Doe", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Bruno Otterbourg", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Collet Test Chebaskwony", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Hippocrates Of Cos", html);
 			}
 		}.run();
 	}
@@ -799,14 +799,14 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// should contain John Doe (patient 2)
-				TestUtil.assertFuzzyContains("select name = \"w7\".*John Doe", html);
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*John Doe", html);
 				
 				// patients with attribute, but not with program, should be excluded
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Anet Test Oloo", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Johnny Test Doe", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Bruno Otterbourg", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Collet Test Chebaskwony", html);
-				TestUtil.assertFuzzyDoesNotContain("select name = \"w7\".*Hippocrates Of Cos", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Johnny Test Doe", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Bruno Otterbourg", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Collet Test Chebaskwony", html);
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Hippocrates Of Cos", html);
 			}
 		}.run();
 	}
