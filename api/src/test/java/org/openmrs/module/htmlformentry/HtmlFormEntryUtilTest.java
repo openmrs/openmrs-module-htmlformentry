@@ -15,7 +15,10 @@ import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Order;
+import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
 import org.openmrs.Program;
+import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
@@ -712,16 +715,6 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@Test
-	@Verifies(value = "should return the state with a concept with a matching preferred name in the current locale", method = "getState(String,Program)")
-	public void getState_shouldReturnTheStateWithAConceptWithAMatchingPreferredNameInTheCurrentLocale() throws Exception {
-		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
-		    HtmlFormEntryUtil.getState("died", Context.getProgramWorkflowService().getProgram(1)).getUuid());
-	}
-	
-	/**
-	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
-	 */
-	@Test
 	@Verifies(value = "should return the state with the matching id", method = "getState(String,Program)")
 	public void getState_shouldReturnTheStateWithTheMatchingId() throws Exception {
 		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
@@ -741,4 +734,122 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		            .getId().toString());
 	}
 	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
+	public void getState_shouldLookUpAStateByAConceptMapping() throws Exception {
+		// load this data set so that we get the additional patient program with concept mapping
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 */
+	@Test
+	@Verifies(value = "should return false if the patient is not enrolled in the program", method = "isEnrolledInProgram(Patient,Program,Date)")
+	public void isEnrolledInProgram_shouldReturnFalseIfThePatientIsNotEnrolledInTheProgram() throws Exception {
+		Patient patient = Context.getPatientService().getPatient(6);
+		Program program = Context.getProgramWorkflowService().getProgram(1);
+		Assert.assertFalse(HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, new Date()));
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 */
+	@Test
+	@Verifies(value = "should return false if the program was completed", method = "isEnrolledInProgram(Patient,Program,Date)")
+	public void isEnrolledInProgram_shouldReturnFalseIfTheProgramWasCompleted() throws Exception {
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		
+		//for test purposes, lets set a program as complete
+		PatientProgram pp = pws.getPatientProgram(1);
+		Assert.assertSame(patient, pp.getPatient());
+		pp.setDateCompleted(new Date());
+		Thread.sleep(100);
+		pws.savePatientProgram(pp);
+		
+		Assert.assertFalse(HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, pws.getProgram(1), new Date()));
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 */
+	@Test
+	@Verifies(value = "should return true if the patient is enrolled in the program at the specified date", method = "isEnrolledInProgram(Patient,Program,Date)")
+	public void isEnrolledInProgram_shouldReturnTrueIfThePatientIsEnrolledInTheProgramAtTheSpecifiedDate() throws Exception {
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = Context.getProgramWorkflowService().getProgram(1);
+		Assert.assertTrue(HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, new Date()));
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 */
+	@Test
+	@Verifies(value = "should return false if the date is before the existing patient program enrollment date", method = "isEnrolledInProgram(Patient,Program,Date)")
+	public void isEnrolledInProgram_shouldReturnFalseIfTheDateIsBeforeTheExistingPatientProgramEnrollmentDateIgnoringTimeFields()
+	    throws Exception {//2008-08-01 00:00:00.0
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = pws.getProgram(1);
+		PatientProgram pp = pws.getPatientProgram(1);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.set(2008, 6, 31);
+		Date newEnrollmentDate = cal.getTime();
+		Assert.assertTrue(newEnrollmentDate.before(pp.getDateEnrolled()));//sanity check
+		Assert.assertFalse(HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, newEnrollmentDate));
+	}
+	
+	@Test
+	@Verifies(value = "should return null if no program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
+	public void getClosestFutureProgramEnrollment_shouldReturnNullIfNoProgramEnrollmentAfterSpecifiedDate() throws Exception {
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = pws.getProgram(1);
+		Assert.assertNull(HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, new Date()));
+	}
+	
+	@Test
+	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
+	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
+		// load this data set so that we get the additional patient program created in this data case
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = pws.getProgram(1);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.set(2001, 6, 31);
+		Date date = cal.getTime();
+		
+		PatientProgram pp = HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, date);
+		Assert.assertEquals("32296060-03aa-102d-b0e3-001ec94a0cc5", pp.getUuid());
+		
+		// now, if we roll the date back a year earlier, it should get the earlier of the two programs for this patient
+		cal.set(2000, 6, 31);
+		date = cal.getTime();
+		
+		pp = HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, date);
+		Assert.assertEquals("32596060-03aa-102d-b0e3-001ec94a0cc5", pp.getUuid());
+	}
+	
+	@Test
+	@Verifies(value = "should return null if program enrollment date same as specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
+	public void getClosestFutureProgramEnrollment_shouldReturnNullIfProgramEnrollmentSameAsSpecifiedDate() throws Exception {
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = pws.getProgram(1);
+		Date date = pws.getPatientProgram(1).getDateEnrolled();
+		Assert.assertNull(HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, date));
+	}
+	
+
 }

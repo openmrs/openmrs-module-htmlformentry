@@ -262,6 +262,12 @@
 		</c:if>
 		<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
 </c:if>
+
+<c:if test="${command.context.guessingInd == 'true'}">
+	<div class="error">
+		<spring:message code="htmlformentry.form.reconstruct.warning" />
+	</div>
+</c:if>
 	
 	${command.htmlToDisplay}
 	

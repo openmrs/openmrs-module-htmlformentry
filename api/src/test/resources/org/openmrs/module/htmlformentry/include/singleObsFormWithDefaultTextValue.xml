@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Text: <obs conceptId="6" defaultValue="default text"/>
+	<submit/>
+</htmlform>

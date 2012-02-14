@@ -35,9 +35,9 @@ public class WorkflowStateTag {
 	
 	private final String style;
 	
-	private final String label;
+	private final String labelText;
 	
-	private final String enrollInProgram;
+	private final String labelCode;
 	
 	private final Set<String> allowedStyles;
 	
@@ -48,18 +48,21 @@ public class WorkflowStateTag {
 		if (StringUtils.isBlank(parameters.get("workflowId"))) {
 			throw new IllegalArgumentException("workflowId is missing");
 		} else {
-			workflowId = parameters.get("workflowId");
+			workflowId = parameters.get("workflowId").trim();
 		}
 		
 		if (!StringUtils.isBlank(parameters.get("stateId"))) {
 			if (!StringUtils.isBlank(parameters.get("stateIds"))) {
 				throw new IllegalArgumentException("stateId and stateIds must not be used together");
 			}
-			stateIds = Collections.unmodifiableList(Arrays.asList(parameters.get("stateId")));
+			stateIds = Collections.unmodifiableList(Arrays.asList(parameters.get("stateId").trim()));
 			allowedStyles = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("checkbox", "hidden")));
 		} else {
 			if (!StringUtils.isBlank(parameters.get("stateIds"))) {
 				String[] ids = parameters.get("stateIds").split(",");
+				for (int i = 0; i < ids.length; i++) {
+					ids[i] = ids[i].trim();
+				}
 				stateIds = Collections.unmodifiableList(Arrays.asList(ids));
 			} else {
 				stateIds = null;
@@ -68,9 +71,13 @@ public class WorkflowStateTag {
 		}
 		
 		if (StringUtils.isBlank(parameters.get("style"))) {
-			style = "dropdown";
+			if (!StringUtils.isBlank(parameters.get("stateId"))) {
+				style = "checkbox";
+			} else {
+				style = "dropdown";
+			}
 		} else {
-			style = parameters.get("style");
+			style = parameters.get("style").trim();
 		}
 		
 		if (!allowedStyles.contains(style)) {
@@ -82,16 +89,19 @@ public class WorkflowStateTag {
 			if (StringUtils.isBlank(parameters.get("stateLabel"))) {
 				stateLabels = null;
 			} else {
-				if (!StringUtils.isBlank(parameters.get("stateId"))) {
+				if (StringUtils.isBlank(parameters.get("stateId"))) {
 					throw new IllegalArgumentException("stateId must be specfified if stateLabel used");
 				}
-				stateLabels = Collections.unmodifiableList(Arrays.asList(parameters.get("stateLabel")));
+				stateLabels = Collections.unmodifiableList(Arrays.asList(parameters.get("stateLabel").trim()));
 			}
 		} else {
-			if (stateIds == null) {
+			if (StringUtils.isBlank(parameters.get("stateIds"))) {
 				throw new IllegalArgumentException("stateIds must be specfified if stateLabels used");
 			}
 			String[] labels = parameters.get("stateLabels").split(",");
+			for (int i = 0; i < labels.length; i++) {
+				labels[i] = labels[i].trim();
+			}
 			if (labels.length != stateIds.size()) {
 				throw new IllegalArgumentException("stateLabels length " + labels.length + " must match stateIds length "
 				        + stateIds.size());
@@ -99,19 +109,21 @@ public class WorkflowStateTag {
 			stateLabels = Collections.unmodifiableList(Arrays.asList(labels));
 		}
 		
-		if (!StringUtils.isBlank(parameters.get("label"))) {
-			label = parameters.get("label");
+		if (!StringUtils.isBlank(parameters.get("labelText"))) {
+			labelText = parameters.get("labelText").trim();
 		} else {
-			label = null;
+			labelText = null;
 		}
 		
-		if (StringUtils.isBlank(parameters.get("enrollInProgram"))) {
-			enrollInProgram = "true";
+		if (!StringUtils.isBlank(parameters.get("labelCode"))) {
+			labelCode = parameters.get("labelCode").trim();
 		} else {
-			enrollInProgram = parameters.get("enrollInProgram");
-			if (!enrollInProgram.equalsIgnoreCase("true") || !enrollInProgram.equalsIgnoreCase("false")) {
-				throw new IllegalArgumentException("enrollInProgram invalid: " + enrollInProgram
-				        + ". Allowed values: true or false.");
+			labelCode = null;
+		}
+		
+		if (style.equals("hidden")) {
+			if (labelText != null || labelCode != null) {
+				throw new IllegalArgumentException("labelText and labelCode are not allowed for the hidden style");
 			}
 		}
 	}
@@ -145,17 +157,17 @@ public class WorkflowStateTag {
 	}
 	
 	/**
-	 * @return the label
+	 * @return the labelText
 	 */
-	public String getLabel() {
-		return label;
+	public String getLabelText() {
+		return labelText;
 	}
 	
 	/**
-	 * @return the enrollInProgram
+	 * @return the labelCode
 	 */
-	public String getEnrollInProgram() {
-		return enrollInProgram;
+	public String getLabelCode() {
+		return labelCode;
 	}
 	
 	/**

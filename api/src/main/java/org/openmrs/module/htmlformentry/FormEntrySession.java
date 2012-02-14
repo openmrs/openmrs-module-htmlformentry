@@ -407,7 +407,7 @@ public class FormEntrySession {
         
     	{
             for (Encounter e : submissionActions.getEncountersToCreate()) {
-                if (e.getProvider() == null || e.getEncounterDatetime() == null || e.getLocation() == null) {
+                if (!HtmlFormEntryUtil.hasProvider(e) || e.getEncounterDatetime() == null || e.getLocation() == null) {
                     throw new BadFormDesignException("Please check the design of your form to make sure it has all three tags: <b>&lt;encounterDate/&gt</b>;, <b>&lt;encounterLocation/&gt</b>;, and <b>&lt;encounterProvider/&gt;</b>");
                 }
             }
@@ -577,6 +577,12 @@ public class FormEntrySession {
         	}
         }
         
+        if (submissionActions.getPatientProgramsToUpdate() != null) {
+        	for (PatientProgram patientProgram : submissionActions.getPatientProgramsToUpdate()) {
+	            Context.getProgramWorkflowService().savePatientProgram(patientProgram);
+            }
+        }
+        
         ObsService obsService = Context.getObsService();
         
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
@@ -679,8 +685,8 @@ public class FormEntrySession {
     }
     
     /** 
-     * Returns the last AJAX submission made
-     * TODO: Update this so it is actually right
+     * Creates the Javascript necessary to set form fields to the values entered during last submission
+     * Used to maintain previously-entered field values when redisplaying a form with validation errors
      */
     @SuppressWarnings("rawtypes")
     public String getSetLastSubmissionFieldsJavascript() {
@@ -693,9 +699,7 @@ public class FormEntrySession {
                 String name = (String) e.nextElement();
                 if (name.startsWith("w")) {
                     String val = lastSubmission.getParameter(name);
-                    if (StringUtils.hasText(val)) {
-                    	sb.append("setValueByName('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
-                    }
+                    sb.append("setValueByName('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
                 }
             }
             return sb.toString();

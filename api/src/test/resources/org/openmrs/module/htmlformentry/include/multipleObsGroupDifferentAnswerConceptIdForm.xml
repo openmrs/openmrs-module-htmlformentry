@@ -1,0 +1,18 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<obsgroup groupingConceptId="7">
+		<obs conceptId="1000" answerConceptId="1001" answerLabel="Label 1" labelText=""/>
+		<obs conceptId="8"/>
+	</obsgroup>
+	<obsgroup groupingConceptId="7">
+		<obs conceptId="1000" answerConceptId="1002" answerLabel="Label 2" labelText=""/>
+		<obs conceptId="8"/>
+	</obsgroup>
+	<obsgroup groupingConceptId="7">
+		<obs conceptId="1000" answerConceptId="1003" answerLabel="Label 3" labelText=""/>
+		<obs conceptId="8" />
+	</obsgroup>
+	<submit/>
+</htmlform>

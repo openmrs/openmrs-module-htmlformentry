@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+	<patient_state patient_state_id="10" patient_program_id="1" state="1" start_date="2005-01-01 00:00:00.0" end_date="2007-01-01 00:00:00.0" creator="1" date_created="2008-08-18 12:29:29.0" voided="false" uuid="379a21a2-5163-11e1-a3e3-00248140a5eb"/>
+	<patient_state patient_state_id="11" patient_program_id="1" state="5" start_date="2005-01-02 00:00:00.0" creator="1" date_created="2008-08-18 12:29:29.0" voided="false" uuid="3e38f74a-5163-11e1-a3e3-00248140a5eb"/>
+</dataset>

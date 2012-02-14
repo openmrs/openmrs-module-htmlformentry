@@ -144,7 +144,6 @@ public class TestUtil {
 		String test2 = stripTagsAndWhitespace(actual);
 		if (!test1.equals(test2)) {
 			Assert.fail(expected + " does not match " + actual);
-			//Assert.fail(test1 + " VERSUS " + test2);
 		}
 	}
 	
@@ -163,6 +162,23 @@ public class TestUtil {
 		}
 		
 		if (!Pattern.compile(stripTagsAndWhitespace(substring)).matcher(stripTagsAndWhitespace(actual)).find()) {
+			Assert.fail(substring + " is not contained in " + actual);
+		}
+	}
+	
+	/**
+	 * Tests whether the substring is contained in the actual string. Allows for inclusion of
+	 * regular expressions in the substring.
+	 */
+	public static void assertContains(String substring, String actual) {
+		if (substring == null) {
+			return;
+		}
+		if (actual == null) {
+			Assert.fail(substring + " is not contained in " + actual);
+		}
+		
+		if (!Pattern.compile(substring).matcher(actual).find()) {
 			Assert.fail(substring + " is not contained in " + actual);
 		}
 	}
@@ -190,10 +206,9 @@ public class TestUtil {
 	private static String stripTagsAndWhitespace(String string) {
 		string = string.toLowerCase();
 		string = string.replaceAll("<span class=\"value\">(.*)</span>", "$1");
-		string = string.replaceAll("<span class=\"emptyvalue\">.*</span>", "");
+		string = string.replaceAll("<span class=\"emptyvalue\">(.*)</span>", "$1");
+		string = string.replaceAll("(?s)<div class=\"htmlform\">(.*)</div>", "$1");
 		string = string.replaceAll("\\s", "");
-		string = string.replaceAll("<htmlform>(.*)</htmlform>", "$1");
-		string = string.replaceAll("<div class=\"htmlform\">(.*)</div>", "$1");
 		return string;
 	}
 	

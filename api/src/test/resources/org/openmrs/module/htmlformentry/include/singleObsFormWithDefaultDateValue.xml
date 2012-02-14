@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Obs date: <obs conceptId="1119" defaultValue="2011-06-10-10-10"/>
+	<submit/>
+</htmlform>

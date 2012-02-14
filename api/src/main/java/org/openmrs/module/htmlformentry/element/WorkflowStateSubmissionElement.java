@@ -15,6 +15,7 @@ package org.openmrs.module.htmlformentry.element;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
@@ -30,6 +32,7 @@ import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -54,6 +57,10 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	
 	private Map<String, ProgramWorkflowState> states;
 	
+	private PatientState activePatientState;
+	
+	private String label;
+	
 	private Widget widget;
 	
 	/**
@@ -73,57 +80,40 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			for (int i = 0; i < tagParams.getStateIds().size(); i++) {
 				String stateId = tagParams.getStateIds().get(i);
 				
-				Integer id = null;
-				try {
-					id = Integer.valueOf(stateId);
-				}
-				catch (NumberFormatException e) {}
+				ProgramWorkflowState state = HtmlFormEntryUtil.getState(stateId, workflow.getProgram());
 				
-				boolean stateIdfound = false;
-				
-				for (ProgramWorkflowState workflowState : workflow.getStates()) {
-					if (workflowState.getId().equals(id) || workflowState.getUuid().equals(stateId)) {
-						String label = workflowState.getConcept().getName().getName();
-						if (tagParams.getStateLabels() != null) {
-							label = tagParams.getStateLabels().get(i);
-						}
-						states.put(label, workflowState);
-						
-						stateIdfound = true;
-						break;
-					}
-				}
-				
-				if (!stateIdfound) {
+				if (state == null) {
 					throw new IllegalArgumentException("workflow with id " + workflow.getId() + " does not have state id "
 					        + stateId);
 				}
-			}
-		} else {
-			int i = 0;
-			for (ProgramWorkflowState state : workflow.getStates()) {
+				
 				String label = state.getConcept().getName().getName();
 				if (tagParams.getStateLabels() != null) {
 					label = tagParams.getStateLabels().get(i);
 				}
 				states.put(label, state);
-				i++;
 			}
+		} else {
+			for (ProgramWorkflowState state : workflow.getStates()) {
+				if (state.isRetired()) {
+					continue;
+				}
+				
+				String label = state.getConcept().getName().getName();
+				states.put(label, state);
+			}
+		}
+		
+		Date encounterDatetime = new Date();
+		if (context.getExistingEncounter() != null) {
+			encounterDatetime = context.getExistingEncounter().getEncounterDatetime();
 		}
 		
 		ProgramWorkflowState currentState = null;
 		
-		Patient patient = context.getExistingPatient();
-		List<PatientProgram> programs = Context.getProgramWorkflowService().getPatientPrograms(patient,
-		    workflow.getProgram(), null, null, null, null, false);
-		
-		for (PatientProgram program : programs) {
-			if (program.getDateCompleted() != null) {
-			PatientState state = program.getCurrentState(workflow);
-			if (state != null) {
-				currentState = state.getState();
-			}
-			}
+		activePatientState = getActivePatientState(context.getExistingPatient(), encounterDatetime, workflow);
+		if (activePatientState != null) {
+			currentState = activePatientState.getState();
 		}
 		
 		if (currentState == null) {
@@ -136,23 +126,37 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			}
 		}
 		
+		if (tagParams.getLabelCode() != null) {
+			label = context.getTranslator().translate(Context.getLocale().toString(), tagParams.getLabelCode());
+		}
+		
+		if (label == null && tagParams.getLabelText() != null) {
+			label = tagParams.getLabelText();
+		}
+		
 		if (tagParams.getStyle().equals("hidden")) {
 			widget = new HiddenFieldWidget();
+			//There is only one state
+			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
+			widget.setInitialValue(state.getValue().getUuid());
 		} else if (tagParams.getStyle().equals("checkbox")) {
+			//There is only one state
 			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
 			widget = new CheckboxWidget(state.getKey(), state.getValue().getUuid());
 		} else {
 			SingleOptionWidget singleOption;
 			if (tagParams.getStyle().equals("dropdown")) {
 				singleOption = new DropdownWidget();
+				singleOption.addOption(new Option("", "", false));
 			} else {
 				singleOption = new RadioButtonsWidget();
 			}
 			
 			for (Entry<String, ProgramWorkflowState> state : states.entrySet()) {
-				boolean select = state.equals(currentState);
+				boolean select = state.getValue().equals(currentState);
 				singleOption.addOption(new Option(state.getKey(), state.getValue().getUuid(), select));
 			}
+			
 			widget = singleOption;
 		}
 		
@@ -161,6 +165,25 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		}
 		
 		context.registerWidget(widget);
+	}
+	
+	/**
+	 * @param context
+	 * @param encounterDatetime
+	 * @param workflow
+	 * @return
+	 */
+	private PatientState getActivePatientState(Patient patient, Date encounterDatetime, ProgramWorkflow workflow) {
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(patient, workflow, encounterDatetime);
+		if (patientProgram != null) {
+			for (PatientState patientState : patientProgram.getStates()) {
+				if (patientState.getState().getProgramWorkflow().equals(workflow)
+				        && patientState.getActive(encounterDatetime)) {
+					return patientState;
+				}
+			}
+		}
+		return null;
 	}
 	
 	/**
@@ -179,8 +202,22 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-		Object value = widget.getValue(session.getContext(), submission);
+		String stateUuid = (String) widget.getValue(session.getContext(), submission);
 		
+		if (!StringUtils.isBlank(stateUuid)) {
+			if (Mode.EDIT.equals(session.getContext().getMode())) {
+				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
+				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
+				        .getEncounter().getEncounterDatetime(), workflow);
+				if (!newState.equals(oldPatientState.getState())) {
+					oldPatientState.setState(newState);
+					session.getSubmissionActions().getPatientProgramsToUpdate().add(oldPatientState.getPatientProgram());
+				}
+			} else {
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
+				session.getSubmissionActions().transitionToState(state);
+			}
+		}
 	}
 	
 	/**
@@ -189,8 +226,8 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
-		if (tagParams.getLabel() != null) {
-			ret.append("<spring:message code=\"" + tagParams.getLabel() + "\" /> ");
+		if (label != null) {
+			ret.append(label);
 		}
 		ret.append(widget.generateHtml(context));
 		return ret.toString();

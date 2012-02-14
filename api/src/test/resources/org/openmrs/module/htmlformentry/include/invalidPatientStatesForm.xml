@@ -1,0 +1,8 @@
+<htmlform>
+	Enrollment Date: <enrollInProgram programId="10" showDate="true" stateIds="201, 89d1a292-5140-11e1-a3e3-00248140a5eb" />
+	
+	Encounter Date: <encounterDate/>
+    Encounter Location: <encounterLocation/>
+    Encounter Provider: <encounterProvider role="Provider"/>
+    <submit/>
+</htmlform>

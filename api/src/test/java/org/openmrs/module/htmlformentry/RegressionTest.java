@@ -37,21 +37,21 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "simplestForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertErrors(3); // date, location, and provider are required
 				results.assertNoEncounterCreated();
 			}
@@ -64,24 +64,24 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "simplestForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -96,17 +96,17 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleObsForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -114,7 +114,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -131,17 +131,17 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -151,7 +151,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -170,17 +170,17 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleObsGroupForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -190,7 +190,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -209,18 +209,18 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsGroupForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Allergy 1:", "Allergy Date 1:", "Allergy 3:",
 				        "Allergy Date 3:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// for fun let's fill out part of allergy 1 and allergy 3, but leave allergy 2 blank.
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
@@ -231,7 +231,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -249,12 +249,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "simplestForm";
 			}
 			
 			@Override
-            Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				Date date = Context.getDateFormat().parse("01/02/2003");
 				e.setDateCreated(new Date());
@@ -265,7 +265,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testViewingEncounter(Encounter encounter, String html) {
+			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos", html);
 			}
 		}.run();
@@ -276,12 +276,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleObsForm";
 			}
 			
 			@Override
-            Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -294,7 +294,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testViewingEncounter(Encounter encounter, String html) {
+			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:12.3", html);
 			}
 		}.run();
@@ -305,12 +305,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleObsForm";
 			}
 			
 			@Override
-            Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -323,8 +323,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
+			public void testViewingEncounter(Encounter encounter, String html) {	
+				TestUtil.assertFuzzyContains("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
 			}
 		}.run();
 	}
@@ -334,12 +334,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "obsGroupsWithCodedValuesForm";
 			}
 			
 			@Override
-            Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -349,18 +349,18 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
 				// create three obsgroups with the identical structures but with different answer values for the ALLERGY CODED obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 1119, date,
-				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 1119, date,
-				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 1119, date,
-				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 1119,
+				    date, new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 1119,
+				    date, new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 1119,
+				    date, new Date());
 				
 				return e;
 			}
 			
 			@Override
-            void testViewingEncounter(Encounter encounter, String html) {
+			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Allergy \\d: CATS", html);
 				TestUtil.assertFuzzyContains("Allergy \\d: OPENMRS", html);
 				TestUtil.assertFuzzyContains("Allergy \\d: PENICILLIN", html);
@@ -380,12 +380,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			new RegressionTestHelper() {
 				
 				@Override
-                String getFormName() {
+				public String getFormName() {
 					return "obsGroupsWithDifferentGroupingConceptsButSameMemberConceptsForm";
 				}
 				
 				@Override
-                Encounter getEncounterToView() throws Exception {
+				public Encounter getEncounterToView() throws Exception {
 					Encounter e = new Encounter();
 					e.setPatient(getPatient());
 					Date date = Context.getDateFormat().parse("01/02/2003");
@@ -405,7 +405,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				@Override
-                void testViewingEncounter(Encounter encounter, String html) {
+				public void testViewingEncounter(Encounter encounter, String html) {
 					// assert that in the rendered form view the value for the ALLERGY CODED obs within the OTHER ALLERGY CONSTRUCT 
 					// is OPENMRS (i.e., concept 1003)
 					TestUtil.assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
@@ -422,12 +422,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			new RegressionTestHelper() {
 				
 				@Override
-                String getFormName() {
+				public String getFormName() {
 					return "obsGroupsWithSameGroupingConceptButDifferentMemberConceptsForm";
 				}
 				
 				@Override
-                Encounter getEncounterToView() throws Exception {
+				public Encounter getEncounterToView() throws Exception {
 					Encounter e = new Encounter();
 					e.setPatient(getPatient());
 					Date date = Context.getDateFormat().parse("01/02/2003");
@@ -447,10 +447,10 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				@Override
-                void testViewingEncounter(Encounter encounter, String html) {
+				public void testViewingEncounter(Encounter encounter, String html) {
 					// assert that in the rendered form view the view for grouping concept_id 1004 doesn't find a group -- it shouldn't
-				    // because all obs groups are concept_id 7.
-				    TestUtil.assertFuzzyContains("Hyper-Allergy 1: <span class=\"emptyValue\">____</span>", html);
+					// because all obs groups are concept_id 7.
+					TestUtil.assertFuzzyContains("Hyper-Allergy 1: <span class=\"emptyValue\">____</span>", html);
 				}
 				
 			}.run();
@@ -458,143 +458,141 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		
 	}
 	
-
 	/**
-	 * 
-	 * Builds the full DST model, and ensures proper recognition of nested obs groups.
-	 * The basic model is:  Encounter --> TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT
-	 * TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT owns 'DST Start Date' obs and multiple TUBERCULOSIS DRUG SENSITIVITY TEST RESULT 
-	 * TUBERCULOSIS DRUG SENSITIVITY TEST RESULT owns a result, and 'colonies' obs
-	 * 
-	 * Yea yea, i know a test should test one component, but this is the most complex single encounter obs model
-	 * that anyone will ever build with an htmlform in practice...  
+	 * Builds the full DST model, and ensures proper recognition of nested obs groups. The basic
+	 * model is: Encounter --> TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT TUBERCULOSIS DRUG
+	 * SENSITIVITY TEST CONSTRUCT owns 'DST Start Date' obs and multiple TUBERCULOSIS DRUG
+	 * SENSITIVITY TEST RESULT TUBERCULOSIS DRUG SENSITIVITY TEST RESULT owns a result, and
+	 * 'colonies' obs Yea yea, i know a test should test one component, but this is the most complex
+	 * single encounter obs model that anyone will ever build with an htmlform in practice...
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-    public void viewDSTModelWithNestedObsGroupsAndConceptSelectTag() throws Exception {
-	        
-            new RegressionTestHelper() {
-                
-
-                @Override
-                String getFormName() {
-                    return "multiLevelObsGroup1";
-                }
-                
-                    @Override
-                    Encounter getEncounterToView() throws Exception {
-                    Encounter e = new Encounter();
-                    e.setPatient(getPatient());
-                    Date date = Context.getDateFormat().parse("01/02/2003");
-                    e.setDateCreated(new Date());
-                    e.setEncounterDatetime(date);
-                    e.setLocation(Context.getLocationService().getLocation(2));
-                    e.setProvider(Context.getPersonService().getPerson(502));
-                    
-                    // first create DST parent group
-                    Obs dstParent = TestUtil.createObs(e, 3040, null, date);
-                    e.addObs(dstParent);
-
-                    Obs resultParent = TestUtil.createObs(e, 3025, null, date);
-                    dstParent.addGroupMember(resultParent);
-                    Obs resultParent2 = TestUtil.createObs(e, 3025, null, date);
-                    dstParent.addGroupMember(resultParent2);
-                    Obs resultParent3 = TestUtil.createObs(e, 3025, null, date);
-                    dstParent.addGroupMember(resultParent3);
-                    
-                    Obs dstStartDate = TestUtil.createObs(e, 3032, date, date);
-                    dstParent.addGroupMember(dstStartDate);
-
-                    //let's make rifampin susceptible -- 2474 is susceptible
-                    Obs drugResult = TestUtil.createObs(e, 2474, Context.getConceptService().getConcept(767), date);
-                    resultParent.addGroupMember(drugResult);
-
-                    //let's make INH resistant 1441 is resistant
-                    Obs drugResult2 = TestUtil.createObs(e, 1441, Context.getConceptService().getConcept(656), date);
-                    resultParent2.addGroupMember(drugResult2);
-                    //and add colonies for just INH
-                    Obs colonies1 = TestUtil.createObs(e, 3016, 200, date);
-                    resultParent2.addGroupMember(colonies1);
-                    
-                  //let's make ETHIO intermediate
-                    Obs drugResult4 = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(1414), date);
-                    resultParent3.addGroupMember(drugResult4);
-                    //and add colonies for ETHIO
-                    Obs colonies3 = TestUtil.createObs(e, 3016, 500, date);
-                    resultParent3.addGroupMember(colonies3);
-                    
-                    //THINGS THAT SHOULD BE IGNORED:
-                    //THESE TEST THE BEHAVIOR THAT IF AN OBS GROUP CONCEPT IS UNIQUE AT THAT LEVEL IN AN OBS GROUP HIERARCHY,
-                        //IT WILL BE RETURNED EVEN IF THE MEMBER OBS DONT 'SUPPORT' THE obsgroup SCHEMA
-                    //let's add some 'right' data at the 'wrong' place in the hierarchy:
-                    //let's put another colonies obs in the wrong place in the hierarchy, with colonies value 400
-                    Obs colonies2 = TestUtil.createObs(e, 3016, 400, date);
-                    dstParent.addGroupMember(colonies2);
-                    //and here's a drug result added directly to the encounter (bypassing the DST parentConstructObs)
-                    Obs drugResult3 = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(767), date);
-                    resultParent3.addGroupMember(drugResult3);
-                    e.addObs(resultParent3);
-                    
-                    e = Context.getEncounterService().saveEncounter(e);
-                    return e;
-                }
-                
-                @Override
-                void testViewingEncounter(Encounter encounter, String html) {
-                    //System.out.println(html);
-                    TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
-                    TestUtil.assertFuzzyContains("ISONIAZID <span class=\"value\">Resistant</span>", html);
-                    TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200.0</span>", html);
-                    TestUtil.assertFuzzyContains("DST Result Date <span class=\"value\">01/02/2003</span>", html);
-                    TestUtil.assertFuzzyDoesNotContain("400", html);
-                    TestUtil.assertFuzzyDoesNotContain("Intermediate", html);
-                }
-                
-            }.run();
-        
-    }
+	public void viewDSTModelWithNestedObsGroupsAndConceptSelectTag() throws Exception {
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multiLevelObsGroup1";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// first create DST parent group
+				Obs dstParent = TestUtil.createObs(e, 3040, null, date);
+				e.addObs(dstParent);
+				
+				Obs resultParent = TestUtil.createObs(e, 3025, null, date);
+				dstParent.addGroupMember(resultParent);
+				Obs resultParent2 = TestUtil.createObs(e, 3025, null, date);
+				dstParent.addGroupMember(resultParent2);
+				Obs resultParent3 = TestUtil.createObs(e, 3025, null, date);
+				dstParent.addGroupMember(resultParent3);
+				
+				Obs dstStartDate = TestUtil.createObs(e, 3032, date, date);
+				dstParent.addGroupMember(dstStartDate);
+				
+				//let's make rifampin susceptible -- 2474 is susceptible
+				Obs drugResult = TestUtil.createObs(e, 2474, Context.getConceptService().getConcept(767), date);
+				resultParent.addGroupMember(drugResult);
+				
+				//let's make INH resistant 1441 is resistant
+				Obs drugResult2 = TestUtil.createObs(e, 1441, Context.getConceptService().getConcept(656), date);
+				resultParent2.addGroupMember(drugResult2);
+				//and add colonies for just INH
+				Obs colonies1 = TestUtil.createObs(e, 3016, 200, date);
+				resultParent2.addGroupMember(colonies1);
+				
+				//let's make ETHIO intermediate
+				Obs drugResult4 = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(1414), date);
+				resultParent3.addGroupMember(drugResult4);
+				//and add colonies for ETHIO
+				Obs colonies3 = TestUtil.createObs(e, 3016, 500, date);
+				resultParent3.addGroupMember(colonies3);
+				
+				//THINGS THAT SHOULD BE IGNORED:
+				//THESE TEST THE BEHAVIOR THAT IF AN OBS GROUP CONCEPT IS UNIQUE AT THAT LEVEL IN AN OBS GROUP HIERARCHY,
+				//IT WILL BE RETURNED EVEN IF THE MEMBER OBS DONT 'SUPPORT' THE obsgroup SCHEMA
+				//let's add some 'right' data at the 'wrong' place in the hierarchy:
+				//let's put another colonies obs in the wrong place in the hierarchy, with colonies value 400
+				Obs colonies2 = TestUtil.createObs(e, 3016, 400, date);
+				dstParent.addGroupMember(colonies2);
+				//and here's a drug result added directly to the encounter (bypassing the DST parentConstructObs)
+				Obs drugResult3 = TestUtil.createObs(e, 3017, Context.getConceptService().getConcept(767), date);
+				resultParent3.addGroupMember(drugResult3);
+				e.addObs(resultParent3);
+				
+				e = Context.getEncounterService().saveEncounter(e);
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				//System.out.println(html);
+				TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
+				TestUtil.assertFuzzyContains("ISONIAZID <span class=\"value\">Resistant</span>", html);
+				TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200.0</span>", html);
+				TestUtil.assertFuzzyContains("DST Result Date <span class=\"value\">01/02/2003</span>", html);
+				TestUtil.assertFuzzyDoesNotContain("400", html);
+				TestUtil.assertFuzzyDoesNotContain("Intermediate", html);
+			}
+			
+		}.run();
+		
+	}
 	
 	@Test
-    public void viewSingleObsEncounterWithObsOfTextDatatype() throws Exception {
-        new RegressionTestHelper() {
-            
-            @Override
-            String getFormName() {
-                return "singleObsForm2";
-            }
-            
-            @Override
-            Encounter getEncounterToView() throws Exception {
-                Encounter e = new Encounter();
-                e.setPatient(getPatient());
-                Date date = Context.getDateFormat().parse("01/02/2003");
-                e.setDateCreated(new Date());
-                e.setEncounterDatetime(date);
-                e.setLocation(Context.getLocationService().getLocation(2));
-                e.setProvider(Context.getPersonService().getPerson(502));
-                TestUtil.addObs(e, 6, "blah blah", null); 
-                return e;
-            }
-            
-            @Override
-            void testViewingEncounter(Encounter encounter, String html) {
-                TestUtil.assertFuzzyContains("blah blah", html);
-            }
-            
-        }.run();
-    }
-
+	public void viewSingleObsEncounterWithObsOfTextDatatype() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsForm2";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				TestUtil.addObs(e, 6, "blah blah", null);
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("blah blah", html);
+			}
+			
+		}.run();
+	}
+	
 	@Test
 	public void testVelocityExpressions() throws Exception {
 		LogicUtil.registerDefaultRules();
 		new RegressionTestHelper() {
+			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "velocityForm";
 			}
+			
 			@Override
-            void testBlankFormHtml(String html) {
+			public void testBlankFormHtml(String html) {
 				TestUtil.assertFuzzyContains("Last weight: 50.0", html);
 				TestUtil.assertFuzzyContains("Gender: M", html);
 				TestUtil.assertFuzzyContains("Location: Test Location", html);
@@ -608,17 +606,17 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleObsForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -626,7 +624,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -636,22 +634,22 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            boolean doEditEncounter() {
+			public boolean doEditEncounter() {
 				return true;
 			}
 			
 			@Override
-            String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:" };
 			};
 			
 			@Override
-            void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
 			};
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				// TODO: for some reason starting in 1.8. the dateChanged is not set here
 				// see HTML-233: Unit test testEditSingleObsForm(org.openmrs.module.htmlformentry.RegressionTest) fails when tested against (at least) OpenMRS 1.8.2 and above
@@ -659,46 +657,47 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsCreated(2, 75d);
 				results.assertObsVoided(2, 70d);
 			};
-
+			
 		}.run();
 	}
 	
 	/**
-	 * This is supposed to be a regression test for HTML-135, but I couldn't get it to successfully fail.
-	 * There must be a difference between editing a form in production, versus in this unit test framework.
+	 * This is supposed to be a regression test for HTML-135, but I couldn't get it to successfully
+	 * fail. There must be a difference between editing a form in production, versus in this unit
+	 * test framework.
 	 */
 	@Test
 	public void testEditMultipleObsForm() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsForm";
 			}
 			
 			@Override
-            Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-            Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-            String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:" };
 			};
 			
 			@Override
-            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Weight:"), "75");
 				request.setParameter(widgets.get("Allergy:"), "Bee stings");
 			};
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterEdited();
 				results.assertObsCreated(2, 75d);
@@ -706,66 +705,63 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsCreated(8, "Bee stings");
 				results.assertObsVoided(8, "Penicillin");
 			};
-
+			
 		}.run();
 	}
 	
 	/**
-	 * This test verifies that a) a root Section gets created, and
-	 * b) that nested obsGroups are working correctly in the schema.  You know that 'a' is working 
-	 * if conceptId = 6 shows up in section 0, even though it is the last obs tag in the form.
-	 * 
-	 * you can inspect the results for 'b':
-	 * the 'ret' variable is a string representation of the schema where sections are enclosed 
-	 * by parentheses (), and obsGroup members are enclosed by brackets [].  
+	 * This test verifies that a) a root Section gets created, and b) that nested obsGroups are
+	 * working correctly in the schema. You know that 'a' is working if conceptId = 6 shows up in
+	 * section 0, even though it is the last obs tag in the form. you can inspect the results for
+	 * 'b': the 'ret' variable is a string representation of the schema where sections are enclosed
+	 * by parentheses (), and obsGroup members are enclosed by brackets [].
 	 */
-    @Test
-    public void shouldReturnObsGroupSchemaCorrectly() throws Exception {      
-        Form form = new Form();
-        HtmlForm htmlform = new HtmlForm();
-        htmlform.setForm(form);
-        form.setEncounterType(new EncounterType());
-        htmlform.setDateChanged(new Date());
-        htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
-        HtmlFormSchema hfs = session.getContext().getSchema();
-        String ret = "";
-        int count = 0;
-        for (HtmlFormSection fes : hfs.getSections()){
-            ret += "section " + count + " (";
-            for (HtmlFormField hff : fes.getFields()){
-                ret = shouldReturnObsGroupSchemaCorrectlyHelper(hff, count, ret);
-            }
-            ret += ") ";
-            count ++;
-        }
-        Assert.assertTrue(ret.equals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) "));
-    } 
-    
-    /**
-     * 
-     * This iterates through nested obsGroups and is used by shouldReturnObsGroupSchemaCorrectly()
-     * 
-     * @param hff
-     * @param count
-     * @param ret
-     * @return
-     */
-    private String shouldReturnObsGroupSchemaCorrectlyHelper(HtmlFormField hff, int count, String  ret){
-        if (hff instanceof ObsField){
-            ObsField of = (ObsField) hff;
-            ret += " concept " + of.getQuestion() + " ";
-            
-        }  else if (hff instanceof ObsGroup){
-            ObsGroup og = (ObsGroup) hff;
-            ret += " ObsGroup=" + og.getConcept() + " [";
-            for (HtmlFormField hffInner : og.getChildren())
-                ret = shouldReturnObsGroupSchemaCorrectlyHelper(hffInner, count, ret);
-            ret += "]";
-        }
-        return ret;
-    }
-
+	@Test
+	public void shouldReturnObsGroupSchemaCorrectly() throws Exception {
+		Form form = new Form();
+		HtmlForm htmlform = new HtmlForm();
+		htmlform.setForm(form);
+		form.setEncounterType(new EncounterType());
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
+		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+		HtmlFormSchema hfs = session.getContext().getSchema();
+		String ret = "";
+		int count = 0;
+		for (HtmlFormSection fes : hfs.getSections()) {
+			ret += "section " + count + " (";
+			for (HtmlFormField hff : fes.getFields()) {
+				ret = shouldReturnObsGroupSchemaCorrectlyHelper(hff, count, ret);
+			}
+			ret += ") ";
+			count++;
+		}
+		Assert.assertTrue(ret
+		        .equals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) "));
+	}
+	
+	/**
+	 * This iterates through nested obsGroups and is used by shouldReturnObsGroupSchemaCorrectly()
+	 * 
+	 * @param hff
+	 * @param count
+	 * @param ret
+	 * @return
+	 */
+	private String shouldReturnObsGroupSchemaCorrectlyHelper(HtmlFormField hff, int count, String ret) {
+		if (hff instanceof ObsField) {
+			ObsField of = (ObsField) hff;
+			ret += " concept " + of.getQuestion() + " ";
+			
+		} else if (hff instanceof ObsGroup) {
+			ObsGroup og = (ObsGroup) hff;
+			ret += " ObsGroup=" + og.getConcept() + " [";
+			for (HtmlFormField hffInner : og.getChildren())
+				ret = shouldReturnObsGroupSchemaCorrectlyHelper(hffInner, count, ret);
+			ret += "]";
+		}
+		return ret;
+	}
 	
 	@Test
 	public void testDatatypes() throws Exception {
@@ -773,17 +769,17 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "dataTypesForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Date Obs:", "Time Obs:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -793,7 +789,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testResults(SubmissionResults results) {
+			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -805,55 +801,59 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-
+	
 	@Test
 	public void testSubmitButtonLabelAndStyle() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "simplestForm";
 			}
 			
 			@Override
-            void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				//simplest form should contain default label and class
-				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"htmlformentry.enterFormButton\"", html);
+				TestUtil.assertFuzzyContains(
+				    "<input type=\"button\" class=\"submitButton\" value=\"htmlformentry.enterFormButton\"", html);
 				return;
 			}
 			
 		}.run();
-
+		
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "submitButtonLabelAndStyleForm";
 			}
-									
+			
 			@Override
-            void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				//submitButtonLabelAndStyleForm has both custom label and style
-				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"someOtherCSSClassReference\" value=\"submit label test\"", html);
+				TestUtil.assertFuzzyContains(
+				    "<input type=\"button\" class=\"someOtherCSSClassReference\" value=\"submit label test\"", html);
 				return;
 			}
 			
 		}.run();
-
+		
 		new RegressionTestHelper() {
 			
 			java.util.Locale locale = null;
+			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				locale = Context.getLocale(); //save off the locale 
 				Context.setLocale(new java.util.Locale("fr")); //set it to fr
 				return "submitButtonLabelCodeForm";
 			}
-									
+			
 			@Override
-            void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				//submit_button has translation reference code
-				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"I don't think so\"", html);
+				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"I don't think so\"",
+				    html);
 				Context.setLocale(locale); //switch back locale
 				return;
 			}
@@ -865,36 +865,34 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	/**
 	 * TODO refactor this to the same format as the other tests
 	 */
-    @Test
-    public void testApplyMacros() throws Exception {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<htmlform>");
-        sb.append("<macros>");
-        sb.append("count=1, 2, 3");
-        sb.append("</macros>");
-        sb.append("You can count like $count");
-        sb.append("</htmlform>");
-        
-        HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
-        
-        String result = generator.applyMacros(sb.toString()).trim();
-        System.out.println(result);
-        Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
-    }
-    
- 
+	@Test
+	public void testApplyMacros() throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("<htmlform>");
+		sb.append("<macros>");
+		sb.append("count=1, 2, 3");
+		sb.append("</macros>");
+		sb.append("You can count like $count");
+		sb.append("</htmlform>");
 		
+		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
+		
+		String result = generator.applyMacros(sb.toString()).trim();
+		System.out.println(result);
+		Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
+	}
+	
 	@Test
 	public void viewFormWithLocationObs() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleLocationObsForm";
 			}
 			
 			@Override
-            Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -907,8 +905,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertFuzzyContains("Xanadu", html);   // make sure Xanadu has been included
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Xanadu", html); // make sure Xanadu has been included
 			}
 		}.run();
 	}
@@ -918,12 +916,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleLocationObsForm";
 			}
 			
 			@Override
-            Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() throws Exception {
 				Encounter e = new Encounter();
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
@@ -936,8 +934,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-            void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertFuzzyContains("Xanadu", html);   // make sure Xanadu has been included
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Xanadu", html); // make sure Xanadu has been included
 			}
 		}.run();
 	}
@@ -947,13 +945,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "singleObsWithAnswersAndLabels";
 			}
 			
 			@Override
-            void testBlankFormHtml(String html) {
-								
+			public void testBlankFormHtml(String html) {
+				
 				// test to make sure that the concept ids have been mapped to the correct labels
 				// we search for the value attribute (ie. value="1001"), and then make sure the corresponding label
 				// (ie. PENCILLIN) appears following it before a new tag starts ( [^<]* means zero or more characters of any type except "<")
@@ -965,7 +963,316 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueFirstScrambleEntryOrder() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+            public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+            public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+					    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
+			}
+
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueFirstReverseEntryOrder() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+					    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+					    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueFirst() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueMiddle() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+
+	@Test
+	public void testMultipleObsGroupsOneEmptyValueLast() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
 	
-	
-	
+	@Test
+	public void testMultipleObsGroupsTwoEmptyValues() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				// all we can confirm is that the one with the proper value is in the correct spot
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
+	@Test
+	public void testMultipleObsGroupsFirstTwoEmptyValues() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				// all we can confirm is that the one with the proper value is in the correct spot
+				TestUtil.assertFuzzyContains("Label3foo3", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}	
 }

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.w3c.dom.NamedNodeMap;
@@ -29,11 +30,12 @@ public abstract class SubstitutionTagHandler extends AbstractTagHandler {
      * @param controllerActions the FormSubmissionController associated with the session
      * @param parameters any parameters associated with the tag
      * @return
+     * @throws BadFormDesignException 
      */
-    abstract protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters);
+    abstract protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters) throws BadFormDesignException;
     
     @Override
-    public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
+    public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
         Map<String, String> attributes = new HashMap<String, String>();        
         NamedNodeMap map = node.getAttributes();
         for (int i = 0; i < map.getLength(); ++i) {

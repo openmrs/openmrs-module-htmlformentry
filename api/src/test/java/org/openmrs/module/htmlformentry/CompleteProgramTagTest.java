@@ -33,13 +33,13 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "completeProgramForm";
 			}
 			
 			@SuppressWarnings("deprecation")
             @Override
-            Patient getPatient()  {
+            public Patient getPatient()  {
 				Patient patient = Context.getPatientService().getPatient(2);
 				Program program = Context.getProgramWorkflowService().getProgram(1);
 				
@@ -50,12 +50,12 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 			};
 				
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
@@ -63,7 +63,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 			
 			@SuppressWarnings("deprecation")
             @Override
-            void testResults(SubmissionResults results) {
+            public void testResults(SubmissionResults results) {
 				// do all the basic assertions to make sure the program was processed correctly
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -78,11 +78,9 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past", Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));	
 				
-				for (PatientProgram pp : Context.getProgramWorkflowService().getPatientPrograms(patient)) {
-					if (pp.getProgram().equals(program)) {
-						Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
-					}
-				}
+				// confirm that the proper program has been closed
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgramByUuid("32296060-03aa-102d-b0e3-001ec94a0cc5");
+				Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
 			};
 
 		}.run();
@@ -93,30 +91,30 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "completeProgramForm";
 			}
 			
 			@Override
-            String[] widgetLabels() {
+			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
 			
 			@Override
-            void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 			}
 			
 			@Override
-            boolean doEditEncounter() {
+			public boolean doEditEncounter() {
 				return true;
 			}
 			
 			@SuppressWarnings("deprecation")
             @Override
-            void testEditedResults(SubmissionResults results) {
+            public void testEditedResults(SubmissionResults results) {
 				// do all the basic assertions to make sure the program was processed correctly
 				results.assertNoErrors();
 				results.assertEncounterCreated();
@@ -131,11 +129,9 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past", Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));	
 				
-				for (PatientProgram pp : Context.getProgramWorkflowService().getPatientPrograms(patient)) {
-					if (pp.getProgram().equals(program)) {
-						Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
-					}
-				}
+				// confirm that the proper program has been closed
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgramByUuid("32296060-03aa-102d-b0e3-001ec94a0cc5");
+				Assert.assertTrue("Program completion date should be current date", TestUtil.dateEquals(new Date(), pp.getDateCompleted()));
 			};
 			
 

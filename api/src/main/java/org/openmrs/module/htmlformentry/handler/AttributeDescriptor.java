@@ -1,7 +1,6 @@
 
 package org.openmrs.module.htmlformentry.handler;
 
-import org.openmrs.OpenmrsObject;
 
 /**
  * Attribute descriptors are used to define the attributes that a specific tag handler supports
@@ -17,7 +16,7 @@ public class AttributeDescriptor {
 	String name;
 	
 	// the clazz that the attribute values references (may be null if the attribute does not reference any OpenMRS objects)
-    Class<? extends OpenmrsObject> clazz;
+    Class<?> clazz;
 
 	
 	/** 
@@ -26,7 +25,7 @@ public class AttributeDescriptor {
 	 * @param attribute
 	 * @param clazz
 	 */
-	public AttributeDescriptor(String name, Class<? extends OpenmrsObject> clazz) {
+	public AttributeDescriptor(String name, Class<?> clazz) {
 	    this.name = name;
 	    this.clazz = clazz;
     }
@@ -42,11 +41,11 @@ public class AttributeDescriptor {
     	this.name = name;
     }
 	
-    public Class<? extends OpenmrsObject> getClazz() {
+    public Class<?> getClazz() {
     	return clazz;
     }
 	
-    public void setClazz(Class<? extends OpenmrsObject> clazz) {
+    public void setClazz(Class<?> clazz) {
     	this.clazz = clazz;
     }
 	

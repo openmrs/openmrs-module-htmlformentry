@@ -4,7 +4,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>htmlformentry</artifactId>
-	<version>1.8.3-SNAPSHOT</version>
+	<version>1.9.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>HTML Form Entry</name>
 	<description>Parent project for HTML Form Entry</description>
@@ -76,7 +76,6 @@
 	<modules>
 		<module>api</module>
 		<module>omod</module>
-		<module>release-tests</module>
 	</modules>
 
 	<build>
@@ -102,6 +101,17 @@
 					<configuration>
 						<failIfNoTests>false</failIfNoTests>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<executions>
+						<execution>
+							<goals>
+								<goal>test-jar</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
@@ -449,6 +459,13 @@
 				<openMRSMinorVersion>1.8</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
+		</profile>
+		
+		<profile>
+			<id>release-tests</id>
+			<modules>
+				<module>release-tests</module>
+			</modules>
 		</profile>
 
 	</profiles>

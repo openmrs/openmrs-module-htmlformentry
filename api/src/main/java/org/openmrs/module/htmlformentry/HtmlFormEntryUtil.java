@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
-import org.openmrs.ConceptName;
 import org.openmrs.Encounter;
 import org.openmrs.FormField;
 import org.openmrs.Location;
@@ -43,6 +42,8 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.PersonAttribute;
@@ -63,7 +64,6 @@ import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
-import org.openmrs.util.OpenmrsUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1022,16 +1022,62 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
-	public static ProgramWorkflow getWorkflow(String identifier) {
+	public static PatientProgram getPatientProgram(Patient patient, ProgramWorkflow workflow, Date encounterDatetime) {
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
+		    workflow.getProgram(), null, null, null, null, false);
+		
+		PatientProgram patientProgram = null;
+		
+		for (PatientProgram eachPatientProgram : patientPrograms) {
+			boolean foundState = false;
+			for (PatientState patientState : eachPatientProgram.getStates()) {
+				if (patientState.getState().getProgramWorkflow().equals(workflow)) {
+					foundState = true;
+				}
+			}
+			
+			if (foundState) {
+				if (patientProgram != null) {
+					throw new IllegalStateException("Does not support multiple programs");
+				} else {
+					patientProgram = eachPatientProgram;
+				}
+			}
+		}
+		
+		return patientProgram;
+	}
+	
+	@SuppressWarnings("deprecation")
+    public static ProgramWorkflow getWorkflow(String identifier) {
+		identifier = identifier.trim();
+		if (StringUtils.isBlank(identifier)) {
+			return null;
+		}
+		
 		ProgramWorkflow workflow = null;
 		try {
 			Integer id = Integer.valueOf(identifier);
 			workflow = Context.getProgramWorkflowService().getWorkflow(id);
-		} catch (NumberFormatException e) {
 		}
+		catch (NumberFormatException e) {}
 		
 		if (workflow == null) {
 			workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
+		}
+		
+		if (workflow == null) {
+			Concept concept = HtmlFormEntryUtil.getConcept(identifier);
+			if (concept != null) {
+				for (Program program : Context.getProgramWorkflowService().getAllPrograms()) {
+					for (ProgramWorkflow programWorkflow : program.getAllWorkflows()) {
+						if (programWorkflow.getConcept().equals(concept)) {
+							workflow = programWorkflow;
+							break;
+						}
+					}
+				}
+			}
 		}
 		
 		return workflow;
@@ -1039,27 +1085,25 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
-	 * programWorkflowStateId, uuid or the associated concept with a preferred name that matches the
-	 * specified identifier
+	 * programWorkflowStateId, uuid or whose underlying concept's uuid that matches the specified
+	 * identifier
 	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
 	 * @return
 	 * @should return the state with the matching id
 	 * @should return the state with the matching uuid
-	 * @should return the state with a concept with a matching preferred name in the current locale
+	 * @should return the state with a concept that has a uuid that matches the specified identifier
 	 */
 	public static ProgramWorkflowState getState(String identifier, Program program) {
 		if (StringUtils.isNotBlank(identifier) && program != null) {
+			
+			Concept concept = HtmlFormEntryUtil.getConcept(identifier);
+			
 			for (ProgramWorkflow wf : program.getWorkflows()) {
 				for (ProgramWorkflowState wfState : wf.getStates(false)) {
-					String preferredName = null;
-					ConceptName preferredConceptName = wfState.getConcept().getPreferredName(Context.getLocale());
-					if (preferredConceptName != null)
-						preferredName = preferredConceptName.getName().toLowerCase();
-					
 					if (wfState.getId().toString().equals(identifier) || wfState.getUuid().equals(identifier)
-					        || OpenmrsUtil.nullSafeEquals(preferredName, identifier.toLowerCase())) {
+					        || wfState.getConcept().equals(concept)) {
 						return wfState;
 					}
 				}
@@ -1068,4 +1112,76 @@ public class HtmlFormEntryUtil {
 		
 		return null;
 	}
+	
+	/**
+	 * Checks whether the encounter has a provider specified (including ugly reflection code for
+	 * 1.9+)
+	 * 
+	 * @param e
+	 * @return whether e has one or more providers specified
+	 */
+	@SuppressWarnings("rawtypes")
+	public static boolean hasProvider(Encounter e) {
+		try {
+			Method method = e.getClass().getMethod("getProvidersByRoles");
+			// this is a Map<EncounterRole, Set<Provider>>
+			Map providersByRoles = (Map) method.invoke(e);
+			return providersByRoles != null && providersByRoles.size() > 0;
+		}
+		catch (Exception ex) {
+			return e.getProvider() != null;
+		}
+	}
+	
+	/**
+	 * Checks if the user is enrolled in a program at the specified date
+	 * 
+	 * @param patient the patient that should be enrolled in the program
+	 * @param program the program the patient be enrolled in
+	 * @param date the date at which to check
+	 * @return
+	 * @should return true if the patient is enrolled in the program at the specified date
+	 * @should return false if the patient is not enrolled in the program
+	 * @should return false if the program was completed
+	 * @should return false if the date is before the existing patient program enrollment date
+	 */
+	public static boolean isEnrolledInProgramOnDate(Patient patient, Program program, Date date) {
+		if (patient == null)
+			throw new IllegalArgumentException("patient should not be null");
+		if (program == null)
+			throw new IllegalArgumentException("program should not be null");
+		if (date == null)
+			throw new IllegalArgumentException("date should not be null");
+		
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+		
+		return (patientPrograms.size() > 0);
+		
+	}
+
+	/**
+	 * Checks to see if the patient has a program enrollment in the specified program after the given date
+	 * If multiple patient programs, returns the earliest enrollment
+	 * If no enrollments, returns null
+	 */
+	public static PatientProgram getClosestFutureProgramEnrollment(Patient patient, Program program, Date date) {
+		if (patient == null)
+			throw new IllegalArgumentException("patient should not be null");
+		if (program == null)
+			throw new IllegalArgumentException("program should not be null");
+		if (date == null)
+			throw new IllegalArgumentException("date should not be null");
+		
+		PatientProgram closestProgram = null;
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, date, null, null , null, false);
+	    
+		for (PatientProgram pp: patientPrograms) {
+			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled())) && pp.getDateEnrolled().after(date)) {
+				closestProgram = pp;
+			}
+			
+		}
+		
+		return closestProgram;
+    }
 }
