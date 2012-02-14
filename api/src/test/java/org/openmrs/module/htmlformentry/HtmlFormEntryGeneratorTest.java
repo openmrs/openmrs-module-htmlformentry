@@ -83,9 +83,8 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void wrapInDiv_shouldRemoveHtmlformTagAndWrapFormInDiv() throws Exception {
-		String htmlform = "<htmlform>someContent</htmlform>";
-		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
-		htmlform = generator.wrapInDiv(htmlform);
-		Assert.assertEquals("<div class=\"htmlform\">someContent</div>", htmlform);
+		String htmlform = "<htmlform>\rsomeContent</htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		TestUtil.assertFuzzyContains("(?s)<div class=\"htmlform\">(.*)someContent</div>", session.getHtmlToDisplay());
 	}
 }

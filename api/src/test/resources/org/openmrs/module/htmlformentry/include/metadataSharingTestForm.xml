@@ -16,8 +16,8 @@
 	Program: <ENROLLINPROGRAM programId="MDR-TB PROGRAM"/>  <!-- this is not valid syntax for this tag, but using it to test picking up programs referenced by name -->
 	
 	Drugs: <drugOrder drugNames="2,Aspirin,7e2323fa-0fa0-461f-9b59-6765997d849e" discontinuedReasonConceptId="555"/>
-	Patient: <patientField identifierTypeId="1"/>
-	Patient: <patientField identifierTypeId="Old Identification Number"/>
+	Patient: <patient field="identifier" identifierTypeId="1"/>
+	Patient: <patient field="identifier" identifierTypeId="Old Identification Number"/>
 	
 	 <!--  this is not valid syntax for this tag, but using to test picking up roles referenced by uuid -->
 	<encounterProvider role="92b70b00-58b1-11e0-80e3-0800200c9a66"/>

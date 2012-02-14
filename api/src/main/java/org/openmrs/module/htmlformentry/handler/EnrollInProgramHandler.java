@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflowState;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.EnrollInProgramElement;
@@ -16,9 +17,10 @@ import org.openmrs.module.htmlformentry.element.EnrollInProgramElement;
 public class EnrollInProgramHandler extends SubstitutionTagHandler implements TagHandler {
 	
 	@Override
-    protected List<AttributeDescriptor> createAttributeDescriptors() {
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("programId", Program.class));
+		attributeDescriptors.add(new AttributeDescriptor("stateIds", ProgramWorkflowState.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
@@ -26,9 +28,9 @@ public class EnrollInProgramHandler extends SubstitutionTagHandler implements Ta
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
 	                                 Map<String, String> parameters) {
 		EnrollInProgramElement element = new EnrollInProgramElement(session.getContext(), parameters);
-        session.getSubmissionController().addAction(element);
-        
-        return element.generateHtml(session.getContext());
+		session.getSubmissionController().addAction(element);
+		
+		return element.generateHtml(session.getContext());
 	}
 	
 }

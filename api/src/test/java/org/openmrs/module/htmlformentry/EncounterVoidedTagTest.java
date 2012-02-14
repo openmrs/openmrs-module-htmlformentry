@@ -28,32 +28,32 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsFormToVoid";
 			}
 			
 			@Override
-            Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-            Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-            String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:", "Void:" };
 			};
 			
 			@Override
-            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Void:"), "true");
 			};
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterVoided();
 			};
@@ -66,32 +66,32 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsFormToVoid";
 			}
 			
 			@Override
-            Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-            Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-            String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:", "Void:" };
 			};
 			
 			@Override
-            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Void:"), "false");
 			};
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterNotVoided();
 			};
@@ -104,38 +104,38 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// set the appropriate global property to true
 				Context.getAdministrationService().saveGlobalProperty(new GlobalProperty("htmlformentry.voidEncounterByHtmlFormSchema", "true"));
 			}
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsFormToVoid";
 			}
 			
 			@Override
-            Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-            Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-            String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:", "Void:" };
 			};
 			
 			@Override
-            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Void:"), "true");
 			};
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
 				// in this case the whole encounter should not be voided because not all the obs associated with the encounter 
@@ -154,38 +154,38 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// set the appropriate global property to true
 				Context.getAdministrationService().saveGlobalProperty(new GlobalProperty("htmlformentry.voidEncounterByHtmlFormSchema", "false"));
 			}
 			
 			@Override
-            String getFormName() {
+			public String getFormName() {
 				return "multipleObsFormToVoid";
 			}
 			
 			@Override
-            Patient getPatientToView() throws Exception {
+			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
 			};
 			
 			@Override
-            Encounter getEncounterToEdit() {
+			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
 			@Override
-            String[] widgetLabelsForEdit() {
+			public String[] widgetLabelsForEdit() {
 				return new String[] { "Weight:", "Allergy:", "Allergy Date:", "Void:" };
 			};
 			
 			@Override
-            void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Void:"), "true");
 			};
 			
 			@Override
-            void testEditedResults(SubmissionResults results) {
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterVoided();
 			};

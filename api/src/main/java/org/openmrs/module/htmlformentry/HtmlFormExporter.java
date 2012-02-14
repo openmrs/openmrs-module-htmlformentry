@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.Form;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsMetadata;
@@ -19,10 +21,13 @@ import org.openmrs.Program;
 import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
+import org.openmrs.order.DrugSuggestion;
+import org.openmrs.order.RegimenSuggestion;
 
 /**
  * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
@@ -98,7 +103,10 @@ public class HtmlFormExporter {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
-						String pattern = "<" + tagName + "[^>]* " + attributeDescriptor.getName() + "=\"(.*?)\"";
+						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;
+						// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
+						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
+						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName() + "=\"(.*?)\"";
 						log.debug("dependency substitution pattern: " + pattern);
 						
 						// now search through and find all matches
@@ -109,9 +117,9 @@ public class HtmlFormExporter {
 							
 							for (String id : ids) {
 								// if this id matches a uuid pattern, try to fetch the object by uuid
-								if (HtmlFormEntryUtil.isValidUuidFormat(id)) {
+								if (HtmlFormEntryUtil.isValidUuidFormat(id) && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
-									    attributeDescriptor.getClazz(), id);
+									    (Class<? extends OpenmrsObject>) attributeDescriptor.getClazz(), id);
 									if (object != null) {
 										//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
 										if (Form.class.equals(attributeDescriptor.getClazz())) {
@@ -136,7 +144,6 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								
 								// finally, handle any special cases
 								// if it's a concept, we also need to handle concepts referenced by map
 								if (Concept.class.equals(attributeDescriptor.getClazz())) {
@@ -170,6 +177,24 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
+								//RegimenSuggestion -- see global property 'dashboard.regimen.standardRegimens'
+								if (RegimenSuggestion.class.equals(attributeDescriptor.getClazz())){
+									List<RegimenSuggestion> stRegimens = Context.getOrderService().getStandardRegimens();
+									if (stRegimens != null){
+										ConceptService cs = Context.getConceptService();
+										for (RegimenSuggestion rs : stRegimens){
+											if (rs.getCodeName().equals(id) && rs.getDrugComponents() != null){
+												for (DrugSuggestion ds : rs.getDrugComponents()){
+													Drug drug = cs.getDrugByNameOrId(ds.getDrugId());
+													if (drug == null)
+														 drug = cs.getDrugByUuid(ds.getDrugId());
+													if (drug != null)
+														dependencies.add(drug);
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					}
@@ -192,7 +217,8 @@ public class HtmlFormExporter {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to attribute="[anything]"
-						String stripPattern = "<" + tagName + "[^>]*( " + attributeDescriptor.getName() + "=\".*?\")";
+						// see above mehtod for more detail
+						String stripPattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)(" + attributeDescriptor.getName() + "=\".*?\")";
 						log.debug("stripping substitution pattern: " + stripPattern);
 						
 						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {

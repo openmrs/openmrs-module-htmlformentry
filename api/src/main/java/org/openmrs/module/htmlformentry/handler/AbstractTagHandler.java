@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.handler;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.w3c.dom.Node;
 
@@ -27,8 +28,9 @@ public abstract class AbstractTagHandler implements TagHandler {
 	}
 	
     @Override
-    abstract public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node);
+    abstract public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException;
 
     @Override
-    abstract public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node);
+    abstract public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException;
+    
 }

@@ -225,38 +225,10 @@ public abstract class RegressionTestHelper {
 	public void testEditedResults(SubmissionResults results) {
 	}
 	
-	/**
-	 * (Override this if you want to test the an attribute of FormEntrySession in
-	 * form entry (ENTER) mode.)
-	 * 
-	 * @param FormEntrySession object, useful in test state of session object
-	 */
-	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession) {
-	}
-	
-	/**
-	 * (Override this if you want to test the an attribute of FormEntrySession in
-	 * form view mode.)
-	 * 
-	 * @param FormEntrySession object, useful in test state of session object
-	 */
-	public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-	}
-	
-	/**
-	 * (Override this if you want to test the an attribute of FormEntrySession in
-	 * form edit mode.)
-	 * 
-	 * @param FormEntrySession object, useful in test state of session object
-	 */
-	public void testFormEditSessionAttribute(FormEntrySession formEntrySession) {
-	}
-	
 	public void run() throws Exception {
 		// setup the blank form for the specified patient
 		Patient patient = getPatient();
 		FormEntrySession session = setupFormEntrySession(patient, getFormName());
-		testFormEntrySessionAttribute(session);
 		String html = session.getHtmlToDisplay();
 		testBlankFormHtml(html);
 		
@@ -282,7 +254,6 @@ public abstract class RegressionTestHelper {
 			session = setupFormViewSession(patientToView, null, getFormName());
 			html = session.getHtmlToDisplay();
 			testViewingPatient(patientToView, html);
-			testFormViewSessionAttribute(session);
 		}
 		
 		// view that encounter and run tests on that
@@ -294,7 +265,6 @@ public abstract class RegressionTestHelper {
 			session = setupFormViewSession(patientToView, encounterToView, getFormName());
 			html = session.getHtmlToDisplay();
 			testViewingEncounter(encounterToView, html);
-			testFormViewSessionAttribute(session);
 		}
 		
 		// edit the encounter, and run tests on that
@@ -316,7 +286,6 @@ public abstract class RegressionTestHelper {
 			session = setupFormEditSession(patientToEdit, toEdit, getFormName());
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
-			testFormEditSessionAttribute(session);
 			
 			Map<String, String> labeledWidgetsForEdit = getLabeledWidgets(editHtml, widgetLabelsForEdit());
 			MockHttpServletRequest editRequest = createEditRequest(editHtml);

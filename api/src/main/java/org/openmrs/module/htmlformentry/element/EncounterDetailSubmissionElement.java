@@ -41,6 +41,8 @@ import org.springframework.util.StringUtils;
  */
 public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
+	private String id;
+	
 	private DateWidget dateWidget;
 	private ErrorWidget dateErrorWidget;
 	private TimeWidget timeWidget;
@@ -179,7 +181,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 //			if (sortOptions) {
 //				Collections.sort(options, new PersonByNameComparator());
 //			}
-			
+				
 			providerWidget.setOptions(options);
 			providerWidget.setInitialValue(new PersonStub(defaultProvider));
 			
@@ -232,6 +234,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				voidWidget.setInitialValue("true");
 			context.registerWidget(voidWidget);
 			context.registerErrorWidget(voidWidget, voidErrorWidget);
+		}
+		
+		// set the id, if it has been specified
+		if (parameters.get("id") != null) {
+			id = (String) parameters.get("id");
 		}
 		
 	}
@@ -341,6 +348,37 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	@Override
     public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
+		
+		// if an id has been specified, wrap the whole encounter element in a span tag so that we access property values via javascript
+		// also register property accessors for all the widgets
+		if (id != null) {
+			ret.append("<span id='" + id + "'>");
+			
+			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
+			if (dateWidget != null) {
+				context.registerPropertyAccessorInfo(id + ".dateValue", context.getFieldNameIfRegistered(dateWidget), null, null,
+					null);
+				context.registerPropertyAccessorInfo(id + ".dateError", context.getFieldNameIfRegistered(dateErrorWidget), null, null,
+					null);			
+				context.registerPropertyAccessorInfo(id + ".timeValue", context.getFieldNameIfRegistered(timeWidget), null, null,
+					null);
+				context.registerPropertyAccessorInfo(id + ".timeError", context.getFieldNameIfRegistered(timeErrorWidget), null, null,
+					null);
+			}
+			else if (providerWidget != null) {
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null, null,
+				    null);
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget), null, null,
+				    null);
+			}
+			else if (locationWidget != null) {
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null, null,
+				    null);
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget), null, null,
+				    null);
+			}
+		}
+		
 		if (dateWidget != null) {
 			ret.append(dateWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW)
@@ -366,6 +404,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (context.getMode() == Mode.EDIT) //only show void option if the encounter already exists.
 				ret.append(voidWidget.generateHtml(context));
 		}
+		
+		// close out the span if we have an id tag
+		if (id != null) {
+			ret.append("</span>");
+		}
+		
 		return ret.toString();
 	}
 

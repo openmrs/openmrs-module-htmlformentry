@@ -929,7 +929,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * Tests that the age value sets the birthdate when birthdate is not provided
+	 * Tests that the age value wins in case both the age and birthdate are provided
 	 * 
 	 * @throws Exception
 	 */
@@ -1034,11 +1034,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered birthdate
-
-				System.out.println("Patient2: " + results.getPatient().getFamilyName() + ", " + results.getPatient().getGivenName());
-				System.out.println("Compare2 " + ymdToDate(dateAsString(expectedBirthDate)) + " :: " + results.getPatient().getBirthdate());
-
-				
 				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
 				results.assertEncounterEdited();
 			}
