@@ -57,6 +57,8 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	public static final String FIELD_DISCONTINUED_REASON_ANSWERS="discontinueReasonAnswers";
 	
 	public static final String FIELD_DISCONTINUED_REASON_ANSWER_LABELS="discontinueReasonAnswerLabels";
+	
+	public static final String STANDARD_REGIMEN_GLOBAL_PROPERTY="dashboard.regimen.standardRegimens";
 
 	
 	private Widget regWidget;
@@ -79,7 +81,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		
 		String regimenCodes = parameters.get(STANDARD_REGIMEN_CODES);		
 		if (regimenCodes == null || regimenCodes.length() < 1)
-			throw new IllegalArgumentException("You must provide a valid regimenCode from your standard regimen XML (see global property for these codes) " + parameters);
+			throw new IllegalArgumentException("You must provide a valid regimenCode from your standard regimen XML (see global property " + STANDARD_REGIMEN_GLOBAL_PROPERTY + " for these codes) " + parameters);
 		
 		List<Option> options = new ArrayList<Option>();
 		options.add(new Option("", "", false));
@@ -94,6 +96,8 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 				options.add(new Option(rs.getDisplayName(),rs.getCodeName(), false));
 				srf.addStandardRegimenAnswer(new StandardRegimenAnswer(rs));
 				possibleRegimens.add(rs);
+			} else {
+				throw new IllegalArgumentException("standardRegimen tag can't find regimen code " + regCode + " found in regimenCodes attribute in global property " + STANDARD_REGIMEN_GLOBAL_PROPERTY);
 			}
 		}	
 		DropdownWidget dw = new DropdownWidget();
