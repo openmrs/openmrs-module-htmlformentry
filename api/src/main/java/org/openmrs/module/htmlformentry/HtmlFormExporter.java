@@ -19,7 +19,6 @@ import org.openmrs.PatientIdentifierType;
 import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
-import org.openmrs.ProgramWorkflowState;
 import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
@@ -164,17 +163,11 @@ public class HtmlFormExporter {
 									}
 								}
 								// need to handle the special case where a program workflow is specified by a concept map pointing to it's underlying concept
+								// note that we shouldn't have to handle program workflow states because they should always be picked up when sharing the overriding program and/or program workflow
 								if (ProgramWorkflow.class.equals(attributeDescriptor.getClazz())) {
 									ProgramWorkflow workflow = HtmlFormEntryUtil.getWorkflow(id);
 									if (workflow != null) {
 										dependencies.add(workflow);
-									}
-								}
-								// need to handle the special case where a program workflow state is specified by a concept map pointing to it's underlying concept
-								if (ProgramWorkflowState.class.equals(attributeDescriptor.getClazz())) {
-									ProgramWorkflowState state = HtmlFormEntryUtil.getState(id);
-									if (state != null) {
-										dependencies.add(state);
 									}
 								}
 								// need to special case of the name of a role

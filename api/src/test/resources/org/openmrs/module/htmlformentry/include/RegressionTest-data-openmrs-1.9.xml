@@ -230,6 +230,8 @@
 
   <concept concept_id="10006" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="c4d364c0-53a7-11e1-8cb6-00248140a5eb"/>
   <concept_name concept_name_id="20006" concept_id="10006" name="TEST WORKFLOW1" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="ccd6d1fc-53a7-11e1-8cb6-00248140a5eb"/>
+  <concept_reference_term concept_reference_term_id="1001" concept_source_id="2" code="Test Workflow Code" name="Test Workflow Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffff34-53ad-11e1-8cb6-00248140a5eb"/>
+  <concept_reference_map concept_map_id="1002" concept_id="10006" concept_reference_term_id="1001" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f713-49d8-11e0-8fed-18a905e044dc"/>
   
   <concept concept_id="10007" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="d5e83970-53a7-11e1-8cb6-00248140a5eb"/>
   <concept_name concept_name_id="20007" concept_id="10007" name="TEST WORKFLOW2" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="db36a0ce-53a7-11e1-8cb6-00248140a5eb"/>

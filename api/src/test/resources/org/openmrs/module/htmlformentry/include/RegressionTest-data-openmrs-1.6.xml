@@ -226,6 +226,7 @@
 
   <concept concept_id="10006" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="c4d364c0-53a7-11e1-8cb6-00248140a5eb"/>
   <concept_name concept_name_id="20006" concept_id="10006" name="TEST WORKFLOW1" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" voided="false" uuid="ccd6d1fc-53a7-11e1-8cb6-00248140a5eb"/>
+  <concept_map concept_map_id="10001" concept_id="10006" source="2" source_code="Test Workflow Code" creator="1" date_created="2008-08-15 15:27:51.0" uuid="50ffdf34-53ad-11e1-8cb6-01248140a5eb"/>
   
   <concept concept_id="10007" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="d5e83970-53a7-11e1-8cb6-00248140a5eb"/>
   <concept_name concept_name_id="20007" concept_id="10007" name="TEST WORKFLOW2" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" voided="false" uuid="db36a0ce-53a7-11e1-8cb6-00248140a5eb"/>

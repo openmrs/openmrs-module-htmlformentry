@@ -80,7 +80,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			for (int i = 0; i < tagParams.getStateIds().size(); i++) {
 				String stateId = tagParams.getStateIds().get(i);
 				
-				ProgramWorkflowState state = HtmlFormEntryUtil.getState(stateId, workflow.getProgram());
+				ProgramWorkflowState state = HtmlFormEntryUtil.getState(stateId, workflow);
 				
 				if (state == null) {
 					throw new IllegalArgumentException("workflow with id " + workflow.getId() + " does not have state id "

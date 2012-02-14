@@ -689,6 +689,168 @@ public class HtmlFormEntryUtil {
 		return identifierType;
 	}
 	
+	/**
+	 * Looks up a {@link ProgramWorkflow} by id, uuid or by concept map of the underlying concept
+	 */
+	@SuppressWarnings("deprecation")
+    public static ProgramWorkflow getWorkflow(String identifier) {
+		ProgramWorkflow workflow = null;
+		
+		if (identifier != null) {
+			// first try to fetch by id
+			try {
+				Integer id = Integer.valueOf(identifier);
+				workflow = Context.getProgramWorkflowService().getWorkflow(id);
+				
+				if (workflow != null) {
+					return workflow;
+				}
+			} 
+			catch (NumberFormatException e) {
+			}
+			
+			// if not, try to fetch by uuid
+			if (isValidUuidFormat(identifier)) {
+				workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
+				
+				if (workflow != null) {
+					return workflow;
+				}
+			}
+			
+			// finally, try to fetch by concept map
+			// handle  mapping id: xyz:ht
+			int index = identifier.indexOf(":");
+			if (index != -1) {
+				Concept concept = getConcept(identifier);
+				
+				// iterate through workflows until we see if we find a match
+				if (concept != null) {
+					for (Program program : Context.getProgramWorkflowService().getAllPrograms(false)) {
+		 				for (ProgramWorkflow w : program.getAllWorkflows()) {
+							if (w.getConcept().equals(concept)) {
+								return w;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return workflow;
+	}
+	
+	/**
+	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
+	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
+	 * 
+	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
+	 * @param program
+	 * @return
+	 * @should return the state with the matching id
+	 * @should return the state with the matching uuid
+	 * @should return the state with a concept with a matching preferred name in the current locale
+	 */
+	public static ProgramWorkflowState getState(String identifier, Program program) {
+		if (identifier == null) {
+			return null;
+		}
+		
+		// first try to fetch by id or uuid
+		ProgramWorkflowState state = getState(identifier);
+		
+		if (state != null) {
+			return state;
+		}
+		// if we didn't find a match, see if this is a concept mapping
+		else {
+			int index = identifier.indexOf(":");
+			if (index != -1) {
+				Concept concept = getConcept(identifier);
+				if (concept != null) {
+					for (ProgramWorkflow workflow : program.getAllWorkflows()) {
+						for (ProgramWorkflowState s : workflow.getStates(false)) {
+							if (s.getConcept().equals(concept)) {
+								return s;
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
+	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
+	 * 
+	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
+	 * @param program
+	 * @return
+	 * @should return the state with the matching id
+	 * @should return the state with the matching uuid
+	 * @should return the state with a concept with a matching preferred name in the current locale
+	 */
+	public static ProgramWorkflowState getState(String identifier, ProgramWorkflow workflow) {
+		if (identifier == null) {
+			return null;
+		}
+		
+		// first try to fetch by id or uuid
+		ProgramWorkflowState state = getState(identifier);
+		
+		if (state != null) {
+			return state;
+		}
+		
+		// if we didn't find a match, see if this is a concept mapping
+		else {
+			int index = identifier.indexOf(":");
+			if (index != -1) {
+				Concept concept = getConcept(identifier);
+				if (concept != null) {
+					for (ProgramWorkflowState s : workflow.getStates(false)) {
+						if (s.getConcept().equals(concept)) {
+							return s;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	
+	@SuppressWarnings("deprecation")
+	private static ProgramWorkflowState getState(String identifier) {
+		ProgramWorkflowState state = null;
+		
+		if (identifier != null) {
+			try {
+				Integer id = Integer.valueOf(identifier);
+				state = Context.getProgramWorkflowService().getState(id);
+				
+				if (state != null) {
+					return state;
+				}
+			} 
+			catch (NumberFormatException e) {
+			}
+			
+			if (isValidUuidFormat(identifier)) {
+				state = Context.getProgramWorkflowService().getStateByUuid(identifier);
+				
+				if (state != null) {
+					return state;
+				}
+			}
+		}
+		return null;
+	}
+
+	
+	
 	/***
 	 * Determines if the passed string is in valid uuid format By OpenMRS standards, a uuid must be
 	 * 36 characters in length and not contain whitespace, but we do not enforce that a uuid be in
@@ -1046,71 +1208,6 @@ public class HtmlFormEntryUtil {
 		}
 		
 		return patientProgram;
-	}
-	
-	@SuppressWarnings("deprecation")
-    public static ProgramWorkflow getWorkflow(String identifier) {
-		identifier = identifier.trim();
-		if (StringUtils.isBlank(identifier)) {
-			return null;
-		}
-		
-		ProgramWorkflow workflow = null;
-		try {
-			Integer id = Integer.valueOf(identifier);
-			workflow = Context.getProgramWorkflowService().getWorkflow(id);
-		}
-		catch (NumberFormatException e) {}
-		
-		if (workflow == null) {
-			workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
-		}
-		
-		if (workflow == null) {
-			Concept concept = HtmlFormEntryUtil.getConcept(identifier);
-			if (concept != null) {
-				for (Program program : Context.getProgramWorkflowService().getAllPrograms()) {
-					for (ProgramWorkflow programWorkflow : program.getAllWorkflows()) {
-						if (programWorkflow.getConcept().equals(concept)) {
-							workflow = programWorkflow;
-							break;
-						}
-					}
-				}
-			}
-		}
-		
-		return workflow;
-	}
-	
-	/**
-	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
-	 * programWorkflowStateId, uuid or whose underlying concept's uuid that matches the specified
-	 * identifier
-	 * 
-	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
-	 * @param program
-	 * @return
-	 * @should return the state with the matching id
-	 * @should return the state with the matching uuid
-	 * @should return the state with a concept that has a uuid that matches the specified identifier
-	 */
-	public static ProgramWorkflowState getState(String identifier, Program program) {
-		if (StringUtils.isNotBlank(identifier) && program != null) {
-			
-			Concept concept = HtmlFormEntryUtil.getConcept(identifier);
-			
-			for (ProgramWorkflow wf : program.getWorkflows()) {
-				for (ProgramWorkflowState wfState : wf.getStates(false)) {
-					if (wfState.getId().toString().equals(identifier) || wfState.getUuid().equals(identifier)
-					        || wfState.getConcept().equals(concept)) {
-						return wfState;
-					}
-				}
-			}
-		}
-		
-		return null;
 	}
 	
 	/**

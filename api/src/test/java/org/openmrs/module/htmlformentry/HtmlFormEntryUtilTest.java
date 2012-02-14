@@ -715,8 +715,38 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@Test
+	@Verifies(value = "should return the workflow with the matching id", method = "getWorkflow(String)")
+	public void getWorkflow_shouldReturnTheWorkflowWithTheMatchingId() throws Exception {
+		Assert.assertEquals("84f0effa-dd73-46cb-b931-7cd6be6c5f81", HtmlFormEntryUtil.getWorkflow("1").getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should return the workflow with the matching uuid", method = "getWorkflow(String)")
+	public void getWorkflow_shouldReturnTheWorkflowWithTheMatchingUuid() throws Exception {
+		Assert.assertEquals("1", HtmlFormEntryUtil.getWorkflow("84f0effa-dd73-46cb-b931-7cd6be6c5f81").getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
+	@Verifies(value = "should look up a workflow by a concept mapping", method = "getWorkflow(String)")
+	public void getWorkflow_shouldLookUpAWorkflowByAConceptMapping() throws Exception {
+		// load this data set so that we get the additional patient program with concept mapping
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		
+		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@Test
 	@Verifies(value = "should return the state with the matching id", method = "getState(String,Program)")
-	public void getState_shouldReturnTheStateWithTheMatchingId() throws Exception {
+	public void getStateProgram_shouldReturnTheStateWithTheMatchingId() throws Exception {
 		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
 		    HtmlFormEntryUtil.getState("1", Context.getProgramWorkflowService().getProgram(1)).getUuid());
 	}
@@ -726,12 +756,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,Program)")
-	public void getState_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
-		Assert.assertEquals(
-		    "1",
-		    HtmlFormEntryUtil
-		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1))
-		            .getId().toString());
+	public void getStateProgram_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
+		Assert.assertEquals("1",HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1)).getId().toString());
 	}
 	
 	/**
@@ -739,12 +765,43 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
-	public void getState_shouldLookUpAStateByAConceptMapping() throws Exception {
+	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@SuppressWarnings("deprecation")
+    @Test
+	@Verifies(value = "should return the state with the matching id", method = "getState(String,ProgramWorkflow)")
+	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingId() throws Exception {
+		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
+		    HtmlFormEntryUtil.getState("1", Context.getProgramWorkflowService().getWorkflow(1)).getUuid());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@SuppressWarnings("deprecation")
+    @Test
+	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,ProgramWorkflow)")
+	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
+		Assert.assertEquals("1",HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getWorkflow(1)).getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
+	 */
+	@SuppressWarnings("deprecation")
+    @Test
+	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
+	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
+		// load this data set so that we get the additional patient program with concept mapping
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getWorkflow(108)).getUuid());
 	}
 	
 	/**
