@@ -920,6 +920,11 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNotNull(patientProgram);
 				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
+				
+				// assert that the other state no longer exists
+				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNull(patientState);
 			}
 		}.run();
 	}
