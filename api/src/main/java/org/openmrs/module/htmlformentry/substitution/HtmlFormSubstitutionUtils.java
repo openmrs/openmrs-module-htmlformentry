@@ -92,7 +92,7 @@ public class HtmlFormSubstitutionUtils {
 	 * Helper method used by performSubstitution
 	 */
 	private static String performSubstitutionHelper(String formXmlData, String tagAndAttribute,
-	                                                Class<? extends OpenmrsObject> clazz, Substituter substituter,
+	                                                Class<?> clazz, Substituter substituter,
 	                                                Map<OpenmrsObject, OpenmrsObject> substitutionMap, Boolean includeQuotes) {
 		Pattern substitutionPattern;
 		
