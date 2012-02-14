@@ -144,7 +144,6 @@ public class TestUtil {
 		String test2 = stripTagsAndWhitespace(actual);
 		if (!test1.equals(test2)) {
 			Assert.fail(expected + " does not match " + actual);
-			//Assert.fail(test1 + " VERSUS " + test2);
 		}
 	}
 	
@@ -207,7 +206,7 @@ public class TestUtil {
 	private static String stripTagsAndWhitespace(String string) {
 		string = string.toLowerCase();
 		string = string.replaceAll("<span class=\"value\">(.*)</span>", "$1");
-		string = string.replaceAll("<span class=\"emptyvalue\">.*</span>", "");
+		string = string.replaceAll("<span class=\"emptyvalue\">(.*)</span>", "$1");
 		string = string.replaceAll("(?s)<div class=\"htmlform\">(.*)</div>", "$1");
 		string = string.replaceAll("\\s", "");
 		return string;

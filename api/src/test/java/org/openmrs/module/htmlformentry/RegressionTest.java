@@ -323,8 +323,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertFuzzyEquals("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
+			public void testViewingEncounter(Encounter encounter, String html) {	
+				TestUtil.assertFuzzyContains("Date:01/02/2003 Location:Xanadu Provider:Hippocrates of Cos Weight:", html);
 			}
 		}.run();
 	}
@@ -996,14 +996,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
 			}
 
 			@Override
@@ -1046,14 +1041,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
 			}
 			
 			@Override
@@ -1096,14 +1086,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
 			}
 			
 			@Override
@@ -1134,11 +1119,11 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
+				    new Date());
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
 				    new Date());
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
-				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
 				    new Date());
 				
 				return e;
@@ -1146,14 +1131,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
 			}
 			
 			@Override
@@ -1184,11 +1164,11 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
-				    new Date());
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
 				    new Date());
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				    new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
 				    new Date());
 				
 				return e;
@@ -1196,14 +1176,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				TestUtil.assertFuzzyContains("Label1foo1", html);
+				TestUtil.assertFuzzyContains("Label2foo2", html);
+				TestUtil.assertFuzzyContains("Label3foo3", html);
 			}
 			
 			@Override
@@ -1234,9 +1209,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setProvider(Context.getPersonService().getPerson(502));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "foo1",
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1",
 				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "foo2",
 				    new Date());
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
 				    new Date());
@@ -1246,14 +1221,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				// all we can confirm is that the one with the proper value is in the correct spot
+				TestUtil.assertFuzzyContains("Label2foo2", html);
 			}
 			
 			@Override
@@ -1263,9 +1232,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}	
-
 	@Test
-	public void testMultipleObsGroupsThreeEmptyValues() throws Exception {
+	public void testMultipleObsGroupsFirstTwoEmptyValues() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1288,7 +1256,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				    new Date());
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2",
 				    new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3",
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "foo3",
 				    new Date());
 				
 				return e;
@@ -1296,14 +1264,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
-				TestUtil.assertFuzzyContains("foo1", html);
-				
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
-				TestUtil.assertFuzzyContains("foo2", html);
-
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
-				TestUtil.assertFuzzyContains("foo3", html);
+				// all we can confirm is that the one with the proper value is in the correct spot
+				TestUtil.assertFuzzyContains("Label3foo3", html);
 			}
 			
 			@Override
@@ -1313,5 +1275,4 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}	
-
 }

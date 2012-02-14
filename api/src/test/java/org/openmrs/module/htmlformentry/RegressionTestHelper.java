@@ -27,7 +27,6 @@ import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
-import org.openmrs.PatientProgram;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.util.OpenmrsUtil;
