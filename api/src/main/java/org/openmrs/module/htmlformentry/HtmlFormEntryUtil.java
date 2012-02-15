@@ -741,15 +741,17 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
+	 * Looks up a {@link ProgramWorkflowState} from the specified program by
 	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
+	 * 
+	 * (Note that if there are multiple states associated with the same concept in the program, this method will return an arbitrary one if fetched by concept mapping)
 	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
 	 * @return
 	 * @should return the state with the matching id
 	 * @should return the state with the matching uuid
-	 * @should return the state with a concept with a matching preferred name in the current locale
+	 * @should return the state associated with a concept that matches the passed concept map
 	 */
 	public static ProgramWorkflowState getState(String identifier, Program program) {
 		if (identifier == null) {
@@ -782,15 +784,17 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Looks up a {@link ProgramWorkflowState} from the specified program with a
+	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
 	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
 	 * 
+	 * (Note that if there are multiple states associated with the same concept in the workflow, this method will return an arbitrary one if fetched by concept mapping)
+	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
-	 * @param program
+	 * @param workflow
 	 * @return
 	 * @should return the state with the matching id
 	 * @should return the state with the matching uuid
-	 * @should return the state with a concept with a matching preferred name in the current locale
+	 * @should return the state associated with a concept that matches the passed concept map
 	 */
 	public static ProgramWorkflowState getState(String identifier, ProgramWorkflow workflow) {
 		if (identifier == null) {
@@ -821,9 +825,18 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
-	
+	/**
+	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
+	 * programWorkflowStateId, or uuid
+	 *  
+	 * @param identifier the programWorkflowStateId or uuid to match against
+	 * @param workflow
+	 * @return
+	 * @should return the state with the matching id
+	 * @should return the state with the matching uuid
+	 */
 	@SuppressWarnings("deprecation")
-	private static ProgramWorkflowState getState(String identifier) {
+	public static ProgramWorkflowState getState(String identifier) {
 		ProgramWorkflowState state = null;
 		
 		if (identifier != null) {
