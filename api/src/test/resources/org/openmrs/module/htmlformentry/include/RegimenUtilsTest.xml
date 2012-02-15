@@ -18,7 +18,7 @@
 				</drugSuggestion>
 			</drugComponents>
 		<displayName>Drug 2 and 3</displayName>
-		<codeName>drug1and2</codeName>
+		<codeName>drug2and3</codeName>
 		<canReplace>ANTIRETROVIRAL DRUGS</canReplace>
 	</regimenSuggestion>
 	<regimenSuggestion>
@@ -32,7 +32,7 @@
 				</drugSuggestion>
 			</drugComponents>
 		<displayName>Drug 2 by itself</displayName>
-		<codeName>drug1only</codeName>
+		<codeName>drug2only</codeName>
 		<canReplace>ANTIRETROVIRAL DRUGS</canReplace>
 	</regimenSuggestion>
 		<regimenSuggestion>
@@ -59,7 +59,7 @@
 					<instructions />
 				</drugSuggestion>
 			</drugComponents>
-		<displayName>Drug 2 by itself</displayName>
+		<displayName>all 3 drugs</displayName>
 		<codeName>all3</codeName>
 		<canReplace>ANTIRETROVIRAL DRUGS</canReplace>
 	</regimenSuggestion>

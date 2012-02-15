@@ -199,11 +199,11 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	
 	private Date getCommonDiscontinueDate(List<DrugOrder> orders){
 		Date candidate = null;
-		for (DrugOrder dor : orders){
-			if (!OpenmrsUtil.nullSafeEquals(dor.getDiscontinuedDate(), candidate))
+		if (orders != null & orders.size() > 0)
+				candidate = orders.get(0).getDiscontinuedDate();
+		for (Order o : orders){
+			if (!OpenmrsUtil.nullSafeEquals(o.getDiscontinuedDate(), candidate))
 				return null;
-			else
-				candidate = dor.getDiscontinuedDate();
 		}
 		return candidate;
 	}

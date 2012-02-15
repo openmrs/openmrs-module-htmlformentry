@@ -102,28 +102,30 @@ public class RegimenUtil {
 	 */
 	public static Set<Order> standardRegimenToDrugOrders(RegimenSuggestion rs, Date startDate, Patient patient){
 		Set<Order> ret = new HashSet<Order>();
-		for (DrugSuggestion ds : rs.getDrugComponents()){
-			DrugOrder dor = new DrugOrder();
-			dor.setVoided(false);
-			Drug drug = Context.getConceptService().getDrugByNameOrId(ds.getDrugId());
-			if (drug == null)
-				drug = Context.getConceptService().getDrugByUuid(ds.getDrugId());
-			if (drug == null)
-				throw new RuntimeException("Your standard regimen xml file constains a drugId that can't be found, for regimen " + rs.getCodeName() + ", DrugComponent.id = " + ds.getDrugId());
-			dor.setDrug(Context.getConceptService().getDrugByNameOrId(ds.getDrugId()));
-			dor.setFrequency(ds.getFrequency());
-			dor.setUnits(ds.getUnits());
-			dor.setInstructions(ds.getInstructions());
-			dor.setDose(Double.valueOf(ds.getDose()));
-			dor.setStartDate(startDate);
-			dor.setDiscontinued(false);
-			dor.setPatient(patient);
-			dor.setDateChanged(new Date());
-			dor.setCreator(Context.getAuthenticatedUser());
-			dor.setOrderType(Context.getOrderService().getOrderType(OpenmrsConstants.ORDERTYPE_DRUG));
-			dor.setConcept(drug.getConcept());
-			ret.add(dor);
-		}
+		if (rs != null){
+			for (DrugSuggestion ds : rs.getDrugComponents()){
+				DrugOrder dor = new DrugOrder();
+				dor.setVoided(false);
+				Drug drug = Context.getConceptService().getDrugByNameOrId(ds.getDrugId());
+				if (drug == null)
+					drug = Context.getConceptService().getDrugByUuid(ds.getDrugId());
+				if (drug == null)
+					throw new RuntimeException("Your standard regimen xml file constains a drugId that can't be found, for regimen " + rs.getCodeName() + ", DrugComponent.id = " + ds.getDrugId());
+				dor.setDrug(Context.getConceptService().getDrugByNameOrId(ds.getDrugId()));
+				dor.setFrequency(ds.getFrequency());
+				dor.setUnits(ds.getUnits());
+				dor.setInstructions(ds.getInstructions());
+				dor.setDose(Double.valueOf(ds.getDose()));
+				dor.setStartDate(startDate);
+				dor.setDiscontinued(false);
+				dor.setPatient(patient);
+				dor.setDateChanged(new Date());
+				dor.setCreator(Context.getAuthenticatedUser());
+				dor.setOrderType(Context.getOrderService().getOrderType(OpenmrsConstants.ORDERTYPE_DRUG));
+				dor.setConcept(drug.getConcept());
+				ret.add(dor);
+			}
+		}	
 		return ret;
 	}
 	

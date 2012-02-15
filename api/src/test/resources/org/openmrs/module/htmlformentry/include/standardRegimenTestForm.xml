@@ -1,0 +1,9 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	    <section headerLabel="2. Test Section">
+            <standardRegimen regimenCodes="drug2and3,all3" discontinuedReasonConceptId="101" discontinueReasonAnswers="102,103" discontinueReasonAnswerLabels="toxicity,reg change"/>
+        </section>
+	<submit/>
+</htmlform>

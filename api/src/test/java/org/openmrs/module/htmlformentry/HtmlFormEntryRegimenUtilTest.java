@@ -84,12 +84,12 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 	@Verifies(value = "should match drugOrders to standard regimen correctly", method = "findStrongestStandardRegimenInDrugOrders(List<RegimenSuggestion>, List<Order>)")
 	public void findStrongestStandardRegimenInDrugOrders_shouldMatchLargeRegimenCorrectly() throws Exception {
 		
-		//Build drug orders according to drug1and2
-		Integer encId = regimenTestBuildEncounterHelper("drug1and2");
+		//Build drug orders according to drug2and3
+		Integer encId = regimenTestBuildEncounterHelper("drug2and3");
 		Context.flushSession();
 		Context.clearSession();
 		
-		//Check to see that method returns drug1and2
+		//Check to see that method returns drug2and3
 		Encounter e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
@@ -97,19 +97,19 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
-		Assert.assertTrue(rs.getCodeName().equals("drug1and2"));
+		Assert.assertTrue(rs.getCodeName().equals("drug2and3"));
 		
 	}
 	
 	@Test
 	@Verifies(value = "should match drugOrders to standard regimen correctly", method = "findStrongestStandardRegimenInDrugOrders(List<RegimenSuggestion>, List<Order>)")
 	public void findStrongestStandardRegimenInDrugOrders_shouldMatchSmallRegimenCorrectly() throws Exception {
-		//Build drug orders according to drug1only
-		Integer encId = regimenTestBuildEncounterHelper("drug1only");
+		//Build drug orders according to drug2only
+		Integer encId = regimenTestBuildEncounterHelper("drug2only");
 		Context.flushSession();
 		Context.clearSession();
 		
-		//check to see that method returns drug1only
+		//check to see that method returns drug2only
 		Encounter e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
@@ -117,18 +117,18 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
-		Assert.assertTrue(rs.getCodeName().equals("drug1only"));
+		Assert.assertTrue(rs.getCodeName().equals("drug2only"));
 	}
 	
 	@Test
 	@Verifies(value = "should match drugOrders to standard regimen correctly", method = "findStrongestStandardRegimenInDrugOrders(List<RegimenSuggestion>, List<Order>)")
 	public void findStrongestStandardRegimenInDrugOrders_shouldMatchLargestRegimenCorrectly() throws Exception {
-		//Build drug orders according to drug1only
+		//Build drug orders according to drug2only
 		Integer encId = regimenTestBuildEncounterHelper("all3");
 		Context.flushSession();
 		Context.clearSession();
 		
-		//check to see that method returns drug1only
+		//check to see that method returns drug2only
 		Encounter e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
@@ -142,7 +142,7 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 	@Test
 	@Verifies(value = "should not match multiple drug orders with different start dates", method = "findStrongestStandardRegimenInDrugOrders(List<RegimenSuggestion>, List<Order>)")
 	public void findStrongestStandardRegimenInDrugOrders_shouldReturnSingle() throws Exception {
-		//Build drug orders according to drug1only
+		//Build drug orders according to drug2only
 		Integer encId = regimenTestBuildEncounterHelper("all3");
 		Context.flushSession();
 		Context.clearSession();
@@ -160,7 +160,7 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Context.flushSession();
 		Context.clearSession();
 		
-		//check to see that method returns drug1only
+		//check to see that method returns drug2only
 		e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
@@ -168,7 +168,7 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
-		Assert.assertTrue(rs.getCodeName().equals("drug1only"));
+		Assert.assertTrue(rs.getCodeName().equals("drug2only"));
 	}
 	
 	
