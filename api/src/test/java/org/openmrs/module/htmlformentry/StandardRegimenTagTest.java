@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +46,7 @@ protected final Log log = LogFactory.getLog(getClass());
     }
 	
 	@Test
-	public void testRelationshipTag_shouldCreateStandardRegimen() throws Exception {
+	public void testStandardRegimenTag_shouldCreateStandardRegimen() throws Exception {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
@@ -82,10 +83,21 @@ protected final Log log = LogFactory.getLog(getClass());
 				Encounter e = results.getEncounterCreated();
 				Assert.assertTrue(e != null);
 				Assert.assertTrue(e.getOrders() != null);
+				
+				// build the list of drugs that should be in the order in the order
+				Set<Integer> drugsInOrder = new HashSet<Integer>();
+				drugsInOrder.add(2);
+				drugsInOrder.add(3);
+				drugsInOrder.add(11);
+				
 				Assert.assertTrue(e.getOrders().size() == 3);
 				for (Order o : e.getOrders()){
-					if (o instanceof DrugOrder == false)
+					if (o instanceof DrugOrder == false) {
 						Assert.assertTrue(false);
+					}
+					if (!drugsInOrder.remove(((DrugOrder) o).getDrug().getId())) {
+						Assert.assertTrue(false);
+					}
 					Assert.assertTrue(dateAsString(o.getStartDate()).equals(dateAsString(date)));
 				}
 			}
@@ -93,7 +105,7 @@ protected final Log log = LogFactory.getLog(getClass());
 	}
 	
 	@Test
-	public void testRelationshipTag_shouldCreateEncounterWithNoRegimenCodeSelectedWithNoOrders() throws Exception {
+	public void testStandardRegimenTag_shouldCreateEncounterWithNoRegimenCodeSelectedWithNoOrders() throws Exception {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
@@ -133,7 +145,7 @@ protected final Log log = LogFactory.getLog(getClass());
 	}
 	
 	@Test
-	public void testRelationshipTag_shouldNotValidateWithoutStartDateIfRegimenCodeSelected() throws Exception {
+	public void testStandardRegimenTag_shouldNotValidateWithoutStartDateIfRegimenCodeSelected() throws Exception {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
@@ -172,7 +184,7 @@ protected final Log log = LogFactory.getLog(getClass());
 	
 	
 	@Test
-	public void testRelationshipTag_shouldCreateStandardRegimenUsingAllAttributes() throws Exception {
+	public void testStandardRegimenTag_shouldCreateStandardRegimenUsingAllAttributes() throws Exception {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
@@ -240,7 +252,7 @@ protected final Log log = LogFactory.getLog(getClass());
 	
 	
 	@Test
-	public void testRelationshipTag_shouldRecognizeStandardRegimenInEditMode_AllFields() throws Exception {
+	public void testStandardRegimenTag_shouldRecognizeStandardRegimenInEditMode_AllFields() throws Exception {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
@@ -285,7 +297,7 @@ protected final Log log = LogFactory.getLog(getClass());
 	}
 	
 	@Test
-	public void testRelationshipTag_shouldRecognizeAllFields_StartDateAndRegimenOnly() throws Exception {
+	public void testStandardRegimenTag_shouldRecognizeAllFields_StartDateAndRegimenOnly() throws Exception {
 		new RegressionTestHelper() {
 			final Date date = new Date();
 			@Override
