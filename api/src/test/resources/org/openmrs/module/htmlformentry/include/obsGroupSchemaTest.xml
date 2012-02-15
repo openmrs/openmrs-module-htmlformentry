@@ -5,8 +5,8 @@
 	Provider: <encounterProvider role="Provider"/>
 	<section headerLabel="Section One">
 			<section headerLabel="Section One Inner One">
-					<obsgroup groupingConceptId="1004">
-						<obsgroup groupingConceptId="7">
+					<obsgroup groupingConceptId="1004" name="obsgroup1004">
+						<obsgroup groupingConceptId="7" name="obsgroup7">
 							ALLERGY CODED 2: <obs conceptId="1000"/>
 						</obsgroup>
 						Hyper-Allergy 1: <obs conceptId="1005"/>

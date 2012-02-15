@@ -740,6 +740,34 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		        .equals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) "));
 	}
 	
+	
+	/**
+	 * Quick check to ensure that the 'name' ObsGroup schema property gets set correctly if specified
+	 * @throws Exception
+	 */
+	@Test
+	public void shouldReturnObsGroupSchemaWithNamePropertySetOnObsGroupSchemaObjects() throws Exception {
+		Form form = new Form();
+		HtmlForm htmlform = new HtmlForm();
+		htmlform.setForm(form);
+		form.setEncounterType(new EncounterType());
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
+		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+		HtmlFormSchema hfs = session.getContext().getSchema();
+		for (HtmlFormField hff :hfs.getAllFields()){
+			if (hff instanceof ObsGroup){
+				ObsGroup og = (ObsGroup) hff;
+				Assert.assertTrue(og.getName().equals("obsgroup1004"));
+				for (HtmlFormField hffInner :og.getChildren()){
+					if (hffInner instanceof ObsGroup){
+						Assert.assertTrue(((ObsGroup) hffInner).getName().equals("obsgroup7"));
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * This iterates through nested obsGroups and is used by shouldReturnObsGroupSchemaCorrectly()
 	 * 

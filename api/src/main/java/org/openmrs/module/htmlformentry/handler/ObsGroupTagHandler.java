@@ -51,11 +51,12 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
                     
         // avoid lazy init exception
         groupingConcept.getDatatype().getHl7Abbreviation();
-                
+               
+        String name = attributes.get("name");
         // find relevant obs group to display for this element
         Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
         // sets up the obs group stack, sets current obs group to this one
-        session.getContext().beginObsGroup(groupingConcept, thisGroup);
+        session.getContext().beginObsGroup(groupingConcept, thisGroup, name);
         //adds the obsgroup action to the controller stack
         session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup));
         return true;

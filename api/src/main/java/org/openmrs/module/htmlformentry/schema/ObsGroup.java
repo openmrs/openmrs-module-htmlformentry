@@ -12,9 +12,15 @@ public class ObsGroup implements HtmlFormField {
 
 	private Concept concept;
 	private List<HtmlFormField> children = new ArrayList<HtmlFormField>();
+	private String name;
     
     public ObsGroup(Concept concept) {
     	this.concept = concept;
+    }
+    
+    public ObsGroup(Concept concept, String name) {
+    	this.concept = concept;
+    	this.name = name;
     }
 
 	/**
@@ -52,6 +58,16 @@ public class ObsGroup implements HtmlFormField {
             this.children.add(hff);
         else 
             throw new RuntimeException("You can only add an ObsField or an ObsGroup to an ObsGroup");
+    }
+
+	
+    public String getName() {
+    	return name;
+    }
+
+	
+    public void setName(String name) {
+    	this.name = name;
     }
     
 	

@@ -188,10 +188,10 @@ public class FormEntryContext {
     /**
      * Marks the start of a new {@see ObsGroup} within current Context
      */
-    public void beginObsGroup(Concept conceptSet, Obs thisGroup) {
+    public void beginObsGroup(Concept conceptSet, Obs thisGroup, String name) {
         setObsGroup(thisGroup);
         currentObsGroupConcepts.push(conceptSet);
-        activeObsGroup = new ObsGroup(conceptSet);
+        activeObsGroup = new ObsGroup(conceptSet, name);
         Map<ObsGroup, List<Obs>> map = new HashMap<ObsGroup, List<Obs>>();
         map.put(this.getActiveObsGroup(), currentObsGroupMembers);
         obsGroupStack.push(map);
