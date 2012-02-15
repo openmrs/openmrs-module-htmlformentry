@@ -6,10 +6,12 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.GlobalProperty;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
+import org.openmrs.util.OpenmrsConstants;
 
 public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	
@@ -19,9 +21,19 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
+	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElementDataSet";
+	
+	protected static final String XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET = "RegimenUtilsTest.xml";
+	
 	@Before
 	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
+		
+		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);	
+		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS);
+		gp.setPropertyValue(xml);
+		Context.getAdministrationService().saveGlobalProperty(gp);
 	}
 	
 	@Test
@@ -65,6 +77,30 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		    "da4a0391-ba62-4fad-ad66-1e3722d16380")));
 		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getProgramByUuid(
 		    "71779c39-d289-4dfe-91b5-e7cfaa27c78b")));
+		
+		// make sure the program workflows have been added to the dependencies
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getWorkflowByUuid(
+		    "72a90efc-5140-11e1-a3e3-00248140a5eb")));
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getWorkflowByUuid(
+			"7c3e071a-53a7-11e1-8cb6-00248140a5eb")));
+		
+		// make sure the program workflow states have been added to the dependencies
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
+		    "92584cdc-6a20-4c84-a659-e035e45d36b0")));
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
+			"e938129e-248a-482a-acea-f85127251472")));
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
+			"860b3a13-d4b1-4f0a-b526-278652fa1809")));
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
+			"8ef66ca8-5140-11e1-a3e3-00248140a5eb")));
+		Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
+			"67337cdc-53ad-11e1-8cb6-00248140a5eb")));
+		
+		// note this this assertion fails--currently, the exporter WILL NOT be able to pick up states referenced concept map
+		// (this is because the exporter considers each attribute separately, and to you can't get a state referenced by concept map without knowing the corresponding program or workflow)
+		// however, this should not be a problem because the state should be included by MDS when it's parent program or workflow is exported
+		//Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
+			//"6de7ed10-53ad-11e1-8cb6-00248140a5eb")));
 		
 		// make sure the drugs have been added to the dependencies
 		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(

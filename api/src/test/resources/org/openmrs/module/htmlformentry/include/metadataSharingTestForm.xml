@@ -12,10 +12,14 @@
 		Hyperallergy: <obs conceptId="1005" answerConceptId="1001"/>
 		
 	</obsgroup>
-	Program: <enrollInProgram programId="1"/>
+	Program: <enrollInProgram programId="1" stateIds="1,e938129e-248a-482a-acea-f85127251472,5"/>  <!-- not a valid syntax (multiple states in same workflow) but using to test substitution -->
 	Program: <ENROLLINPROGRAM programId="MDR-TB PROGRAM"/>  <!-- this is not valid syntax for this tag, but using it to test picking up programs referenced by name -->
 	
+	<workflowState workflowId="100" stateId="201"/>
+	<workflowState workflowId="SNOMED CT: Test Workflow Code" stateIds="207,SNOMED CT: Test Code"/>    <!-- not valid syntax (one state from wrong workflow) but using to test substitution -->
+	
 	Drugs: <drugOrder drugNames="2,Aspirin,7e2323fa-0fa0-461f-9b59-6765997d849e" discontinuedReasonConceptId="555"/>
+	
 	Patient: <patient field="identifier" identifierTypeId="1"/>
 	Patient: <patient field="identifier" identifierTypeId="Old Identification Number"/>
 	

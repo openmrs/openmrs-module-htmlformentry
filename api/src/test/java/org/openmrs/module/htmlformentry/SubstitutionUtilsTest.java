@@ -49,8 +49,12 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 		TestUtil.assertFuzzyContains("conceptId=\"32296060-03aa-102d-b0e3-001ec94a0cc3\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("answerConceptIds=\"32296060-03aa-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03aa-102d-b0e3-001ec94a0cc6,32296060-03aa-102d-b0e3-001ec94a0cc7\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("stateIds=\"92584cdc-6a20-4c84-a659-e035e45d36b0,e938129e-248a-482a-acea-f85127251472,860b3a13-d4b1-4f0a-b526-278652fa1809\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("workflowId=\"72a90efc-5140-11e1-a3e3-00248140a5eb\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("stateId=\"8ef66ca8-5140-11e1-a3e3-00248140a5eb\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("identifierTypeId=\"1a339fe9-38bc-4ab3-b180-320988c0b968\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("conceptId=\"aa52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("stateIds=\"67337cdc-53ad-11e1-8cb6-00248140a5eb,SNOMED CT: Test Code\"", form.getXmlData());
 	}
 	
 	/**
