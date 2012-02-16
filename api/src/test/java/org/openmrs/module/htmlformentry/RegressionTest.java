@@ -13,6 +13,8 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
+import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
@@ -765,6 +767,28 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * ObsGroup schema object is added correctly to the ObsGroupSubmissionAction if the action is a 'start' action
+	 * @throws Exception
+	 */
+	@Test
+	public void shouldReturnObsGroupFormSubmissionActionContainingObsGroupSchemaObject() throws Exception {
+		Form form = new Form();
+		HtmlForm htmlform = new HtmlForm();
+		htmlform.setForm(form);
+		form.setEncounterType(new EncounterType());
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
+		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+		for (FormSubmissionControllerAction fsca : session.getSubmissionController().getActions()){
+			if (fsca instanceof ObsGroupAction){
+				ObsGroupAction oga = (ObsGroupAction) fsca;
+				if (oga.getGroupingConcept() != null) //'start' actions will have a not-null concept, 'end' actions are null for all properties.
+					Assert.assertTrue(oga.getObsGroupSchemaObject() != null);
+			}	
 		}
 	}
 	

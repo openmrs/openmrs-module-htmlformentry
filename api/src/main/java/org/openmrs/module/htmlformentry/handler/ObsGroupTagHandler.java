@@ -13,6 +13,7 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -56,9 +57,10 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         // find relevant obs group to display for this element
         Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
         // sets up the obs group stack, sets current obs group to this one
-        session.getContext().beginObsGroup(groupingConcept, thisGroup, name);
+        ObsGroup ogSchemaObj = new ObsGroup(groupingConcept, name);
+        session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
         //adds the obsgroup action to the controller stack
-        session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup));
+        session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
         return true;
     }
 
