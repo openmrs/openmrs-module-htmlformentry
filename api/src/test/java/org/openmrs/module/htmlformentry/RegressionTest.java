@@ -760,10 +760,10 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		for (HtmlFormField hff :hfs.getAllFields()){
 			if (hff instanceof ObsGroup){
 				ObsGroup og = (ObsGroup) hff;
-				Assert.assertTrue(og.getName().equals("obsgroup1004"));
+				Assert.assertTrue(og.getLabel().equals("obsgroup1004"));
 				for (HtmlFormField hffInner :og.getChildren()){
 					if (hffInner instanceof ObsGroup){
-						Assert.assertTrue(((ObsGroup) hffInner).getName().equals("obsgroup7"));
+						Assert.assertTrue(((ObsGroup) hffInner).getLabel().equals("obsgroup7"));
 					}
 				}
 			}
