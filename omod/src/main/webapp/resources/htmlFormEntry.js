@@ -242,7 +242,7 @@ function setValueByName(ele, val, options) {
       }
     }
     else {
-    	setDatePickerValue('#' + orig + '-display.hasDatepicker', val); // hack for datepicker's display
+    	setDatePickerValue('#' + orig + '-display', val); // hack for datepicker's display
     	ele.value = val;
     }
 
@@ -433,11 +433,23 @@ function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector,
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
 	if (initialDateYMD)
 		setDatePickerValue(displaySelector, initialDateYMD);
+	
+	// register a handler to set the date value to zero if the display widget is emptied (workaround for jquery bug http://bugs.jqueryui.com/ticket/5734)
+	jq.change(function () {
+		if (jq.val() == null || jq.val() == '') {
+			setDatePickerValue(displaySelector, null);
+		}
+	});
 }
 
 function setDatePickerValue(displaySelector, ymd) {
 	try {
-		jQuery(displaySelector).datepicker('setDate', jQuery.datepicker.parseDate('yy-mm-dd', ymd));
+		if (ymd != null) {
+			jQuery(displaySelector).datepicker('setDate', jQuery.datepicker.parseDate('yy-mm-dd', ymd));
+		}
+		else {
+			jQuery(displaySelector).datepicker('setDate', null);
+		}
 	} catch (err) {
 		// make this safe to call with misformatted dates
 	}

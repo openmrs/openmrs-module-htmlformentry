@@ -30,6 +30,7 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -688,20 +689,25 @@ public class FormEntrySession {
      * Creates the Javascript necessary to set form fields to the values entered during last submission
      * Used to maintain previously-entered field values when redisplaying a form with validation errors
      */
-    @SuppressWarnings("rawtypes")
     public String getSetLastSubmissionFieldsJavascript() {
         HttpServletRequest lastSubmission = submissionController.getLastSubmission();
         if (lastSubmission == null) {
             return "";
         } else {
             StringBuilder sb = new StringBuilder();
-            for (Enumeration e = lastSubmission.getParameterNames(); e.hasMoreElements(); ) {
-                String name = (String) e.nextElement();
-                if (name.startsWith("w")) {
-                    String val = lastSubmission.getParameter(name);
-                    sb.append("setValueByName('" + name + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
-                }
+           
+            // iterate through all the widgets and set their values based on the values in the last submission
+            // if there is no value in the last submission, explicitly set the value as empty to override any default values
+            for (String widget : context.getFieldNames().values()) {
+            	String val = lastSubmission.getParameter(widget);
+            	if (val != null) {
+            		 sb.append("setValueByName('" + widget + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
+            	}
+            	else {
+            		 sb.append("setValueByName('" + widget + "', '');\n");
+            	}
             }
+                   
             return sb.toString();
         }
     }
