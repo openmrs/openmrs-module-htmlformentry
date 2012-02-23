@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+
+	Regimens: <standardRegimen regimenCodes="drug2only,all3"  discontinuedReasonConceptId="555" discontinueReasonAnswers="1000,1005"/>
+	
+</htmlform>

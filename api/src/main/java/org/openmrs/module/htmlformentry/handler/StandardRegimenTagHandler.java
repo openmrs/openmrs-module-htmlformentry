@@ -19,7 +19,7 @@ public class StandardRegimenTagHandler extends SubstitutionTagHandler {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonAnswers", Concept.class));
-		attributeDescriptors.add(new AttributeDescriptor("standardRegimen", RegimenSuggestion.class));
+		attributeDescriptors.add(new AttributeDescriptor("regimenCodes", RegimenSuggestion.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	

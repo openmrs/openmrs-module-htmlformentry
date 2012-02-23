@@ -181,4 +181,35 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		//"05ec820a-d297-44e3-be6e-698531d9dd3f")));
 		
 	}
+	
+	@Test
+	@Verifies(value = "should create cloned export with appropriate drugs as referenced by standard regimen", method = "createCloneForExport(HtmlForm)")
+	public void createCloneForExport_shouldIncludeAppropriateDrugsReferencedByStandardRegimen() throws Exception {
+		HtmlForm form = new HtmlForm();
+		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestFormRegimens.xml"));
+		
+		HtmlFormExporter exporter = new HtmlFormExporter(form);
+		HtmlForm formClone = exporter.export(true, true, true, true);
+		
+		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
+		
+		// make sure the drugs have been added to the dependencies
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(
+				"3cfcf118-931c-46f7-8ff6-7b876f0d4202")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(
+				"05ec820a-d297-44e3-be6e-698531d9dd3f")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getDrugByUuid(
+				"7e2323fa-0fa0-461f-9b59-6765997d849e")));
+		
+		// make sure all the appropriate concepts have been added to the dependencies
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
+		    "aa52296060-03-102d-b0e3-001ec94a0cc1")));
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
+		    "32296060-03aa-102d-b0e3-001ec94a0cc4")));
+		
+		//drug discontinue reason, corresponds to concept 555 in regressionTest-data
+		Assert.assertTrue(dependencies.contains(Context.getConceptService().getConceptByUuid(
+		    "32296060-0370-102d-b0e3-123456789011")));
+			
+	}
 }
