@@ -351,6 +351,15 @@ function checkboxSetterFunction(widgetId, value) {
 	DWRUtil.setValue(widgetId, value == true || value == valueWhenOn);
 }
 
+// fetches the display field for the date instead of the hidden field, so that a change event can be successfully bound to it
+function dateFieldGetterFunction(widgetId) {
+	return jQuery('#' + widgetId + '-display');
+}
+
+// custom setter for date widgets
+function dateSetterFunction(widgetId, value) {
+	setDatePickerValue('#' + widgetId + '-display', value);
+}
 
 //does an ajax lookup to see if this form has already been filled out for this encounter date.
 //valid instructions are 'block', and 'warn'

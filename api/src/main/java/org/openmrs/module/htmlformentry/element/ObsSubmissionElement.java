@@ -763,8 +763,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.append("<span id='" + id + "'>");
 			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget),
 			    getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
-			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget), null, null,
-			    null);
+			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget), "dateFieldGetterFunction", null,
+				"dateSetterFunction");
 			context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(errorWidget), null, null,
 			    null);
 			context.registerPropertyAccessorInfo(id + ".accessionNumber",
@@ -814,6 +814,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			return null;
 		if (widget instanceof CheckboxWidget)
 			return "checkboxSetterFunction";
+		if (widget instanceof DateWidget)
+			return "dateSetterFunction";
 		return null;
 	}
 	
@@ -841,6 +843,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private String getFieldFunction(Widget widget) {
 		if (widget == null)
 			return null;
+		if (widget instanceof DateWidget)
+			return "dateFieldGetterFunction";
 		return null;
 	}
 	
