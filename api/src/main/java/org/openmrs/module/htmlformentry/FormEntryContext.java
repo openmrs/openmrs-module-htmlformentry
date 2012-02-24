@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -69,6 +70,7 @@ public class FormEntryContext {
     private List<Obs> currentObsGroupMembers;
     private Location defaultLocation;
     
+    private Date previousEncounterDate;  // if the encounter has been edited on a form, this stores the prior encounter date
     private boolean guessingInd = false;
     
     public FormEntryContext(Mode mode) {
@@ -681,5 +683,13 @@ public class FormEntryContext {
 	public String getGuessingInd() {
 		return guessingInd ? "true" : "false";
 	}
+
+	public Date getPreviousEncounterDate() {
+	    return previousEncounterDate;
+    }
+
+	public void setPreviousEncounterDate(Date previousEncounterDate) {
+	    this.previousEncounterDate = previousEncounterDate;
+    }
 	    
 }

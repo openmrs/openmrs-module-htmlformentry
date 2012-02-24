@@ -33,6 +33,7 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.FormEntryException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -203,14 +204,71 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		String stateUuid = (String) widget.getValue(session.getContext(), submission);
-		
 		if (!StringUtils.isBlank(stateUuid)) {
 			if (Mode.EDIT.equals(session.getContext().getMode())) {
+				
 				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
 				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
-				        .getEncounter().getEncounterDatetime(), workflow);
-				if (!newState.equals(oldPatientState.getState())) {
-					oldPatientState.setState(newState);
+				        .getContext().getPreviousEncounterDate(), workflow);
+				
+				// if no old state, simply transition to this new state
+				if (oldPatientState == null) {
+					session.getSubmissionActions().transitionToState(newState);
+				}
+				else {
+					PatientProgram patientProgram = oldPatientState.getPatientProgram();
+					Date previousEncounterDate = session.getContext().getPreviousEncounterDate();
+					Date newEncounterDate = session.getEncounter().getEncounterDatetime();
+					
+					// if the encounter date has been moved earlier
+					if (previousEncounterDate != null  && newEncounterDate.before(previousEncounterDate)) {
+						
+						// if there is an existing patient state on the new encounter date and it differs from the state on the old encounter date
+						// we need to end it
+						PatientState existingPatientStateOnNewEncounterDate = getActivePatientState(session.getContext().getExistingPatient(), newEncounterDate, workflow);
+						if (existingPatientStateOnNewEncounterDate != null &&  !existingPatientStateOnNewEncounterDate.equals(oldPatientState)) {
+							existingPatientStateOnNewEncounterDate.setEndDate(newEncounterDate);
+						}
+						
+						// we also need to void any other states for this workflow that may have started between the new and old encounter dates
+						for (PatientState state : patientProgram.statesInWorkflow(workflow, false)) {
+							if (!state.equals(oldPatientState) && (state.getStartDate().after(newEncounterDate) || state.getStartDate().equals(newEncounterDate)) 
+									&& state.getStartDate().before(previousEncounterDate)) {
+								state.setVoided(true);
+								state.setVoidedBy(Context.getAuthenticatedUser());
+								state.setVoidReason("voided during htmlformentry submission");
+							}
+						}
+					}
+					
+					// if the encounter date has been moved later
+					if (previousEncounterDate != null && newEncounterDate.after(previousEncounterDate)) {
+						// make sure we aren't trying to move the state start date past its end date
+						if (oldPatientState.getEndDate() != null && newEncounterDate.after(oldPatientState.getEndDate())) {
+							throw new FormEntryException("Cannot move encounter date ahead of end date of current active state");
+						}
+						
+						// if there is a state that ended on the previous encounter date, its end date needs to be set to the new encounter date
+						for (PatientState state : patientProgram.statesInWorkflow(workflow, false)) {
+							if (!state.equals(oldPatientState) && state.getEndDate().equals(previousEncounterDate)) {
+								state.setEndDate(newEncounterDate);
+							}
+						}
+					}
+					
+					// change the state if necessary
+					if (!newState.equals(oldPatientState.getState())) {
+						oldPatientState.setState(newState);
+					}
+					
+					// update the state start date
+					oldPatientState.setStartDate(newEncounterDate);
+					
+					// roll the program enrollment date earlier if necessary
+					if (oldPatientState.getPatientProgram().getDateEnrolled().after(oldPatientState.getStartDate())) {
+						oldPatientState.getPatientProgram().setDateEnrolled(oldPatientState.getStartDate());
+					}
+					
 					session.getSubmissionActions().getPatientProgramsToUpdate().add(oldPatientState.getPatientProgram());
 				}
 			} else {

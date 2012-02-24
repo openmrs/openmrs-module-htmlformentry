@@ -467,6 +467,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		if (dateWidget != null) {
 			Date date = (Date) dateWidget.getValue(session.getContext(), submission);
+			if (session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime() != null 
+					&& !session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().equals(date)) {
+				session.getContext().setPreviousEncounterDate(new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
+			}
 			session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
 		}
 		if (timeWidget != null) {

@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
@@ -51,15 +50,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	public static final String END_STATE = "8ef66ca8-5140-11e1-a3e3-00248140a5eb";
 	
-	public static final String DIFFERENT_PROGRAM_STATE = "72a90efc-5140-11e1-a3e3-00248140a5eb";
+	public static final String DIFFERENT_PROGRAM_WORKFLOW_STATE = "67337cdc-53ad-11e1-8cb6-00248140a5eb";
 	
 	public static final String MAPPED_STATE = "6de7ed10-53ad-11e1-8cb6-00248140a5eb";
 	
-	public static final Date DATE = new Date();
+	public static final Date DATE = HtmlFormEntryUtil.clearTimeComponent(new Date());
 	
-	public static final Date PAST_DATE = new Date(DATE.getTime() - 31536000000L);
+	public static final Date PAST_DATE = HtmlFormEntryUtil.clearTimeComponent(new Date(DATE.getTime() - 31536000000L));
 	
-	public static final Date FUTURE_DATE = new Date(DATE.getTime() + 31536000000L);
+	public static final Date FURTHER_PAST_DATE = HtmlFormEntryUtil.clearTimeComponent(new Date(PAST_DATE.getTime() - 31536000000L));
+	
+	public static final Date FUTURE_DATE = HtmlFormEntryUtil.clearTimeComponent(new Date(DATE.getTime() + 31536000000L));
 	
 	private static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
@@ -179,7 +180,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedDifferentProgramStates() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + ","
-		        + DIFFERENT_PROGRAM_STATE + "," + END_STATE + "\"/></htmlform>";
+		        + DIFFERENT_PROGRAM_WORKFLOW_STATE + "," + END_STATE + "\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
@@ -248,7 +249,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedDifferentProgramState() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + DIFFERENT_PROGRAM_STATE
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + DIFFERENT_PROGRAM_WORKFLOW_STATE
 		        + "\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
@@ -930,8 +931,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Ignore //Not implemented yet
-	public void shouldFailIfEncounterDateEdited() throws Exception {
+	public void shouldMoveProgramEnrollmentAndProgramStateStartEarlier() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
@@ -987,11 +987,554 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
 				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			public void testEditedResults(SubmissionResults results) {
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				
+				// assert that the start dates of the program and state have been moved
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+				
+				// assert that the other state no longer exists
+				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNull(patientState);
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void shouldMoveProgramStateStartLater() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				
+				// assert that the start date of the program is the same
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				
+				// assert that the start date of the state has moved
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+				
+				// assert that the other state no longer exists
+				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNull(patientState);
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void shouldTransitionFromNoStateToSelectedStateOnEdit() throws Exception {
+		// first enroll the patient in the program
+		enrollInProgram(START_STATE, DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("State:"), "");  // set no state
+			}
+			
+			@SuppressWarnings("deprecation")
+            @Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				// make sure the enrollment date has NOT been changed (since no state was set)
+				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
+				PatientProgram patientProgram = Context.getProgramWorkflowService().getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
+				Assert.assertNotNull(patientProgram);	
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+				
+				// assert that no states have been associated
+				Assert.assertEquals(0, patientProgram.getStates().size());
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 			
 			public void testEditedResults(SubmissionResults results) {
-				results.assertErrors(1);
+				results.assertNoErrors();
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				
+				// first verify that the existing patient program still exists and that the enrollment date has not been changed
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+				
+				// assert that the program has only one state
+				Assert.assertEquals(1, patientProgram.getStates().size());
+				
+				// assert that the start state of the state is correct
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+		}.run();
+	}
+	
+	
+	@Test
+	public void shouldCreateNewProgramIfEncounterDateNotDuringProgramEnrollmentOnEdit() throws Exception {
+		// first enroll the patient in the program
+		enrollInProgram(START_STATE, DATE);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), "");  // set no state
+			}
+		
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@SuppressWarnings("deprecation")
+            public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				
+				// we should now have two program enrollments, one on PAST_DATE and one on DATE
+				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				Assert.assertEquals(2, Context.getProgramWorkflowService().getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
+				
+				// now verify that new state is correct
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				
+				// assert that the program has only one state
+				Assert.assertEquals(1, patientProgram.getStates().size());
+				
+				// assert that the start state of the state is correct
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void shouldEndExistingStatesAsNeededWhenShiftingStateEarlier() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), END_STATE);   
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				// do a sanity check here
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				ProgramWorkflowState middleState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), startState, FURTHER_PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				
+				// assert that the patient program only has two states
+				Assert.assertEquals(2, patientProgram.getStates().size());
+				
+				// verify that the start state now ends on PAST_DATE
+				PatientState patientState = getPatientState(patientProgram, startState, FURTHER_PAST_DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(FURTHER_PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getEndDate()));
+				
+				// verify that the middle state starts on PAST_DATE and has no current end date
+				patientState = getPatientState(patientProgram, middleState, PAST_DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+		}.run();
+	}
+	
+	
+	@Test
+	public void shouldRemoveExistingStatesAsNeededWhenShiftingStateEarlier() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(MIDDLE_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), END_STATE);   
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("State:"), END_STATE);
+			}
+			
+			@SuppressWarnings("deprecation")
+            public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				
+				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				ProgramWorkflowState middleState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				ProgramWorkflowState endState = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
+				
+				PatientProgram patientProgram = Context.getProgramWorkflowService().getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
+				Assert.assertNotNull(patientProgram);
+				
+				// assert that the patient program only has two states
+				Assert.assertEquals(2, patientProgram.statesInWorkflow(workflow, false).size());
+				
+				// verify that the start state
+				PatientState patientState = getPatientState(patientProgram, startState, FURTHER_PAST_DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(FURTHER_PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getEndDate()));
+				
+				// verify that the end state starts on PAST_DATE and has no current end date
+				patientState = getPatientState(patientProgram, endState, PAST_DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+				
+				// verify that the middle state no longer exists
+				patientState = getPatientState(patientProgram, middleState, PAST_DATE);
+				Assert.assertNull(patientState);
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void shouldShiftExistingStateEndDateFowardAsNeededWhenShiftingStateLater() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("State:"), END_STATE);   
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("State:"), END_STATE);
+			}
+			
+			@SuppressWarnings("deprecation")
+            public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				
+				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				ProgramWorkflowState endState = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
+				
+				PatientProgram patientProgram = Context.getProgramWorkflowService().getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
+				Assert.assertNotNull(patientProgram);
+				
+				// assert that the patient program only has two states
+				Assert.assertEquals(2, patientProgram.statesInWorkflow(workflow, false).size());
+				
+				// verify that the start state
+				PatientState patientState = getPatientState(patientProgram, startState, FURTHER_PAST_DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(FURTHER_PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				
+				// verify that the end state starts on DATE and has no current end date
+				patientState = getPatientState(patientProgram, endState, DATE);
+				Assert.assertNotNull(patientState);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+		}.run();
+	}
+	
+	@Test(expected = FormEntryException.class)
+	public void shouldFailIfAttemptingToShiftStateStartDatePastEndDate() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(END_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(FURTHER_PAST_DATE));
+				request.addParameter(widgets.get("State:"), "");   
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 		}.run();
 	}
@@ -1009,6 +1552,26 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	 */
 	private void assertPresent(FormEntrySession session, String state) {
 		Assert.assertTrue(state + " in result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains(state));
+	}
+	
+	// enroll the patient in the program associated with the specified state (but do NOT put the patient in that state)
+	@SuppressWarnings("unused")
+    private void enrollInProgram(String state) {
+		enrollInProgram(state, new Date());
+	}
+	
+	private void enrollInProgram(String state, Date date) {
+		ProgramWorkflowState workflowState = Context.getProgramWorkflowService().getStateByUuid(state);
+		
+		PatientProgram patientProgram = getPatientProgramByWorkflow(patient, workflowState.getProgramWorkflow(), date);
+		if (patientProgram == null) {
+			patientProgram = new PatientProgram();
+			patientProgram.setPatient(patient);
+			patientProgram.setProgram(workflowState.getProgramWorkflow().getProgram());
+			patientProgram.setDateEnrolled(date);
+		}
+		
+		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
 	
 	private void transitionToState(String state) {
