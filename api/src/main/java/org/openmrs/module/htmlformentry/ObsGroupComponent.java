@@ -15,6 +15,7 @@ import org.w3c.dom.NodeList;
 
 /** 
  * Data object that represents a single component of an ObsGroup
+ * @should return concept
  */
 public class ObsGroupComponent {
 
