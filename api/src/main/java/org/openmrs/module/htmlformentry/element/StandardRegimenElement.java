@@ -337,6 +337,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	        	    	    o.setDiscontinuedDate(discontinuedDate);
 	        	    	    o.setDiscontinued(true); 
 	    				}    
+	    				o.setStartDate(startDate);
     				}
     			} else {
     				//standard regimen changed in the drop-down...  I'm going to have this void the old DrugOrders, and create new ones.
@@ -355,7 +356,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
     	        	    	    o.setDiscontinuedDate(discontinuedDate);
     	        	    	    o.setDiscontinued(true);
     	        	    	    o.setDiscontinuedBy(Context.getAuthenticatedUser());
-    	        	    	}    
+    	        	    	}
     	    				session.getSubmissionActions().getCurrentEncounter().addOrder(o);
     	    			}	
     			}
