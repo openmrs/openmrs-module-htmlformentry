@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -456,6 +457,12 @@ public class FormSubmissionActions {
 			patientProgram.setPatient(patient);
 			patientProgram.setProgram(state.getProgramWorkflow().getProgram());
 			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
+			// HACK: we need to set the date created, creator, and uuid here as a hack around a hibernate flushing issue
+			// (should be able to remove this once we move to Hibernate Interceptors instead of Spring AOP to set these parameters)
+			patientProgram.setDateCreated(new Date());
+			patientProgram.setCreator(Context.getAuthenticatedUser());
+			patientProgram.setUuid(UUID.randomUUID().toString());
+			
 		}
 		
 		for (PatientState patientState : patientProgram.getStates()) {
@@ -472,6 +479,11 @@ public class FormSubmissionActions {
 		newState.setPatientProgram(patientProgram);
 		newState.setState(state);
 		newState.setStartDate(encounter.getEncounterDatetime());
+		// HACK: we need to set the date created, creator, and uuid here as a hack around a hibernate flushing issue
+		// (should be able to remove this once we move to Hibernate Interceptors instead of Spring AOP to set these parameters)
+		newState.setDateCreated(new Date());
+		newState.setCreator(Context.getAuthenticatedUser());
+		newState.setUuid(UUID.randomUUID().toString());
 		
 		Collection<PatientState> sortedStates = new TreeSet<PatientState>(new Comparator<PatientState>() {
 			

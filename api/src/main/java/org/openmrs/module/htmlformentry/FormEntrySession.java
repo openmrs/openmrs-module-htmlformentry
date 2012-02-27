@@ -2,7 +2,6 @@ package org.openmrs.module.htmlformentry;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -509,22 +507,18 @@ public class FormEntrySession {
         	}
         }
         
-        if(submissionActions.getRelationshipsToVoid() != null)
-        {
-       	for(Relationship r : submissionActions.getRelationshipsToVoid())
-       	{
-        		if(log.isDebugEnabled())
-        		{
-        			log.debug("voiding relationships" + r.getId());
-        			Context.getPersonService().voidRelationship(r, "htmlformentry");
-        		}
-        	}
+        if(submissionActions.getRelationshipsToVoid() != null) {
+	       	for(Relationship r : submissionActions.getRelationshipsToVoid()) {
+	        		if(log.isDebugEnabled())
+	        		{
+	        			log.debug("voiding relationships" + r.getId());
+	        			Context.getPersonService().voidRelationship(r, "htmlformentry");
+	        		}
+	        	}
         }
         
-        if(submissionActions.getRelationshipsToEdit() != null)
-        {
-        	for(Relationship r : submissionActions.getRelationshipsToCreate())
-        	{
+        if(submissionActions.getRelationshipsToEdit() != null) {
+        	for(Relationship r : submissionActions.getRelationshipsToCreate()) {
         		if(log.isDebugEnabled())
         		{
         			log.debug("editing relationships" + r.getId());
@@ -570,8 +564,7 @@ public class FormEntrySession {
         }
         
        //complete any necessary programs
-        if(submissionActions.getPatientProgramsToComplete() != null)
-        {
+        if(submissionActions.getPatientProgramsToComplete() != null) {
         	for (PatientProgram toComplete: submissionActions.getPatientProgramsToComplete())
         	{
         		Context.getProgramWorkflowService().savePatientProgram(toComplete);

@@ -232,7 +232,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 						
 						// we also need to void any other states for this workflow that may have started between the new and old encounter dates
 						for (PatientState state : patientProgram.statesInWorkflow(workflow, false)) {
-							if (!state.equals(oldPatientState) && (state.getStartDate().after(newEncounterDate) || state.getStartDate().equals(newEncounterDate)) 
+							if (!state.equals(oldPatientState) && (state.getStartDate().after(newEncounterDate) || state.getStartDate().compareTo(newEncounterDate) == 0) 
 									&& state.getStartDate().before(previousEncounterDate)) {
 								state.setVoided(true);
 								state.setVoidedBy(Context.getAuthenticatedUser());
@@ -250,7 +250,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 						
 						// if there is a state that ended on the previous encounter date, its end date needs to be set to the new encounter date
 						for (PatientState state : patientProgram.statesInWorkflow(workflow, false)) {
-							if (!state.equals(oldPatientState) && state.getEndDate().equals(previousEncounterDate)) {
+							if (!state.equals(oldPatientState) && state.getEndDate().compareTo(previousEncounterDate) == 0) {
 								state.setEndDate(newEncounterDate);
 							}
 						}

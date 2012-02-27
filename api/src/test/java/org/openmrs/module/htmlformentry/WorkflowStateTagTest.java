@@ -44,6 +44,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	public static final String XML_FORM_NAME = "workflowStateForm";
 	
+	public static final String XML_CHECKBOX_FORM_NAME = "workflowStateCheckboxForm";
+	
 	public static final String START_STATE = "89d1a292-5140-11e1-a3e3-00248140a5eb";
 	
 	public static final String MIDDLE_STATE = "99f66ca8-5140-11e1-a3e3-00248140a5eb";
@@ -441,15 +443,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
-			}
-			
-			public boolean doEditEncounter() {
-				return true;
-			}
-			
-			public void testEditFormHtml(String html) {
-				Assert.assertTrue("Edit should contain current state: " + html,
-				    html.contains("selected=\"true\">MIDDLE STATE"));
 			}
 		}.run();
 		
@@ -1519,7 +1512,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
-				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
 			public boolean doEditEncounter() {
@@ -1539,6 +1532,86 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
+
+	@Test
+	public void checkboxShouldAppearCheckedIfCurrentlyInSpecifiedState() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_CHECKBOX_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:"};
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {		
+				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("checked=\"true\"/>START STATE"));
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void checkboxShouldNotAppearCheckedIfNotCurrentlyInSpecifiedState() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(END_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_CHECKBOX_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:"};
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			public void testEditFormHtml(String html) {		
+				Assert.assertTrue("Checkbox should not be checked: " + html, !html.contains("checked=\"true\"/>START STATE"));
+			}
+			
+		}.run();
+	}	
+
 	/**
 	 * @param session
 	 */
