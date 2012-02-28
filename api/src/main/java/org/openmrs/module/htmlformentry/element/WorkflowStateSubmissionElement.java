@@ -168,7 +168,8 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 					widget.setInitialValue(currentState.getUuid());
 				}
 			}
-			else {
+			// "initialValue" has a different meaning for a hidden widget (it is set above)
+			else if (!(widget instanceof HiddenFieldWidget)){
 				widget.setInitialValue(currentState.getUuid());
 			}
 		}

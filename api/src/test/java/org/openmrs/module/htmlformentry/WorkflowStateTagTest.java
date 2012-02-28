@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
@@ -1685,7 +1684,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Ignore
 	public void hiddenTagShouldSetPatientInState() throws Exception {
 		 
 		transitionToState(START_STATE, PAST_DATE);
@@ -1703,12 +1701,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html) {		
-				System.out.println(html);
-			}
-			
-			
-			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// hidden tag, so nothing gets submitted
 				request.addParameter(widgets.get("Location:"), "2");
@@ -1717,7 +1709,26 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			public void testResults(SubmissionResults results) {
+			// note that we have to use an edit encounter to test, as currently the Regression Test helper does not properly mock hidden inputs on initial submittal
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:"};
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				// hidden tag, so nothing gets submitted
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));   
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
@@ -1734,7 +1745,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}
-	
 	
 	/**
 	 * @param session
