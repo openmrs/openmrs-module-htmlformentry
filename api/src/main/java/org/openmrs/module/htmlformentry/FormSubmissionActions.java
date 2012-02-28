@@ -465,7 +465,7 @@ public class FormSubmissionActions {
 			
 		}
 		
-		for (PatientState patientState : patientProgram.getStates()) {
+		for (PatientState patientState : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
 			if (patientState.getActive(encounter.getEncounterDatetime())) {
 				if (patientState.getState().equals(state)) {
 					return;
@@ -497,11 +497,8 @@ public class FormSubmissionActions {
 			}
 			
 		});
-		sortedStates.addAll(patientProgram.getStates());
+		sortedStates.addAll(patientProgram.statesInWorkflow(state.getProgramWorkflow(), false));
 		for (PatientState currentState : sortedStates) {
-			if (!currentState.getState().getProgramWorkflow().equals(state.getProgramWorkflow())) {
-				continue;
-			}
 			
 			Date newStartDate = newState.getStartDate();
 			Date currentStartDate = currentState.getStartDate();
