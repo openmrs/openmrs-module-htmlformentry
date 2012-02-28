@@ -102,7 +102,7 @@ public class CheckboxWidget implements Widget {
      */
     @Override
     public void setInitialValue(Object initialValue) {
-        this.initialValue = value;
+        this.initialValue = initialValue;
     }
 
 }

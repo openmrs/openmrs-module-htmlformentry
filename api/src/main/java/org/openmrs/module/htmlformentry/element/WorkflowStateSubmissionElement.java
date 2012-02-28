@@ -135,18 +135,18 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			label = tagParams.getLabelText();
 		}
 		
-		if (tagParams.getStyle().equals("hidden")) {
+		if (tagParams.getType().equals("hidden")) {
 			widget = new HiddenFieldWidget();
 			//There is only one state
 			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
 			widget.setInitialValue(state.getValue().getUuid());
-		} else if (tagParams.getStyle().equals("checkbox")) {
+		} else if (tagParams.getType().equals("checkbox")) {
 			//There is only one state
 			Entry<String, ProgramWorkflowState> state = states.entrySet().iterator().next();
 			widget = new CheckboxWidget(state.getKey(), state.getValue().getUuid());
 		} else {
 			SingleOptionWidget singleOption;
-			if (tagParams.getStyle().equals("dropdown")) {
+			if (tagParams.getType().equals("dropdown")) {
 				singleOption = new DropdownWidget();
 				singleOption.addOption(new Option("", "", false));
 			} else {
@@ -162,7 +162,15 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		}
 		
 		if (currentState != null) {
-			widget.setInitialValue(currentState.getUuid());
+			if (widget instanceof CheckboxWidget) {
+				// if this is a checkbox, we only want to set the initial value (ie, show the checkbox as checked) if the current state matches the state associated with the checkbox
+				if (currentState.getUuid().equals(((CheckboxWidget) widget).getValue())) {
+					widget.setInitialValue(currentState.getUuid());
+				}
+			}
+			else {
+				widget.setInitialValue(currentState.getUuid());
+			}
 		}
 		
 		context.registerWidget(widget);

@@ -33,13 +33,13 @@ public class WorkflowStateTag {
 	
 	private final List<String> stateLabels;
 	
-	private final String style;
+	private final String type;
 	
 	private final String labelText;
 	
 	private final String labelCode;
 	
-	private final Set<String> allowedStyles;
+	private final Set<String> allowedTypes;
 	
 	/**
 	 * @param parameters
@@ -56,7 +56,7 @@ public class WorkflowStateTag {
 				throw new IllegalArgumentException("stateId and stateIds must not be used together");
 			}
 			stateIds = Collections.unmodifiableList(Arrays.asList(parameters.get("stateId").trim()));
-			allowedStyles = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("checkbox", "hidden")));
+			allowedTypes = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("checkbox", "hidden")));
 		} else {
 			if (!StringUtils.isBlank(parameters.get("stateIds"))) {
 				String[] ids = parameters.get("stateIds").split(",");
@@ -67,22 +67,22 @@ public class WorkflowStateTag {
 			} else {
 				stateIds = null;
 			}
-			allowedStyles = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("radio", "dropdown")));
+			allowedTypes = Collections.unmodifiableSet(new HashSet<String>(Arrays.asList("radio", "dropdown")));
 		}
 		
-		if (StringUtils.isBlank(parameters.get("style"))) {
+		if (StringUtils.isBlank(parameters.get("type"))) {
 			if (!StringUtils.isBlank(parameters.get("stateId"))) {
-				style = "checkbox";
+				type = "checkbox";
 			} else {
-				style = "dropdown";
+				type = "dropdown";
 			}
 		} else {
-			style = parameters.get("style").trim();
+			type = parameters.get("type").trim();
 		}
 		
-		if (!allowedStyles.contains(style)) {
-			throw new IllegalArgumentException("Invalid style: " + style + ". Allowed styles: "
-			        + StringUtils.join(allowedStyles, ","));
+		if (!allowedTypes.contains(type)) {
+			throw new IllegalArgumentException("Invalid type: " + type + ". Allowed type: "
+			        + StringUtils.join(allowedTypes, ","));
 		}
 		
 		if (StringUtils.isBlank(parameters.get("stateLabels"))) {
@@ -121,9 +121,9 @@ public class WorkflowStateTag {
 			labelCode = null;
 		}
 		
-		if (style.equals("hidden")) {
+		if (type.equals("hidden")) {
 			if (labelText != null || labelCode != null) {
-				throw new IllegalArgumentException("labelText and labelCode are not allowed for the hidden style");
+				throw new IllegalArgumentException("labelText and labelCode are not allowed for the hidden type");
 			}
 		}
 	}
@@ -150,10 +150,10 @@ public class WorkflowStateTag {
 	}
 	
 	/**
-	 * @return the style
+	 * @return the type
 	 */
-	public String getStyle() {
-		return style;
+	public String getType() {
+		return type;
 	}
 	
 	/**
@@ -173,8 +173,8 @@ public class WorkflowStateTag {
 	/**
 	 * @return the allowedStyles
 	 */
-	public Set<String> getAllowedStyles() {
-		return allowedStyles;
+	public Set<String> getAllowedTypes() {
+		return allowedTypes;
 	}
 	
 }

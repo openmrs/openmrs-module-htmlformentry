@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
@@ -45,6 +46,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public static final String XML_FORM_NAME = "workflowStateForm";
 	
 	public static final String XML_CHECKBOX_FORM_NAME = "workflowStateCheckboxForm";
+	
+	public static final String XML_HIDDEN_FORM_NAME = "workflowStateHiddenForm";
 	
 	public static final String START_STATE = "89d1a292-5140-11e1-a3e3-00248140a5eb";
 	
@@ -119,33 +122,33 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldDisplayDropdownIfDropdownStyle() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"dropdown\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"dropdown\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("option"));
 	}
 	
 	@Test
 	public void shouldDisplayRadioIfRadioStyle() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"radio\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"radio\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("type=\"radio\""));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndCheckboxStyle() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"checkbox\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"checkbox\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndHiddenStyle() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"hidden\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"hidden\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfInvalidStyle() throws Exception {
-		String htmlform = "<htmlform><workflowState workflowId=\"100\" style=\"invalid\"/></htmlform>";
+		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"invalid\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
@@ -207,7 +210,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayIfSpecifiedStateAndCheckboxStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
-		        + "\" style=\"checkbox\"/></htmlform>";
+		        + "\" type=\"checkbox\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		assertPresent(session, START_STATE);
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("checkbox"));
@@ -216,7 +219,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayIfSpecifiedStateAndHiddenStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
-		        + "\" style=\"hidden\"/></htmlform>";
+		        + "\" type=\"hidden\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		assertPresent(session, START_STATE);
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("hidden"));
@@ -232,14 +235,14 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedStateAndDropdownStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
-		        + "\" style=\"dropdown\"/></htmlform>";
+		        + "\" type=\"dropdown\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedStateAndRadioStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
-		        + "\" style=\"radio\"/></htmlform>";
+		        + "\" type=\"radio\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
 	}
 	
@@ -1532,11 +1535,11 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
-
 	@Test
 	public void checkboxShouldAppearCheckedIfCurrentlyInSpecifiedState() throws Exception {
 		 
 		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(MIDDLE_STATE, PAST_DATE);
 		
 		new RegressionTestHelper() {
 			
@@ -1546,27 +1549,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:"};
-			}
-			
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
-			}
-			
-			public void testViewingEncounter(Encounter encounter, String html) {
-				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
-			}
-			
-			public boolean doEditEncounter() {
-				return true;
-			}
-			
-			public void testEditFormHtml(String html) {		
-				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("checked=\"true\"/>START STATE"));
+			public void testBlankFormHtml(String html) {		
+				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("checked=\"true\"/>MIDDLE STATE"));
 			}
 			
 		}.run();
@@ -1575,8 +1559,27 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void checkboxShouldNotAppearCheckedIfNotCurrentlyInSpecifiedState() throws Exception {
 		 
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
-		transitionToState(END_STATE, PAST_DATE);
+		transitionToState(START_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_CHECKBOX_FORM_NAME;
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {		
+				Assert.assertTrue("Checkbox should not be checked: " + html, !html.contains("checked=\"true\"/>MIDDLE STATE"));
+			}
+			
+		}.run();
+	}	
+
+	@Test
+	public void checkboxShouldSetPatientInState() throws Exception {
+		 
+		transitionToState(START_STATE, PAST_DATE);
 		
 		new RegressionTestHelper() {
 			
@@ -1587,7 +1590,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:"};
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
 			@Override
@@ -1595,23 +1598,144 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), MIDDLE_STATE);   
 			}
 			
-			public void testViewingEncounter(Encounter encounter, String html) {
-				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				// patient should now be in the middle state
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
 			}
 			
-			public boolean doEditEncounter() {
+			public boolean doViewEncounter() {
 				return true;
 			}
 			
-			public void testEditFormHtml(String html) {		
-				Assert.assertTrue("Checkbox should not be checked: " + html, !html.contains("checked=\"true\"/>START STATE"));
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&nbsp;MIDDLE STATE"));
 			}
 			
 		}.run();
-	}	
-
+	}
+	
+	
+	@Test
+	// note that in the future we may want to add the code so that unchecking a checkbox takes a patient out of a state
+	// this test case can be modified when we add this functionality
+	public void checkboxShouldNotRemovePatientInState() throws Exception {
+		 
+		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(MIDDLE_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_CHECKBOX_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("State:"), "");   
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				// patient still be in the middle state
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&nbsp;MIDDLE STATE"));
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	@Ignore
+	public void hiddenTagShouldSetPatientInState() throws Exception {
+		 
+		transitionToState(START_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_HIDDEN_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:"};
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {		
+				System.out.println(html);
+			}
+			
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				// hidden tag, so nothing gets submitted
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));   
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				
+				// patient should now be in the middle state
+				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertNull(patientState.getEndDate());
+			}
+			
+		}.run();
+	}
+	
+	
 	/**
 	 * @param session
 	 */
