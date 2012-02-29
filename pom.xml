@@ -351,25 +351,6 @@
 			</dependencyManagement>
 		</profile>
 
-
-		<profile>
-			<id>openmrs-1.6.1</id>
-			<properties>
-				<openMRSVersion>1.6.1</openMRSVersion>
-				<openMRSMinorVersion>1.6</openMRSMinorVersion>
-				<logicVersion>0.4</logicVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.6.2</id>
-			<properties>
-				<openMRSVersion>1.6.2</openMRSVersion>
-				<openMRSMinorVersion>1.6</openMRSMinorVersion>
-				<logicVersion>0.4</logicVersion>
-			</properties>
-		</profile>
-
 		<profile>
 			<id>openmrs-1.6.3</id>
 			<properties>
@@ -395,15 +376,6 @@
 				<openMRSVersion>1.6.5</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.7.0</id>
-			<properties>
-				<openMRSVersion>1.7.0</openMRSVersion>
-				<openMRSMinorVersion>1.7</openMRSMinorVersion>
-				<logicVersion>0.4</logicVersion>
 			</properties>
 		</profile>
 

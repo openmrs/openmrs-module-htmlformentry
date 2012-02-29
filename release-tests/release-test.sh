@@ -59,7 +59,7 @@ do
 	esac
 done
 
-mvn_command="mvn integration-test -DskipTests -P $profile -Dtest=$testname $verbose  -Ddatabase_user_name=$mysqlusername -Ddatabase_root_password=$mysqlpassword -Dmysql_port=$mysqlport -Dopenmrs_username=$omrsusername -Dopenmrs_password=$omrspassword -DopenMRSVersion=$openMRSVersion"
+mvn_command="mvn integration-test -DskipTests -P$profile -Prelease-tests -Dtest=$testname $verbose  -Ddatabase_user_name=$mysqlusername -Ddatabase_root_password=$mysqlpassword -Dmysql_port=$mysqlport -Dopenmrs_username=$omrsusername -Dopenmrs_password=$omrspassword -DopenMRSVersion=$openMRSVersion"
 
 echo Running $mvn_command
 echo "Use -v option for verbose mode if you run into errors"
