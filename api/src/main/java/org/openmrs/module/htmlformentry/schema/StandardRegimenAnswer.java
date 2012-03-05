@@ -13,6 +13,18 @@ public class StandardRegimenAnswer {
 	 public StandardRegimenAnswer(RegimenSuggestion rs){
 		 this.regimenSuggestion = rs;
 	 }
+
+	
+    public RegimenSuggestion getRegimenSuggestion() {
+    	return regimenSuggestion;
+    }
+
+	
+    public void setRegimenSuggestion(RegimenSuggestion regimenSuggestion) {
+    	this.regimenSuggestion = regimenSuggestion;
+    }
+	 
+	 
 	 
 	    
 }

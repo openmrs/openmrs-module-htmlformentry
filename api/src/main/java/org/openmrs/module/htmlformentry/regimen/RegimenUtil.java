@@ -61,7 +61,7 @@ public class RegimenUtil {
 							allFound = false;
 							break;
 						}
-							
+						
 					} else {
 						allFound = false;
 						break;
