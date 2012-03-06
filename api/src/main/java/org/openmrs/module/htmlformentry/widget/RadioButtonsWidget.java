@@ -8,6 +8,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
  */
 public class RadioButtonsWidget extends SingleOptionWidget {
 	
+	private String answerSeparator = null;
+	
 	/**
 	 * Default Constructor
 	 */
@@ -26,6 +28,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 			for (Option opt : getOptions()) {
 				boolean selected = getInitialValue() == null ? "".equals(opt.getValue()) : getInitialValue().equals(
 				    opt.getValue());
+				sb.append(getAnswerSeparator());
 				if (selected) {
 					sb.append(WidgetFactory.displayValue("[X]&nbsp;" + opt.getLabel() + "&nbsp;"));
 				} else {
@@ -39,8 +42,8 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 				if (!selected)
 					selected = getInitialValue() == null ? option.getValue().equals("") : getInitialValue().equals(
 					    option.getValue());
-				sb.append("<input type=\"radio\" id=\"").append(id + "_" + i).append("\" name=\"").append(id)
-				        .append("\" value=\"").append(option.getValue()).append("\"");
+				sb.append(getAnswerSeparator() + "<input type=\"radio\" id=\"").append(id + "_" + i).append("\" name=\"")
+				        .append(id).append("\" value=\"").append(option.getValue()).append("\"");
 				if (selected)
 					sb.append(" checked=\"true\"");
 				sb.append(" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"");
@@ -51,5 +54,19 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 			}
 		}
 		return sb.toString();
+	}
+	
+	/**
+	 * @return the answerSeparator
+	 */
+	public String getAnswerSeparator() {
+		return answerSeparator;
+	}
+	
+	/**
+	 * @param answerSeparator the answerSeparator to set
+	 */
+	public void setAnswerSeparator(String answerSeparator) {
+		this.answerSeparator = answerSeparator;
 	}
 }

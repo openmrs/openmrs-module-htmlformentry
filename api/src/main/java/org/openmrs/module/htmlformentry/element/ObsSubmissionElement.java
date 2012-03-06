@@ -99,10 +99,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private List<String> conceptLabels = null; //the text to show for possible concepts
 	
+	private String answerSeparator = null;
+	
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		String conceptId = parameters.get("conceptId");
 		String conceptIds = parameters.get("conceptIds");
 		defaultValue = parameters.get("defaultValue");
+		if (StringUtils.isNotBlank(parameters.get("answerSeparator")))
+			answerSeparator = parameters.get("answerSeparator");
 		
 		if (conceptId != null && conceptIds != null)
 			throw new RuntimeException("You can't use conceptId and conceptIds in the same tag!");
@@ -278,6 +282,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				} else {
 					if ("radio".equals(parameters.get("style"))) {
 						valueWidget = new RadioButtonsWidget();
+						if (StringUtils.isNotBlank(answerSeparator))
+							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
 					} else { // dropdown
 						valueWidget = new DropdownWidget();
 						((DropdownWidget) valueWidget).addOption(new Option());
@@ -357,7 +363,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 								users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
 							}
 						}
-						
+
 						// Otherwise, limit to users with the default OpenMRS PROVIDER role, 
 						else {
 							String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
@@ -401,6 +407,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					} else {
 						if ("radio".equals(parameters.get("style"))) {
 							valueWidget = new RadioButtonsWidget();
+							if (StringUtils.isNotBlank(answerSeparator))
+								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
 						} else { // dropdown
 							valueWidget = new DropdownWidget();
 							((DropdownWidget) valueWidget).addOption(new Option());
@@ -550,6 +558,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						boolean isRadio = "radio".equals(parameters.get("style"));
 						if (isRadio) {
 							valueWidget = new RadioButtonsWidget();
+							if (StringUtils.isNotBlank(answerSeparator))
+								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
 						} else {
 							valueWidget = new DropdownWidget();
 							((DropdownWidget) valueWidget).addOption(new Option());
@@ -763,8 +773,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.append("<span id='" + id + "'>");
 			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget),
 			    getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
-			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget), "dateFieldGetterFunction", null,
-				"dateSetterFunction");
+			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget),
+			    "dateFieldGetterFunction", null, "dateSetterFunction");
 			context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(errorWidget), null, null,
 			    null);
 			context.registerPropertyAccessorInfo(id + ".accessionNumber",
