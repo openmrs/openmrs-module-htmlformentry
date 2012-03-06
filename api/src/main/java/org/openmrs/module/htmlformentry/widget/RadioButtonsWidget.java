@@ -60,6 +60,8 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	 * @return the answerSeparator
 	 */
 	public String getAnswerSeparator() {
+		if (answerSeparator == null)
+			answerSeparator = "";
 		return answerSeparator;
 	}
 	

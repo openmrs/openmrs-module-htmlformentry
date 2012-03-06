@@ -229,6 +229,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				                + parameters);
 			if ("radio".equals(parameters.get("style"))) {
 				valueWidget = new RadioButtonsWidget();
+				if (StringUtils.isNotBlank(answerSeparator))
+					((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
 			} else { // dropdown
 				valueWidget = new DropdownWidget();
 				((DropdownWidget) valueWidget).addOption(new Option());
@@ -553,7 +555,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						
 						valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
 					} else {
-						// Show Radio Buttons if specified, otherwise default to Drop
+			// Show Radio Buttons if specified, otherwise default to Drop
 						// Down 
 						boolean isRadio = "radio".equals(parameters.get("style"));
 						if (isRadio) {
