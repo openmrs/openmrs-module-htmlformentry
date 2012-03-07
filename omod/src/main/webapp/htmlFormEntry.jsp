@@ -179,7 +179,7 @@
 	</c:if>
 	<div style="float: left" id="discardAndPrintDiv">
 		<c:if test="${!inPopup}">
-			<span id="discardLinkSpan"><a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>javascript:history.go(-1);</c:otherwise></c:choose>">${backMessage}</a></span> | 
+			<span id="discardLinkSpan"><a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>${pageContext.request.contextPath}/patientDashboard.form?patientId=${command.patient.patientId}</c:otherwise></c:choose>">${backMessage}</a></span> | 
 		</c:if>
 		<span id="printLinkSpan"><a href="javascript:window.print();"><spring:message code="htmlformentry.print"/></a></span> &nbsp;<br/>
 	</div>
