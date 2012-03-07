@@ -12,9 +12,9 @@
 	<url>http://openmrs.org</url>
 
 	<scm>
-		<connection>scm:svn:http://svn.openmrs.org/openmrs-modules/htmlformentry/trunk/</connection>
-		<developerConnection>scm:svn:http://svn.openmrs.org/openmrs-modules/htmlformentry/trunk/</developerConnection>
-		<url>http://svn.openmrs.org/openmrs-modules/htmlformentry/trunk/</url>
+		<connection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</connection>
+		<developerConnection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</developerConnection>
+		<url>https://github.com/OpenMRS/openmrs-module-htmlformentry/</url>
 	</scm>
 
 	<distributionManagement>
