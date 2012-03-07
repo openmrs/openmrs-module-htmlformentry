@@ -71,6 +71,7 @@
 		<openMRSVersion>1.6.5</openMRSVersion>
 		<openMRSMinorVersion>1.6</openMRSMinorVersion>
 		<logicVersion>0.5</logicVersion>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modules>
