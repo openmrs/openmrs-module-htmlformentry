@@ -511,33 +511,29 @@ public class FormEntryContext {
                 contenders.add(e.getKey());
          }
         Obs ret = null;
-        // if there's only one contender, that's what we're returning:
-        if (contenders.size() == 1){
-            ret = contenders.iterator().next();
-        // if there are multiple contenders, then we only return obsGroups that match the questionsAndAnswers
-        // meaning, that if an obsGroup has an extra obs besides what's expected, it won't be returned.
-        } else {
-        	List<Obs> rankTable = new ArrayList<Obs>();
-        	int topRanking = 0;
+        if (contenders.size() > 0){
+            List<Obs> rankTable = new ArrayList<Obs>();
+            int topRanking = 0;
+            
             for (Obs parentObs:contenders){
                 int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs));
-                if (rank == topRanking) {
-                	rankTable.add(parentObs);
-                } else if (rank > topRanking) {
-                	topRanking = rank;
-                	rankTable.clear();
-                	rankTable.add(parentObs);
+
+                if (rank > topRanking) {
+                    topRanking = rank;
+                    rankTable.clear();
+                    rankTable.add(parentObs);
                 }
             } 
             
             if (rankTable.size() == 0) {
-            	// Problem! no matching obsGroup found!!
+                log.error("Problem! no matching obsGroup found!!");
+                // Problem! no matching obsGroup found!!
             } else if (rankTable.size() == 1) {
                 ret = rankTable.get(0);
             } else if (rankTable.size() > 1) {
-            	//We have a potential problem: multiple obsgroups support obs set, flagging as guessing to warn user....
-            	guessingInd = true;
-            	// Just return the first one despite the potential mismatch...
+                //We have a potential problem: multiple obsgroups support obs set, flagging as guessing to warn user....
+                guessingInd = true;
+                // Just return the first one despite the potential mismatch...
                 ret = rankTable.get(0);
             }
         }

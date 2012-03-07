@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform> Date: <encounterDate/> Location: <encounterLocation/> Provider: <encounterProvider
+		role="Provider"/>
+	<repeat>
+		<template>
+			<obsgroup groupingConceptId="7">
+				<obs conceptId="1000" answerConceptId="{concept}" answerLabel="{effect}" labelText=""/>
+				<obs conceptId="8"/>
+			</obsgroup>
+		</template>
+		<render concept="1001" effect="foo1"/>
+		<render concept="1002" effect="foo2"/>
+		<render concept="1003" effect="foo3"/>
+		<render concept="1004" effect="foo4"/>
+		<render concept="1005" effect="foo5"/>
+	</repeat>
+</htmlform>
