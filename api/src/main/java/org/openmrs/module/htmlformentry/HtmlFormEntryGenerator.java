@@ -16,6 +16,7 @@ import org.openmrs.logic.LogicService;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -244,6 +245,18 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				loadRenderElementsForEachRepeatElement(n, renderMaps);
 			}
 		}
+	}
+	
+	public String applyUnmatchedTags(FormEntrySession session, String xml) throws Exception {
+		List<ObsGroupEntity> obsGroupEntities = session.getContext().getUnmatchedObsGroupEntities();
+		
+		for (ObsGroupEntity obsGroupEntity : obsGroupEntities) {
+			StringWriter out = new StringWriter();
+			applyTagsHelper(session, new PrintWriter(out), null, obsGroupEntity.getNode(), null);
+			xml = xml.replaceAll("<unmatched id=\"" + obsGroupEntity.getId() + "\" />", out.toString());			
+		}
+		
+		return xml;
 	}
 	
 	/**

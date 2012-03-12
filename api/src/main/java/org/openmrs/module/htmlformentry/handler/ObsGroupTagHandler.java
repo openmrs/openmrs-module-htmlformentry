@@ -12,7 +12,9 @@ import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
+import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -22,6 +24,8 @@ import org.w3c.dom.Node;
  */
 public class ObsGroupTagHandler extends AbstractTagHandler {
    
+	boolean unmatchedInd = false;
+	
 	@Override
     protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();	
@@ -56,18 +60,45 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         String name = attributes.get("label");
         // find relevant obs group to display for this element
         Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
+        
+        boolean digDeeper = true;
+        
+        if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW)) {
+        	if (!session.getContext().isUnmatchedMode()) {
+            	unmatchedInd = true;
+
+            	ObsGroupEntity obsGroupEntity = new ObsGroupEntity();
+            	obsGroupEntity.setPath(ObsGroupComponent.getObsGroupPath(node));
+            	obsGroupEntity.setQuestionsAndAnswers(ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"), node));
+            	obsGroupEntity.setXmlObsGroupConcept(attributes.get("groupingConceptId"));
+            	obsGroupEntity.setGroupingConcept(groupingConcept);
+            	obsGroupEntity.setNode(node);
+            	int unmatchedObsGroupId = session.getContext().addUnmatchedObsGroupEntities(obsGroupEntity);
+                out.print(String.format("<unmatched id=\"%s\" />", unmatchedObsGroupId));        	
+                digDeeper = false;
+        	}
+        } else {
+        	unmatchedInd = false;
+        }
+        
         // sets up the obs group stack, sets current obs group to this one
         ObsGroup ogSchemaObj = new ObsGroup(groupingConcept, name);
         session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
         //adds the obsgroup action to the controller stack
         session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
-        return true;
+        return digDeeper;
     }
 
     private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId) {
-        List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
         String path = ObsGroupComponent.getObsGroupPath(node);
-        return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
+    	
+        if (session.getContext().isUnmatchedMode()) {
+            return session.getContext().getNextUnmatchedObsGroup(path);
+        } else {
+            List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
+            return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
+        }
+
     }
 
     @Override

@@ -202,7 +202,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-
+ 
 	@Test
 	public void testMultipleObsGroupFormSuccess() throws Exception {
 		final Date date = new Date();
@@ -442,6 +442,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 					// now create another ALLERGY CONSTRUCT obsgroup, but with a HYPER-ALLERGY CODED obs, and a different answer value
 					TestUtil.addObsGroup(e, 7, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
+//					TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
 
 					return e;
 				}
@@ -538,13 +539,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				//System.out.println(html);
 				TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
 				TestUtil.assertFuzzyContains("ISONIAZID <span class=\"value\">Resistant</span>", html);
 				TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200.0</span>", html);
 				TestUtil.assertFuzzyContains("DST Result Date <span class=\"value\">01/02/2003</span>", html);
+				TestUtil.assertFuzzyContains("Intermediate", html);
 				TestUtil.assertFuzzyDoesNotContain("400", html);
-				TestUtil.assertFuzzyDoesNotContain("Intermediate", html);
 			}
 
 		}.run();
@@ -878,7 +878,6 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
 
 		String result = generator.applyMacros(sb.toString()).trim();
-		System.out.println(result);
 		Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
 	}
 
@@ -1347,6 +1346,161 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo4</span>", html);
 				TestUtil.assertFuzzyContains("bar4", html);
 				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo5</span>", html);
+			}
+
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}
+
+	@Test
+	public void testObsGroupRepeatsWithOneCompleteEntryAndOnePartiallyFilledInEntry() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupRepeatTestForm";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "bar1",
+						new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 8, "bar4",
+						new Date());
+				
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo1</span>", html);
+				TestUtil.assertFuzzyContains("bar1", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo4</span>", html);
+				TestUtil.assertFuzzyContains("bar4", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo5</span>", html);
+			}
+
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}
+
+	@Test
+	public void testObsGroupRepeatsWithEveryOtherPartiallyFilledInEntry() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupRepeatTestForm";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "bar1", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "bar2", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "bar3", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "bar4", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 8, "bar5", new Date());
+				
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo1</span>", html);
+				TestUtil.assertFuzzyContains("bar1", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo2</span>", html);
+				TestUtil.assertFuzzyContains("bar2", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo3</span>", html);
+				TestUtil.assertFuzzyContains("bar3", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo4</span>", html);
+				TestUtil.assertFuzzyContains("bar4", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo5</span>", html);
+				TestUtil.assertFuzzyContains("bar5", html);
+			}
+
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+
+		}.run();
+	}
+
+	@Test
+	public void testObsGroupRepeatsWithEveryFieldFilledIn() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupRepeatTestForm";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8, "bar1", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8, "bar2", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8, "bar3", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 8, "bar4", new Date());
+
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 8, "bar5", new Date());
+				
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo1</span>", html);
+				TestUtil.assertFuzzyContains("bar1", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo2</span>", html);
+				TestUtil.assertFuzzyContains("bar2", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo3</span>", html);
+				TestUtil.assertFuzzyContains("bar3", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo4</span>", html);
+				TestUtil.assertFuzzyContains("bar4", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo5</span>", html);
+				TestUtil.assertFuzzyContains("bar5", html);
 			}
 
 			@Override

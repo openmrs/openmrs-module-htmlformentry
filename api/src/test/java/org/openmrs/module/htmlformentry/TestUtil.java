@@ -209,6 +209,7 @@ public class TestUtil {
 		string = string.replaceAll("<span class=\"emptyvalue\">(.*)</span>", "$1");
 		string = string.replaceAll("(?s)<div class=\"htmlform\">(.*)</div>", "$1");
 		string = string.replaceAll("\\s", "");
+		string = string.replaceAll("____", ""); //represents empty value in view mode
 		return string;
 	}
 	

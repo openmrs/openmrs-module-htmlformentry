@@ -4,7 +4,7 @@
 	Provider: <encounterProvider role="Provider"/>
 		<obsgroup groupingConceptId="3040">
 			<obsgroup groupingConceptId="3025">
-				<obs conceptIds="2474,3017,1441" answerConceptId="1414"/> (should be NULL)
+				<obs conceptIds="2474,3017,1441" answerConceptId="1414"/>
 			</obsgroup>
 			<obsgroup groupingConceptId="3025">
 				<obs conceptIds="2474,3017,1441" answerConceptId="767" labelText="R" conceptLabels="S,I,R"/> (should be S)
