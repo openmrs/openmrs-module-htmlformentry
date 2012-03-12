@@ -244,6 +244,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
+	
+
+	
 	@Test
 	public void viewEmptyEncounterSuccess() throws Exception {
 		new RegressionTestHelper() {
@@ -437,12 +440,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 					e.setProvider(Context.getPersonService().getPerson(502));
 
 					// first create two ALLERGY CONSTRUCT obsgroups, both with ALLERGY CODED obs, but with different answer values
-					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
-					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date());
-
-					// now create another ALLERGY CONSTRUCT obsgroup, but with a HYPER-ALLERGY CODED obs, and a different answer value
-					TestUtil.addObsGroup(e, 7, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
-//					TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1003), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 8, Context.getConceptService().getConcept(1001), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 8, Context.getConceptService().getConcept(1002), new Date());
 
 					return e;
 				}
@@ -459,6 +458,48 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 	}
 
+	
+	@Test
+	public void viewIdenticalObsGroups() throws Exception {
+		// need to test multiple times because sometimes there can be a "lucky" match
+		for (int rep = 1; rep < 30; rep++) {
+			new RegressionTestHelper() {
+	
+				@Override
+				public String getFormName() {
+					return "multipleObsGroupForm";
+				}
+	
+				@Override
+				public Encounter getEncounterToView() throws Exception {
+					Encounter e = new Encounter();
+					e.setPatient(getPatient());
+					Date date = Context.getDateFormat().parse("01/02/2003");
+					e.setDateCreated(new Date());
+					e.setEncounterDatetime(date);
+					e.setLocation(Context.getLocationService().getLocation(2));
+					e.setProvider(Context.getPersonService().getPerson(502));
+	
+					// create two ALLERGY CONSTRUCT obsgroups, with different text values, one of 01/02/2003, and one with the date set to null
+					TestUtil.addObsGroup(e, 7, new Date(), 8,"Dogs", new Date(), 1119, date, new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 8, "Cats", new Date(), 1119, null, new Date());
+	
+					return e;
+				}
+	
+				@Override
+				public void testViewingEncounter(Encounter encounter, String html) {
+					// we can't control what order these two obs groups appear in, but we should make sure that the proper text answer is always linked to the proper date answer
+					// the "Dogs" entry should be linked to the 01/02/2003 date, while the "Cats" entry should be linked to the null date 
+					TestUtil.assertFuzzyContains("Cats Allergy Date \\d: ________", html);
+					TestUtil.assertFuzzyContains("Dogs Allergy Date \\d: 01/02/2003", html);
+				}
+	
+			}.run();
+		}
+	}
+
+	
 	/**
 	 * Builds the full DST model, and ensures proper recognition of nested obs groups. The basic
 	 * model is: Encounter --> TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT TUBERCULOSIS DRUG
@@ -1510,5 +1551,4 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
-
 }
