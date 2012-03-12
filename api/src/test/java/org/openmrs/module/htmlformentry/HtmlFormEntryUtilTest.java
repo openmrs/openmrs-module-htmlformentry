@@ -22,6 +22,7 @@ import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
+import org.w3c.dom.Document;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
@@ -908,5 +909,17 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		Assert.assertNull(HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, date));
 	}
 	
+	@Test
+	@Verifies(value = "stringToDocument should handle html-escaped characters correctly", method = "stringToDocument(String xml)")
+	public void stringToDocument_shouldHandleEsapeChars(){
+		String str = "<htmlform> <input type=\"text\" value=\"HI!\" /> &nbsp; </htmlform>";
+		try {
+			Document doc = HtmlFormEntryUtil.stringToDocument(str);
+			Assert.assertNotNull(doc);
+		} catch (Exception ex){
+			System.out.println(ex);
+			Assert.assertTrue(false);
+		}
+	}
 
 }
