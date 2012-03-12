@@ -910,9 +910,22 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "stringToDocument should handle html-escaped characters correctly", method = "stringToDocument(String xml)")
-	public void stringToDocument_shouldHandleEsapeChars(){
-		String str = "<htmlform> <input type=\"text\" value=\"HI!\" /> &nbsp; </htmlform>";
+	@Verifies(value = "stringToDocument should handle ascii-escaped characters correctly", method = "stringToDocument(String xml)")
+	public void stringToDocument_shouldHandleAsciiEsapeChars(){
+		String str = "<htmlform> <input type=\"text\" value=\"HI!\" /> &#160; </htmlform>";
+		try {
+			Document doc = HtmlFormEntryUtil.stringToDocument(str);
+			Assert.assertNotNull(doc);
+		} catch (Exception ex){
+			System.out.println(ex);
+			Assert.assertTrue(false);
+		}
+	}
+	
+	@Test
+	@Verifies(value = "stringToDocument should handle escaped characters correctly if defined as an entity", method = "stringToDocument(String xml)")
+	public void stringToDocument_shouldHandleEsapeCharsWhenDefinedAsEntity(){
+		String str = "<?xml version=\"1.0\"?> <!DOCTYPE some_name [ <!ENTITY nbsp \"&#160;\">]> <htmlform> <input type=\"text\" value=\"HI!\" /> &nbsp; </htmlform>";
 		try {
 			Document doc = HtmlFormEntryUtil.stringToDocument(str);
 			Assert.assertNotNull(doc);

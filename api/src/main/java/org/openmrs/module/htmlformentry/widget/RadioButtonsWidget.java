@@ -30,9 +30,9 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 				    opt.getValue());
 				sb.append(getAnswerSeparator());
 				if (selected) {
-					sb.append(WidgetFactory.displayValue("[X]&nbsp;" + opt.getLabel() + "&nbsp;"));
+					sb.append(WidgetFactory.displayValue("[X]&#160;" + opt.getLabel() + "&#160;"));
 				} else {
-					sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]&nbsp;" + opt.getLabel()));
+					sb.append(WidgetFactory.displayEmptyValue("[&#160;&#160;]&#160;" + opt.getLabel()));
 				}
 			}
 		} else {
@@ -50,7 +50,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 				sb.append("/>");
 				sb.append(option.getLabel());
 				if (i < getOptions().size() - 1)
-					sb.append("&nbsp;");
+					sb.append("&#160;");
 			}
 		}
 		return sb.toString();

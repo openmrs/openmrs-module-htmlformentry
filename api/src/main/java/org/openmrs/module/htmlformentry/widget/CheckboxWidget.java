@@ -70,11 +70,11 @@ public class CheckboxWidget implements Widget {
         if (context.getMode() == Mode.VIEW) {
             String labelString = "";
             if  (label != null)
-                labelString = "&nbsp;" + label;
+                labelString = "&#160;" + label;
             if (initialValue != null) {
                 sb.append(WidgetFactory.displayValue("[X]" + labelString));
             } else {
-                sb.append(WidgetFactory.displayEmptyValue("[&nbsp;&nbsp;]" + labelString));
+                sb.append(WidgetFactory.displayEmptyValue("[&#160;&#160;]" + labelString));
             }    
         } else {
             sb.append("<input type=\"hidden\" name=\"_").append(context.getFieldName(this)).append("\"/>");

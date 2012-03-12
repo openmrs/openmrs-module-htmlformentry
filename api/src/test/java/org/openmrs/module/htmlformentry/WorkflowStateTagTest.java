@@ -1621,7 +1621,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
-				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&nbsp;MIDDLE STATE"));
+				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&#160;MIDDLE STATE"));
 			}
 			
 		}.run();
@@ -1677,7 +1677,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
-				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&nbsp;MIDDLE STATE"));
+				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&#160;MIDDLE STATE"));
 			}
 			
 		}.run();

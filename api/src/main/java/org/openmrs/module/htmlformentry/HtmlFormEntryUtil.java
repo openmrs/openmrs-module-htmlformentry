@@ -29,7 +29,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -230,7 +229,7 @@ public class HtmlFormEntryUtil {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(new InputSource(new StringReader(StringEscapeUtils.unescapeHtml(xml))));
+			Document document = db.parse(new InputSource(new StringReader(xml)));
 			return document;
 		}
 		catch (Exception e) {

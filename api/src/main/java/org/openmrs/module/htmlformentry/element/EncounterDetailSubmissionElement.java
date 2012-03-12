@@ -381,7 +381,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				ret.append(dateErrorWidget.generateHtml(context));
 		}
 		if (timeWidget != null) {
-			ret.append("&nbsp;");
+			ret.append("&#160;");
 			ret.append(timeWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW)
 				ret.append(timeErrorWidget.generateHtml(context));

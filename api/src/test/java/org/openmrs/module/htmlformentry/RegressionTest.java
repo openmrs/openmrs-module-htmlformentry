@@ -995,13 +995,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1045,13 +1045,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1095,13 +1095,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1145,13 +1145,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1195,13 +1195,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1245,13 +1245,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1295,13 +1295,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 1</span>", html);
 				TestUtil.assertFuzzyContains("foo1", html);
 
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 2</span>", html);
 				TestUtil.assertFuzzyContains("foo2", html);
 
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;Label 3</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 3</span>", html);
 				TestUtil.assertFuzzyContains("foo3", html);
 			}
 
@@ -1340,12 +1340,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo1</span>", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo2</span>", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo3</span>", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo4</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo4</span>", html);
 				TestUtil.assertFuzzyContains("bar4", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo5</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo5</span>", html);
 			}
 
 			@Override
@@ -1386,13 +1386,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo1</span>", html);
 				TestUtil.assertFuzzyContains("bar1", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo2</span>", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo3</span>", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo4</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo4</span>", html);
 				TestUtil.assertFuzzyContains("bar4", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo5</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo5</span>", html);
 			}
 
 			@Override
@@ -1437,15 +1437,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo1</span>", html);
 				TestUtil.assertFuzzyContains("bar1", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo2</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo2</span>", html);
 				TestUtil.assertFuzzyContains("bar2", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo3</span>", html);
 				TestUtil.assertFuzzyContains("bar3", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&nbsp;&nbsp;]&nbsp;foo4</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;foo4</span>", html);
 				TestUtil.assertFuzzyContains("bar4", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo5</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo5</span>", html);
 				TestUtil.assertFuzzyContains("bar5", html);
 			}
 
@@ -1491,15 +1491,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo1</span>", html);
 				TestUtil.assertFuzzyContains("bar1", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo2</span>", html);
 				TestUtil.assertFuzzyContains("bar2", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo3</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo3</span>", html);
 				TestUtil.assertFuzzyContains("bar3", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo4</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo4</span>", html);
 				TestUtil.assertFuzzyContains("bar4", html);
-				TestUtil.assertContains("<span class=\"value\">\\[X]&nbsp;foo5</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;foo5</span>", html);
 				TestUtil.assertFuzzyContains("bar5", html);
 			}
 
