@@ -25,6 +25,7 @@ import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
@@ -71,6 +72,10 @@ public class FormEntryContext {
     private Location defaultLocation;
     
     private Date previousEncounterDate;  // if the encounter has been edited on a form, this stores the prior encounter date
+    
+    private List<ObsGroupEntity> unmatchedObsGroupEntities = null;
+    private boolean unmatchedMode = false;
+    
     private boolean guessingInd = false;
     
     public FormEntryContext(Mode mode) {
@@ -228,6 +233,7 @@ public class FormEntryContext {
      */
     public void endObsGroup() {
         //remove itself
+    	
         if (!obsGroupStack.isEmpty()){
             obsGroupStack.pop();
             currentObsGroupConcepts.pop();
@@ -491,6 +497,29 @@ public class FormEntryContext {
         return null;
     }
 
+    public Obs getNextUnmatchedObsGroup(String path) {
+        Obs ret = null;
+    	int unmatchedContenterCount = 0;
+        for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet() ) {
+    		if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey()))) {
+    			if (ret == null) ret = e.getKey();
+    			unmatchedContenterCount++;
+    		}
+    	}
+        if (ret != null){
+        	if (unmatchedContenterCount > 1) guessingInd = true;
+        	
+            existingObsInGroups.remove(ret);
+            existingObs.remove(ret);
+            return ret;
+        }
+        return null;
+    }
+    
+    public int getExistingObsInGroupsCount() {
+    	if (existingObsInGroups != null) return existingObsInGroups.size();
+    	return 0;
+    }
     
     /**
      * Finds the best matching obsGroup at the right obsGroup hierarchy level
@@ -511,6 +540,7 @@ public class FormEntryContext {
                 contenders.add(e.getKey());
          }
         Obs ret = null;
+        
         if (contenders.size() > 0){
             List<Obs> rankTable = new ArrayList<Obs>();
             int topRanking = 0;
@@ -518,23 +548,32 @@ public class FormEntryContext {
             for (Obs parentObs:contenders){
                 int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs));
 
-                if (rank > topRanking) {
-                    topRanking = rank;
-                    rankTable.clear();
-                    rankTable.add(parentObs);
+                if (rank > 0) {
+                    if (rank > topRanking) {
+                        topRanking = rank;
+                        rankTable.clear();
+                        rankTable.add(parentObs);
+                    } else if (rank == topRanking) {
+                    	rankTable.add(parentObs);
+                    }
                 }
             } 
             
             if (rankTable.size() == 0) {
-                log.error("Problem! no matching obsGroup found!!");
-                // Problem! no matching obsGroup found!!
+                /* No matching obsGroup found; returning null obsGroup.  This will 
+                 * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
+                 * a subsequent form scan.
+                 */
+                log.debug("No matching obsGroup found; returning null obsGroup.");
             } else if (rankTable.size() == 1) {
                 ret = rankTable.get(0);
+                log.debug("Found exactly one matching obsGroup; returning that obsGroup.");
             } else if (rankTable.size() > 1) {
-                //We have a potential problem: multiple obsgroups support obs set, flagging as guessing to warn user....
-                guessingInd = true;
-                // Just return the first one despite the potential mismatch...
-                ret = rankTable.get(0);
+                /* Multiple obsgroups support obs set, returning null obsGroup.  This will 
+                 * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
+                 * a subsequent form scan.
+                 */
+                log.debug("Multiple obsgroups support obs set; returning null obsGroup");
             }
         }
         
@@ -687,5 +726,34 @@ public class FormEntryContext {
 	public void setPreviousEncounterDate(Date previousEncounterDate) {
 	    this.previousEncounterDate = previousEncounterDate;
     }
-	    
+	
+	public boolean hasUnmatchedObsGroupEntities() {
+		return unmatchedObsGroupEntities != null && unmatchedObsGroupEntities.size() > 0 ? true : false;
+	}
+	
+    public int addUnmatchedObsGroupEntities(ObsGroupEntity obsGroupEntity) {
+    	if (unmatchedObsGroupEntities == null) unmatchedObsGroupEntities = new ArrayList<ObsGroupEntity>();
+    	int id = unmatchedObsGroupEntities.size();
+    	obsGroupEntity.setId(id);
+    	unmatchedObsGroupEntities.add(obsGroupEntity);
+    	return id;
+    }
+
+	public List<ObsGroupEntity> getUnmatchedObsGroupEntities() {
+		return unmatchedObsGroupEntities;
+	}
+
+	public void setUnmatchedObsGroupEntities(
+			List<ObsGroupEntity> unmatchedObsGroupEntities) {
+		this.unmatchedObsGroupEntities = unmatchedObsGroupEntities;
+	}
+
+	public boolean isUnmatchedMode() {
+		return unmatchedMode;
+	}
+
+	public void setUnmatchedMode(boolean unmatchedMode) {
+		this.unmatchedMode = unmatchedMode;
+	}
+
 }

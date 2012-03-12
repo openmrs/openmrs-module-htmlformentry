@@ -89,6 +89,15 @@ public class ObsGroupComponent {
 				boolean questionMatches = obsGroupComponent.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
 				boolean answerMatches = obsGroupComponent.getAnswer() == null ||(obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
 
+//				if (questionMatches) {
+//					System.out.println("> ...   question concept " + obsGroupComponent.getQuestion().getConceptId() + " with obs concept " + obs.getConcept().getConceptId());
+//					if (obsGroupComponent.getAnswer() != null && obs.getValueCoded() != null) {
+//						System.out.println("  ... < answer concept " + obsGroupComponent.getAnswer().getConceptId() + " with obs concept " + obs.getValueCoded().getConceptId());
+//					} else {
+//						System.out.println("  ... < non-coded answer...skipping comparison... " + obsGroupComponent.getAnswer() + " ::" + obs.getValueCoded());
+//					}
+//				}
+
 				if (questionMatches && !answerMatches) {
 					if (obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null) {
 						return 0;
@@ -97,6 +106,10 @@ public class ObsGroupComponent {
 						return -1000;
 					}
 				} else if (questionMatches && answerMatches) {
+					if (obsGroupComponent.getAnswer() != null) {
+						// add extra weight to this matching...
+						rank++;
+					}
 					rank++;
 				}
 			}

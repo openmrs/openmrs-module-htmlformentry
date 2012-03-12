@@ -344,6 +344,7 @@ public class FormEntrySession {
     public String createForm(String xml) throws Exception {
     	if (htmlForm != null) {
     		context.getSchema().setName(htmlForm.getName());
+    		context.setUnmatchedMode(false);
     	}
     	xml = htmlGenerator.applyIncludes(this, xml);
     	xml = htmlGenerator.applyExcludes(this, xml);
@@ -351,6 +352,13 @@ public class FormEntrySession {
         xml = htmlGenerator.applyTemplates(xml);
         xml = htmlGenerator.applyTranslations(xml, context);
         xml = htmlGenerator.applyTags(this, xml);
+        
+        if (context.hasUnmatchedObsGroupEntities() && (context.getMode() == Mode.EDIT || context.getMode() == Mode.VIEW)) {
+        	if (context.getUnmatchedObsGroupEntities().size() > 1 && context.getExistingObsInGroupsCount() > 0) context.setGuessingInd(true);
+    		context.setUnmatchedMode(true);
+        	xml = htmlGenerator.applyUnmatchedTags(this, xml);
+        }
+        
         xml = htmlGenerator.wrapInDiv(xml);
         return xml;
     }
