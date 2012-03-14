@@ -38,6 +38,11 @@
 
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
+			
+			// display a "deleting form" message
+			$j('#confirmDeleteFormPopup').children("center").html('<spring:message code="htmlformentry.deletingForm"/>');
+			
+			// do the post that does the actual delete
 			$j.post("<c:url value="/module/htmlformentry/deleteEncounter.form"/>", 
 				{ 	encounterId: "${command.encounter.encounterId}", 
 				    htmlFormId: "${command.htmlFormId}",
@@ -47,7 +52,7 @@
 			 	function(data) {
 				 	var url = "${command.returnUrlWithParameters}";
 				 	if (url == null || url == "") {
-					 	url = window.parent.location.href;
+					 	url = "${pageContext.request.contextPath}/patientDashboard.form?patientId=${command.patient.patientId}";
 				 	}
 				 	window.parent.location.href = url;
 			 	}
