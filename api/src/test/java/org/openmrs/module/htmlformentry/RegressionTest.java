@@ -1572,12 +1572,19 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setLocation(Context.getLocationService().getLocation(2));
 				e.setProvider(Context.getPersonService().getPerson(502));
 
+				Obs obs = new Obs();
+				obs.setConcept(Context.getConceptService().getConcept(4));
+				obs.setValueText("true");
+				
+				e.addObs(obs);
+				Context.getEncounterService().saveEncounter(e);
+				
 				return e;
 			}
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				System.out.println(html);
+				// we just want to confirm that this doesn't throw a NPE
 			}
 
 
