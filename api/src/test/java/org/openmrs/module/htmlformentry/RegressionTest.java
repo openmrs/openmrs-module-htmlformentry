@@ -1551,4 +1551,36 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
+	
+	// unit test for HTML-327
+	@Test
+	public void shouldViewCheckboxObsProperly() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithCheckbox";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				System.out.println(html);
+			}
+
+
+		}.run();
+	}
 }
