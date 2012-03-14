@@ -1574,7 +1574,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 				Obs obs = new Obs();
 				obs.setConcept(Context.getConceptService().getConcept(4));
-				obs.setValueText("true");
+				// set no value for this obs, so that obs.getValueAsBoolean() == null;
 				
 				e.addObs(obs);
 				Context.getEncounterService().saveEncounter(e);

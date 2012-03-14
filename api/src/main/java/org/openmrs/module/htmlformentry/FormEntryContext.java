@@ -481,7 +481,7 @@ public class FormEntryContext {
      * @param parseBoolean the boolean value of the obs
      * @return
      */
-    public Obs removeExistingObs(Concept question, boolean answer) {
+    public Obs removeExistingObs(Concept question, Boolean answer) {
         List<Obs> list = existingObs.get(question);
         if (list != null) {
             for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
