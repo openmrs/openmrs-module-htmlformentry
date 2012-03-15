@@ -486,6 +486,9 @@ public class FormEntryContext {
         if (list != null) {
             for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
                 Obs test = iter.next();
+                if (test.getValueAsBoolean() == null) {
+                	throw new RuntimeException("Invalid boolean value for concept " + question + "; possibly caused by TRUNK-3150");
+                }
                 if (answer == test.getValueAsBoolean()) {
                     iter.remove();
                     if (list.size() == 0)

@@ -1552,7 +1552,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
-	// unit test for HTML-327
+	// unit tests for HTML-327
 	@Test
 	public void shouldViewCheckboxObsProperly() throws Exception {
 		new RegressionTestHelper() {
@@ -1574,8 +1574,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 				Obs obs = new Obs();
 				obs.setConcept(Context.getConceptService().getConcept(4));
-				// set no value for this obs, so that obs.getValueAsBoolean() == null;
-				
+				obs.setValueNumeric(new Double(1));  // set this obs to a valid Boolean value 
+						
 				e.addObs(obs);
 				Context.getEncounterService().saveEncounter(e);
 				
@@ -1584,7 +1584,45 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
-				// we just want to confirm that this doesn't throw a NPE
+				// we just want trigger a view to confirm that this doesn't cause a NPE, which was happened before the fix for HTML-327
+			}
+
+
+		}.run();
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void invalidBooleanObsValueShouldThrowException() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithCheckbox";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				Obs obs = new Obs();
+				obs.setConcept(Context.getConceptService().getConcept(4));
+				obs.setValueNumeric(null);  // set this obs to an invalid Boolean value
+						
+				e.addObs(obs);
+				Context.getEncounterService().saveEncounter(e);
+				
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				// we just want trigger a view to confirm that the invalid boolean value causes an exception to be thrown
 			}
 
 
