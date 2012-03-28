@@ -200,6 +200,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		loadRenderElementsForEachRepeatElement(content, renderMaps);
 		
 		// Now we are just going to use String replacements to explode the repeat tags properly
+		
+		 /* This condition is added here as when there are tables with <repeat> tags are commented out in the form,
+                 those tags are also run by applyTemplates(xml) method. But as there are no <renders> found,
+                'renderMaps' becomes an empty list and will give an exception inside while loop */
+		if(renderMaps.size() > 0){	
 		Iterator<List<Map<String, String>>> renderMapIter = renderMaps.iterator();
 		while (xml.contains("<repeat>")) {
 			int startIndex = xml.indexOf("<repeat>");
@@ -216,6 +221,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				replacement.append(curr);
 			}
 			xml = xml.substring(0, startIndex) + replacement + xml.substring(endIndex);
+		}
 		}
 		
 		return xml;
