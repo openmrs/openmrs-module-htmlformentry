@@ -87,4 +87,48 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		TestUtil.assertFuzzyContains("(?s)<div class=\"htmlform\">(.*)someContent</div>", session.getHtmlToDisplay());
 	}
+	
+    /**
+     * @see {@link HtmlFormEntryGenerator#stripComments(String)}
+     * @verifies  filters out all the comments in the input string
+     */
+    @Test
+    public void stripComments() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
+        HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+        String returnedHtml = htmlFormEntryGenerator.stripComments(htmlform);
+
+        Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedHtml);
+    }
+    
+    /**
+     * @see {@link HtmlFormEntryGenerator#applyTemplates(String)}
+     * @throws Exception
+     */
+    @Test
+    @Verifies(value = "should handle commented <repeat> tags in form ", method = "applyTemplates(String)")
+    public void applyTemplates_shouldHandleCommentedRepeatTagsInForm() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><!--<table><repeat><template></template><render/></repeat></table>--></section></htmlform>";
+        HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+        String returnedHtml = htmlFormEntryGenerator.applyTemplates(htmlform);
+
+        Assert.assertEquals(htmlform, returnedHtml);
+    }
+
+    /**
+     * @see {@link HtmlFormEntryGenerator#applyTemplates(String)}
+     * @throws Exception
+     */
+    @Test
+    @Verifies(value = "should handle commented and non commented <repeat>s together in form ", method = "applyTemplates(String)")
+    public void applyTemplates_shouldHandleCommentedAndNonCommentedRepeatsTogetherInForm() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><repeat><template></template><render/></repeat><!--<repeat><template></template><render/></repeat>--></section></htmlform>";
+        HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+        String returnedHtml = htmlFormEntryGenerator.applyTemplates(htmlform);
+
+        Assert.assertEquals("<htmlform><section><!--<repeat><template></template><render/></repeat>--></section></htmlform>", returnedHtml);
+    }
 }
