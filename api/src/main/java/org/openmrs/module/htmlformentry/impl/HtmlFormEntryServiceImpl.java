@@ -15,6 +15,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
+import org.openmrs.*;
 import org.openmrs.Cohort;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
@@ -29,6 +30,11 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.web.WebConstants;
+import org.springframework.web.context.request.WebRequest;
+
+import java.io.StringWriter;
+import java.util.*;
 
 /**
  * Standard implementation of the HtmlFormEntryService
@@ -39,6 +45,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     
     private HtmlFormEntryDAO dao;
     private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
+    private static Map<Integer, Date> savedForms = new HashMap<Integer, Date>();
     private String basicFormXmlTemplate;
 
 	/*
@@ -109,11 +116,36 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
         if (htmlForm.getDateCreated() == null)
             htmlForm.setDateCreated(new Date());
         if (htmlForm.getId() != null) {
+             boolean isDuplicateSave = checkIsADuplicatedSave(htmlForm);
+             if (isDuplicateSave) {
+                // here this prevents form saved  back again and return the form unsaved
+                return htmlForm;
+             } else {
+                htmlForm.setChangedBy(Context.getAuthenticatedUser());
+                htmlForm.setDateChanged(new Date());
+                savedForms.put(htmlForm.getId(), htmlForm.getDateChanged());
+             }
             htmlForm.setChangedBy(Context.getAuthenticatedUser());
             htmlForm.setDateChanged(new Date());
         }
         Context.getFormService().saveForm(htmlForm.getForm());
         return dao.saveHtmlForm(htmlForm);
+    }
+    
+    private boolean checkIsADuplicatedSave(HtmlForm htmlForm) {
+        long timeBetweenSaves;
+        boolean isADuplicate = false;
+
+        if (savedForms.containsKey(htmlForm.getId())) {
+            if (htmlForm.getDateChanged() != null) {
+                Date changedDate = new Date(htmlForm.getDateChanged().getTime());
+                Date mapEntryDate = savedForms.get(htmlForm.getId());
+                timeBetweenSaves = (changedDate.getTime() - mapEntryDate.getTime()) / 1000;     //converting time into seconds
+                // get the time difference between saves
+                isADuplicate = (timeBetweenSaves >= 0 && timeBetweenSaves <= 15);
+            }
+        }
+        return isADuplicate;
     }
     
     @Override
