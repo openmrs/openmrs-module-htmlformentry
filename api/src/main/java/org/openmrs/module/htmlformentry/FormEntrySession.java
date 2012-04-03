@@ -346,6 +346,7 @@ public class FormEntrySession {
     		context.getSchema().setName(htmlForm.getName());
     		context.setUnmatchedMode(false);
     	}
+    	xml = htmlGenerator.stripComments(xml);
     	xml = htmlGenerator.applyIncludes(this, xml);
     	xml = htmlGenerator.applyExcludes(this, xml);
         xml = htmlGenerator.applyMacros(xml);
