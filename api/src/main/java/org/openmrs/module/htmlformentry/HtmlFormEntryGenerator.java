@@ -22,6 +22,14 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
 /**
  * Provides methods to take a {@code <htmlform>...</htmlform>} xml block and turns it into HTML to
  * be displayed as a form in a web browser. It can apply the {@code <macros>...</macros>} section,
@@ -157,6 +165,27 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		return xml;
 	}
 	
+	 /**
+          * Takes an xml string, searches for 'comments'   in the string using RegEx and filters out
+          * the comments from the input string
+          *
+          * @param xml input string
+          * @return the xml string after filtering out comments
+          * @throws Exception
+          */
+      public String stripComments(String xml) throws Exception {
+
+        String regex = "\\<![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";    // this is the regEx for html comment tag <!-- * -->
+        Pattern pattern = Pattern.compile(regex,
+                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+        Matcher matcher = pattern.matcher(xml);
+        System.out.println(matcher.groupCount());
+        xml = matcher.replaceAll("");
+
+        return xml;
+    }
+	
 	/**
 	 * Takes an XML string, finds each {@code <repeat></repeat>} section in it, and applies those
 	 * substitutions
@@ -200,8 +229,13 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		loadRenderElementsForEachRepeatElement(content, renderMaps);
 		
 		// Now we are just going to use String replacements to explode the repeat tags properly
+		
+		/* This condition is added here as when there are tables with <repeat> tags are commented out in the form,
+                those tags are also run by applyTemplates(xml) method. But as there are no <renders> found,
+                'renderMaps' becomes an empty list and will give an exception inside while loop */
+		if(renderMaps.size() > 0){
 		Iterator<List<Map<String, String>>> renderMapIter = renderMaps.iterator();
-		while (xml.contains("<repeat>")) {
+		while (renderMapIter.hasNext() && xml.contains("<repeat>")) {
 			int startIndex = xml.indexOf("<repeat>");
 			int endIndex = xml.indexOf("</repeat>") + 9;
 			String xmlToReplace = xml.substring(startIndex, endIndex);
@@ -217,7 +251,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 			xml = xml.substring(0, startIndex) + replacement + xml.substring(endIndex);
 		}
-		
+		}
 		return xml;
 	}
 	
