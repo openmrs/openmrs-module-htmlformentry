@@ -15,6 +15,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
+import org.openmrs.*;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Location;
@@ -346,6 +347,7 @@ public class FormEntrySession {
     		context.getSchema().setName(htmlForm.getName());
     		context.setUnmatchedMode(false);
     	}
+    	xml = htmlGenerator.stripComments(xml);
     	xml = htmlGenerator.applyIncludes(this, xml);
     	xml = htmlGenerator.applyExcludes(this, xml);
         xml = htmlGenerator.applyMacros(xml);
