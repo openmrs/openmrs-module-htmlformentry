@@ -87,4 +87,31 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		TestUtil.assertFuzzyContains("(?s)<div class=\"htmlform\">(.*)someContent</div>", session.getHtmlToDisplay());
 	}
+	
+	  /**
+     * @see {@link HtmlFormEntryGenerator#stripComments(String)}
+     * @verifies  filters out all the comments in the input string
+     */
+    @Test
+    public void stripComments() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
+        HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+        String returnedHtml = htmlFormEntryGenerator.stripComments(htmlform);
+
+        Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedHtml);
+    }
+
+    /**
+     * @see {@link HtmlFormEntryGenerator#stripComments(String)}
+     */
+    @Test
+    @Verifies(value = "should return correct xml after filtering out comments", method = "stripComments(String)")
+    public void stripComments_shouldReturnCorrectXmlAfterFilteringOutComments() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", session.getHtmlToDisplay());
+    }
+    
 }
