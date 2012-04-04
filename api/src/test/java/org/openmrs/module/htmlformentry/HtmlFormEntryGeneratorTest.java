@@ -93,25 +93,25 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
      * @verifies  filters out all the comments in the input string
      */
     @Test
-    public void stripComments() throws Exception {
+    public void stripComments_shouldStripOutComments() throws Exception {
         LogicUtil.registerDefaultRules();
         String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
         HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
-        String returnedHtml = htmlFormEntryGenerator.stripComments(htmlform);
+        String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
 
-        Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedHtml);
+        Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
     }
 
     /**
      * @see {@link HtmlFormEntryGenerator#stripComments(String)}
      */
     @Test
-    @Verifies(value = "should return correct xml after filtering out comments", method = "stripComments(String)")
-    public void stripComments_shouldReturnCorrectXmlAfterFilteringOutComments() throws Exception {
+    @Verifies(value = "should return correct xml to display after filtering out comments", method = "stripComments(String)")
+    public void stripComments_shouldReturnCorrectHtmlAfterFilteringOutComments() throws Exception {
         LogicUtil.registerDefaultRules();
-        String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
+        String htmlform = "<htmlform><section><!--some comment that should not be displayed--></section></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform);
-        Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", session.getHtmlToDisplay());
+        Assert.assertEquals("<div class=\"htmlform\"><div class=\"section\"></div></div>", session.getHtmlToDisplay());
     }
     
 }
