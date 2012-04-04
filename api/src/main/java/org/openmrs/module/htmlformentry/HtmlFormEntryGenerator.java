@@ -22,6 +22,13 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Provides methods to take a {@code <htmlform>...</htmlform>} xml block and turns it into HTML to
  * be displayed as a form in a web browser. It can apply the {@code <macros>...</macros>} section,
@@ -156,6 +163,27 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		xml = HtmlFormEntryUtil.documentToString(doc);
 		return xml;
 	}
+	
+	/**
+     * Takes an xml string, searches for 'comments'   in the string using RegEx and filters out
+     * the comments from the input string
+     *
+     * @param xml input string
+     * @return the xml string after filtering out comments
+     * @throws Exception
+     * @should  return correct xml after filtering out comments
+     */
+    public String stripComments(String xml) throws Exception {
+
+        String regex = "\\<![ \\r\\n\\t]*(--([^\\-]|[\\r\\n]|-[^\\-])*--[ \\r\\n\\t]*)\\>";    // this is the regEx for html comment tag <!-- * -->
+        Pattern pattern = Pattern.compile(regex,
+                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+
+        Matcher matcher = pattern.matcher(xml);
+        xml = matcher.replaceAll("");
+
+        return xml;
+    }
 	
 	/**
 	 * Takes an XML string, finds each {@code <repeat></repeat>} section in it, and applies those
