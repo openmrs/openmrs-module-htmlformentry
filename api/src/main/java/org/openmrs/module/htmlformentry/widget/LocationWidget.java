@@ -35,14 +35,21 @@ public class LocationWidget implements Widget {
 				return "";
 		}
 		
-		StringBuilder sb = new StringBuilder();
-		sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
-		sb.append("\n<option value=\"\">");
-		sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"));
-		sb.append("</option>");
 		List<Location> useLocations;
+		StringBuilder sb = new StringBuilder();
 		if (options != null) {
 			useLocations = options;
+			sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
+			sb.append("\n<option value=\"\">");
+			sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"));
+			sb.append("</option>");
+			for (Location l : useLocations) {
+				sb.append("\n<option");
+				if (location != null && location.equals(l))
+					sb.append(" selected=\"true\"");
+				sb.append(" value=\"" + l.getLocationId() + "\">").append(l.getName()).append("</option>");
+			}
+			sb.append("</select>");
 		} else {
 			useLocations = Context.getLocationService().getAllLocations();
 			Collections.sort(useLocations, new Comparator<Location>() {
@@ -52,14 +59,37 @@ public class LocationWidget implements Widget {
 					return left.getName().compareTo(right.getName());
 				}
 			});
+			
+			//use an auto complete
+			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
+			        + ((location != null) ? location.getName() : "")
+			        + "\" onchange=\"updateFormField(this)\" placeholder=\""
+			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
+			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
+			        + context.getFieldName(this) + "\" value=\"" + ((location != null) ? location.getLocationId() : "")
+			        + "\" />");
+			sb.append("\n<script>");
+			sb.append("\nvar locationNameIdMap = new Object();");
+			for (Location location : useLocations) {
+				sb.append("\nlocationNameIdMap['" + location.getName() + "'] = " + location.getLocationId() + ";");
+			}
+			sb.append("\n");
+			//clear the form field when user clears the field
+			sb.append("\nfunction updateFormField(displayField){");
+			sb.append("\n	if($j.trim($j(displayField).val()) == '')");
+			sb.append("\n		jquerySelectEscaped(\"" + context.getFieldName(this) + "\").val('');");
+			sb.append("\n}");
+			sb.append("\n");
+			sb.append("\n$j('input#display_" + context.getFieldName(this) + "').autocomplete({");
+			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(useLocations, ",", "\"", "\"") + "],");
+			sb.append("\n	select: function(event, ui) {");
+			sb.append("\n				jquerySelectEscaped(\"" + context.getFieldName(this)
+			        + "\").val(locationNameIdMap[ui.item.value]);");
+			sb.append("\n			}");
+			sb.append("\n});");
+			sb.append("</script>");
 		}
-		for (Location l : useLocations) {
-			sb.append("\n<option");
-			if (location != null && location.equals(l))
-				sb.append(" selected=\"true\"");
-			sb.append(" value=\"" + l.getLocationId() + "\">").append(l.getName()).append("</option>");
-		}
-		sb.append("</select>");
+		
 		return sb.toString();
 	}
 	
