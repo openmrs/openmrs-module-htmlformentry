@@ -214,6 +214,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				locationWidget.setOptions(locations);
 			}
+			if (parameters.get("type") != null) {
+				locationWidget.setType(parameters.get("type").toString());
+			}
 			
 			// Set default values
 			Location defaultLocation = null;

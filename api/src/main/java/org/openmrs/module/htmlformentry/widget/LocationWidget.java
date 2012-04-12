@@ -23,6 +23,8 @@ public class LocationWidget implements Widget {
 	
 	private List<Location> options;
 	
+	private String type;
+	
 	public LocationWidget() {
 	}
 	
@@ -36,20 +38,8 @@ public class LocationWidget implements Widget {
 		}
 		
 		List<Location> useLocations;
-		StringBuilder sb = new StringBuilder();
 		if (options != null) {
 			useLocations = options;
-			sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
-			sb.append("\n<option value=\"\">");
-			sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"));
-			sb.append("</option>");
-			for (Location l : useLocations) {
-				sb.append("\n<option");
-				if (location != null && location.equals(l))
-					sb.append(" selected=\"true\"");
-				sb.append(" value=\"" + l.getLocationId() + "\">").append(l.getName()).append("</option>");
-			}
-			sb.append("</select>");
 		} else {
 			useLocations = Context.getLocationService().getAllLocations();
 			Collections.sort(useLocations, new Comparator<Location>() {
@@ -59,8 +49,10 @@ public class LocationWidget implements Widget {
 					return left.getName().compareTo(right.getName());
 				}
 			});
-			
-			//use an auto complete
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		if ("autocomplete".equalsIgnoreCase(type)) {
 			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
 			        + ((location != null) ? location.getName() : "")
 			        + "\" onchange=\"updateFormField(this)\" placeholder=\""
@@ -87,6 +79,19 @@ public class LocationWidget implements Widget {
 			sb.append("\n			}");
 			sb.append("\n});");
 			sb.append("</script>");
+			
+		} else {
+			sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
+			sb.append("\n<option value=\"\">");
+			sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"));
+			sb.append("</option>");
+			for (Location l : useLocations) {
+				sb.append("\n<option");
+				if (location != null && location.equals(l))
+					sb.append(" selected=\"true\"");
+				sb.append(" value=\"" + l.getLocationId() + "\">").append(l.getName()).append("</option>");
+			}
+			sb.append("</select>");
 		}
 		
 		return sb.toString();
@@ -110,6 +115,15 @@ public class LocationWidget implements Widget {
 	 */
 	public void setOptions(List<Location> options) {
 		this.options = options;
+	}
+	
+	/**
+	 * Sets the type of input element to generate
+	 * 
+	 * @param type the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 }
