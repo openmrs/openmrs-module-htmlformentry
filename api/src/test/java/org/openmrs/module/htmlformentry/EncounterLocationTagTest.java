@@ -33,7 +33,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void editPatientProgram_shouldDisplaySelectInput() throws Exception {
+	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") > -1);
@@ -41,7 +41,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void editPatientProgram_shouldDisplayInputWithAutocomplete() throws Exception {
+	public void encounterLocationTag_shouldDisplayInputWithAutocompleteIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") == -1);
@@ -49,7 +49,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void editPatientProgram_shouldDisplaySelectInputBeDefaultIfAnIvalidValueIsEntered() throws Exception {
+	public void encounterLocationTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") > -1);
