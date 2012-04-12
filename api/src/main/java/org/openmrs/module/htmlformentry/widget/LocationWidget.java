@@ -18,14 +18,14 @@ import org.springframework.util.StringUtils;
  * list.
  */
 public class LocationWidget implements Widget {
-
+	
 	private Location location;
-
+	
 	private List<Location> options;
-
+	
 	public LocationWidget() {
 	}
-
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
@@ -34,7 +34,7 @@ public class LocationWidget implements Widget {
 			else
 				return "";
 		}
-
+		
 		List<Location> useLocations;
 		StringBuilder sb = new StringBuilder();
 		if (options != null) {
@@ -53,13 +53,13 @@ public class LocationWidget implements Widget {
 		} else {
 			useLocations = Context.getLocationService().getAllLocations();
 			Collections.sort(useLocations, new Comparator<Location>() {
-
+				
 				@Override
 				public int compare(Location left, Location right) {
 					return left.getName().compareTo(right.getName());
 				}
 			});
-
+			
 			//use an auto complete
 			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
 			        + ((location != null) ? location.getName() : "")
@@ -88,10 +88,10 @@ public class LocationWidget implements Widget {
 			sb.append("\n});");
 			sb.append("</script>");
 		}
-
+		
 		return sb.toString();
 	}
-
+	
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		String val = request.getParameter(context.getFieldName(this));
@@ -99,17 +99,17 @@ public class LocationWidget implements Widget {
 			return HtmlFormEntryUtil.convertToType(val, Location.class);
 		return null;
 	}
-
+	
 	@Override
 	public void setInitialValue(Object initialValue) {
 		location = (Location) initialValue;
 	}
-
+	
 	/**
 	 * Sets the Locations to use as options for this widget
 	 */
 	public void setOptions(List<Location> options) {
 		this.options = options;
 	}
-
+	
 }

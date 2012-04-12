@@ -36,26 +36,36 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 
 /**
- * Holds the widgets used to represent an Encounter details, and serves as both the HtmlGeneratorElement 
- * and the FormSubmissionControllerAction for Encounter details.
+ * Holds the widgets used to represent an Encounter details, and serves as both the
+ * HtmlGeneratorElement and the FormSubmissionControllerAction for Encounter details.
  */
 public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
-
+	
 	private String id;
 	
 	private DateWidget dateWidget;
+	
 	private ErrorWidget dateErrorWidget;
+	
 	private TimeWidget timeWidget;
+	
 	private ErrorWidget timeErrorWidget;
+	
 	private PersonStubWidget providerWidget;
+	
 	private ErrorWidget providerErrorWidget;
+	
 	private LocationWidget locationWidget;
+	
 	private ErrorWidget locationErrorWidget;
+	
 	private CheckboxWidget voidWidget;
+	
 	private ErrorWidget voidErrorWidget;
-
+	
 	/**
 	 * Construct a new EncounterDetailSubmissionElement
+	 * 
 	 * @param context
 	 * @param parameters
 	 */
@@ -69,13 +79,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			
 			if (context.getExistingEncounter() != null) {
 				dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
-			} 
-			else if (parameters.get("defaultDate") != null) {
+			} else if (parameters.get("defaultDate") != null) {
 				dateWidget.setInitialValue(parameters.get("defaultDate"));
 			}
 			
-			if (parameters.get("disallowMultipleEncountersOnDate") != null && StringUtils.hasText((String) parameters.get("disallowMultipleEncountersOnDate"))){
-				dateWidget.setOnChangeFunction("existingEncounterOnDate(this, '" + parameters.get("disallowMultipleEncountersOnDate") + "') ");
+			if (parameters.get("disallowMultipleEncountersOnDate") != null
+			        && StringUtils.hasText((String) parameters.get("disallowMultipleEncountersOnDate"))) {
+				dateWidget.setOnChangeFunction("existingEncounterOnDate(this, '"
+				        + parameters.get("disallowMultipleEncountersOnDate") + "') ");
 			}
 			
 			if ("true".equals(parameters.get("showTime"))) {
@@ -83,8 +94,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				timeErrorWidget = new ErrorWidget();
 				if (context.getExistingEncounter() != null) {
 					timeWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
-				} 
-				else if (parameters.get("defaultDate") != null) {
+				} else if (parameters.get("defaultDate") != null) {
 					timeWidget.setInitialValue(parameters.get("defaultDate"));
 				}
 				context.registerWidget(timeWidget);
@@ -101,10 +111,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			providerErrorWidget = new ErrorWidget();
 			
 			List<PersonStub> options = new ArrayList<PersonStub>();
-//			boolean sortOptions = false;
+			//			boolean sortOptions = false;
 			
 			// If specific persons are specified, display only those persons in order
-			String personsParam = (String)parameters.get("persons");
+			String personsParam = (String) parameters.get("persons");
 			if (personsParam != null) {
 				for (String s : personsParam.split(",")) {
 					Person p = HtmlFormEntryUtil.getPerson(s);
@@ -126,12 +136,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					Role role = Context.getUserService().getRole((String) parameters.get("role"));
 					if (role == null) {
 						throw new RuntimeException("Cannot find role: " + parameters.get("role"));
-					}
-					else {
+					} else {
 						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
 					}
 				}
-				
+
 				// Otherwise, use default options appropriate to the underlying OpenMRS version 
 				else {
 					if (openmrsVersionDoesNotSupportProviders()) {
@@ -145,14 +154,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						if (users.isEmpty()) {
 							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(null);
 						}
-					}
-					else {
+					} else {
 						// in OpenMRS 1.9+, get all suitable providers
 						users = getAllProvidersThatArePersonsAsPersonStubs();
 					}
 				}
 				options.addAll(users);
-//				sortOptions = true;
+				//				sortOptions = true;
 			}
 			
 			// Set default values as appropriate
@@ -162,14 +170,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				if (!options.contains(new PersonStub(defaultProvider))) {
 					options.add(new PersonStub(defaultProvider));
 				}
-			}
-			else {
+			} else {
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
 					if ("currentuser".equalsIgnoreCase(defParam)) {
 						defaultProvider = Context.getAuthenticatedUser().getPerson();
-					} 
-					else {
+					} else {
 						defaultProvider = HtmlFormEntryUtil.getPerson(defParam);
 					}
 					if (defaultProvider == null) {
@@ -178,10 +184,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 			}
 			
-//			if (sortOptions) {
-//				Collections.sort(options, new PersonByNameComparator());
-//			}
-				
+			//			if (sortOptions) {
+			//				Collections.sort(options, new PersonByNameComparator());
+			//			}
+			
 			providerWidget.setOptions(options);
 			providerWidget.setInitialValue(new PersonStub(defaultProvider));
 			
@@ -212,9 +218,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			// Set default values
 			Location defaultLocation = null;
 			if (context.getExistingEncounter() != null) {
-				defaultLocation = context.getExistingEncounter().getLocation(); 
-			} 
-			else {
+				defaultLocation = context.getExistingEncounter().getLocation();
+			} else {
 				String defaultLocId = (String) parameters.get("default");
 				if (StringUtils.hasText(defaultLocId)) {
 					defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
@@ -243,110 +248,114 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 	}
 	
-    /**
-     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
-     * without having to branch the module. We should remove this method when do a proper
-     * implementation.
-     * 
-     * @return
-     */
-    private boolean openmrsVersionDoesNotSupportProviders() {
-        return OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7") || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.8");
-    }
-
-    /**
-     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
-     * without having to branch the module. We should remove this method when do a proper
-     * implementation. 
-     * 
-     * @param options
-     */
-    private void removeNonProviders(List<PersonStub> persons) {
-        if (openmrsVersionDoesNotSupportProviders())
-            return;
-        Set<Integer> legalPersonIds = getAllProviderPersonIds();
-        for (Iterator<PersonStub> i = persons.iterator(); i.hasNext(); ) {
-            PersonStub candidate = i.next();
-            if (!legalPersonIds.contains(candidate.getId()))
-                i.remove();
-        }
-    }
-
-    /**
-     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
-     * without having to branch the module. We should remove this method when do a proper
-     * implementation. 
-     * 
-     * @return all providers that are attached to persons
-     */
-    private List<Object> getAllProvidersThatArePersons() {
-    	if (openmrsVersionDoesNotSupportProviders())
-    		throw new RuntimeException("Programming error in HTML Form Entry module. This method should not be called before OpenMRS 1.9.");
-    	try {
-    		Object providerService = Context.getService(Context.loadClass("org.openmrs.api.ProviderService"));
-    		Method getProvidersMethod = providerService.getClass().getMethod("getAllProviders");
-    		@SuppressWarnings("rawtypes")
-            List allProviders = (List) getProvidersMethod.invoke(providerService);
-    		List<Object> ret = new ArrayList<Object>();
-    		for (Object provider : allProviders) {
-    			Person person = (Person) PropertyUtils.getProperty(provider, "person");
-    			if (person != null)
-    				ret.add(provider);
-    		}
-    		return ret;
-    	}
-    	catch (Exception ex) {
-    		throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
-    	}
-    }
-
-    /**
-     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
-     * without having to branch the module. We should remove this method when do a proper
-     * implementation. 
-     * 
-     * @return person stubs for all providers that are attached to persons
-     */
-    private List<PersonStub> getAllProvidersThatArePersonsAsPersonStubs() {
-    	try {
-    		List<PersonStub> ret = new ArrayList<PersonStub>();
-    		for (Object provider : getAllProvidersThatArePersons()) {
-    			Person person = (Person) PropertyUtils.getProperty(provider, "person");
-    			ret.add(new PersonStub(person));
-    		}
-    		return ret;
-    	} catch (Exception ex) {
-    		throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
-    	}
-    }
-    
-    /**
-     * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
-     * without having to branch the module. We should remove this method when do a proper
-     * implementation. 
-     * 
-     * @return personIds of all providers that are attached to persons
-     */
-    private Set<Integer> getAllProviderPersonIds() {
-    	try {
-    		Set<Integer> ret = new HashSet<Integer>();
-    		for (Object candidate : getAllProvidersThatArePersons()) {
-    			Person person = (Person) PropertyUtils.getProperty(candidate, "person");
-    			if (person != null)
-    				ret.add(person.getPersonId());
-    		}
-    		return ret;
-    	}
-    	catch (Exception ex) {
-    		throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
-    	}
-    }
-        
+	/**
+	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+	 * without having to branch the module. We should remove this method when do a proper
+	 * implementation.
+	 * 
+	 * @return
+	 */
+	private boolean openmrsVersionDoesNotSupportProviders() {
+		return OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6")
+		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7")
+		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.8");
+	}
+	
+	/**
+	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+	 * without having to branch the module. We should remove this method when do a proper
+	 * implementation.
+	 * 
+	 * @param options
+	 */
+	private void removeNonProviders(List<PersonStub> persons) {
+		if (openmrsVersionDoesNotSupportProviders())
+			return;
+		Set<Integer> legalPersonIds = getAllProviderPersonIds();
+		for (Iterator<PersonStub> i = persons.iterator(); i.hasNext();) {
+			PersonStub candidate = i.next();
+			if (!legalPersonIds.contains(candidate.getId()))
+				i.remove();
+		}
+	}
+	
+	/**
+	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+	 * without having to branch the module. We should remove this method when do a proper
+	 * implementation.
+	 * 
+	 * @return all providers that are attached to persons
+	 */
+	private List<Object> getAllProvidersThatArePersons() {
+		if (openmrsVersionDoesNotSupportProviders())
+			throw new RuntimeException(
+			        "Programming error in HTML Form Entry module. This method should not be called before OpenMRS 1.9.");
+		try {
+			Object providerService = Context.getService(Context.loadClass("org.openmrs.api.ProviderService"));
+			Method getProvidersMethod = providerService.getClass().getMethod("getAllProviders");
+			@SuppressWarnings("rawtypes")
+			List allProviders = (List) getProvidersMethod.invoke(providerService);
+			List<Object> ret = new ArrayList<Object>();
+			for (Object provider : allProviders) {
+				Person person = (Person) PropertyUtils.getProperty(provider, "person");
+				if (person != null)
+					ret.add(provider);
+			}
+			return ret;
+		}
+		catch (Exception ex) {
+			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
+		}
+	}
+	
+	/**
+	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+	 * without having to branch the module. We should remove this method when do a proper
+	 * implementation.
+	 * 
+	 * @return person stubs for all providers that are attached to persons
+	 */
+	private List<PersonStub> getAllProvidersThatArePersonsAsPersonStubs() {
+		try {
+			List<PersonStub> ret = new ArrayList<PersonStub>();
+			for (Object provider : getAllProvidersThatArePersons()) {
+				Person person = (Person) PropertyUtils.getProperty(provider, "person");
+				ret.add(new PersonStub(person));
+			}
+			return ret;
+		}
+		catch (Exception ex) {
+			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
+		}
+	}
+	
+	/**
+	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
+	 * without having to branch the module. We should remove this method when do a proper
+	 * implementation.
+	 * 
+	 * @return personIds of all providers that are attached to persons
+	 */
+	private Set<Integer> getAllProviderPersonIds() {
+		try {
+			Set<Integer> ret = new HashSet<Integer>();
+			for (Object candidate : getAllProvidersThatArePersons()) {
+				Person person = (Person) PropertyUtils.getProperty(candidate, "person");
+				if (person != null)
+					ret.add(person.getPersonId());
+			}
+			return ret;
+		}
+		catch (Exception ex) {
+			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
+		}
+	}
+	
 	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
 	@Override
-    public String generateHtml(FormEntryContext context) {
+	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		
 		// if an id has been specified, wrap the whole encounter element in a span tag so that we access property values via javascript
@@ -356,22 +365,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			
 			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
 			if (dateWidget != null) {
-				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget), "dateFieldGetterFunction", null,
-					"dateSetterFunction");
-				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null, null,
-					null);			
-			}
-			else if (providerWidget != null) {
-				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null, null,
-				    null);
-				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget), null, null,
-				    null);
-			}
-			else if (locationWidget != null) {
-				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null, null,
-				    null);
-				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget), null, null,
-				    null);
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget),
+				    "dateFieldGetterFunction", null, "dateSetterFunction");
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
+				    null, null);
+			} else if (providerWidget != null) {
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
+				    null, null);
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget),
+				    null, null, null);
+			} else if (locationWidget != null) {
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null,
+				    null, null);
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
+				    null, null, null);
 			}
 		}
 		
@@ -396,7 +403,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (context.getMode() != Mode.VIEW)
 				ret.append(locationErrorWidget.generateHtml(context));
 		}
-		if (voidWidget != null){
+		if (voidWidget != null) {
 			if (context.getMode() == Mode.EDIT) //only show void option if the encounter already exists.
 				ret.append(voidWidget.generateHtml(context));
 		}
@@ -408,12 +415,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 		return ret.toString();
 	}
-
+	
 	/**
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
 	@Override
-    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		
 		try {
@@ -428,22 +435,22 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
 					throw new Exception("htmlformentry.error.cannotBeInFuture");
 			}
-		} catch (Exception ex) {
-			ret.add(new FormSubmissionError(context
-					.getFieldName(dateErrorWidget), Context
-					.getMessageSourceService().getMessage(ex.getMessage())));
 		}
-
+		catch (Exception ex) {
+			ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget), Context.getMessageSourceService()
+			        .getMessage(ex.getMessage())));
+		}
+		
 		try {
 			if (providerWidget != null) {
 				Object provider = providerWidget.getValue(context, submission);
 				if (provider == null)
 					throw new Exception("required");
 			}
-		} catch (Exception ex) {
-			ret.add(new FormSubmissionError(context
-					.getFieldName(providerErrorWidget), Context
-					.getMessageSourceService().getMessage(ex.getMessage())));
+		}
+		catch (Exception ex) {
+			ret.add(new FormSubmissionError(context.getFieldName(providerErrorWidget), Context.getMessageSourceService()
+			        .getMessage(ex.getMessage())));
 		}
 		
 		try {
@@ -452,24 +459,25 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				if (location == null)
 					throw new Exception("required");
 			}
-		} catch (Exception ex) {
-			ret.add(new FormSubmissionError(context
-					.getFieldName(locationErrorWidget), Context
-					.getMessageSourceService().getMessage(ex.getMessage())));
+		}
+		catch (Exception ex) {
+			ret.add(new FormSubmissionError(context.getFieldName(locationErrorWidget), Context.getMessageSourceService()
+			        .getMessage(ex.getMessage())));
 		}
 		return ret;
 	}
-
+	
 	/**
 	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
 	 */
 	@Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		if (dateWidget != null) {
 			Date date = (Date) dateWidget.getValue(session.getContext(), submission);
-			if (session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime() != null 
-					&& !session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().equals(date)) {
-				session.getContext().setPreviousEncounterDate(new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
+			if (session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime() != null
+			        && !session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().equals(date)) {
+				session.getContext().setPreviousEncounterDate(
+				    new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
 			}
 			session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
 		}
@@ -487,10 +495,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			Location location = (Location) locationWidget.getValue(session.getContext(), submission);
 			session.getSubmissionActions().getCurrentEncounter().setLocation(location);
 		}
-		if (voidWidget != null){
-			if ("true".equals(voidWidget.getValue(session.getContext(), submission))){	
+		if (voidWidget != null) {
+			if ("true".equals(voidWidget.getValue(session.getContext(), submission))) {
 				session.setVoidEncounter(true);
-			} else if ("false".equals(voidWidget.getValue(session.getContext(), submission))){
+			} else if ("false".equals(voidWidget.getValue(session.getContext(), submission))) {
 				//nothing..  the session.voidEncounter property will be false, and the encounter will be un-voided if already voided
 				//otherwise, nothing will happen.  99% of the time the encounter won't be voided to begin with.
 			}
