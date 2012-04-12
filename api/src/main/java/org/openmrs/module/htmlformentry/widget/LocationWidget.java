@@ -77,14 +77,13 @@ public class LocationWidget implements Widget {
 			//clear the form field when user clears the field
 			sb.append("\nfunction updateFormField(displayField){");
 			sb.append("\n	if($j.trim($j(displayField).val()) == '')");
-			sb.append("\n		jquerySelectEscaped(\"" + context.getFieldName(this) + "\").val('');");
+			sb.append("\n		$j(\"#" + context.getFieldName(this) + "\").val('');");
 			sb.append("\n}");
 			sb.append("\n");
 			sb.append("\n$j('input#display_" + context.getFieldName(this) + "').autocomplete({");
 			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(useLocations, ",", "\"", "\"") + "],");
 			sb.append("\n	select: function(event, ui) {");
-			sb.append("\n				jquerySelectEscaped(\"" + context.getFieldName(this)
-			        + "\").val(locationNameIdMap[ui.item.value]);");
+			sb.append("\n				$j(\"#" + context.getFieldName(this) + "\").val(locationNameIdMap[ui.item.value]);");
 			sb.append("\n			}");
 			sb.append("\n});");
 			sb.append("</script>");
