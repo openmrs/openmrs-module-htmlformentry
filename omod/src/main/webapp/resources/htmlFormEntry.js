@@ -427,7 +427,8 @@ function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector,
 		changeMonth: true,
 		changeYear: true,
 		showOtherMonths: true,
-		selectOtherMonths: true
+		selectOtherMonths: true,
+        yearRange: '-110:+20'
 	});
 	if (jsLocale && jQuery.datepicker.regional[jsLocale])
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
