@@ -11,6 +11,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.web.WebConstants;
 import org.springframework.util.StringUtils;
 
 /**
@@ -60,6 +62,10 @@ public class LocationWidget implements Widget {
 			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
 			        + context.getFieldName(this) + "\" value=\"" + ((location != null) ? location.getLocationId() : "")
 			        + "\" />");
+			sb.append("\n<script src=\"/" + WebConstants.WEBAPP_NAME
+			        + "/moduleResources/htmlformentry/jquery.ui.autocomplete.autoSelect.js");
+			sb.append("?v=").append(OpenmrsConstants.OPENMRS_VERSION_SHORT + "\" type=\"text/javascript\">");
+			sb.append("\n</script>");
 			sb.append("\n<script>");
 			sb.append("\nvar locationNameIdMap = new Object();");
 			for (Location location : useLocations) {
