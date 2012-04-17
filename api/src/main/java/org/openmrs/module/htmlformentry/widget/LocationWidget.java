@@ -57,7 +57,7 @@ public class LocationWidget implements Widget {
 		if ("autocomplete".equalsIgnoreCase(type)) {
 			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
 			        + ((location != null) ? location.getName() : "")
-			        + "\" onchange=\"updateFormField(this)\" placeholder=\""
+			        + "\" onblur=\"updateFormField(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
 			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
 			        + context.getFieldName(this) + "\" value=\"" + ((location != null) ? location.getLocationId() : "")
