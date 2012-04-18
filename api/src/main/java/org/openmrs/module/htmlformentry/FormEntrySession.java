@@ -29,6 +29,8 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.widget.LocationWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -47,6 +49,8 @@ import org.springframework.web.util.JavaScriptUtils;
  * To validate and submit a form you need to do something like this:
  * 
  * <pre>
+ * 
+ * 
  * 
  * {
  * 	&#064;code
@@ -727,12 +731,31 @@ public class FormEntrySession {
 			
 			// iterate through all the widgets and set their values based on the values in the last submission
 			// if there is no value in the last submission, explicitly set the value as empty to override any default values
-			for (String widget : context.getFieldNames().values()) {
-				String val = lastSubmission.getParameter(widget);
+			for (Map.Entry<Widget, String> entry : context.getFieldNames().entrySet()) {
+				String widgetFieldName = entry.getValue();
+				String val = lastSubmission.getParameter(widgetFieldName);
 				if (val != null) {
-					sb.append("setValueByName('" + widget + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
+					//Get the location with the matching id and display name in the input box
+					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass())) {
+						Object locationObj = HtmlFormEntryUtil.convertToType(val, Location.class);
+						Location location = null;
+						if (locationObj != null) {
+							location = (Location) locationObj;
+						} else {
+							//This should typically never happen,why is there no location with this id, we
+							//should set val(locationId) to blank so that the hidden form field is blank too
+							val = "";
+						}
+						sb.append("$j('#display_" + widgetFieldName + "').val(\""
+						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
+					}
+					
+					sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
+					        + "');\n");
 				} else {
-					sb.append("setValueByName('" + widget + "', '');\n");
+					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
+					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass()))
+						sb.append("$j('#display_" + widgetFieldName + "').val('');\n");
 				}
 			}
 			

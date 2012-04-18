@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -11,9 +12,9 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.web.WebConstants;
 import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.JavaScriptUtils;
 
 /**
  * A widget that allows for the selection of a Location. Implemented using a drop-down selection
@@ -56,30 +57,31 @@ public class LocationWidget implements Widget {
 		StringBuilder sb = new StringBuilder();
 		if ("autocomplete".equalsIgnoreCase(type)) {
 			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
-			        + ((location != null) ? location.getName() : "")
-			        + "\" onblur=\"updateFormField(this)\" placeholder=\""
+			        + ((location != null) ? HtmlUtils.htmlEscape(location.getName()) : "")
+			        + "\" onblur=\"updateLocationFields(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
 			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
 			        + context.getFieldName(this) + "\" value=\"" + ((location != null) ? location.getLocationId() : "")
 			        + "\" />");
-			sb.append("\n<script src=\"/" + WebConstants.WEBAPP_NAME
-			        + "/moduleResources/htmlformentry/jquery.ui.autocomplete.autoSelect.js");
-			sb.append("?v=").append(OpenmrsConstants.OPENMRS_VERSION_SHORT + "\" type=\"text/javascript\">");
-			sb.append("\n</script>");
 			sb.append("\n<script>");
 			sb.append("\nvar locationNameIdMap = new Object();");
+			ArrayList<String> escapedLocationNames = new ArrayList<String>(useLocations.size());
 			for (Location location : useLocations) {
-				sb.append("\nlocationNameIdMap['" + location.getName() + "'] = " + location.getLocationId() + ";");
+				String escapeLocationName = JavaScriptUtils.javaScriptEscape(location.getName());
+				escapedLocationNames.add(escapeLocationName);
+				sb.append("\nlocationNameIdMap[\"" + escapeLocationName + "\"] = " + location.getLocationId() + ";");
 			}
 			sb.append("\n");
-			//clear the form field when user clears the field
-			sb.append("\nfunction updateFormField(displayField){");
+			//clear the form field when user clears the field or if no valid selection is made
+			sb.append("\nfunction updateLocationFields(displayField){");
+			sb.append("\n	if(locationNameIdMap[$j.trim($j(displayField).val())] == undefined)");
+			sb.append("\n		$j(displayField).val('');");
 			sb.append("\n	if($j.trim($j(displayField).val()) == '')");
 			sb.append("\n		$j(\"#" + context.getFieldName(this) + "\").val('');");
 			sb.append("\n}");
 			sb.append("\n");
 			sb.append("\n$j('input#display_" + context.getFieldName(this) + "').autocomplete({");
-			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(useLocations, ",", "\"", "\"") + "],");
+			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(escapedLocationNames, ",", "\"", "\"") + "],");
 			sb.append("\n	select: function(event, ui) {");
 			sb.append("\n				$j(\"#" + context.getFieldName(this) + "\").val(locationNameIdMap[ui.item.value]);");
 			sb.append("\n			}");
