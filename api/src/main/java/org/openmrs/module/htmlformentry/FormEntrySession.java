@@ -735,7 +735,12 @@ public class FormEntrySession {
 				String widgetFieldName = entry.getValue();
 				String val = lastSubmission.getParameter(widgetFieldName);
 				if (val != null) {
-					//Get the location with the matching id and display name in the input box
+
+                    // set the value of the widget based on it's name
+                    sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
+                            + "');\n");
+
+					// special case to set the display field of the Location widget when autocomplete is used
 					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass())) {
 						Object locationObj = HtmlFormEntryUtil.convertToType(val, Location.class);
 						Location location = null;
@@ -749,9 +754,7 @@ public class FormEntrySession {
 						sb.append("$j('#display_" + widgetFieldName + "').val(\""
 						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
 					}
-					
-					sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
-					        + "');\n");
+
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
 					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass()))
