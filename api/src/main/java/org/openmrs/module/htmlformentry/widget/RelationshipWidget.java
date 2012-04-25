@@ -39,10 +39,11 @@ public class RelationshipWidget implements Widget {
 		//TODO: probably need a new mode for previewing to better deal with this sort of stuff.
 		if(context.getExistingPatient() != null && context.getExistingPatient().getId() != null)
 		{
+			sb.append("<table border=1 style=\"border-collapse:collapse;border:1px solid black\"><tr><th colspan=2>");
 			sb.append("<strong>");
 			sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsLabel"));
-			sb.append(" </strong><br />");
-			
+			sb.append(" </strong>");
+			sb.append("</th></tr>");
 			//okay we need to first display any existing relationships
 			List<Relationship> existingRelationships = Context.getPersonService().getRelationshipsByPerson(context.getExistingPatient());
 			for(int i=0; i < relationshipsToCreate.size(); i++)
@@ -54,7 +55,7 @@ public class RelationshipWidget implements Widget {
 				
 				RelationshipType rt = relationshipsToCreate.get(i);
 				String side = roleInRelationship.get(i);
-				sb.append("&#160;&#160;");
+				sb.append("<tr><td>" +" " );
 				if(side.equals("A"))
 				{
 					sb.append(rt.getbIsToA());
@@ -64,6 +65,7 @@ public class RelationshipWidget implements Widget {
 					sb.append(rt.getaIsToB());
 				}
 				sb.append(": ");
+				sb.append("<td>" + " ");
 				boolean addComma = false;
 				
 				for(Relationship r: existingRelationships)
@@ -128,6 +130,7 @@ public class RelationshipWidget implements Widget {
 					allRelationshipsFullfilled = false;
 				}
 			}
+			sb.append("</table>");
 		}
     	
         return sb.toString();
