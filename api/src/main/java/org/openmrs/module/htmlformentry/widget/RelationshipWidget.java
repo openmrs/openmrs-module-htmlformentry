@@ -21,6 +21,7 @@ public class RelationshipWidget implements Widget {
 	private List<RelationshipType> relationshipsToCreate = new ArrayList<RelationshipType>();
 	private List<String> roleInRelationship = new ArrayList<String>();
 	private boolean allRelationshipsFullfilled = true;
+	private List<HiddenFieldWidget> relationships = new ArrayList<HiddenFieldWidget>(); 
 	
 	public RelationshipWidget() { }
 
@@ -56,14 +57,17 @@ public class RelationshipWidget implements Widget {
 				RelationshipType rt = relationshipsToCreate.get(i);
 				String side = roleInRelationship.get(i);
 				sb.append("<tr><td>" +" " );
+				String rl;
+				StringBuilder val = new StringBuilder();
 				if(side.equals("A"))
 				{
-					sb.append(rt.getbIsToA());
+					rl=rt.getbIsToA();
 				}
 				else
 				{
-					sb.append(rt.getaIsToB());
+					rl=rt.getaIsToB();
 				}
+				sb.append(rl);
 				sb.append(": ");
 				sb.append("<td>" + " ");
 				boolean addComma = false;
@@ -79,14 +83,15 @@ public class RelationshipWidget implements Widget {
 	    						if(addComma)
 	    						{
 	    							sb.append(",");
+	    							val.append(",");
 	    						}
 	    						else
 	    						{
 	    							addComma = true;
 	    						}
-	    						sb.append(r.getPersonB().getGivenName());
-	    						sb.append(" ");
-	    						sb.append(r.getPersonB().getFamilyName());
+	    						String s = r.getPersonB().getGivenName()+" "+r.getPersonB().getFamilyName();	    						
+	    						sb.append(s);	    	
+	    						val.append(s);
 	    						if (context.getMode() == Mode.VIEW) {
 	    							sb.append(" ");
 	    							sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsAdded"));
@@ -103,14 +108,15 @@ public class RelationshipWidget implements Widget {
 	    						if(addComma)
 	    						{
 	    							sb.append(",");
+	    							val.append(",");
 	    						}
 	    						else
 	    						{
 	    							addComma = true;
 	    						}
-	    						sb.append(r.getPersonA().getGivenName());
-	    						sb.append(" ");
-	    						sb.append(r.getPersonA().getFamilyName());
+	    						String s =r.getPersonA().getGivenName()+" "+r.getPersonA().getFamilyName();
+	    						sb.append(s);
+	    						val.append(s);
 	    						if (context.getMode() == Mode.VIEW) {
 	    							sb.append(" ");
 	    							sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsAdded"));
@@ -121,7 +127,13 @@ public class RelationshipWidget implements Widget {
 	    				}
 					}
 				}
-				
+				String sv= val.toString().replaceAll("\\s","");
+				HiddenFieldWidget w = new HiddenFieldWidget();
+				w.setIdentifierExtension(rl);
+				w.setInitialValue(sv);
+				context.registerWidget(w);
+				relationships.add(w);
+				sb.append(w.generateHtml(context));
 				//this is how we know one of the relationships is not currently populated, 
 				//so that required validation
 				//can run against the field
@@ -189,4 +201,11 @@ public class RelationshipWidget implements Widget {
     public void setAllRelationshipsFullfilled(boolean allRelationshipsFullfilled) {
     	this.allRelationshipsFullfilled = allRelationshipsFullfilled;
     }
+    public List<HiddenFieldWidget> getRelationships() {
+		return relationships;
+	}
+
+	public void setRelationships(List<HiddenFieldWidget> relationships) {
+		this.relationships = relationships;
+	}
 }
