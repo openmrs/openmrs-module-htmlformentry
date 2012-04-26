@@ -13,8 +13,7 @@
  */
 package org.openmrs.module.htmlformentry.element;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -296,16 +295,14 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
 		if (ageWidget != null) {
 			Double value = (Double) ageWidget.getValue(context, request);
-			if (value != null) {
-				calculateBirthDate(patient, null, value.intValue() + "");
-			}
+			if (value != null)
+				calculateBirthDate(patient, null, value);
 		}
 
 		if (birthDateWidget != null) {
 			Date value = (Date) birthDateWidget.getValue(context, request);
 			if (value != null) {
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-				calculateBirthDate(patient, formatter.format(value), null);
+				calculateBirthDate(patient, value, null);
 			}
 		}
  
@@ -479,38 +476,39 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		return true;
 	}
 
-	private void calculateBirthDate(Person person, String date, String age) {
+	/**
+	 * If there's a birthdate specified
+	 */
+	private void calculateBirthDate(Person person, Date date, Double age) {
 		Date birthdate = null;
 		boolean birthdateEstimated = false;
-		if (date != null && !date.equals("")) {
-			try {
-				// only a year was passed as parameter
-				if (date.length() < 5) {
-					Calendar c = Calendar.getInstance();
-					c.set(Calendar.YEAR, Integer.valueOf(date));
-					c.set(Calendar.MONTH, 0);
-					c.set(Calendar.DATE, 1);
-					birthdate = c.getTime();
-					birthdateEstimated = true;
-				}
-				// a full birthdate was passed as a parameter
-				else {
-					birthdate = Context.getDateFormat().parse(date);
-					birthdateEstimated = false;
-				}
-			}
-			catch (ParseException e) {
-				throw new RuntimeException("Error getting date from birthdate", e);
-			}
+		if (date != null) {
+				birthdate = date;
+				//if you have a previous date that's marked as estimated and date does not change -->  keep it that way
+				//if you have a previous date that's marked as estimated but date changes --> not estimated
+				//if new --> not estimated
+				//if existing and not estimated --> not estimated
+				birthdateEstimated = person.getBirthdate() != null && person.getBirthdateEstimated() != null && person.getBirthdate().equals(date) ? person.getBirthdateEstimated() : false;
 		}
-		else if (age != null && !age.equals("")) {			
+		else if (age != null) {	
 			try {
-				person.setBirthdateFromAge(new Integer(age), new Date());
+				Double ageRemainder  = BigDecimal.valueOf(age).subtract(BigDecimal.valueOf(Math.floor(age))).doubleValue();
+				if (ageRemainder.equals(Double.valueOf(0)))
+					person.setBirthdateFromAge(age.intValue(), new Date()); //default to usual behavior from core
+				else { //a decimal was entered
+					Calendar c = Calendar.getInstance();
+					c.setTime(new Date());
+					c.add(Calendar.DAY_OF_MONTH, - Double.valueOf((ageRemainder * 365)).intValue()); //if patient is 2.2 years old, patient was 2.0 years 2.2 - (.2*365) days ago
+					c.add(Calendar.YEAR, -1 * Double.valueOf(Math.floor(age)).intValue());
+					birthdate = c.getTime();
+				}
 				birthdateEstimated = true;
 			}
 			catch (NumberFormatException e) {
 				throw new RuntimeException("Error getting date from age", e);
 			}
+		} else {
+			throw new IllegalArgumentException("You must provide either an age or a birthdate for this patient.");
 		}
 		if (birthdate != null)
 			person.setBirthdate(birthdate);
