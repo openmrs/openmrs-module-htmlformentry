@@ -48,7 +48,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 					sb.append(" checked=\"true\"");
 				sb.append(" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"");
 				sb.append("/>");
-				sb.append(option.getLabel());
+				sb.append("<label for=\"").append(id + "_" + i).append("\">").append(option.getLabel()).append("</label>");
 				if (i < getOptions().size() - 1)
 					sb.append("&#160;");
 			}
