@@ -84,7 +84,7 @@ public class CheckboxWidget implements Widget {
                 sb.append(" checked=\"true\"");
             sb.append("/>");
             if (label != null)
-                sb.append(label);
+                sb.append("<label for=\"").append(context.getFieldName(this)).append("\">").append(label).append("</label>");
         }
         return sb.toString();
     }
