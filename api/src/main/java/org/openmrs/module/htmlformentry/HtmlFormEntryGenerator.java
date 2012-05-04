@@ -396,6 +396,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					out.print("\"");
 				}
 			}
+            // added so that a single <br/> tag isn't rendered as two line breaks: see HTML-342
 			if ("br".equalsIgnoreCase(node.getNodeName())) {
 				out.print("/>");
 			}
@@ -421,6 +422,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		} else if (node.getNodeType() == Node.COMMENT_NODE) {
 			// do nothing
 		} else {
+            // added so that a single <br/> tag isn't rendered as two line breaks: see HTML-342
 			if (!"br".equalsIgnoreCase(node.getNodeName())) {
 				out.print("</" + node.getNodeName() + ">");
 			}
