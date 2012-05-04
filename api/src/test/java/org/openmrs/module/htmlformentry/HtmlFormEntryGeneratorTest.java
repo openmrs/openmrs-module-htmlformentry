@@ -114,4 +114,38 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals("<div class=\"htmlform\"><div class=\"section\"></div></div>", session.getHtmlToDisplay());
     }
     
+    /**
+     * @see {@link HtmlFormEntryGenerator#doStartTag(FormEntrySession,PrintWriter,Node,Node)}
+     * @see {@link HtmlFormEntryGenerator#doEndTag(FormEntrySession,PrintWriter,Node,Node)}
+     */
+    @Test
+    @Verifies(value = "should close br tags", method = "doStartTag(FormEntrySession,PrintWriter,Node,Node)")
+    public void doStartTag_shouldCloseBrTags() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><span></span><br/><h1></h1></section></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String html = session.getHtmlToDisplay();
+        Assert.assertTrue("<br/> should be closed with one tag", html.contains("<br/>"));
+        Assert.assertTrue("<span> and other tags can be open", html.contains("<span></span>"));
+        Assert.assertTrue("<h1> and other tags can be open", html.contains("<h1></h1>"));
+    }
+    
+    /**
+     * Similar to doStartTag test, but with capitalized BR tags.
+     * 
+     * @see {@link HtmlFormEntryGenerator#doStartTag(FormEntrySession,PrintWriter,Node,Node)}
+     * @see {@link HtmlFormEntryGenerator#doEndTag(FormEntrySession,PrintWriter,Node,Node)}
+     */
+    @Test
+    @Verifies(value = "should skip br tags", method = "doEndTag(FormEntrySession,PrintWriter,Node,Node)")
+    public void doEndTag_shouldCloseBrTags() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><section><span></span><BR/><h1></h1></section></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String html = session.getHtmlToDisplay();
+        Assert.assertTrue("<BR/> should be closed with one tag", html.contains("<BR/>"));
+        Assert.assertTrue("<span> and other tags can be open", html.contains("<span></span>"));
+        Assert.assertTrue("<h1> and other tags can be open", html.contains("<h1></h1>"));
+    }
+    
 }

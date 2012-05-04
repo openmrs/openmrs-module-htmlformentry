@@ -373,6 +373,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * <p>
 	 * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML tags are
 	 * left as is.
+	 * 
+	 * @should close br tags
 	 */
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
@@ -394,7 +396,12 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					out.print("\"");
 				}
 			}
-			out.print(">");
+			if ("br".equalsIgnoreCase(node.getNodeName())) {
+				out.print("/>");
+			}
+			else {
+				out.print(">");
+			}
 		}
 		return true;
 	}
@@ -404,6 +411,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * <p>
 	 * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML tags are
 	 * left as is.
+	 * 
+	 * @should skip br tags
 	 */
 	@Override
 	public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
@@ -412,7 +421,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		} else if (node.getNodeType() == Node.COMMENT_NODE) {
 			// do nothing
 		} else {
-			out.print("</" + node.getNodeName() + ">");
+			if (!"br".equalsIgnoreCase(node.getNodeName())) {
+				out.print("</" + node.getNodeName() + ">");
+			}
 		}
 	}
 	
