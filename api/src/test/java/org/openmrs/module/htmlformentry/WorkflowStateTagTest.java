@@ -16,6 +16,7 @@ package org.openmrs.module.htmlformentry;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -1548,8 +1549,9 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html) {		
-				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("checked=\"true\"/>MIDDLE STATE"));
+			public void testBlankFormHtml(String html) {				
+				Pattern p = Pattern.compile(".*checked=\"true\"/><label for=\".*\">MIDDLE STATE.*", Pattern.MULTILINE | Pattern.DOTALL);
+				Assert.assertTrue("Checkbox should be checked: " + html, p.matcher(html).matches());
 			}
 			
 		}.run();
