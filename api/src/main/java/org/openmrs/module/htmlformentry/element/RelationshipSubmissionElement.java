@@ -23,7 +23,6 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.HiddenFieldWidget;
 import org.openmrs.module.htmlformentry.widget.PersonSearchWidget;
 import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
 import org.openmrs.module.htmlformentry.widget.RelationshipWidget;
@@ -286,13 +285,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 			if(relationshipWidget != null)
 			{
 				ret.append(relationshipWidget.generateHtml(context));
-				//register property accessors for all the widgets (just put this here to have the hidden fields registered in the context before I can access them)
-				if (relationshipWidget != null) {
-					for (HiddenFieldWidget w : relationshipWidget.getRelationships()) {
-						context.registerPropertyAccessorInfo(id+"-"+w.getIdentifierExtension() + ".value", context.getFieldNameIfRegistered(w), null, null, null);
-					}
-					
-				}
+				if(id!=null)
+					relationshipWidget.setParentId(id);
 			}
 			
 		}

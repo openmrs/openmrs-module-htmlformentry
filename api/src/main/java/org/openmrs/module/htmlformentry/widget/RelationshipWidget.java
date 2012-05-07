@@ -21,8 +21,8 @@ public class RelationshipWidget implements Widget {
 	private List<RelationshipType> relationshipsToCreate = new ArrayList<RelationshipType>();
 	private List<String> roleInRelationship = new ArrayList<String>();
 	private boolean allRelationshipsFullfilled = true;
-	private List<HiddenFieldWidget> relationships = new ArrayList<HiddenFieldWidget>(); 
-	
+    private String parentId;
+
 	public RelationshipWidget() { }
 
 	@Override
@@ -69,6 +69,7 @@ public class RelationshipWidget implements Widget {
 				}
 				sb.append(rl);
 				sb.append(": ");
+				sb.append("</td>");
 				sb.append("<td>" + " ");
 				boolean addComma = false;
 				
@@ -127,13 +128,18 @@ public class RelationshipWidget implements Widget {
 	    				}
 					}
 				}
+				
 				String sv= val.toString().replaceAll("\\s","");
-				HiddenFieldWidget w = new HiddenFieldWidget();
-				w.setIdentifierExtension(rl);
-				w.setInitialValue(sv);
-				context.registerWidget(w);
-				relationships.add(w);
-				sb.append(w.generateHtml(context));
+				sb.append("<input name='");
+		    	sb.append(context.getFieldName(this));
+		    	sb.append("' id='");
+		    	sb.append(parentId+"."+rl);
+		    	sb.append("' value='");
+		    	sb.append(sv);
+		    	sb.append("' type='hidden'>");
+		    	context.registerPropertyAccessorInfo(parentId+"."+rl + ".value", context.getFieldNameIfRegistered(this), null,null, null);
+				sb.append("</td>");
+				sb.append("</tr>");
 				//this is how we know one of the relationships is not currently populated, 
 				//so that required validation
 				//can run against the field
@@ -201,11 +207,12 @@ public class RelationshipWidget implements Widget {
     public void setAllRelationshipsFullfilled(boolean allRelationshipsFullfilled) {
     	this.allRelationshipsFullfilled = allRelationshipsFullfilled;
     }
-    public List<HiddenFieldWidget> getRelationships() {
-		return relationships;
+
+	public String getParentId() {
+		return parentId;
 	}
 
-	public void setRelationships(List<HiddenFieldWidget> relationships) {
-		this.relationships = relationships;
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
 	}
 }

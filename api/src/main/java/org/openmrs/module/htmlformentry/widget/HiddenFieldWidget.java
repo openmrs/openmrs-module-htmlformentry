@@ -12,7 +12,6 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 public class HiddenFieldWidget implements Widget {
 
 	private String initialValue;
-	private String identifierExtension;  //to use when I have many of this widgets
 	/**
 	 * Gets the initial value associated with this widget
 	 * 
@@ -46,14 +45,6 @@ public class HiddenFieldWidget implements Widget {
 	@Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		return request.getParameter(context.getFieldName(this));
-	}
-
-	public void setIdentifierExtension(String identifierExtension) {
-		this.identifierExtension = identifierExtension;
-	}
-
-	public String getIdentifierExtension() {
-		return identifierExtension;
 	}
 
 }
