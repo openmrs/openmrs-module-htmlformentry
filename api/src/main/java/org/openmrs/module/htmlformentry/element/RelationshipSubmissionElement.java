@@ -35,7 +35,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 		FormSubmissionControllerAction {
 	
 	protected final Log log = LogFactory.getLog(RelationshipSubmissionElement.class);
-
+	
+	private String id;
 	private static String FIELD_TYPE = "type";
 	private static String FIELD_WHO_AM_I = "whoAmI";
 	private static String FIELD_REQUIRED = "required";
@@ -151,6 +152,11 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 		
 		context.registerWidget(relationshipWidget);
 	    context.registerErrorWidget(personWidget, personErrorWidget);
+	    
+	    // set the id, if it has been specified
+		if (parameters.get("id") != null) {
+			id = (String) parameters.get("id");
+		}
 	}
 
 	
@@ -162,6 +168,11 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
     public String generateHtml(FormEntryContext context) {
 		
 		StringBuilder ret = new StringBuilder();
+		
+		// if an id has been specified, wrap the whole relationship element in a span tag so that we access property values via javascript
+		if (id != null) {
+			ret.append("<span id='" + id + "'>");
+		}
 		
 		if(labelText != null && labelText.length() > 0)
 		{
@@ -273,7 +284,10 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 			
 			if(relationshipWidget != null)
 			{
+				if(id!=null)
+					relationshipWidget.setParentId(id);
 				ret.append(relationshipWidget.generateHtml(context));
+				
 			}
 			
 		}
@@ -286,13 +300,18 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 			
 			if (personWidget != null) {
 				ret.append(personWidget.generateHtml(context) + " ");
+				context.registerPropertyAccessorInfo(id+"."+"newRelationship"+ ".value", context.getFieldNameIfRegistered(personWidget), null, "newRelationshipFieldGetterFunction", null);
+				
 			}
 			if (personStubWidget != null) {
 				ret.append(personStubWidget.generateHtml(context) + " ");
 			}
 			ret.append(personErrorWidget.generateHtml(context));
 		}
-		
+		// close out the span if we have an id tag
+		if (id != null) {
+			ret.append("</span>");
+		}
 		return ret.toString();
     }
 
