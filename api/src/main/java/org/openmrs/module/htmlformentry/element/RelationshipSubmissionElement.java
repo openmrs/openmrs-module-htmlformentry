@@ -284,9 +284,10 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 			
 			if(relationshipWidget != null)
 			{
-				ret.append(relationshipWidget.generateHtml(context));
 				if(id!=null)
 					relationshipWidget.setParentId(id);
+				ret.append(relationshipWidget.generateHtml(context));
+				
 			}
 			
 		}
