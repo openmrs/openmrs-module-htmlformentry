@@ -300,6 +300,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 			
 			if (personWidget != null) {
 				ret.append(personWidget.generateHtml(context) + " ");
+				context.registerPropertyAccessorInfo(id+"."+"newRelationship"+ ".value", context.getFieldNameIfRegistered(personWidget), null, "newRelationshipFieldGetterFunction", null);
+				
 			}
 			if (personStubWidget != null) {
 				ret.append(personStubWidget.generateHtml(context) + " ");
