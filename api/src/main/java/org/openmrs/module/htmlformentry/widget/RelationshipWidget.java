@@ -11,6 +11,7 @@ import org.openmrs.RelationshipType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
  * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person 
@@ -134,15 +135,14 @@ public class RelationshipWidget implements Widget {
                 // access to existing relationships for javascript validation (for instance, to validate on submittal
                 // that a patient as at least one relationship of type x)
 
-                String sv= val.toString().replaceAll("\\s","");
 				sb.append("<input name='");
 		    	sb.append(context.getFieldName(this));
 		    	sb.append("' id='");
-		    	sb.append(parentId+"."+rl);
+		    	sb.append(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl));
 		    	sb.append("' value='");
-		    	sb.append(sv);
+		    	sb.append(val);
 		    	sb.append("' type='hidden'>");
-		    	context.registerPropertyAccessorInfo(parentId+"."+rl + ".value", context.getFieldNameIfRegistered(this), null,null, null);
+		    	context.registerPropertyAccessorInfo(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl) + ".value", context.getFieldNameIfRegistered(this), null,null, null);
 				sb.append("</td>");
 				sb.append("</tr>");
 				if(!addComma)

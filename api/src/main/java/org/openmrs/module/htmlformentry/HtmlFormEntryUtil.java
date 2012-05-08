@@ -1311,4 +1311,23 @@ public class HtmlFormEntryUtil {
 		  	
 		return cal.getTime();
 	}
+	
+	/**
+	 * @param s the string to conver to camelcase
+	 * @return should return the passed in string in the camelcase format
+	 */
+	public static String toCamelCase(String s) {
+		StringBuffer sb = new StringBuffer();
+		String[] words = s.replaceAll("[^A-Za-z]", " ").replaceAll("\\s+", " ").trim().split(" ");
+
+		for (int i = 0; i < words.length; i++) {
+			if (i == 0) 
+				words[i] = words[i].toLowerCase();
+			else 
+				words[i] = String.valueOf(words[i].charAt(0)).toUpperCase() + words[i].substring(1);
+
+			sb.append(words[i]);
+		}
+		return sb.toString();
+	}
 }
