@@ -185,7 +185,7 @@
 			<td><spring:message code="Form.formSchema"/>:</td>
 			<td>
 				<c:if test="${!empty htmlForm.xmlData}">
-					<a href="javascript: void(0)" onclick="popup('htmlFormSchema.form?id=${htmlForm.id}'); return false;"><spring:message code="general.view"/></a>
+					<a href="htmlFormSchema.form?id=${htmlForm.id}" target="_blank"><spring:message code="general.view"/></a>
 				</c:if>
 			</td>
 		</tr>
@@ -222,21 +222,6 @@
 	<hr/>
 	${ previewHtml }
 </c:if>
-
-<script type="text/javascript">
-function popup(url) 
-{
- var width  = screen.width*3/4;
- var height = screen.height*4/5;
- var left   = (screen.width  - width)/2;
- var params = 'width='+width+', height='+height;
- params += ', left='+left;
- newwin=window.open(url,'', params);
- if (window.focus) {newwin.focus()}
- return false;
-}
-</script>
-
 
 <%--
 		<tr>
