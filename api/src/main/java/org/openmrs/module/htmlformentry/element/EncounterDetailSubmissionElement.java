@@ -1,22 +1,12 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.openmrs.Encounter;
-import org.openmrs.Location;
-import org.openmrs.Person;
-import org.openmrs.Role;
+import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -25,12 +15,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
-import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
-import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
-import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
-import org.openmrs.module.htmlformentry.widget.TimeWidget;
+import org.openmrs.module.htmlformentry.widget.*;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
@@ -55,7 +40,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	private ErrorWidget providerErrorWidget;
 	
-	private LocationWidget locationWidget;
+	private SingleOptionWidget locationWidget;
 	
 	private ErrorWidget locationErrorWidget;
 	
@@ -194,46 +179,87 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			context.registerWidget(providerWidget);
 			context.registerErrorWidget(providerWidget, providerErrorWidget);
 		}
-		
-		// Register Location widgets, if appropriate
-		if (Boolean.TRUE.equals(parameters.get("location"))) {
-			
-			locationWidget = new LocationWidget();
-			locationErrorWidget = new ErrorWidget();
-			
-			// If the "order" attribute is passed in, limit to the specified locations in order
-			if (parameters.get("order") != null) {
-				List<Location> locations = new ArrayList<Location>();
-				String[] temp = ((String) parameters.get("order")).split(",");
-				for (String s : temp) {
-					Location loc = HtmlFormEntryUtil.getLocation(s);
-					if (loc == null) {
-						throw new RuntimeException("Cannot find location: " + loc);
-					}
-					locations.add(loc);
-				}
-				locationWidget.setOptions(locations);
-			}
-			if (parameters.get("type") != null) {
-				locationWidget.setType(parameters.get("type").toString());
-			}
-			
-			// Set default values
-			Location defaultLocation = null;
-			if (context.getExistingEncounter() != null) {
-				defaultLocation = context.getExistingEncounter().getLocation();
-			} else {
-				String defaultLocId = (String) parameters.get("default");
-				if (StringUtils.hasText(defaultLocId)) {
-					defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
-				}
-			}
-			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
-			locationWidget.setInitialValue(defaultLocation);
-			context.registerWidget(locationWidget);
-			context.registerErrorWidget(locationWidget, locationErrorWidget);
-		}
-		
+
+        // Register Location widgets, if appropriate
+        if (Boolean.TRUE.equals(parameters.get("location"))) {
+
+            List<Location> locations = new ArrayList<Location>();
+            List<Option> locationOptions = new ArrayList<Option>();
+            locationErrorWidget = new ErrorWidget();
+
+            // If the "order" attribute is passed in, limit to the specified locations in order
+            if (parameters.get("order") != null) {
+
+                String[] temp = ((String) parameters.get("order")).split(",");
+                for (String s : temp) {
+                    Location loc = HtmlFormEntryUtil.getLocation(s);
+                    if (loc == null) {
+                        throw new RuntimeException("Cannot find location: " + loc);
+                    }
+                    locations.add(loc);
+                }
+
+            }
+
+
+            // Set default values
+            Location defaultLocation = null;
+            if (context.getExistingEncounter() != null) {
+                defaultLocation = context.getExistingEncounter().getLocation();
+            } else {
+                String defaultLocId = (String) parameters.get("default");
+                if (StringUtils.hasText(defaultLocId)) {
+                    defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
+                }
+            }
+            defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+
+            if (!locations.isEmpty()) {
+                for (Location location : locations) {
+                    String label = location.getName();
+                    Option option = new Option(label, location.getId().toString(), false);
+                    locationOptions.add(option);
+                }
+            } else {
+                locations = Context.getLocationService().getAllLocations();
+                for (Location location : locations) {
+                    String label = location.getName();
+                    Option option = new Option(label, location.getId().toString(), false);
+                    locationOptions.add(option);
+                }
+                Collections.sort(locationOptions, new Comparator<Option>() {
+
+                    @Override
+                    public int compare(Option left, Option right) {
+                        return left.getLabel().compareTo(right.getLabel());
+                    }
+                });
+            }
+
+            if ("autocomplete".equals(parameters.get("type"))) {
+
+                locationWidget = new AutocompleteWidget();
+                locationWidget.addOption(new Option());
+
+                if (!locations.isEmpty()) {
+                    locationWidget.setOptions(locationOptions);
+                }
+                locationWidget.setInitialValue(defaultLocation);
+
+            } else {
+                locationWidget = new DropdownWidget();
+                locationWidget.addOption(new Option());
+
+                if (!locations.isEmpty()) {
+                    locationWidget.setOptions(locationOptions);
+                }
+                locationWidget.setInitialValue(defaultLocation);
+            }
+
+            context.registerWidget(locationWidget);
+            context.registerErrorWidget(locationWidget, locationErrorWidget);
+        }
+
 		if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
 			voidWidget = new CheckboxWidget();
 			voidWidget.setLabel(" " + Context.getMessageSourceService().getMessage("general.voided"));
@@ -269,7 +295,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	 * without having to branch the module. We should remove this method when do a proper
 	 * implementation.
 	 * 
-	 * @param options
+	 * @param persons
 	 */
 	private void removeNonProviders(List<PersonStub> persons) {
 		if (openmrsVersionDoesNotSupportProviders())
@@ -495,7 +521,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			session.getSubmissionActions().getCurrentEncounter().setProvider(person);
 		}
 		if (locationWidget != null) {
-			Location location = (Location) locationWidget.getValue(session.getContext(), submission);
+            Object value = locationWidget.getValue(session.getContext(), submission);
+			Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString(), Location.class);
 			session.getSubmissionActions().getCurrentEncounter().setLocation(location);
 		}
 		if (voidWidget != null) {

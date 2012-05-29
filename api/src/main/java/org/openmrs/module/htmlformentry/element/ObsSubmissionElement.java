@@ -32,21 +32,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
-import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
-import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
-import org.openmrs.module.htmlformentry.widget.DropdownWidget;
-import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
-import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
-import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
-import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
-import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
-import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
-import org.openmrs.module.htmlformentry.widget.TimeWidget;
-import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.module.htmlformentry.widget.*;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 
@@ -334,7 +320,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 				if ("location".equals(parameters.get("style"))) {
-					valueWidget = new LocationWidget();
+                    valueWidget = new LocationWidget();
 				} else if ("person".equals(parameters.get("style"))) {
 					
 					List<PersonStub> options = new ArrayList<PersonStub>();
@@ -553,7 +539,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							                + concept.getConceptId());
 						}
 						
-						valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
+						valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
 					} else {
 			// Show Radio Buttons if specified, otherwise default to Drop
 						// Down 

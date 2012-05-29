@@ -140,7 +140,7 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 	 */
 	if (hiddenField.length > 0 && textField.length > 0) {
 		textField.autocomplete( {
-			 source: function(req, add){  
+			 source: function(req, add){
 	        //pass request to server  
 			jQuery.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {  
 				   
@@ -191,6 +191,7 @@ function onBlurAutocomplete(element){
 		}
 	}
 }
+
 
 /**
  * Set the value an HTML element (by name) to the specified value.

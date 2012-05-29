@@ -1,104 +1,102 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.openmrs.Concept;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.HtmlUtils;
+import org.springframework.web.util.JavaScriptUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+/**
+ * Created by IntelliJ IDEA.
+ * User: isha
+ * Date: 5/25/12
+ * Time: 10:10 PM
+ * To change this template use File | Settings | File Templates.
+ */
 
-import org.openmrs.Concept;
-import org.openmrs.ConceptClass;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+public class AutocompleteWidget extends  SingleOptionWidget{
 
-public class AutocompleteWidget implements Widget {
+    private Option option;
 
-	private Concept initialValue;
-	private String allowedConceptIds;
-	private String allowedConceptClassNames;
-	private String src;
-	private static String defaultSrc = "conceptSearch.form";
+    private List<Option> options;
 
-	public AutocompleteWidget(List<Concept> conceptList,
-			List<ConceptClass> allowedconceptclasses, String src) {
-		this.src = src;
-		
-		//only 1 of them is used to specify the filter
-		if (allowedconceptclasses.size() == 0) {
-			StringBuilder sb = new StringBuilder();
-			for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
-				sb.append(it.next().getConceptId());
-				if (it.hasNext())
-					sb.append(",");
-			}
-			this.allowedConceptIds = sb.toString();
-		} else {
-			StringBuilder sb = new StringBuilder();
-			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it
-					.hasNext();) {
-				sb.append(it.next().getName());
-				if (it.hasNext())
-					sb.append(",");
-			}
-			this.allowedConceptClassNames = sb.toString();
-		}
-	}
-
-	public AutocompleteWidget(List<Concept> conceptList,
-			List<ConceptClass> allowedconceptclasses) {
-		this(conceptList, allowedconceptclasses, defaultSrc);
-	}
+    public AutocompleteWidget() {
+    }
 
 
-	@Override
+    @Override
     public String generateHtml(FormEntryContext context) {
-		// hardcoded for concept search
 
-		StringBuilder sb = new StringBuilder();
-		if (context.getMode().equals(Mode.VIEW)) {
-			String toPrint = "";
-			if (initialValue != null) {
-				toPrint = initialValue.getDisplayString();
-				return WidgetFactory.displayValue(toPrint);
-			} else {
-				toPrint = "_______________";
-				return WidgetFactory.displayEmptyValue(toPrint);
+        if(getOptions() != null){
+            options = getOptions();
+
+        }
+
+        if (context.getMode() == FormEntryContext.Mode.VIEW) {
+            String toPrint = "";
+            if (getInitialValue() != null) {
+                // lookup the label for the selected value
+                boolean found = false;
+                for (Option o : options) {
+                    if (getInitialValue().equals(o.getValue())) {
+                        toPrint = o.getLabel();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    toPrint = getInitialValue();
+                return WidgetFactory.displayValue(toPrint);
+            } else {
+                toPrint = "____";
+                return WidgetFactory.displayEmptyValue(toPrint);
+            }
+        }else {
+            StringBuilder sb = new StringBuilder();
+            String id = context.getFieldName(this);
+
+            sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
+			        + ((option != null) ? HtmlUtils.htmlEscape(option.getLabel()) : "")
+			        + "\" onblur=\"updateLocationFields(this)\" placeholder=\""
+			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
+			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
+			        + context.getFieldName(this) + "\" value=\"" + ((option != null) ? option.getValue() : "")
+			        + "\" />");
+			sb.append("\n<script>");
+			sb.append("\nvar optionLabelValueMap = new Object();");
+			ArrayList<String> escapedOptionNames = new ArrayList<String>(options.size());
+			for (Option option : options) {
+				String escapeOptionName = JavaScriptUtils.javaScriptEscape(option.getLabel());
+				escapedOptionNames.add(escapeOptionName);
+				sb.append("\noptionLabelValueMap[\"" + escapeOptionName + "\"] = " + option.getValue() + ";");
 			}
-		} else {
-			sb.append("<input name=\"" + context.getFieldName(this) + "_hid"
-					+ "\" id=\"" + context.getFieldName(this) + "_hid" + "\""
-					+ " type=\"hidden\" class=\"autoCompleteHidden\" ");
-			if (initialValue != null) {
-				sb.append(" value=\"" + initialValue.getConceptId() + "\"");
-			}
-			sb.append("/>");
-
-			sb.append("<input type=\"text\"  id=\""
-					+ context.getFieldName(this) + "\"" + " name=\""
-					+ context.getFieldName(this) + "\" "
-					+ " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
-					+ this.allowedConceptIds + "','"
-					+ this.allowedConceptClassNames + "');\""
-					+ "class=\"autoCompleteText\""
-					+ " onBlur=\"onBlurAutocomplete(this)\"");
-
-			if (initialValue != null)
-				sb.append(" value=\"" + initialValue.getDisplayString() + "\"");
-			sb.append("/>");
-
-		}
-		return sb.toString();
-	}
+			sb.append("\n");
+			//clear the form field when user clears the field or if no valid selection is made
+			sb.append("\nfunction updateLocationFields(displayField){");
+			sb.append("\n	if(optionLabelValueMap[$j.trim($j(displayField).val())] == undefined)");
+			sb.append("\n		$j(displayField).val('');");
+			sb.append("\n	if($j.trim($j(displayField).val()) == '')");
+			sb.append("\n		$j(\"#" + id + "\").val('');");
+			sb.append("\n}");
+			sb.append("\n");
+			sb.append("\n$j('input#display_" + id + "').autocomplete({");
+			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(escapedOptionNames, ",", "\"", "\"") + "],");
+			sb.append("\n	select: function(event, ui) {");
+			sb.append("\n				$j(\"#" + id + "\").val(optionLabelValueMap[ui.item.value]);");
+			sb.append("\n			}");
+			sb.append("\n});");
+			sb.append("</script>");
 
 
-	@Override
-    public Object getValue(FormEntryContext context, HttpServletRequest request) {
-		return request.getParameter(context.getFieldName(this) + "_hid");
-	}
 
-
-	@Override
-    public void setInitialValue(Object initialValue) {
-		// TODO Auto-generated method stub
-		this.initialValue = (Concept) initialValue;
-	}
+            return sb.toString();
+        }
+    }
 }
