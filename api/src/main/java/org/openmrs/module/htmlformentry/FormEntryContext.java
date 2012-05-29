@@ -499,6 +499,27 @@ public class FormEntryContext {
         }
         return null;
     }
+    
+    public Obs removeExistingObs(Concept question, List<Double> answers) {
+        List<Obs> list = existingObs.get(question);
+        if (list != null) {
+            for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
+                Obs test = iter.next();
+                if (test.getValueNumeric() == null) {
+                	throw new RuntimeException("Invalid boolean value for concept " + question + "; possibly caused by TRUNK-3150");
+                }
+                for (Double answer: answers) {
+                	if (answer.equals(test.getValueNumeric())) {
+                		iter.remove();
+                		if (list.size() == 0)
+                			existingObs.remove(question);
+                		return test;
+                	}
+                }
+            }
+        }
+        return null;    	
+    }
 
     public Obs getNextUnmatchedObsGroup(String path) {
         Obs ret = null;
