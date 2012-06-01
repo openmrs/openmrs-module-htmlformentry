@@ -48,7 +48,7 @@ $j('#personTable').load('load', function() {
 			<tr class="<c:choose><c:when test="${rowStatus.index % 2 == 0}">evenRow</c:when><c:otherwise>oddRow</c:otherwise></c:choose>">
 				<c:set var="fullName" value="${collection.givenName} ${collection.familyName}" />  
 				<td>
-				<c:if test="${collection.class.name eq 'org.openmrs.web.dwr.PatientListItem'}">
+				<c:if test="${collection['class'].name eq 'org.openmrs.web.dwr.PatientListItem'}">
 				<c:out value="${collection.identifier}"/>
 				</c:if>
 				</td>
