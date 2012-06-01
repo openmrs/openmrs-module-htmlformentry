@@ -60,7 +60,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 
     @Test
     @Verifies(value = "should return section as a new htmlform", method = "getSectionAsForm(HtmlForm)")
-    public void c() throws Exception {
+    public void getSectionAsForm_shouldReturnStringCorrectly() throws Exception {  
         Form form = new Form();
         HtmlForm htmlform = new HtmlForm();
         htmlform.setForm(form);
