@@ -46,7 +46,6 @@ import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.HiddenFieldWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.NameWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
@@ -162,15 +161,28 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 		}
 		else if (FIELD_IDENTIFIER_LOCATION.equalsIgnoreCase(field)) {
-			identifierLocationWidget = new LocationWidget();
+			identifierLocationWidget = new DropdownWidget();
 			identifierLocationErrorWidget = new ErrorWidget();
 
-			List<Location> locations = Context.getLocationService().getAllLocations();
-			((LocationWidget) identifierLocationWidget).setOptions(locations);
-
-			Location defaultLocation = existingPatient != null
+            Location defaultLocation = existingPatient != null
 					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getLocation() : null;
 			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+            defaultLocation = defaultLocation == null ? Context.getLocationService().getDefaultLocation(): defaultLocation;
+
+            List<Option> locationOptions = new ArrayList<Option>();
+            for(Location location:Context.getLocationService().getAllLocations()) {
+                Option option = new Option(location.getName(), location.getId().toString(), location.getName().equals(defaultLocation.getName()));
+                locationOptions.add(option);
+            }
+
+            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
+            if (!locationOptions.isEmpty()) {
+                    for(Option option: locationOptions)
+                    ((DropdownWidget) identifierLocationWidget).addOption(option);
+                }
+
+            identifierLocationWidget.setInitialValue(defaultLocation);
+
 			createWidgets(context, identifierLocationWidget, identifierLocationErrorWidget, defaultLocation);
 		}
 		else if (FIELD_ADDRESS.equalsIgnoreCase(field)) {
@@ -336,8 +348,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				patient.addIdentifier(patientIdentifier);
 			}
 
-			Location location = (Location) identifierLocationWidget.getValue(context, request);
-
+			Object locationString = identifierLocationWidget.getValue(context, request);
+            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString(), Location.class);
 			patientIdentifier.setLocation(location);
 			patientIdentifier.setPreferred(true);
 

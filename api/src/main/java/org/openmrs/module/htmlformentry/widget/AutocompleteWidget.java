@@ -25,8 +25,6 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 
     private Option option;
 
-    private List<Option> options;
-
     public AutocompleteWidget() {
     }
 
@@ -34,25 +32,21 @@ public class AutocompleteWidget extends  SingleOptionWidget{
     @Override
     public String generateHtml(FormEntryContext context) {
 
-        if(getOptions() != null){
-            options = getOptions();
-
-        }
-
-        if (context.getMode() == FormEntryContext.Mode.VIEW) {
+         if (context.getMode() == FormEntryContext.Mode.VIEW) {
             String toPrint = "";
             if (getInitialValue() != null) {
                 // lookup the label for the selected value
                 boolean found = false;
-                for (Option o : options) {
+                for (Option o : getOptions()) {
                     if (getInitialValue().equals(o.getValue())) {
                         toPrint = o.getLabel();
                         found = true;
                         break;
                     }
                 }
-                if (!found)
+                if (!found){
                     toPrint = getInitialValue();
+                }
                 return WidgetFactory.displayValue(toPrint);
             } else {
                 toPrint = "____";
@@ -65,14 +59,14 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
 			        + ((option != null) ? HtmlUtils.htmlEscape(option.getLabel()) : "")
 			        + "\" onblur=\"updateLocationFields(this)\" placeholder=\""
-			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
+			        + Context.getMessageSourceService().getMessage("htmlformentry.form.value.placeholder") + "\" />");
 			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
 			        + context.getFieldName(this) + "\" value=\"" + ((option != null) ? option.getValue() : "")
 			        + "\" />");
 			sb.append("\n<script>");
 			sb.append("\nvar optionLabelValueMap = new Object();");
-			ArrayList<String> escapedOptionNames = new ArrayList<String>(options.size());
-			for (Option option : options) {
+			ArrayList<String> escapedOptionNames = new ArrayList<String>(getOptions().size());
+			for (Option option : getOptions()) {
 				String escapeOptionName = JavaScriptUtils.javaScriptEscape(option.getLabel());
 				escapedOptionNames.add(escapeOptionName);
 				sb.append("\noptionLabelValueMap[\"" + escapeOptionName + "\"] = " + option.getValue() + ";");

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.springframework.aop.interceptor.SimpleTraceInterceptor;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -36,6 +37,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
+        int s = session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>");
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") == -1);
 	}

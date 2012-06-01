@@ -10,7 +10,7 @@ import org.openmrs.ConceptClass;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
-public class ConceptSearchAutocompleteWidget extends AutocompleteWidget implements Widget {
+public class ConceptSearchAutocompleteWidget implements Widget {
 
 	private Concept initialValue;
 	private String allowedConceptIds;

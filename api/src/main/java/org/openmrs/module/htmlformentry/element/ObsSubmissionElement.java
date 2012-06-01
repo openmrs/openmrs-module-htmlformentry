@@ -86,6 +86,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private List<String> conceptLabels = null; //the text to show for possible concepts
 	
 	private String answerSeparator = null;
+
+    // these are for location and provider options
+
+    private List<Option> locationOptions = new ArrayList<Option>();
+
 	
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		String conceptId = parameters.get("conceptId");
@@ -320,7 +325,31 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 				if ("location".equals(parameters.get("style"))) {
-                    valueWidget = new LocationWidget();
+
+                    valueWidget = new DropdownWidget();
+                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
+                    Location defaultLocation = Context.getLocationService().getDefaultLocation();
+
+                       for (Location location : Context.getLocationService().getAllLocations()) {
+                            String label = location.getName();
+                            Option option = new Option(label, location.getId().toString(), label.equals(defaultLocation.getName()));
+                            locationOptions.add(option);
+                       }
+                       Collections.sort(locationOptions, new Comparator<Option>() {
+
+                          @Override
+                               public int compare(Option left, Option right) {
+                               return left.getLabel().compareTo(right.getLabel());
+                          }
+                          });
+
+                    if (!locationOptions.isEmpty()) {
+                    for(Option option: locationOptions)
+                    ((DropdownWidget)valueWidget).addOption(option);
+                 }
+
+                    valueWidget.setInitialValue(defaultLocation);
+
 				} else if ("person".equals(parameters.get("style"))) {
 					
 					List<PersonStub> options = new ArrayList<PersonStub>();

@@ -29,7 +29,8 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
+import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
@@ -741,7 +742,7 @@ public class FormEntrySession {
                             + "');\n");
 
 					// special case to set the display field of the Location widget when autocomplete is used
-					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass())) {
+					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())) {
 						Object locationObj = HtmlFormEntryUtil.convertToType(val, Location.class);
 						Location location = null;
 						if (locationObj != null) {
@@ -757,7 +758,7 @@ public class FormEntrySession {
 
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
-					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass()))
+					if (DropdownWidget.class.isAssignableFrom(entry.getKey().getClass()))
 						sb.append("$j('#display_" + widgetFieldName + "').val('');\n");
 				}
 			}

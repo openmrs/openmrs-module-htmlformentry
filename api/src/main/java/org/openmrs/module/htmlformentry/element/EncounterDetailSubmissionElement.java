@@ -206,7 +206,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             Location defaultLocation = null;
             if (context.getExistingEncounter() != null) {
                 defaultLocation = context.getExistingEncounter().getLocation();
-            } else {
+            } else{
                 String defaultLocId = (String) parameters.get("default");
                 if (StringUtils.hasText(defaultLocId)) {
                     defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
@@ -214,17 +214,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             }
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
 
+            if(defaultLocation==null){
+                defaultLocation = Context.getLocationService().getDefaultLocation();
+            }
             if (!locations.isEmpty()) {
                 for (Location location : locations) {
                     String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), false);
+                    Option option = new Option(label, location.getId().toString(), label.equals(defaultLocation.getName()));
                     locationOptions.add(option);
                 }
             } else {
                 locations = Context.getLocationService().getAllLocations();
                 for (Location location : locations) {
                     String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), false);
+                    Option option = new Option(label, location.getId().toString(), label.equals(defaultLocation.getName()));
                     locationOptions.add(option);
                 }
                 Collections.sort(locationOptions, new Comparator<Option>() {
@@ -241,17 +244,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 locationWidget = new AutocompleteWidget();
                 locationWidget.addOption(new Option());
 
-                if (!locations.isEmpty()) {
-                    locationWidget.setOptions(locationOptions);
+                if (!locationOptions.isEmpty()) {
+                  locationWidget.setOptions(locationOptions);
+
                 }
+
                 locationWidget.setInitialValue(defaultLocation);
 
             } else {
-                locationWidget = new DropdownWidget();
-                locationWidget.addOption(new Option());
+                    locationWidget = new DropdownWidget();
+                locationWidget.addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
 
-                if (!locations.isEmpty()) {
-                    locationWidget.setOptions(locationOptions);
+                if (!locationOptions.isEmpty()) {
+                    for(Option option: locationOptions)
+                    locationWidget.addOption(option);
                 }
                 locationWidget.setInitialValue(defaultLocation);
             }
@@ -484,7 +490,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 		try {
 			if (locationWidget != null) {
-				Object location = locationWidget.getValue(context, submission);
+				Object value = locationWidget.getValue(context, submission);
+                Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString(), Location.class);
 				if (location == null)
 					throw new Exception("required");
 			}
