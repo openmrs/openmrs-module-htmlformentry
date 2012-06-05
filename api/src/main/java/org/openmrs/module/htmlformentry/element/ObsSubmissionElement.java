@@ -552,7 +552,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							        "style \"autocomplete\" but there are no possible answers. Looked for answerConcepts and answerClasses attributes, and answers for concept "
 							                + concept.getConceptId());
 						}
-						
+						if("true".equals(parameters.get("selectMulti")))
+							valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses,true);
+						else
 						valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
 					} else {
 			// Show Radio Buttons if specified, otherwise default to Drop

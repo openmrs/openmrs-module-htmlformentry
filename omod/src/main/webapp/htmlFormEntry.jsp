@@ -35,7 +35,7 @@
 	// if any function returns false, no further functions are called and the validation or submission is cancelled
 	var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
 	var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
-
+	var count=0;
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
 			
@@ -58,8 +58,24 @@
 			 	}
 			 );
 		});
-	});
+		$j(':button.addConceptButton').click(function() {
+	        var string=(this.id).replace("_button","");
+	        var conceptValue=$j('#'+string+'_hid').attr('value')
+	        if($j('#'+string).css('color')=='green'){
+	        	var divId=string+"_div";
+	        	
+	        	count++;
+	        	 var spanid=string+'span'+count;
+	        	 var hidId=spanid+'_hid';
+	           var v='</br><span id="'+spanid+'">'+$j('#'+string).val()+'<input id="'+hidId+'" class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
+	                var q='<input type="button" value="remove" onClick="$j(\'#'+spanid+'\').hide()"></span>';
+	                $j('#'+divId).append(v+q);
+	        
+	        } 
+	        });
+	        
 
+	});
 	var tryingToSubmit = false;
 	
 	function submitHtmlForm() {

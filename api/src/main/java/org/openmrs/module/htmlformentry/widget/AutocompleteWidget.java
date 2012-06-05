@@ -17,6 +17,7 @@ public class AutocompleteWidget implements Widget {
 	private String allowedConceptClassNames;
 	private String src;
 	private static String defaultSrc = "conceptSearch.form";
+	private boolean multi=false;
 
 	public AutocompleteWidget(List<Concept> conceptList,
 			List<ConceptClass> allowedconceptclasses, String src) {
@@ -47,7 +48,12 @@ public class AutocompleteWidget implements Widget {
 			List<ConceptClass> allowedconceptclasses) {
 		this(conceptList, allowedconceptclasses, defaultSrc);
 	}
-
+	              	public AutocompleteWidget(List<Concept> conceptList,
+	              			List<ConceptClass> allowedconceptclasses,boolean b) {
+	              		this(conceptList, allowedconceptclasses, defaultSrc);
+	              		if(b==true)
+	              			multi=true;
+	              	}
 
 	@Override
     public String generateHtml(FormEntryContext context) {
@@ -85,6 +91,12 @@ public class AutocompleteWidget implements Widget {
 				sb.append(" value=\"" + initialValue.getDisplayString() + "\"");
 			sb.append("/>");
 
+		}
+		if( multi==true){
+			sb.append("<input id=\""
+					+ context.getFieldName(this) +"_button"+ "\" type=\"button\" class=\"addConceptButton\" value=\"Add\" />");
+			  sb.insert(0, "<div id=\""+ context.getFieldName(this) +"_div"+ "\">");
+			  sb.append("</div>");
 		}
 		return sb.toString();
 	}
