@@ -15,6 +15,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.widget.*;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
@@ -213,30 +214,29 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 }
             }
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+            defaultLocation = defaultLocation == null ? Context.getLocationService().getDefaultLocation(): defaultLocation;
 
-            if(defaultLocation==null){
-                defaultLocation = Context.getLocationService().getDefaultLocation();
-            }
             if (!locations.isEmpty()) {
                 for (Location location : locations) {
                     String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), label.equals(defaultLocation.getName()));
+                    Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
                     locationOptions.add(option);
                 }
             } else {
                 locations = Context.getLocationService().getAllLocations();
                 for (Location location : locations) {
                     String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), label.equals(defaultLocation.getName()));
+                    Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
                     locationOptions.add(option);
                 }
-                Collections.sort(locationOptions, new Comparator<Option>() {
+            new OptionComparator(locationOptions);
+                /*Collections.sort(locationOptions, new Comparator<Option>() {
 
                     @Override
                     public int compare(Option left, Option right) {
                         return left.getLabel().compareTo(right.getLabel());
                     }
-                });
+                });*/
             }
 
             if ("autocomplete".equals(parameters.get("type"))) {

@@ -1,17 +1,12 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.openmrs.Concept;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -23,7 +18,7 @@ import java.util.List;
 
 public class AutocompleteWidget extends  SingleOptionWidget{
 
-    private Option option;
+    private Option initialOption;
 
     public AutocompleteWidget() {
     }
@@ -38,7 +33,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
                 // lookup the label for the selected value
                 boolean found = false;
                 for (Option o : getOptions()) {
-                    if (getInitialValue().equals(o.getValue())) {
+                    if (getInitialValue().equals(o.getLabel())) {
                         toPrint = o.getLabel();
                         found = true;
                         break;
@@ -55,13 +50,18 @@ public class AutocompleteWidget extends  SingleOptionWidget{
         }else {
             StringBuilder sb = new StringBuilder();
             String id = context.getFieldName(this);
+             for (Option o : getOptions()) {
+                    if (getInitialValue().equals(o.getLabel())) {
+                        initialOption = new Option(o.getLabel(),o.getValue(),false);
+                    }
+                }
 
             sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
-			        + ((option != null) ? HtmlUtils.htmlEscape(option.getLabel()) : "")
-			        + "\" onblur=\"updateLocationFields(this)\" placeholder=\""
+			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
+			        + "\" onblur=\"updateFields(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.value.placeholder") + "\" />");
 			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
-			        + context.getFieldName(this) + "\" value=\"" + ((option != null) ? option.getValue() : "")
+			        + context.getFieldName(this) + "\" value=\"" + ((initialOption != null) ? initialOption.getValue() : "")
 			        + "\" />");
 			sb.append("\n<script>");
 			sb.append("\nvar optionLabelValueMap = new Object();");
@@ -73,7 +73,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 			}
 			sb.append("\n");
 			//clear the form field when user clears the field or if no valid selection is made
-			sb.append("\nfunction updateLocationFields(displayField){");
+			sb.append("\nfunction updateFields(displayField){");
 			sb.append("\n	if(optionLabelValueMap[$j.trim($j(displayField).val())] == undefined)");
 			sb.append("\n		$j(displayField).val('');");
 			sb.append("\n	if($j.trim($j(displayField).val()) == '')");

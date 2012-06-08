@@ -30,6 +30,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.*;
@@ -332,16 +333,17 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
                        for (Location location : Context.getLocationService().getAllLocations()) {
                             String label = location.getName();
-                            Option option = new Option(label, location.getId().toString(), label.equals(defaultLocation.getName()));
+                            Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
                             locationOptions.add(option);
                        }
-                       Collections.sort(locationOptions, new Comparator<Option>() {
+                    new OptionComparator(locationOptions);
+                       /*Collections.sort(locationOptions, new Comparator<Option>() {
 
                           @Override
                                public int compare(Option left, Option right) {
                                return left.getLabel().compareTo(right.getLabel());
                           }
-                          });
+                          });*/
 
                     if (!locationOptions.isEmpty()) {
                     for(Option option: locationOptions)

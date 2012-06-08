@@ -37,7 +37,6 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
-        int s = session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>");
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") == -1);
 	}

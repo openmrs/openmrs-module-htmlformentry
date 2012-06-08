@@ -758,7 +758,7 @@ public class FormEntrySession {
 
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
-					if (DropdownWidget.class.isAssignableFrom(entry.getKey().getClass()))
+					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))
 						sb.append("$j('#display_" + widgetFieldName + "').val('');\n");
 				}
 			}

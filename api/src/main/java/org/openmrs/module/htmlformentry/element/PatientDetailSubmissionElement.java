@@ -41,6 +41,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.widget.AddressWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
@@ -171,15 +172,17 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
             List<Option> locationOptions = new ArrayList<Option>();
             for(Location location:Context.getLocationService().getAllLocations()) {
-                Option option = new Option(location.getName(), location.getId().toString(), location.getName().equals(defaultLocation.getName()));
+                Option option = new Option(location.getName(), location.getId().toString(), location.equals(defaultLocation));
                 locationOptions.add(option);
             }
+            new OptionComparator(locationOptions);
 
             ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
             if (!locationOptions.isEmpty()) {
-                    for(Option option: locationOptions)
+                    for(Option option: locationOptions){
                     ((DropdownWidget) identifierLocationWidget).addOption(option);
-                }
+                    }
+            }
 
             identifierLocationWidget.setInitialValue(defaultLocation);
 
