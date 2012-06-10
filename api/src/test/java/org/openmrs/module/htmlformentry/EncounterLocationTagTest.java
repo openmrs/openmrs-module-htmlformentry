@@ -37,7 +37,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"-\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") == -1);
 	}
 	
@@ -45,7 +45,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterLocationTag_shouldDisplayInputWithAutocompleteIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") == -1);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"-\">htmlformentry.chooseALocation</option>") == -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") > -1);
 	}
 	
@@ -53,7 +53,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterLocationTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseALocation</option>") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"-\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") == -1);
 	}
 	

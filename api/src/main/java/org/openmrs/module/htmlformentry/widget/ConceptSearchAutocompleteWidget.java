@@ -10,6 +10,10 @@ import org.openmrs.ConceptClass;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
+/**
+ * A double parameter autocomplete widget to do the <obs><obs/> auto completion
+ */
+
 public class ConceptSearchAutocompleteWidget implements Widget {
 
 	private Concept initialValue;

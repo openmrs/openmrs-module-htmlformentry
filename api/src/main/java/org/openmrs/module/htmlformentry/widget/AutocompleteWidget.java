@@ -9,11 +9,7 @@ import org.springframework.web.util.JavaScriptUtils;
 import java.util.ArrayList;
 
 /**
- * Created by IntelliJ IDEA.
- * User: isha
- * Date: 5/25/12
- * Time: 10:10 PM
- * To change this template use File | Settings | File Templates.
+ *   A single option auto complete widget which provides auto complete suggestions using a list of  predefined options
  */
 
 public class AutocompleteWidget extends  SingleOptionWidget{
@@ -50,12 +46,15 @@ public class AutocompleteWidget extends  SingleOptionWidget{
         }else {
             StringBuilder sb = new StringBuilder();
             String id = context.getFieldName(this);
+
+            // set the previously given option into widget, when editing the form, else initialOption is null
+            if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
                     if (getInitialValue().equals(o.getLabel())) {
                         initialOption = new Option(o.getLabel(),o.getValue(),false);
                     }
                 }
-
+            }
             sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
 			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
 			        + "\" onblur=\"updateFields(this)\" placeholder=\""

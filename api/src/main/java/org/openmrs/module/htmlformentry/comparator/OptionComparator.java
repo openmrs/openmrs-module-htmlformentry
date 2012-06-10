@@ -7,11 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: isha
- * Date: 6/8/12
- * Time: 11:33 AM
- * To change this template use File | Settings | File Templates.
+ *  Used to sort the options in a drop down menu in alphabetical order
  */
 public class OptionComparator{
 

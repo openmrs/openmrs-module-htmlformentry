@@ -186,7 +186,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             List<Location> locations = new ArrayList<Location>();
             List<Option> locationOptions = new ArrayList<Option>();
+
             locationErrorWidget = new ErrorWidget();
+            if ("autocomplete".equals(parameters.get("type"))) {
+                locationWidget = new AutocompleteWidget();
+            }  else {
+                locationWidget = new DropdownWidget();
+            }
 
             // If the "order" attribute is passed in, limit to the specified locations in order
             if (parameters.get("order") != null) {
@@ -202,15 +208,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             }
 
-
             // Set default values
             Location defaultLocation = null;
-            if (context.getExistingEncounter() != null) {
-                defaultLocation = context.getExistingEncounter().getLocation();
+                if (context.getExistingEncounter() != null) {
+                    defaultLocation = context.getExistingEncounter().getLocation();
+                    locationWidget.setInitialValue(defaultLocation);
             } else{
                 String defaultLocId = (String) parameters.get("default");
                 if (StringUtils.hasText(defaultLocId)) {
                     defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
+                    locationWidget.setInitialValue(defaultLocation);
                 }
             }
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
@@ -230,41 +237,27 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                     locationOptions.add(option);
                 }
             new OptionComparator(locationOptions);
-                /*Collections.sort(locationOptions, new Comparator<Option>() {
-
-                    @Override
-                    public int compare(Option left, Option right) {
-                        return left.getLabel().compareTo(right.getLabel());
-                    }
-                });*/
             }
 
             if ("autocomplete".equals(parameters.get("type"))) {
 
-                locationWidget = new AutocompleteWidget();
                 locationWidget.addOption(new Option());
-
                 if (!locationOptions.isEmpty()) {
-                  locationWidget.setOptions(locationOptions);
-
+                    locationWidget.setOptions(locationOptions);
                 }
-
-                locationWidget.setInitialValue(defaultLocation);
-
-            } else {
-                    locationWidget = new DropdownWidget();
-                locationWidget.addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
-
+            }else {
+                locationWidget.addOption(new Option
+                   (Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "-", false));
+                    // the "-" is added here to meet the EncounterLocationTagTest's requirements
                 if (!locationOptions.isEmpty()) {
-                    for(Option option: locationOptions)
-                    locationWidget.addOption(option);
+                    for (Option option : locationOptions)
+                        locationWidget.addOption(option);
                 }
-                locationWidget.setInitialValue(defaultLocation);
             }
-
             context.registerWidget(locationWidget);
             context.registerErrorWidget(locationWidget, locationErrorWidget);
         }
+
 
 		if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
 			voidWidget = new CheckboxWidget();

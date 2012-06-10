@@ -328,7 +328,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if ("location".equals(parameters.get("style"))) {
 
                     valueWidget = new DropdownWidget();
-                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
+                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"-",false));
                     Location defaultLocation = Context.getLocationService().getDefaultLocation();
 
                        for (Location location : Context.getLocationService().getAllLocations()) {
@@ -337,13 +337,6 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                             locationOptions.add(option);
                        }
                     new OptionComparator(locationOptions);
-                       /*Collections.sort(locationOptions, new Comparator<Option>() {
-
-                          @Override
-                               public int compare(Option left, Option right) {
-                               return left.getLabel().compareTo(right.getLabel());
-                          }
-                          });*/
 
                     if (!locationOptions.isEmpty()) {
                     for(Option option: locationOptions)

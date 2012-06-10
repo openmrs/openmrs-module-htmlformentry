@@ -46,11 +46,20 @@ public class DropdownWidget extends SingleOptionWidget {
             for (int i = 0; i < getOptions().size(); ++i) {
                 Option option = getOptions().get(i);
                 boolean selected = option.isSelected();
-                if (!selected)
-                    selected = getInitialValue() == null ? option.getValue().equals("") : getInitialValue().equals(option.getValue());
+                // this selectedDefault variable is added here to make sure the widget selects the initial option when editing form or
+                // the default option when entering form values such as default location, provider etc. .
+                boolean selectedDefault = getInitialValue() == null ? option.getValue().equals("") :
+                        (getInitialValue().equals(option.getLabel()) || getInitialValue().equals(option.getValue()));
+                // if there is default option undo selecting the first option of menu i.e. "Choose a Provider" etc.
+                if(selectedDefault){
+                    selected = false;
+                }
                 sb.append("<option value=\"").append(option.getValue()).append("\"");
                 if (selected)
                     sb.append(" selected=\"true\"");
+                if(selectedDefault){
+                    sb.append(" selected=\"true\"");
+                }
                 sb.append(">");
                 sb.append(option.getLabel());
                 sb.append("</option>");

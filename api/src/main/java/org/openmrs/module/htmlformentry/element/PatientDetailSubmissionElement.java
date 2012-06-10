@@ -177,7 +177,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
             }
             new OptionComparator(locationOptions);
 
-            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",false));
+            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"-",false));
             if (!locationOptions.isEmpty()) {
                     for(Option option: locationOptions){
                     ((DropdownWidget) identifierLocationWidget).addOption(option);
