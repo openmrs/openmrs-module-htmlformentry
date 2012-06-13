@@ -205,19 +205,20 @@ public class HtmlFormEntryController {
                                HttpServletRequest request,
                                Model model) throws Exception {
 
-        try{ // Handles the fileuploads using springs Multipart fileuploader
+        HashMap fileNames=new HashMap();
+        //fileNames.putAll(null);
+        try{
             if(request instanceof MultipartHttpServletRequest && file.length>0)
-            {
-                HashMap fileNames=new HashMap();
-                fileNames.clear();
-                for(int i=0;i<file.length;i++){
+            {   for(int i=0;i<file.length;i++){
+
                 AdministrationService as = Context.getAdministrationService();
 
                 File complexObsDir = OpenmrsUtil.getDirectoryInApplicationDataDirectory(as.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_COMPLEX_OBS_DIR));
                 if(complexObsDir.exists() && complexObsDir.canWrite()) {
-                    // pathtostoreFile is actually the complex_obs directory of the filesystem along with the name of the file appended.
-                    // Eg. If the file selected for Upload is 'Ball.jpg' then pathtostoreFile in Windows may be like this C:\Users\Jibesh\Application Data\OpenMRS\Ball.jpg
-                    String pathtostoreFile = complexObsDir.toPath().resolveSibling(file[i].getOriginalFilename()).toString();
+
+
+                    String pathtostoreFile = complexObsDir.toPath()+file[i].getOriginalFilename();
+
 
                     FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
                     if (!file[i].isEmpty()) {
@@ -232,7 +233,9 @@ public class HtmlFormEntryController {
                 else{
                     log.error("Files could not be Uploaded, either complex_obs directory does not exist or the user does not have the permission to access it");
                 }
-                request.setAttribute("upldWidget",fileNames); } // The HashMap 'fileNames' is read by the getValue() method of UploadWidget class
+
+                request.setAttribute("upldWidget",fileNames); }
+
             }
         }
         catch (Exception exception){
