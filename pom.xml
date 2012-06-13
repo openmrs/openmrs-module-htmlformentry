@@ -282,7 +282,7 @@
 			<id>openmrs-1.9</id>
 
 			<properties>
-				<openMRSVersion>1.9.0-RC</openMRSVersion>
+				<openMRSVersion>1.9.0</openMRSVersion>
 				<openMRSMinorVersion>1.9</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>
