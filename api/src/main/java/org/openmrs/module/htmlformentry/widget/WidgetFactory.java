@@ -117,5 +117,13 @@ public class WidgetFactory {
         value = value.replace("\n", "<br/>");
         return "<span class=\"emptyValue\">" + value + "</span>";
     }
+
+    public static String displayComplexValue(String value){
+        value = value.replace("<", "&lt;");
+        value = value.replace(">", "&gt;");
+        value = value.replace("\n", "<br/>");
+        value="<a href=\"/openmrs/complexObsServlet?obsId="+value+"\">"+"<img class=\"complexValue\" src=\"/openmrs/complexObsServlet?obsId="+value+"\""+" height=\"80\"" +" width=\"95\""+"/>"+"</a>";
+        return "<span>"+value+"</span>";
+    }
     
 }

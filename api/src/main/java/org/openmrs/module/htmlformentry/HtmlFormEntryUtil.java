@@ -182,7 +182,10 @@ public class HtmlFormEntryUtil {
 		ConceptDatatype dt = obs.getConcept().getDatatype();
 		if (dt.isNumeric()) {
 			obs.setValueNumeric(Double.parseDouble(value.toString()));
-		} else if (dt.isText()) {
+		}else if(dt.isComplex()){
+            obs.setValueComplex(value.toString()); //Only the name of file needs to be stored
+        }
+        else if (dt.isText()) {
 			if (value instanceof Location) {
 				Location location = (Location) value;
 				obs.setValueText(location.getId().toString() + " - " + location.getName());

@@ -23,6 +23,11 @@ div.formEntrySection {
 .emptyValue {
 }
 
+.complexValue{
+    border: 1px black solid;
+    vertical-align: middle;
+}
+
 #htmlFormEntryBanner {
 	background-color: #e0e0e0;
 	text-align: center;

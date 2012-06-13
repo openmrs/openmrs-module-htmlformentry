@@ -1,8 +1,11 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Patient;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -20,6 +24,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,6 +34,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -194,9 +201,41 @@ public class HtmlFormEntryController {
      */
     @RequestMapping(method=RequestMethod.POST, value=FORM_PATH)
     public ModelAndView handleSubmit(@ModelAttribute("command") FormEntrySession session,
-                               Errors errors,
+                               Errors errors,@RequestParam(value = "upldWidget", required = false) MultipartFile file[] ,
                                HttpServletRequest request,
                                Model model) throws Exception {
+        HashMap fileNames=new HashMap();
+        //fileNames.putAll(null);
+        try{
+            if(request instanceof MultipartHttpServletRequest && file.length>0)
+            {   for(int i=0;i<file.length;i++){
+                AdministrationService as = Context.getAdministrationService();
+
+                File complexObsDir = OpenmrsUtil.getDirectoryInApplicationDataDirectory(as.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_COMPLEX_OBS_DIR));
+                if(complexObsDir.exists() && complexObsDir.canWrite()) {
+
+                    String pathtostoreFile = complexObsDir.toPath()+file[i].getOriginalFilename();
+
+                    FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
+                    if (!file[i].isEmpty()) {
+                        byte[] bytes = file[i].getBytes();
+                        fileOutputStream.write(bytes);
+                        fileOutputStream.close();
+                        fileNames.put(i,file[i].getOriginalFilename());
+
+                    }
+                    log.info("File Uploaded successfully");
+                }
+                else{
+                    log.error("Files could not be Uploaded, either complex_obs directory does not exist or the user does not have the permission to access it");
+                }
+                request.setAttribute("upldWidget",fileNames); }
+            }
+        }
+        catch (Exception exception){
+            log.error("Exception during File Upload",exception);
+            errors.reject("Exception during File Upload, see log for further details: "+exception);
+        }
     	try {
             List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
             if (validationErrors != null && validationErrors.size() > 0) {

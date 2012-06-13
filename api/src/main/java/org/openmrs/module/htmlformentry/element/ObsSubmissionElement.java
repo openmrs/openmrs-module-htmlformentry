@@ -32,21 +32,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
-import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
-import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
-import org.openmrs.module.htmlformentry.widget.DropdownWidget;
-import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
-import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
-import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
-import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
-import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
-import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
-import org.openmrs.module.htmlformentry.widget.TimeWidget;
-import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.module.htmlformentry.widget.*;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 
@@ -321,7 +307,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
 					}
 				}
-			} else if (concept.getDatatype().isText()) {
+			}else if (concept.getDatatype().isComplex()) { // if concept is of datatype complex then create new widget
+                valueWidget = new UploadWidget();
+                String lookFor = existingObs == null ? null : existingObs.getValueComplex();
+                String initialValue = null;
+                if (lookFor != null) {
+                    initialValue = existingObs.getObsId().toString();  }
+                valueWidget.setInitialValue(initialValue);
+            }
+            else if (concept.getDatatype().isText()) {
 				if (parameters.get("answers") != null) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ","); st.hasMoreTokens();) {
