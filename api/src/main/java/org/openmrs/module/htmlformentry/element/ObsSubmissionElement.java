@@ -915,6 +915,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		Object value = valueWidget.getValue(session.getContext(), submission);
+		
 		if (concepts != null) {
 			try {
 				if (value instanceof Concept)
@@ -943,7 +944,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		} else {
 			if (concepts != null && value != null && !"".equals(value) && concept != null) {
 				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue);
-			} else if (value != null && !"".equals(value)) {
+			}
+			else if (value != null && !"".equals(value)) {
+				if(valueWidget instanceof AutocompleteWidget && ((AutocompleteWidget) valueWidget).isMulti())
+				{
+					int i=Integer.parseInt((String)value);
+					String conceptValue=session.getContext().getFieldName(valueWidget)+"span_";
+					for(int k=0;k<i;k++){
+						valueWidget.setInitialValue(Context.getConceptService().getConcept(submission.getParameter(conceptValue+k+"_hid")));
+					session.getSubmissionActions().createObs(concept, submission.getParameter(conceptValue+k+"_hid"), obsDatetime, accessionNumberValue);
+					}
+				}
+				else
 				session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue);
 			}
 		}

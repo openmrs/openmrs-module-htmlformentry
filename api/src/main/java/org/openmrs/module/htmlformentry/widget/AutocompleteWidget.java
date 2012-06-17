@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.widget;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,6 +14,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 public class AutocompleteWidget implements Widget {
 
 	private Concept initialValue;
+	private Vector<Concept> v=new Vector<Concept>();
 	private String allowedConceptIds;
 	private String allowedConceptClassNames;
 	private String src;
@@ -62,8 +64,11 @@ public class AutocompleteWidget implements Widget {
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode().equals(Mode.VIEW)) {
 			String toPrint = "";
-			if (initialValue != null) {
-				toPrint = initialValue.getDisplayString();
+			if (!v.isEmpty()) {
+				for (Concept c : v) {
+					toPrint =toPrint+c.getDisplayString()+';'; 
+                }
+				//toPrint = initialValue.getDisplayString();
 				return WidgetFactory.displayValue(toPrint);
 			} else {
 				toPrint = "_______________";
@@ -100,7 +105,9 @@ public class AutocompleteWidget implements Widget {
 		}
 		return sb.toString();
 	}
-
+public boolean isMulti(){
+	return multi;
+}
 
 	@Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
@@ -111,6 +118,7 @@ public class AutocompleteWidget implements Widget {
 	@Override
     public void setInitialValue(Object initialValue) {
 		// TODO Auto-generated method stub
-		this.initialValue = (Concept) initialValue;
+		v.add((Concept) initialValue);
+		//this.initialValue = (Concept) initialValue;
 	}
 }

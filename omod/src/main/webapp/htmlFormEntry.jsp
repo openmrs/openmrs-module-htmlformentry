@@ -34,8 +34,9 @@
 	// individual forms can define their own functions to execute before a form validation or submission by adding them to these lists
 	// if any function returns false, no further functions are called and the validation or submission is cancelled
 	var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
-	var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
-	var count=0;
+	var beforeSubmit = new Array(); 
+
+	// a list of functions that will be executed before the submission of a form
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
 			
@@ -59,23 +60,50 @@
 			 );
 		});
 		$j(':button.addConceptButton').click(function() {
-	        var string=(this.id).replace("_button","");
-	        var conceptValue=$j('#'+string+'_hid').attr('value')
-	        if($j('#'+string).css('color')=='green'){
-	        	var divId=string+"_div";
-	        	
-	        	count++;
-	        	 var spanid=string+'span'+count;
+			  var string=(this.id).replace("_button","");
+		        var conceptValue=$j('#'+string+'_hid').attr('value')
+		        if($j('#'+string).css('color')=='green'){
+		        var	divId=string+"_div";
+			 var clickNum = $j(this).data('clickNum');
+			 if (!clickNum) {
+				 clickNum = 0;
+				 $j('#'+divId).data("count",clickNum);
+				 $j(this).data('clickNum',++clickNum);
+			 }
+	        	 var spanid=string+'span_'+ $j('#'+divId).data("count");
+	        	 var count= $j('#'+divId).data("count");
+	        	 $j('#'+divId).data("count",++count);
+	        	 $j('#'+string+'_hid').attr('value',$j('#'+divId).data("count"));
 	        	 var hidId=spanid+'_hid';
-	           var v='</br><span id="'+spanid+'">'+$j('#'+string).val()+'<input id="'+hidId+'" class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
-	                var q='<input type="button" value="remove" onClick="$j(\'#'+spanid+'\').hide()"></span>';
+	           var v='<span id="'+spanid+'"></br>'+$j('#'+string).val()+'<input id="'+hidId+'"  class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
+	                var q='<input id="'+spanid+'_button" type="button" value="remove" onClick="$j(\'#'+spanid+'\').remove();refresh()"></span>';
 	                $j('#'+divId).append(v+q);
-	        
+	                $j('#'+string).val('');
 	        } 
 	        });
 	        
 
 	});
+	function refresh () {
+		var flag=true;
+		var string=((this.id).split("span",1))+"_hid";
+		var divId=((this.id).split("span",1))+"_div";
+		$j('#'+divId+' span').each(function(index) {
+			$j('#'+divId).data("count",index+1);
+	     	 $('#'+string).attr('value',$j('#'+divId).data("count"));
+			flag=false;
+		     var spanId=this.id;
+		     var newSpanId=spanId.split('_',1)+'_'+index;
+		     this.id=newSpanId;
+		     $j('#'+spanId+'_hid').attr('id',newSpanId+'_hid');
+		      $j('#'+spanId+'_button').removeAttr('onclick',null).unbind('click').attr('id',newSpanId+'_button').click(function() {
+		 $j('#'+newSpanId).remove();refresh();
+		 });
+		     });
+		if(flag)
+		$j('#'+divId).data("count",0);
+    	 $j('#'+string).attr('value',$j('#'+divId).data("count"));
+		}
 	var tryingToSubmit = false;
 	
 	function submitHtmlForm() {
