@@ -5,7 +5,9 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
+import ca.uhn.hl7v2.model.v24.segment.AUT;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.velocity.exception.ParseErrorException;
 import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -37,7 +39,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	private ErrorWidget timeErrorWidget;
 	
-	private PersonStubWidget providerWidget;
+	private SingleOptionWidget providerWidget;
 	
 	private ErrorWidget providerErrorWidget;
 	
@@ -92,11 +94,18 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 		// Register Provider widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("provider"))) {
-			
-			providerWidget = new PersonStubWidget();
+
+			//providerWidget = new PersonStubWidget();
+            if("autocomplete".equals(parameters.get("type"))) {
+                providerWidget = new AutocompleteWidget();
+            } else {
+                providerWidget = new DropdownWidget();
+            }
 			providerErrorWidget = new ErrorWidget();
 			
-			List<PersonStub> options = new ArrayList<PersonStub>();
+			//List<PersonStub> options = new ArrayList<PersonStub>();
+            List<Option> providerOptions = new ArrayList<Option>();
+
 			//			boolean sortOptions = false;
 			
 			// If specific persons are specified, display only those persons in order
@@ -107,16 +116,19 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					if (p == null) {
 						throw new RuntimeException("Cannot find Person: " + s);
 					}
-					options.add(new PersonStub(p));
+                    String label = p.getPersonName().getFullName();
+                    providerOptions.add(new Option(label, p.getId().toString(),false));
+					//options.add(new PersonStub(p));
 				}
-				removeNonProviders(options);
+				removeNonProviders(providerOptions);
 			}
 			
 			// Only if specific person ids are not passed in do we get by user Role
-			if (options.isEmpty()) {
+			if (providerOptions.isEmpty()) {
 				
 				List<PersonStub> users = new ArrayList<PersonStub>();
-				
+                List<Option> providerUsers = new ArrayList<Option>();
+
 				// If the "role" attribute is passed in, limit to users with this role
 				if (parameters.get("role") != null) {
 					Role role = Context.getUserService().getRole((String) parameters.get("role"));
@@ -145,17 +157,38 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						users = getAllProvidersThatArePersonsAsPersonStubs();
 					}
 				}
-				options.addAll(users);
+
+                for(PersonStub personStub: users){
+
+                    Option option = new Option(personStub.toString(), personStub.getId().toString(),false);
+                    providerUsers.add(option);
+                }
+				providerOptions.addAll(providerUsers);
 				//				sortOptions = true;
 			}
 			
 			// Set default values as appropriate
 			Person defaultProvider = null;
+            Option defProviderOption = null;
 			if (context.getExistingEncounter() != null) {
 				defaultProvider = context.getExistingEncounter().getProvider();
-				if (!options.contains(new PersonStub(defaultProvider))) {
+                defProviderOption
+                     = new Option(defaultProvider.getPersonName().getFullName(), defaultProvider.getId().toString(), true);
+              // this is done to avoid default provider beind added twice due to that it can be added from the
+              // users = getAllProvidersThatArePersonsAsPersonStubs(); section with selected="false", therefore this can't be caught when
+              // searching whether the options list contains the 'defaultProvider'
+              for(Option option: providerOptions){
+                  if(option.getValue().equals(defProviderOption.getValue())){
+                      providerOptions.remove(option);
+                      break;
+                  }
+              }
+
+                   providerOptions.add(defProviderOption);
+
+				/*if (!options.contains(new PersonStub(defaultProvider))) {
 					options.add(new PersonStub(defaultProvider));
-				}
+				}*/
 			} else {
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
@@ -166,16 +199,50 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					}
 					if (defaultProvider == null) {
 						throw new IllegalArgumentException("Invalid default provider specified for encounter: " + defParam);
-					}
+					}else {
+                        defProviderOption
+                            = new Option(defaultProvider.getPersonName().getFullName(), defaultProvider.getId().toString(),true);
+                        for(Option option: providerOptions){
+                            if(option.getValue().equals(defProviderOption.getValue())){
+                                 providerOptions.remove(option);
+                                 break;
+                            }
+                        }
+                        providerOptions.add(defProviderOption);
+
+
+                    }
+
 				}
 			}
-			
+            if(defaultProvider != null){
+               providerWidget.setInitialValue(new PersonStub(defaultProvider));
+            }
+
 			//			if (sortOptions) {
 			//				Collections.sort(options, new PersonByNameComparator());
 			//			}
-			
-			providerWidget.setOptions(options);
-			providerWidget.setInitialValue(new PersonStub(defaultProvider));
+			 if (("autocomplete").equals(parameters.get("type"))){
+
+             providerWidget.addOption(new Option());
+             if(!providerOptions.isEmpty()){
+                 providerWidget.setOptions(providerOptions);
+             }
+
+         }   else {
+             boolean initialValueIsSet = !(providerWidget.getInitialValue() == null);
+             providerWidget.addOption(new Option
+               (Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"),"",!initialValueIsSet)); // if no initial or default value
+                // this is the first option of the drop down menu
+             if(!providerOptions.isEmpty()){
+                 for(Option option: providerOptions){
+                     providerWidget.addOption(option);
+                 }
+
+             }
+         }
+			//providerWidget.setOptions(options);
+
 			
 			context.registerWidget(providerWidget);
 			context.registerErrorWidget(providerWidget, providerErrorWidget);
@@ -296,13 +363,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	 * 
 	 * @param persons
 	 */
-	private void removeNonProviders(List<PersonStub> persons) {
+	private void removeNonProviders(List<Option> persons) {
 		if (openmrsVersionDoesNotSupportProviders())
 			return;
 		Set<Integer> legalPersonIds = getAllProviderPersonIds();
-		for (Iterator<PersonStub> i = persons.iterator(); i.hasNext();) {
-			PersonStub candidate = i.next();
-			if (!legalPersonIds.contains(candidate.getId()))
+		for (Iterator<Option> i = persons.iterator(); i.hasNext();) {
+			Option candidate = i.next();
+			if (!legalPersonIds.contains(Integer.parseInt(candidate.getValue())))
 				i.remove();
 		}
 	}
@@ -471,7 +538,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 		try {
 			if (providerWidget != null) {
-				Object provider = providerWidget.getValue(context, submission);
+				Object value = providerWidget.getValue(context, submission);
+                Person provider = (Person)convertValueToProvider(value);
 				if (provider == null)
 					throw new Exception("required");
 			}
@@ -495,6 +563,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		return ret;
 	}
+
+
+  /**
+     * Gets provider id and obtains the Provider from it
+     * @param value - provider id
+     * @return  the Provider object of corresponding id
+     */
+    private Object convertValueToProvider(Object value) {
+        String val = (String)value;
+            if (StringUtils.hasText(val)) {
+        	return HtmlFormEntryUtil.convertToType(val, Person.class);
+            }
+        return null;
+    }
 	
 	/**
 	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
@@ -517,7 +599,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			e.setEncounterDatetime(dateAndTime);
 		}
 		if (providerWidget != null) {
-			Person person = (Person) providerWidget.getValue(session.getContext(), submission);
+			Object value = providerWidget.getValue(session.getContext(), submission);
+            Person person = (Person)  HtmlFormEntryUtil.convertToType(value.toString(), Person.class);
 			session.getSubmissionActions().getCurrentEncounter().setProvider(person);
 		}
 		if (locationWidget != null) {

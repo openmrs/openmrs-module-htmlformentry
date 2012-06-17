@@ -1,4 +1,4 @@
-var tempRadioStatus;
+    var tempRadioStatus;
 
 // remember the status of this radio button when it is first clicked, for use in the radioClicked method
 function radioDown(radioButton) {
@@ -155,6 +155,7 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 		    //if the input field is not empty
 		    //the error will be triggered in onblur below
 			if (suggestions.length==0) hiddenField.val("");
+
 			
 			add(suggestions);  
 		 });  
@@ -166,8 +167,10 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 					select = true;
 			},
 		    close: function(event, ui) {
-				if(select)//user has selected item from the list
+				if(select) {//user has selected item from the list
 					textField.css('color', 'green');
+
+            }
 				else {	
 					textField.css('color', 'red');
 					hiddenField.val("ERROR");
@@ -175,6 +178,9 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 				select = false;
 			}
 		});
+
+
+
 	} 	
 }
 

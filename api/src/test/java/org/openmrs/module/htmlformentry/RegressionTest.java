@@ -263,6 +263,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
+                System.out.println(Context.getPersonService().getPerson(502).getPersonName().getFullName());
 				e.setProvider(Context.getPersonService().getPerson(502));
 				return e;
 			}

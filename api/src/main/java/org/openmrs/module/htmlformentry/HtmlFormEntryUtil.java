@@ -389,7 +389,7 @@ public class HtmlFormEntryUtil {
 	 * Get the concept by id, the id can either be 1)an integer id like 5090 or 2)mapping type id
 	 * like "XYZ:HT" or 3)uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the concept if exist, else null
 	 * @should find a concept by its conceptId
 	 * @should find a concept by its mapping
@@ -464,7 +464,7 @@ public class HtmlFormEntryUtil {
 	 * pair like "501 - Boston" (this format is used when saving a location on a obs as a value
 	 * text)
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the location if exist, else null
 	 * @should find a location by its locationId
 	 * @should find a location by name
@@ -532,7 +532,7 @@ public class HtmlFormEntryUtil {
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) name of *associated concept* (not name of
 	 * program), like "MDR-TB Program"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the program if exist, else null
 	 * @should find a program by its id
 	 * @should find a program by name of associated concept
@@ -581,7 +581,7 @@ public class HtmlFormEntryUtil {
 	 * pair like "5090 - Bob Jones" (this format is used when saving a person on a obs as a value
 	 * text)
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the person if exist, else null
 	 * @should find a person by its id
 	 * @should find a person by its uuid
@@ -647,7 +647,7 @@ public class HtmlFormEntryUtil {
 	 * Get the patient identifier type by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a name like "Temporary Identifier"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the identifier type if exist, else null
 	 * @should find an identifier type by its id
 	 * @should find an identifier type by its uuid
@@ -830,7 +830,7 @@ public class HtmlFormEntryUtil {
 	 * programWorkflowStateId, or uuid
 	 *  
 	 * @param identifier the programWorkflowStateId or uuid to match against
-	 * @param workflow
+	 * @param
 	 * @return
 	 * @should return the state with the matching id
 	 * @should return the state with the matching uuid
@@ -918,7 +918,7 @@ public class HtmlFormEntryUtil {
 	 * objects in encounter Uses a 'dummy' FormEntrySession to use htmlformentry schema matching
 	 * mechanism, and then examines the leftover Obs, Orders from the FormEntrySession constructor
 	 * 
-	 * @param session
+	 * @param
 	 */
 	public static void voidEncounterByHtmlFormSchema(Encounter e, HtmlForm htmlform, String voidReason) throws Exception {
 		if (e != null && htmlform != null) {
@@ -1078,7 +1078,7 @@ public class HtmlFormEntryUtil {
 	 * and setters and *are not* collection
 	 * 
 	 * @param source
-	 * @param replacements
+	 * @param
 	 * @return A copy of an object
 	 * @throws Exception
 	 */
@@ -1095,7 +1095,12 @@ public class HtmlFormEntryUtil {
 			for (Method getter : clazz.getMethods()) {
 				if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase())
 				        && getter.getParameterTypes().length == 0) {
-					Method setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
+                    Method setter;
+                    if(getter.getName().toUpperCase().equals("GETPROVIDER")){
+                       setter = getCorrectSetterForProvider(clazz,getter,"SET" + root.toUpperCase() );
+                    } else {
+                       setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
+                    }
 					//NOTE: Collection properties are not copied
 					if (setter != null && methodsSupportSameArgs(getter, setter)
 					        && !(getter.getReturnType().isInstance(Collection.class))) {
@@ -1109,8 +1114,28 @@ public class HtmlFormEntryUtil {
 		}
 		return ret;
 	}
-	
-	/**
+
+   /**
+     *   The Encounter.setProvider() contains the different overloaded methods and this filters the correct setter from those
+     * @param clazz
+     * @param getter
+     * @param methodname
+     * @return
+     */
+    private static Method getCorrectSetterForProvider(Class<? extends Object> clazz, Method getter, String methodname) {
+
+        for(Method m : clazz.getMethods()){
+            Class<?>[] parameters = m.getParameterTypes();
+            for (Class<?> parameter : parameters) {
+                  if(getter.getReturnType().equals(parameter)){
+                      return  m;
+                  }
+            }
+        }
+        return null;
+    }
+
+    /**
 	 * Performs a case insensitive search on a class for a method by name.
 	 * 
 	 * @param clazz
@@ -1127,7 +1152,7 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * compares getter return types to setter parameter types.
+	 * compares getter return types to setter parameter tytestVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectlypes.
 	 * 
 	 * @param getter
 	 * @param setter
