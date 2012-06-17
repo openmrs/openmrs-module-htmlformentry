@@ -335,22 +335,29 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if ("location".equals(parameters.get("style"))) {
 
                     valueWidget = new DropdownWidget();
-                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"-",false));
-                    Location defaultLocation = Context.getLocationService().getDefaultLocation();
+
+                    Location defaultLocation = null;
+                    if(context.getExistingEncounter()!= null){
+                        defaultLocation = context.getExistingEncounter().getLocation();
+                    }else {
+                        defaultLocation = context.getDefaultLocation();
+                    }
+                    valueWidget.setInitialValue(defaultLocation);
 
                        for (Location location : Context.getLocationService().getAllLocations()) {
                             String label = location.getName();
                             Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
                             locationOptions.add(option);
                        }
-                    new OptionComparator(locationOptions);
+                    Collections.sort(locationOptions, new OptionComparator());
 
-                    if (!locationOptions.isEmpty()) {
+                // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+                boolean initialValueIsSet = !(defaultLocation == null);
+                ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",!initialValueIsSet));
+                if (!locationOptions.isEmpty()) {
                     for(Option option: locationOptions)
-                    ((DropdownWidget)valueWidget).addOption(option);
-                 }
-
-                    valueWidget.setInitialValue(defaultLocation);
+                        ((DropdownWidget)valueWidget).addOption(option);
+                }
 
 				} else if ("person".equals(parameters.get("style"))) {
 					

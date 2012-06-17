@@ -32,6 +32,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -742,19 +743,38 @@ public class FormEntrySession {
                             + "');\n");
 
 					// special case to set the display field of the Location widget when autocomplete is used
-					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())) {
-						Object locationObj = HtmlFormEntryUtil.convertToType(val, Location.class);
-						Location location = null;
-						if (locationObj != null) {
-							location = (Location) locationObj;
-						} else {
+					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
+                             && HtmlFormEntryUtil.convertToType(val, Location.class) != null) {
+
+						Object returnedObj = HtmlFormEntryUtil.convertToType(val, Location.class);
+                        Location location = null;
+						if (returnedObj != null) {
+							location = (Location) returnedObj;
+						}
+                        else {
 							//This should typically never happen,why is there no location with this id, we
 							//should set val(locationId) to blank so that the hidden form field is blank too
 							val = "";
 						}
 						sb.append("$j('#display_" + widgetFieldName + "').val(\""
 						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
+
 					}
+                    // special case to set the display field of the provider widget when autocomplete is used
+                    if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
+                             && HtmlFormEntryUtil.convertToType(val, Person.class) != null) {
+                        Object returnedObj = HtmlFormEntryUtil.convertToType(val, Person.class);
+                        Person provider = null;
+                        if (returnedObj != null) {
+							provider = (Person) returnedObj;
+						} else {
+							//This should typically never happen,why is there no provider with this id, we
+							//should set val(providerid) to blank so that the hidden form field is blank too
+							val = "";
+						}
+						sb.append("$j('#display_" + widgetFieldName + "').val(\""
+						        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
+                    }
 
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");

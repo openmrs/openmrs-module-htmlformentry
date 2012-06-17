@@ -1152,8 +1152,8 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * compares getter return types to setter parameter tytestVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectlypes.
-	 * 
+      	 *    compares getter return types to setter parameter types
+        *
 	 * @param getter
 	 * @param setter
 	 * @return true if getter return types are the same as setter parameter types. Else false.

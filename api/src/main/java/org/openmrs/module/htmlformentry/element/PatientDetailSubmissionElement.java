@@ -14,13 +14,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -168,26 +162,26 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
             Location defaultLocation = existingPatient != null
 					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getLocation() : null;
 			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
-            defaultLocation = defaultLocation == null ? Context.getLocationService().getDefaultLocation(): defaultLocation;
+            identifierLocationWidget.setInitialValue(defaultLocation);
 
             List<Option> locationOptions = new ArrayList<Option>();
             for(Location location:Context.getLocationService().getAllLocations()) {
                 Option option = new Option(location.getName(), location.getId().toString(), location.equals(defaultLocation));
                 locationOptions.add(option);
             }
-            new OptionComparator(locationOptions);
+            Collections.sort(locationOptions, new OptionComparator());
 
-            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"-",false));
+            // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+            boolean initialValueIsSet = !(defaultLocation == null);
+            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "", !initialValueIsSet));
             if (!locationOptions.isEmpty()) {
                     for(Option option: locationOptions){
                     ((DropdownWidget) identifierLocationWidget).addOption(option);
                     }
             }
-
-            identifierLocationWidget.setInitialValue(defaultLocation);
-
 			createWidgets(context, identifierLocationWidget, identifierLocationErrorWidget, defaultLocation);
 		}
+
 		else if (FIELD_ADDRESS.equalsIgnoreCase(field)) {
 			addressWidget = new AddressWidget();
 			createWidgets(context, addressWidget, null, existingPatient != null ? existingPatient.getPersonAddress() : null);
