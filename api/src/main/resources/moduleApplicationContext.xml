@@ -93,6 +93,10 @@
 								        <key><value>standardRegimen</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.StandardRegimenTagHandler"/>
 							      	</entry>
+							      	<entry>
+								        <key><value>encounterType</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.EncounterTypeTagHandler"/>
+							      	</entry>
 							    </map>  
 							</property>
 							<property name="basicFormXmlTemplate">

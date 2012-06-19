@@ -53,6 +53,11 @@ import org.springframework.web.util.JavaScriptUtils;
  * 
  * 
  * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * {
  * 	&#064;code
  * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
@@ -533,7 +538,8 @@ public class FormEntrySession {
 			for (Encounter e : submissionActions.getEncountersToCreate()) {
 				if (form != null) {
 					e.setForm(form);
-					e.setEncounterType(form.getEncounterType());
+					if (form.getEncounterType() != null)
+						e.setEncounterType(form.getEncounterType());
 				}
 				Context.getEncounterService().saveEncounter(e);
 			}

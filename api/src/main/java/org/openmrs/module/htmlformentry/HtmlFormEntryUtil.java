@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
@@ -60,6 +61,7 @@ import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.propertyeditor.ConceptEditor;
+import org.openmrs.propertyeditor.EncounterTypeEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
@@ -143,6 +145,10 @@ public class HtmlFormEntryUtil {
 			return ed.getValue();
 		} else if (Person.class.isAssignableFrom(clazz)) {
 			PersonEditor ed = new PersonEditor();
+			ed.setAsText(val);
+			return ed.getValue();
+		} else if (EncounterType.class.isAssignableFrom(clazz)) {
+			EncounterTypeEditor ed = new EncounterTypeEditor();
 			ed.setAsText(val);
 			return ed.getValue();
 		} else {
@@ -1349,5 +1355,53 @@ public class HtmlFormEntryUtil {
 			sb.append(words[i]);
 		}
 		return sb.toString();
+	}
+	
+	/***
+	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
+	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
+	 * 
+	 * @param Id
+	 * @return the encounter type if exist, else null
+	 * @should find a encounter type by its encounterTypeId
+	 * @should find a encounter type by name
+	 * @should find a encounter type by its uuid
+	 * @should return null otherwise
+	 */
+	public static EncounterType getEncounterType(String id) {
+		
+		EncounterType encounterType = null;
+		
+		if (StringUtils.isNotBlank(id)) {
+			id = id.trim();
+			// see if this is parseable int; if so, try looking up by id
+			try {
+				int encounterTypeId = Integer.parseInt(id);
+				encounterType = Context.getEncounterService().getEncounterType(encounterTypeId);
+				
+				if (encounterType != null)
+					return encounterType;
+			}
+			catch (Exception ex) {
+				//do nothing 
+			}
+			
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format
+			if (isValidUuidFormat(id)) {
+				encounterType = Context.getEncounterService().getEncounterTypeByUuid(id);
+				
+				if (encounterType != null)
+					return encounterType;
+			}
+			
+			// if it's neither a uuid or id, try encounter type name
+			encounterType = Context.getEncounterService().getEncounterType(id);
+			
+			if (encounterType != null)
+				return encounterType;
+		}
+		
+		// no match found
+		return null;
 	}
 }
