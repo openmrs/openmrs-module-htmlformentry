@@ -52,6 +52,7 @@ import org.springframework.web.util.JavaScriptUtils;
  * 
  * 
  * 
+ * 
  * {
  * 	&#064;code
  * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
@@ -735,11 +736,11 @@ public class FormEntrySession {
 				String widgetFieldName = entry.getValue();
 				String val = lastSubmission.getParameter(widgetFieldName);
 				if (val != null) {
-
-                    // set the value of the widget based on it's name
-                    sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
-                            + "');\n");
-
+					
+					// set the value of the widget based on it's name
+					sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
+					        + "');\n");
+					
 					// special case to set the display field of the Location widget when autocomplete is used
 					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass())) {
 						Object locationObj = HtmlFormEntryUtil.convertToType(val, Location.class);
@@ -754,7 +755,7 @@ public class FormEntrySession {
 						sb.append("$j('#display_" + widgetFieldName + "').val(\""
 						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
 					}
-
+					
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
 					if (LocationWidget.class.isAssignableFrom(entry.getKey().getClass()))

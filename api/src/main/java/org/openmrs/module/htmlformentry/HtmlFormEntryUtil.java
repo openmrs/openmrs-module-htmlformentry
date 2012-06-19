@@ -518,7 +518,7 @@ public class HtmlFormEntryUtil {
 					return location;
 				}
 			}
-						
+			
 			// if it's neither a uuid or id, try location name
 			location = Context.getLocationService().getLocation(id);
 			
@@ -713,7 +713,7 @@ public class HtmlFormEntryUtil {
 	 * Looks up a {@link ProgramWorkflow} by id, uuid or by concept map of the underlying concept
 	 */
 	@SuppressWarnings("deprecation")
-    public static ProgramWorkflow getWorkflow(String identifier) {
+	public static ProgramWorkflow getWorkflow(String identifier) {
 		ProgramWorkflow workflow = null;
 		
 		if (identifier != null) {
@@ -725,9 +725,8 @@ public class HtmlFormEntryUtil {
 				if (workflow != null) {
 					return workflow;
 				}
-			} 
-			catch (NumberFormatException e) {
 			}
+			catch (NumberFormatException e) {}
 			
 			// if not, try to fetch by uuid
 			if (isValidUuidFormat(identifier)) {
@@ -747,7 +746,7 @@ public class HtmlFormEntryUtil {
 				// iterate through workflows until we see if we find a match
 				if (concept != null) {
 					for (Program program : Context.getProgramWorkflowService().getAllPrograms(false)) {
-		 				for (ProgramWorkflow w : program.getAllWorkflows()) {
+						for (ProgramWorkflow w : program.getAllWorkflows()) {
 							if (w.getConcept().equals(concept)) {
 								return w;
 							}
@@ -761,10 +760,10 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Looks up a {@link ProgramWorkflowState} from the specified program by
-	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
-	 * 
-	 * (Note that if there are multiple states associated with the same concept in the program, this method will return an arbitrary one if fetched by concept mapping)
+	 * Looks up a {@link ProgramWorkflowState} from the specified program by programWorkflowStateId,
+	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple
+	 * states associated with the same concept in the program, this method will return an arbitrary
+	 * one if fetched by concept mapping)
 	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
@@ -805,9 +804,9 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
-	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
-	 * 
-	 * (Note that if there are multiple states associated with the same concept in the workflow, this method will return an arbitrary one if fetched by concept mapping)
+	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept (Note that if
+	 * there are multiple states associated with the same concept in the workflow, this method will
+	 * return an arbitrary one if fetched by concept mapping)
 	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param workflow
@@ -827,7 +826,7 @@ public class HtmlFormEntryUtil {
 		if (state != null && state.getProgramWorkflow().equals(workflow)) {
 			return state;
 		}
-		
+
 		// if we didn't find a match, see if this is a concept mapping
 		else {
 			int index = identifier.indexOf(":");
@@ -848,7 +847,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
 	 * programWorkflowStateId, or uuid
-	 *  
+	 * 
 	 * @param identifier the programWorkflowStateId or uuid to match against
 	 * @param workflow
 	 * @return
@@ -867,9 +866,8 @@ public class HtmlFormEntryUtil {
 				if (state != null) {
 					return state;
 				}
-			} 
-			catch (NumberFormatException e) {
 			}
+			catch (NumberFormatException e) {}
 			
 			if (isValidUuidFormat(identifier)) {
 				state = Context.getProgramWorkflowService().getStateByUuid(identifier);
@@ -881,8 +879,6 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-
-	
 	
 	/***
 	 * Determines if the passed string is in valid uuid format By OpenMRS standards, a uuid must be
@@ -1283,16 +1279,17 @@ public class HtmlFormEntryUtil {
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
 		
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+		    null, date, date, null, false);
 		
 		return (patientPrograms.size() > 0);
 		
 	}
-
+	
 	/**
-	 * Checks to see if the patient has a program enrollment in the specified program after the given date
-	 * If multiple patient programs, returns the earliest enrollment
-	 * If no enrollments, returns null
+	 * Checks to see if the patient has a program enrollment in the specified program after the
+	 * given date If multiple patient programs, returns the earliest enrollment If no enrollments,
+	 * returns null
 	 */
 	public static PatientProgram getClosestFutureProgramEnrollment(Patient patient, Program program, Date date) {
 		if (patient == null)
@@ -1303,32 +1300,35 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("date should not be null");
 		
 		PatientProgram closestProgram = null;
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, date, null, null , null, false);
-	    
-		for (PatientProgram pp: patientPrograms) {
-			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled())) && pp.getDateEnrolled().after(date)) {
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+		    date, null, null, null, false);
+		
+		for (PatientProgram pp : patientPrograms) {
+			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled()))
+			        && pp.getDateEnrolled().after(date)) {
 				closestProgram = pp;
 			}
 			
 		}
 		
 		return closestProgram;
-    }
+	}
 	
 	/**
-	 * Given a Date object, returns a Date object for the same date but with the time component (hours, minutes, seconds & milliseconds) removed
+	 * Given a Date object, returns a Date object for the same date but with the time component
+	 * (hours, minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
 		// Get Calendar object set to the date and time of the given Date object  
-		Calendar cal = Calendar.getInstance();  
-		cal.setTime(date);  
-		  
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
 		// Set time fields to zero  
-		cal.set(Calendar.HOUR_OF_DAY, 0);  
-		cal.set(Calendar.MINUTE, 0);  
-		cal.set(Calendar.SECOND, 0);  
-		cal.set(Calendar.MILLISECOND, 0);  
-		  	
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		
 		return cal.getTime();
 	}
 	
@@ -1339,13 +1339,13 @@ public class HtmlFormEntryUtil {
 	public static String toCamelCase(String s) {
 		StringBuffer sb = new StringBuffer();
 		String[] words = s.replaceAll("[^A-Za-z]", " ").replaceAll("\\s+", " ").trim().split(" ");
-
+		
 		for (int i = 0; i < words.length; i++) {
-			if (i == 0) 
+			if (i == 0)
 				words[i] = words[i].toLowerCase();
-			else 
+			else
 				words[i] = String.valueOf(words[i].charAt(0)).toUpperCase() + words[i].substring(1);
-
+			
 			sb.append(words[i]);
 		}
 		return sb.toString();
