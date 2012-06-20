@@ -739,8 +739,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
-		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
+		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
 	}
 	
 	/**
@@ -759,11 +758,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,Program)")
 	public void getStateProgram_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
-		Assert.assertEquals(
-		    "1",
-		    HtmlFormEntryUtil
-		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1))
-		            .getId().toString());
+		Assert.assertEquals("1",HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1)).getId().toString());
 	}
 	
 	/**
@@ -774,15 +769,14 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@SuppressWarnings("deprecation")
-	@Test
+    @Test
 	@Verifies(value = "should return the state with the matching id", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingId() throws Exception {
 		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
@@ -793,28 +787,22 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@SuppressWarnings("deprecation")
-	@Test
+    @Test
 	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
-		Assert.assertEquals(
-		    "1",
-		    HtmlFormEntryUtil
-		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getWorkflow(1))
-		            .getId().toString());
+		Assert.assertEquals("1",HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getWorkflow(1)).getId().toString());
 	}
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@SuppressWarnings("deprecation")
-	@Test
+    @Test
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getWorkflow(108))
-		            .getUuid());
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getWorkflow(108)).getUuid());
 	}
 	
 	/**
@@ -878,7 +866,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should return null if no program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
+	@Verifies(value = "should return null if no program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
 	public void getClosestFutureProgramEnrollment_shouldReturnNullIfNoProgramEnrollmentAfterSpecifiedDate() throws Exception {
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
@@ -887,7 +875,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
+	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
 	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
 		// load this data set so that we get the additional patient program created in this data case
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
@@ -912,7 +900,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should return null if program enrollment date same as specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
+	@Verifies(value = "should return null if program enrollment date same as specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
 	public void getClosestFutureProgramEnrollment_shouldReturnNullIfProgramEnrollmentSameAsSpecifiedDate() throws Exception {
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
@@ -923,13 +911,12 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	@Verifies(value = "stringToDocument should handle ascii-escaped characters correctly", method = "stringToDocument(String xml)")
-	public void stringToDocument_shouldHandleAsciiEsapeChars() {
+	public void stringToDocument_shouldHandleAsciiEsapeChars(){
 		String str = "<htmlform> <input type=\"text\" value=\"HI!\" /> &#160; </htmlform>";
 		try {
 			Document doc = HtmlFormEntryUtil.stringToDocument(str);
 			Assert.assertNotNull(doc);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex){
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
@@ -937,16 +924,15 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	@Verifies(value = "stringToDocument should handle escaped characters correctly if defined as an entity", method = "stringToDocument(String xml)")
-	public void stringToDocument_shouldHandleEsapeCharsWhenDefinedAsEntity() {
+	public void stringToDocument_shouldHandleEsapeCharsWhenDefinedAsEntity(){
 		String str = "<?xml version=\"1.0\"?> <!DOCTYPE some_name [ <!ENTITY nbsp \"&#160;\">]> <htmlform> <input type=\"text\" value=\"HI!\" /> &nbsp; </htmlform>";
 		try {
 			Document doc = HtmlFormEntryUtil.stringToDocument(str);
 			Assert.assertNotNull(doc);
-		}
-		catch (Exception ex) {
+		} catch (Exception ex){
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
 	}
-	
+
 }

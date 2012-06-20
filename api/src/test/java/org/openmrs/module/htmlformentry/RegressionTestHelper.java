@@ -48,10 +48,9 @@ public abstract class RegressionTestHelper {
 	public String[] widgetLabels() {
 		return new String[0];
 	}
-	
+
 	/**
 	 * Override this if you want to test what the generated html of the blank form looks like.
-	 * 
 	 * @param html
 	 */
 	public void testBlankFormHtml(String html) {
@@ -115,7 +114,7 @@ public abstract class RegressionTestHelper {
 	 */
 	public void testViewingPatient(Patient patient, String html) {
 	}
-	
+
 	/**
 	 * Optionally override this if you want to test out viewing a specific encounter rather than the
 	 * one that was created earlier in this test case.
@@ -126,7 +125,7 @@ public abstract class RegressionTestHelper {
 	public Encounter getEncounterToView() throws Exception {
 		return null;
 	}
-	
+		
 	/**
 	 * Override this and return true if you want to have testViewingEncounter run. (If you override
 	 * getEncounterToView to return something non-null, then you do not need to override this method
@@ -146,9 +145,9 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this and return true if you want to have testEditFormHtml, testEditEncounter, etc
-	 * run. (If you override {@link #getEncounterToEdit()} to return a non-null value, you don't
-	 * need to override this one.)
+	 * Override this and return true if you want to have testEditFormHtml, testEditEncounter, etc run.
+	 * (If you override {@link #getEncounterToEdit()} to return a non-null value, you don't need to override
+	 * this one.) 
 	 */
 	public boolean doEditEncounter() {
 		return false;
@@ -156,18 +155,16 @@ public abstract class RegressionTestHelper {
 	
 	/**
 	 * Override this and return true if you want to have testEditFormHtml, testEditPatient, etc run.
-	 * (If you override {@link #getPatientToEdit()} to return a non-null value, you don't need to
-	 * override this one.)
+	 * (If you override {@link #getPatientToEdit()} to return a non-null value, you don't need to override
+	 * this one.) 
 	 */
 	public boolean doEditPatient() {
 		return false;
 	}
 	
 	/**
-	 * Override this if you want to edit a different encounter than the one created in the first
-	 * part of the test or viewed in the second part. (Returning a non-null value implies
-	 * doEditEncounter = true.)
-	 * 
+	 * Override this if you want to edit a different encounter than the one created in the first part
+	 * of the test or viewed in the second part. (Returning a non-null value implies doEditEncounter = true.)
 	 * @return
 	 */
 	public Encounter getEncounterToEdit() {
@@ -175,10 +172,9 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you want to edit the encounter that was created during viewing for editing.
-	 * The view encounter will be passed in. User either this or the empty argument version of the
-	 * method.
-	 * 
+	 * Override this if you want to edit the encounter that was created during viewing for 
+	 * editing. The view encounter will be passed in. User either this or the empty argument
+	 * version of the method.
 	 * @return
 	 */
 	public Encounter getEncounterToEdit(Encounter encounter) {
@@ -186,9 +182,8 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you want to edit a Patient than the one created in the first part of the
-	 * test or viewed in the second part. (Returning a non-null value implies doEditPatient = true.)
-	 * 
+	 * Override this if you want to edit a Patient than the one created in the first part
+	 * of the test or viewed in the second part. (Returning a non-null value implies doEditPatient = true.)
 	 * @return
 	 */
 	public Patient getPatientToEdit() {
@@ -197,15 +192,14 @@ public abstract class RegressionTestHelper {
 	
 	/**
 	 * Override this if you want to test what the generated html of the edit form looks like.
-	 * 
 	 * @param html
 	 */
 	public void testEditFormHtml(String html) {
 	}
 	
 	/**
-	 * (Override this if you want to test the submission of editing a form.) Set any request
-	 * parameters that will be sent in the form submission
+	 * (Override this if you want to test the submission of editing a form.) Set any request parameters
+	 * that will be sent in the form submission
 	 * 
 	 * @param request an empty request for you to populate
 	 * @param widgets map from the label you provided in widgetLabelsForEdit() to the name that form
@@ -234,15 +228,15 @@ public abstract class RegressionTestHelper {
 	/**
 	 * (Override this if you want to test the submission of editing a form.)
 	 * 
-	 * @param results the results of having submitted the request you set up in setupEditRequest.
-	 *            This will contain either validationErrors, or else an encounterCreated
+	 * @param results the results of having submitted the request you set up in setupEditRequest. This
+	 *            will contain either validationErrors, or else an encounterCreated
 	 */
 	public void testEditedResults(SubmissionResults results) {
 	}
-	
+
 	/**
-	 * (Override this if you want to test the an attribute of FormEntrySession in form entry (ENTER)
-	 * mode.)
+	 * (Override this if you want to test the an attribute of FormEntrySession in
+	 * form entry (ENTER) mode.)
 	 * 
 	 * @param FormEntrySession object, useful in test state of session object
 	 */
@@ -250,7 +244,8 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * (Override this if you want to test the an attribute of FormEntrySession in form view mode.)
+	 * (Override this if you want to test the an attribute of FormEntrySession in
+	 * form view mode.)
 	 * 
 	 * @param FormEntrySession object, useful in test state of session object
 	 */
@@ -258,13 +253,14 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * (Override this if you want to test the an attribute of FormEntrySession in form edit mode.)
+	 * (Override this if you want to test the an attribute of FormEntrySession in
+	 * form edit mode.)
 	 * 
 	 * @param FormEntrySession object, useful in test state of session object
 	 */
 	public void testFormEditSessionAttribute(FormEntrySession formEntrySession) {
 	}
-	
+
 	public void run() throws Exception {
 		// setup the blank form for the specified patient
 		Patient patient = getPatient();
@@ -315,7 +311,7 @@ public abstract class RegressionTestHelper {
 		if (override == null) {
 			override = getEncounterToEdit(encounterToView);
 		}
-		
+
 		boolean doEditEncounter = override != null || doEditEncounter();
 		
 		overridePatient = getPatientToEdit();
@@ -382,8 +378,7 @@ public abstract class RegressionTestHelper {
 		
 		// <select ... name="something" ...>(options)</select> (DOTALL makes . match line terminator too)
 		{
-			Pattern forSelect = Pattern.compile("<select.*?name=\"(.*?)\".*?>.*?(<option[^>]*selected[^>]*>).*?</select>",
-			    Pattern.DOTALL);
+			Pattern forSelect = Pattern.compile("<select.*?name=\"(.*?)\".*?>.*?(<option[^>]*selected[^>]*>).*?</select>", Pattern.DOTALL);
 			Matcher matcher = forSelect.matcher(html);
 			while (matcher.find()) {
 				String name = matcher.group(1);
@@ -413,9 +408,9 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you need to load your form's xml from somewhere other than the standard
-	 * location defined by {@link RegressionTest#XML_DATASET_PATH}. For example you should override
-	 * this for any tests in modules that depend on HTML Form Entry.
+	 * Override this if you need to load your form's xml from somewhere other than the standard location
+	 * defined by {@link RegressionTest#XML_DATASET_PATH}. For example you should override this for any
+	 * tests in modules that depend on HTML Form Entry. 
 	 */
 	protected String getXmlDatasetPath() {
 		return RegressionTest.XML_DATASET_PATH;
@@ -477,15 +472,14 @@ public abstract class RegressionTestHelper {
 	public String dateAsString(Date date) {
 		return new SimpleDateFormat("yyyy-MM-dd").format(date);
 	}
-	
+		
 	public Date ymdToDate(String dateString) {
 		try {
 			return new SimpleDateFormat("yyyy-MM-dd").parse(dateString);
-		}
-		catch (ParseException ex) {
+		} catch (ParseException ex) {
 			throw new RuntimeException(ex);
 		}
-	}
+    }
 	
 	public String dateTodayAsString() {
 		return dateAsString(new Date());
@@ -534,9 +528,8 @@ public abstract class RegressionTestHelper {
 		}
 		session.getSubmissionController().handleFormSubmission(session, request);
 		
-		if (session.getContext().getMode() == Mode.ENTER
-		        && session.hasEncouterTag()
-		        && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
+		if (session.getContext().getMode() == Mode.ENTER 
+		        && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
 		                .getEncountersToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an encounter");
 		session.applyActions();
@@ -546,16 +539,15 @@ public abstract class RegressionTestHelper {
 	}
 	
 	private Encounter getLastEncounter(Patient patient) {
-		List<Encounter> encs = Context.getEncounterService()
-		        .getEncounters(patient, null, null, null, null, null, null, true);
+		List<Encounter> encs = Context.getEncounterService().getEncounters(patient, null, null, null, null, null, null,
+		    true);
 		if (encs == null || encs.size() == 0)
 			return null;
 		if (encs.size() == 1)
 			return encs.get(0);
 		Collections.sort(encs, new Comparator<Encounter>() {
-			
 			@Override
-			public int compare(Encounter left, Encounter right) {
+            public int compare(Encounter left, Encounter right) {
 				return OpenmrsUtil.compareWithNullAsEarliest(left.getEncounterDatetime(), right.getEncounterDatetime());
 			}
 		});
@@ -565,7 +557,7 @@ public abstract class RegressionTestHelper {
 	public class SubmissionResults {
 		
 		private List<FormSubmissionError> validationErrors;
-		
+
 		private Patient patient;
 		
 		private Encounter encounterCreated;
@@ -622,8 +614,7 @@ public abstract class RegressionTestHelper {
 				System.out.println("No encounter created");
 			} else {
 				System.out.println("=== Encounter created ===");
-				System.out.println("Created: " + encounterCreated.getDateCreated() + "  Edited: "
-				        + encounterCreated.getDateChanged());
+				System.out.println("Created: " + encounterCreated.getDateCreated() + "  Edited: " + encounterCreated.getDateChanged());
 				System.out.println("Date: " + encounterCreated.getEncounterDatetime());
 				System.out.println("Location: " + encounterCreated.getLocation().getName());
 				System.out.println("Provider: " + encounterCreated.getProvider().getPersonName());
@@ -650,7 +641,7 @@ public abstract class RegressionTestHelper {
 		public Encounter getEncounterCreated() {
 			return encounterCreated;
 		}
-		
+				
 		public void setEncounterCreated(Encounter encounterCreated) {
 			this.encounterCreated = encounterCreated;
 		}
@@ -662,7 +653,7 @@ public abstract class RegressionTestHelper {
 		public void setPatient(Patient patient) {
 			this.patient = patient;
 		}
-		
+
 		/**
 		 * Fails if there is a patient (one was initially selected or one was created)
 		 */
@@ -671,8 +662,8 @@ public abstract class RegressionTestHelper {
 		}
 		
 		/**
-		 * Fails if there is no patient (none was initially selected and none was created), or the
-		 * patient doesn't have a patientId assigned.
+		 * Fails if there is no patient (none was initially selected and none was created), or the patient
+		 * doesn't have a patientId assigned.
 		 */
 		public void assertPatient() {
 			Assert.assertNotNull(patient);
@@ -706,8 +697,7 @@ public abstract class RegressionTestHelper {
 		}
 		
 		/**
-		 * Fails if there is no location or if the location id does not match the expected location
-		 * id
+		 * Fails if there is no location or if the location id does not match the expected location id
 		 */
 		public void assertLocation(Integer expectedLocationId) {
 			assertLocation();
@@ -851,7 +841,9 @@ public abstract class RegressionTestHelper {
 				if (o.getConcept().getConceptId() == groupingConceptId) {
 					if (o.getValueCoded() != null || o.getValueComplex() != null || o.getValueDatetime() != null
 					        || o.getValueDrug() != null || o.getValueNumeric() != null || o.getValueText() != null) {
-						Assert.fail("Obs group with groupingConceptId " + groupingConceptId + " should has a non-null value");
+						Assert
+						        .fail("Obs group with groupingConceptId " + groupingConceptId
+						                + " should has a non-null value");
 					}
 					if (TestUtil.isMatchingObsGroup(o, expected)) {
 						return;
@@ -875,7 +867,7 @@ public abstract class RegressionTestHelper {
 		}
 		
 		@Override
-		public String toString() {
+        public String toString() {
 			return conceptId + "->" + value;
 		}
 		
@@ -885,8 +877,7 @@ public abstract class RegressionTestHelper {
 				return false;
 			}
 			
-			return OpenmrsUtil
-			        .nullSafeEquals(TestUtil.valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
+			return OpenmrsUtil.nullSafeEquals(TestUtil.valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
 		}
-	}
+	}	
 }
