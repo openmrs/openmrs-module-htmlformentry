@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
-import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.Person;
 import org.openmrs.Role;
@@ -28,7 +27,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
-import org.openmrs.module.htmlformentry.widget.EncounterTypeWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
@@ -64,10 +62,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	private CheckboxWidget voidWidget;
 	
 	private ErrorWidget voidErrorWidget;
-	
-	private EncounterTypeWidget encounterTypeWidget;
-	
-	private ErrorWidget encounterTypeErrorWidget;
 	
 	/**
 	 * Construct a new EncounterDetailSubmissionElement
@@ -255,40 +249,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			id = (String) parameters.get("id");
 		}
 		
-		if (Boolean.TRUE.equals(parameters.get("encounterType"))) {
-			
-			encounterTypeWidget = new EncounterTypeWidget();
-			encounterTypeErrorWidget = new ErrorWidget();
-			
-			if (parameters.get("types") != null) {
-				List<EncounterType> encounterTypes = new ArrayList<EncounterType>();
-				String[] temp = ((String) parameters.get("types")).split(",");
-				for (String s : temp) {
-					EncounterType type = HtmlFormEntryUtil.getEncounterType(s);
-					if (type == null) {
-						throw new RuntimeException("Cannot find encounter type: " + s);
-					}
-					encounterTypes.add(type);
-				}
-				encounterTypeWidget.setOptions(encounterTypes);
-			}
-			
-			// Set default values
-			EncounterType defaultEncounterType = null;
-			if (context.getExistingEncounter() != null) {
-				defaultEncounterType = context.getExistingEncounter().getEncounterType();
-			} else {
-				String defaultTypeId = (String) parameters.get("default");
-				if (StringUtils.hasText(defaultTypeId)) {
-					defaultEncounterType = HtmlFormEntryUtil.getEncounterType(defaultTypeId);
-				}
-			}
-			
-			encounterTypeWidget.setInitialValue(defaultEncounterType);
-			context.registerWidget(encounterTypeWidget);
-			context.registerErrorWidget(encounterTypeWidget, encounterTypeErrorWidget);
-		}
-		
 	}
 	
 	/**
@@ -422,11 +382,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				    null, null);
 				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
 				    null, null, null);
-			} else if (encounterTypeWidget != null) {
-				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(encounterTypeWidget),
-				    null, null, null);
-				context.registerPropertyAccessorInfo(id + ".error",
-				    context.getFieldNameIfRegistered(encounterTypeErrorWidget), null, null, null);
 			}
 		}
 		
@@ -450,11 +405,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			ret.append(locationWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW)
 				ret.append(locationErrorWidget.generateHtml(context));
-		}
-		if (encounterTypeWidget != null) {
-			ret.append(encounterTypeWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				ret.append(encounterTypeErrorWidget.generateHtml(context));
 		}
 		if (voidWidget != null) {
 			if (context.getMode() == Mode.EDIT) //only show void option if the encounter already exists.
@@ -517,17 +467,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			ret.add(new FormSubmissionError(context.getFieldName(locationErrorWidget), Context.getMessageSourceService()
 			        .getMessage(ex.getMessage())));
 		}
-		try {
-			if (encounterTypeWidget != null) {
-				Object encounterType = encounterTypeWidget.getValue(context, submission);
-				if (encounterType == null)
-					throw new Exception("required");
-			}
-		}
-		catch (Exception ex) {
-			ret.add(new FormSubmissionError(context.getFieldName(encounterTypeErrorWidget), Context
-			        .getMessageSourceService().getMessage(ex.getMessage())));
-		}
 		return ret;
 	}
 	
@@ -558,10 +497,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (locationWidget != null) {
 			Location location = (Location) locationWidget.getValue(session.getContext(), submission);
 			session.getSubmissionActions().getCurrentEncounter().setLocation(location);
-		}
-		if (encounterTypeWidget != null) {
-			EncounterType encounterType = (EncounterType) encounterTypeWidget.getValue(session.getContext(), submission);
-			session.getSubmissionActions().getCurrentEncounter().setEncounterType(encounterType);
 		}
 		if (voidWidget != null) {
 			if ("true".equals(voidWidget.getValue(session.getContext(), submission))) {

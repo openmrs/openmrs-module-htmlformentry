@@ -949,46 +949,4 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		}
 	}
 	
-	/**
-	 * @see {@link HtmlFormEntryUtil#getEncounterType(String)}
-	 */
-	@Test
-	@Verifies(value = "should find a encounter type by its encounterTypeId", method = "getEncounterType(String)")
-	public void getEncounterType_shouldFindAEncounterTypeByItsEncounterTypeId() throws Exception {
-		EncounterType type = Context.getEncounterService().getEncounterType(2);
-		Assert.assertNotNull(type);
-		Assert.assertEquals("07000be2-26b6-4cce-8b40-866d8435b613", type.getUuid());
-	}
-	
-	/**
-	 * @see {@link HtmlFormEntryUtil#getEncounterType(String)}
-	 */
-	@Test
-	@Verifies(value = "should find a encounter type by its uuid", method = "getEncounterType(String)")
-	public void getEncounterType_shouldFindAEncounterTypeByItsUuid() throws Exception {
-		EncounterType type = Context.getEncounterService().getEncounterTypeByUuid("07000be2-26b6-4cce-8b40-866d8435b613");
-		Assert.assertNotNull(type);
-		Assert.assertEquals(2, type.getEncounterTypeId().intValue());
-	}
-	
-	/**
-	 * @see {@link HtmlFormEntryUtil#getEncounterType(String)}
-	 */
-	@Test
-	@Verifies(value = "should find a encounter type by name", method = "getEncounterType(String)")
-	public void getEncounterType_shouldFindAEncounterTypeByName() throws Exception {
-		EncounterType type = Context.getEncounterService().getEncounterType("Emergency");
-		Assert.assertNotNull(type);
-		Assert.assertEquals("07000be2-26b6-4cce-8b40-866d8435b613", type.getUuid());
-	}
-	
-	/**
-	 * @see {@link HtmlFormEntryUtil#getEncounterType(String)}
-	 */
-	@Test
-	@Verifies(value = "should return null otherwise", method = "getEncounterType(String)")
-	public void getEncounterType_shouldReturnNullOtherwise() throws Exception {
-		EncounterType type = Context.getEncounterService().getEncounterType("some random value");
-		Assert.assertNull(type);
-	}
 }
