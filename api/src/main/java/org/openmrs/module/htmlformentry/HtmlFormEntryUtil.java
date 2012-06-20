@@ -462,13 +462,15 @@ public class HtmlFormEntryUtil {
 	 * Get the location by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) location name like "Boston" or 4) an id/name
 	 * pair like "501 - Boston" (this format is used when saving a location on a obs as a value
-	 * text)
+	 * text) or 5) "GlobalProperty:property.name" or 6) "UserProperty:propertyName"
 	 * 
 	 * @param id
 	 * @return the location if exist, else null
 	 * @should find a location by its locationId
 	 * @should find a location by name
 	 * @should find a location by its uuid
+	 * @should find a location by global property
+	 * @should find a location by user property
 	 * @should return null otherwise
 	 */
 	public static Location getLocation(String id) {
@@ -476,6 +478,24 @@ public class HtmlFormEntryUtil {
 		Location location = null;
 		
 		if (id != null) {
+			
+			// handle GlobalProperty:property.name
+			if (id.startsWith("GlobalProperty:")) {
+				String gpName = id.substring("GlobalProperty:".length());
+				String gpValue = Context.getAdministrationService().getGlobalProperty(gpName);
+				if (StringUtils.isNotEmpty(gpValue)) {
+					return getLocation(gpValue);
+				}
+			}
+			
+			// handle UserProperty:propName
+			if (id.startsWith("UserProperty:")) {
+				String upName = id.substring("UserProperty:".length());
+				String upValue = Context.getAuthenticatedUser().getUserProperty(upName);
+				if (StringUtils.isNotEmpty(upValue)) {
+					return getLocation(upValue);
+				}
+			}
 			
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
@@ -498,7 +518,7 @@ public class HtmlFormEntryUtil {
 					return location;
 				}
 			}
-			
+						
 			// if it's neither a uuid or id, try location name
 			location = Context.getLocationService().getLocation(id);
 			
