@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -37,6 +38,7 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
+import org.openmrs.module.htmlformentry.widget.DynamicAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
@@ -91,6 +93,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private String answerLabel;
 	
 	private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
+	
+	private List<Obs> existingObsList;
 	
 	private boolean required;
 	
@@ -182,7 +186,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// if not 'false' we treat as 'true'
 					existingObs = context.removeExistingObs(concept, true);
 				}
-			} else {
+			}
+			else if("autocomplete".equals(parameters.get("style")) &&"true".equals(parameters.get("selectMulti")))
+			{
+				existingObsList= context.removeExistingObs(concept);
+				existingObs = context.removeExistingObs(concept, answerConcept);
+			}
+			else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
 		} else {
@@ -508,7 +518,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						}
 					}
 					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
-					if (existingObs != null) {
+					if (existingObsList != null && !existingObsList.isEmpty())
+					{
+						for (int i = 0; i < existingObsList.size(); i++) {
+							valueWidget.setInitialValue(existingObsList.get(i).getValueCoded());
+						}
+					}
+					else if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
@@ -553,7 +569,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							                + concept.getConceptId());
 						}
 						if("true".equals(parameters.get("selectMulti")))
-							valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses,true);
+							valueWidget = new DynamicAutocompleteWidget(conceptAnswers, cptClasses);
 						else
 						valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
 					} else {
@@ -579,6 +595,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(),
 							        false));
 						}
+					}
+					if(existingObsList != null && !existingObsList.isEmpty()){
+						for (int i = 0; i < existingObsList.size(); i++) {
+						valueWidget.setInitialValue(existingObsList.get(i).getValueCoded());
+						 }
 					}
 					if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
@@ -946,7 +967,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue);
 			}
 			else if (value != null && !"".equals(value)) {
-				if(valueWidget instanceof AutocompleteWidget && ((AutocompleteWidget) valueWidget).isMulti())
+				if(valueWidget instanceof DynamicAutocompleteWidget)
 				{
 					int i=Integer.parseInt((String)value);
 					String conceptValue=session.getContext().getFieldName(valueWidget)+"span_";

@@ -373,6 +373,11 @@ public class FormEntryContext {
         return null;
     }
     
+    public List<Obs> removeExistingObs(Concept question) {
+        List<Obs> list = existingObs.get(question);
+                        return list;
+    }
+    
     /**
      * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version
      * for ConceptSelect obs tags.
