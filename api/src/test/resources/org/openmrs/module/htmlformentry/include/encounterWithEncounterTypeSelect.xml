@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Encounter Type: <encounterType />
+	<submit/>
+</htmlform>
