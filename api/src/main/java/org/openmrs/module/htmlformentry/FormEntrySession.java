@@ -15,17 +15,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
-import org.openmrs.Encounter;
-import org.openmrs.Form;
-import org.openmrs.Location;
-import org.openmrs.Obs;
-import org.openmrs.Order;
-import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
-import org.openmrs.PatientProgram;
-import org.openmrs.Person;
-import org.openmrs.PersonAttribute;
-import org.openmrs.Relationship;
+import org.openmrs.*;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -761,7 +751,7 @@ public class FormEntrySession {
 
 					}
                     // special case to set the display field of the provider widget when autocomplete is used
-                    if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
+                    else if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
                              && HtmlFormEntryUtil.convertToType(val, Person.class) != null) {
                         Object returnedObj = HtmlFormEntryUtil.convertToType(val, Person.class);
                         Person provider = null;
@@ -775,6 +765,8 @@ public class FormEntrySession {
 						sb.append("$j('#display_" + widgetFieldName + "').val(\""
 						        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
                     }
+                    // special case to set the display field of the provider widget when autocomplete is used with <encounterProvidernAndRole>
+                      // TODO:  add method to manage this feature, for 1.6.5
 
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");

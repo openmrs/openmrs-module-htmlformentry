@@ -168,18 +168,22 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             Option defProviderOption;
             if (context.getExistingEncounter() != null) {
                 defaultProvider = context.getExistingEncounter().getProvider();
-                defProviderOption
-                        = new Option(defaultProvider.getPersonName().getFullName(), defaultProvider.getId().toString(), true);
                 // this is done to avoid default provider being added twice due to that it can be added from the
                 // users = getAllProvidersThatArePersonsAsPersonStubs(); section with selected="false", therefore this can't be caught when
                 // searching whether the options list contains the 'defaultProvider'
-                for (Option option : providerOptions) {
-                    if (option.getValue().equals(defProviderOption.getValue())) {
-                        providerOptions.remove(option);
-                        break;
-                    }
-                }
-                providerOptions.add(defProviderOption);
+              boolean defaultOptionPresent = false;
+              for(Option option: providerOptions){
+                  if(option.getValue().equals(defaultProvider.getId().toString())){
+                      defaultOptionPresent = true;
+                      providerOptions.remove(option);
+                      break;
+                  }
+              }
+              if(defaultOptionPresent)  {
+                  defProviderOption
+                     = new Option(defaultProvider.getPersonName().getFullName(), defaultProvider.getId().toString(), true);
+                   providerOptions.add(defProviderOption);
+              }
 
             } else {
                 String defParam = (String) parameters.get("default");
@@ -236,7 +240,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         // Register Location widgets, if appropriate
         if (Boolean.TRUE.equals(parameters.get("location"))) {
 
-            locationErrorWidget = new ErrorWidget();
+                locationErrorWidget = new ErrorWidget();
             List<Location> locations = new ArrayList<Location>();
             List<Option> locationOptions = new ArrayList<Option>();
 

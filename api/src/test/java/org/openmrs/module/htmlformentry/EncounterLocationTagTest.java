@@ -67,7 +67,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		
-		Matcher matcher = Pattern.compile("<option.+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
+		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
 	}
 	@Test
@@ -81,10 +81,12 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		String htmlform = "<htmlform><encounterLocation default=\"GlobalProperty:" + GP_NAME + "\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		
-		Matcher matcher = Pattern.compile("<option.+?selected=\"true\".+?value=\"(.+?)\".*?>").matcher(session.getHtmlToDisplay());
+		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertTrue(matcher.find());
-		String selectedId = matcher.group(1);
-		Assert.assertEquals("2", selectedId);
+        Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"2\" selected=\"true\">Xanadu</option>") > -1);
+
+		//String selectedId = matcher.group(1);
+		//Assert.assertEquals("2", selectedId);
 	}
 	
 	public void encounterLocationTag_shouldSupportDefaultSelectyByUserProperty() throws Exception {

@@ -145,11 +145,15 @@ public class HtmlFormEntryUtil {
 			PersonEditor ed = new PersonEditor();
 			ed.setAsText(val);
 			return ed.getValue();
-		} else {
+		} /*else if (Provider.class.isAssignableFrom(clazz)) {
+			PersonEditor ed = new PersonEditor();
+			ed.setAsText(val);
+			return ed.getValue();
+		}*/ else {
 			return val;
 		}
 	}
-	
+
 	/**
 	 * Creaets an OpenMRS Obs instance
 	 * 
@@ -1099,77 +1103,84 @@ public class HtmlFormEntryUtil {
 	 * 
 	 * @param source
 	 * @param
-	 * @return A copy of an object
+	 * @return A copy of an obj o
 	 * @throws Exception
 	 */
-	private static Object returnCopy(Object source) throws Exception {
-		Class<? extends Object> clazz = source.getClass();
-		Object ret = clazz.newInstance();
-		Set<String> fieldNames = new HashSet<String>();
-		List<Field> fields = new ArrayList<Field>();
-		addSuperclassFields(fields, clazz);
-		for (Field f : fields) {
-			fieldNames.add(f.getName());
-		}
-		for (String root : fieldNames) {
-			for (Method getter : clazz.getMethods()) {
-				if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase())
-				        && getter.getParameterTypes().length == 0) {
-                    Method setter;
-                    if(getter.getName().toUpperCase().equals("GETPROVIDER")){
-                       setter = getCorrectSetterForProvider(clazz,getter,"SET" + root.toUpperCase() );
-                    } else {
-                       setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
-                    }
-					//NOTE: Collection properties are not copied
-					if (setter != null && methodsSupportSameArgs(getter, setter)
-					        && !(getter.getReturnType().isInstance(Collection.class))) {
-						Object o = getter.invoke(source, Collections.EMPTY_LIST.toArray());
-						if (o != null) {
-							setter.invoke(ret, o);
-						}
-					}
-				}
-			}
-		}
-		return ret;
-	}
-
-   /**
-     *   The Encounter.setProvider() contains the different overloaded methods and this filters the correct setter from those
-     * @param clazz
-     * @param getter
-     * @param methodname
-     * @return
-     */
-    private static Method getCorrectSetterForProvider(Class<? extends Object> clazz, Method getter, String methodname) {
-
-        for(Method m : clazz.getMethods()){
-            Class<?>[] parameters = m.getParameterTypes();
-            for (Class<?> parameter : parameters) {
-                  if(getter.getReturnType().equals(parameter)){
-                      return  m;
-                  }
+    private static Object returnCopy(Object source) throws Exception {
+            Class<? extends Object> clazz = source.getClass();
+            Object ret = clazz.newInstance();
+            Set<String> fieldNames = new HashSet<String>();
+            List<Field> fields = new ArrayList<Field>();
+            addSuperclassFields(fields, clazz);
+            for (Field f : fields) {
+                fieldNames.add(f.getName());
             }
+            for (String root : fieldNames) {
+                for (Method getter : clazz.getMethods()) {
+                    if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase())
+                            && getter.getParameterTypes().length == 0) {
+                        Method setter = getSetter(clazz, getter, "SET" + root.toUpperCase());
+                        //NOTE: Collection properties are not copied
+                        if (setter != null && methodsSupportSameArgs(getter, setter)
+                                && !(getter.getReturnType().isInstance(Collection.class))) {
+                            Object o = getter.invoke(source, Collections.EMPTY_LIST.toArray());
+                            if (o != null) {
+                                setter.invoke(ret, o);
+                            }
+                        }
+                    }
+                }
+            }
+            return ret;
         }
-        return null;
-    }
 
-    /**
-	 * Performs a case insensitive search on a class for a method by name.
-	 * 
-	 * @param clazz
-	 * @param methodName
-	 * @return the found Method
-	 */
-	private static Method getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
-		for (Method m : clazz.getMethods()) {
-			if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
-				return m;
-			}
-		}
-		return null;
-	}
+       /**
+         *   The Encounter.setProvider() contains the different overloaded methods and this filters the correct setter from those
+         * @param clazz
+         * @param getter
+         * @param methodname
+         * @return
+         */
+        private static Method getSetter(Class<? extends Object> clazz, Method getter, String methodname) {
+
+            List<Method> setterMethods = getMethodCaseInsensitive(clazz,methodname );
+            if(setterMethods != null && !setterMethods.isEmpty()){
+              if(setterMethods.size()==1){
+                return setterMethods.get(0);
+              }  else if(setterMethods.size() > 1){
+                    for(Method m : setterMethods){
+                     Class<?>[] parameters = m.getParameterTypes();
+                        for (Class<?> parameter : parameters) {
+                            if(getter.getReturnType().equals(parameter)){
+                            return  m;
+                        }
+                    }
+                 }
+              }
+            }
+            return null;
+
+
+        }
+        /**
+         * Performs a case insensitive search on a class for a method by name.
+         *
+         * @param clazz
+         * @param methodName
+         * @return the found Method
+         */
+        private static List<Method> getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
+
+            List<Method> methodList = new ArrayList<Method>();
+            for (Method m : clazz.getMethods()) {
+                if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
+                    methodList.add(m);
+
+                }
+            }
+            return methodList;
+        }
+
 	
 	/**
       	 *    compares getter return types to setter parameter types
