@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>htmlformentry-omod</artifactId>
-	<packaging>omod</packaging>
+	<packaging>jar</packaging>
 	<name>HTML Form Entry OMOD</name>
 	<description>OpenMRS module project for HTML Form Entry</description>
 
