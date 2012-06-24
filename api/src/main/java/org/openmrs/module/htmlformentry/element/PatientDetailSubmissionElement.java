@@ -346,7 +346,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 
 			Object locationString = identifierLocationWidget.getValue(context, request);
-            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString(), Location.class);
+            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
 			patientIdentifier.setLocation(location);
 			patientIdentifier.setPreferred(true);
 

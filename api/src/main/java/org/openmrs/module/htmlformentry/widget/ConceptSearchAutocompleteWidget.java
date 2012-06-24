@@ -83,7 +83,8 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 					+ this.allowedConceptIds + "','"
 					+ this.allowedConceptClassNames + "');\""
 					+ "class=\"autoCompleteText\""
-					+ " onBlur=\"onBlurAutocomplete(this)\"");
+                    + "onchange=\"letClearObsValue(this)\""
+					+ " onblur=\"onBlurAutocomplete(this)\"");
 
 			if (initialValue != null)
 				sb.append(" value=\"" + initialValue.getDisplayString() + "\"");

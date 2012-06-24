@@ -1,12 +1,12 @@
 package org.openmrs.module.htmlformentry.widget;
 
+
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
-import org.springframework.web.util.JavaScriptUtils;
 
-import java.util.ArrayList;
+import java.lang.String;
+import java.util.Iterator;
 
 /**
  *   A single option auto complete widget which provides auto complete suggestions using a list of  predefined options
@@ -15,6 +15,8 @@ import java.util.ArrayList;
 public class AutocompleteWidget extends  SingleOptionWidget{
 
     private Option initialOption;
+    private String optionNames;
+    private String optionValues;
 
     public AutocompleteWidget() {
     }
@@ -47,6 +49,34 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             StringBuilder sb = new StringBuilder();
             String id = context.getFieldName(this);
 
+            if(!getOptions().isEmpty()){
+            StringBuilder nameSb = new StringBuilder();
+            StringBuilder valueSb = new StringBuilder();
+
+            for (Iterator<Option> it = getOptions().iterator(); it.hasNext();) {
+                String originaloption = it.next().getLabel();
+
+                // this is added to eliminate the errors occur due to having ", ' and \ charaters included in
+                // the option names. When those are met they are replaced with 'escape character+original character'
+                originaloption = originaloption.replace("\\", "\\" +"\\" );
+                originaloption = originaloption.replace("'", "\\" +"'");
+                originaloption = originaloption.replace("\"", "\\" +"'" );
+
+				nameSb.append(originaloption);
+				if (it.hasNext()){
+                   nameSb.append(",");
+                }
+			}
+            for (Iterator<Option> it = getOptions().iterator(); it.hasNext();) {
+                valueSb.append(it.next().getValue());
+				if (it.hasNext()){
+                   valueSb.append(",");
+                }
+			}
+            this.optionNames = nameSb.toString();
+            this.optionValues = valueSb.toString();
+        }
+
             // set the previously given option into widget, when editing the form, else initialOption is null
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
@@ -55,39 +85,17 @@ public class AutocompleteWidget extends  SingleOptionWidget{
                     }
                 }
             }
-            sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
+
+            sb.append("<input type=\"text\" id=\"" + id + "\" value=\""
 			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
-			        + "\" onblur=\"updateFields(this)\" placeholder=\""
+			        + "\" onblur=\"onblurOptionAutocomplete(this,'" +this.optionNames +"','" + this.optionValues
+                    + "')\" onfocus=\"setupOptionAutocomplete(this,'" +this.optionNames +"','"
+                    + this.optionValues + "')\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.value.placeholder") + "\" />");
-			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
-			        + context.getFieldName(this) + "\" value=\"" + ((initialOption != null) ? initialOption.getValue() : "")
+
+			sb.append("\n<input type=\"hidden\" id=\"" + id + "_hid" + "\" name=\""
+			        + id + "\" value=\"" + ((initialOption != null) ? initialOption.getValue() : "")
 			        + "\" />");
-			sb.append("\n<script>");
-			sb.append("\nvar optionLabelValueMap = new Object();");
-			ArrayList<String> escapedOptionNames = new ArrayList<String>(getOptions().size());
-			for (Option option : getOptions()) {
-				String escapeOptionName = JavaScriptUtils.javaScriptEscape(option.getLabel());
-				escapedOptionNames.add(escapeOptionName);
-				sb.append("\noptionLabelValueMap[\"" + escapeOptionName + "\"] = " + option.getValue() + ";");
-			}
-			sb.append("\n");
-			//clear the form field when user clears the field or if no valid selection is made
-			sb.append("\nfunction updateFields(displayField){");
-			sb.append("\n	if(optionLabelValueMap[$j.trim($j(displayField).val())] == undefined)");
-			sb.append("\n		$j(displayField).val('');");
-			sb.append("\n	if($j.trim($j(displayField).val()) == '')");
-			sb.append("\n		$j(\"#" + id + "\").val('');");
-			sb.append("\n}");
-			sb.append("\n");
-			sb.append("\n$j('input#display_" + id + "').autocomplete({");
-			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(escapedOptionNames, ",", "\"", "\"") + "],");
-			sb.append("\n	select: function(event, ui) {");
-			sb.append("\n				$j(\"#" + id + "\").val(optionLabelValueMap[ui.item.value]);");
-			sb.append("\n			}");
-			sb.append("\n});");
-			sb.append("</script>");
-
-
 
             return sb.toString();
         }

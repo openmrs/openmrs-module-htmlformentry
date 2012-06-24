@@ -20,6 +20,7 @@ import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.propertyeditor.PersonEditor;
@@ -467,7 +468,7 @@ public class FormEntrySession {
 				iter.remove();
 			}
 		}
-		
+
 		// propagate encounterDatetime to Obs where necessary
 		if (submissionActions.getObsToCreate() != null) {
 			List<Obs> toCheck = new ArrayList<Obs>();
@@ -623,7 +624,7 @@ public class FormEntrySession {
 						throw new RuntimeException("Unable to void encounter.", ex);
 					}
 				}
-				Context.getEncounterService().saveEncounter(encounter);
+            Context.getEncounterService().saveEncounter(encounter);
 			} else if (submissionActions.getObsToCreate() != null) {
 				// this may not work right due to savehandlers (similar error to HTML-135) but this branch is
 				// unreachable until html forms are allowed to edit data without an encounter 
@@ -734,9 +735,9 @@ public class FormEntrySession {
 
 					// special case to set the display field of the Location widget when autocomplete is used
 					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
-                             && HtmlFormEntryUtil.convertToType(val, Location.class) != null) {
+                             && HtmlFormEntryUtil.convertToType(val.trim(), Location.class) != null) {
 
-						Object returnedObj = HtmlFormEntryUtil.convertToType(val, Location.class);
+						Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), Location.class);
                         Location location = null;
 						if (returnedObj != null) {
 							location = (Location) returnedObj;
@@ -746,14 +747,16 @@ public class FormEntrySession {
 							//should set val(locationId) to blank so that the hidden form field is blank too
 							val = "";
 						}
-						sb.append("$j('#display_" + widgetFieldName + "').val(\""
+						sb.append("$j('#" + widgetFieldName + "').val(\""
 						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
-
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
+						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getId().toString())) + "\");\n");
 					}
                     // special case to set the display field of the provider widget when autocomplete is used
                     else if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
-                             && HtmlFormEntryUtil.convertToType(val, Person.class) != null) {
-                        Object returnedObj = HtmlFormEntryUtil.convertToType(val, Person.class);
+                             && HtmlFormEntryUtil.convertToType(val.trim(), Person.class) != null) {
+
+                        Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), Person.class);
                         Person provider = null;
                         if (returnedObj != null) {
 							provider = (Person) returnedObj;
@@ -762,16 +765,46 @@ public class FormEntrySession {
 							//should set val(providerid) to blank so that the hidden form field is blank too
 							val = "";
 						}
-						sb.append("$j('#display_" + widgetFieldName + "').val(\""
+						sb.append("$j('#" + widgetFieldName + "').val(\""
 						        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
+						        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getId().toString())) + "\");\n");
                     }
                     // special case to set the display field of the provider widget when autocomplete is used with <encounterProvidernAndRole>
                       // TODO:  add method to manage this feature, for 1.6.5
 
+                    // special case to set the display field of the obs value widget when autocomplete is used with <obs> tag
+				    if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())){
+
+                        String conveptVal = lastSubmission.getParameter(widgetFieldName+"_hid");
+                        Object returnedObj = HtmlFormEntryUtil.convertToType(conveptVal.trim(), Concept.class);
+
+                        Concept concept = null;
+						if (returnedObj != null) {
+							concept = (Concept)returnedObj;
+						}
+                        else {
+							//This should typically never happen,why is there no location with this id, we
+							//should set val(locationId) to blank so that the hidden form field is blank too
+							val = "";
+						}
+						sb.append("$j('#" + widgetFieldName + "').val(\""
+						        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString())) + "\");\n");
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
+                                                        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
+
+					}
+
+
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
-					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))
-						sb.append("$j('#display_" + widgetFieldName + "').val('');\n");
+					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
+                       sb.append("$j('#" + widgetFieldName + "').val('');\n");
+                    }
+					if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
+                       sb.append("$j('#" + widgetFieldName + "').val('');\n");
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                    }
 				}
 			}
 			

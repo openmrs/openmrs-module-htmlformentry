@@ -533,7 +533,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         try {
             if (locationWidget != null) {
                 Object value = locationWidget.getValue(context, submission);
-                Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString(), Location.class);
+                Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
                 if (location == null)
                     throw new Exception("required");
             }
@@ -554,7 +554,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     private Object convertValueToProvider(Object value) {
         String val = (String) value;
         if (StringUtils.hasText(val)) {
-            return HtmlFormEntryUtil.convertToType(val, Person.class);
+            return HtmlFormEntryUtil.convertToType(val.trim(), Person.class);
         }
         return null;
     }
@@ -581,12 +581,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         }
         if (providerWidget != null) {
             Object value = providerWidget.getValue(session.getContext(), submission);
-            Person person = (Person) HtmlFormEntryUtil.convertToType(value.toString(), Person.class);
+            Person person = (Person) HtmlFormEntryUtil.convertToType(value.toString().trim(), Person.class);
             session.getSubmissionActions().getCurrentEncounter().setProvider(person);
         }
         if (locationWidget != null) {
             Object value = locationWidget.getValue(session.getContext(), submission);
-            Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString(), Location.class);
+            Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
             session.getSubmissionActions().getCurrentEncounter().setLocation(location);
         }
         if (voidWidget != null) {
