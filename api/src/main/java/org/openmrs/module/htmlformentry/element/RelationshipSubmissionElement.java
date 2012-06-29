@@ -16,16 +16,10 @@ import org.openmrs.PersonAttribute;
 import org.openmrs.Relationship;
 import org.openmrs.RelationshipType;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
-import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.PersonSearchWidget;
-import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
-import org.openmrs.module.htmlformentry.widget.RelationshipWidget;
+import org.openmrs.module.htmlformentry.widget.*;
 
 /**
  * Holds the widgets used to represent a relationship, and serves as both the HtmlGeneratorElement 
@@ -50,7 +44,7 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 	private static String DISPLAY_DROPDOWN = "dropDown";
 	
 	private PersonSearchWidget personWidget = null;
-	private PersonStubWidget personStubWidget = null;
+	private SingleOptionWidget personSelectWidget = null;
 	private ErrorWidget personErrorWidget;
 	private RelationshipWidget relationshipWidget;
 	
@@ -143,8 +137,10 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 		}
 		if(DISPLAY_DROPDOWN.equals(display))
 		{
-			personStubWidget = new PersonStubWidget();
-			context.registerWidget(personStubWidget);
+			personSelectWidget = new DropdownWidget();
+            personSelectWidget.addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAPerson"), "", true));
+
+			context.registerWidget(personSelectWidget);
 		}
 		personErrorWidget = new ErrorWidget();
 		
@@ -263,8 +259,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 				}
 				
 			}
-			if(personStubWidget != null && context.getMode() != Mode.VIEW)
-			{
+			if(personSelectWidget != null && context.getMode() != Mode.VIEW)
+			    {
 				List<String> progIds = new ArrayList<String>();
 				if(personPrograms != null)
 				{
@@ -279,7 +275,14 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 				List<Person> personsToExclude = new ArrayList<Person>();
 				// exclude the exisiting patient from any results
 				personsToExclude.add(context.getExistingPatient());
-				personStubWidget.setOptions(Context.getService(HtmlFormEntryService.class).getPeopleAsPersonStubs(searchAttributes, attributeValues, progIds, personsToExclude));
+                List<PersonStub> persons = Context.getService(HtmlFormEntryService.class).getPeopleAsPersonStubs(searchAttributes, attributeValues, progIds, personsToExclude);
+				if(!persons.isEmpty()){
+                 for(PersonStub personStub: persons){
+                    Option personOption = new Option(personStub.getDisplayValue(), personStub.getId().toString(), false);
+                    personSelectWidget.addOption(personOption);
+                 }
+                }
+
 			}
 			
 			if(relationshipWidget != null)
@@ -303,8 +306,8 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 				context.registerPropertyAccessorInfo(id+"."+"newRelationship"+ ".value", context.getFieldNameIfRegistered(personWidget), null, "newRelationshipFieldGetterFunction", null);
 				
 			}
-			if (personStubWidget != null) {
-				ret.append(personStubWidget.generateHtml(context) + " ");
+			if (personSelectWidget != null) {
+				ret.append(personSelectWidget.generateHtml(context) + " ");
 			}
 			ret.append(personErrorWidget.generateHtml(context));
 		}
@@ -328,9 +331,10 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 	    {
 	    	relatedPerson = ((Person) personWidget.getValue(session.getContext(), submission));
 	    }
-	    if(personStubWidget != null && personStubWidget.getValue(session.getContext(), submission) != null)
+	    if(personSelectWidget != null && personSelectWidget.getValue(session.getContext(), submission) != null)
 	    {
-	    	relatedPerson = ((Person) personStubWidget.getValue(session.getContext(), submission));
+	    	Object value = personSelectWidget.getValue(session.getContext(), submission);
+            relatedPerson = (Person) HtmlFormEntryUtil.convertToType(value.toString().trim(), Person.class);
 	    }
 	    	
 	    if(relatedPerson != null)
@@ -422,9 +426,9 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 					throw new Exception("htmlformentry.error.required");
 				}
 			}
-			if(personStubWidget != null)
+			if(personSelectWidget != null)
 			{
-				if (required && !relationshipWidget.isAllRelationshipsFullfilled() && (personStubWidget.getValue(context, submission) == null || personStubWidget.getValue(context, submission).toString().trim().length() == 0))
+				if (required && !relationshipWidget.isAllRelationshipsFullfilled() && (personSelectWidget.getValue(context, submission) == null || personSelectWidget.getValue(context, submission).toString().trim().length() == 0))
 				{	
 					throw new Exception("htmlformentry.error.required");
 				}

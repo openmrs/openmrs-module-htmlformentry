@@ -1,14 +1,6 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -321,6 +313,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 			} else if (concept.getDatatype().isText()) {
+
+				String initialValue = null;
+				if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+					initialValue = defaultValue;
+				}
+				if (existingObs != null) {
+					initialValue = existingObs.getValueText();
+				}
+
 				if (parameters.get("answers") != null) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ","); st.hasMoreTokens();) {
@@ -336,23 +337,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
                     valueWidget = new DropdownWidget();
 
-                    Location defaultLocation = null;
-                    if(context.getExistingEncounter()!= null){
-                        defaultLocation = context.getExistingEncounter().getLocation();
-                    }else {
-                        defaultLocation = context.getDefaultLocation();
-                    }
-                    valueWidget.setInitialValue(defaultLocation);
-
                        for (Location location : Context.getLocationService().getAllLocations()) {
                             String label = location.getName();
-                            Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
+                            Option option = new Option(label, location.getId().toString(), location.getId().toString().equals(initialValue));
                             locationOptions.add(option);
                        }
                     Collections.sort(locationOptions, new OptionComparator());
 
                 // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
-                boolean initialValueIsSet = !(defaultLocation == null);
+                boolean initialValueIsSet = !(initialValue == null);
                 ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",!initialValueIsSet));
                 if (!locationOptions.isEmpty()) {
                     for(Option option: locationOptions)
@@ -362,6 +355,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				} else if ("person".equals(parameters.get("style"))) {
 					
 					List<PersonStub> options = new ArrayList<PersonStub>();
+                    List<Option> personOptions = new ArrayList<Option>();
 					
 					// If specific persons are specified, display only those persons in order
 					String personsParam = (String) parameters.get("persons");
@@ -405,8 +399,24 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						options.addAll(users);
 						//    					sortOptions = true;
 					}
-					
-					valueWidget = new PersonStubWidget(options);
+
+                    for (PersonStub personStub : options){
+                        String personName= personStub.getDisplayValue();
+                        Option personOption = new Option(personName, personStub.getId().toString(), personStub.getId().toString().equals(initialValue));
+                        personOptions.add(personOption);
+                    }
+                    Collections.sort(personOptions, new OptionComparator());
+
+					valueWidget = new DropdownWidget();
+                    // if initialValueIsSet=false, no initial/default person, hence this shows the 'select input' field as first option
+                    boolean initialValueIsSet = !(initialValue == null);
+
+                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAPerson"), "", !initialValueIsSet));
+                    if(!personOptions.isEmpty()){
+                        for(Option option: personOptions){
+                          ((DropdownWidget)valueWidget).addOption(option);
+                        }
+                    }
 					
 				} else {
 					if (textAnswers.size() == 0) {
@@ -459,15 +469,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							((SingleOptionWidget) valueWidget).addOption(new Option(lookFor, lookFor, true));
 					}
 				}
-				
-				String initialValue = null;
-				if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
-					initialValue = defaultValue;
-				}
-				if (existingObs != null) {
-					initialValue = existingObs.getValueText();
-				}
-				
+
 				if (initialValue != null) {
 					if ("location".equals(parameters.get("style"))) {
 						Location l = HtmlFormEntryUtil.getLocation(initialValue);
