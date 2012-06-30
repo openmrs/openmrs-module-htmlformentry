@@ -43,15 +43,15 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") == -1);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
 	
 	@Test
-	public void encounterLocationTag_shouldDisplayInputWithAutocompleteIfTypeIsSetToAutocomplete() throws Exception {
+	public void encounterLocationTag_shouldDisplayEnterOptionIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") == -1);
-		//Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") > -1);
 	}
 	
 	@Test
@@ -59,7 +59,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		String htmlform = "<htmlform><encounterLocation type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("$j('input#display_w1').autocomplete(") == -1);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
 	
 	@Test

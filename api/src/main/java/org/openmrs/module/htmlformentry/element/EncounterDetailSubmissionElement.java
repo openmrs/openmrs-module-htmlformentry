@@ -58,6 +58,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
      *
      * @param context
      * @param parameters
+     * @should display 'Enter' option if 'type' is set to Autocomplete
      */
     public EncounterDetailSubmissionElement(FormEntryContext context, Map<String, Object> parameters) {
 

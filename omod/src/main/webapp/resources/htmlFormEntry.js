@@ -202,7 +202,6 @@ function onBlurAutocomplete(element){
 		}
 	}
     if(textField.val() === "" && !hiddenField.val() != "")  {
-        console.log(" obs blanked");
         hiddenField.val("");
     }
 }

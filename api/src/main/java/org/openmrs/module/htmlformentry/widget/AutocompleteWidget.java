@@ -21,7 +21,14 @@ public class AutocompleteWidget extends  SingleOptionWidget{
     public AutocompleteWidget() {
     }
 
-
+    /**
+     *
+     * @param context
+     * @return generated html as a string
+     * @should accept options with special characters é,ã,ê,ù etc.
+     * @should accept options with single or double quotes in middle
+     * @should correctly set previous value if initial option is present
+     */
     @Override
     public String generateHtml(FormEntryContext context) {
 
@@ -100,4 +107,29 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             return sb.toString();
         }
     }
+
+    public Option getInitialOption() {
+        return initialOption;
+    }
+
+    public void setInitialOption(Option initialOption) {
+        this.initialOption = initialOption;
+    }
+
+    public String getOptionNames() {
+        return optionNames;
+    }
+
+    public void setOptionNames(String optionNames) {
+        this.optionNames = optionNames;
+    }
+
+    public String getOptionValues() {
+        return optionValues;
+    }
+
+    public void setOptionValues(String optionValues) {
+        this.optionValues = optionValues;
+    }
+
 }
