@@ -375,6 +375,7 @@ public class FormEntrySession {
 		xml = htmlGenerator.stripComments(xml);
 		xml = htmlGenerator.applyIncludes(this, xml);
 		xml = htmlGenerator.applyExcludes(this, xml);
+        xml = htmlGenerator.applyRoleRestrictions(xml);
 		xml = htmlGenerator.applyMacros(xml);
 		xml = htmlGenerator.applyTemplates(xml);
 		xml = htmlGenerator.applyTranslations(xml, context);

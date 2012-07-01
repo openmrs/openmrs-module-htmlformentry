@@ -3,13 +3,10 @@ package org.openmrs.module.htmlformentry;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
+import org.openmrs.Role;
+import org.openmrs.User;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
@@ -22,10 +19,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -469,7 +462,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
 			
 			boolean result = HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
-			HtmlFormEntryGenerator.removeFirstIncludeIfOrExcludeIf(sb, result);
+			HtmlFormEntryGenerator.removeFirstTagOccurrence(sb, "includeIf", result);
 			
 			xml = sb.toString();
 		}
@@ -508,8 +501,55 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
 			
 			boolean result = !HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
-			HtmlFormEntryGenerator.removeFirstIncludeIfOrExcludeIf(sb, result);
+			HtmlFormEntryGenerator.removeFirstTagOccurrence(sb, "excludeIf", result);
 			
+			xml = sb.toString();
+		}
+		return xml;
+	}
+
+    /***
+	 * Takes an XML string, finds the {@code <restrictByRole></restrictByRole>} section in it, verifies whether
+     * the corresponding 'role' is included/excluded to view the content within
+	 * For example the following input:
+	 *
+	 * <pre>
+	 * {@code
+	 * <htmlform>
+	 *      <restrictByRole include="Provider">
+	 * 		<obs conceptId="123" labelText="Education"/>
+	 * 	</includeIf>
+	 * </htmlform>
+	 * }
+	 * </pre>
+	 *
+	 * Would include the following only if the user is not assigned with "Provider" role
+	 *
+	 * <pre>
+	 * {@code
+	 * <htmlform>
+	 * 		<obs conceptId="123" labelText="Education"/>
+	 * </htmlform>
+	 * }
+	 * </pre>
+	 *
+	 * @param xml the xml string to process for restrictByRole tag
+	 * @return the xml after applied restrictByRole tag
+	 * @throws BadFormDesignException
+	 * @should return correct xml after apply restrictByRole tag
+	 */
+	public String applyRoleRestrictions(String xml) throws BadFormDesignException {
+
+		StringBuilder sb = new StringBuilder(xml);
+
+		while (xml.contains("<restrictByRole")) {
+			int startIndex = sb.indexOf("<restrictByRole") + 15;
+			int endIndex = sb.substring(startIndex).indexOf(">");
+			String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
+
+			boolean result = !HtmlFormEntryGenerator.processRoleRestrictionLogic(includeStr);
+			HtmlFormEntryGenerator.removeFirstTagOccurrence(sb, "restrictByRole", result);
+
 			xml = sb.toString();
 		}
 		return xml;
@@ -537,9 +577,69 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	}
 	
 	/***
+	 * given a test string, parse the string to return a boolean value for comparison of user role
+	 * into a specified role
+	 *
+	 * @param includeStr for ex. = "include= "Provider">" or ex. = "exclude= "Provider">"
+	 * @return a boolean value if this user has the "Provider" role assigned
+	 * @throws BadFormDesignException
+	 * @should return a correct boolean value for user role test string
+	 */
+	protected static boolean processRoleRestrictionLogic(String includeStr) throws BadFormDesignException {
+
+        int includeOrExcludeTestIndex = includeStr.indexOf("include");
+		String testStr = "";
+        String[] testRoles = null;
+		boolean includeresult = false;
+        boolean excluderesult = true;
+
+        if(includeOrExcludeTestIndex >=0){   // contains list of roles in 'include'
+          testStr = getTestStr(includeStr.substring(includeOrExcludeTestIndex));
+          testRoles = testStr.split(",");
+          User currentUser = Context.getUserContext().getAuthenticatedUser();
+          try{
+            Set<Role> assignedRoles = currentUser.getAllRoles();
+            for(Role role : assignedRoles){
+                for(String testRole : testRoles){
+                  if(role.getRole().equals(testRole)){
+                    includeresult = true;
+                  }
+                }
+            }
+          }catch (Exception ex){
+            throw new BadFormDesignException("The " + testStr + "contains an invalid user Role");
+          }
+
+          return includeresult;
+        } else {
+            includeOrExcludeTestIndex = includeStr.indexOf("exclude");
+            if (includeOrExcludeTestIndex != -1) {  // contains list of roles in 'exclude'
+                testStr = getTestStr(includeStr.substring(includeOrExcludeTestIndex));
+                testRoles = testStr.split(",");
+                User currentUser = Context.getUserContext().getAuthenticatedUser();
+                try {
+                    Set<Role> assignedRoles = currentUser.getAllRoles();
+                    for (Role role : assignedRoles) {
+                        for (String testRole : testRoles) {
+                            if (role.getRole().equals(testRole)) {
+                                excluderesult = false;
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    throw new BadFormDesignException("The " + testStr + "contains an invalid user Role");
+                }
+            }
+            return excluderesult;
+        }
+
+
+	}
+
+    /***
 	 * given a test string, parse the string to return a boolean value for logicTest result or
 	 * Velocity result
-	 * 
+	 *
 	 * @param session
 	 * @param includeStr for ex. = "logicTest='GENDER = F' >"
 	 * @return a boolean value if this patient is a female
@@ -547,15 +647,15 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @should return a correct boolean value for logic test string
 	 */
 	protected static boolean processIncludeLogic(FormEntrySession session, String includeStr) throws BadFormDesignException {
-		
+
 		int logicTestIndex = includeStr.indexOf("logicTest");
 		String testStr = "";
 		boolean result;
-		
+
 		if (logicTestIndex >= 0) {//constains a logicTest
-		
+
 			testStr = getTestStr(includeStr.substring(logicTestIndex));
-			
+
 			LogicService ls = Context.getLogicService();
 			LogicCriteria logicCriteria = null;
 			try {
@@ -564,7 +664,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			catch (Exception ex) {
 				throw new BadFormDesignException(ex.getMessage());
 			}
-			
+
 			if (logicCriteria != null) {
 				if ("testing-html-form-entry".equals(session.getPatient().getUuid()))
 					result = false;
@@ -578,14 +678,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				}
 			} else {
 				throw new BadFormDesignException("The " + testStr + "is not a valid logic expression");//throw a bad form design
-				
+
 			}
 		} else {
 			int velocityTestIndex = includeStr.indexOf("velocityTest");
 			if (velocityTestIndex != -1) {
-				
+
 				testStr = getTestStr(includeStr.substring(velocityTestIndex));
-				
+
 				//("#if($patient.getPatientIdentifier(5))true #else false #end"));
 				testStr = "#if (" + testStr + ") true #else false #end";
 				result = session.evaluateVelocityExpression(testStr).trim().equals("true");
@@ -596,32 +696,24 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		return result;
 	}
 	
-	public static StringBuilder removeFirstIncludeIfOrExcludeIf(StringBuilder sb, boolean keepcontent) {
+	public static StringBuilder removeFirstTagOccurrence(StringBuilder sb, String tagName, boolean keepcontent) {
 		int startIndex = 0;
 		int endIndex = 0;
-		
+        int tagLenth = tagName.length();
+
 		if (keepcontent) {
-			//remove this pair of includeif  and keep the content within
-			startIndex = sb.indexOf("<includeIf");
-			if (startIndex == -1) {
-				startIndex = sb.indexOf("<excludeIf");
-			}
+			//remove this pair of tag occurrences and keep the content within
+			startIndex = sb.indexOf("<" + tagName +"");
 			endIndex = sb.substring(startIndex).indexOf(">");
-			sb.replace(startIndex, startIndex + endIndex + 1, "");// should remove the <includeIf ...>
+			sb.replace(startIndex, startIndex + endIndex + 1, "");// should remove the <tagName ...>
 			
-			startIndex = sb.indexOf("</includeIf>");
-			if (startIndex == -1)
-				startIndex = sb.indexOf("</excludeIf>");
-			endIndex = startIndex + 12;
-			sb.replace(startIndex, endIndex, "");
+			startIndex = sb.indexOf("</" + tagName + ">");
+			endIndex = startIndex + tagLenth + 3;
+			sb.replace(startIndex, endIndex, ""); //should remove the </tagName>
 		} else {
 			//remove this part of xml
-			startIndex = sb.indexOf("<includeIf");
-			endIndex = sb.indexOf("</includeIf>") + 12;
-			if (startIndex == -1) {
-				startIndex = sb.indexOf("<excludeIf");
-				endIndex = sb.indexOf("</excludeIf>") + 12;
-			}
+			startIndex = sb.indexOf("<" + tagName +"");
+			endIndex = sb.indexOf("</" +tagName+ ">") + tagLenth + 3;
 			sb.replace(startIndex, endIndex, "");
 			
 		}

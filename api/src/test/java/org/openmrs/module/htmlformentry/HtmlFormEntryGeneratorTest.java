@@ -50,7 +50,22 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a man</div>", session.getHtmlToDisplay());
 	}
-	
+
+    /**
+	 * @see {@link HtmlFormEntryGenerator#applyRoleRestrictions(String)}
+	 */
+	@Test
+	@Verifies(value = "should return correct xml after apply restrictByRole tag", method = "applyRoleRestrictions(FormEntrySession,String)")
+	public void applyRoleRestrictions_shouldReturnCorrectXmlAfterApplyRestrictByRoleTag() throws Exception {
+		String htmlform = "<htmlform><restrictByRole include=\"System Developer\">This is not shown to admin with include field</restrictByRole><restrictByRole include=\"Data Manager\">Only this is shown to admin with include field</restrictByRole></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertEquals("<div class=\"htmlform\">Only this is shown to admin with include field</div>", session.getHtmlToDisplay());
+
+        String htmlform2 = "<htmlform><restrictByRole exclude=\"System Developer\">This is only shown to admin with exclude field</restrictByRole><restrictByRole exclude=\"Data Manager\">This is not shown to admin with exclude field</restrictByRole></htmlform>";
+		FormEntrySession session2 = new FormEntrySession(patient, htmlform2);
+		Assert.assertEquals("<div class=\"htmlform\">This is only shown to admin with exclude field</div>", session2.getHtmlToDisplay());
+    }
+
 	/**
 	 * @see {@link HtmlFormEntryGenerator#getTestStr(String)}
 	 */
