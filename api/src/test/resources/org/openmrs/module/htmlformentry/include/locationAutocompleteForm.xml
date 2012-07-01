@@ -1,0 +1,6 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation type="autocomplete"/>
+	Provider: <encounterProvider role="Provider"/>
+	<submit/>
+</htmlform>

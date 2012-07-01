@@ -1637,7 +1637,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public String getFormName() {
-				return "locationAutocompleteForm";   // xml files not yet created due to IDE error
+				return "locationAutocompleteForm";
 			}
 
 			@Override
@@ -1739,7 +1739,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
                 results.assertEncounterCreated();
 				results.assertProvider(502);  // add a new value
-				results.assertLocation(3);
+				results.assertLocation(2);
 			};
 
 		}.run();
