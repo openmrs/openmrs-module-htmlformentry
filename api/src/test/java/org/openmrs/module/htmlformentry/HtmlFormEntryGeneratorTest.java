@@ -60,8 +60,8 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		String includeStr = "logicTest = \"GENDER = F\">";// <includeIf test =
 		// "FEMALE">
 		Assert.assertEquals("GENDER = F", HtmlFormEntryGenerator.getTestStr(includeStr));
-		includeStr = "velocityTest = \"\"$patient.gender\" == \"F\"\">";
-		Assert.assertEquals("\"$patient.gender\" == \"F\"", HtmlFormEntryGenerator.getTestStr(includeStr));
+		includeStr = "velocityTest = \"$patient.gender == 'F'\">";
+		Assert.assertEquals("$patient.gender == 'F'", HtmlFormEntryGenerator.getTestStr(includeStr));
 	}
 	
 	/**

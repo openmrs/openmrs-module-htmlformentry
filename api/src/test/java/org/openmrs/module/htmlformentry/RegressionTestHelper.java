@@ -704,6 +704,17 @@ public abstract class RegressionTestHelper {
 			Assert.assertEquals(expectedLocationId, getEncounterCreated().getLocation().getLocationId());
 		}
 		
+		public void assertEncounterType() {
+			assertEncounterCreated();
+			Assert.assertNotNull(getEncounterCreated().getEncounterType());
+			Assert.assertNotNull(getEncounterCreated().getEncounterType().getEncounterTypeId());
+		}
+		
+		public void assertEncounterType(Integer expectedEncounterTypeId) {
+			assertEncounterType();
+			Assert.assertEquals(expectedEncounterTypeId, getEncounterCreated().getEncounterType().getEncounterTypeId());
+		}
+		
 		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'
 		 * 
