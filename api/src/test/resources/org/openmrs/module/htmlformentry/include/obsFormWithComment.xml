@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Weight: <obs conceptId="2" showCommentField="true" />
+	<submit/>
+</htmlform>

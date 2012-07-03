@@ -525,7 +525,8 @@ public class FormEntrySession {
 			for (Encounter e : submissionActions.getEncountersToCreate()) {
 				if (form != null) {
 					e.setForm(form);
-					e.setEncounterType(form.getEncounterType());
+					if (form.getEncounterType() != null)
+						e.setEncounterType(form.getEncounterType());
 				}
 				Context.getEncounterService().saveEncounter(e);
 			}
@@ -536,8 +537,8 @@ public class FormEntrySession {
 			for (Relationship r : submissionActions.getRelationshipsToCreate()) {
 				if (log.isDebugEnabled()) {
 					log.debug("creating relationships" + r.getRelationshipType().getDescription());
-					Context.getPersonService().saveRelationship(r);
 				}
+				Context.getPersonService().saveRelationship(r);
 			}
 		}
 		
@@ -545,8 +546,8 @@ public class FormEntrySession {
 			for (Relationship r : submissionActions.getRelationshipsToVoid()) {
 				if (log.isDebugEnabled()) {
 					log.debug("voiding relationships" + r.getId());
-					Context.getPersonService().voidRelationship(r, "htmlformentry");
 				}
+				Context.getPersonService().voidRelationship(r, "htmlformentry");
 			}
 		}
 		
@@ -554,8 +555,8 @@ public class FormEntrySession {
 			for (Relationship r : submissionActions.getRelationshipsToCreate()) {
 				if (log.isDebugEnabled()) {
 					log.debug("editing relationships" + r.getId());
-					Context.getPersonService().saveRelationship(r);
 				}
+				Context.getPersonService().saveRelationship(r);
 			}
 		}
 		

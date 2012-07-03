@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
@@ -60,6 +61,7 @@ import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.propertyeditor.ConceptEditor;
+import org.openmrs.propertyeditor.EncounterTypeEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
@@ -145,15 +147,15 @@ public class HtmlFormEntryUtil {
 			PersonEditor ed = new PersonEditor();
 			ed.setAsText(val);
 			return ed.getValue();
-		} /*else if (Provider.class.isAssignableFrom(clazz)) {
-			PersonEditor ed = new PersonEditor();
+		} else if (EncounterType.class.isAssignableFrom(clazz)) {
+			EncounterTypeEditor ed = new EncounterTypeEditor();
 			ed.setAsText(val);
 			return ed.getValue();
-		}*/ else {
+		} else {
 			return val;
 		}
 	}
-
+	
 	/**
 	 * Creaets an OpenMRS Obs instance
 	 * 
@@ -393,7 +395,7 @@ public class HtmlFormEntryUtil {
 	 * Get the concept by id, the id can either be 1)an integer id like 5090 or 2)mapping type id
 	 * like "XYZ:HT" or 3)uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 * 
-	 * @param id
+	 * @param Id
 	 * @return the concept if exist, else null
 	 * @should find a concept by its conceptId
 	 * @should find a concept by its mapping
@@ -468,7 +470,7 @@ public class HtmlFormEntryUtil {
 	 * pair like "501 - Boston" (this format is used when saving a location on a obs as a value
 	 * text) or 5) "GlobalProperty:property.name" or 6) "UserProperty:propertyName"
 	 * 
-	 * @param id
+	 * @param Id
 	 * @return the location if exist, else null
 	 * @should find a location by its locationId
 	 * @should find a location by name
@@ -556,7 +558,7 @@ public class HtmlFormEntryUtil {
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) name of *associated concept* (not name of
 	 * program), like "MDR-TB Program"
 	 * 
-	 * @param id
+	 * @param Id
 	 * @return the program if exist, else null
 	 * @should find a program by its id
 	 * @should find a program by name of associated concept
@@ -605,7 +607,7 @@ public class HtmlFormEntryUtil {
 	 * pair like "5090 - Bob Jones" (this format is used when saving a person on a obs as a value
 	 * text)
 	 * 
-	 * @param id
+	 * @param Id
 	 * @return the person if exist, else null
 	 * @should find a person by its id
 	 * @should find a person by its uuid
@@ -671,7 +673,7 @@ public class HtmlFormEntryUtil {
 	 * Get the patient identifier type by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a name like "Temporary Identifier"
 	 * 
-	 * @param id
+	 * @param Id
 	 * @return the identifier type if exist, else null
 	 * @should find an identifier type by its id
 	 * @should find an identifier type by its uuid
@@ -854,7 +856,7 @@ public class HtmlFormEntryUtil {
 	 * programWorkflowStateId, or uuid
 	 *  
 	 * @param identifier the programWorkflowStateId or uuid to match against
-	 * @param
+	 * @param workflow
 	 * @return
 	 * @should return the state with the matching id
 	 * @should return the state with the matching uuid
@@ -942,7 +944,7 @@ public class HtmlFormEntryUtil {
 	 * objects in encounter Uses a 'dummy' FormEntrySession to use htmlformentry schema matching
 	 * mechanism, and then examines the leftover Obs, Orders from the FormEntrySession constructor
 	 * 
-	 * @param
+	 * @param session
 	 */
 	public static void voidEncounterByHtmlFormSchema(Encounter e, HtmlForm htmlform, String voidReason) throws Exception {
 		if (e != null && htmlform != null) {
@@ -1102,89 +1104,57 @@ public class HtmlFormEntryUtil {
 	 * and setters and *are not* collection
 	 * 
 	 * @param source
-	 * @param
-	 * @return A copy of an obj o
+	 * @param replacements
+	 * @return A copy of an object
 	 * @throws Exception
 	 */
-    private static Object returnCopy(Object source) throws Exception {
-            Class<? extends Object> clazz = source.getClass();
-            Object ret = clazz.newInstance();
-            Set<String> fieldNames = new HashSet<String>();
-            List<Field> fields = new ArrayList<Field>();
-            addSuperclassFields(fields, clazz);
-            for (Field f : fields) {
-                fieldNames.add(f.getName());
-            }
-            for (String root : fieldNames) {
-                for (Method getter : clazz.getMethods()) {
-                    if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase())
-                            && getter.getParameterTypes().length == 0) {
-                        Method setter = getSetter(clazz, getter, "SET" + root.toUpperCase());
-                        //NOTE: Collection properties are not copied
-                        if (setter != null && methodsSupportSameArgs(getter, setter)
-                                && !(getter.getReturnType().isInstance(Collection.class))) {
-                            Object o = getter.invoke(source, Collections.EMPTY_LIST.toArray());
-                            if (o != null) {
-                                setter.invoke(ret, o);
-                            }
-                        }
-                    }
-                }
-            }
-            return ret;
-        }
-
-       /**
-         *   The Encounter.setProvider() contains the different overloaded methods and this filters the correct setter from those
-         * @param clazz
-         * @param getter
-         * @param methodname
-         * @return
-         */
-        private static Method getSetter(Class<? extends Object> clazz, Method getter, String methodname) {
-
-            List<Method> setterMethods = getMethodCaseInsensitive(clazz,methodname );
-            if(setterMethods != null && !setterMethods.isEmpty()){
-              if(setterMethods.size()==1){
-                return setterMethods.get(0);
-              }  else if(setterMethods.size() > 1){
-                    for(Method m : setterMethods){
-                     Class<?>[] parameters = m.getParameterTypes();
-                        for (Class<?> parameter : parameters) {
-                            if(getter.getReturnType().equals(parameter)){
-                            return  m;
-                        }
-                    }
-                 }
-              }
-            }
-            return null;
-
-
-        }
-        /**
-         * Performs a case insensitive search on a class for a method by name.
-         *
-         * @param clazz
-         * @param methodName
-         * @return the found Method
-         */
-        private static List<Method> getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
-
-            List<Method> methodList = new ArrayList<Method>();
-            for (Method m : clazz.getMethods()) {
-                if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
-                    methodList.add(m);
-
-                }
-            }
-            return methodList;
-        }
-
+	private static Object returnCopy(Object source) throws Exception {
+		Class<? extends Object> clazz = source.getClass();
+		Object ret = clazz.newInstance();
+		Set<String> fieldNames = new HashSet<String>();
+		List<Field> fields = new ArrayList<Field>();
+		addSuperclassFields(fields, clazz);
+		for (Field f : fields) {
+			fieldNames.add(f.getName());
+		}
+		for (String root : fieldNames) {
+			for (Method getter : clazz.getMethods()) {
+				if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase())
+				        && getter.getParameterTypes().length == 0) {
+					Method setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
+					//NOTE: Collection properties are not copied
+					if (setter != null && methodsSupportSameArgs(getter, setter)
+					        && !(getter.getReturnType().isInstance(Collection.class))) {
+						Object o = getter.invoke(source, Collections.EMPTY_LIST.toArray());
+						if (o != null) {
+							setter.invoke(ret, o);
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
 	
 	/**
-      	 *    compares getter return types to setter parameter types
-        *
+	 * Performs a case insensitive search on a class for a method by name.
+	 * 
+	 * @param clazz
+	 * @param methodName
+	 * @return the found Method
+	 */
+	private static Method getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
+		for (Method m : clazz.getMethods()) {
+			if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
+				return m;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * compares getter return types to setter parameter types.
+	 * 
 	 * @param getter
 	 * @param setter
 	 * @return true if getter return types are the same as setter parameter types. Else false.
@@ -1385,5 +1355,53 @@ public class HtmlFormEntryUtil {
 			sb.append(words[i]);
 		}
 		return sb.toString();
+	}
+	
+	/***
+	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
+	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
+	 * 
+	 * @param Id
+	 * @return the encounter type if exist, else null
+	 * @should find a encounter type by its encounterTypeId
+	 * @should find a encounter type by name
+	 * @should find a encounter type by its uuid
+	 * @should return null otherwise
+	 */
+	public static EncounterType getEncounterType(String id) {
+		
+		EncounterType encounterType = null;
+		
+		if (StringUtils.isNotBlank(id)) {
+			id = id.trim();
+			// see if this is parseable int; if so, try looking up by id
+			try {
+				int encounterTypeId = Integer.parseInt(id);
+				encounterType = Context.getEncounterService().getEncounterType(encounterTypeId);
+				
+				if (encounterType != null)
+					return encounterType;
+			}
+			catch (Exception ex) {
+				//do nothing 
+			}
+			
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format
+			if (isValidUuidFormat(id)) {
+				encounterType = Context.getEncounterService().getEncounterTypeByUuid(id);
+				
+				if (encounterType != null)
+					return encounterType;
+			}
+			
+			// if it's neither a uuid or id, try encounter type name
+			encounterType = Context.getEncounterService().getEncounterType(id);
+			
+			if (encounterType != null)
+				return encounterType;
+		}
+		
+		// no match found
+		return null;
 	}
 }

@@ -53,6 +53,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private TextFieldWidget accessionNumberWidget;
 	
+	private TextFieldWidget commentFieldWidget;
+	
 	private ErrorWidget errorWidget;
 	
 	private boolean allowFutureDates = false;
@@ -757,6 +759,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 		}
 		
+		// if an showCommentField is requested
+		if ("true".equals(parameters.get("showCommentField"))) {
+			commentFieldWidget = new TextFieldWidget();
+			context.registerWidget(commentFieldWidget);
+			context.registerErrorWidget(commentFieldWidget, errorWidget);
+			if (existingObs != null) {
+				commentFieldWidget.setInitialValue(existingObs.getComment());
+			}
+		}
+		
 		ObsField field = new ObsField();
 		field.setName(valueLabel);
 		if (concept != null) {
@@ -807,6 +819,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			    null);
 			context.registerPropertyAccessorInfo(id + ".accessionNumber",
 			    context.getFieldNameIfRegistered(accessionNumberWidget), null, null, null);
+			if (commentFieldWidget != null) {
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(commentFieldWidget),
+				    null, null, null);
+			}
 		}
 		ret.append(valueLabel);
 		if (!"".equals(valueLabel))
@@ -825,6 +841,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				ret.append("<br/>" + accessionNumberLabel);
 			}
 			ret.append(accessionNumberWidget.generateHtml(context));
+		}
+		if (commentFieldWidget != null) {
+			ret.append(" ");
+			ret.append(Context.getMessageSourceService().getMessage("htmlformentry.comment")+":");
+			ret.append(" ");
+			ret.append(commentFieldWidget.generateHtml(context));
 		}
 		
 		// if value is required
@@ -956,19 +978,24 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			obsDatetime = (Date) dateWidget.getValue(session.getContext(), submission);
 		if (accessionNumberWidget != null)
 			accessionNumberValue = (String) accessionNumberWidget.getValue(session.getContext(), submission);
+
+		String comment = null;
+		if(commentFieldWidget != null)
+			comment = commentFieldWidget.getValue(session.getContext(), submission);
+		
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
 			if (concepts != null)
 				session.getSubmissionActions().modifyObs(existingObs, concept, answerConcept, obsDatetime,
-				    accessionNumberValue);
+				    accessionNumberValue, comment);
 			else
-				session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue);
+				session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue, comment);
 		} else {
 			if (concepts != null && value != null && !"".equals(value) && concept != null) {
-				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue);
+				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue, comment);
 			} else if (value != null && !"".equals(value)) {
-				session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue);
+				session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment);
 			}
 		}
 	}
