@@ -373,6 +373,10 @@ public class FormEntrySession {
 	 * @param xml the xml string representing the form we wish to create
 	 * @return
 	 * @throws Exception
+	 * @should return correct xml with a greater than character in an excludeIf tag
+	 * @should return correct xml with a greater than character in an includeIf tag
+	 * @should return correct xml with a compound expression in an excludeIf tag
+	 * @should return correct xml with a compound expression in an includeIf tag
 	 */
 	public String createForm(String xml) throws Exception {
 		if (htmlForm != null) {

@@ -43,25 +43,51 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 	 * @see {@link FormEntrySession#createForm(String)}
 	 */
 	@Test
-	@Verifies(value = "should return correct xml with a greater than character in an excludeIf tag", method = "createForm(String)")
-	public void createForm_shouldReturnCorrectXmlWithAGreaterThanCharacterInAnExcludeIfTag() throws Exception {
-		Assert.assertEquals(37, patient.getAge().intValue());
-		String expectedText = "Patient is atleast 37";
-		String htmlform = "<htmlform><includeIf velocityTest=\"$patient.age >= 37\">" + expectedText
+	@Verifies(value = "should return correct xml with a greater than character in an includeIf tag", method = "createForm(String)")
+	public void createForm_shouldReturnCorrectXmlWithAGreaterThanCharacterInAnIncludeIfTag() throws Exception {
+		Integer age = patient.getAge();
+		String includeText = "Patient is atleast " + age;
+		String htmlform = "<htmlform><includeIf velocityTest=\"$patient.age >= " + age + "\">" + includeText
 		        + "</includeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
-		Assert.assertEquals("<div class=\"htmlform\">Patient is atleast 37</div>", session.getHtmlToDisplay());
+		Assert.assertEquals("<div class=\"htmlform\">Patient is atleast " + age + "</div>", session.getHtmlToDisplay());
 	}
 	
 	/**
 	 * @see {@link FormEntrySession#createForm(String)}
 	 */
 	@Test
-	@Verifies(value = "should return correct xml with a greater than character in an includeIf tag", method = "createForm(String)")
-	public void createForm_shouldReturnCorrectXmlWithAGreaterThanCharacterInAnIncludeIfTag() throws Exception {
-		Assert.assertEquals(37, patient.getAge().intValue());
-		String expectedText = "Patient is atleast 37";
-		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= 37\">" + expectedText
+	@Verifies(value = "should return correct xml with a greater than character in an excludeIf tag", method = "createForm(String)")
+	public void createForm_shouldReturnCorrectXmlWithAGreaterThanCharacterInAnExcludeIfTag() throws Exception {
+		Integer age = patient.getAge();
+		String excludeText = "Patient is atleast " + age;
+		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= " + age + "\">" + excludeText
+		        + "</excludeIf></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertEquals("<div class=\"htmlform\"></div>", session.getHtmlToDisplay());
+	}
+	
+	/**
+	 * @see {@link FormEntrySession#createForm(String)}
+	 */
+	@Test
+	@Verifies(value = "should return correct xml with a compound expression in an includeIf tag", method = "createForm(String)")
+	public void createForm_shouldReturnCorrectXmlWithACompoundExpressionInAnIncludeIfTag() throws Exception {
+		String includeText = "Patient age is valid";
+		String htmlform = "<htmlform><includeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + includeText
+		        + "</includeIf></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertEquals("<div class=\"htmlform\">" + includeText + "</div>", session.getHtmlToDisplay());
+	}
+	
+	/**
+	 * @see {@link FormEntrySession#createForm(String)}
+	 */
+	@Test
+	@Verifies(value = "should return correct xml with a compound expression in an excludeIf tag", method = "createForm(String)")
+	public void createForm_shouldReturnCorrectXmlWithACompoundExpressionInAnExcludeIfTag() throws Exception {
+		String excludeText = "Patient age is valid";
+		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + excludeText
 		        + "</excludeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertEquals("<div class=\"htmlform\"></div>", session.getHtmlToDisplay());
