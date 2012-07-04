@@ -485,9 +485,9 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 		}.run();
-		
+
 	}
-	
+
 	@Test
 	public void shouldDisplayCommentDetailsIfShowCommentFieldIsTrue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" showCommentField=\"true\" /></htmlform>";
@@ -495,35 +495,35 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 		System.out.println(session.getHtmlToDisplay());
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") > -1);
 	}
-	
+
 	@Test
 	public void shouldNotDisplayCommentDetailsIfShowCommentFieldIsSetToFalse() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" showCommentField=\"false\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") < 0);
 	}
-	
+
 	@Test
 	public void shouldNotDisplayCommentDetailsIfShowCommentFieldIsMissing() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") < 0);
 	}
-	
+
 	@Test
 	public void testSettingComment() throws Exception {
 		new RegressionTestHelper() {
-			
+
 			@Override
 			public String getFormName() {
 				return "obsFormWithComment";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
@@ -532,7 +532,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Weight:"), "100");
 				request.addParameter("w9", "test comment");
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();

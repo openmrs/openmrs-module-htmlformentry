@@ -87,7 +87,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             // set the previously given option into widget, when editing the form, else initialOption is null
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
-                    if (getInitialValue().equals(o.getLabel())) {
+                    if (getInitialValue()!= null && getInitialValue().equals(o.getLabel())) {
                         initialOption = new Option(o.getLabel(),o.getValue(),false);
                     }
                 }

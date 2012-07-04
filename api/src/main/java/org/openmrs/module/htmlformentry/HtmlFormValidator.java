@@ -27,7 +27,7 @@ public class HtmlFormValidator implements Validator {
 
     /**
      * Validates the specified HTML Form, placing any errors in the Errors object passed to it
-     * 
+     *
      * @should reject xml containing encounter type tag for a form with an encounter type
 	 * @should allow xml containing encounter type tag for a form with no encounter type
      */

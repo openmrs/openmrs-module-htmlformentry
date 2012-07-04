@@ -1653,6 +1653,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 
 			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+
+			}
+
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
@@ -1660,12 +1669,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Location:" };
-			}
+			};
 
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "3");
-			}
+			};
 
 			@Override
 			public void testEditedResults(SubmissionResults results) {
@@ -1673,43 +1682,10 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
                 results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(3);
-			}
+			};
 
 		}.run();
 	}
-
-    @Test
-	public void testSettingEncounterType() throws Exception {
-		new RegressionTestHelper() {
-
-			@Override
-			public String getFormName() {
-				return "encounterWithEncounterTypeSelect";
-			}
-
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:", "Encounter Type:" };
-			}
-
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Encounter Type:"), "2");
-			}
-
-			@Override
-			public void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				results.assertProvider(502);
-				results.assertLocation(2);
-                results.assertEncounterType(2);
-			}
-        }.run();
-    }
 
     @Test
 	public void testEditEncounterProviderWithAutocomplete() throws Exception {
@@ -1750,13 +1726,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Provider:" };
-			}
+			};
 
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
                 // todo create a new provider in data set and change the provider into it
 				request.setParameter(widgets.get("Provider:"), "502");
-			}
+			};
 
 			@Override
 			public void testEditedResults(SubmissionResults results) {
@@ -1764,8 +1740,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
                 results.assertEncounterCreated();
 				results.assertProvider(502);  // add a new value
 				results.assertLocation(2);
-			}
-		}.run();
+			};
 
+		}.run();
 	}
 }

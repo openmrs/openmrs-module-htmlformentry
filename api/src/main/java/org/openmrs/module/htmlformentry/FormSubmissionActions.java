@@ -269,7 +269,7 @@ public class FormSubmissionActions {
 		
 		if(StringUtils.isNotBlank(comment))
 			obs.setComment(comment);
-		
+
 		if (encounter != null)
 			encounter.addObs(obs);
 		if (obsGroup != null) {
@@ -335,7 +335,7 @@ public class FormSubmissionActions {
 		} else {
 			if(existingObs != null && StringUtils.isNotBlank(comment))
 				existingObs.setComment(comment);
-			
+
 			if (log.isDebugEnabled()) {
 				log.debug("SAME: " + printObsHelper(existingObs));
 			}

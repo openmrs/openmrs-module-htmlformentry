@@ -109,7 +109,7 @@ public abstract class RegressionTestHelper {
 	/**
 	 * Override this if you want to test out viewing a patient without an encounter
 	 * 
-	 * @param encounter
+	 * @param patient
 	 * @param html
 	 */
 	public void testViewingPatient(Patient patient, String html) {
@@ -238,7 +238,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form entry (ENTER) mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -247,7 +247,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form view mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -256,7 +256,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form edit mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormEditSessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -709,12 +709,12 @@ public abstract class RegressionTestHelper {
 			Assert.assertNotNull(getEncounterCreated().getEncounterType());
 			Assert.assertNotNull(getEncounterCreated().getEncounterType().getEncounterTypeId());
 		}
-		
+
 		public void assertEncounterType(Integer expectedEncounterTypeId) {
 			assertEncounterType();
 			Assert.assertEquals(expectedEncounterTypeId, getEncounterCreated().getEncounterType().getEncounterTypeId());
 		}
-		
+
 		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'
 		 * 

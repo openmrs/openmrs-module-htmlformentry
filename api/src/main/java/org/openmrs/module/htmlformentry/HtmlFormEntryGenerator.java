@@ -465,7 +465,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String applyIncludes(FormEntrySession session, String xml) throws BadFormDesignException {
 		return processIncludeOrExcludeTag(session, xml, true);
 	}
-	
+
 	/**
 	 * Removes htmlform tag and wraps the form in the div tag.
 	 * 
@@ -492,7 +492,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String applyExcludes(FormEntrySession session, String xml) throws BadFormDesignException {
 		return processIncludeOrExcludeTag(session, xml, false);
 	}
-	
+
 	/***
 	 * Given a include/exclude string. fetch the test expression
 	 * 
@@ -507,11 +507,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		
 		//get the text inside the quotes, i.e the expression
 		String[] actualExpression = StringUtils.substringsBetween(teststr, "\"", "\"");
-		
+
 		if (actualExpression == null || actualExpression.length != 1 || StringUtils.isBlank(actualExpression[0])) {
 			throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here            		
 		}
-		
+
 		return actualExpression[0];
 	}
 	
@@ -585,13 +585,13 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			if (startIndex == -1) {
 				startIndex = sb.indexOf("<excludeIf");
 			}
-			
+
 			int startTemp = startIndex+10;
 			int indexOfOpeningQuote = sb.substring(startTemp).indexOf("\"");
 			int indexOfClosingQuote = sb.substring(startTemp).indexOf("\"", indexOfOpeningQuote+1);
 			endIndex = sb.substring(startTemp).indexOf(">", indexOfClosingQuote+1);
 			sb.replace(startIndex, startTemp+endIndex+1, "");// should remove the <includeIf ...>
-			
+
 			startIndex = sb.indexOf("</includeIf>");
 			if (startIndex == -1)
 				startIndex = sb.indexOf("</excludeIf>");
@@ -612,9 +612,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		return sb;
 	}
 	
-	/** 
+	/**
 	 * Utility method that process and replaces the includeIf/excludeIf tags
-	 * 
+	 *
 	 * @param session
 	 * @param xml
 	 * @param isInclude
@@ -633,11 +633,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			boolean result = HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
 
 			HtmlFormEntryGenerator.removeFirstIncludeIfOrExcludeIf(sb, (isInclude) ? result : !result);
-			
+
 			xml = sb.toString();
 		}
-		
+
 		return xml;
 	}
-	
+
 }

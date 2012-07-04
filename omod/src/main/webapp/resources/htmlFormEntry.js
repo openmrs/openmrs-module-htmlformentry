@@ -216,6 +216,7 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
 
     var hiddenField = jQuery("#"+element.id+"_hid");
 	var textField = jQuery(element);
+    var select = false;
 
     var opnames = optionnames.split(",");
     var opvalues = optionvalues.split(",");
@@ -229,6 +230,7 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
        source:opnames,
        select:function(event, ui) {
            hiddenField.val(optionnamevaluemap[ui.item.value]);
+           select = true;
        }
     })  ;
 }
@@ -253,9 +255,9 @@ function onblurOptionAutocomplete(element, optionnames, optionvalues){
 
     }
 
-    /* The condition here is, if the typed value in the display field is not found in
-         *   the option name-value map, clear the display field and don't let to submit
-         */
+     //The condition here is, if the typed value in the display field is not found in
+        // the option name-value map, clear the display field and don't let to submit
+
     if(optionnamevaluemap[jQuery.trim(displayField.val())] == undefined ){
         displayField.val('');
 

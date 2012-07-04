@@ -54,7 +54,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private TextFieldWidget accessionNumberWidget;
 	
 	private TextFieldWidget commentFieldWidget;
-	
+
 	private ErrorWidget errorWidget;
 	
 	private boolean allowFutureDates = false;
@@ -768,7 +768,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				commentFieldWidget.setInitialValue(existingObs.getComment());
 			}
 		}
-		
+
 		ObsField field = new ObsField();
 		field.setName(valueLabel);
 		if (concept != null) {
@@ -848,7 +848,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.append(" ");
 			ret.append(commentFieldWidget.generateHtml(context));
 		}
-		
+
 		// if value is required
 		if (required) {
 			ret.append("<span class='required'>*</span>");
@@ -982,7 +982,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		String comment = null;
 		if(commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
-		
+
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart

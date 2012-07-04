@@ -97,7 +97,7 @@
 								        <key><value>encounterType</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.EncounterTypeTagHandler"/>
 							      	</entry>
-							    </map>  
+							    </map>
 							</property>
 							<property name="basicFormXmlTemplate">
 								<value>

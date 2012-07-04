@@ -541,7 +541,7 @@ public class FormEntrySession {
 				Context.getPersonService().saveRelationship(r);
 			}
 		}
-		
+
 		if (submissionActions.getRelationshipsToVoid() != null) {
 			for (Relationship r : submissionActions.getRelationshipsToVoid()) {
 				if (log.isDebugEnabled()) {
@@ -550,7 +550,7 @@ public class FormEntrySession {
 				Context.getPersonService().voidRelationship(r, "htmlformentry");
 			}
 		}
-		
+
 		if (submissionActions.getRelationshipsToEdit() != null) {
 			for (Relationship r : submissionActions.getRelationshipsToCreate()) {
 				if (log.isDebugEnabled()) {
@@ -559,7 +559,7 @@ public class FormEntrySession {
 				Context.getPersonService().saveRelationship(r);
 			}
 		}
-		
+
 		// program enrollments are trickier since we need to make sure the patient isn't already enrolled
 		// 1. if the patient is already enrolled on the given date, just skip this
 		// 2. if the patient is enrolled *after* the given date, shift the existing enrollment to start earlier. (TODO decide if this is right)
@@ -801,6 +801,7 @@ public class FormEntrySession {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
 					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
                        sb.append("$j('#" + widgetFieldName + "').val('');\n");
+
                     }
 					if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
                        sb.append("$j('#" + widgetFieldName + "').val('');\n");
