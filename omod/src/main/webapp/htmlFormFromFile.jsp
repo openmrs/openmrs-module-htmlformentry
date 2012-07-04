@@ -13,7 +13,7 @@
 
 <br />
 <spring:message code="htmlformentry.previewFile.message" />
-<br /><br />
+<br />
 <form method="get">
 	<b>
 		Located at: <input type="text" name="filePath" <c:if test="${isFileUpload == false}"> value="${filePath}"</c:if> size="40" />
@@ -21,13 +21,12 @@
 		<input type="hidden" name="isFileUpload" value="false" />
 	</b>
 </form>
-<br/>
 
 <b><spring:message code="htmlformentry.or" /></b>
-<br /><br />
+<br />
 
 <spring:message code="htmlformentry.previewFile.upload" />
-<br/><br />
+<br/>
 <form method="POST" enctype="multipart/form-data">
 	<b>
 		<input type="file" name="htmlFormFile" size="40" />
@@ -41,12 +40,12 @@
 	<span style="color:red;">${message}</span>
 	<br/>
 </c:if>
-<br/>
 
 <c:if test="${ not empty previewHtml }">
 	<input type="button" value="View Schema" onclick="document.location.href='htmlFormSchema.form?filePath=${filePath}';"/>
 	<br/><br/>
 </c:if>
+<hr/>
 
 <c:if test="${ not empty previewHtml }">
 	
