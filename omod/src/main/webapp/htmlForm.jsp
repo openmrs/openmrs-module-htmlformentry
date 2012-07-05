@@ -10,6 +10,7 @@
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.css" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.min.js" />
+<openmrs:htmlInclude file="/dwr/util.js" />
 
 <script>
 	$j = jQuery.noConflict();
@@ -210,6 +211,12 @@
 </form>
 
 <c:if test="${ not empty previewHtml }">
+
+	<script>
+		var propertyAccessorInfo = new Array();
+		var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
+		var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
+	</script>
 	
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
