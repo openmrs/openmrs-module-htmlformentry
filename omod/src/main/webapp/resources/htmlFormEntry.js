@@ -201,9 +201,7 @@ function onBlurAutocomplete(element){
 			hiddenField.val("");
 		}
 	}
-    if(textField.val() === "" && !hiddenField.val() != "")  {
-        hiddenField.val("");
-    }
+
 }
 
   /**
@@ -231,13 +229,22 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
        select:function(event, ui) {
            hiddenField.val(optionnamevaluemap[ui.item.value]);
            select = true;
-       }
-    })  ;
+       },
+       close: function(event, ui) {
+		    if(select) {//user has selected item from the list
+				textField.css('color', 'green');
+            }
+			else {
+				hiddenField.val("ERROR");
+			}
+			select = false;
+	   }
+    });
 }
 
   /**
      *
-     * @param element        - autocomplete widget id
+     * @param element     - autocomplete widget id
      * @param optionnames - names of the options
      * @param optionvalues  - ids of the options
      */
@@ -252,19 +259,20 @@ function onblurOptionAutocomplete(element, optionnames, optionvalues){
 
     for(var i= 0; i< opnames.length ; i++){
         optionnamevaluemap[opnames[i]] = opvalues[i];
-
     }
 
-     //The condition here is, if the typed value in the display field is not found in
-        // the option name-value map, clear the display field and don't let to submit
+     // The condition here is, if the typed value in the display field is not found in
+     // the option name-value map, clear the display field and don't let to submit
 
-    if(optionnamevaluemap[jQuery.trim(displayField.val())] == undefined ){
+    if(optionnamevaluemap[jQuery.trim(displayField.val())] == undefined || hiddenField.val("ERROR")){
         displayField.val('');
-
         if(displayField.val('')){
         hiddenField.val("");
         }
+    }else{     // this triggers when previous option loaded back into text field after failure
+        hiddenField.val(optionnamevaluemap[jQuery.trim(displayField.val())]) ;
     }
+
 }
 
 /*
@@ -272,6 +280,21 @@ function onblurOptionAutocomplete(element, optionnames, optionvalues){
    field , this sets the submit value to " ".
  */
 function letClearObsValue(element){
+
+    var textField = jQuery(element);
+    var hiddenField = jQuery("#"+element.id+"_hid");
+
+    if(textField.val() === ""){
+        hiddenField.val("");
+    }
+
+}
+
+/*
+   This is used to handle the deletion of obs autocomplete text field. When user deletes existing concept from
+   field , this sets the submit value to " ".
+ */
+function setHiddenValWhenOptionCleared(element){
 
     var textField = jQuery(element);
     var hiddenField = jQuery("#"+element.id+"_hid");

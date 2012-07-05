@@ -791,17 +791,15 @@ public class FormEntrySession {
 						}
 						sb.append("$j('#" + widgetFieldName + "').val(\""
 						        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString())) + "\");\n");
-                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
-                                                        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""                                                        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
 
 					}
-
 
 				} else {
 					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
 					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
                        sb.append("$j('#" + widgetFieldName + "').val('');\n");
-
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
                     }
 					if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
                        sb.append("$j('#" + widgetFieldName + "').val('');\n");
@@ -809,7 +807,6 @@ public class FormEntrySession {
                     }
 				}
 			}
-			
 			return sb.toString();
 		}
 	}

@@ -7,6 +7,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import java.lang.String;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  *   A single option auto complete widget which provides auto complete suggestions using a list of  predefined options
@@ -57,37 +58,14 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             String id = context.getFieldName(this);
 
             if(!getOptions().isEmpty()){
-            StringBuilder nameSb = new StringBuilder();
-            StringBuilder valueSb = new StringBuilder();
-
-            for (Iterator<Option> it = getOptions().iterator(); it.hasNext();) {
-                String originaloption = it.next().getLabel();
-
-                // this is added to eliminate the errors occur due to having ", ' and \ charaters included in
-                // the option names. When those are met they are replaced with 'escape character+original character'
-                originaloption = originaloption.replace("\\", "\\" +"\\" );
-                originaloption = originaloption.replace("'", "\\" +"'");
-                originaloption = originaloption.replace("\"", "\\" +"'" );
-
-				nameSb.append(originaloption);
-				if (it.hasNext()){
-                   nameSb.append(",");
-                }
-			}
-            for (Iterator<Option> it = getOptions().iterator(); it.hasNext();) {
-                valueSb.append(it.next().getValue());
-				if (it.hasNext()){
-                   valueSb.append(",");
-                }
-			}
-            this.optionNames = nameSb.toString();
-            this.optionValues = valueSb.toString();
-        }
+            this.optionNames = getNamesAsString(getOptions());
+            this.optionValues = getValuesAsString(getOptions());
+            }
 
             // set the previously given option into widget, when editing the form, else initialOption is null
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
-                    if (getInitialValue()!= null && getInitialValue().equals(o.getLabel())) {
+                    if (getInitialValue() != null && getInitialValue().equals(o.getLabel())) {
                         initialOption = new Option(o.getLabel(),o.getValue(),false);
                     }
                 }
@@ -103,9 +81,40 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 			sb.append("\n<input type=\"hidden\" id=\"" + id + "_hid" + "\" name=\""
 			        + id + "\" value=\"" + ((initialOption != null) ? initialOption.getValue() : "")
 			        + "\" />");
-
             return sb.toString();
         }
+    }
+
+    private String getValuesAsString(List<Option> options) {
+
+       StringBuilder valueSb = new StringBuilder();
+            for (Iterator<Option> it = options.iterator(); it.hasNext();) {
+                valueSb.append(it.next().getValue());
+				if (it.hasNext()){
+                   valueSb.append(",");
+                }
+			}
+       return valueSb.toString();
+    }
+
+    private String getNamesAsString(List<Option> options) {
+
+            StringBuilder nameSb = new StringBuilder();
+            for (Iterator<Option> it = options.iterator(); it.hasNext();) {
+                String originaloption = it.next().getLabel();
+
+                // this is added to eliminate the errors occur due to having ", ' and \ charaters included in
+                // the option names. When those are met they are replaced with 'escape character+original character'
+                originaloption = originaloption.replace("\\", "\\" +"\\" );
+                originaloption = originaloption.replace("'", "\\" +"'");
+                originaloption = originaloption.replace("\"", "\\" +"'" );
+
+				nameSb.append(originaloption);
+				if (it.hasNext()){
+                   nameSb.append(",");
+                }
+			}
+        return nameSb.toString();
     }
 
     public Option getInitialOption() {
