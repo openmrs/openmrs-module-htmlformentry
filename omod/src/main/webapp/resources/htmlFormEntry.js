@@ -176,15 +176,7 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 					hiddenField.val("ERROR");
 				}
 				select = false;
-			},
-            change: function(event , ui){
-                if(!ui.item){
-                    hiddenField.val('');
-                    textField.val('');
-                } else{
-                   hiddenField.val(ui.item.id);
-                }
-            }
+			}
 		});
 	}
 }
@@ -201,11 +193,10 @@ function onBlurAutocomplete(element){
 			hiddenField.val("");
 		}
 	}
-
 }
 
-  /**
-     *   This is used to provide auto complete when pre populated list of options is given
+    /**
+     * This is used to provide auto complete when pre populated list of options is given
      * @param element          - autocomplete widget id
      * @param optionnames   - names of the options
      * @param optionvalues    - ids of the options
@@ -235,6 +226,7 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
 				textField.css('color', 'green');
             }
 			else {
+                textField.css('color', 'red');
 				hiddenField.val("ERROR");
 			}
 			select = false;
@@ -242,44 +234,11 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
     });
 }
 
-  /**
-     *
-     * @param element     - autocomplete widget id
-     * @param optionnames - names of the options
-     * @param optionvalues  - ids of the options
-     */
-function onblurOptionAutocomplete(element, optionnames, optionvalues){
-
-    var hiddenField = jQuery("#"+element.id+"_hid");
-	var displayField = jQuery(element);
-
-    var opnames = optionnames.split(",");
-    var opvalues = optionvalues.split(",");
-    var optionnamevaluemap = new Object();
-
-    for(var i= 0; i< opnames.length ; i++){
-        optionnamevaluemap[opnames[i]] = opvalues[i];
-    }
-
-     // The condition here is, if the typed value in the display field is not found in
-     // the option name-value map, clear the display field and don't let to submit
-
-    if(optionnamevaluemap[jQuery.trim(displayField.val())] == undefined || hiddenField.val("ERROR")){
-        displayField.val('');
-        if(displayField.val('')){
-        hiddenField.val("");
-        }
-    }else{     // this triggers when previous option loaded back into text field after failure
-        hiddenField.val(optionnamevaluemap[jQuery.trim(displayField.val())]) ;
-    }
-
-}
-
 /*
-   This is used to handle the deletion of obs autocomplete text field. When user deletes existing concept from
-   field , this sets the submit value to " ".
+   This is used to handle the deletion/blankout of autocomplete text field. When user deletes existing
+   value from text field, this sets the submit value to "".
  */
-function letClearObsValue(element){
+function setValWhenAutocompleteFieldBlanked(element){
 
     var textField = jQuery(element);
     var hiddenField = jQuery("#"+element.id+"_hid");
@@ -287,22 +246,6 @@ function letClearObsValue(element){
     if(textField.val() === ""){
         hiddenField.val("");
     }
-
-}
-
-/*
-   This is used to handle the deletion of obs autocomplete text field. When user deletes existing concept from
-   field , this sets the submit value to " ".
- */
-function setHiddenValWhenOptionCleared(element){
-
-    var textField = jQuery(element);
-    var hiddenField = jQuery("#"+element.id+"_hid");
-
-    if(textField.val() === ""){
-        hiddenField.val("");
-    }
-
 }
 
 /**

@@ -73,12 +73,12 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 
             sb.append("<input type=\"text\" id=\"" + id + "\" value=\""
 			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
-			        + "\" onblur=\"onblurOptionAutocomplete(this,'" +this.optionNames +"','" + this.optionValues
-                    + "')\" onfocus=\"setupOptionAutocomplete(this,'" +this.optionNames +"','"
-                    + this.optionValues + "')\" placeholder=\""
+			        + "\" onblur=\"onBlurAutocomplete(this)\""
+                    + " onfocus=\"setupOptionAutocomplete(this,'" +this.optionNames +"','"
+                    + this.optionValues + "')\" onchange=\"setValWhenAutocompleteFieldBlanked(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.value.placeholder") + "\" />");
 
-			sb.append("\n<input type=\"hidden\" id=\"" + id + "_hid" + "\" name=\""
+			sb.append("\n<input type=\"hidden\" class=\"optionAutoCompleteHidden\" id=\"" + id + "_hid" + "\" name=\""
 			        + id + "\" value=\"" + ((initialOption != null) ? initialOption.getValue() : "")
 			        + "\" />");
             return sb.toString();
