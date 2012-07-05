@@ -499,35 +499,6 @@ public class FormEntryContext {
         }
         return null;
     }
-    
-    /**
-     * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs.
-     * Use this version for obs whose concept's datatype is Numeric that are radio-style. 
-     * 
-     * @param question the concept associated with the Obs to remove
-     * @param  the boolean value of the obs
-     * @return
-     */
-    public Obs removeExistingObs(Concept question, List<Double> answers) {
-        List<Obs> list = existingObs.get(question);
-        if (list != null) {
-            for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
-                Obs test = iter.next();
-                if (test.getValueNumeric() == null) {
-                	throw new RuntimeException("Invalid numeric value for concept " + question);
-                }
-                for (Double answer: answers) {
-                	if (answer.equals(test.getValueNumeric())) {
-                		iter.remove();
-                		if (list.size() == 0)
-                			existingObs.remove(question);
-                		return test;
-                	}
-                }
-            }
-        }
-        return null;    	
-    }
 
     public Obs getNextUnmatchedObsGroup(String path) {
         Obs ret = null;
