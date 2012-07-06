@@ -187,13 +187,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 // this is done to avoid default provider being added twice due to that it can be added from the
                 // users = getAllProvidersThatArePersonsAsPersonStubs(); section with selected="false", therefore this can't be caught when
                 // searching whether the options list contains the 'defaultProvider'
-              boolean defaultOptionPresent = false;
-              for(Option option: providerOptions){
+            boolean defaultOptionPresent = false;
+              if(defaultProvider != null){
+                for(Option option: providerOptions){
                   if(option.getValue().equals(defaultProvider.getId().toString())){
                       defaultOptionPresent = true;
                       providerOptions.remove(option);
                       break;
                   }
+                }
               }
               if(defaultOptionPresent)  {
                   defProviderOption
