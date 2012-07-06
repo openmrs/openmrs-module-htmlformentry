@@ -172,16 +172,6 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you want to edit the encounter that was created during viewing for 
-	 * editing. The view encounter will be passed in. User either this or the empty argument
-	 * version of the method.
-	 * @return
-	 */
-	public Encounter getEncounterToEdit(Encounter encounter) {
-		return null;
-	}
-	
-	/**
 	 * Override this if you want to edit a Patient than the one created in the first part
 	 * of the test or viewed in the second part. (Returning a non-null value implies doEditPatient = true.)
 	 * @return
@@ -308,10 +298,6 @@ public abstract class RegressionTestHelper {
 		
 		// edit the encounter, and run tests on that
 		override = getEncounterToEdit();
-		if (override == null) {
-			override = getEncounterToEdit(encounterToView);
-		}
-
 		boolean doEditEncounter = override != null || doEditEncounter();
 		
 		overridePatient = getPatientToEdit();

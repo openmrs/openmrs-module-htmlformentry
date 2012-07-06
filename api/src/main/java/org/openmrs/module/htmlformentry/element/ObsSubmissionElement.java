@@ -168,13 +168,6 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// if not 'false' we treat as 'true'
 					existingObs = context.removeExistingObs(concept, true);
 				}
-			} else if (concept.getDatatype().isNumeric() && "radio".equals(parameters.get("style"))) {
-				List<Double> answers = new ArrayList<Double>();
-				String[] answerStrings = parameters.get("answers").split(",");
-				for (String answerString: answerStrings) {
-					answers.add(new Double(answerString));
-				}
-				existingObs = context.removeExistingObs(concept, answers);
 			} else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
