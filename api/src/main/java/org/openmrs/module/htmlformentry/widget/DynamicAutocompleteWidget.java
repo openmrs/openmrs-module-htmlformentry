@@ -20,7 +20,6 @@ public class DynamicAutocompleteWidget  implements Widget {
 	private String allowedConceptClassNames;
 	private String src;
 	private static String defaultSrc = "conceptSearch.form";
-	private int count=0;
 
 
 	public DynamicAutocompleteWidget(List<Concept> conceptList,
@@ -73,7 +72,7 @@ public class DynamicAutocompleteWidget  implements Widget {
 					+ "\" id=\"" + context.getFieldName(this) + "_hid" + "\""
 					+ " type=\"hidden\" class=\"autoCompleteHidden\" ");
 			if (!initialValue.isEmpty()) {
-				sb.append(" value=\"" + initialValue.size() + "\"");
+				sb.append(" value=\"" + initialValue.size() + "\"");		
 			}
 			sb.append("/>");
 
@@ -88,15 +87,14 @@ public class DynamicAutocompleteWidget  implements Widget {
 
 			
 			sb.append("/>");
-			
 			sb.append("<input id=\""
 					+ context.getFieldName(this) +"_button"+ "\" type=\"button\" class=\"addConceptButton\" value=\"Add\" />");
-			  sb.insert(0, "<div id=\""+ context.getFieldName(this) +"_div"+ "\">");
+			  sb.insert(0, "<div id=\""+ context.getFieldName(this) +"_div"+ "\" class=\"dynamicAutocomplete\">");
 			  if (!initialValue.isEmpty()){
 				  for (int i = 0; i < initialValue.size(); i++) {
-		               String spanid=""+ context.getFieldName(this)+"span_"+count;
-					sb.append("<span id=\""+spanid+"\"></br>"+initialValue.get(i).getDisplayString()+"<input id=\""+spanid+"_hid"+ "\"  class=\"autoCompleteHidden\" type=\"hidden\" name=\""+spanid+"_hid"+"\" value=\""+initialValue.get(i).getConceptId()+"\"> <input id=\""+spanid+"_button"+ "\" type=\"button\" value=\"remove\" onClick=\"$j(\'#'+spanid+'\').remove();refresh()\"></span>");
-				  }
+		               String spanid=""+ context.getFieldName(this)+"span_"+i;
+					sb.append("<span id=\""+spanid+"\"></br>"+initialValue.get(i).getDisplayString()+"<input id=\""+spanid+"_hid"+ "\"  class=\"autoCompleteHidden\" type=\"hidden\" name=\""+spanid+"_hid"+"\" value=\""+initialValue.get(i).getConceptId()+"\"> <input id=\""+spanid+"_button"+ "\" type=\"button\" value=\"remove\" onClick=\"$j('#"+spanid+"').remove();refresh(this.id)\"></span>");
+				  }		
 				}
 			  sb.append("</div>");
 		}
@@ -113,6 +111,10 @@ public class DynamicAutocompleteWidget  implements Widget {
     public void setInitialValue(Object initialValue) {
 		// TODO Auto-generated method stub
 		this.initialValue.add((Concept) initialValue);
+	}
+	public List <Concept> getInitialValueList()
+	{
+		return initialValue;
 	}
 }
 

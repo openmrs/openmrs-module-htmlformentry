@@ -59,46 +59,47 @@
 			 	}
 			 );
 		});
+		$j('div .dynamicAutocomplete').each(function(index) {
+			var string=((this.id).split("_div",1))+"_hid";
+			if(!$j('#'+string).attr('value'))
+			$j('#'+this.id).data("count",0);
+			else
+			$j('#'+this.id).data("count",parseInt($j('#'+string).attr('value')));
+			});
 		$j(':button.addConceptButton').click(function() {
 			  var string=(this.id).replace("_button","");
 		        var conceptValue=$j('#'+string+'_hid').attr('value')
 		        if($j('#'+string).css('color')=='green'){
 		        var	divId=string+"_div";
-			 var clickNum = $j(this).data('clickNum');
-			 if (!clickNum) {
-				 clickNum = 0;
-				 $j('#'+divId).data("count",clickNum);
-				 $j(this).data('clickNum',++clickNum);
-			 }
 	        	 var spanid=string+'span_'+ $j('#'+divId).data("count");
 	        	 var count= $j('#'+divId).data("count");
 	        	 $j('#'+divId).data("count",++count);
 	        	 $j('#'+string+'_hid').attr('value',$j('#'+divId).data("count"));
 	        	 var hidId=spanid+'_hid';
 	           var v='<span id="'+spanid+'"></br>'+$j('#'+string).val()+'<input id="'+hidId+'"  class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
-	                var q='<input id="'+spanid+'_button" type="button" value="remove" onClick="$j(\'#'+spanid+'\').remove();refresh()"></span>';
+	                var q='<input id="'+spanid+'_button" type="button" value="remove" onClick="$j(\'#'+spanid+'\').remove();refresh(this.id)"></span>';
 	                $j('#'+divId).append(v+q);
 	                $j('#'+string).val('');
 	        } 
 	        });
-	        
-
 	});
-	function refresh () {
+	function refresh (v) {
 		var flag=true;
-		var string=((this.id).split("span",1))+"_hid";
-		var divId=((this.id).split("span",1))+"_div";
+		var string=((v).split("span",1))+"_hid";
+		var divId=((v).split("span",1))+"_div";
+		var temp=((v).split("span",1))+"span_";
 		$j('#'+divId+' span').each(function(index) {
 			$j('#'+divId).data("count",index+1);
-	     	 $('#'+string).attr('value',$j('#'+divId).data("count"));
+	     	 $j('#'+string).attr('value',$j('#'+divId).data("count"));
 			flag=false;
 		     var spanId=this.id;
 		     var newSpanId=spanId.split('_',1)+'_'+index;
 		     this.id=newSpanId;
 		     $j('#'+spanId+'_hid').attr('id',newSpanId+'_hid');
 		      $j('#'+spanId+'_button').removeAttr('onclick',null).unbind('click').attr('id',newSpanId+'_button').click(function() {
-		 $j('#'+newSpanId).remove();refresh();
+		 $j('#'+newSpanId).remove();refresh(newSpanId+"_button");
 		 });
+		      $j('#'+newSpanId+'_hid').attr('name',newSpanId+'_hid');
 		     });
 		if(flag)
 		$j('#'+divId).data("count",0);

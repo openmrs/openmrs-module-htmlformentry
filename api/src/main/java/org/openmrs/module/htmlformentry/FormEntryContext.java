@@ -375,6 +375,7 @@ public class FormEntryContext {
     
     public List<Obs> removeExistingObs(Concept question) {
         List<Obs> list = existingObs.get(question);
+        existingObs.remove(question);
                         return list;
     }
     
