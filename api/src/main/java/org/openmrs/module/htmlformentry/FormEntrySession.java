@@ -22,11 +22,14 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
+import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+import sun.dc.path.PathError;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -719,101 +722,132 @@ public class FormEntrySession {
 	 * Creates the Javascript necessary to set form fields to the values entered during last
 	 * submission Used to maintain previously-entered field values when redisplaying a form with
 	 * validation errors
-	 */
-	public String getSetLastSubmissionFieldsJavascript() {
-		HttpServletRequest lastSubmission = submissionController.getLastSubmission();
-		if (lastSubmission == null) {
-			return "";
-		} else {
-			StringBuilder sb = new StringBuilder();
-			
-			// iterate through all the widgets and set their values based on the values in the last submission
-			// if there is no value in the last submission, explicitly set the value as empty to override any default values
-			for (Map.Entry<Widget, String> entry : context.getFieldNames().entrySet()) {
-				String widgetFieldName = entry.getValue();
-				String val = lastSubmission.getParameter(widgetFieldName);
-				if (val != null) {
+     */
+    public String getSetLastSubmissionFieldsJavascript() {
+        HttpServletRequest lastSubmission = submissionController.getLastSubmission();
+        if (lastSubmission == null) {
+            return "";
+        } else {
+            StringBuilder sb = new StringBuilder();
 
-                    // set the value of the widget based on it's name
-                    sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
-                            + "');\n");
+            // iterate through all the widgets and set their values based on the values in the last submission
+            // if there is no value in the last submission, explicitly set the value as empty to override any default values
+            for (Map.Entry<Widget, String> entry : context.getFieldNames().entrySet()) {
+                Widget widgetType = entry.getKey();
+                String widgetFieldName = entry.getValue();
+                String val = lastSubmission.getParameter(widgetFieldName);
 
-					// special case to set the display field of the Location widget when autocomplete is used
-					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
-                             && HtmlFormEntryUtil.convertToType(val.trim(), Location.class) != null) {
+                if (val != null && !val.trim().equals("")) {
 
-						Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), Location.class);
-                        Location location = null;
-						if (returnedObj != null) {
-							location = (Location) returnedObj;
-						}
-                        else {
-							//This should typically never happen,why is there no location with this id, we
-							//should set val(locationId) to blank so that the hidden form field is blank too
-							val = "";
-						}
-						sb.append("$j('#" + widgetFieldName + "').val(\""
-						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
-                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
-						        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getId().toString())) + "\");\n");
-					}
-                    // special case to set the display field of the provider widget when autocomplete is used
-                    else if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())
-                             && HtmlFormEntryUtil.convertToType(val.trim(), Person.class) != null) {
+                    // special case to set the display field when autocomplete is used
+                    if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
 
-                        Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), Person.class);
-                        Person provider = null;
-                        if (returnedObj != null) {
-							provider = (Person) returnedObj;
-						} else {
-							//This should typically never happen,why is there no provider with this id, we
-							//should set val(providerid) to blank so that the hidden form field is blank too
-							val = "";
-						}
-						sb.append("$j('#" + widgetFieldName + "').val(\""
-						        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
-                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
-						        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getId().toString())) + "\");\n");
+                        boolean classIsLocation = false;
+                        List<Option> optionList = ((SingleOptionWidget) widgetType).getOptions();
+                        if (!optionList.isEmpty()) {
+                            List<Location> allLocations = Context.getLocationService().getAllLocations();
+                            // if options list is not empty,1 st option is taken and compared
+                            // with allLocations to check whether the widget is for is Location.class
+                            for (Location location : allLocations) {
+                                if (optionList.get(0).getLabel().equals(location.getName())) {
+                                    classIsLocation = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (classIsLocation) {
+                            Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), Location.class);
+                            Location location = null;
+                            if (returnedObj != null) {
+                                location = (Location) returnedObj;
+                            } else {
+                                //This should typically never happen,why is there no location with this id, we
+                                //should set val(locationId) to blank so that the hidden form field is blank too
+                                val = "";
+                            }
+                            sb.append("$j('#" + widgetFieldName + "').val(\""
+                                    + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
+                            sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
+                                    + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getId().toString())) + "\");\n");
+                        } else {
+
+                            boolean classIsperson = false;
+                                Person person = Context.getPersonService().getPerson(Integer.valueOf(val.trim()));
+                            if(person != null){
+                              for (Option option : optionList) {
+                                if (option.getLabel().equals(person.getPersonName().getFullName())) {
+                                    classIsperson = true;
+                                }
+                              }
+                            }
+
+
+                        // this is checked as there can be persons who are not providers, which are displayed
+                        // as wrong results with <encounterProviderAndRole> tag
+
+                            if (classIsperson) {
+                                Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), Person.class);
+                                Person provider = null;
+                                if (returnedObj != null) {
+                                    provider = (Person) returnedObj;
+                                } else {
+                                    //This should typically never happen,why is there no provider with this id, we
+                                    //should set val(providerid) to blank so that the hidden form field is blank too
+                                    val = "";
+                                }
+                                sb.append("$j('#" + widgetFieldName + "').val(\""
+                                        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
+                                sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
+                                        + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getId().toString())) + "\");\n");
+                            } else {
+
+                                sb.append("$j('#" + widgetFieldName + "').val('');\n");
+                                sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                            }
+
+                        }
+                        // TODO:  add method to manage this feature when autocomplete is used with <encounterProviderAndRole>, for opennmrs-1.6.5
                     }
-                    // special case to set the display field of the provider widget when autocomplete is used with <encounterProvidernAndRole>
-                      // TODO:  add method to manage this feature, for 1.6.5
-
                     // special case to set the display field of the obs value widget when autocomplete is used with <obs> tag
-				    if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())){
+                    else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())) {
 
-                        String conveptVal = lastSubmission.getParameter(widgetFieldName+"_hid");
+                        String conveptVal = lastSubmission.getParameter(widgetFieldName + "_hid");
                         Object returnedObj = HtmlFormEntryUtil.convertToType(conveptVal.trim(), Concept.class);
-
                         Concept concept = null;
-						if (returnedObj != null) {
-							concept = (Concept)returnedObj;
-						}
-                        else {
-							//This should typically never happen,why is there no location with this id, we
-							//should set val(locationId) to blank so that the hidden form field is blank too
-							val = "";
-						}
-						sb.append("$j('#" + widgetFieldName + "').val(\""
-						        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString())) + "\");\n");
-                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""                                                        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
+                        if (returnedObj != null) {
+                            concept = (Concept) returnedObj;
+                        } else {
+                            //This should typically never happen,why if there no obs with this id, we
+                            //should set val(obsId) to blank so that the hidden form field is blank too
+                            val = "";
+                        }
+                        sb.append("$j('#" + widgetFieldName + "').val(\""
+                                + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString())) + "\");\n");
+                        sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\"" + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
 
-					}
+                    } else {
+                        // set the value of the widget based on it's name
+                        sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
+                                + "');\n");
+                    }
 
-				} else {
-					sb.append("setValueByName('" + widgetFieldName + "', '');\n");
-					if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
-                       sb.append("$j('#" + widgetFieldName + "').val('');\n");
+
+                } else {
+                    if (AutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())) {
+                        sb.append("$j('#" + widgetFieldName + "').val('');\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
-                    }
-					if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass()))  {
-                       sb.append("$j('#" + widgetFieldName + "').val('');\n");
+                    } else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())) {
+                        sb.append("$j('#" + widgetFieldName + "').val('');\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                    } else {
+                        sb.append("setValueByName('" + widgetFieldName + "', '');\n");
                     }
-				}
-			}
-			return sb.toString();
-		}
-	}
+                }
+            }
+            return sb.toString();
+        }
+    }
 	
 	/**
 	 * Returns a fragment of javascript that will display any error widgets that had errors on the

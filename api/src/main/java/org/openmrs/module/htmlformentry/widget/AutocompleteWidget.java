@@ -16,8 +16,6 @@ import java.util.List;
 public class AutocompleteWidget extends  SingleOptionWidget{
 
     private Option initialOption;
-    private String optionNames;
-    private String optionValues;
 
     public AutocompleteWidget() {
     }
@@ -32,6 +30,9 @@ public class AutocompleteWidget extends  SingleOptionWidget{
      */
     @Override
     public String generateHtml(FormEntryContext context) {
+
+         String optionNames = null;
+         String optionValues = null;
 
          if (context.getMode() == FormEntryContext.Mode.VIEW) {
             String toPrint = "";
@@ -58,24 +59,24 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             String id = context.getFieldName(this);
 
             if(!getOptions().isEmpty()){
-            this.optionNames = getNamesAsString(getOptions());
-            this.optionValues = getValuesAsString(getOptions());
+            optionNames = getNamesAsString(getOptions());
+            optionValues = getValuesAsString(getOptions());
             }
 
-            // set the previously given option into widget, when editing the form, else initialOption is null
-            //if (context.getMode() == FormEntryContext.Mode.EDIT) {
+            // set the previously given option into widget, when editing/entering the form, else initialOption is null
+            if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
                     if (getInitialValue() != null && getInitialValue().equals(o.getLabel())) {
                         initialOption = new Option(o.getLabel(),o.getValue(),false);
                     }
                 }
-            //}
+            }
 
             sb.append("<input type=\"text\" id=\"" + id + "\" value=\""
 			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
 			        + "\" onblur=\"onBlurAutocomplete(this)\" class=\"optionAutoComplete\""
-                    + " onfocus=\"setupOptionAutocomplete(this,'" +this.optionNames +"','"
-                    + this.optionValues + "')\" onchange=\"setValWhenAutocompleteFieldBlanked(this)\" placeholder=\""
+                    + " onfocus=\"setupOptionAutocomplete(this,'" +optionNames +"','"
+                    + optionValues + "')\" onchange=\"setValWhenAutocompleteFieldBlanked(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.value.placeholder") + "\" />");
 
 			sb.append("\n<input type=\"hidden\" class=\"optionAutoCompleteHidden\" id=\"" + id + "_hid" + "\" name=\""
@@ -123,22 +124,6 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 
     public void setInitialOption(Option initialOption) {
         this.initialOption = initialOption;
-    }
-
-    public String getOptionNames() {
-        return optionNames;
-    }
-
-    public void setOptionNames(String optionNames) {
-        this.optionNames = optionNames;
-    }
-
-    public String getOptionValues() {
-        return optionValues;
-    }
-
-    public void setOptionValues(String optionValues) {
-        this.optionValues = optionValues;
     }
 
 }

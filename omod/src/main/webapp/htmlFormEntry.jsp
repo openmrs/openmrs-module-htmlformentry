@@ -105,24 +105,6 @@
 		return containError;
     }
 
-    function recoverOptionAutoCompleteField() {
-        /* see if there are  errors in option fields */
-
-		var nameary = $j(".optionAutoComplete");
-        var valary = $j(".optionAutoCompleteHidden");
-        var option = $j(".optionAutoComplete").attr("value");
-
-        console.log("Option is :" + option );
-		$j.each(nameary,function(index, value){
-			if(value.value == option){
-               console.log("val is :" + value.value);
-                    var hidenval = valary[index].value;
-                    console.log("valhid is :" +hidenval);
-                    $j(".optionAutoCompleteHidden").val(hidenval);
-                console.log("auto  :" + $j(".optionAutoCompleteHidden").attr("value"));
-			}
-		});
-    }
 	/*
 		It seems the logic of  showAuthenticateDialog and 
 		findAndHighlightErrors should be in the same callback function.
@@ -159,7 +141,6 @@
             		tryingToSubmit = false;
             		return;
         		}else{
-                    recoverOptionAutoCompleteField();
         			doSubmitHtmlForm();
         		}
 			}
