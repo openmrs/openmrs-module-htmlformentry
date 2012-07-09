@@ -16,8 +16,10 @@ import java.util.List;
 public class AutocompleteWidget extends  SingleOptionWidget{
 
     private Option initialOption;
+    private Class optionClass;
 
-    public AutocompleteWidget() {
+    public AutocompleteWidget(Class optionClass) {
+        this.optionClass = optionClass;
     }
 
     /**
@@ -126,4 +128,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
         this.initialOption = initialOption;
     }
 
+    public Class getOptionClass() {
+        return optionClass;
+    }
 }

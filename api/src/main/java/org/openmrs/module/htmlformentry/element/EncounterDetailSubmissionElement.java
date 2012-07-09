@@ -114,7 +114,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         if (Boolean.TRUE.equals(parameters.get("provider"))) {
 
             if ("autocomplete".equals(parameters.get("type"))) {
-                providerWidget = new AutocompleteWidget();
+                providerWidget = new AutocompleteWidget(Person.class);
             }else{
                 providerWidget = new DropdownWidget();
             }
@@ -296,7 +296,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             List<Option> locationOptions = new ArrayList<Option>();
 
             if ("autocomplete".equals(parameters.get("type"))) {
-                locationWidget = new AutocompleteWidget();
+                locationWidget = new AutocompleteWidget(Location.class);
             } else {
                 locationWidget = new DropdownWidget();
             }
