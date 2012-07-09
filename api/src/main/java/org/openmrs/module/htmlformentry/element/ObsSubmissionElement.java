@@ -509,7 +509,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							answerLabel = answerConcept.getBestName(Context.getLocale()).getName();
 						}
 					}
-					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
+					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString(), parameters.get("toggle"));
 					if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
@@ -612,7 +612,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				
 				if ("checkbox".equals(parameters.get("style"))) {
 					valueWidget = new CheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value")
-					        : "true");
+					        : "true", parameters.get("toggle"));
 					valueLabel = "";
 				} else if ("no_yes".equals(parameters.get("style"))) {
 					valueWidget = new RadioButtonsWidget();

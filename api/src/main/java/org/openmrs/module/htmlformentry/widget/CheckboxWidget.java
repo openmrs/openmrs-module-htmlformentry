@@ -13,6 +13,7 @@ public class CheckboxWidget implements Widget {
     private Object initialValue;
     private String value = "true";
     private String label;
+    private String toggleTarget;
 
     public CheckboxWidget() { }
     
@@ -25,6 +26,11 @@ public class CheckboxWidget implements Widget {
         this.value = value;
     }
 
+    public CheckboxWidget(String label, String value, String toggleTarget) {
+        this.label = label;
+        this.value = value;
+        this.toggleTarget = toggleTarget;
+    }
     /**
      * Gets the value attribute for the checkbox. Not to be confused with {@see getValue(FormEntryContext,HttpServletRequest)}.
      * 
@@ -82,6 +88,8 @@ public class CheckboxWidget implements Widget {
                 .append("\" value=\"").append(value).append("\"");
             if (initialValue != null && !"".equals(initialValue))
                 sb.append(" checked=\"true\"");
+            if (toggleTarget != null && toggleTarget.trim().length() > 0) 
+            	sb.append(" toggle=\"" + toggleTarget + "\"");
             sb.append("/>");
             if (label != null)
                 sb.append("<label for=\"").append(context.getFieldName(this)).append("\">").append(label).append("</label>");
@@ -104,5 +112,13 @@ public class CheckboxWidget implements Widget {
     public void setInitialValue(Object initialValue) {
         this.initialValue = initialValue;
     }
+
+	public String getToggleTarget() {
+		return toggleTarget;
+	}
+
+	public void setToggleTarget(String toggleTarget) {
+		this.toggleTarget = toggleTarget;
+	}
 
 }

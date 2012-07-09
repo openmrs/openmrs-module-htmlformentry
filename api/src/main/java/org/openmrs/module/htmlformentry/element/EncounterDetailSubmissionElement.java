@@ -243,6 +243,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
 			voidWidget = new CheckboxWidget();
 			voidWidget.setLabel(" " + Context.getMessageSourceService().getMessage("general.voided"));
+			if (parameters.get("toggle") != null)
+				voidWidget.setToggleTarget((String) parameters.get("toggle"));
 			voidErrorWidget = new ErrorWidget();
 			if (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true))
 				voidWidget.setInitialValue("true");
