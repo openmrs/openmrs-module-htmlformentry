@@ -1,6 +1,5 @@
 package org.openmrs.module.htmlformentry.widget;
 
-
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.springframework.web.util.HtmlUtils;
@@ -10,7 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- *   A single option auto complete widget which provides auto complete suggestions using a list of  predefined options
+ *   A single option auto complete widget which provides auto complete suggestions using a
+ *   list of  predefined options
  */
 
 public class AutocompleteWidget extends  SingleOptionWidget{
@@ -24,7 +24,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 
     /**
      *
-     * @param context
+     * @param  context
      * @return generated html as a string
      * @should accept options with special characters é,ã,ê,ù etc.
      * @should accept options with single or double quotes in middle
@@ -48,7 +48,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
                         break;
                     }
                 }
-                if (!found){
+                if(!found){
                     toPrint = getInitialValue();
                 }
                 return WidgetFactory.displayValue(toPrint);
@@ -65,7 +65,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             optionValues = getValuesAsString(getOptions());
             }
 
-            // set the previously given option into widget, when editing/entering the form, else initialOption is null
+            // set the previously given option into widget, when editing the form, else initialOption is null
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
                     if (getInitialValue() != null && getInitialValue().equals(o.getLabel())) {
@@ -88,6 +88,11 @@ public class AutocompleteWidget extends  SingleOptionWidget{
         }
     }
 
+    /**
+     *
+     * @param  options
+     * @return a single string with all the option values appended into it
+     */
     private String getValuesAsString(List<Option> options) {
 
        StringBuilder valueSb = new StringBuilder();
@@ -100,19 +105,23 @@ public class AutocompleteWidget extends  SingleOptionWidget{
        return valueSb.toString();
     }
 
+    /*
+     * @param  options
+     * @return a single string with all the option names appended into it
+     */
     private String getNamesAsString(List<Option> options) {
 
             StringBuilder nameSb = new StringBuilder();
             for (Iterator<Option> it = options.iterator(); it.hasNext();) {
-                String originaloption = it.next().getLabel();
+                String originalOption = it.next().getLabel();
 
                 // this is added to eliminate the errors occur due to having ", ' and \ charaters included in
                 // the option names. When those are met they are replaced with 'escape character+original character'
-                originaloption = originaloption.replace("\\", "\\" +"\\" );
-                originaloption = originaloption.replace("'", "\\" +"'");
-                originaloption = originaloption.replace("\"", "\\" +"'" );
+                originalOption = originalOption.replace("\\", "\\" +"\\" );
+                originalOption = originalOption.replace("'", "\\" +"'");
+                originalOption = originalOption.replace("\"", "\\" +"'" );
 
-				nameSb.append(originaloption);
+				nameSb.append(originalOption);
 				if (it.hasNext()){
                    nameSb.append(",");
                 }
@@ -122,10 +131,6 @@ public class AutocompleteWidget extends  SingleOptionWidget{
 
     public Option getInitialOption() {
         return initialOption;
-    }
-
-    public void setInitialOption(Option initialOption) {
-        this.initialOption = initialOption;
     }
 
     public Class getOptionClass() {

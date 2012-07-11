@@ -1137,7 +1137,7 @@ public class HtmlFormEntryUtil {
         }
 
        /**
-         *   The Encounter.setProvider() contains the different overloaded methods and this filters the correct setter from those
+         * The Encounter.setProvider() contains the different overloaded methods and this filters the correct setter from those
          * @param clazz
          * @param getter
          * @param methodname
@@ -1161,9 +1161,8 @@ public class HtmlFormEntryUtil {
               }
             }
             return null;
-
-
         }
+
         /**
          * Performs a case insensitive search on a class for a method by name.
          *

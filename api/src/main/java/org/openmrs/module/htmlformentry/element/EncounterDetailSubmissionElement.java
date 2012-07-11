@@ -652,7 +652,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         }
         if (providerWidget != null) {
             Object value = providerWidget.getValue(session.getContext(), submission);
-            Person person = (Person) HtmlFormEntryUtil.convertToType(value.toString().trim(), Person.class);
+            Person person = (Person) convertValueToProvider(value);
             session.getSubmissionActions().getCurrentEncounter().setProvider(person);
         }
         if (locationWidget != null) {

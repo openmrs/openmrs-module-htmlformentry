@@ -234,9 +234,10 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
     });
 }
 
-/*
-   This is used to handle the deletion/blankout of autocomplete text field. When user deletes existing
+/**
+ * This is used to handle the deletion/blankout of autocomplete text field. When user deletes existing
    value from text field, this sets the submit value to "".
+ * @param element
  */
 function setValWhenAutocompleteFieldBlanked(element){
 

@@ -24,13 +24,6 @@ import java.util.Set;
 
 public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
 
-    public void setUp() throws Exception {
-
-    }
-
-    public void testSetInitialValue() throws Exception {
-
-    }
 
     @Test
 	public void autocompleteWidget_shouldAcceptLocationOptionsWithSingleOrDoubleQuotesInMiddle() throws Exception {

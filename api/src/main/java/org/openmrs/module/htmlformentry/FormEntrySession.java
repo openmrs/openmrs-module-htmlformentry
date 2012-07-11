@@ -756,6 +756,7 @@ public class FormEntrySession {
                                         + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
                                 sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
                                         + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getId().toString())) + "\");\n");
+
                             } else if (widgetClass.getSimpleName().equals("Person")) {
                                 Person provider = null;
                                 if (returnedObj != null) {
@@ -769,15 +770,6 @@ public class FormEntrySession {
                                         + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
                                 sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
                                         + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getId().toString())) + "\");\n");
-                            }
-                            // this is checked as there can be persons who are not providers, which are displayed
-                            // as wrong results with <encounterProviderAndRole> tag
-
-                            // TODO:  add method to manage this feature when autocomplete is used with <encounterProviderAndRole>, for opennmrs-1.6.5
-
-                            else if (widgetClass.getSimpleName().equals("Provider")) {
-                                sb.append("$j('#" + widgetFieldName + "').val('');\n");
-                                sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
                             }
                         }
                     }
