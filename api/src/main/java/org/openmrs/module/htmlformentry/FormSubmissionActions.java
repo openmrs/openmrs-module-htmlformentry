@@ -374,11 +374,9 @@ public class FormSubmissionActions {
 		if (patient == null)
 			throw new IllegalArgumentException("Cannot enroll in a program outside of a Patient");
 		Encounter encounter = highestOnStack(Encounter.class);
-		if (encounter == null)
-			throw new IllegalArgumentException("Cannot enroll in a program outside of an Encounter");
 		
 		// if an enrollment date has not been specified, enrollment date is the encounter date
-		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : encounter.getEncounterDatetime();
+		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : (encounter  != null) ? encounter.getEncounterDatetime() : null;
 		
 		if (enrollmentDate == null)
 			throw new IllegalArgumentException("Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
