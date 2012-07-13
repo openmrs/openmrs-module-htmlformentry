@@ -373,22 +373,41 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}
-	
-	/**
-	 * The idea for the HTML-347 test is that when you rerender a form to edit it, more radio buttons
-	 * are created than you have in your form.  So for this test, we view a form, add observations to 
-	 * the original encounter so there is something to rerender on the form edit, and then view. Then
-	 * we check to make sure the correct number of radio buttons are rendered (no extras).
-	 * 
-	 * @throws Exception
-	 */
+
 	@Test
-	public void html347() throws Exception {
+	public void shouldDisplayCommentDetailsIfShowCommentFieldIsTrue() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" showCommentField=\"true\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		System.out.println(session.getHtmlToDisplay());
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") > -1);
+	}
+	
+	@Test
+	public void shouldNotDisplayCommentDetailsIfShowCommentFieldIsSetToFalse() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" showCommentField=\"false\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") < 0);
+	}
+	
+	@Test
+	public void shouldNotDisplayCommentDetailsIfShowCommentFieldIsMissing() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") < 0);
+	}
+	
+	@Test
+	public void testSettingComment() throws Exception {
 		new RegressionTestHelper() {
-
+			
 			@Override
 			public String getFormName() {
-				return "html-347-test1";
+				return "obsFormWithComment";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
 			}
 			
 			@Override
@@ -396,95 +415,19 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "100");
+				request.addParameter("w9", "test comment");
 			}
 			
 			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:", "Radio100:", "Radio500:", "Radio1400:" };
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				Assert.assertEquals(1, results.getObsCreatedCount());
+				Assert.assertEquals("test comment", results.getEncounterCreated().getObs().iterator().next().getComment());
 			}
-						
-			@Override
-			public Encounter getEncounterToEdit(Encounter encounter) {
-				List<Concept> concepts = Context.getConceptService().getAllConcepts();
-
-				int vals[] = {500,1400};
-				for (int val: vals) {
-					Obs newobs = TestUtil.createObs(encounter, 1, val, new Date());
-					Context.getObsService().saveObs(newobs, "Initial Save");
-					encounter.addObs(newobs);
-				}
-				Context.getEncounterService().saveEncounter(encounter);
-				return encounter;
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				int numOccurences = 0;
-				int pos = 0;
-				String radio = "<input type=\"radio\"";
-				while (html.indexOf(radio, pos+1) != -1) {
-					numOccurences++;
-					pos = html.indexOf(radio, pos+1);
-				}
-				Assert.assertEquals("See the test xml for the number of radios.", 3, numOccurences);
-			}
-			
-			public boolean doEditEncounter() {
-				return true;
-			}
-			
 		}.run();
-		
-		new RegressionTestHelper() {
-
-			@Override
-			public String getFormName() {
-				return "html-347-test2";
-			}
-			
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:", "Radio100to400:", "Radio500to700:"};
-			}
-						
-			@Override
-			public Encounter getEncounterToEdit(Encounter encounter) {
-				List<Concept> concepts = Context.getConceptService().getAllConcepts();
-
-				int vals[] = {100,200,600,700};
-				for (int val: vals) {
-					Obs newobs = TestUtil.createObs(encounter, 1, val, new Date());
-					Context.getObsService().saveObs(newobs, "Initial Save");
-					encounter.addObs(newobs);
-				}
-				Context.getEncounterService().saveEncounter(encounter);
-				return encounter;
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				int numOccurences = 0;
-				int pos = 0;
-				String radio = "<input type=\"radio\"";
-				while (html.indexOf(radio, pos+1) != -1) {
-					numOccurences++;
-					pos = html.indexOf(radio, pos+1);
-				}
-				Assert.assertEquals("See the test xml for the number of radios.", 7, numOccurences);
-			}
-			
-			public boolean doEditEncounter() {
-				return true;
-			}
-			
-		}.run();
-
 	}
 }

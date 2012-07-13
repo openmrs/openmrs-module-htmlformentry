@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -37,7 +38,9 @@ public class FormSubmissionActions {
 	
 	/** Logger to use with this class */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
+    private Boolean patientUpdateRequired = false;
+
 	private List<Person> personsToCreate = new Vector<Person>();
 	
 	private List<Encounter> encountersToCreate = new Vector<Encounter>();
@@ -249,9 +252,10 @@ public class FormSubmissionActions {
 	 * @param value value for the Obs
 	 * @param datetime date information for the Obs
 	 * @param accessionNumber accession number for the Obs
+	 * @param comment comment for the obs
 	 * @return the Obs to create
 	 */
-	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment) {
 		if (value == null || "".equals(value))
 			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
 		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
@@ -265,6 +269,9 @@ public class FormSubmissionActions {
 		if (person != null)
 			obs.setPerson(person);
 		
+		if(StringUtils.isNotBlank(comment))
+			obs.setComment(comment);
+
 		if (encounter != null)
 			encounter.addObs(obs);
 		if (obsGroup != null) {
@@ -288,8 +295,9 @@ public class FormSubmissionActions {
 	 * @param newDatetime the new date information for the Obs
 	 * @param accessionNumber new accession number for the Obs
 	 * @param compareConcepts also compare conceptId for differences
+	 * @param comment comment for the obs
 	 */
-	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, String comment) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
 			if (log.isDebugEnabled())
@@ -325,8 +333,11 @@ public class FormSubmissionActions {
 			}
 			// TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
 			obsToVoid.add(existingObs);
-			createObs(concept, newValue, newDatetime, accessionNumber);
+			createObs(concept, newValue, newDatetime, accessionNumber, comment);
 		} else {
+			if(existingObs != null && StringUtils.isNotBlank(comment))
+				existingObs.setComment(comment);
+
 			if (log.isDebugEnabled()) {
 				log.debug("SAME: " + printObsHelper(existingObs));
 			}
@@ -365,11 +376,9 @@ public class FormSubmissionActions {
 		if (patient == null)
 			throw new IllegalArgumentException("Cannot enroll in a program outside of a Patient");
 		Encounter encounter = highestOnStack(Encounter.class);
-		if (encounter == null)
-			throw new IllegalArgumentException("Cannot enroll in a program outside of an Encounter");
 		
 		// if an enrollment date has not been specified, enrollment date is the encounter date
-		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : encounter.getEncounterDatetime();
+		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : (encounter  != null) ? encounter.getEncounterDatetime() : null;
 		
 		if (enrollmentDate == null)
 			throw new IllegalArgumentException("Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
@@ -558,8 +567,25 @@ public class FormSubmissionActions {
 	private String printObsHelper(Obs obs) {
 		return obs.getConcept().getBestName(Context.getLocale()) + " = " + obs.getValueAsString(Context.getLocale());
 	}
-	
-	/**
+
+    /**
+     * Returns true/false if we need to save the patient record during form submissiosn
+     * @return
+     */
+    public Boolean getPatientUpdateRequired() {
+        return patientUpdateRequired;
+    }
+
+    /**
+     * Set whether we need to save the patient record during form submission
+     *
+     * @param patientUpdateRequired
+     */
+    public void setPatientUpdateRequired(Boolean patientUpdateRequired) {
+        this.patientUpdateRequired = patientUpdateRequired;
+    }
+
+    /**
 	 * Returns a list of all the Persons that need to be created to process form submission
 	 * 
 	 * @return a list of all Persons to create

@@ -101,7 +101,11 @@ public class HtmlFormFromFileController {
 				HtmlForm fakeForm = new HtmlForm();
 				fakeForm.setXmlData(xml);
 				FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm);
-				model.addAttribute("previewHtml", fes.getHtmlToDisplay());
+				String html = fes.getHtmlToDisplay();
+				if (fes.getFieldAccessorJavascript() != null) {
+                	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
+                }
+				model.addAttribute("previewHtml", html);
 				//clear the error message
 				message = "";
 			} else {

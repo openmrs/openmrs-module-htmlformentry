@@ -109,7 +109,7 @@ public abstract class RegressionTestHelper {
 	/**
 	 * Override this if you want to test out viewing a patient without an encounter
 	 * 
-	 * @param encounter
+	 * @param patient
 	 * @param html
 	 */
 	public void testViewingPatient(Patient patient, String html) {
@@ -172,16 +172,6 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you want to edit the encounter that was created during viewing for 
-	 * editing. The view encounter will be passed in. User either this or the empty argument
-	 * version of the method.
-	 * @return
-	 */
-	public Encounter getEncounterToEdit(Encounter encounter) {
-		return null;
-	}
-	
-	/**
 	 * Override this if you want to edit a Patient than the one created in the first part
 	 * of the test or viewed in the second part. (Returning a non-null value implies doEditPatient = true.)
 	 * @return
@@ -238,7 +228,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form entry (ENTER) mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -247,7 +237,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form view mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -256,7 +246,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form edit mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormEditSessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -308,10 +298,6 @@ public abstract class RegressionTestHelper {
 		
 		// edit the encounter, and run tests on that
 		override = getEncounterToEdit();
-		if (override == null) {
-			override = getEncounterToEdit(encounterToView);
-		}
-
 		boolean doEditEncounter = override != null || doEditEncounter();
 		
 		overridePatient = getPatientToEdit();
@@ -704,6 +690,17 @@ public abstract class RegressionTestHelper {
 			Assert.assertEquals(expectedLocationId, getEncounterCreated().getLocation().getLocationId());
 		}
 		
+		public void assertEncounterType() {
+			assertEncounterCreated();
+			Assert.assertNotNull(getEncounterCreated().getEncounterType());
+			Assert.assertNotNull(getEncounterCreated().getEncounterType().getEncounterTypeId());
+		}
+
+		public void assertEncounterType(Integer expectedEncounterTypeId) {
+			assertEncounterType();
+			Assert.assertEquals(expectedEncounterTypeId, getEncounterCreated().getEncounterType().getEncounterTypeId());
+		}
+
 		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'
 		 * 

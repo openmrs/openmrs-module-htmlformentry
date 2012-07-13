@@ -1,9 +1,0 @@
-<htmlform>
-  Date: <encounterDate/>
-  Location: <encounterLocation/>
-  Provider: <encounterProvider default="currentUser" />
-  <br/>
-  Radio100to400: <obs conceptId="1" labelText="" answers="100,200,300,400" answerLabels="100,200,300,400" style="radio"/>
-  Radio500to700: <obs conceptId="1" labelText="" answers="500,600,700" answerLabels="500,600,700" style="radio"/>
-  <submit/>
-</htmlform>

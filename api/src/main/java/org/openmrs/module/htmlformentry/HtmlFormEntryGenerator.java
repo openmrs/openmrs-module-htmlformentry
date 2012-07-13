@@ -6,6 +6,7 @@ import java.io.StringWriter;
 
 import org.openmrs.Role;
 import org.openmrs.User;
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
@@ -457,21 +458,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @return the xml string with after includeIf substitution
      * @throws BadFormDesignException
      * @should return correct xml after apply include tag
+     * @should return correct xml when the expression contains greater than character
      */
     public String applyIncludes(FormEntrySession session, String xml) throws BadFormDesignException {
-        StringBuilder sb = new StringBuilder(xml);
-
-        while (xml.contains("<includeIf")) {
-            int startIndex = sb.indexOf("<includeIf") + 10;
-            int endIndex = sb.substring(startIndex).indexOf(">");
-            String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
-
-            boolean result = HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
-            HtmlFormEntryGenerator.removeFirstTagOccurrence(sb, "includeIf", result);
-
-            xml = sb.toString();
-        }
-        return xml;
+        return processIncludeOrExcludeTag(session, xml, true);
     }
 
     /**
@@ -495,22 +485,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @return the xml after applied ExcludeIf tag
      * @throws BadFormDesignException
      * @should return correct xml after apply excludeIf tag
+     * @should return correct xml when the expression contains greater than character
      */
     public String applyExcludes(FormEntrySession session, String xml) throws BadFormDesignException {
-
-        StringBuilder sb = new StringBuilder(xml);
-
-        while (xml.contains("<excludeIf")) {
-            int startIndex = sb.indexOf("<excludeIf") + 10;
-            int endIndex = sb.substring(startIndex).indexOf(">");
-            String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
-
-            boolean result = !HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
-            HtmlFormEntryGenerator.removeFirstTagOccurrence(sb, "excludeIf", result);
-
-            xml = sb.toString();
-        }
-        return xml;
+        return processIncludeOrExcludeTag(session, xml, false);
     }
 
     /**
@@ -521,9 +499,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * <pre>
      * {@code
      * <htmlform>
-     *      <restrictByRole include="Provider">
-     * 		<obs conceptId="123" labelText="Education"/>
-     * 	</includeIf>
+     * <restrictByRole include="Provider">
+     * <obs conceptId="123" labelText="Education"/>
+     * </includeIf>
      * </htmlform>
      * }
      * </pre>
@@ -533,7 +511,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * <pre>
      * {@code
      * <htmlform>
-     * 		<obs conceptId="123" labelText="Education"/>
+     * <obs conceptId="123" labelText="Education"/>
      * </htmlform>
      * }
      * </pre>
@@ -561,27 +539,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
 
     /**
-     * Given a include/exclude string. fetch the test expression
-     *
-     * @param teststr
-     * @return a substring of a test expression
-     * @throws BadFormDesignException
-     * @should extract the correct expression from teststr
-     */
-    protected static String getTestStr(String teststr) throws BadFormDesignException {
-        int startIndex = teststr.indexOf("=") + 1;
-        int endIndex = teststr.indexOf(">", startIndex);
-
-        if (startIndex == 0 || endIndex == -1) {
-            throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here
-        }
-        teststr = teststr.substring(startIndex, endIndex).trim();
-        teststr = teststr.substring(1, teststr.length() - 1);//remove the begining " and end "
-
-        return teststr;
-    }
-
-    /**
      * given a test string, parse the string to return a boolean value for comparison of user role
      * into a specified role
      *
@@ -598,7 +555,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         boolean includeresult = false;
         boolean excluderesult = true;
 
-        if (includeOrExcludeTestIndex >= 0) {   // contains list of roles in 'include'
+        if (includeOrExcludeTestIndex >= 0) { // contains list of roles in 'include'
             testStr = getTestStr(includeStr.substring(includeOrExcludeTestIndex));
             testRoles = testStr.split(",");
             User currentUser = Context.getUserContext().getAuthenticatedUser();
@@ -618,7 +575,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
             return includeresult;
         } else {
             includeOrExcludeTestIndex = includeStr.indexOf("exclude");
-            if (includeOrExcludeTestIndex != -1) {  // contains list of roles in 'exclude'
+            if (includeOrExcludeTestIndex != -1) { // contains list of roles in 'exclude'
                 testStr = getTestStr(includeStr.substring(includeOrExcludeTestIndex));
                 testRoles = testStr.split(",");
                 User currentUser = Context.getUserContext().getAuthenticatedUser();
@@ -639,6 +596,28 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
 
 
+    }
+
+    /**
+     * Given a include/exclude string. fetch the test expression
+     *
+     * @param teststr
+     * @return a substring of a test expression
+     * @throws BadFormDesignException
+     * @should extract the correct expression from teststr
+     */
+    protected static String getTestStr(String teststr) throws BadFormDesignException {
+        if (StringUtils.isBlank(teststr))
+            throw new BadFormDesignException("Can't extract the test expression from " + teststr);
+
+        //get the text inside the quotes, i.e the expression
+        String[] actualExpression = StringUtils.substringsBetween(teststr, "\"", "\"");
+
+        if (actualExpression == null || actualExpression.length != 1 || StringUtils.isBlank(actualExpression[0])) {
+            throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here
+        }
+
+        return actualExpression[0];
     }
 
     /**
@@ -705,16 +684,20 @@ public class HtmlFormEntryGenerator implements TagHandler {
         int tagLenth = tagName.length();
 
         if (keepcontent) {
-            //remove this pair of tag occurrences and keep the content within
+        //remove this pair of tag occurrences and keep the content within
             startIndex = sb.indexOf("<" + tagName + "");
-            endIndex = sb.substring(startIndex).indexOf(">");
-            sb.replace(startIndex, startIndex + endIndex + 1, "");// should remove the <tagName ...>
+            int startTemp = startIndex+10;
+            int indexOfOpeningQuote = sb.substring(startTemp).indexOf("\"");
+            int indexOfClosingQuote = sb.substring(startTemp).indexOf("\"", indexOfOpeningQuote+1);
+            endIndex = sb.substring(startTemp).indexOf(">", indexOfClosingQuote+1);
+            //endIndex = sb.substring(startIndex).indexOf(">");
+            sb.replace(startIndex, startTemp+endIndex+1, "");// should remove the <tagName ...>
 
             startIndex = sb.indexOf("</" + tagName + ">");
             endIndex = startIndex + tagLenth + 3;
             sb.replace(startIndex, endIndex, ""); //should remove the </tagName>
         } else {
-            //remove this part of xml
+        //remove this part of xml
             startIndex = sb.indexOf("<" + tagName + "");
             endIndex = sb.indexOf("</" + tagName + ">") + tagLenth + 3;
             sb.replace(startIndex, endIndex, "");
@@ -722,6 +705,35 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
 
         return sb;
+    }
+
+    /**
+     * Utility method that process and replaces the includeIf/excludeIf tags
+     *
+     * @param session
+     * @param xml
+     * @param isInclude
+     * @return the new processed xml
+     * @throws BadFormDesignException
+     */
+    private String processIncludeOrExcludeTag(FormEntrySession session, String xml, boolean isInclude) throws BadFormDesignException {
+        StringBuilder sb = new StringBuilder(xml);
+        String tagName = (isInclude) ? "<includeIf" : "<excludeIf";
+        while (xml.contains(tagName)) {
+            int startIndex = sb.indexOf(tagName) + 10;
+            int indexOfOpeningQuote = sb.substring(startIndex).indexOf("\"");
+            //get test up to closing quote
+            int endIndex = sb.substring(startIndex).indexOf("\"", indexOfOpeningQuote + 1);
+            String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
+            boolean result = HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
+
+            String processedTagName = tagName.substring(1);
+            HtmlFormEntryGenerator.removeFirstTagOccurrence(sb,processedTagName,(isInclude) ? result : !result);
+
+            xml = sb.toString();
+        }
+
+        return xml;
     }
 
 }
