@@ -38,7 +38,9 @@ public class FormSubmissionActions {
 	
 	/** Logger to use with this class */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
+    private Boolean patientUpdateRequired = false;
+
 	private List<Person> personsToCreate = new Vector<Person>();
 	
 	private List<Encounter> encountersToCreate = new Vector<Encounter>();
@@ -565,8 +567,25 @@ public class FormSubmissionActions {
 	private String printObsHelper(Obs obs) {
 		return obs.getConcept().getBestName(Context.getLocale()) + " = " + obs.getValueAsString(Context.getLocale());
 	}
-	
-	/**
+
+    /**
+     * Returns true/false if we need to save the patient record during form submissiosn
+     * @return
+     */
+    public Boolean getPatientUpdateRequired() {
+        return patientUpdateRequired;
+    }
+
+    /**
+     * Set whether we need to save the patient record during form submission
+     *
+     * @param patientUpdateRequired
+     */
+    public void setPatientUpdateRequired(Boolean patientUpdateRequired) {
+        this.patientUpdateRequired = patientUpdateRequired;
+    }
+
+    /**
 	 * Returns a list of all the Persons that need to be created to process form submission
 	 * 
 	 * @return a list of all Persons to create

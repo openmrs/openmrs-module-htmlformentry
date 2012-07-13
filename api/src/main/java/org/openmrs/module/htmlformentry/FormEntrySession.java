@@ -519,7 +519,7 @@ public class FormEntrySession {
                             || patientIdentifier == null || !StringUtils.hasText(patientIdentifier.getIdentifier())
                             || patientIdentifier.getIdentifierType() == null || patientIdentifier.getLocation() == null) {
                         throw new BadFormDesignException(
-                                "Please check the design of your form to make sure the following fields are mantatory to create a patient: <br/><b>&lt;personName/&gt;</b>, <b>&lt;birthDateOrAge/&gt;</b>, <b>&lt;gender/&gt;</b>, <b>&lt;identifierType/&gt;</b>, <b>&lt;identifier/&gt;</b>, and <b>&lt;identifierLocation/&gt;</b>");
+                                "Please check the design of your form to make sure the following fields are mandatory to create a patient: <br/><b>&lt;personName/&gt;</b>, <b>&lt;birthDateOrAge/&gt;</b>, <b>&lt;gender/&gt;</b>, <b>&lt;identifierType/&gt;</b>, <b>&lt;identifier/&gt;</b>, and <b>&lt;identifierLocation/&gt;</b>");
                     }
                 }
                 Context.getPersonService().savePerson(p);
@@ -659,12 +659,11 @@ public class FormEntrySession {
         }
 
         // save the patient
-        // TODO: we should not be saving the person unless we've actually edited them, since this incorrectly updates dateChanged on Person and Patient.
         // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
         // we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
         // sometimes a flush can be called before these methods are called. This should be resolved once we move save handling out of Spring AOP and
         // into a Hibernate Interceptor (which happens in 1.9)
-        if (context.getMode() == Mode.EDIT && patient != null) {
+        if (patient != null && submissionActions.getPatientUpdateRequired()) {
             Context.getPersonService().savePerson(patient);
         }
 

@@ -274,7 +274,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
 		if (nameWidget != null) {
 			PersonName name = (PersonName) nameWidget.getValue(context, request);
-			if (context.getMode() == Mode.EDIT) {
+
+			if (patient != null) {
 				if (!name.isPreferred()) {
 					PersonName currentPreferredName = context.getExistingPatient().getPersonName();
 					if (currentPreferredName != null){
@@ -364,6 +365,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			personAddress.setPreferred(true);
 			patient.addAddress(personAddress);
 		}
+
+        session.getSubmissionActions().setPatientUpdateRequired(true);
 	}
 
 	private void validateIdentifier(Integer identifierType, String identifier) {
