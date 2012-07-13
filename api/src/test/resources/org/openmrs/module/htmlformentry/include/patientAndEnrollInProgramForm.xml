@@ -1,0 +1,11 @@
+<htmlform>
+    Name: <patient field="name"/>
+    Gender: <patient field="gender"/>
+    Birthdate: <patient field="birthDate"/>
+    Identifier: <patient field="identifier"/>
+    Identifier Location: <patient field="identifierLocation"/>
+
+    Date: <enrollInProgram programId="10" showDate="true"/>
+
+    <submit/>
+</htmlform>

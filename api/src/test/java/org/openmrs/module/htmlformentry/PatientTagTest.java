@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.GlobalProperty;
@@ -596,7 +597,66 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-	
+
+    // unit test to reproduce HTML-378: Cannot create a patient and enroll that patient in a program on the same form
+
+    @Ignore
+    @Test
+    public void testCreatePatientAndEnrollInProgram() throws Exception {
+        final Date date = new Date();
+
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "patientAndEnrollInProgramForm";
+            }
+
+            @Override
+            public Patient getPatient() {
+                return new Patient();
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
+                        "Identifier:", "Identifier Location:", "Identifier Type:", "Date:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.setParameter(widgets.get("PersonName.givenName"), "Given");
+                request.setParameter(widgets.get("PersonName.familyName"), "Family");
+                request.setParameter(widgets.get("Gender:"), "F");
+                request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+                request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+                request.setParameter(widgets.get("Identifier Location:"), "2");
+                // hack because identifier type is a hidden input with no label
+                request.setParameter("w17", "2");
+
+                request.setParameter(widgets.get("Date:"), dateAsString(date));
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                Date datePartOnly = ymdToDate(dateAsString(date));
+
+                results.assertNoErrors();
+
+                results.assertPatient();
+                Assert.assertEquals("Given", results.getPatient().getPersonName().getGivenName());
+                Assert.assertEquals("Family", results.getPatient().getPersonName().getFamilyName());
+                Assert.assertEquals("F", results.getPatient().getGender());
+                Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
+                Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
+                Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+
+                // TODO: once HTML-378 is fixed an assertion should be added to this method that the patient is indeed enrolled in the program
+
+            }
+        }.run();
+    }
+
 	@Test
 	public void testEditPatientAndCreatingObs() throws Exception {
 		final Date date = new Date();
