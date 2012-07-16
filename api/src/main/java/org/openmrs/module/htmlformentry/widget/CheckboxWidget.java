@@ -13,6 +13,7 @@ public class CheckboxWidget implements Widget {
     private Object initialValue;
     private String value = "true";
     private String label;
+    private boolean toggleDimInd = false;
     private String toggleTarget;
 
     public CheckboxWidget() { }
@@ -30,6 +31,13 @@ public class CheckboxWidget implements Widget {
         this.label = label;
         this.value = value;
         this.toggleTarget = toggleTarget;
+    }
+    
+    public CheckboxWidget(String label, String value, String toggleTarget, boolean toggleDimInd) {
+        this.label = label;
+        this.value = value;
+        this.toggleTarget = toggleTarget;
+        this.toggleDimInd = toggleDimInd;
     }
     /**
      * Gets the value attribute for the checkbox. Not to be confused with {@see getValue(FormEntryContext,HttpServletRequest)}.
@@ -89,7 +97,7 @@ public class CheckboxWidget implements Widget {
             if (initialValue != null && !"".equals(initialValue))
                 sb.append(" checked=\"true\"");
             if (toggleTarget != null && toggleTarget.trim().length() > 0) 
-            	sb.append(" toggle=\"" + toggleTarget + "\"");
+            	sb.append(" toggle" + (toggleDimInd ? "Dim" : "Hide") + "=\"" + toggleTarget + "\"");
             sb.append("/>");
             if (label != null)
                 sb.append("<label for=\"").append(context.getFieldName(this)).append("\">").append(label).append("</label>");
@@ -119,6 +127,14 @@ public class CheckboxWidget implements Widget {
 
 	public void setToggleTarget(String toggleTarget) {
 		this.toggleTarget = toggleTarget;
+	}
+
+	public boolean isToggleDimInd() {
+		return toggleDimInd;
+	}
+
+	public void setToggleDimInd(boolean toggleDimInd) {
+		this.toggleDimInd = toggleDimInd;
 	}
 
 }

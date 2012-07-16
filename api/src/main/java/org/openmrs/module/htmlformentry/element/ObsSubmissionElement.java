@@ -46,6 +46,7 @@ import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
+import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
@@ -509,7 +510,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							answerLabel = answerConcept.getBestName(Context.getLocale()).getName();
 						}
 					}
-					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString(), parameters.get("toggle"));
+
+					if (parameters.get("toggle") != null) {
+						ToggleWidget toggleWidget = new ToggleWidget(parameters.get("toggle"));
+						valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString(), toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+					} else {
+						valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
+					}
+					
 					if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
@@ -611,8 +619,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				}
 				
 				if ("checkbox".equals(parameters.get("style"))) {
-					valueWidget = new CheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value")
-					        : "true", parameters.get("toggle"));
+					if (parameters.get("toggle") != null) {
+						ToggleWidget toggleWidget = new ToggleWidget(parameters.get("toggle"));
+						valueWidget = new CheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value") : "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+					} else {
+						valueWidget = new CheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value") : "true", parameters.get("toggle"));
+					}
 					valueLabel = "";
 				} else if ("no_yes".equals(parameters.get("style"))) {
 					valueWidget = new RadioButtonsWidget();

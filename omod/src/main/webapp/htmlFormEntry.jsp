@@ -59,16 +59,24 @@
 			 );
 		});
 		
-		$j('input[toggle]').change(function () {
-			var target = $j(this).attr("toggle");
+		$j('input[toggleDim]').change(function () {
+			var target = $j(this).attr("toggleDim");
 			if ($j(this).is(":checked")) {
-				// $j("#" + target).show();
 				$j("#" + target + " :input").removeAttr('disabled');
 				$j("#" + target).animate({opacity:1.0}, 0);
 			} else {
-				// $j("#" + target).hide();				
 				$j("#" + target + " :input").attr('disabled', true);
 				$j("#" + target).animate({opacity:0.5}, 100);
+			}
+       })
+       .change();
+
+		$j('input[toggleHide]').change(function () {
+			var target = $j(this).attr("toggleHide");
+			if ($j(this).is(":checked")) {
+				$j("#" + target).fadeIn();
+			} else {
+				$j("#" + target).hide();				
 			}
        })
        .change();
