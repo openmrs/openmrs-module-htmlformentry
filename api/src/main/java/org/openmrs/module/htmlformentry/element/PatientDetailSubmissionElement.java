@@ -132,16 +132,30 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		}
 		else if (FIELD_IDENTIFIER.equalsIgnoreCase(field)) {
 
+			PatientIdentifierType idType = HtmlFormEntryUtil.getPatientIdentifierType(attributes.get("identifierTypeId"));
+			
 			identifierTypeValueWidget = new TextFieldWidget();
 			identifierTypeValueErrorWidget = new ErrorWidget();
-			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, existingPatient != null
-					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getIdentifier() : null);
+			String initialValue = null;
+			if (existingPatient != null) {
+				if (idType == null) {
+					if (existingPatient.getPatientIdentifier() != null) {
+						initialValue = existingPatient.getPatientIdentifier().getIdentifier();
+					}
+				} else {
+					if (existingPatient.getPatientIdentifier(idType) != null) {
+						initialValue = existingPatient.getPatientIdentifier(idType).getIdentifier();
+					}
+				}
+			}
+			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
 
 			String typeId = attributes.get("identifierTypeId");
-			if (StringUtils.hasText(typeId)) {
+			if (idType != null) {
 				identifierTypeWidget = new HiddenFieldWidget();
-				createWidgets(context, identifierTypeWidget, null, typeId);
-			}else{
+				createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
+			}
+			else {
 				identifierTypeWidget = new DropdownWidget();
 				List<PatientIdentifierType> patientIdentifierTypes = HtmlFormEntryUtil.getPatientIdentifierTypes();
 
