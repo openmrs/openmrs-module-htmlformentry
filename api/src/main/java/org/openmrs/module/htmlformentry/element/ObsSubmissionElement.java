@@ -45,6 +45,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private String defaultValue;
 	
+	private boolean showUnits = false;
+	
 	private String dateLabel;
 	
 	private DateWidget dateWidget;
@@ -721,6 +723,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		context.registerWidget(valueWidget);
 		context.registerErrorWidget(valueWidget, errorWidget);
 		
+		if (parameters.get("showUnits") != null) {
+			showUnits = Boolean.parseBoolean(parameters.get("showUnits"));
+		}
+		
 		// if a date is requested, do that too
 		if ("true".equals(parameters.get("showDate")) || parameters.containsKey("dateLabel")) {
 			if (parameters.containsKey("dateLabel"))
@@ -821,6 +827,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (!"".equals(valueLabel))
 			ret.append(" ");
 		ret.append(valueWidget.generateHtml(context));
+		if (showUnits) {
+			if (concept == null || !concept.getDatatype().isNumeric()) {
+				throw new IllegalArgumentException("Can only show units when the concept is numeric");
+			}
+			String units;
+			if (concept instanceof ConceptNumeric) {
+				units = ((ConceptNumeric) concept).getUnits();
+			} else {
+				units = Context.getConceptService().getConceptNumeric(concept.getConceptId()).getUnits();
+			}
+			ret.append(units != null ? units : "");
+		}
 		if (dateWidget != null) {
 			ret.append(" ");
 			if (dateLabel != null) {

@@ -15,21 +15,28 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
-import org.openmrs.*;
+import org.openmrs.Concept;
+import org.openmrs.Encounter;
+import org.openmrs.Form;
+import org.openmrs.Location;
+import org.openmrs.Obs;
+import org.openmrs.Order;
+import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientProgram;
+import org.openmrs.Person;
+import org.openmrs.PersonAttribute;
+import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.DropdownWidget;
-import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
-import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
-import sun.dc.path.PathError;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -187,6 +194,11 @@ public class FormEntrySession {
             }
             velocityContext.put("relationshipList", rels);
             velocityContext.put("relationshipMap", relMap);
+			
+			List<VelocityContextContentProvider> additionalVelocityContent = Context.getRegisteredComponents(VelocityContextContentProvider.class);
+			for (VelocityContextContentProvider a : additionalVelocityContent) {
+				a.populateContext(this, velocityContext);
+			}
         }
 
         htmlGenerator = new HtmlFormEntryGenerator();
