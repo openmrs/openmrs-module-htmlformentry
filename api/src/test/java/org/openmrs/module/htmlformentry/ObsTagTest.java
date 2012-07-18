@@ -430,4 +430,11 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
+	
+	@Test
+	public void shouldShowUnitsIfRequested() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"5497\" showUnits=\"true\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("cells/mmL") > 0);
+	}
 }
