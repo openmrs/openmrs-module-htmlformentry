@@ -21,7 +21,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
@@ -672,13 +671,6 @@ public class FormEntrySession {
         // into a Hibernate Interceptor (which happens in 1.9)
         if (patient != null && submissionActions.getPatientUpdateRequired()) {
             Context.getPersonService().savePerson(patient);
-        }
-
-        // exit the patient from care
-        if(submissionActions.getExitFromCareProperty() != null){
-            ExitFromCareProperty exitFromCareProperty =
-                    submissionActions.getExitFromCareProperty();
-            Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
         }
 
     }

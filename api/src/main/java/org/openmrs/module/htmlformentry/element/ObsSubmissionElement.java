@@ -1,9 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -25,9 +21,32 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
-import org.openmrs.module.htmlformentry.widget.*;
+import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
+import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
+import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.widget.DropdownWidget;
+import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
+import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
+import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
+import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
+import org.openmrs.module.htmlformentry.widget.TimeWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -44,6 +63,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private Widget valueWidget;
 	
 	private String defaultValue;
+	
+	private boolean showUnits = false;
 	
 	private String dateLabel;
 	
@@ -721,6 +742,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		context.registerWidget(valueWidget);
 		context.registerErrorWidget(valueWidget, errorWidget);
 		
+		if (parameters.get("showUnits") != null) {
+			showUnits = Boolean.parseBoolean(parameters.get("showUnits"));
+		}
+		
 		// if a date is requested, do that too
 		if ("true".equals(parameters.get("showDate")) || parameters.containsKey("dateLabel")) {
 			if (parameters.containsKey("dateLabel"))
@@ -821,6 +846,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (!"".equals(valueLabel))
 			ret.append(" ");
 		ret.append(valueWidget.generateHtml(context));
+		if (showUnits) {
+			if (concept == null || !concept.getDatatype().isNumeric()) {
+				throw new IllegalArgumentException("Can only show units when the concept is numeric");
+			}
+			String units;
+			if (concept instanceof ConceptNumeric) {
+				units = ((ConceptNumeric) concept).getUnits();
+			} else {
+				units = Context.getConceptService().getConceptNumeric(concept.getConceptId()).getUnits();
+			}
+			ret.append(units != null ? units : "");
+		}
 		if (dateWidget != null) {
 			ret.append(" ");
 			if (dateLabel != null) {
