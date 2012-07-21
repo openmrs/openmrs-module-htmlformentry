@@ -1,6 +1,8 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import java.util.HashMap;
 
@@ -12,14 +14,14 @@ import java.util.HashMap;
  */
 public class UploadWidget extends Gadget {
 
-    public String initialValue;
+    Obs initialValue;
     UploadWidget upldWidget;
     HashMap fileNames = new HashMap();
     static int key=0;
 
     @Override
     public void setInitialValue(Object initialValue) {
-        this.initialValue = (String) initialValue;
+        this.initialValue = (Obs) initialValue;
     }
 
     @Override
@@ -32,14 +34,15 @@ public class UploadWidget extends Gadget {
 
         String id = context.getFieldName(this);
         StringBuilder sb = new StringBuilder();
-        sb.append("<input type=\"file\"  id=\"" + id +"\" name=\"" + id + "\"");
-        sb.append("/>");
+        sb.append("<input type=\"file\" class=\"uploadWidget\" id=\"" + id +"\" name=\"" + id + "\"");
+
 
         if (context.getMode() == FormEntryContext.Mode.VIEW) {
             String toPrint = "";
             if (initialValue != null) {
-                toPrint = initialValue;
-                return WidgetFactory.displayComplexValue(toPrint); // toPrint passed is actually the ObsId
+                //toPrint = initialValue;
+                toPrint=initialValue.getId().toString();
+                return WidgetFactory.displayComplexValue(initialValue); // toPrint passed is actually the ObsId
             }
             else {
                 toPrint = "____";
@@ -49,16 +52,20 @@ public class UploadWidget extends Gadget {
             String toPrint = "";
 
             if (initialValue != null) {
-                toPrint = initialValue;
-                String complexValueHtml= WidgetFactory.displayComplexValue(toPrint);
-                return "<p>"+complexValueHtml+"</p>"+sb.toString();
+                //toPrint = initialValue;
+                toPrint=initialValue.getId().toString();
+                sb.append("/>");
+                String complexValueHtml= WidgetFactory.displayComplexValue(initialValue);
+                return "<p>"+complexValueHtml+"</p>"+sb.toString()+"<input type=\"checkbox\" name=\"makeVoid\" id=\"makeVoid\" /> Delete Me<br />";
             }
             else {
+                sb.append("/>");
                 toPrint = "______";
-                return WidgetFactory.displayEmptyValue(toPrint);
+                return WidgetFactory.displayEmptyValue(toPrint)+sb.toString();
             }
 
         }
+        sb.append("/>");
        return sb.toString();
     }
 

@@ -4,16 +4,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
@@ -30,10 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -54,7 +51,7 @@ public class HtmlFormEntryController {
     public final static String FORM_IN_PROGRESS_KEY = "HTML_FORM_IN_PROGRESS_KEY";
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
     public final static String FORM_PATH = "/module/htmlformentry/htmlFormEntry";
-   
+    public HttpServletResponse response;
     @RequestMapping(method=RequestMethod.GET, value=FORM_PATH)
     public void showForm() {
     	// Intentionally blank. All work is done in the getFormEntrySession method 
@@ -202,45 +199,70 @@ public class HtmlFormEntryController {
     @RequestMapping(method=RequestMethod.POST, value=FORM_PATH)
     public ModelAndView handleSubmit(@ModelAttribute("command") FormEntrySession session,
                                Errors errors,@RequestParam(value = "upldWidget", required = false) MultipartFile file[] ,
+                               @RequestParam(value = "nullObsIds",required = false) String nullObsIds,
                                HttpServletRequest request,
                                Model model) throws Exception {
-
-        HashMap fileNames=new HashMap();
-        //fileNames.putAll(null);
-        try{
-            if(request instanceof MultipartHttpServletRequest && file.length>0)
-            {   for(int i=0;i<file.length;i++){
-
-                AdministrationService as = Context.getAdministrationService();
-
-                File complexObsDir = OpenmrsUtil.getDirectoryInApplicationDataDirectory(as.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_COMPLEX_OBS_DIR));
-                if(complexObsDir.exists() && complexObsDir.canWrite()) {
-
-                    String pathtostoreFile = complexObsDir.toPath().resolveSibling(file[i].getOriginalFilename()).toString();
-
-                    FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
-                    if (!file[i].isEmpty()) {
-                        byte[] bytes = file[i].getBytes();
-                        fileOutputStream.write(bytes);
-                        fileOutputStream.close();
-                        fileNames.put(i,file[i].getOriginalFilename());
-
-                    }
-                    log.info("File Uploaded successfully");
+        HashMap fileNames = new HashMap();
+        HashMap complexObs=new HashMap();
+        /* Extracting only the complexObs into a HashMap */
+        if(session.getContext().getMode().toString().equalsIgnoreCase("EDIT"))
+        {
+           Set<Obs> allObs= session.getEncounter().getAllObs();
+           Iterator iterator=allObs.iterator();
+            int i=0;
+            while (iterator.hasNext()){
+                Obs xy=(Obs) iterator.next();
+                if(xy.isComplex()) {
+                    complexObs.put(i,xy);
+                    i++;
                 }
-                else{
-                    log.error("Files could not be Uploaded, either complex_obs directory does not exist or the user does not have the permission to access it");
-                }
-
-                request.setAttribute("upldWidget",fileNames); }
-
             }
         }
-        catch (Exception exception){
-            log.error("Exception during File Upload",exception);
-            errors.reject("Exception during File Upload, see log for further details: "+exception);
+
+        try {
+            if (request instanceof MultipartHttpServletRequest && file!=null) {
+                for (int i = 0; i < file.length; i++) {
+                    /* If the Mode is "EDIT" mode and file is empty then there  are two possibilities.
+                    * 1. The file has to be deleted
+                    * 2. The file has to retained */
+                    if (session.getContext().getMode().toString().equalsIgnoreCase("EDIT") && file[i].isEmpty() && i<complexObs.size()) {
+
+                        fileNames.put(i, null);
+                        for (int k=0;k<complexObs.size();k++) {
+                            Obs retainingObs = (Obs) complexObs.get(i);
+
+                           /* If the Id of Obs is not among the ids that has to deleted then retain the name of the complexObs */
+                           if(!nullObsIds.contains(retainingObs.getId().toString())){
+                              fileNames.put(i, retainingObs.getValueComplex());
+                           }
+                        }
+
+                    }else if (file[i].isEmpty()) /* In all other cases when file is empty, means nothing is being uploaded */
+                             fileNames.put(i, null);
+                    if (!file[i].isEmpty()) {
+                        AdministrationService as = Context.getAdministrationService();
+
+                        File complexObsDir = OpenmrsUtil.getDirectoryInApplicationDataDirectory(as.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_COMPLEX_OBS_DIR));
+                        if (complexObsDir.exists() && complexObsDir.canWrite()) {
+                            String pathtostoreFile = complexObsDir.toPath().resolve(file[i].getOriginalFilename()).toString();
+                            FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
+                            byte[] bytes = file[i].getBytes();
+                            fileOutputStream.write(bytes);
+                            fileOutputStream.close();
+                            fileNames.put(i, file[i].getOriginalFilename());
+                        }
+                        log.info("File Uploaded successfully");
+                    } else {
+                        log.info("File not Uploaded");
+                    }
+                    request.setAttribute("upldWidget", fileNames);
+                }
+            }
+        } catch (Exception exception) {
+            log.error("Exception during File Upload", exception);
+            errors.reject("Exception during File Upload, see log for further details: " + exception);
         }
-    	try {
+        try {
             List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
             if (validationErrors != null && validationErrors.size() > 0) {
                 errors.reject("Fix errors");
@@ -249,22 +271,22 @@ public class HtmlFormEntryController {
             log.error("Exception during form validation", ex);
             errors.reject("Exception during form validation, see log for more details: " + ex);
         }
-        
+
         if (errors.hasErrors()) {
         	return new ModelAndView(FORM_PATH, "command", session);
         }
-        
+
         // no form validation errors, proceed with submission
-        
+
         session.prepareForSubmit();
 
-		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag() && session.getPatient() == null 
+		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag() && session.getPatient() == null
 				&& (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions().getPersonsToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an Patient");
 
         if (session.getContext().getMode() == Mode.ENTER && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))
-            throw new IllegalArgumentException("This form is not going to create an encounter"); 
-        
+            throw new IllegalArgumentException("This form is not going to create an encounter");
+
     	try {
             session.getSubmissionController().handleFormSubmission(session, request);
             session.applyActions();
@@ -288,7 +310,7 @@ public class HtmlFormEntryController {
             ex.printStackTrace(new PrintWriter(sw));
             errors.reject("Exception! " + ex.getMessage() + "<br/>" + sw.toString());
         }
-        
+
         // if we get here it's because we caught an error trying to submit/apply
         return new ModelAndView(FORM_PATH, "command", session);
     }

@@ -2,6 +2,14 @@ package org.openmrs.module.htmlformentry.widget;
 
 import org.openmrs.ConceptDatatype;
 import org.openmrs.FormField;
+import org.openmrs.Obs;
+import org.openmrs.obs.handler.TextHandler;
+import org.openmrs.web.WebConstants;
+import org.openmrs.web.controller.observation.handler.WebImageHandler;
+
+import java.io.*;
+
+import static org.openmrs.obs.handler.AbstractHandler.getComplexDataFile;
 
 /**
  * Contains shortcut methods to instantiate Widgets, and related utility methods.
@@ -20,6 +28,7 @@ public class WidgetFactory {
         DROPDOWN,
         CHECKBOX_LIST,
         MULTISELECT,
+        UPLOAD_WIDGET,
         DATE,
         DATE_TIME
     }
@@ -42,7 +51,10 @@ public class WidgetFactory {
                 return WidgetTypeHint.CHECKBOX;
             else
                 return WidgetTypeHint.DROPDOWN;
-        } else {
+        }else if(dt.isComplex()){
+                return WidgetTypeHint.UPLOAD_WIDGET;
+        }
+        else {
             throw new IllegalArgumentException(
                     "Autodetecting widget type from concept datatype not yet implemented for "
                             + dt.getName());
@@ -118,12 +130,33 @@ public class WidgetFactory {
         return "<span class=\"emptyValue\">" + value + "</span>";
     }
 
-    public static String displayComplexValue(String value){
-        value = value.replace("<", "&lt;");
-        value = value.replace(">", "&gt;");
-        value = value.replace("\n", "<br/>");
-        value="<a href=\"/openmrs/complexObsServlet?obsId="+value+"\">"+"<img class=\"complexValue\" src=\"/openmrs/complexObsServlet?obsId="+value+"\""+" height=\"80\"" +" width=\"95\""+"/>"+"</a>";
+    /**
+     * Returns the HTML to display the complex value. If the value is
+     * an image it is displayed by <img> </img> tag else it is displayed
+     * as hyperlink that can be downloaded by the user.
+     *
+     * @param obs the obs whose complex value needs to be displayed
+     * @return the HTML code that renders the complex obs
+     */
+    public static String displayComplexValue(Obs obs) {
+        String value = null;
+
+        WebImageHandler webImageHandler=new WebImageHandler();
+
+        File file = getComplexDataFile(obs);
+        String fileName=file.getName();
+
+       if(webImageHandler.getObs(obs,"VIEW").getComplexData().getData()!=null) // If the file is an image then displaying using <img> tag
+        {
+          value="<a href=\"/"+WebConstants.WEBAPP_NAME+"/complexObsServlet?obsId="+obs.getId()+"\">"+"<img style=\"border:1px solid black\" class=\"complexValue\" id="+obs.getId()+" src=\"/"+WebConstants.WEBAPP_NAME+"/complexObsServlet?obsId="+obs.getId()+"\""+" height=\"80\"" +" width=\"95\""+"/>"+"</a>"+"<p class=\"value\">"+fileName+"</p>";
+        }
+        else
+        { /* The following two commented out lines, represent possible embedding of media into the Web-Browser that may be implemented at later stages. Currently only downloading of files is possible. */
+         //value="<a href="+path+obs.getId()+"&viewType=onlyDownload"+">"+"<object data="+path+obs.getId()+"&viewType=onlyDownload"+" type=\"video/webm\" id="+obs.getId()+" class=\"complexValue\">"+"<p class=\"value\">"+fileName+"</p>"+"</object>"+"</a>";
+         //value="<video controls=\"controls\"  id="+obs.getId()+" class=\"complexValue\">"+"<source src="+path+obs.getId()+"&viewType=onlyDownload"+" type=\"video/webm\""+"/>"+"</video>";
+           value="<a href=\"/"+WebConstants.WEBAPP_NAME+"/module/htmlformentry/downloadfile.form?obsId="+obs.getId()+"\">"+"<object id="+obs.getId()+" class=\"complexValue\">"+"<p class=\"value\">"+fileName+"</p>"+"</object>"+"</a>";
+        }
         return "<span>"+value+"</span>";
     }
-    
+
 }

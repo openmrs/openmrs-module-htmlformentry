@@ -37,6 +37,33 @@
 	var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
 
 	$j(document).ready(function() {
+       /* for(i=0;i<$j(".complexValue").length;i++)
+        {   /* Making the ids of the Checkboxes same as that of the complex values
+          $j("#makeVoid").attr("id",$j("#makeVoid").parent().find("img").attr("id"));
+            $j("#makeVoid").attr("id",$j("#makeVoid").parent().find("embed").attr("id"));
+        }  */
+        $j('.complexValue').each(function() {
+            $j("#makeVoid").attr("id",$j(this).attr("id"));
+        });/*
+        var  a=new Array();
+        var key=0;
+        $j('.complexValue').each(function() {
+            a[key] =($j(this).attr("id"));
+            key++;
+        });
+        $j("#allObs").attr("value",a);
+         */
+        var names=new Array();
+        key=0;
+        $j("input:checkbox").change(function(){
+
+           $j("#"+this.id).parent().parent().parent().parent().fadeOut();
+            names[key]=this.id;
+            key++;
+            $j("#nullObsIds").attr("value",names);
+        });
+
+
 		$j('#deleteButton').click(function() {
 			
 			// display a "deleting form" message
@@ -61,7 +88,7 @@
 	});
 
 	var tryingToSubmit = false;
-	
+
 	function submitHtmlForm() {
 	    if (!tryingToSubmit) {
 	        tryingToSubmit = true;
@@ -265,6 +292,10 @@
 		<c:if test="${ not empty command.encounter }">
 			<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
 		</c:if>
+        <c:if test="${command.context.mode=='EDIT'}">
+            <input type="hidden" name="nullObsIds" id="nullObsIds">
+
+        </c:if>
 		<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
 </c:if>
 

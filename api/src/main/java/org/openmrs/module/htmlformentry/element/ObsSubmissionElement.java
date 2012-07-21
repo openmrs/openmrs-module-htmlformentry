@@ -35,7 +35,8 @@ import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.*;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
-
+import org.openmrs.web.controller.observation.handler.WebImageHandler;
+import org.openmrs.obs.handler.TextHandler;
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
  * HtmlGeneratorElement and the FormSubmissionControllerAction for the Observation.
@@ -310,9 +311,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}else if (concept.getDatatype().isComplex()) { // if concept is of datatype complex then create new widget
                 valueWidget = new UploadWidget();
                 String lookFor = existingObs == null ? null : existingObs.getValueComplex();
-                String initialValue = null;
+                Obs initialValue = null;
                 if (lookFor != null) {
-                    initialValue = existingObs.getObsId().toString();  }
+                    initialValue = existingObs;  }
                 valueWidget.setInitialValue(initialValue);
             }
             else if (concept.getDatatype().isText()) {
