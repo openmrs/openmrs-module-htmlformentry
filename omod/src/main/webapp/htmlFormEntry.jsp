@@ -35,7 +35,7 @@
 	// if any function returns false, no further functions are called and the validation or submission is cancelled
 	var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
 	var beforeSubmit = new Array(); 
-
+	var flag=0;
 	// a list of functions that will be executed before the submission of a form
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
@@ -83,6 +83,37 @@
 	        } 
 	        });
 	});
+	function cloneFunction(v){
+		if (!flag)
+		{
+			$j(v).parent().data("cloneCount",0);
+			flag++;
+		}
+		 var count= $j(v).parent().data("cloneCount");
+		var q=v.clone();
+		$j(v).children('.dynamicRepeat').remove();
+		$j(q).children().each(function () {	
+		if($j(this).attr('id'))
+			{
+			var tempid= ($j(this).attr('id')).split('-',1);
+			tempid=tempid+"-"+count;
+		$j(this).attr('id',tempid);
+			}
+			if($j(this).attr('name'))
+			{
+				var tempname=($j(this).attr('name')).split('-',1);
+				tempname=tempname+"-"+count;
+		$j(this).attr('name',tempname);
+			}
+		});
+		++count;
+		$j(v).parent().data("cloneCount",count);
+		$j(v).append("<input value='remove' type='button' class='dynamicRemove' onClick='removeFunction($j(this).parent())'>");
+		q.insertBefore(v);
+	}
+	function removeFunction(v){
+		$j(v).remove();
+	}
 	function refresh (v) {
 		var flag=true;
 		var string=((v).split("span",1))+"_hid";

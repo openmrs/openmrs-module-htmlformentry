@@ -29,6 +29,10 @@
 							</property>	
 							<property name="handlers">
 							    <map>
+							    <entry>
+							        	<key><value>dynamicRepeat</value></key>
+							        	<bean class="org.openmrs.module.htmlformentry.handler.DynamicRepeatTagHandler"/>
+							      	</entry>
 									<entry>
 							        	<key><value>obs</value></key>
 							        	<bean class="org.openmrs.module.htmlformentry.handler.ObsTagHandler"/>
