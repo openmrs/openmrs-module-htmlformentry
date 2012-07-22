@@ -217,6 +217,7 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
 
     textField.autocomplete({
        source:opnames,
+       minLength:2,
        select:function(event, ui) {
            hiddenField.val(optionnamevaluemap[ui.item.value]);
            select = true;
