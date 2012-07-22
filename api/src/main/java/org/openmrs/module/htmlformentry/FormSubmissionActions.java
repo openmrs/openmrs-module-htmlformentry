@@ -804,11 +804,14 @@ public class FormSubmissionActions {
      * Prepares data to be sent for exiting the given patient from care
      * @param date - the date of exit
      * @param exitReasonConcept - reason the patient is exited from care
+     * @throws Exception
      */
-    public void setExitFromCare(Date date, Concept exitReasonConcept) {
+    public void setExitFromCare(Date date, Concept exitReasonConcept) throws Exception {
 
-        if(date != null && exitReasonConcept != null){
+        if (date != null && exitReasonConcept != null){
             this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept);
+        }else {
+            throw new Exception("Exit From Care: date and exitReasonConcept cannot be null");
         }
     }
 

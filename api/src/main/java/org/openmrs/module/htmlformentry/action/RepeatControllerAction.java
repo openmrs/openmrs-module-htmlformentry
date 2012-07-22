@@ -1,14 +1,13 @@
 package org.openmrs.module.htmlformentry.action;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Abstract class which defines a controller that can hold a set of Form Submission Controller Actions, and is itself a 
@@ -66,7 +65,7 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      * @param submission
      */
     @Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) throws Exception {
         beforeHandleSubmission(session, submission);
         for (FormSubmissionControllerAction action : repeatingActions)
             action.handleSubmission(session, submission);

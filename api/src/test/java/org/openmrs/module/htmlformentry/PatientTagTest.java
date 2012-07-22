@@ -1,10 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -18,6 +13,11 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -55,7 +55,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");

@@ -84,7 +84,7 @@ public class FormSubmissionController {
      * @param session the Form Entry Session
      * @param submission
      */
-    public void handleFormSubmission(FormEntrySession session, HttpServletRequest submission) {
+    public void handleFormSubmission(FormEntrySession session, HttpServletRequest submission) throws Exception {
         lastSubmission = submission;
         for (FormSubmissionControllerAction element : actions) {
             element.handleSubmission(session, submission);
