@@ -65,7 +65,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
             optionValues = getValuesAsString(getOptions());
             }
 
-            // set the previously given option into widget, when editing the form, else initialOption is null
+            // set the previously given option into widget, when editing the form
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
              for (Option o : getOptions()) {
                     if (getInitialValue() != null && getInitialValue().equals(o.getLabel())) {
@@ -73,6 +73,16 @@ public class AutocompleteWidget extends  SingleOptionWidget{
                     }
                 }
             }
+            // set the default option into widget, when entering the form
+
+            else if (context.getMode() == FormEntryContext.Mode.ENTER) {
+               for (Option o : getOptions()) {
+                   if (o.isSelected() && !o.getValue().equals("")) {
+                      initialOption = new Option(o.getLabel(),o.getValue(),false);
+                   }
+               }
+            }
+
 
             sb.append("<input type=\"text\" id=\"" + id + "\" value=\""
 			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")

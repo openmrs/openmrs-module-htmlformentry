@@ -1,15 +1,6 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.Collections;
-
-import javax.servlet.http.HttpServletRequest;
-
-import ca.uhn.hl7v2.model.v24.segment.AUT;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.velocity.exception.ParseErrorException;
-import org.hibernate.engine.*;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
@@ -24,17 +15,30 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
-import org.openmrs.module.htmlformentry.widget.*;
+import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.EncounterTypeWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
-import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
+import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
