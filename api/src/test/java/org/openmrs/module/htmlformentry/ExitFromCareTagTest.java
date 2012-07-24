@@ -16,6 +16,10 @@ package org.openmrs.module.htmlformentry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Obs;
+import org.openmrs.api.ConceptService;
+import org.openmrs.api.ObsService;
+import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -30,10 +34,13 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 
-
+    ObsService os;
+    ConceptService cs;
     @Before
     public void loadData() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+        os = Context.getObsService();
+        cs = Context.getConceptService();
 	}
 
     @Test
@@ -57,7 +64,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.addParameter(widgets.get("Date:"), dateAsString(date));
 			  request.addParameter(widgets.get("Location:"), "2");
 			  request.addParameter(widgets.get("Provider:"), "502");
-              request.setParameter(widgets.get("Exit From Care:"), "5");
+              request.setParameter(widgets.get("Exit From Care:"), "4201");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", dateAsString(date));
             }
@@ -65,7 +72,10 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
-            // TODO: have to add a way to verify the exit from care obs creation
+                List<Obs> obsList = os.getObservationsByPersonAndConcept(results.getPatient(), cs.getConcept("4200"));
+                Assert.assertEquals(obsList.size(),1);
+                Assert.assertEquals("RECOVERED",obsList.get(0).getValueCoded().getDisplayString());
+                Assert.assertEquals(dateAsString(date),dateAsString(obsList.get(0).getObsDatetime()));
 			}
 
         }.run();
@@ -92,7 +102,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.addParameter(widgets.get("Date:"), dateAsString(date));
 			  request.addParameter(widgets.get("Location:"), "2");
 			  request.addParameter(widgets.get("Provider:"), "502");
-              request.setParameter(widgets.get("Exit From Care:"), "5");
+              request.setParameter(widgets.get("Exit From Care:"), "4201");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", dateAsString(date));
             }
@@ -114,7 +124,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-                request.setParameter(widgets.get("Exit From Care:"), "4");
+                request.setParameter(widgets.get("Exit From Care:"), "4202");
                 // the exit date is set by using widget id, since there is no label
                 request.setParameter("w7", "");
             }
@@ -153,7 +163,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.addParameter(widgets.get("Date:"), dateAsString(date));
 			  request.addParameter(widgets.get("Location:"), "2");
 			  request.addParameter(widgets.get("Provider:"), "502");
-              request.setParameter(widgets.get("Exit From Care:"), "5");
+              request.setParameter(widgets.get("Exit From Care:"), "4201");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", dateAsString(date));
             }
@@ -192,4 +202,42 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 
         }.run();
     }
+
+    @Test
+    public void exitFromCare_shouldAllowToSubmitIfBothDateAndReasonNotFilledInitially() throws Exception{
+
+        final Date date = new Date();
+        new RegressionTestHelper(){
+
+            @Override
+            public String getFormName() {
+                return "exitFromCareForm";
+            }
+
+            @Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Exit From Care:"};
+			}
+
+            @Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+              request.addParameter(widgets.get("Date:"), dateAsString(date));
+			  request.addParameter(widgets.get("Location:"), "2");
+			  request.addParameter(widgets.get("Provider:"), "502");
+              request.setParameter(widgets.get("Exit From Care:"), "");
+            // the exit date is set by using widget id, since there is no label
+              request.setParameter("w7", "");
+            }
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+                List<Obs> obsList = os.getObservationsByPersonAndConcept(results.getPatient(), cs.getConcept("4200"));
+                Assert.assertEquals(obsList.size(),0);
+			}
+
+        }.run();
+    }
+
 }
+

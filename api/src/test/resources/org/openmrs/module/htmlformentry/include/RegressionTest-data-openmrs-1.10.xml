@@ -254,6 +254,21 @@
   <program_workflow_state program_workflow_state_id="202" program_workflow_id="100" concept_id="10004" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="99f66ca8-5140-11e1-a3e3-00248140a5eb"/>
   <program_workflow_state program_workflow_state_id="203" program_workflow_id="100" concept_id="10005" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="true" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="91f66ca8-5140-11e1-a3e3-00248140a5eb"/>
   
-<program_workflow_state program_workflow_state_id="207" program_workflow_id="107" concept_id="10008" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11e1-8cb6-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="207" program_workflow_id="107" concept_id="10008" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11e1-8cb6-00248140a5eb"/>
   <program_workflow_state program_workflow_state_id="208" program_workflow_id="108" concept_id="10009" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="6de7ed10-53ad-11e1-8cb6-00248140a5eb"/>
+
+
+  <!-- test data for exit from care functionality -->
+  <global_property property="concept.reasonExitedCare" property_value="4200" uuid="4f55827e-26fe-102b-80cb-0017b4ec71b3"/>
+
+  <concept concept_id="4200" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-bb7e-001ec4ec0334"/>
+  <concept_name voided="false" concept_name_id="4200" concept_id="4200" name="REASON EXITED CARE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+
+  <concept concept_id="4201" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec93a0cc7"/>
+  <concept_name voided="false" concept_name_id="4201" concept_id="4201" name="RECOVERED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3001" concept_id="4200" answer_concept="4201" creator="1" date_created="2012-01-01 00:00:00.0"/>
+  <concept concept_id="4202" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b1e3-001ec94a0cc7"/>
+  <concept_name voided="false" concept_name_id="4202" concept_id="4202" name="PERSON DIED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3002" concept_id="4200" answer_concept="4202" creator="1" date_created="2012-01-01 00:00:00.0"/>
+
 </dataset>
