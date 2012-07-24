@@ -621,6 +621,18 @@ public class FormEntrySession {
         }
 
         ObsService obsService = Context.getObsService();
+        
+        if (submissionActions.getObsToVoid() != null) {
+            for (Obs o : submissionActions.getObsToVoid()) {
+                if (log.isDebugEnabled())
+                    log.debug("voiding obs: " + o.getObsId());
+                obsService.voidObs(o, "htmlformentry");
+                // if o was in a group and it has no obs left, void the group
+                if (noObsLeftInGroup(o.getObsGroup())) {
+                    obsService.voidObs(o.getObsGroup(), "htmlformentry");
+                }
+            }
+        }
 
         // If we're in EDIT mode, we have to save the encounter so that any new obs are created.
         // This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
@@ -652,17 +664,7 @@ public class FormEntrySession {
           }
           */
 
-        if (submissionActions.getObsToVoid() != null) {
-            for (Obs o : submissionActions.getObsToVoid()) {
-                if (log.isDebugEnabled())
-                    log.debug("voiding obs: " + o.getObsId());
-                obsService.voidObs(o, "htmlformentry");
-                // if o was in a group and it has no obs left, void the group
-                if (noObsLeftInGroup(o.getObsGroup())) {
-                    obsService.voidObs(o.getObsGroup(), "htmlformentry");
-                }
-            }
-        }
+        
 
         // save the patient
         // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
