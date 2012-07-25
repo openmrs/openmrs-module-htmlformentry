@@ -284,7 +284,15 @@ public class FormSubmissionActions {
 		}
 		return obs;
 	}
-	
+
+    /**
+     * Legacy createObs methods without the comment argument
+     */
+    public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
+        return createObs(concept, value, datetime, accessionNumber, null);
+    }
+
+
 	/**
 	 * Modifies an existing Obs.
 	 * <p/>
@@ -297,7 +305,6 @@ public class FormSubmissionActions {
 	 * @param newValue the new value of the Obs
 	 * @param newDatetime the new date information for the Obs
 	 * @param accessionNumber new accession number for the Obs
-	 * @param compareConcepts also compare conceptId for differences
 	 * @param comment comment for the obs
 	 */
 	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, String comment) {
@@ -346,7 +353,14 @@ public class FormSubmissionActions {
 			}
 		}
 	}
-	
+
+    /**
+     * Legacy modifyObs methods without the comment argument
+     */
+    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+        modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null);
+    }
+
 	/**
 	 * Enrolls the Patient most recently added to the stack in the specified Program.
 	 * <p/>
