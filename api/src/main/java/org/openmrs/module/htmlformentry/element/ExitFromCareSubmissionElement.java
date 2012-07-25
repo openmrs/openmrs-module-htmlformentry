@@ -157,7 +157,7 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
     }
 
     @Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) throws Exception {
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 
         Date date = null;
         Concept exitReasonConcept = null;
@@ -174,7 +174,7 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
         // section, however if it is filled initially, user can't resubmit after changing the date and
         // reason fields to null back
         if (date != null && exitReasonConcept != null){
-           session.getSubmissionActions().setExitFromCare(date, exitReasonConcept);
+           session.getSubmissionActions().exitFromCare(date, exitReasonConcept);
         }
 
     }

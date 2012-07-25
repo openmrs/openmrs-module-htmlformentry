@@ -32,6 +32,6 @@ public interface FormSubmissionControllerAction {
      * @param session
      * @param submission
      */
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) throws Exception;
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission);
 
 }

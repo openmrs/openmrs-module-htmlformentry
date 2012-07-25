@@ -65,7 +65,7 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      * @param submission
      */
     @Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) throws Exception {
+    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         beforeHandleSubmission(session, submission);
         for (FormSubmissionControllerAction action : repeatingActions)
             action.handleSubmission(session, submission);

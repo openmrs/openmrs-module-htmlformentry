@@ -566,7 +566,21 @@ public class FormSubmissionActions {
 		
 		patientProgramsToUpdate.add(patientProgram);
 	}
-	
+
+    /**
+     * Prepares data to be sent for exiting the given patient from care
+     * @param date - the date of exit
+     * @param exitReasonConcept - reason the patient is exited from care
+     */
+    public void exitFromCare(Date date, Concept exitReasonConcept){
+
+        if (date != null && exitReasonConcept != null){
+            this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept);
+        }else {
+            throw new IllegalArgumentException("Exit From Care: date and exitReasonConcept cannot be null");
+        }
+    }
+
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
@@ -815,25 +829,14 @@ public class FormSubmissionActions {
 	}
 
     /**
-     * Prepares data to be sent for exiting the given patient from care
-     * @param date - the date of exit
-     * @param exitReasonConcept - reason the patient is exited from care
-     * @throws Exception
-     */
-    public void setExitFromCare(Date date, Concept exitReasonConcept) throws Exception {
-
-        if (date != null && exitReasonConcept != null){
-            this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept);
-        }else {
-            throw new Exception("Exit From Care: date and exitReasonConcept cannot be null");
-        }
-    }
-
-    /**
      *
      * @return the exitFromCareProperty
      */
     public ExitFromCareProperty getExitFromCareProperty() {
         return exitFromCareProperty;
+    }
+
+    public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
+        this.exitFromCareProperty = exitFromCareProperty;
     }
 }

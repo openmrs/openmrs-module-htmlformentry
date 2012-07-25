@@ -1,7 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
 import org.junit.Assert;
-import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Obs;
@@ -230,7 +229,7 @@ public abstract class RegressionTestHelper {
 	 * 
 	 * @param formEntrySession object, useful in test state of session object
 	 */
-	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession) throws Exception {
+	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession){
 	}
 	
 	/**
@@ -852,16 +851,6 @@ public abstract class RegressionTestHelper {
 		
 	}
 
-    /**
-	 * Optionally override this if you want to generate the form for a different patient, or if you
-	 * are testing a patient creation form
-	 *
-	 * @return
-	 */
-	public Concept getConcept() {
-		return Context.getConceptService().getConcept(1);
-	}
-	
 	public class ObsValue {
 		
 		public Integer conceptId; // required
