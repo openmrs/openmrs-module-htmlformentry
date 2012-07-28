@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -30,18 +18,17 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
-import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
+import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
@@ -50,6 +37,17 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -67,6 +65,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private String defaultValue;
 	
+	private boolean showUnits = false;
+	
 	private String dateLabel;
 	
 	private DateWidget dateWidget;
@@ -76,7 +76,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private TextFieldWidget accessionNumberWidget;
 	
 	private TextFieldWidget commentFieldWidget;
-	
+
 	private ErrorWidget errorWidget;
 	
 	private boolean allowFutureDates = false;
@@ -103,6 +103,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private List<String> conceptLabels = null; //the text to show for possible concepts
 	
 	private String answerSeparator = null;
+
+    // these are for location and provider options
+
+    private List<Option> locationOptions = new ArrayList<Option>();
+
 	
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		String conceptId = parameters.get("conceptId");
@@ -325,6 +330,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 			} else if (concept.getDatatype().isText()) {
+
+				String initialValue = null;
+				if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+					initialValue = defaultValue;
+				}
+				if (existingObs != null) {
+					initialValue = existingObs.getValueText();
+				}
+
 				if (parameters.get("answers") != null) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ","); st.hasMoreTokens();) {
@@ -337,10 +351,28 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 				if ("location".equals(parameters.get("style"))) {
-					valueWidget = new LocationWidget();
+
+                    valueWidget = new DropdownWidget();
+
+                       for (Location location : Context.getLocationService().getAllLocations()) {
+                            String label = location.getName();
+                            Option option = new Option(label, location.getId().toString(), location.getId().toString().equals(initialValue));
+                            locationOptions.add(option);
+                       }
+                    Collections.sort(locationOptions, new OptionComparator());
+
+                // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+                boolean initialValueIsSet = !(initialValue == null);
+                ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",!initialValueIsSet));
+                if (!locationOptions.isEmpty()) {
+                    for(Option option: locationOptions)
+                        ((DropdownWidget)valueWidget).addOption(option);
+                }
+
 				} else if ("person".equals(parameters.get("style"))) {
 					
 					List<PersonStub> options = new ArrayList<PersonStub>();
+                    List<Option> personOptions = new ArrayList<Option>();
 					
 					// If specific persons are specified, display only those persons in order
 					String personsParam = (String) parameters.get("persons");
@@ -384,8 +416,24 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						options.addAll(users);
 						//    					sortOptions = true;
 					}
-					
-					valueWidget = new PersonStubWidget(options);
+
+                    for (PersonStub personStub : options){
+                        String personName= personStub.getDisplayValue();
+                        Option personOption = new Option(personName, personStub.getId().toString(), personStub.getId().toString().equals(initialValue));
+                        personOptions.add(personOption);
+                    }
+                    Collections.sort(personOptions, new OptionComparator());
+
+					valueWidget = new DropdownWidget();
+                    // if initialValueIsSet=false, no initial/default person, hence this shows the 'select input' field as first option
+                    boolean initialValueIsSet = !(initialValue == null);
+
+                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAPerson"), "", !initialValueIsSet));
+                    if(!personOptions.isEmpty()){
+                        for(Option option: personOptions){
+                          ((DropdownWidget)valueWidget).addOption(option);
+                        }
+                    }
 					
 				} else {
 					if (textAnswers.size() == 0) {
@@ -438,15 +486,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							((SingleOptionWidget) valueWidget).addOption(new Option(lookFor, lookFor, true));
 					}
 				}
-				
-				String initialValue = null;
-				if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
-					initialValue = defaultValue;
-				}
-				if (existingObs != null) {
-					initialValue = existingObs.getValueText();
-				}
-				
+
 				if (initialValue != null) {
 					if ("location".equals(parameters.get("style"))) {
 						Location l = HtmlFormEntryUtil.getLocation(initialValue);
@@ -563,7 +603,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							                + concept.getConceptId());
 						}
 						
-						valueWidget = new AutocompleteWidget(conceptAnswers, cptClasses);
+						valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
 					} else {
 			// Show Radio Buttons if specified, otherwise default to Drop
 						// Down 
@@ -714,6 +754,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		context.registerWidget(valueWidget);
 		context.registerErrorWidget(valueWidget, errorWidget);
 		
+		if (parameters.get("showUnits") != null) {
+			showUnits = Boolean.parseBoolean(parameters.get("showUnits"));
+		}
+		
 		// if a date is requested, do that too
 		if ("true".equals(parameters.get("showDate")) || parameters.containsKey("dateLabel")) {
 			if (parameters.containsKey("dateLabel"))
@@ -754,7 +798,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				commentFieldWidget.setInitialValue(existingObs.getComment());
 			}
 		}
-		
+
 		ObsField field = new ObsField();
 		field.setName(valueLabel);
 		if (concept != null) {
@@ -814,6 +858,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (!"".equals(valueLabel))
 			ret.append(" ");
 		ret.append(valueWidget.generateHtml(context));
+		if (showUnits) {
+			if (concept == null || !concept.getDatatype().isNumeric()) {
+				throw new IllegalArgumentException("Can only show units when the concept is numeric");
+			}
+			String units;
+			if (concept instanceof ConceptNumeric) {
+				units = ((ConceptNumeric) concept).getUnits();
+			} else {
+				units = Context.getConceptService().getConceptNumeric(concept.getConceptId()).getUnits();
+			}
+			ret.append(units != null ? units : "");
+		}
 		if (dateWidget != null) {
 			ret.append(" ");
 			if (dateLabel != null) {
@@ -834,7 +890,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.append(" ");
 			ret.append(commentFieldWidget.generateHtml(context));
 		}
-		
+
 		// if value is required
 		if (required) {
 			ret.append("<span class='required'>*</span>");
@@ -952,7 +1008,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (value instanceof Concept)
 					concept = (Concept) value;
 				else
-					concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+					concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Unable to convert response to a concept!");
@@ -968,7 +1024,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		String comment = null;
 		if(commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
-		
+
 		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart

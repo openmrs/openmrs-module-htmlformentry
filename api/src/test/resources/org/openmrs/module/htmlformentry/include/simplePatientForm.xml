@@ -1,0 +1,5 @@
+<htmlform>
+    Name: <patient field="name"/>
+    Gender: <patient field="gender"/>
+    <submit/>
+</htmlform>

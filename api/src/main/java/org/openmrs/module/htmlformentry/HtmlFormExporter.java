@@ -79,8 +79,8 @@ public class HtmlFormExporter {
 		Set<OpenmrsObject> dependencies = new HashSet<OpenmrsObject>();
 		
 		Set<Class<?>> classesNotToExport = getClassesNotToExport();
-		
-		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to 
+
+		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to
 		// be applied to the form we are exporting so we copy the xml into a new string first
 		// (calculate Uuid dependencies should operate properly even with out this, but will be do this just to be safe)
 		
@@ -106,7 +106,7 @@ public class HtmlFormExporter {
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					if (attributeDescriptor.getClazz() != null && !classesNotToExport.contains(attributeDescriptor.getClazz())) {
-						
+
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
 						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;

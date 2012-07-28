@@ -241,7 +241,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
             }
             try {
                 if (discontinuedReasonWidget != null && discontinuedDateWidget != null) {
-                    String discReason = discontinuedReasonWidget.getValue(context, submission);
+                    String discReason = (String) discontinuedReasonWidget.getValue(context, submission);
                     Date endDate = discontinuedDateWidget.getValue(context, submission);
                     if (endDate == null && !StringUtils.isEmpty(discReason))
                         throw new Exception("htmlformentry.error.discontinuedReasonEnteredWithoutDate");

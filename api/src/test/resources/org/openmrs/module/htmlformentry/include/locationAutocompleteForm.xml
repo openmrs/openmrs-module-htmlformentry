@@ -1,7 +1,6 @@
 <htmlform>
 	Date: <encounterDate/>
-	Location: <encounterLocation/>
+	Location: <encounterLocation type="autocomplete"/>
 	Provider: <encounterProvider role="Provider"/>
-	Encounter Type: <encounterType />
 	<submit/>
 </htmlform>

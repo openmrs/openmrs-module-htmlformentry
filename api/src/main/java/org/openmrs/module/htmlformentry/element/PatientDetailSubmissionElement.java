@@ -14,13 +14,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -41,12 +35,12 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.widget.AddressWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.HiddenFieldWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.NameWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
@@ -138,16 +132,30 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		}
 		else if (FIELD_IDENTIFIER.equalsIgnoreCase(field)) {
 
+			PatientIdentifierType idType = HtmlFormEntryUtil.getPatientIdentifierType(attributes.get("identifierTypeId"));
+			
 			identifierTypeValueWidget = new TextFieldWidget();
 			identifierTypeValueErrorWidget = new ErrorWidget();
-			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, existingPatient != null
-					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getIdentifier() : null);
+			String initialValue = null;
+			if (existingPatient != null) {
+				if (idType == null) {
+					if (existingPatient.getPatientIdentifier() != null) {
+						initialValue = existingPatient.getPatientIdentifier().getIdentifier();
+					}
+				} else {
+					if (existingPatient.getPatientIdentifier(idType) != null) {
+						initialValue = existingPatient.getPatientIdentifier(idType).getIdentifier();
+					}
+				}
+			}
+			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
 
 			String typeId = attributes.get("identifierTypeId");
-			if (StringUtils.hasText(typeId)) {
+			if (idType != null) {
 				identifierTypeWidget = new HiddenFieldWidget();
-				createWidgets(context, identifierTypeWidget, null, typeId);
-			}else{
+				createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
+			}
+			else {
 				identifierTypeWidget = new DropdownWidget();
 				List<PatientIdentifierType> patientIdentifierTypes = HtmlFormEntryUtil.getPatientIdentifierTypes();
 
@@ -162,17 +170,32 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 		}
 		else if (FIELD_IDENTIFIER_LOCATION.equalsIgnoreCase(field)) {
-			identifierLocationWidget = new LocationWidget();
+			identifierLocationWidget = new DropdownWidget();
 			identifierLocationErrorWidget = new ErrorWidget();
 
-			List<Location> locations = Context.getLocationService().getAllLocations();
-			((LocationWidget) identifierLocationWidget).setOptions(locations);
-
-			Location defaultLocation = existingPatient != null
+            Location defaultLocation = existingPatient != null
 					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getLocation() : null;
 			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+            identifierLocationWidget.setInitialValue(defaultLocation);
+
+            List<Option> locationOptions = new ArrayList<Option>();
+            for(Location location:Context.getLocationService().getAllLocations()) {
+                Option option = new Option(location.getName(), location.getId().toString(), location.equals(defaultLocation));
+                locationOptions.add(option);
+            }
+            Collections.sort(locationOptions, new OptionComparator());
+
+            // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+            boolean initialValueIsSet = !(defaultLocation == null);
+            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "", !initialValueIsSet));
+            if (!locationOptions.isEmpty()) {
+                    for(Option option: locationOptions){
+                    ((DropdownWidget) identifierLocationWidget).addOption(option);
+                    }
+            }
 			createWidgets(context, identifierLocationWidget, identifierLocationErrorWidget, defaultLocation);
 		}
+
 		else if (FIELD_ADDRESS.equalsIgnoreCase(field)) {
 			addressWidget = new AddressWidget();
 			createWidgets(context, addressWidget, null, existingPatient != null ? existingPatient.getPersonAddress() : null);
@@ -265,7 +288,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
 		if (nameWidget != null) {
 			PersonName name = (PersonName) nameWidget.getValue(context, request);
-			if (context.getMode() == Mode.EDIT) {
+
+			if (patient != null) {
 				if (!name.isPreferred()) {
 					PersonName currentPreferredName = context.getExistingPatient().getPersonName();
 					if (currentPreferredName != null){
@@ -336,8 +360,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				patient.addIdentifier(patientIdentifier);
 			}
 
-			Location location = (Location) identifierLocationWidget.getValue(context, request);
-
+			Object locationString = identifierLocationWidget.getValue(context, request);
+            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
 			patientIdentifier.setLocation(location);
 			patientIdentifier.setPreferred(true);
 
@@ -355,6 +379,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			personAddress.setPreferred(true);
 			patient.addAddress(personAddress);
 		}
+
+        session.getSubmissionActions().setPatientUpdateRequired(true);
 	}
 
 	private void validateIdentifier(Integer identifierType, String identifier) {

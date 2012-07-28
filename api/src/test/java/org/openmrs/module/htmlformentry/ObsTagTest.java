@@ -14,12 +14,15 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
@@ -426,5 +429,12 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("test comment", results.getEncounterCreated().getObs().iterator().next().getComment());
 			}
 		}.run();
+	}
+	
+	@Test
+	public void shouldShowUnitsIfRequested() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"5497\" showUnits=\"true\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("cells/mmL") > 0);
 	}
 }

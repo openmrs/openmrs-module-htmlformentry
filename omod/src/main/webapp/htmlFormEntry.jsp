@@ -94,7 +94,7 @@
 
 	function findAndHighlightErrors(){
 		/* see if there are error fields */
-		var containError = false
+		var containError = false;
 		var ary = $j(".autoCompleteHidden");
 		$j.each(ary,function(index, value){
 			if(value.value == "ERROR"){
@@ -109,6 +109,24 @@
 		});
 		return containError;
 	}
+
+    function findOptionAutoCompleteErrors() {
+        /* see if there are  errors in option fields */
+		var containError = false;
+		var ary = $j(".optionAutoCompleteHidden");
+		$j.each(ary,function(index, value){
+			if(value.value == "ERROR"){
+				if(!containError){
+					alert("<spring:message code='htmlformentry.error.autoCompleteOptionNotValid'/>");
+					var id = value.id;
+					id = id.substring(0,id.length-4);
+					$j("#"+id).focus();
+				}
+				containError=true;
+			}
+		});
+		return containError;
+    }
 
 	/*
 		It seems the logic of  showAuthenticateDialog and 
@@ -140,8 +158,9 @@
 			// only do the validation if all the beforeValidationk functions returned "true"
 			if (state_beforeValidation){
 				var anyErrors = findAndHighlightErrors();
+                var optionSelectErrors = findOptionAutoCompleteErrors();
 			
-        		if (anyErrors) {
+        		if (anyErrors || optionSelectErrors) {
             		tryingToSubmit = false;
             		return;
         		}else{
