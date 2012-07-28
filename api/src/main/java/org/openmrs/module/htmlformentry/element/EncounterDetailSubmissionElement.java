@@ -24,6 +24,7 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
+import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
@@ -63,6 +64,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     private SingleOptionWidget locationWidget;
 
     private ErrorWidget locationErrorWidget;
+    
+    private ToggleWidget toggleWidget;
 
     private CheckboxWidget voidWidget;
 
@@ -368,7 +371,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
 
         if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
-            voidWidget = new CheckboxWidget();
+			if (parameters.get("toggle") != null) {
+				ToggleWidget toggleWidget = new ToggleWidget((String) parameters.get("toggle"));
+				voidWidget = new CheckboxWidget(" " + Context.getMessageSourceService().getMessage("general.voided"), (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true)) ? "true" : "false", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+			} else {
+				voidWidget = new CheckboxWidget();
+			}
             voidWidget.setLabel(" " + Context.getMessageSourceService().getMessage("general.voided"));
             voidErrorWidget = new ErrorWidget();
             if (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true))

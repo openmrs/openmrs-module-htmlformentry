@@ -58,6 +58,29 @@
 			 	}
 			 );
 		});
+		
+		$j('input[toggleDim]').change(function () {
+			var target = $j(this).attr("toggleDim");
+			if ($j(this).is(":checked")) {
+				$j("#" + target + " :input").removeAttr('disabled');
+				$j("#" + target).animate({opacity:1.0}, 0);
+			} else {
+				$j("#" + target + " :input").attr('disabled', true);
+				$j("#" + target).animate({opacity:0.5}, 100);
+			}
+       })
+       .change();
+
+		$j('input[toggleHide]').change(function () {
+			var target = $j(this).attr("toggleHide");
+			if ($j(this).is(":checked")) {
+				$j("#" + target).fadeIn();
+			} else {
+				$j("#" + target).hide();				
+			}
+       })
+       .change();
+
 	});
 
 	var tryingToSubmit = false;
@@ -194,6 +217,8 @@
 	function cancelDeleteForm() {
 		$j('#confirmDeleteFormPopup').hide();
 	}
+	
+	
 </script>
 
 <div id="htmlFormEntryBanner">
