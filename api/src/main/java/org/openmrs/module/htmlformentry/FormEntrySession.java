@@ -665,8 +665,6 @@ public class FormEntrySession {
           }
           */
 
-        
-
         // save the patient
         // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
         // we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
@@ -676,12 +674,16 @@ public class FormEntrySession {
             Context.getPersonService().savePerson(patient);
         }
 
-        // exit the patient from care
-        if(submissionActions.getExitFromCareProperty() != null){
+        // exit the patient from care or process patient's death
+        if (submissionActions.getExitFromCareProperty() != null) {
             ExitFromCareProperty exitFromCareProperty =
                     submissionActions.getExitFromCareProperty();
-            Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
-
+            if (exitFromCareProperty.getCauseOfDeathConcept() != null) {
+                Context.getPatientService().processDeath(this.getPatient(), exitFromCareProperty.getDateOfExit(),
+                        exitFromCareProperty.getCauseOfDeathConcept(), exitFromCareProperty.getOtherReason());
+            } else {
+                Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
+            }
 
         }
 

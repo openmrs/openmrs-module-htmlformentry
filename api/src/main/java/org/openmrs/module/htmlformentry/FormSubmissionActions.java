@@ -571,11 +571,13 @@ public class FormSubmissionActions {
      * Prepares data to be sent for exiting the given patient from care
      * @param date - the date of exit
      * @param exitReasonConcept - reason the patient is exited from care
+     * @param causeOfDeathConcept -the concept that corresponds with the reason the patient died
+     * @param otherReason - in case the causeOfDeath is 'other', a place to store more info
      */
-    public void exitFromCare(Date date, Concept exitReasonConcept){
+    public void exitFromCare(Date date, Concept exitReasonConcept, Concept causeOfDeathConcept, String otherReason){
 
         if (date != null && exitReasonConcept != null){
-            this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept);
+            this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept,causeOfDeathConcept,otherReason);
         }else {
             throw new IllegalArgumentException("Exit From Care: date and exitReasonConcept cannot be null");
         }
