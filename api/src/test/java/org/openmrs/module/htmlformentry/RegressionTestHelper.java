@@ -266,7 +266,7 @@ public abstract class RegressionTestHelper {
 		Patient patientToView = null;
 		Encounter encounterToView = null;
 		if (request.getParameterMap().size() > 0) {
-			SubmissionResults results = doSubmission(session, request);
+			SubmissionResults results = doSubmission(setupFormEntrySession(patient, getFormName()), request);
 			testResults(results);
 			patientToView = results.getPatient();
 			encounterToView = results.getEncounterCreated();

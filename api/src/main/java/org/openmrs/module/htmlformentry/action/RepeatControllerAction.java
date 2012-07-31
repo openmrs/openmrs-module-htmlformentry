@@ -24,6 +24,7 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      * @param action
      */
     public void addAction(FormSubmissionControllerAction action) {
+    	System.out.println("repeating action:"+action);
         repeatingActions.add(action);
     }
     
@@ -68,8 +69,14 @@ public abstract class RepeatControllerAction implements FormSubmissionController
     @Override
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         beforeHandleSubmission(session, submission);
-        for (FormSubmissionControllerAction action : repeatingActions)
-            action.handleSubmission(session, submission);
+        int numIterations = getNumberOfIterations(session.getContext(), submission);
+        for (int i = 0; i < numIterations; ++i) {
+        	session.getContext().setRepeatIteration(i);
+	        for (FormSubmissionControllerAction action : repeatingActions) {
+	            action.handleSubmission(session, submission);
+	        }
+        }
+        session.getContext().setRepeatIteration(null);
         afterHandleSubmission(session, submission);
     }   
     
@@ -81,17 +88,32 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      */
     @Override
     public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-        beforeValidateSubmission(context, submission);
+        System.out.println("REPEAT CONTROLLER ACTION- Validate Submission Start");
+    	beforeValidateSubmission(context, submission);
         Collection<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-        for (FormSubmissionControllerAction action : repeatingActions) {
-            Collection<FormSubmissionError> temp = action.validateSubmission(context, submission);
-            if (temp != null)
-                ret.addAll(temp);
+        int numIterations = getNumberOfIterations(context, submission);
+        System.out.println(repeatingActions.size()+" RA Size");
+        for (int i = 0; i < numIterations; ++i) {
+        	context.setRepeatIteration(i);
+	        for (FormSubmissionControllerAction action : repeatingActions) {
+	        	System.out.println("Rpeating Action:"+action);
+	            Collection<FormSubmissionError> temp = action.validateSubmission(context, submission);
+	            if (temp != null)
+	                ret.addAll(temp);
+	        }
         }
+        context.setRepeatIteration(null);
         afterValidateSubmission(context, submission);
+        System.out.println("REPEAT CONTROLLER ACTION- Validate Submission End");
         return ret;
     }
-    
+
+	/**
+     * @param submission 
+	 * @param context 
+	 * @return the number of times we should iterate over the actions within this tag
+     */
+    protected abstract int getNumberOfIterations(FormEntryContext context, HttpServletRequest submission);    
     
 
 }

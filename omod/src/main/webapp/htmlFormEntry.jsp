@@ -83,36 +83,41 @@
 	        } 
 	        });
 	});
-	function cloneFunction(v){
-		if (!flag)
-		{
-			$j(v).parent().data("cloneCount",0);
-			flag++;
-		}
-		 var count= $j(v).parent().data("cloneCount");
-		var q=v.clone();
+	function duplicateTemplate(v){			
+		 var count=parseInt($j(v).parent().children('.counter').val());
+		var q=$j(v).clone();
 		$j(v).children('.dynamicRepeat').remove();
-		$j(q).children().each(function () {	
-		if($j(this).attr('id'))
-			{
-			var tempid= ($j(this).attr('id')).split('-',1);
-			tempid=tempid+"-"+count;
-		$j(this).attr('id',tempid);
+		$j(v).attr("class","dynamic-repeat-template");
+		$j(v).children().each(function () {	
+			if($j(this).attr('id')){
+				var tempid=$j(this).attr('id').split('-',1);
+				$j(this).attr('id',tempid+'-'+count);
 			}
-			if($j(this).attr('name'))
-			{
-				var tempname=($j(this).attr('name')).split('-',1);
-				tempname=tempname+"-"+count;
-		$j(this).attr('name',tempname);
+				if($j(this).attr('name')){
+				var tempname=$j(this).attr('name').split('-',1);
+				$j(this).attr('name',tempname+'-'+count);
 			}
 		});
-		++count;
-		$j(v).parent().data("cloneCount",count);
+		count++;
+		$j(v).parent().children('.counter').val(count+'');
 		$j(v).append("<input value='remove' type='button' class='dynamicRemove' onClick='removeFunction($j(this).parent())'>");
 		q.insertBefore(v);
 	}
-	function removeFunction(v){
-		$j(v).remove();
+		 function removeFunction(v){
+			     var k= $j(v).parent();
+			    var b=0;
+			     $j(v).remove();     
+			    $j(k).children('.dynamic-repeat-template').each(function(index){
+			    	if (index == 0)
+			    		return true; 
+			    $j(this).children(":input").each(function(ind){
+			    if($j(this).attr("id")){
+			    var sample=$j(this).attr("id").split("-",1);
+			    $j(this).attr("id",sample+"-"+index);
+			    }
+			     b=index;
+			    });
+			    });    $j(k).children('.counter').attr("value",b+2);
 	}
 	function refresh (v) {
 		var flag=true;
@@ -198,6 +203,7 @@
             		tryingToSubmit = false;
             		return;
         		}else{
+        			$j(".tempe").remove(); 
         			doSubmitHtmlForm();
         		}
 			}

@@ -61,6 +61,9 @@ public class FormEntryContext {
     private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
     private ObsGroup activeObsGroup;
     
+    private boolean inDynamicRepeat = false;
+    private Integer repeatIteration;
+    
     private Patient existingPatient;
     private Encounter existingEncounter;
     private Map<Concept, List<Obs>> existingObs;
@@ -109,6 +112,10 @@ public class FormEntryContext {
             sequenceNextVal = sequenceNextVal + 1;            
         }
         String fieldName = "w" + thisVal;
+        if (inDynamicRepeat) {
+        	fieldName += "-template";
+        }
+        System.out.println("REGISTERING WIDGET Widget:"+widget+" Fieldname:"+fieldName+"\n");
         fieldNames.put(widget, fieldName);
         if (log.isTraceEnabled())
         	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
@@ -143,10 +150,16 @@ public class FormEntryContext {
      */
     public String getFieldName(Widget widget) {
         String fieldName = fieldNames.get(widget);
-        if (fieldName == null)
+        System.out.println("fieldname: "+fieldName+" widget: "+widget);
+        if (fieldName == null) {
             throw new IllegalArgumentException("Widget not registered");
-        else
-            return fieldName;
+        } else {
+        	if (repeatIteration != null) {
+        		return fieldName.replace("template", repeatIteration.toString());
+        	} else {
+        		return fieldName;
+        	}
+        }
     }
     
     /**
@@ -372,12 +385,10 @@ public class FormEntryContext {
         }
         return null;
     }
-    
     public List<Obs> removeExistingObs(Concept question) {
-        List<Obs> list = existingObs.get(question);
-        existingObs.remove(question);
-                        return list;
-    }
+          List<Obs> list = existingObs.get(question);
+          return list;
+     }
     
     /**
      * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version
@@ -417,7 +428,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
 	 * @return the list of orders
@@ -433,8 +444,8 @@ public class FormEntryContext {
 		}
 		return ret;
 	}
-	
-	
+
+
 	/**
      * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
      * 
@@ -694,7 +705,7 @@ public class FormEntryContext {
 		}
 		javascriptFieldAccessorInfo.put(property, val.toString());
     }
-	
+
     /**
      * @return the javascriptFieldAccessors
      */
@@ -723,7 +734,7 @@ public class FormEntryContext {
 	public void setGuessingInd(boolean guessingInd) {
 		this.guessingInd = guessingInd;
 	}
-	    
+
 	public String getGuessingInd() {
 		return guessingInd ? "true" : "false";
 	}
@@ -735,11 +746,11 @@ public class FormEntryContext {
 	public void setPreviousEncounterDate(Date previousEncounterDate) {
 	    this.previousEncounterDate = previousEncounterDate;
     }
-	
+
 	public boolean hasUnmatchedObsGroupEntities() {
 		return unmatchedObsGroupEntities != null && unmatchedObsGroupEntities.size() > 0 ? true : false;
 	}
-	
+
     public int addUnmatchedObsGroupEntities(ObsGroupEntity obsGroupEntity) {
     	if (unmatchedObsGroupEntities == null) unmatchedObsGroupEntities = new ArrayList<ObsGroupEntity>();
     	int id = unmatchedObsGroupEntities.size();
@@ -764,5 +775,32 @@ public class FormEntryContext {
 	public void setUnmatchedMode(boolean unmatchedMode) {
 		this.unmatchedMode = unmatchedMode;
 	}
+
+	/**
+     * Notes that we're in a dynamic repeat tag, so that we assign "-template" widget names
+	 * @throws BadFormDesignException 
+     */
+    public void beginDynamicRepeat() throws BadFormDesignException {
+	    if (inDynamicRepeat) {
+	    	throw new BadFormDesignException("Cannot have nested dynamicRepeat tags");
+	    }
+	    inDynamicRepeat = true;
+    }
+    
+    public void endDynamicRepeat() {
+    	if (!inDynamicRepeat) {
+	    	throw new RuntimeException("Trying to close a dynamicRepeat tag, but we're not in one");
+	    }
+	    inDynamicRepeat = false;
+    }
+
+	/**
+	 * Repeated tags will use this integer as a replacement for "template" when fetching submitted data
+	 * 
+     * @param iteration
+     */
+    public void setRepeatIteration(Integer iteration) {
+	    repeatIteration = iteration;
+    }
 
 }

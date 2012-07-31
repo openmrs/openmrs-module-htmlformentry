@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ public class FormSubmissionController {
      * @param repeat the repeat controller action to add
      */
     public void startRepeat(RepeatControllerAction repeat) {
+    	 System.out.println("STARTED REPEAT");
         if (this.repeat != null)
             throw new IllegalArgumentException("Nested Repeating elements are not yet implemented");
         addAction(repeat);
@@ -42,16 +44,23 @@ public class FormSubmissionController {
     public void endRepeat() {
         if (this.repeat == null)
             throw new IllegalArgumentException("No Repeating element is open now");
+        System.out.println("ENDED REPEAT");
         this.repeat = null;
     }
     
     /**
-     * Adds a FormSubmissionControllerAction to the list of submission actions.
+     * Adds a FormSubmissionControllerAction to the list of submission actions (or to the active
+     * {@link RepeatControllerAction} if one is active).
      * 
      * @param the form submission controller action to add
      */
     public void addAction(FormSubmissionControllerAction action) {
-        actions.add(action);
+    	if (repeat != null) {
+    		System.out.println("added action at:"+new Date());
+    		repeat.addAction(action);
+    	} else {
+    		actions.add(action);
+    	}
     }
     
     /**

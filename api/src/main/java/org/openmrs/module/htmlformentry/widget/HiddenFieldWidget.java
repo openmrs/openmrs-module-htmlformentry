@@ -34,7 +34,7 @@ public class HiddenFieldWidget implements Widget {
     public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode() != Mode.VIEW) {
-			sb.append("<input type=\"hidden\" name=\"" + context.getFieldName(this) + "\" id=\"" + context.getFieldName(this) + "\"");
+			sb.append("<input type=\"hidden\" name=\"" + context.getFieldName(this) + "\" class=\"counter\" id=\"" + context.getFieldName(this) + "\"");
 			if (initialValue != null)
 				sb.append(" value=\"" + initialValue + "\"");
 			sb.append("/>");
