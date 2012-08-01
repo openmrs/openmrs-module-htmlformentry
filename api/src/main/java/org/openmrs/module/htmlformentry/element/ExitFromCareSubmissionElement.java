@@ -73,7 +73,7 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
 
         // populating with exit reason answer options
         boolean initialValueIsSet = !(reasonForExitWidget.getInitialValue() == null);
-        reasonForExitWidget.addOption(new Option("Select Reason for Exit", "", !initialValueIsSet));
+        reasonForExitWidget.addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAReasonForExit"), "", !initialValueIsSet));
 
         if (reasonExitConcept != null) {
             for (ConceptAnswer conceptAnswer : reasonExitConcept.getAnswers()) {
@@ -88,20 +88,20 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
 
         String causeOfDeathConId = Context.getAdministrationService().getGlobalProperty("concept.causeOfDeath");
         Concept causeOfDeathConcept = Context.getConceptService().getConcept(causeOfDeathConId);
-		List<Obs> obssDeath = Context.getObsService().getObservationsByPersonAndConcept(patient, causeOfDeathConcept);
+		List<Obs> obsDeath = Context.getObsService().getObservationsByPersonAndConcept(patient, causeOfDeathConcept);
         Concept initialCauseOfDeath = null;
 
-        if (obssDeath != null && obssDeath.size() == 1) {
-            initialCauseOfDeath = obssDeath.get(0).getValueCoded();
+        if (obsDeath != null && obsDeath.size() == 1) {
+            initialCauseOfDeath = obsDeath.get(0).getValueCoded();
             causeOfDeathWidget.setInitialValue(initialCauseOfDeath.getDisplayString());
-            if (obssDeath.get(0).getValueText() != null){
-                otherReasonWidget.setInitialValue(obssDeath.get(0).getValueText());
+            if (obsDeath.get(0).getValueText() != null){
+                otherReasonWidget.setInitialValue(obsDeath.get(0).getValueText());
             }
         }
 
         // populating with cause of death answer options
         boolean causeOfDeathIsSet = !(causeOfDeathWidget.getInitialValue() == null);
-        causeOfDeathWidget.addOption(new Option("Select Cause for Death", "", !causeOfDeathIsSet));
+        causeOfDeathWidget.addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseACauseToDeath"), "", !causeOfDeathIsSet));
 
         if (causeOfDeathConcept != null) {
             for (ConceptAnswer conceptAnswer : causeOfDeathConcept.getAnswers()) {
@@ -135,14 +135,18 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
         Concept causeOfDeathAnswerConcept = null;
 
         Patient patient = context.getExistingPatient();
-        String conId = Context.getAdministrationService().getGlobalProperty("concept.reasonExitedCare");
-        Concept reasonExitConcept = Context.getConceptService().getConcept(conId);
+        String reasonConId = Context.getAdministrationService().getGlobalProperty("concept.reasonExitedCare");
+        Concept reasonExitConcept = Context.getConceptService().getConcept(reasonConId);
         List<Obs> obsList = Context.getObsService().getObservationsByPersonAndConcept(patient, reasonExitConcept);
+
+        String causeOfDeathConId = Context.getAdministrationService().getGlobalProperty("concept.causeOfDeath");
+        Concept causeOfDeathConcept = Context.getConceptService().getConcept(causeOfDeathConId);
+        List<Obs> obsDeath = Context.getObsService().getObservationsByPersonAndConcept(patient, causeOfDeathConcept);
 
         try {
             if (dateWidget != null) {
                 exitDate = dateWidget.getValue(context, submission);
-                if (exitDate != null){
+                if (exitDate != null) {
                     if (OpenmrsUtil.compare(exitDate, new Date()) > 0) {
                         throw new Exception("htmlformentry.error.cannotBeInFuture");
                     }
@@ -150,6 +154,8 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
 
                 if (obsList != null && obsList.size() == 0) {
                     if (exitDate == null) {
+
+                        // TODO: i didn't change this validation since this wont be needed to modify when we add hide/show widgets
                         if (reasonForExitWidget != null &&
                                 HtmlFormEntryUtil.convertToType(reasonForExitWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
                             throw new Exception("htmlformentry.error.required");
@@ -167,26 +173,30 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
             if (reasonForExitWidget != null) {
                 Object value = reasonForExitWidget.getValue(context, submission);
                 exitReasonAnswerConcept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
-                if (obsList!= null && obsList.size() == 0){
+                if (obsList != null && obsList.size() == 0) {
                     if (exitReasonAnswerConcept == null) {
                         if (dateWidget != null && dateWidget.getValue(context, submission) != null) {
-                        throw new Exception("htmlformentry.error.required");
+                            throw new Exception("htmlformentry.error.required");
                         }
-                    }
-                    else if(exitReasonAnswerConcept != null && exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")){
-                        if(causeOfDeathWidget == null || causeOfDeathWidget.getValue(context,submission) == null){
+                    } else if (exitReasonAnswerConcept != null && exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
+                        if (causeOfDeathWidget == null ||
+                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) == null) {
+                            throw new Exception("htmlformentry.error.required");
+                        }
+                    } else if (exitReasonAnswerConcept != null && !exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
+                        if (causeOfDeathWidget != null &&
+                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
                             throw new Exception("htmlformentry.error.required");
                         }
                     }
                 }
-
 
             }
         } catch (Exception ex) {
             if (exitReasonAnswerConcept == null) {
                 ret.add(new FormSubmissionError(context.getFieldName(reasonForExitErrorWidget), Context.getMessageSourceService()
                         .getMessage(ex.getMessage())));
-            } else if (causeOfDeathWidget.getValue(context,submission) == null) {
+            } else {
                 ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
                         .getMessage(ex.getMessage())));
             }
@@ -197,9 +207,18 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
             if (causeOfDeathWidget != null) {
                 Object value = causeOfDeathWidget.getValue(context, submission);
                 causeOfDeathAnswerConcept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
-                if (obsList!= null && obsList.size() == 0){
-                    if(causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")){
-                        if(otherReasonWidget == null || otherReasonWidget.getValue(context,submission) == null){
+                String valueString = otherReasonWidget.getValue(context, submission);
+                if (obsDeath != null && obsDeath.size() == 0) {
+                    if (causeOfDeathAnswerConcept == null) {
+                        if (otherReasonWidget != null &&  !valueString.equals("")) {
+                            throw new Exception("htmlformentry.error.required");
+                        }
+                    } else if (causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
+                        if (otherReasonWidget == null || valueString.equals("")) {
+                            throw new Exception("htmlformentry.error.required");
+                        }
+                    } else if (causeOfDeathAnswerConcept != null && !causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
+                        if (otherReasonWidget != null && !valueString.equals("")) {
                             throw new Exception("htmlformentry.error.required");
                         }
                     }
@@ -217,6 +236,18 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                 if (exitDate == null || exitReasonAnswerConcept == null) {
                     throw new Exception("htmlformentry.error.required");
                 }
+                else if (exitReasonAnswerConcept != null && exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
+                        if (causeOfDeathWidget == null ||
+                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) == null) {
+                            throw new Exception("htmlformentry.error.required");
+                        }
+                }
+                else if (exitReasonAnswerConcept != null && !exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
+                        if (causeOfDeathWidget != null &&
+                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
+                            throw new Exception("htmlformentry.error.required");
+                        }
+                }
             }
         } catch (Exception ex) {
 
@@ -225,6 +256,40 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                         .getMessage(ex.getMessage())));
             } else if (exitReasonAnswerConcept == null) {
                 ret.add(new FormSubmissionError(context.getFieldName(reasonForExitErrorWidget), Context.getMessageSourceService()
+                        .getMessage(ex.getMessage())));
+            } else if (exitReasonAnswerConcept != null) {
+                ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
+                        .getMessage(ex.getMessage())));
+            }
+
+        }
+
+        // this validation is added to avoid user resetting the 'patient died' incident
+        try {
+            String valueString = otherReasonWidget.getValue(context, submission);
+            if (obsDeath != null && obsDeath.size() == 1) {
+                if (causeOfDeathAnswerConcept == null) {
+                    throw new Exception("htmlformentry.error.required");
+                }
+                else if (causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
+                     if (otherReasonWidget == null || valueString.equals("")) {
+                            throw new Exception("htmlformentry.error.required");
+                     }
+                }
+                else if (causeOfDeathAnswerConcept != null && !causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
+                     if (otherReasonWidget != null && !valueString.equals("")) {
+                            throw new Exception("htmlformentry.error.required");
+                     }
+                }
+            }
+        } catch (Exception ex) {
+
+            if (causeOfDeathAnswerConcept == null) {
+                ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
+                        .getMessage(ex.getMessage())));
+            } else {
+                ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget
+                ), Context.getMessageSourceService()
                         .getMessage(ex.getMessage())));
             }
         }

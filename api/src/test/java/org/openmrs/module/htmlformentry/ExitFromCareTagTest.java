@@ -44,7 +44,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 	}
 
     @Test
-    public void exitFromCare_shouldExitFromCareWithValidDateAndReason() throws Exception{
+    public void exitFromCare_shouldExitFromCareWithValidDateAndReasonWithoutPatientDeath() throws Exception{
 
         final Date date = new Date();
         new RegressionTestHelper(){
@@ -67,6 +67,8 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.setParameter(widgets.get("Exit From Care:"), "4201");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", dateAsString(date));
+              request.setParameter("w11", "");
+              request.setParameter("w13", "");
             }
 
 			@Override
@@ -80,6 +82,178 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 
         }.run();
     }
+
+    @Test
+    public void exitFromCare_shouldProcessDeathWithValidDateAndReasonAndCauseOfDeath() throws Exception{
+
+        final Date date = new Date();
+        new RegressionTestHelper(){
+
+            @Override
+            public String getFormName() {
+                return "exitFromCareForm";
+            }
+
+            @Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Exit From Care:"};
+			}
+
+            @Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+              request.addParameter(widgets.get("Date:"), dateAsString(date));
+			  request.addParameter(widgets.get("Location:"), "2");
+			  request.addParameter(widgets.get("Provider:"), "502");
+              request.setParameter(widgets.get("Exit From Care:"), "4202");
+            // the exit date is set by using widget id, since there is no label
+              request.setParameter("w7", dateAsString(date));
+              request.setParameter("w11", "4301");
+              request.setParameter("w13", "");
+            }
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+                List<Obs> obsList = os.getObservationsByPersonAndConcept(results.getPatient(), cs.getConcept("4200"));
+                List<Obs> obsDeathList = os.getObservationsByPersonAndConcept(results.getPatient(), cs.getConcept("4300"));
+                Assert.assertEquals(obsList.size(),1);
+                Assert.assertEquals(obsDeathList.size(),1);
+                Assert.assertEquals("PATIENT DIED",obsList.get(0).getValueCoded().getDisplayString());
+                Assert.assertEquals(dateAsString(date),dateAsString(obsList.get(0).getObsDatetime()));
+                Assert.assertEquals("STROKE",obsDeathList.get(0).getValueCoded().getDisplayString());
+                Assert.assertEquals(null,obsList.get(0).getValueText());
+
+			}
+
+        }.run();
+    }
+
+    @Test
+       public void exitFromCare_shouldProcessDeathWithValidDateReasonAndNonCodedCauseOfDeath() throws Exception{
+
+           final Date date = new Date();
+           new RegressionTestHelper(){
+
+               @Override
+               public String getFormName() {
+                   return "exitFromCareForm";
+               }
+
+               @Override
+               public String[] widgetLabels() {
+                   return new String[] { "Date:", "Location:", "Provider:", "Exit From Care:"};
+               }
+
+               @Override
+               public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                 request.addParameter(widgets.get("Date:"), dateAsString(date));
+                 request.addParameter(widgets.get("Location:"), "2");
+                 request.addParameter(widgets.get("Provider:"), "502");
+                 request.setParameter(widgets.get("Exit From Care:"), "4202");
+               // the exit date is set by using widget id, since there is no label
+                 request.setParameter("w7", dateAsString(date));
+                 request.setParameter("w11", "4302");
+                 request.setParameter("w13", "Died from cancer");
+               }
+
+               @Override
+               public void testResults(SubmissionResults results) {
+                   results.assertNoErrors();
+                   List<Obs> obsList = os.getObservationsByPersonAndConcept(results.getPatient(), cs.getConcept("4200"));
+                   List<Obs> obsDeathList = os.getObservationsByPersonAndConcept(results.getPatient(), cs.getConcept("4300"));
+                   Assert.assertEquals(obsList.size(),1);
+                   Assert.assertEquals(obsDeathList.size(),1);
+                   Assert.assertEquals("PATIENT DIED",obsList.get(0).getValueCoded().getDisplayString());
+                   Assert.assertEquals(dateAsString(date),dateAsString(obsList.get(0).getObsDatetime()));
+                   Assert.assertEquals("OTHER NON-CODED",obsDeathList.get(0).getValueCoded().getDisplayString());
+                   Assert.assertEquals("Died from cancer",obsDeathList.get(0).getValueText());
+
+               }
+
+           }.run();
+       }
+
+    @Test
+       public void exitFromCare_shouldNotSubmitIfReasonIsPatientDiedAndCauseOfDeathNull() throws Exception{
+
+           final Date date = new Date();
+           new RegressionTestHelper(){
+
+               @Override
+               public String getFormName() {
+                   return "exitFromCareForm";
+               }
+
+               @Override
+               public String[] widgetLabels() {
+                   return new String[] { "Date:", "Location:", "Provider:", "Exit From Care:"};
+               }
+
+               @Override
+               public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                 request.addParameter(widgets.get("Date:"), dateAsString(date));
+                 request.addParameter(widgets.get("Location:"), "2");
+                 request.addParameter(widgets.get("Provider:"), "502");
+                 request.setParameter(widgets.get("Exit From Care:"), "4202");
+               // the exit date is set by using widget id, since there is no label
+                 request.setParameter("w7", dateAsString(date));
+                 request.setParameter("w11", "");
+                 request.setParameter("w13", "");
+               }
+
+               @Override
+               public void testResults(SubmissionResults results) {
+                   results.assertErrors(1);
+                   List<FormSubmissionError> errors = results.getValidationErrors();
+                    for(FormSubmissionError error : errors){
+                    Assert.assertEquals("w12", error.getId().trim());
+                    Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+                }
+               }
+
+           }.run();
+       }
+
+     @Test
+       public void exitFromCare_shouldNotSubmitIfOtherNonCodedIsCauseAndOtherReasonTextNull() throws Exception{
+
+           final Date date = new Date();
+           new RegressionTestHelper(){
+
+               @Override
+               public String getFormName() {
+                   return "exitFromCareForm";
+               }
+
+               @Override
+               public String[] widgetLabels() {
+                   return new String[] { "Date:", "Location:", "Provider:", "Exit From Care:"};
+               }
+
+               @Override
+               public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                 request.addParameter(widgets.get("Date:"), dateAsString(date));
+                 request.addParameter(widgets.get("Location:"), "2");
+                 request.addParameter(widgets.get("Provider:"), "502");
+                 request.setParameter(widgets.get("Exit From Care:"), "4202");
+               // the exit date is set by using widget id, since there is no label
+                 request.setParameter("w7", dateAsString(date));
+                 request.setParameter("w11", "4302");
+                 request.setParameter("w13", "");
+               }
+
+               @Override
+               public void testResults(SubmissionResults results) {
+                   results.assertErrors(1);
+                   List<FormSubmissionError> errors = results.getValidationErrors();
+                    for(FormSubmissionError error : errors){
+                    Assert.assertEquals("w14", error.getId().trim());
+                    Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+                }
+               }
+
+           }.run();
+       }
 
     @Test
     public void exitFromCare_shouldNotAllowToEditAndSubmitIfDateIsNull() throws Exception{
@@ -105,6 +279,8 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.setParameter(widgets.get("Exit From Care:"), "4201");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", dateAsString(date));
+              request.setParameter("w11", "");
+              request.setParameter("w13", "");
             }
 
 			@Override
@@ -124,7 +300,8 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-                request.setParameter(widgets.get("Exit From Care:"), "4202");
+                request.setParameter(widgets.get("Exit From Care:"), "4201");
+                request.setParameter("w13", "");
                 // the exit date is set by using widget id, since there is no label
                 request.setParameter("w7", "");
             }
@@ -166,6 +343,8 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.setParameter(widgets.get("Exit From Care:"), "4201");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", dateAsString(date));
+              request.setParameter("w11", "");
+              request.setParameter("w13", "");
             }
 
 			@Override
@@ -186,6 +365,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
             @Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
                 request.setParameter(widgets.get("Exit From Care:"), "");
+                request.setParameter("w13", "");
             // a new Date() is used to edit and change the exit date
                 request.setParameter("w7", dateAsString(new Date(112,5,1)));
             }
@@ -227,6 +407,8 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
               request.setParameter(widgets.get("Exit From Care:"), "");
             // the exit date is set by using widget id, since there is no label
               request.setParameter("w7", "");
+              request.setParameter("w11", "");
+              request.setParameter("w13", "");
             }
 
 			@Override
