@@ -58,10 +58,7 @@
 			 	}
 			 );
 		});
-		
-		var isSubmittingInd = false;
-		var isDiscardingInd = false;
-		
+
 		$j('input[toggleDim]').change(function () {
 			var target = $j(this).attr("toggleDim");
 			if ($j(this).is(":checked")) {
@@ -83,11 +80,17 @@
 			}
        })
        .change();
-       
+
+
+        // booleans used to track whether we are in the process of submitted or discarding a formk
+        var isSubmittingInd = false;
+        var isDiscardingInd = false;
+
        	$j(':input').change(function () {
 			$j(':input.has-changed-ind').val('true');
 		});
 
+        //  warn user that his/her changes will be lost if he/she leaves the page
 		$j(window).bind('beforeunload', function(){
 			var hasChangedInd = $j(':input.has-changed-ind').val();
 			if (hasChangedInd == 'true' && !isSubmittingInd && !isDiscardingInd) {
@@ -99,7 +102,6 @@
 			isSubmittingInd = true;
 			return true;
 		});
-
 
 		$j(':input.submitButton').click(function() {
 			isSubmittingInd = true;
