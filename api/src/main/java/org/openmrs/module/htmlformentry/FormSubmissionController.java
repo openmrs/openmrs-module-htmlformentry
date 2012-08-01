@@ -31,7 +31,6 @@ public class FormSubmissionController {
      * @param repeat the repeat controller action to add
      */
     public void startRepeat(RepeatControllerAction repeat) {
-    	 System.out.println("STARTED REPEAT");
         if (this.repeat != null)
             throw new IllegalArgumentException("Nested Repeating elements are not yet implemented");
         addAction(repeat);
@@ -44,7 +43,6 @@ public class FormSubmissionController {
     public void endRepeat() {
         if (this.repeat == null)
             throw new IllegalArgumentException("No Repeating element is open now");
-        System.out.println("ENDED REPEAT");
         this.repeat = null;
     }
     
@@ -56,7 +54,6 @@ public class FormSubmissionController {
      */
     public void addAction(FormSubmissionControllerAction action) {
     	if (repeat != null) {
-    		System.out.println("added action at:"+new Date());
     		repeat.addAction(action);
     	} else {
     		actions.add(action);

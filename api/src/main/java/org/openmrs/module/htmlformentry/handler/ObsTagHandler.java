@@ -29,13 +29,8 @@ public class ObsTagHandler extends SubstitutionTagHandler {
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
 	                                 Map<String, String> parameters) {
 		ObsSubmissionElement element = new ObsSubmissionElement(session.getContext(), parameters);
-		System.out.println("OBS TAG HANDLER before adding action");		
 		session.getSubmissionController().addAction(element);	
-		System.out.println("element:"+element);
-		String str=element.generateHtml(session.getContext());
-		System.out.println(str);
-		System.out.println("OBS TAG HANDLER after adding action");
-		return str;
+		return element.generateHtml(session.getContext());
 	}
 	
 }

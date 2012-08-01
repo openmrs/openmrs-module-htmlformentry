@@ -49,7 +49,7 @@ public class DynamicRepeatTagHandler extends RepeatControllerAction implements T
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node)
 	    throws BadFormDesignException {
-//this.repeatingActions.clear();
+		
 		numberOfRepeatsWidget = new HiddenFieldWidget();
 		numberOfRepeatsWidget.setInitialValue("0");
 		session.getContext().registerWidget(numberOfRepeatsWidget);
@@ -59,8 +59,7 @@ public class DynamicRepeatTagHandler extends RepeatControllerAction implements T
 		out.println("<div class=\"dynamic-repeat-container\">");
 		out.println(numberOfRepeatsWidget.generateHtml(session.getContext()));
 		out.println("<div class=\"dynamic-repeat-template tempe\">");
-		
-		
+		this.repeatingActions.clear(); //to clear any existing data
 		session.getSubmissionController().startRepeat(this);
 		return true; // yes, do the children
 	}
@@ -71,7 +70,6 @@ public class DynamicRepeatTagHandler extends RepeatControllerAction implements T
 	@Override
 	public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
 		out.println("<input type=\"button\" class=\"dynamicRepeat\" value=\"Add\" onClick=\"duplicateTemplate($j(this).parent());\"/></div> <!-- End of Dynamic Repeat --></div> <!-- End of Dynamic Repeat Container -->");
-		//out.println("<div class=\"dynamic-repeat-button\"><input type=\"button\" value=\"Add\" onClick=\"duplicateTempateEtc();\"/></div>");
 		session.getContext().endDynamicRepeat();
 		session.getSubmissionController().endRepeat();
 	}

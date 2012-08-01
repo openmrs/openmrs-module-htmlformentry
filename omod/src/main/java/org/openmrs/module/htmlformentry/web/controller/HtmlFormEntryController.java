@@ -198,7 +198,6 @@ public class HtmlFormEntryController {
                                Errors errors,
                                HttpServletRequest request,
                                Model model) throws Exception {
-    	  System.out.println("HTML FORM ENTRY CONTROLLER- Validate Submission Start\n"+new Date());
     	try {
             List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
             if (validationErrors != null && validationErrors.size() > 0) {
@@ -209,7 +208,6 @@ public class HtmlFormEntryController {
             log.error("Exception during form validation", ex);
             errors.reject("Exception during form validation, see log for more details: " + ex);
         }
-    	 System.out.println("HTML FORM ENTRY CONTROLLER- Validate Submission END\n"+new Date());
         
         if (errors.hasErrors()) {
         	return new ModelAndView(FORM_PATH, "command", session);

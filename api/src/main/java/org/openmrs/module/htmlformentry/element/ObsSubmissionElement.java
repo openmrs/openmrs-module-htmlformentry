@@ -890,7 +890,6 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		Object date = null;
 		try {
 			value = valueWidget.getValue(context, submission);
-			System.out.println(value+"inside obs sub element");
 		}
 		catch (Exception ex) {
 			ret.add(new FormSubmissionError(valueWidget, ex.getMessage()));

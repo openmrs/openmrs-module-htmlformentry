@@ -115,7 +115,6 @@ public class FormEntryContext {
         if (inDynamicRepeat) {
         	fieldName += "-template";
         }
-        System.out.println("REGISTERING WIDGET Widget:"+widget+" Fieldname:"+fieldName+"\n");
         fieldNames.put(widget, fieldName);
         if (log.isTraceEnabled())
         	log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
@@ -150,7 +149,6 @@ public class FormEntryContext {
      */
     public String getFieldName(Widget widget) {
         String fieldName = fieldNames.get(widget);
-        System.out.println("fieldname: "+fieldName+" widget: "+widget);
         if (fieldName == null) {
             throw new IllegalArgumentException("Widget not registered");
         } else {

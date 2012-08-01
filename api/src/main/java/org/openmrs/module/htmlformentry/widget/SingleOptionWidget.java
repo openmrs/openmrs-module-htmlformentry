@@ -45,15 +45,7 @@ public abstract class SingleOptionWidget implements Widget {
      */
     @Override
     public String getValue(FormEntryContext context, HttpServletRequest request) {
-    	try {
-    		System.out.println(this +" this is this");
-    		System.out.println(context.getFieldName(this)+" inside get value");
-    	}
-    	catch(Exception e)
-    	{
-    		System.out.println("caught exception "+e);
-    	}
-        return request.getParameter(context.getFieldName(this));
+            return request.getParameter(context.getFieldName(this));
     }
 
 	/**

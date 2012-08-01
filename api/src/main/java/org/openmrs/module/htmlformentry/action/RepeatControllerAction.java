@@ -24,7 +24,6 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      * @param action
      */
     public void addAction(FormSubmissionControllerAction action) {
-    	System.out.println("repeating action:"+action);
         repeatingActions.add(action);
     }
     
@@ -88,15 +87,12 @@ public abstract class RepeatControllerAction implements FormSubmissionController
      */
     @Override
     public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-        System.out.println("REPEAT CONTROLLER ACTION- Validate Submission Start");
     	beforeValidateSubmission(context, submission);
         Collection<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
         int numIterations = getNumberOfIterations(context, submission);
-        System.out.println(repeatingActions.size()+" RA Size");
         for (int i = 0; i < numIterations; ++i) {
         	context.setRepeatIteration(i);
 	        for (FormSubmissionControllerAction action : repeatingActions) {
-	        	System.out.println("Rpeating Action:"+action);
 	            Collection<FormSubmissionError> temp = action.validateSubmission(context, submission);
 	            if (temp != null)
 	                ret.addAll(temp);
@@ -104,7 +100,6 @@ public abstract class RepeatControllerAction implements FormSubmissionController
         }
         context.setRepeatIteration(null);
         afterValidateSubmission(context, submission);
-        System.out.println("REPEAT CONTROLLER ACTION- Validate Submission End");
         return ret;
     }
 
