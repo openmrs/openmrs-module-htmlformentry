@@ -105,6 +105,8 @@ public class FormEntrySession {
     private VelocityContext velocityContext;
 
     private boolean voidEncounter = false;
+    
+    private String hasChangedInd = "false";
 
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the
@@ -988,5 +990,14 @@ public class FormEntrySession {
     public void setVoidEncounter(boolean voidEncounter) {
         this.voidEncounter = voidEncounter;
     }
+
+    public String getHasChangedInd() {
+		return hasChangedInd;
+	}
+
+	public void setHasChangedInd(String hasChangedInd) {
+		this.hasChangedInd = hasChangedInd;
+	}
+
 
 }

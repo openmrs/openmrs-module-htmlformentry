@@ -59,6 +59,9 @@
 			 );
 		});
 		
+		var isSubmittingInd = false;
+		var isDiscardingInd = false;
+		
 		$j('input[toggleDim]').change(function () {
 			var target = $j(this).attr("toggleDim");
 			if ($j(this).is(":checked")) {
@@ -80,6 +83,34 @@
 			}
        })
        .change();
+       
+       	$j(':input').change(function () {
+			$j(':input.has-changed-ind').val('true');
+		});
+
+		$j(window).bind('beforeunload', function(){
+			var hasChangedInd = $j(':input.has-changed-ind').val();
+			if (hasChangedInd == 'true' && !isSubmittingInd && !isDiscardingInd) {
+				return '<spring:message code="htmlformentry.loseChangesWarning"/>';
+			}
+		});
+
+		$j('form').submit(function() {
+			isSubmittingInd = true;
+			return true;
+		});
+
+
+		$j(':input.submitButton').click(function() {
+			isSubmittingInd = true;
+			return true;
+		});
+
+		$j('.html-form-entry-discard-changes').click(function() {
+			isDiscardingInd = true;
+			return true;
+		});
+       
 
 	});
 
@@ -228,7 +259,7 @@
 	</c:if>
 	<div style="float: left" id="discardAndPrintDiv">
 		<c:if test="${!inPopup}">
-			<span id="discardLinkSpan"><a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>${pageContext.request.contextPath}/patientDashboard.form?patientId=${command.patient.patientId}</c:otherwise></c:choose>">${backMessage}</a></span> | 
+			<span id="discardLinkSpan"><a href="<c:choose><c:when test="${not empty command.returnUrlWithParameters}">${command.returnUrlWithParameters}</c:when><c:otherwise>${pageContext.request.contextPath}/patientDashboard.form?patientId=${command.patient.patientId}</c:otherwise></c:choose>" class="html-form-entry-discard-changes">${backMessage}</a></span> | 
 		</c:if>
 		<span id="printLinkSpan"><a href="javascript:window.print();"><spring:message code="htmlformentry.print"/></a></span> &nbsp;<br/>
 	</div>
@@ -310,6 +341,7 @@
 			<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
 		</c:if>
 		<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
+		<input type="hidden" name="hasChangedInd" class="has-changed-ind" value="${ command.hasChangedInd }" />
 </c:if>
 
 <c:if test="${command.context.guessingInd == 'true'}">
