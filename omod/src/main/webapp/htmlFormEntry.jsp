@@ -152,16 +152,18 @@
 	
 	// restores toggle container's inputs from the last time the trigger checkbox was unchecked
 	function restoreContainerInputs($container) {
-	    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
-	    	$j(this).val($j(this).data('origVal'));
-	    });
-	    $container.find('input:radio, input:checkbox').each( function() {
-	    	if ($j(this).data('origState') == 'checked') {
-	    		$j(this).attr("checked", "checked");
-	    	} else {
-	    		$j(this).removeAttr("checked");
-	    	}
-	    });
+		if (!initInd) {
+		    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
+		    	$j(this).val($j(this).data('origVal'));
+		    });
+		    $container.find('input:radio, input:checkbox').each( function() {
+		    	if ($j(this).data('origState') == 'checked') {
+		    		$j(this).attr("checked", "checked");
+		    	} else {
+		    		$j(this).removeAttr("checked");
+		    	}
+		    });
+		}
 	}
 
 	var tryingToSubmit = false;
