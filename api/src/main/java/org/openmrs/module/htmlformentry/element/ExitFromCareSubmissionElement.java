@@ -143,156 +143,128 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
         Concept causeOfDeathConcept = Context.getConceptService().getConcept(causeOfDeathConId);
         List<Obs> obsDeath = Context.getObsService().getObservationsByPersonAndConcept(patient, causeOfDeathConcept);
 
-        try {
-            if (dateWidget != null) {
-                exitDate = dateWidget.getValue(context, submission);
-                if (exitDate != null) {
-                    if (OpenmrsUtil.compare(exitDate, new Date()) > 0) {
-                        throw new Exception("htmlformentry.error.cannotBeInFuture");
-                    }
-                }
+        String patientDiedConId = Context.getAdministrationService().getGlobalProperty("concept.patientDied");
+        Concept patientDiedConcept = Context.getConceptService().getConcept(patientDiedConId);
+        String otherNonCodedConId = Context.getAdministrationService().getGlobalProperty("concept.otherNonCoded");
+        Concept otherNonCodedConcept = Context.getConceptService().getConcept(otherNonCodedConId);
 
-                if (obsList != null && obsList.size() == 0) {
-                    if (exitDate == null) {
+        if (dateWidget != null) {
+            exitDate = dateWidget.getValue(context, submission);
+            if (exitDate != null) {
+                if (OpenmrsUtil.compare(exitDate, new Date()) > 0) {
+                    ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget), Context.getMessageSourceService()
+                            .getMessage("htmlformentry.error.cannotBeInFuture")));
 
-                        // TODO: i didn't change this validation since this wont be needed to modify when we add hide/show widgets
-                        if (reasonForExitWidget != null &&
-                                HtmlFormEntryUtil.convertToType(reasonForExitWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                    }
                 }
             }
 
-        } catch (Exception ex) {
-            ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget), Context.getMessageSourceService()
-                    .getMessage(ex.getMessage())));
+            if (obsList != null && obsList.size() == 0) {
+                if (exitDate == null) {
+                    // TODO: i didn't change this validation since this wont be needed to modify when we add hide/show widgets
+                    if (reasonForExitWidget != null &&
+                            HtmlFormEntryUtil.convertToType(reasonForExitWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
+                        ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.required")));
+                    }
+                }
+            }
         }
 
-        try {
-            if (reasonForExitWidget != null) {
-                Object value = reasonForExitWidget.getValue(context, submission);
-                exitReasonAnswerConcept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
-                if (obsList != null && obsList.size() == 0) {
-                    if (exitReasonAnswerConcept == null) {
-                        if (dateWidget != null && dateWidget.getValue(context, submission) != null) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                    } else if (exitReasonAnswerConcept != null && exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
-                        if (causeOfDeathWidget == null ||
-                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) == null) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                    } else if (exitReasonAnswerConcept != null && !exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
-                        if (causeOfDeathWidget != null &&
-                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
+        if (reasonForExitWidget != null) {
+            Object value = reasonForExitWidget.getValue(context, submission);
+            exitReasonAnswerConcept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
+            if (obsList != null && obsList.size() == 0) {
+                if (exitReasonAnswerConcept == null) {
+                    if (dateWidget != null && dateWidget.getValue(context, submission) != null) {
+                        ret.add(new FormSubmissionError(context.getFieldName(reasonForExitErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.required")));
+                    }
+                } else if (exitReasonAnswerConcept != null && exitReasonAnswerConcept.getConceptId().equals(patientDiedConcept.getConceptId())) {
+                    if (causeOfDeathWidget == null ||
+                            HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) == null) {
+                        ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.required")));
+                    }
+                } else if (exitReasonAnswerConcept != null && !exitReasonAnswerConcept.getConceptId().equals(patientDiedConcept.getConceptId())) {
+                    if (causeOfDeathWidget != null &&
+                            HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
+                        ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.cannotEnterAValue")));
                     }
                 }
-
-            }
-        } catch (Exception ex) {
-            if (exitReasonAnswerConcept == null) {
-                ret.add(new FormSubmissionError(context.getFieldName(reasonForExitErrorWidget), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
-            } else {
-                ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
             }
 
         }
 
-        try {
-            if (causeOfDeathWidget != null) {
-                Object value = causeOfDeathWidget.getValue(context, submission);
-                causeOfDeathAnswerConcept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
-                String valueString = otherReasonWidget.getValue(context, submission);
-                if (obsDeath != null && obsDeath.size() == 0) {
-                    if (causeOfDeathAnswerConcept == null) {
-                        if (otherReasonWidget != null &&  !valueString.equals("")) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                    } else if (causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
-                        if (otherReasonWidget == null || valueString.equals("")) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                    } else if (causeOfDeathAnswerConcept != null && !causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
-                        if (otherReasonWidget != null && !valueString.equals("")) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
+        if (causeOfDeathWidget != null) {
+            Object value = causeOfDeathWidget.getValue(context, submission);
+            causeOfDeathAnswerConcept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
+            String valueString = otherReasonWidget.getValue(context, submission);
+
+            if (obsDeath != null && obsDeath.size() == 0) {
+                if (causeOfDeathAnswerConcept == null) {
+                    if (otherReasonWidget != null && !valueString.equals("")) {
+                        ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.cannotEnterAValue")));
+                    }
+                } else if (causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getConceptId().equals(otherNonCodedConcept.getConceptId())) {
+                    if (otherReasonWidget == null || valueString.equals("")) {
+                        ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.required")));
+                    }
+                } else if (causeOfDeathAnswerConcept != null && !causeOfDeathAnswerConcept.getConceptId().equals(otherNonCodedConcept.getConceptId())) {
+                    if (otherReasonWidget != null && !valueString.equals("")) {
+                        ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget), Context.getMessageSourceService()
+                                .getMessage("htmlformentry.error.cannotEnterAValue")));
                     }
                 }
             }
-        } catch (Exception ex) {
-
-            ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget), Context.getMessageSourceService()
-                    .getMessage(ex.getMessage())));
         }
+
 
         // this validation is added to avoid user resetting the 'exit from care'
-        try {
-            if (obsList != null && obsList.size() == 1) {
-                if (exitDate == null || exitReasonAnswerConcept == null) {
-                    throw new Exception("htmlformentry.error.required");
-                }
-                else if (exitReasonAnswerConcept != null && exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
-                        if (causeOfDeathWidget == null ||
-                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) == null) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                }
-                else if (exitReasonAnswerConcept != null && !exitReasonAnswerConcept.getDisplayString().equals("PATIENT DIED")) {
-                        if (causeOfDeathWidget != null &&
-                                HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
-                            throw new Exception("htmlformentry.error.required");
-                        }
-                }
-            }
-        } catch (Exception ex) {
-
+        if (obsList != null && obsList.size() == 1) {
             if (exitDate == null) {
                 ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
+                        .getMessage("htmlformentry.error.required")));
             } else if (exitReasonAnswerConcept == null) {
                 ret.add(new FormSubmissionError(context.getFieldName(reasonForExitErrorWidget), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
-            } else if (exitReasonAnswerConcept != null) {
-                ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
+                        .getMessage("htmlformentry.error.required")));
+            } else if (exitReasonAnswerConcept != null && exitReasonAnswerConcept.getConceptId().equals(patientDiedConcept.getConceptId())) {
+                if (causeOfDeathWidget == null ||
+                        HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) == null) {
+                    ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
+                            .getMessage("htmlformentry.error.required")));
+                }
+            } else if (exitReasonAnswerConcept != null && !exitReasonAnswerConcept.getConceptId().equals(patientDiedConcept.getConceptId())) {
+                if (causeOfDeathWidget != null &&
+                        HtmlFormEntryUtil.convertToType(causeOfDeathWidget.getValue(context, submission).toString().trim(), Concept.class) != null) {
+                    ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
+                            .getMessage("htmlformentry.error.cannotEnterAValue")));
+                }
             }
-
         }
 
         // this validation is added to avoid user resetting the 'patient died' incident
-        try {
-            String valueString = otherReasonWidget.getValue(context, submission);
-            if (obsDeath != null && obsDeath.size() == 1) {
-                if (causeOfDeathAnswerConcept == null) {
-                    throw new Exception("htmlformentry.error.required");
-                }
-                else if (causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
-                     if (otherReasonWidget == null || valueString.equals("")) {
-                            throw new Exception("htmlformentry.error.required");
-                     }
-                }
-                else if (causeOfDeathAnswerConcept != null && !causeOfDeathAnswerConcept.getDisplayString().equals("OTHER NON-CODED")) {
-                     if (otherReasonWidget != null && !valueString.equals("")) {
-                            throw new Exception("htmlformentry.error.required");
-                     }
-                }
-            }
-        } catch (Exception ex) {
+        String valueString = otherReasonWidget.getValue(context, submission);
 
+        if (obsDeath != null && obsDeath.size() == 1) {
             if (causeOfDeathAnswerConcept == null) {
                 ret.add(new FormSubmissionError(context.getFieldName(causeOfDeathErrorWidget), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
-            } else {
-                ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget
-                ), Context.getMessageSourceService()
-                        .getMessage(ex.getMessage())));
+                        .getMessage("htmlformentry.error.required")));
+            } else if (causeOfDeathAnswerConcept != null && causeOfDeathAnswerConcept.getConceptId().equals(otherNonCodedConcept.getConceptId())) {
+                if (otherReasonWidget == null || valueString.equals("")) {
+                    ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget), Context.getMessageSourceService()
+                            .getMessage("htmlformentry.error.required")));
+                }
+            } else if (causeOfDeathAnswerConcept != null && !causeOfDeathAnswerConcept.getConceptId().equals(otherNonCodedConcept.getConceptId())) {
+                if (otherReasonWidget != null && !valueString.equals("")) {
+                    ret.add(new FormSubmissionError(context.getFieldName(otherReasonErrorWidget), Context.getMessageSourceService()
+                            .getMessage("htmlformentry.error.cannotEnterAValue")));
+                }
             }
         }
+
         return ret;
     }
 
@@ -349,7 +321,7 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                 sb.append(dateErrorWidget.generateHtml(context));
         }
 
-        sb.append("<br/>");
+        sb.append("<br/>");sb.append("<br/>");
 
         if (causeOfDeathWidget != null) {
             sb.append(causeOfDeathWidget.generateHtml(context));
