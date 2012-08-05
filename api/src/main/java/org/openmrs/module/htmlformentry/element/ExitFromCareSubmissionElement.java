@@ -306,11 +306,26 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
 
         StringBuilder sb = new StringBuilder();
 
+        String patientDiedConId = Context.getAdministrationService().getGlobalProperty("concept.patientDied");
+        String otherNonCodedConId = Context.getAdministrationService().getGlobalProperty("concept.otherNonCoded");
+
         if (reasonForExitWidget != null) {
             sb.append(reasonForExitWidget.generateHtml(context));
             if (context.getMode() != FormEntryContext.Mode.VIEW)
                 sb.append(reasonForExitErrorWidget.generateHtml(context));
         }
+
+        // adding a jquery event handler to reasonForExitWidget
+        sb.append("<script>");
+        sb.append("$j(\"#w9\").change(function(){");
+        sb.append("var reasonVal = $j(\"#w9\").val();");
+        sb.append("if (reasonVal == \"" + patientDiedConId + "\")\n"
+                + " { $j(\"#w11\").show();}\n"
+                + "if (reasonVal != \"" + patientDiedConId + "\")\n"
+                + " { $j(\"#w11\").val(\"\"); $j(\"#w11\").hide();"
+                + " $j(\"#w13\").val(\"\"); $j(\"#w13\").hide();}");
+        sb.append("});");
+        sb.append("</script>");
 
         // providing a blank space between the widgets
         sb.append("&nbsp;&nbsp;");
@@ -327,15 +342,50 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
             sb.append(causeOfDeathWidget.generateHtml(context));
             if (context.getMode() != FormEntryContext.Mode.VIEW)
                 sb.append(causeOfDeathErrorWidget.generateHtml(context));
+
+            // only show causeOfDeathWidget if there is an initial value, else hide it
+            if (context.getMode() == FormEntryContext.Mode.ENTER) {
+                sb.append("<script>");
+                sb.append(" if($j(\"#w11\").val() != \"\"){\n");
+                sb.append(" $j(\"#w11\").show();}\n");
+                sb.append(" if($j(\"#w11\").val() == \"\"){\n");
+                sb.append(" $j(\"#w11\").hide();}\n");
+                sb.append("</script>");
+            }
+
         }
 
+        // adding a jquery event handler to causeOfDeathWidget
+        sb.append("<script>");
+        sb.append("$j(\"#w11\").change(function(){");
+        sb.append("var causeVal = $j(\"#w11\").val();");
+        sb.append("if (causeVal == \"" + otherNonCodedConId + "\")\n"
+                + " { $j(\"#w13\").show();}\n"
+                + "if (causeVal != \"" + otherNonCodedConId + "\")\n"
+                + " { $j(\"#w13\").val(\"\"); $j(\"#w13\").hide();}");
+        sb.append("});");
+        sb.append("</script>");
+
+        // providing a blank space between the widgets
         sb.append("&nbsp;&nbsp;");
 
         if (otherReasonWidget != null) {
             sb.append(otherReasonWidget.generateHtml(context));
             if (context.getMode() != FormEntryContext.Mode.VIEW)
                 sb.append(otherReasonErrorWidget.generateHtml(context));
+
+            // only show otherReasonWidget if there is an initial value, else hide it
+            if (context.getMode() == FormEntryContext.Mode.ENTER){
+                sb.append("<script>");
+                sb.append(" if($j(\"#w13\").val() != \"\"){\n");
+                sb.append(" $j(\"#w13\").show();}\n");
+                sb.append(" if($j(\"#w13\").val() == \"\"){\n");
+                sb.append(" $j(\"#w13\").hide();}\n");
+                sb.append("</script>");
+            }
+
         }
+
         return sb.toString();
     }
 }
