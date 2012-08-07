@@ -76,7 +76,11 @@ public class HtmlFormController {
 			try {
                 Patient demo = HtmlFormEntryUtil.getFakePerson();
                 FormEntrySession fes = new FormEntrySession(demo, hf.getXmlData());
-                model.addAttribute("previewHtml", fes.getHtmlToDisplay());
+                String html = fes.getHtmlToDisplay();
+                if (fes.getFieldAccessorJavascript() != null) {
+                	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
+                }
+                model.addAttribute("previewHtml", html);
             } catch (Exception ex) {
                 log.warn("Error rendering html form", ex);
                 model.addAttribute("previewHtml", "Error! " + ex);

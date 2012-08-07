@@ -4,9 +4,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -76,7 +78,9 @@ public class HtmlFormExporter {
 	private void calculateDependencies() {
 		Set<OpenmrsObject> dependencies = new HashSet<OpenmrsObject>();
 		
-		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to 
+		Set<Class<?>> classesNotToExport = getClassesNotToExport();
+
+		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to
 		// be applied to the form we are exporting so we copy the xml into a new string first
 		// (calculate Uuid dependencies should operate properly even with out this, but will be do this just to be safe)
 		
@@ -101,7 +105,8 @@ public class HtmlFormExporter {
 
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
-					if (attributeDescriptor.getClazz() != null) {
+					if (attributeDescriptor.getClazz() != null && !classesNotToExport.contains(attributeDescriptor.getClazz())) {
+
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
 						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;
@@ -129,7 +134,7 @@ public class HtmlFormExporter {
 											if (htmlForm != null){
 												dependencies.add(htmlForm);
 												continue;
-											} 
+											}
 										}
 										dependencies.add(object);
 										continue;
@@ -213,6 +218,25 @@ public class HtmlFormExporter {
 		formToExport.setDependencies(dependencies);
 	}
 	
+	/**
+     * @return results of parsing the {@link HtmlFormEntryConstants#GP_CLASSES_NOT_TO_EXPORT_WITH_MDS} global property
+     */
+    private Set<Class<?>> getClassesNotToExport() {
+    	Set<Class<?>> ret = new HashSet<Class<?>>();
+    	String gp = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_CLASSES_NOT_TO_EXPORT_WITH_MDS);
+    	if (StringUtils.isNotBlank(gp)) {
+    		for (StringTokenizer st = new StringTokenizer(gp, ", "); st.hasMoreTokens(); ) {
+    			String className = st.nextToken();
+    			try {
+    				ret.add(Context.loadClass(className));
+    			} catch (ClassNotFoundException ex) {
+    				// pass
+    			}
+    		}
+    	}
+    	return ret;
+    }
+
 	private void stripLocalAttributesFromXml() {
 		// get the tag handlers so we can gain access to the attribute descriptors
 		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();

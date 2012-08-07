@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
+import org.openmrs.ConceptDatatype;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -20,6 +21,7 @@ import org.openmrs.PatientProgram;
 import org.openmrs.Program;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.w3c.dom.Document;
@@ -933,6 +935,20 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
+	}
+	
+	@Test
+	@Verifies(value="shouldSetTheValueComplexOfObsIfConceptIsComplex",method="createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+	public void createObs_shouldSetTheValueComplexOfObsIfConceptIsComplex(){
+		
+		ComplexData complexData=new ComplexData("test", null);
+		Concept c=new Concept();
+		ConceptDatatype cd=new ConceptDatatype();
+		cd.setUuid(HtmlFormEntryConstants.COMPLEX_UUID);
+		c.setDatatype(cd);
+		Obs o=HtmlFormEntryUtil.createObs(c, complexData, null, null);
+	    Assert.assertEquals(o.getValueComplex(),complexData.getTitle());
+		
 	}
 
 }

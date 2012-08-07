@@ -5,7 +5,7 @@
     <parent>
         <artifactId>htmlformentry</artifactId>
         <groupId>org.openmrs.module</groupId>
-        <version>1.9.5-SNAPSHOT</version>
+        <version>1.10.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

@@ -1,14 +1,5 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
@@ -17,24 +8,29 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlForm;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.*;
 
 /**
  * The controller for entering/viewing a form.
@@ -51,7 +47,7 @@ public class HtmlFormEntryController {
     public final static String FORM_IN_PROGRESS_KEY = "HTML_FORM_IN_PROGRESS_KEY";
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
     public final static String FORM_PATH = "/module/htmlformentry/htmlFormEntry";
-    public HttpServletResponse response;
+   
     @RequestMapping(method=RequestMethod.GET, value=FORM_PATH)
     public void showForm() {
     	// Intentionally blank. All work is done in the getFormEntrySession method 
@@ -69,7 +65,8 @@ public class HtmlFormEntryController {
                                                 @RequestParam(value="htmlformId", required=false) Integer htmlFormId,
                                                 @RequestParam(value="returnUrl", required=false) String returnUrl,
                                                 @RequestParam(value="formModifiedTimestamp", required=false) Long formModifiedTimestamp,
-                                                @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp) throws Exception {
+                                                @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp,
+                                                @RequestParam(value="hasChangedInd", required=false) String hasChangedInd) throws Exception {
 
     	long ts = System.currentTimeMillis();
 
@@ -185,6 +182,8 @@ public class HtmlFormEntryController {
         	}
         }
         
+        if (hasChangedInd != null) session.setHasChangedInd(hasChangedInd);
+
         Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
         log.info("Took " + (System.currentTimeMillis() - ts) + " ms");
@@ -198,17 +197,17 @@ public class HtmlFormEntryController {
      */
     @RequestMapping(method=RequestMethod.POST, value=FORM_PATH)
     public ModelAndView handleSubmit(@ModelAttribute("command") FormEntrySession session,
-                               Errors errors,@RequestParam(value = "upldWidget", required = false) MultipartFile file[] ,
-                               @RequestParam(value = "nullObsIds",required = false) String nullObsIds,
-                               HttpServletRequest request,
-                               Model model) throws Exception {
+                                     Errors errors,@RequestParam(value = "upldWidget", required = false) MultipartFile file[] ,
+                                     @RequestParam(value = "nullObsIds",required = false) String nullObsIds,
+                                     HttpServletRequest request,
+                                     Model model) throws Exception {
         HashMap fileNames = new HashMap();
         HashMap complexObs=new HashMap();
         /* Extracting only the complexObs into a HashMap */
         if(session.getContext().getMode().toString().equalsIgnoreCase("EDIT"))
         {
-           Set<Obs> allObs= session.getEncounter().getAllObs();
-           Iterator iterator=allObs.iterator();
+            Set<Obs> allObs= session.getEncounter().getAllObs();
+            Iterator iterator=allObs.iterator();
             int i=0;
             while (iterator.hasNext()){
                 Obs xy=(Obs) iterator.next();
@@ -231,14 +230,14 @@ public class HtmlFormEntryController {
                         for (int k=0;k<complexObs.size();k++) {
                             Obs retainingObs = (Obs) complexObs.get(i);
 
-                           /* If the Id of Obs is not among the ids that has to deleted then retain the name of the complexObs */
-                           if(!nullObsIds.contains(retainingObs.getId().toString())){
-                              fileNames.put(i, retainingObs.getValueComplex());
-                           }
+                            /* If the Id of Obs is not among the ids that has to deleted then retain the name of the complexObs */
+                            if(!nullObsIds.contains(retainingObs.getId().toString())){
+                                fileNames.put(i, retainingObs.getValueComplex());
+                            }
                         }
 
                     }else if (file[i].isEmpty()) /* In all other cases when file is empty, means nothing is being uploaded */
-                             fileNames.put(i, null);
+                        fileNames.put(i, null);
                     if (!file[i].isEmpty()) {
                         AdministrationService as = Context.getAdministrationService();
 
@@ -262,7 +261,7 @@ public class HtmlFormEntryController {
             log.error("Exception during File Upload", exception);
             errors.reject("Exception during File Upload, see log for further details: " + exception);
         }
-        try {
+    	try {
             List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
             if (validationErrors != null && validationErrors.size() > 0) {
                 errors.reject("Fix errors");
@@ -271,22 +270,22 @@ public class HtmlFormEntryController {
             log.error("Exception during form validation", ex);
             errors.reject("Exception during form validation, see log for more details: " + ex);
         }
-
+        
         if (errors.hasErrors()) {
         	return new ModelAndView(FORM_PATH, "command", session);
         }
-
+        
         // no form validation errors, proceed with submission
-
+        
         session.prepareForSubmit();
 
-		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag() && session.getPatient() == null
+		if (session.getContext().getMode() == Mode.ENTER && session.hasPatientTag() && session.getPatient() == null 
 				&& (session.getSubmissionActions().getPersonsToCreate() == null || session.getSubmissionActions().getPersonsToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an Patient");
 
         if (session.getContext().getMode() == Mode.ENTER && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions().getEncountersToCreate().size() == 0))
-            throw new IllegalArgumentException("This form is not going to create an encounter");
-
+            throw new IllegalArgumentException("This form is not going to create an encounter"); 
+        
     	try {
             session.getSubmissionController().handleFormSubmission(session, request);
             session.applyActions();
@@ -310,7 +309,7 @@ public class HtmlFormEntryController {
             ex.printStackTrace(new PrintWriter(sw));
             errors.reject("Exception! " + ex.getMessage() + "<br/>" + sw.toString());
         }
-
+        
         // if we get here it's because we caught an error trying to submit/apply
         return new ModelAndView(FORM_PATH, "command", session);
     }
@@ -319,3 +318,4 @@ public class HtmlFormEntryController {
 		return "?patientId=" + formEntrySession.getPatient().getPersonId();
 	}
 }
+

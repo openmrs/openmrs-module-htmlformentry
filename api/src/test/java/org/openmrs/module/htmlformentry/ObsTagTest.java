@@ -14,12 +14,15 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
@@ -369,5 +372,69 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			
 			
 		}.run();
+	}
+
+	@Test
+	public void shouldDisplayCommentDetailsIfShowCommentFieldIsTrue() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" showCommentField=\"true\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		System.out.println(session.getHtmlToDisplay());
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") > -1);
+	}
+	
+	@Test
+	public void shouldNotDisplayCommentDetailsIfShowCommentFieldIsSetToFalse() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" showCommentField=\"false\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") < 0);
+	}
+	
+	@Test
+	public void shouldNotDisplayCommentDetailsIfShowCommentFieldIsMissing() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("htmlformentry.comment") < 0);
+	}
+	
+	@Test
+	public void testSettingComment() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsFormWithComment";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "100");
+				request.addParameter("w9", "test comment");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				Assert.assertEquals(1, results.getObsCreatedCount());
+				Assert.assertEquals("test comment", results.getEncounterCreated().getObs().iterator().next().getComment());
+			}
+		}.run();
+	}
+	
+	@Test
+	public void shouldShowUnitsIfRequested() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"5497\" showUnits=\"true\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue(session.getHtmlToDisplay().indexOf("cells/mmL") > 0);
 	}
 }

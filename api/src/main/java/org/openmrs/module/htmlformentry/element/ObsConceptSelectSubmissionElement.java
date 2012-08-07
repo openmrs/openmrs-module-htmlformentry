@@ -193,11 +193,11 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
         if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
             //TODO:  we're going to need a new version of this that uses the conceptAnswer as the matching concept...
             session.getSubmissionActions().modifyObs(existingObs, concept,
-                    answerConcept, obsDatetime, accessionNumberValue);
+                    answerConcept, obsDatetime, accessionNumberValue, null);
         } else {
             if (value != null && !"".equals(value) && concept != null) {
                 session.getSubmissionActions().createObs(concept, answerConcept,
-                        obsDatetime, accessionNumberValue);
+                        obsDatetime, accessionNumberValue, null);
             }
         }
     }

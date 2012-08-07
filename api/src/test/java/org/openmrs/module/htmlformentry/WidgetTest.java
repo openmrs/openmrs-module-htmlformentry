@@ -8,6 +8,7 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.UploadWidget;
+import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 
 /**
  * Basic test cases for HTML Form Entry widgets
@@ -49,5 +50,56 @@ public class WidgetTest {
         context.registerWidget(uw);
         Assert.assertEquals("<input type=\"file\" class=\"uploadWidget\" id=\"upldWidget\" name=\"upldWidget\"/>",uw.generateHtml(context));
     }
+    
+    @Test
+    public void checkboxWidgetShouldProduceHtmlWithToggleSimple() {
+		ToggleWidget toggleWidget = new ToggleWidget("hatColors");
+		CheckboxWidget cw = new CheckboxWidget("Has a hat?", "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+        context.registerWidget(cw);
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleHide=\"hatColors\"/><label for=\"w1\">Has a hat?</label>", cw.generateHtml(context));
+    }
+    
+    @Test
+    public void checkboxWidgetShouldProduceHtmlWithToggleDim() {
+		ToggleWidget toggleWidget = new ToggleWidget("{id: 'hatColors', style: 'dim'}");
+		CheckboxWidget cw = new CheckboxWidget("Has a hat?", "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+        context.registerWidget(cw);
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleDim=\"hatColors\"/><label for=\"w1\">Has a hat?</label>", cw.generateHtml(context));
+    }
+    
+    @Test
+    public void checkboxWidgetShouldProduceHtmlWithToggleHide() {
+		ToggleWidget toggleWidget = new ToggleWidget("{id: 'hatColors', style: 'hide'}");
+		CheckboxWidget cw = new CheckboxWidget("Has a hat?", "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+        context.registerWidget(cw);
+        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleHide=\"hatColors\"/><label for=\"w1\">Has a hat?</label>", cw.generateHtml(context));
+    }
+    
+	@Test
+	public void toggleWidgetShouldParseSimpleAttribute() {
+		ToggleWidget toggleWidget = new ToggleWidget("hatColors");
+		Assert.assertEquals(toggleWidget.getTargetId(), "hatColors");
+		Assert.assertNull(toggleWidget.getTargetClass());
+		Assert.assertNull(toggleWidget.getStyle());
+		Assert.assertFalse(toggleWidget.isToggleDim());
+	}
+    
+	@Test
+	public void toggleWidgetShouldParseComplexHideAttribute() {
+		ToggleWidget toggleWidget = new ToggleWidget("{id: 'hatColors', style: 'hide'}");
+		Assert.assertEquals(toggleWidget.getTargetId(), "hatColors");
+		Assert.assertNull(toggleWidget.getTargetClass());
+		Assert.assertEquals(toggleWidget.getStyle(), "hide");
+		Assert.assertFalse(toggleWidget.isToggleDim());
+	}
+
+	@Test
+	public void toggleWidgetShouldParseComplexDimAttribute() {
+		ToggleWidget toggleWidget = new ToggleWidget("{id: 'hatColors', style: 'dim'}");
+		Assert.assertEquals(toggleWidget.getTargetId(), "hatColors");
+		Assert.assertNull(toggleWidget.getTargetClass());
+		Assert.assertEquals(toggleWidget.getStyle(), "dim");
+		Assert.assertTrue(toggleWidget.isToggleDim());
+	}
     
 }

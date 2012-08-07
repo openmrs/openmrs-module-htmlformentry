@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
+import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -50,7 +51,47 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a man</div>", session.getHtmlToDisplay());
 	}
-	
+
+    /**
+	 * @see {@link HtmlFormEntryGenerator#applyRoleRestrictions(String)}
+     * @throws Exception
+	 */
+	@Test
+	@Verifies(value = "should return correct xml after apply restrictByRole tag", method = "applyRoleRestrictions(FormEntrySession,String)")
+	public void applyRoleRestrictions_shouldReturnCorrectXmlAfterApplyRestrictByRoleTag() throws Exception {
+
+        /* check the restriction with a single role in include/exclude */
+        String htmlform = "<htmlform><restrictByRole include=\"System Developer\">This is shown to admin as as content is included</restrictByRole><restrictByRole include=\"Data Manager\">This is not shown to admin as it doesn't contain this role</restrictByRole></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertEquals("<div class=\"htmlform\">This is shown to admin as as content is included</div>", session.getHtmlToDisplay());
+
+        String htmlform2 = "<htmlform><restrictByRole exclude=\"System Developer\">This is not shown to admin as content is excluded</restrictByRole><restrictByRole exclude=\"Data Manager\">This is shown to admin as content is not excluded</restrictByRole></htmlform>";
+		FormEntrySession session2 = new FormEntrySession(patient, htmlform2);
+		Assert.assertEquals("<div class=\"htmlform\">This is shown to admin as content is not excluded</div>", session2.getHtmlToDisplay());
+
+        /* check the restriction with multiple roles in include/exclude */
+        String htmlform3 = "<htmlform><restrictByRole include=\"System Developer,Data Manager\">This is shown to admin with multiple roles in include field</restrictByRole><restrictByRole include=\"Provider,Data Manager\">This is not shown to admin with multiple roles in include field</restrictByRole></htmlform>";
+		FormEntrySession session3 = new FormEntrySession(patient, htmlform3);
+		Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles in include field</div>", session3.getHtmlToDisplay());
+
+        String htmlform4 = "<htmlform><restrictByRole exclude=\"System Developer,Data Manager\">This is not shown to admin with multiple roles in exclude field</restrictByRole><restrictByRole exclude=\"Provider,Data Manager\">This is shown to admin with multiple roles in exclude field</restrictByRole></htmlform>";
+        FormEntrySession session4 = new FormEntrySession(patient, htmlform4);
+        Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles in exclude field</div>", session4.getHtmlToDisplay());
+
+        /* check the restriction for a single user with multiple roles */
+        Context.getAuthenticatedUser().addRole(new Role("Test Role", "A temporary role for the test"));
+
+        String htmlform5 = "<htmlform><restrictByRole include=\"System Developer,Test Role\">This is shown to admin with multiple roles to single user in include field</restrictByRole><restrictByRole include=\"Provider,Data Manager\">This is not shown to admin with multiple roles to single user in include field</restrictByRole></htmlform>";
+        FormEntrySession session5 = new FormEntrySession(patient, htmlform5);
+        Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles to single user in include field</div>", session5.getHtmlToDisplay());
+
+        String htmlform6 = "<htmlform><restrictByRole exclude=\"System Developer,Test Role\">This is not shown to admin with multiple roles to single user in exclude field</restrictByRole><restrictByRole exclude=\"Provider,Data Manager\">This is shown to admin with multiple roles to single user in exclude field</restrictByRole></htmlform>";
+        FormEntrySession session6 = new FormEntrySession(patient, htmlform6);
+        Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles to single user in exclude field</div>", session6.getHtmlToDisplay());
+
+    }
+
+
 	/**
 	 * @see {@link HtmlFormEntryGenerator#getTestStr(String)}
 	 */
@@ -60,8 +101,8 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		String includeStr = "logicTest = \"GENDER = F\">";// <includeIf test =
 		// "FEMALE">
 		Assert.assertEquals("GENDER = F", HtmlFormEntryGenerator.getTestStr(includeStr));
-		includeStr = "velocityTest = \"\"$patient.gender\" == \"F\"\">";
-		Assert.assertEquals("\"$patient.gender\" == \"F\"", HtmlFormEntryGenerator.getTestStr(includeStr));
+		includeStr = "velocityTest = \"$patient.gender == 'F'\">";
+		Assert.assertEquals("$patient.gender == 'F'", HtmlFormEntryGenerator.getTestStr(includeStr));
 	}
 	
 	/**

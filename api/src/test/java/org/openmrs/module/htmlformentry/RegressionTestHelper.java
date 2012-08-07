@@ -1,5 +1,16 @@
 package org.openmrs.module.htmlformentry;
 
+import org.junit.Assert;
+import org.openmrs.Encounter;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.mock.web.MockHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,18 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Assert;
-import org.openmrs.Encounter;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 public abstract class RegressionTestHelper {
 	
@@ -109,7 +108,7 @@ public abstract class RegressionTestHelper {
 	/**
 	 * Override this if you want to test out viewing a patient without an encounter
 	 * 
-	 * @param encounter
+	 * @param patient
 	 * @param html
 	 */
 	public void testViewingPatient(Patient patient, String html) {
@@ -228,16 +227,16 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form entry (ENTER) mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
-	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession) {
+	public void testFormEntrySessionAttribute(FormEntrySession formEntrySession){
 	}
 	
 	/**
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form view mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -246,7 +245,7 @@ public abstract class RegressionTestHelper {
 	 * (Override this if you want to test the an attribute of FormEntrySession in
 	 * form edit mode.)
 	 * 
-	 * @param FormEntrySession object, useful in test state of session object
+	 * @param formEntrySession object, useful in test state of session object
 	 */
 	public void testFormEditSessionAttribute(FormEntrySession formEntrySession) {
 	}
@@ -690,6 +689,17 @@ public abstract class RegressionTestHelper {
 			Assert.assertEquals(expectedLocationId, getEncounterCreated().getLocation().getLocationId());
 		}
 		
+		public void assertEncounterType() {
+			assertEncounterCreated();
+			Assert.assertNotNull(getEncounterCreated().getEncounterType());
+			Assert.assertNotNull(getEncounterCreated().getEncounterType().getEncounterTypeId());
+		}
+
+		public void assertEncounterType(Integer expectedEncounterTypeId) {
+			assertEncounterType();
+			Assert.assertEquals(expectedEncounterTypeId, getEncounterCreated().getEncounterType().getEncounterTypeId());
+		}
+
 		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'
 		 * 
@@ -840,7 +850,7 @@ public abstract class RegressionTestHelper {
 		}
 		
 	}
-	
+
 	public class ObsValue {
 		
 		public Integer conceptId; // required

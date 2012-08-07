@@ -1,4 +1,4 @@
-var tempRadioStatus;
+    var tempRadioStatus;
 
 // remember the status of this radio button when it is first clicked, for use in the radioClicked method
 function radioDown(radioButton) {
@@ -35,11 +35,11 @@ function clearError(errorDivId) {
 
 function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax) {
 	clearError(errorDivId);
-	
+
 	if (el.value == '') {
 		el.className = null;
 	}
-		
+
 	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax);
 	if (errorMessage == null) {
 		el.className = 'legalValue';
@@ -61,14 +61,14 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax) {
 	} else {
 		val = parseInt(val);
 	}
-	
+
 	if (isNaN(val)) {
 		if (floatOkay)
 			return "Not a number";
 		else
 			return "Not an integer";
 	}
-		
+
 	if (absoluteMin != null) {
 		if (val < absoluteMin)
 			return "Cannot be less than " + absoluteMin;
@@ -128,7 +128,7 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 	var hiddenField = jQuery("#"+element.id+"_hid");
 	var textField = jQuery(element);
 	var select = false;
-	
+
 	 /*
 	 * There are only 2 valid cases:
 	 * 1) user type something,then selected an item from the suggestion list, then leave.
@@ -140,24 +140,25 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 	 */
 	if (hiddenField.length > 0 && textField.length > 0) {
 		textField.autocomplete( {
-			 source: function(req, add){  
-	        //pass request to server  
-			jQuery.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {  
-				   
-			//create array for response objects  
-			var suggestions = [];  
-				   
-			jQuery.each(data, function(i, val){  
-			suggestions.push(val);  
+			 source: function(req, add){
+	        //pass request to server
+			jQuery.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {
+
+			//create array for response objects
+			var suggestions = [];
+
+			jQuery.each(data, function(i, val){
+			suggestions.push(val);
 		   });
-		   
+
 		   	//this clears the error if it returns no result
 		    //if the input field is not empty
 		    //the error will be triggered in onblur below
 			if (suggestions.length==0) hiddenField.val("");
-			
-			add(suggestions);  
-		 });  
+
+
+			add(suggestions);
+		 });
 		}
 			,
 			minLength: 2,
@@ -166,22 +167,24 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 					select = true;
 			},
 		    close: function(event, ui) {
-				if(select)//user has selected item from the list
+				if(select) {//user has selected item from the list
 					textField.css('color', 'green');
-				else {	
+
+            }
+				else {
 					textField.css('color', 'red');
 					hiddenField.val("ERROR");
 				}
 				select = false;
 			}
 		});
-	} 	
+	}
 }
 
 function onBlurAutocomplete(element){
 	var hiddenField = jQuery("#"+element.id+"_hid");
 	var textField = jQuery(element);
-	
+
 	if (hiddenField.val() == "" || hiddenField.val() == "ERROR") {
 		if(textField.val() != ""){
 			hiddenField.val("ERROR");
@@ -190,6 +193,61 @@ function onBlurAutocomplete(element){
 			hiddenField.val("");
 		}
 	}
+}
+
+    /**
+     * This is used to provide auto complete when pre populated list of options is given
+     * @param element          - autocomplete widget id
+     * @param optionnames   - names of the options
+     * @param optionvalues    - ids of the options
+     */
+function setupOptionAutocomplete(element, optionnames, optionvalues){
+
+    var hiddenField = jQuery("#"+element.id+"_hid");
+	var textField = jQuery(element);
+    var select = false;
+
+    var opnames = optionnames.split(",");
+    var opvalues = optionvalues.split(",");
+    var optionnamevaluemap = new Object();
+
+    for(var i= 0; i< opnames.length ; i++){
+        optionnamevaluemap[opnames[i]] = opvalues[i];
+    }
+
+    textField.autocomplete({
+       source:opnames,
+       minLength:2,
+       select:function(event, ui) {
+           hiddenField.val(optionnamevaluemap[ui.item.value]);
+           select = true;
+       },
+       close: function(event, ui) {
+		    if(select) {//user has selected item from the list
+				textField.css('color', 'green');
+            }
+			else {
+                textField.css('color', 'red');
+				hiddenField.val("ERROR");
+			}
+			select = false;
+	   }
+    });
+}
+
+/**
+ * This is used to handle the deletion/blankout of autocomplete text field. When user deletes existing
+   value from text field, this sets the submit value to "".
+ * @param element
+ */
+function setValWhenAutocompleteFieldBlanked(element){
+
+    var textField = jQuery(element);
+    var hiddenField = jQuery("#"+element.id+"_hid");
+
+    if(textField.val() === ""){
+        hiddenField.val("");
+    }
 }
 
 /**
@@ -203,7 +261,7 @@ function setValueByName(ele, val, options) {
   if (options == null) options = {};
 
   var orig = ele;
-  
+
   var nodes = document.getElementsByName(orig);
   if (nodes.length >= 1) ele = nodes.item(0);
 
@@ -286,7 +344,7 @@ function getField(elementAndProperty) {
 		return tmp;
 	} else {
 		return null;
-	}	
+	}
 }
 
 
@@ -368,24 +426,24 @@ function dateSetterFunction(widgetId, value) {
 //valid instructions are 'block', and 'warn'
 //TODO:  would be nice if this used javascript confirm(), and 'cancel' meant history.go(-1) and/or closed the pop-up window (closing the popup being a bit harder)
 function existingEncounterOnDate(item, instruction){
-      
+
 	    if (!(instruction == 'block' || instruction == 'warn'))
 	    	return;
-     	
+
 		var date = $j(item).val();
 		var formId = $j('[name=htmlFormId]').val();
 		var patientId = $j('[name=personId]').val();
-		
+
 		if ($j('[name=encounterId]').val() == null)
 		{
-			$j.get(  
-	            "lastEnteredForm.form",  
-	            {formId: formId, patientId: patientId, date: date},  
-	            function(responseText){  
-       
+			$j.get(
+	            "lastEnteredForm.form",
+	            {formId: formId, patientId: patientId, date: date},
+	            function(responseText){
+
 	                if(responseText == "true") {
 	                	if (instruction == "warn") {
-		                
+
                 			// get the localized warning message and display it
 	                		$j.get("localizedMessage.form",
 	                				{messageCode: "htmlformentry.error.warnMultipleEncounterOnDate"},
@@ -393,9 +451,9 @@ function existingEncounterOnDate(item, instruction){
 	                					alert(responseText);
 	                				}
 	                		);
-		                		
+
 	                	} else if (instruction == "block") {
-	                		
+
 	                		// get the localized blocking message and display it
 	                		$j.get("localizedMessage.form",
 	                				{messageCode: "htmlformentry.error.blockMultipleEncounterOnDate"},
@@ -403,15 +461,15 @@ function existingEncounterOnDate(item, instruction){
 	                					alert(responseText);
 	                				}
 	                		);
-	                		
+
 		                	//clear the date and continue entering the form
 		                	$j(item).val('');
 	                	}
 	                } else {
 	                	//make sure everything is enabled
 	                }
-	            } 
-	        ); 
+	            }
+	        );
 	    }
 }
 
@@ -420,7 +478,7 @@ function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector,
 		if (!jQuery.datepicker.regional[jsLocale])
 			setupDatePickerLocalization(jsLocale);
 	}
-	
+
 	var jq = jQuery(displaySelector)
 	jq.datepicker({
 		dateFormat: jsDateFormat,
@@ -437,7 +495,7 @@ function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector,
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
 	if (initialDateYMD)
 		setDatePickerValue(displaySelector, initialDateYMD);
-	
+
 	// register a handler to set the date value to zero if the display widget is emptied (workaround for jquery bug http://bugs.jqueryui.com/ticket/5734)
 	jq.change(function () {
 		if (jq.val() == null || jq.val() == '') {
