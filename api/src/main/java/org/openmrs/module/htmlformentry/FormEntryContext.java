@@ -791,6 +791,9 @@ public class FormEntryContext {
 	    }
 	    inDynamicRepeat = false;
     }
+    public boolean getDynamicRepeat() {  
+	  return inDynamicRepeat;
+    } 
 
 	/**
 	 * Repeated tags will use this integer as a replacement for "template" when fetching submitted data

@@ -248,6 +248,22 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		
 		return xml;
 	}
+	public String applyDynamicTags(FormEntrySession session,String xml) throws Exception {
+			StringBuilder xmlToReplace = new StringBuilder();
+			if (xml.contains("<dynamicRepeat>")){
+			int countOfGroups=session.getContext().getExistingObsInGroupsCount();
+			while (countOfGroups>0)
+			{
+				int startIndex = xml.indexOf("<dynamicRepeat>")+15;
+				int endIndex = xml.indexOf("</dynamicRepeat>");
+				xmlToReplace.append(xml.substring(startIndex, endIndex));
+				xmlToReplace.append("<br/>");
+				countOfGroups--;
+			}
+			xml = xml.substring(0, xml.indexOf("</dynamicRepeat>")+16) + xmlToReplace.toString() + xml.substring(xml.indexOf("</dynamicRepeat>")+16);
+			}
+			return xml;
+		}
 	
 	private void loadRenderElementsForEachRepeatElement(Node node, List<List<Map<String, String>>> renderMaps)
 	    throws Exception {

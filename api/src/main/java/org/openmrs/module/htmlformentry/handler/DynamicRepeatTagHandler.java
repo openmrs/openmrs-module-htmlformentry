@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
@@ -49,7 +50,8 @@ public class DynamicRepeatTagHandler extends RepeatControllerAction implements T
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node)
 	    throws BadFormDesignException {
-		
+		if(session.getContext().getMode() == Mode.VIEW)
+			return false;
 		numberOfRepeatsWidget = new HiddenFieldWidget();
 		numberOfRepeatsWidget.setInitialValue("0");
 		session.getContext().registerWidget(numberOfRepeatsWidget);
@@ -58,7 +60,7 @@ public class DynamicRepeatTagHandler extends RepeatControllerAction implements T
 		session.getContext().beginDynamicRepeat();
 		out.println("<div class=\"dynamic-repeat-container\">");
 		out.println(numberOfRepeatsWidget.generateHtml(session.getContext()));
-		out.println("<div class=\"dynamic-repeat-template tempe\">");
+		out.println("<div class=\"dynamic-repeat-template\">");
 		this.repeatingActions.clear(); //to clear any existing data
 		session.getSubmissionController().startRepeat(this);
 		return true; // yes, do the children
@@ -69,9 +71,11 @@ public class DynamicRepeatTagHandler extends RepeatControllerAction implements T
 	 */
 	@Override
 	public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
+		if(session.getContext().getMode() != Mode.VIEW){
 		out.println("<input type=\"button\" class=\"dynamicRepeat\" value=\"Add\" onClick=\"duplicateTemplate($j(this).parent());\"/></div> <!-- End of Dynamic Repeat --></div> <!-- End of Dynamic Repeat Container -->");
 		session.getContext().endDynamicRepeat();
 		session.getSubmissionController().endRepeat();
+		}
 	}
 
 	/**

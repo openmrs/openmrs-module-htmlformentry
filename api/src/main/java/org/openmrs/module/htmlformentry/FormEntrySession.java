@@ -384,6 +384,7 @@ public class FormEntrySession {
 		xml = htmlGenerator.applyExcludes(this, xml);
 		xml = htmlGenerator.applyMacros(xml);
 		xml = htmlGenerator.applyTemplates(xml);
+		xml = htmlGenerator.applyDynamicTags(this, xml);
 		xml = htmlGenerator.applyTranslations(xml, context);
 		xml = htmlGenerator.applyTags(this, xml);
 		

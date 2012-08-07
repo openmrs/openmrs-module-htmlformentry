@@ -63,7 +63,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         
         boolean digDeeper = true;
         
-        if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW)) {
+        if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW) && !session.getContext().getDynamicRepeat()) {
         	if (!session.getContext().isUnmatchedMode()) {
             	unmatchedInd = true;
 

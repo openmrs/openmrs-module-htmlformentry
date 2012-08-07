@@ -202,8 +202,7 @@
         		if (anyErrors) {
             		tryingToSubmit = false;
             		return;
-        		}else{
-        			$j(".tempe").remove(); 
+        		}else{ 
         			doSubmitHtmlForm();
         		}
 			}
