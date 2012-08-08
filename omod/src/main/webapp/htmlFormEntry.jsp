@@ -85,19 +85,24 @@
 	});
 	function duplicateTemplate(v){			
 		 var count=parseInt($j(v).parent().children('.counter').val());
-		var q=$j(v).clone();
-		$j(v).children('.dynamicRepeat').remove();
-		$j(v).attr("class","dynamic-repeat-template");
-		$j(v).children().each(function () {	
-			if($j(this).attr('id')){
-				var tempid=$j(this).attr('id').split('-',1);
-				$j(this).attr('id',tempid+'-'+count);
-			}
-				if($j(this).attr('name')){
-				var tempname=$j(this).attr('name').split('-',1);
-				$j(this).attr('name',tempname+'-'+count);
-			}
+			var q=$j(v).clone();
+			$j(v).children('.dynamicRepeat').remove();
+			$j(v).attr("class","dynamic-repeat-template");
+			$j(v).children().each(function () {	
+				if($j(this).attr('id')){
+					var tempid=$j(this).attr('id').split('-template',2);
+					$j(this).attr('id',tempid[0]+'-'+count+tempid[1]);
+				}
+					if($j(this).attr('name')){
+					var tempname=$j(this).attr('name').split('-template',2);
+					$j(this).attr('name',tempname[0]+'-'+count+tempname[1]);
+				}
 		});
+		$j(q).children().each(function () {	
+				if($j(this).attr('value') && $j(this).attr('type')!='button'){
+								$j(this).attr('value',"");
+						}
+				});
 		count++;
 		$j(v).parent().children('.counter').val(count+'');
 		$j(v).append("<input value='remove' type='button' class='dynamicRemove' onClick='removeFunction($j(this).parent())'>");

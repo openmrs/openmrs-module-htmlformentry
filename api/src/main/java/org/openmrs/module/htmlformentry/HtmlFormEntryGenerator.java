@@ -165,25 +165,24 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	}
 	
 	/**
-     * Takes an xml string, searches for 'comments'   in the string using RegEx and filters out
-     * the comments from the input string
-     *
-     * @param xml input string
-     * @return the xml string after filtering out comments
-     * @throws Exception
-     * @should  return correct xml after filtering out comments
-     */
-    public String stripComments(String xml) throws Exception {
-
-        String regex = "<!\\s*--.*?--\\s*>";    // this is the regEx for html comment tag <!-- .* -->
-        Pattern pattern = Pattern.compile(regex,
-                Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
-        Matcher matcher = pattern.matcher(xml);
-        xml = matcher.replaceAll("");
-
-        return xml;
-    }
+	 * Takes an xml string, searches for 'comments' in the string using RegEx and filters out the
+	 * comments from the input string
+	 * 
+	 * @param xml input string
+	 * @return the xml string after filtering out comments
+	 * @throws Exception
+	 * @should return correct xml after filtering out comments
+	 */
+	public String stripComments(String xml) throws Exception {
+		
+		String regex = "<!\\s*--.*?--\\s*>"; // this is the regEx for html comment tag <!-- .* -->
+		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+		
+		Matcher matcher = pattern.matcher(xml);
+		xml = matcher.replaceAll("");
+		
+		return xml;
+	}
 	
 	/**
 	 * Takes an XML string, finds each {@code <repeat></repeat>} section in it, and applies those
@@ -248,22 +247,23 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		
 		return xml;
 	}
-	public String applyDynamicTags(FormEntrySession session,String xml) throws Exception {
-			StringBuilder xmlToReplace = new StringBuilder();
-			if (xml.contains("<dynamicRepeat>")){
-			int countOfGroups=session.getContext().getExistingObsInGroupsCount();
-			while (countOfGroups>0)
-			{
-				int startIndex = xml.indexOf("<dynamicRepeat>")+15;
+	
+	public String applyDynamicTags(FormEntrySession session, String xml) throws Exception {
+		StringBuilder xmlToReplace = new StringBuilder();
+		if (xml.contains("<dynamicRepeat>")) {
+			int countOfGroups = session.getContext().getExistingObsInGroupsCount();
+			while (countOfGroups > 0) {
+				int startIndex = xml.indexOf("<dynamicRepeat>") + 15;
 				int endIndex = xml.indexOf("</dynamicRepeat>");
 				xmlToReplace.append(xml.substring(startIndex, endIndex));
 				xmlToReplace.append("<br/>");
 				countOfGroups--;
 			}
-			xml = xml.substring(0, xml.indexOf("</dynamicRepeat>")+16) + xmlToReplace.toString() + xml.substring(xml.indexOf("</dynamicRepeat>")+16);
-			}
-			return xml;
+			xml = xml.substring(0, xml.indexOf("</dynamicRepeat>") + 16) + xmlToReplace.toString()
+			        + xml.substring(xml.indexOf("</dynamicRepeat>") + 16);
 		}
+		return xml;
+	}
 	
 	private void loadRenderElementsForEachRepeatElement(Node node, List<List<Map<String, String>>> renderMaps)
 	    throws Exception {
@@ -297,7 +297,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		for (ObsGroupEntity obsGroupEntity : obsGroupEntities) {
 			StringWriter out = new StringWriter();
 			applyTagsHelper(session, new PrintWriter(out), null, obsGroupEntity.getNode(), null);
-			xml = xml.replaceAll("<unmatched id=\"" + obsGroupEntity.getId() + "\" />", out.toString());			
+			xml = xml.replaceAll("<unmatched id=\"" + obsGroupEntity.getId() + "\" />", out.toString());
 		}
 		
 		return xml;
@@ -343,7 +343,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		
 		if (handler == null)
 			handler = this; // do default actions
-		
+			
 		try {
 			boolean handleContents = handler.doStartTag(session, out, parent, node);
 			
@@ -368,12 +368,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 			
 			handler.doEndTag(session, out, parent, node);
-		} catch (BadFormDesignException e) {
-	        out.print("<div class=\"error\">" + handler + " reported an error in the design of the form. Consult your administrator.<br/><pre>");
-	        e.printStackTrace(out);
-	        out.print("</pre></div>");
-        }
-
+		}
+		catch (BadFormDesignException e) {
+			out.print("<div class=\"error\">" + handler
+			        + " reported an error in the design of the form. Consult your administrator.<br/><pre>");
+			e.printStackTrace(out);
+			out.print("</pre></div>");
+		}
+		
 	}
 	
 	/**
@@ -412,11 +414,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					out.print("\"");
 				}
 			}
-            // added so that a single <br/> tag isn't rendered as two line breaks: see HTML-342
+			// added so that a single <br/> tag isn't rendered as two line breaks: see HTML-342
 			if ("br".equalsIgnoreCase(node.getNodeName())) {
 				out.print("/>");
-			}
-			else {
+			} else {
 				out.print(">");
 			}
 		}
@@ -438,7 +439,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		} else if (node.getNodeType() == Node.COMMENT_NODE) {
 			// do nothing
 		} else {
-            // added so that a single <br/> tag isn't rendered as two line breaks: see HTML-342
+			// added so that a single <br/> tag isn't rendered as two line breaks: see HTML-342
 			if (!"br".equalsIgnoreCase(node.getNodeName())) {
 				out.print("</" + node.getNodeName() + ">");
 			}
