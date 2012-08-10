@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.widget;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.FormField;
 import org.openmrs.Obs;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.obs.handler.TextHandler;
 import org.openmrs.web.WebConstants;
 import org.openmrs.web.controller.observation.handler.WebImageHandler;
@@ -51,7 +52,7 @@ public class WidgetFactory {
                 return WidgetTypeHint.CHECKBOX;
             else
                 return WidgetTypeHint.DROPDOWN;
-        }else if(dt.isComplex()){
+        }else if(HtmlFormEntryConstants.COMPLEX_UUID.equals(dt.getUuid())){
                 return WidgetTypeHint.UPLOAD_WIDGET;
         }
         else {

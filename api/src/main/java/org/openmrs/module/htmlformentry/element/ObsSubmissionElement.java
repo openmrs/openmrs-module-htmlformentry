@@ -11,12 +11,8 @@ import org.openmrs.Obs;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlFormEntryService;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.schema.ObsField;
@@ -330,7 +326,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
 					}
 				}
-			}else if (concept.getDatatype().isComplex()) { // if concept is of datatype complex then create new widget
+			}else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(concept.getUuid())) { // if concept is of datatype complex then create new widget
                 valueWidget = new UploadWidget();
                 String lookFor = existingObs == null ? null : existingObs.getValueComplex();
                 Obs initialValue = null;
