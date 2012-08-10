@@ -338,6 +338,15 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
                 sb.append("<script>");
                 sb.append("$j(document).ready(function(){");
+
+                //this code 342-348 is added to set the value back into widget when it is changed, i have
+                //used in built setValueByName() method here but it is not working, when form is reloaded
+                // after submit fail
+                sb.append("$j(\"#" + reasonWidgetId + "\").change(function(){");
+                sb.append("var reasonVal = $j(\"#" + reasonWidgetId + "\").val();");
+                sb.append("setValueByName($j(\"#" + reasonWidgetId + "\"),reasonVal,null);");
+                sb.append("});");
+
                 sb.append("var rVal = $j(\"#" + reasonWidgetId + "\").val();");
                 sb.append("if (rVal == \"" + patientDiedConId + "\")\n"
                         + " { $j(\"#" + causeWidgetId + "\").show();}\n"
@@ -416,7 +425,8 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                 sb.append("</script>");
             }
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
-                sb.append("<script>");
+               // if(! reasonForExitWidget.getInitialValue().equals(patientDiedConcept.getDisplayString())){
+                  sb.append("<script>");
                 sb.append("$j(document).ready(function(){");
                 sb.append("var cVal = $j(\"#" + causeWidgetId + "\").val();");
                 sb.append("if (cVal == \"" + otherNonCodedConId + "\")\n"
@@ -425,6 +435,7 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                         + " { $j(\"#" + otherTextWidgetId + "\").val(\"\"); $j(\"#" + otherTextWidgetId + "\").hide();}");
                 sb.append("});");
                 sb.append("</script>");
+
             }
         }
 
@@ -446,9 +457,20 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
             if (context.getMode() == FormEntryContext.Mode.VIEW) {
                 if (obsDeath != null && obsDeath.size() == 1) {
                     Obs obs = obsDeath.get(0);
-                    if (obs.getValueCoded().getConceptId().equals(otherNonCodedConcept.getConceptId())) {
-                        sb.append(otherReasonWidget.generateHtml(context));
+
+                    if (obsList != null && obsList.size() == 0) {
+                        if (obs.getValueCoded().getConceptId().equals(otherNonCodedConcept.getConceptId())) {
+                            sb.append(otherReasonWidget.generateHtml(context));
+                        }
+                    } else if (obsList != null && obsList.size() == 1) {
+                        Obs exitObs = obsList.get(0);
+                        if (exitObs.getValueCoded().getConceptId().equals(patientDiedConcept.getConceptId())
+                                && obs.getValueCoded().getConceptId().equals(otherNonCodedConcept.getConceptId())) {
+                            sb.append(otherReasonWidget.generateHtml(context));
+                        }
                     }
+
+
                 }
             } else {
                 sb.append(otherReasonWidget.generateHtml(context));
@@ -467,7 +489,6 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                 sb.append(" $j(\"#" + otherTextWidgetId + "\").hide();}\n");
                 sb.append("</script>");
             }
-
         }
 
         return sb.toString();
