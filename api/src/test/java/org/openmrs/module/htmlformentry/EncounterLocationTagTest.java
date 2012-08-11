@@ -13,18 +13,16 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.aop.interceptor.SimpleTraceInterceptor;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -61,8 +59,16 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
-	
-	@Test
+
+    @Test
+    public void encounterLocationTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
+        String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform);
+        Assert.assertTrue(session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Test Location\"") > -1);
+    }
+
+
+    @Test
 	public void encounterLocationTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
