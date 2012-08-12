@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.util.Date;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -1590,6 +1593,61 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
+
+    @Test
+    public void shouldViewComplexObsProperly() throws Exception{
+        new RegressionTestHelper(){
+                @Override
+        public String getFormName(){
+                    return "singleObsFormWithUploader";
+                }
+            @Override
+        public Encounter getEncounterToView() throws Exception{
+                Encounter e=new Encounter();
+                BufferedImage image = createImage();
+                e.setPatient(getPatient());
+                Date date=Context.getDateFormat().parse("11/08/2012");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+
+                Obs obs = new Obs();
+                obs.setConcept(Context.getConceptService().getConcept(6100));
+                obs.setComplexData(new ComplexData("complex_obs_image_test.gif", image));
+
+                e.addObs(obs);
+                Context.getEncounterService().saveEncounter(e);
+                return e;
+            }
+        }.run();
+    }
+
+    public BufferedImage createImage() {
+        int width = 10;
+        int height = 10;
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        WritableRaster raster = image.getRaster();
+        int[] colorArray = new int[3];
+        int h = 255;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                if (i == 0 || j == 0 || i == width - 1 || j == height - 1 || (i > width / 3 && i < 2 * width / 3)
+                        && (j > height / 3 && j < 2 * height / 3)) {
+                    colorArray[0] = h;
+                    colorArray[1] = h;
+                    colorArray[2] = 0;
+                } else {
+                    colorArray[0] = 0;
+                    colorArray[1] = 0;
+                    colorArray[2] = h;
+                }
+                raster.setPixel(i, j, colorArray);
+            }
+        }
+
+        return image;
+    }
 	
 	@Test(expected = RuntimeException.class)
 	public void invalidBooleanObsValueShouldThrowException() throws Exception {

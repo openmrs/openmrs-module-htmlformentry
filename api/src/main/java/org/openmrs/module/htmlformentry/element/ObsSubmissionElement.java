@@ -326,7 +326,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
 					}
 				}
-			}else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(concept.getUuid())) { // if concept is of datatype complex then create new widget
+			}//else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(concept.getUuid())) { // if concept is of datatype complex then create new widget
+            else if (concept.getDatatype().isComplex()) {
                 valueWidget = new UploadWidget();
                 String lookFor = existingObs == null ? null : existingObs.getValueComplex();
                 Obs initialValue = null;
