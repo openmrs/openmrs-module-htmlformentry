@@ -388,6 +388,7 @@ function defaultSetterFunction(widgetId, value) {
 		return;
 	}
 	DWRUtil.setValue(widgetId, value);
+
 }
 
 function checkboxGetterFunction(widgetId) {
@@ -420,6 +421,27 @@ function newRelationshipFieldGetterFunction(widgetId) {
 // custom setter for date widgets
 function dateSetterFunction(widgetId, value) {
 	setDatePickerValue('#' + widgetId + '-display', value);
+}
+
+// custom setter for Autocomplete widget
+function autocompleteSetterFunction(widgetId, value) {
+	if (widgetId == null || document.getElementById(widgetId) == null) {
+		window.alert("Form scripting error: cannot find widget " + widgetId);
+		return;
+	}
+
+	DWRUtil.setValue(widgetId + '_hid', value);
+}
+
+// custom getter for Autocomplete widget
+function autocompleteGetterFunction(widgetId) {
+	var sel = DWRUtil.getValue(widgetId);
+	if (sel) {
+		return jQuery('#' + widgetId).val();
+
+	} else {
+		return null;
+	}
 }
 
 //does an ajax lookup to see if this form has already been filled out for this encounter date.

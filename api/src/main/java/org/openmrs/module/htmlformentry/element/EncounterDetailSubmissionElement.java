@@ -25,6 +25,7 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
@@ -512,12 +513,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                         null, null);
             } else if (providerWidget != null) {
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
-                        null, null);
+                        getGetterFunction(providerWidget), getSetterFunction(providerWidget));
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget),
                         null, null, null);
             } else if (locationWidget != null) {
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null,
-                        null, null);
+                        getGetterFunction(locationWidget), getSetterFunction(locationWidget));
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
                         null, null, null);
             }else if (encounterTypeWidget != null) {
@@ -566,6 +567,32 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
         return ret.toString();
     }
+
+    /**
+     * selects the correct setter function for provider/location widgets according to its type
+     * @param widget- dropdown or autocomplete
+     * @return
+     */
+    private String getGetterFunction(Widget widget) {
+		if (widget == null)
+			return null;
+		if (widget instanceof AutocompleteWidget)
+			return "autocompleteGetterFunction";
+		return null;
+	}
+
+    /**
+     * selects the correct getter function for provider/location widgets according to its type
+     * @param widget - dropdown or autocomplete
+     * @return
+     */
+    private String getSetterFunction(Widget widget) {
+		if (widget == null)
+			return null;
+		if (widget instanceof AutocompleteWidget)
+			return "autocompleteSetterFunction";
+		return null;
+	}
 
     /**
      * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
