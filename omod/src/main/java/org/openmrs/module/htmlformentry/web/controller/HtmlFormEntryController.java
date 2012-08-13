@@ -65,7 +65,8 @@ public class HtmlFormEntryController {
                                                 @RequestParam(value="htmlformId", required=false) Integer htmlFormId,
                                                 @RequestParam(value="returnUrl", required=false) String returnUrl,
                                                 @RequestParam(value="formModifiedTimestamp", required=false) Long formModifiedTimestamp,
-                                                @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp) throws Exception {
+                                                @RequestParam(value="encounterModifiedTimestamp", required=false) Long encounterModifiedTimestamp,
+                                                @RequestParam(value="hasChangedInd", required=false) String hasChangedInd) throws Exception {
 
     	long ts = System.currentTimeMillis();
 
@@ -181,6 +182,8 @@ public class HtmlFormEntryController {
         	}
         }
         
+        if (hasChangedInd != null) session.setHasChangedInd(hasChangedInd);
+
         Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
         log.info("Took " + (System.currentTimeMillis() - ts) + " ms");

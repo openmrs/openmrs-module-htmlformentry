@@ -10,6 +10,7 @@
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.css" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.min.js" />
+<openmrs:htmlInclude file="/dwr/util.js" />
 
 <script>
 	$j = jQuery.noConflict();
@@ -20,6 +21,9 @@
 		else
 			$j('#retiredReasonRow').hide();
 	}
+
+	// boolean to track whether or not jquery document ready function fired
+	var initInd = true;
 
 	$j(document).ready(function() {
 		updateRetiredReasonDisplay($j('#retired').checked);
@@ -37,7 +41,77 @@
 				});
 			</c:otherwise>
 		</c:choose>
+		
+		// triggered whenever any input with toggleDim attribute is changed.  Currently, only supports
+		// checkbox style inputs.
+		$j('input[toggleDim]').change(function () {
+				var target = $j(this).attr("toggleDim");
+				if ($j(this).is(":checked")) {
+					$j("#" + target + " :input").removeAttr('disabled');
+					$j("#" + target).animate({opacity:1.0}, 0);
+					restoreContainerInputs($j("#" + target));
+				} else {
+					$j("#" + target + " :input").attr('disabled', true);
+					$j("#" + target).animate({opacity:0.5}, 100);
+					clearContainerInputs($j("#" + target));
+				}
+      })
+      .change();
+
+		// triggered whenever any input with toggleHide attribute is changed.  Currently, only supports
+		// checkbox style inputs.
+		$j('input[toggleHide]').change(function () {
+			var target = $j(this).attr("toggleHide");
+			if ($j(this).is(":checked")) {
+				$j("#" + target).fadeIn();
+				restoreContainerInputs($j("#" + target));
+			} else {
+				$j("#" + target).hide();
+				clearContainerInputs($j("#" + target));
+			}
+      })
+      .change();
+
+		// indicates this function has completed
+		initInd = false;
+
 	});
+
+	
+	// clear toggle container's inputs but saves the input values until form is submitted/validated in case the user
+	// re-clicks the trigger checkbox.  Note: These "saved" input values will be lost if the form fails validation on submission.
+	function clearContainerInputs($container) {
+		if (!initInd) {
+		    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
+		    	$j(this).data('origVal',this.value);
+		    	$j(this).val("");
+		    });
+		    $container.find('input:radio, input:checkbox').each( function() {
+				if ($j(this).is(":checked")) {
+					$j(this).data('origState','checked');
+					$j(this).removeAttr("checked");
+				} else {
+					$j(this).data('origState','unchecked');
+				}
+		    });
+		}
+	}
+	
+	// restores toggle container's inputs from the last time the trigger checkbox was unchecked
+	function restoreContainerInputs($container) {
+	    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
+	    	$j(this).val($j(this).data('origVal'));
+	    });
+	    $container.find('input:radio, input:checkbox').each( function() {
+	    	if ($j(this).data('origState') == 'checked') {
+	    		$j(this).attr("checked", "checked");
+	    	} else {
+	    		$j(this).removeAttr("checked");
+	    	}
+	    });
+	}
+	
+	
 </script>
 
 <h2>
@@ -210,6 +284,12 @@
 </form>
 
 <c:if test="${ not empty previewHtml }">
+
+	<script>
+		var propertyAccessorInfo = new Array();
+		var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
+		var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
+	</script>
 	
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />

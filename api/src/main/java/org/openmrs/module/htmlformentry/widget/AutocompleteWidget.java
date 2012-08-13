@@ -1,104 +1,149 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.springframework.web.util.HtmlUtils;
+
+import java.lang.String;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+/**
+ *   A single option auto complete widget which provides auto complete suggestions using a
+ *   list of  predefined options
+ */
 
-import org.openmrs.Concept;
-import org.openmrs.ConceptClass;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+public class AutocompleteWidget extends  SingleOptionWidget{
 
-public class AutocompleteWidget implements Widget {
+    private Option initialOption;
+    private Class optionClass;
 
-	private Concept initialValue;
-	private String allowedConceptIds;
-	private String allowedConceptClassNames;
-	private String src;
-	private static String defaultSrc = "conceptSearch.form";
+    public AutocompleteWidget(Class optionClass) {
+        this.optionClass = optionClass;
+    }
 
-	public AutocompleteWidget(List<Concept> conceptList,
-			List<ConceptClass> allowedconceptclasses, String src) {
-		this.src = src;
-		
-		//only 1 of them is used to specify the filter
-		if (allowedconceptclasses.size() == 0) {
-			StringBuilder sb = new StringBuilder();
-			for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
-				sb.append(it.next().getConceptId());
-				if (it.hasNext())
-					sb.append(",");
-			}
-			this.allowedConceptIds = sb.toString();
-		} else {
-			StringBuilder sb = new StringBuilder();
-			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it
-					.hasNext();) {
-				sb.append(it.next().getName());
-				if (it.hasNext())
-					sb.append(",");
-			}
-			this.allowedConceptClassNames = sb.toString();
-		}
-	}
-
-	public AutocompleteWidget(List<Concept> conceptList,
-			List<ConceptClass> allowedconceptclasses) {
-		this(conceptList, allowedconceptclasses, defaultSrc);
-	}
-
-
-	@Override
+    /**
+     *
+     * @param  context
+     * @return generated html as a string
+     * @should accept options with special characters é,ã,ê,ù etc.
+     * @should accept options with single or double quotes in middle
+     * @should correctly set previous value if initial option is present
+     */
+    @Override
     public String generateHtml(FormEntryContext context) {
-		// hardcoded for concept search
 
-		StringBuilder sb = new StringBuilder();
-		if (context.getMode().equals(Mode.VIEW)) {
-			String toPrint = "";
-			if (initialValue != null) {
-				toPrint = initialValue.getDisplayString();
-				return WidgetFactory.displayValue(toPrint);
-			} else {
-				toPrint = "_______________";
-				return WidgetFactory.displayEmptyValue(toPrint);
+         String optionNames = null;
+         String optionValues = null;
+
+         if (context.getMode() == FormEntryContext.Mode.VIEW) {
+            String toPrint = "";
+            if (getInitialValue() != null) {
+                // lookup the label for the selected value
+                boolean found = false;
+                for (Option o : getOptions()) {
+                    if (getInitialValue().equals(o.getLabel())) {
+                        toPrint = o.getLabel();
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    toPrint = getInitialValue();
+                }
+                return WidgetFactory.displayValue(toPrint);
+            } else {
+                toPrint = "____";
+                return WidgetFactory.displayEmptyValue(toPrint);
+            }
+        }else {
+            StringBuilder sb = new StringBuilder();
+            String id = context.getFieldName(this);
+
+            if(!getOptions().isEmpty()){
+            optionNames = getNamesAsString(getOptions());
+            optionValues = getValuesAsString(getOptions());
+            }
+
+            // set the previously given option into widget, when editing the form
+            if (context.getMode() == FormEntryContext.Mode.EDIT) {
+             for (Option o : getOptions()) {
+                    if (getInitialValue() != null && getInitialValue().equals(o.getLabel())) {
+                        initialOption = new Option(o.getLabel(),o.getValue(),false);
+                    }
+                }
+            }
+            // set the default option into widget, when entering the form
+
+            else if (context.getMode() == FormEntryContext.Mode.ENTER) {
+               for (Option o : getOptions()) {
+                   if (o.isSelected() && !o.getValue().equals("")) {
+                      initialOption = new Option(o.getLabel(),o.getValue(),false);
+                   }
+               }
+            }
+
+
+            sb.append("<input type=\"text\" id=\"" + id + "\" value=\""
+			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
+			        + "\" onblur=\"onBlurAutocomplete(this)\" class=\"optionAutoComplete\""
+                    + " onfocus=\"setupOptionAutocomplete(this,'" +optionNames +"','"
+                    + optionValues + "')\" onchange=\"setValWhenAutocompleteFieldBlanked(this)\" placeholder=\""
+			        + Context.getMessageSourceService().getMessage("htmlformentry.form.value.placeholder") + "\" />");
+
+			sb.append("\n<input type=\"hidden\" class=\"optionAutoCompleteHidden\" id=\"" + id + "_hid" + "\" name=\""
+			        + id + "\" value=\"" + ((initialOption != null) ? initialOption.getValue() : "")
+			        + "\" />");
+            return sb.toString();
+        }
+    }
+
+    /**
+     *
+     * @param  options
+     * @return a single string with all the option values appended into it
+     */
+    private String getValuesAsString(List<Option> options) {
+
+       StringBuilder valueSb = new StringBuilder();
+            for (Iterator<Option> it = options.iterator(); it.hasNext();) {
+                valueSb.append(it.next().getValue());
+				if (it.hasNext()){
+                   valueSb.append(",");
+                }
 			}
-		} else {
-			sb.append("<input name=\"" + context.getFieldName(this) + "_hid"
-					+ "\" id=\"" + context.getFieldName(this) + "_hid" + "\""
-					+ " type=\"hidden\" class=\"autoCompleteHidden\" ");
-			if (initialValue != null) {
-				sb.append(" value=\"" + initialValue.getConceptId() + "\"");
+       return valueSb.toString();
+    }
+
+    /*
+     * @param  options
+     * @return a single string with all the option names appended into it
+     */
+    private String getNamesAsString(List<Option> options) {
+
+            StringBuilder nameSb = new StringBuilder();
+            for (Iterator<Option> it = options.iterator(); it.hasNext();) {
+                String originalOption = it.next().getLabel();
+
+                // this is added to eliminate the errors occur due to having ", ' and \ charaters included in
+                // the option names. When those are met they are replaced with 'escape character+original character'
+                originalOption = originalOption.replace("\\", "\\" +"\\" );
+                originalOption = originalOption.replace("'", "\\" +"'");
+                originalOption = originalOption.replace("\"", "\\" +"'" );
+
+				nameSb.append(originalOption);
+				if (it.hasNext()){
+                   nameSb.append(",");
+                }
 			}
-			sb.append("/>");
+        return nameSb.toString();
+    }
 
-			sb.append("<input type=\"text\"  id=\""
-					+ context.getFieldName(this) + "\"" + " name=\""
-					+ context.getFieldName(this) + "\" "
-					+ " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
-					+ this.allowedConceptIds + "','"
-					+ this.allowedConceptClassNames + "');\""
-					+ "class=\"autoCompleteText\""
-					+ " onBlur=\"onBlurAutocomplete(this)\"");
+    public Option getInitialOption() {
+        return initialOption;
+    }
 
-			if (initialValue != null)
-				sb.append(" value=\"" + initialValue.getDisplayString() + "\"");
-			sb.append("/>");
-
-		}
-		return sb.toString();
-	}
-
-
-	@Override
-    public Object getValue(FormEntryContext context, HttpServletRequest request) {
-		return request.getParameter(context.getFieldName(this) + "_hid");
-	}
-
-
-	@Override
-    public void setInitialValue(Object initialValue) {
-		// TODO Auto-generated method stub
-		this.initialValue = (Concept) initialValue;
-	}
+    public Class getOptionClass() {
+        return optionClass;
+    }
 }

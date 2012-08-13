@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
-		<version>1.9.5-SNAPSHOT</version>
+		<version>1.10.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>htmlformentry-api</artifactId>
@@ -114,11 +114,6 @@
 					<type>test-jar</type>
 				</dependency>
 				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
 					<groupId>org.openmrs.test</groupId>
 					<artifactId>openmrs-test</artifactId>
 					<type>pom</type>
@@ -135,11 +130,6 @@
 					<type>test-jar</type>
 				</dependency>
 				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
 					<groupId>org.openmrs.test</groupId>
 					<artifactId>openmrs-test</artifactId>
 					<type>pom</type>
@@ -153,11 +143,6 @@
 				<dependency>
 					<groupId>org.openmrs.api</groupId>
 					<artifactId>openmrs-api</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
 					<type>test-jar</type>
 				</dependency>
 				<dependency>

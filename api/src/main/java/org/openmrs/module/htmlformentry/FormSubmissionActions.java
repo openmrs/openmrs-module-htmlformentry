@@ -1,15 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.Vector;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -24,7 +15,18 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
+
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.Vector;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually be
@@ -37,7 +39,9 @@ public class FormSubmissionActions {
 	
 	/** Logger to use with this class */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
+    private Boolean patientUpdateRequired = false;
+
 	private List<Person> personsToCreate = new Vector<Person>();
 	
 	private List<Encounter> encountersToCreate = new Vector<Encounter>();
@@ -61,6 +65,8 @@ public class FormSubmissionActions {
 	private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
 	
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
+
+    private ExitFromCareProperty exitFromCareProperty;
 	
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
@@ -249,9 +255,10 @@ public class FormSubmissionActions {
 	 * @param value value for the Obs
 	 * @param datetime date information for the Obs
 	 * @param accessionNumber accession number for the Obs
+	 * @param comment comment for the obs
 	 * @return the Obs to create
 	 */
-	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment) {
 		if (value == null || "".equals(value))
 			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
 		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
@@ -265,6 +272,9 @@ public class FormSubmissionActions {
 		if (person != null)
 			obs.setPerson(person);
 		
+		if(StringUtils.isNotBlank(comment))
+			obs.setComment(comment);
+
 		if (encounter != null)
 			encounter.addObs(obs);
 		if (obsGroup != null) {
@@ -274,7 +284,15 @@ public class FormSubmissionActions {
 		}
 		return obs;
 	}
-	
+
+    /**
+     * Legacy createObs methods without the comment argument
+     */
+    public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
+        return createObs(concept, value, datetime, accessionNumber, null);
+    }
+
+
 	/**
 	 * Modifies an existing Obs.
 	 * <p/>
@@ -287,9 +305,9 @@ public class FormSubmissionActions {
 	 * @param newValue the new value of the Obs
 	 * @param newDatetime the new date information for the Obs
 	 * @param accessionNumber new accession number for the Obs
-	 * @param compareConcepts also compare conceptId for differences
+	 * @param comment comment for the obs
 	 */
-	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, String comment) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
 			if (log.isDebugEnabled())
@@ -325,14 +343,24 @@ public class FormSubmissionActions {
 			}
 			// TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
 			obsToVoid.add(existingObs);
-			createObs(concept, newValue, newDatetime, accessionNumber);
+			createObs(concept, newValue, newDatetime, accessionNumber, comment);
 		} else {
+			if(existingObs != null && StringUtils.isNotBlank(comment))
+				existingObs.setComment(comment);
+
 			if (log.isDebugEnabled()) {
 				log.debug("SAME: " + printObsHelper(existingObs));
 			}
 		}
 	}
-	
+
+    /**
+     * Legacy modifyObs methods without the comment argument
+     */
+    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+        modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null);
+    }
+
 	/**
 	 * Enrolls the Patient most recently added to the stack in the specified Program.
 	 * <p/>
@@ -365,11 +393,9 @@ public class FormSubmissionActions {
 		if (patient == null)
 			throw new IllegalArgumentException("Cannot enroll in a program outside of a Patient");
 		Encounter encounter = highestOnStack(Encounter.class);
-		if (encounter == null)
-			throw new IllegalArgumentException("Cannot enroll in a program outside of an Encounter");
 		
 		// if an enrollment date has not been specified, enrollment date is the encounter date
-		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : encounter.getEncounterDatetime();
+		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : (encounter  != null) ? encounter.getEncounterDatetime() : null;
 		
 		if (enrollmentDate == null)
 			throw new IllegalArgumentException("Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
@@ -540,7 +566,21 @@ public class FormSubmissionActions {
 		
 		patientProgramsToUpdate.add(patientProgram);
 	}
-	
+
+    /**
+     * Prepares data to be sent for exiting the given patient from care
+     * @param date - the date of exit
+     * @param exitReasonConcept - reason the patient is exited from care
+     */
+    public void exitFromCare(Date date, Concept exitReasonConcept){
+
+        if (date != null && exitReasonConcept != null){
+            this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept);
+        }else {
+            throw new IllegalArgumentException("Exit From Care: date and exitReasonConcept cannot be null");
+        }
+    }
+
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
@@ -558,8 +598,25 @@ public class FormSubmissionActions {
 	private String printObsHelper(Obs obs) {
 		return obs.getConcept().getBestName(Context.getLocale()) + " = " + obs.getValueAsString(Context.getLocale());
 	}
-	
-	/**
+
+    /**
+     * Returns true/false if we need to save the patient record during form submissiosn
+     * @return
+     */
+    public Boolean getPatientUpdateRequired() {
+        return patientUpdateRequired;
+    }
+
+    /**
+     * Set whether we need to save the patient record during form submission
+     *
+     * @param patientUpdateRequired
+     */
+    public void setPatientUpdateRequired(Boolean patientUpdateRequired) {
+        this.patientUpdateRequired = patientUpdateRequired;
+    }
+
+    /**
 	 * Returns a list of all the Persons that need to be created to process form submission
 	 * 
 	 * @return a list of all Persons to create
@@ -770,4 +827,16 @@ public class FormSubmissionActions {
 	public void setPatientProgramsToUpdate(List<PatientProgram> patientProgramsToUpdate) {
 		this.patientProgramsToUpdate = patientProgramsToUpdate;
 	}
+
+    /**
+     *
+     * @return the exitFromCareProperty
+     */
+    public ExitFromCareProperty getExitFromCareProperty() {
+        return exitFromCareProperty;
+    }
+
+    public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
+        this.exitFromCareProperty = exitFromCareProperty;
+    }
 }

@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
-		<version>1.9.5-SNAPSHOT</version>
+		<version>1.10.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>htmlformentry-omod</artifactId>
-	<packaging>omod</packaging>
+	<packaging>jar</packaging>
 	<name>HTML Form Entry OMOD</name>
 	<description>OpenMRS module project for HTML Form Entry</description>
 

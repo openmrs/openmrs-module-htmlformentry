@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
@@ -59,7 +60,9 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
+import org.openmrs.obs.ComplexData;
 import org.openmrs.propertyeditor.ConceptEditor;
+import org.openmrs.propertyeditor.EncounterTypeEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
@@ -145,6 +148,10 @@ public class HtmlFormEntryUtil {
 			PersonEditor ed = new PersonEditor();
 			ed.setAsText(val);
 			return ed.getValue();
+		} else if (EncounterType.class.isAssignableFrom(clazz)) {
+			EncounterTypeEditor ed = new EncounterTypeEditor();
+			ed.setAsText(val);
+			return ed.getValue();
 		} else {
 			return val;
 		}
@@ -182,6 +189,9 @@ public class HtmlFormEntryUtil {
 		ConceptDatatype dt = obs.getConcept().getDatatype();
 		if (dt.isNumeric()) {
 			obs.setValueNumeric(Double.parseDouble(value.toString()));
+		} else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(dt.getUuid())) {
+			obs.setComplexData((ComplexData) value);
+			obs.setValueComplex(obs.getComplexData().getTitle());
 		} else if (dt.isText()) {
 			if (value instanceof Location) {
 				Location location = (Location) value;
@@ -389,7 +399,7 @@ public class HtmlFormEntryUtil {
 	 * Get the concept by id, the id can either be 1)an integer id like 5090 or 2)mapping type id
 	 * like "XYZ:HT" or 3)uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the concept if exist, else null
 	 * @should find a concept by its conceptId
 	 * @should find a concept by its mapping
@@ -462,13 +472,15 @@ public class HtmlFormEntryUtil {
 	 * Get the location by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) location name like "Boston" or 4) an id/name
 	 * pair like "501 - Boston" (this format is used when saving a location on a obs as a value
-	 * text)
+	 * text) or 5) "GlobalProperty:property.name" or 6) "UserProperty:propertyName"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the location if exist, else null
 	 * @should find a location by its locationId
 	 * @should find a location by name
 	 * @should find a location by its uuid
+	 * @should find a location by global property
+	 * @should find a location by user property
 	 * @should return null otherwise
 	 */
 	public static Location getLocation(String id) {
@@ -476,6 +488,24 @@ public class HtmlFormEntryUtil {
 		Location location = null;
 		
 		if (id != null) {
+			
+			// handle GlobalProperty:property.name
+			if (id.startsWith("GlobalProperty:")) {
+				String gpName = id.substring("GlobalProperty:".length());
+				String gpValue = Context.getAdministrationService().getGlobalProperty(gpName);
+				if (StringUtils.isNotEmpty(gpValue)) {
+					return getLocation(gpValue);
+				}
+			}
+			
+			// handle UserProperty:propName
+			if (id.startsWith("UserProperty:")) {
+				String upName = id.substring("UserProperty:".length());
+				String upValue = Context.getAuthenticatedUser().getUserProperty(upName);
+				if (StringUtils.isNotEmpty(upValue)) {
+					return getLocation(upValue);
+				}
+			}
 			
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
@@ -532,7 +562,7 @@ public class HtmlFormEntryUtil {
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) name of *associated concept* (not name of
 	 * program), like "MDR-TB Program"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the program if exist, else null
 	 * @should find a program by its id
 	 * @should find a program by name of associated concept
@@ -581,7 +611,7 @@ public class HtmlFormEntryUtil {
 	 * pair like "5090 - Bob Jones" (this format is used when saving a person on a obs as a value
 	 * text)
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the person if exist, else null
 	 * @should find a person by its id
 	 * @should find a person by its uuid
@@ -647,7 +677,7 @@ public class HtmlFormEntryUtil {
 	 * Get the patient identifier type by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a name like "Temporary Identifier"
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the identifier type if exist, else null
 	 * @should find an identifier type by its id
 	 * @should find an identifier type by its uuid
@@ -693,7 +723,7 @@ public class HtmlFormEntryUtil {
 	 * Looks up a {@link ProgramWorkflow} by id, uuid or by concept map of the underlying concept
 	 */
 	@SuppressWarnings("deprecation")
-    public static ProgramWorkflow getWorkflow(String identifier) {
+	public static ProgramWorkflow getWorkflow(String identifier) {
 		ProgramWorkflow workflow = null;
 		
 		if (identifier != null) {
@@ -705,9 +735,8 @@ public class HtmlFormEntryUtil {
 				if (workflow != null) {
 					return workflow;
 				}
-			} 
-			catch (NumberFormatException e) {
 			}
+			catch (NumberFormatException e) {}
 			
 			// if not, try to fetch by uuid
 			if (isValidUuidFormat(identifier)) {
@@ -727,7 +756,7 @@ public class HtmlFormEntryUtil {
 				// iterate through workflows until we see if we find a match
 				if (concept != null) {
 					for (Program program : Context.getProgramWorkflowService().getAllPrograms(false)) {
-		 				for (ProgramWorkflow w : program.getAllWorkflows()) {
+						for (ProgramWorkflow w : program.getAllWorkflows()) {
 							if (w.getConcept().equals(concept)) {
 								return w;
 							}
@@ -741,10 +770,10 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Looks up a {@link ProgramWorkflowState} from the specified program by
-	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
-	 * 
-	 * (Note that if there are multiple states associated with the same concept in the program, this method will return an arbitrary one if fetched by concept mapping)
+	 * Looks up a {@link ProgramWorkflowState} from the specified program by programWorkflowStateId,
+	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple
+	 * states associated with the same concept in the program, this method will return an arbitrary
+	 * one if fetched by concept mapping)
 	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
@@ -785,9 +814,9 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
-	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept
-	 * 
-	 * (Note that if there are multiple states associated with the same concept in the workflow, this method will return an arbitrary one if fetched by concept mapping)
+	 * programWorkflowStateId, uuid, or by a concept map to the the underlying concept (Note that if
+	 * there are multiple states associated with the same concept in the workflow, this method will
+	 * return an arbitrary one if fetched by concept mapping)
 	 * 
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param workflow
@@ -828,9 +857,9 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
 	 * programWorkflowStateId, or uuid
-	 *  
+	 * 
 	 * @param identifier the programWorkflowStateId or uuid to match against
-	 * @param workflow
+	 * @param
 	 * @return
 	 * @should return the state with the matching id
 	 * @should return the state with the matching uuid
@@ -847,9 +876,8 @@ public class HtmlFormEntryUtil {
 				if (state != null) {
 					return state;
 				}
-			} 
-			catch (NumberFormatException e) {
 			}
+			catch (NumberFormatException e) {}
 			
 			if (isValidUuidFormat(identifier)) {
 				state = Context.getProgramWorkflowService().getStateByUuid(identifier);
@@ -861,8 +889,6 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-
-	
 	
 	/***
 	 * Determines if the passed string is in valid uuid format By OpenMRS standards, a uuid must be
@@ -1095,7 +1121,7 @@ public class HtmlFormEntryUtil {
 			for (Method getter : clazz.getMethods()) {
 				if (getter.getName().toUpperCase().equals("GET" + root.toUpperCase())
 				        && getter.getParameterTypes().length == 0) {
-					Method setter = getMethodCaseInsensitive(clazz, "SET" + root.toUpperCase());
+					Method setter = getSetter(clazz, getter, "SET" + root.toUpperCase());
 					//NOTE: Collection properties are not copied
 					if (setter != null && methodsSupportSameArgs(getter, setter)
 					        && !(getter.getReturnType().isInstance(Collection.class))) {
@@ -1111,23 +1137,55 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Performs a case insensitive search on a class for a method by name.
+	 * The Encounter.setProvider() contains the different overloaded methods and this filters the
+	 * correct setter from those
 	 * 
 	 * @param clazz
-	 * @param methodName
-	 * @return the found Method
+	 * @param getter
+	 * @param methodname
+	 * @return
 	 */
-	private static Method getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
-		for (Method m : clazz.getMethods()) {
-			if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
-				return m;
+	private static Method getSetter(Class<? extends Object> clazz, Method getter, String methodname) {
+		
+		List<Method> setterMethods = getMethodCaseInsensitive(clazz, methodname);
+		if (setterMethods != null && !setterMethods.isEmpty()) {
+			if (setterMethods.size() == 1) {
+				return setterMethods.get(0);
+			} else if (setterMethods.size() > 1) {
+				for (Method m : setterMethods) {
+					Class<?>[] parameters = m.getParameterTypes();
+					for (Class<?> parameter : parameters) {
+						if (getter.getReturnType().equals(parameter)) {
+							return m;
+						}
+					}
+				}
 			}
 		}
 		return null;
 	}
 	
 	/**
-	 * compares getter return types to setter parameter types.
+	 * Performs a case insensitive search on a class for a method by name.
+	 * 
+	 * @param clazz
+	 * @param methodName
+	 * @return the found Method
+	 */
+	private static List<Method> getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
+		
+		List<Method> methodList = new ArrayList<Method>();
+		for (Method m : clazz.getMethods()) {
+			if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
+				methodList.add(m);
+				
+			}
+		}
+		return methodList;
+	}
+	
+	/**
+	 * compares getter return types to setter parameter types
 	 * 
 	 * @param getter
 	 * @param setter
@@ -1263,16 +1321,17 @@ public class HtmlFormEntryUtil {
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
 		
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+		    null, date, date, null, false);
 		
 		return (patientPrograms.size() > 0);
 		
 	}
-
+	
 	/**
-	 * Checks to see if the patient has a program enrollment in the specified program after the given date
-	 * If multiple patient programs, returns the earliest enrollment
-	 * If no enrollments, returns null
+	 * Checks to see if the patient has a program enrollment in the specified program after the
+	 * given date If multiple patient programs, returns the earliest enrollment If no enrollments,
+	 * returns null
 	 */
 	public static PatientProgram getClosestFutureProgramEnrollment(Patient patient, Program program, Date date) {
 		if (patient == null)
@@ -1283,32 +1342,35 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("date should not be null");
 		
 		PatientProgram closestProgram = null;
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, date, null, null , null, false);
-	    
-		for (PatientProgram pp: patientPrograms) {
-			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled())) && pp.getDateEnrolled().after(date)) {
+		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
+		    date, null, null, null, false);
+		
+		for (PatientProgram pp : patientPrograms) {
+			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled()))
+			        && pp.getDateEnrolled().after(date)) {
 				closestProgram = pp;
 			}
 			
 		}
 		
 		return closestProgram;
-    }
+	}
 	
 	/**
-	 * Given a Date object, returns a Date object for the same date but with the time component (hours, minutes, seconds & milliseconds) removed
+	 * Given a Date object, returns a Date object for the same date but with the time component
+	 * (hours, minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
 		// Get Calendar object set to the date and time of the given Date object  
-		Calendar cal = Calendar.getInstance();  
-		cal.setTime(date);  
-		  
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
 		// Set time fields to zero  
-		cal.set(Calendar.HOUR_OF_DAY, 0);  
-		cal.set(Calendar.MINUTE, 0);  
-		cal.set(Calendar.SECOND, 0);  
-		cal.set(Calendar.MILLISECOND, 0);  
-		  	
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		
 		return cal.getTime();
 	}
 	
@@ -1319,15 +1381,63 @@ public class HtmlFormEntryUtil {
 	public static String toCamelCase(String s) {
 		StringBuffer sb = new StringBuffer();
 		String[] words = s.replaceAll("[^A-Za-z]", " ").replaceAll("\\s+", " ").trim().split(" ");
-
+		
 		for (int i = 0; i < words.length; i++) {
-			if (i == 0) 
+			if (i == 0)
 				words[i] = words[i].toLowerCase();
-			else 
+			else
 				words[i] = String.valueOf(words[i].charAt(0)).toUpperCase() + words[i].substring(1);
-
+			
 			sb.append(words[i]);
 		}
 		return sb.toString();
+	}
+	
+	/***
+	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
+	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
+	 * 
+	 * @param Id
+	 * @return the encounter type if exist, else null
+	 * @should find a encounter type by its encounterTypeId
+	 * @should find a encounter type by name
+	 * @should find a encounter type by its uuid
+	 * @should return null otherwise
+	 */
+	public static EncounterType getEncounterType(String id) {
+		
+		EncounterType encounterType = null;
+		
+		if (StringUtils.isNotBlank(id)) {
+			id = id.trim();
+			// see if this is parseable int; if so, try looking up by id
+			try {
+				int encounterTypeId = Integer.parseInt(id);
+				encounterType = Context.getEncounterService().getEncounterType(encounterTypeId);
+				
+				if (encounterType != null)
+					return encounterType;
+			}
+			catch (Exception ex) {
+				//do nothing
+			}
+			
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format
+			if (isValidUuidFormat(id)) {
+				encounterType = Context.getEncounterService().getEncounterTypeByUuid(id);
+				
+				if (encounterType != null)
+					return encounterType;
+			}
+			
+			// if it's neither a uuid or id, try encounter type name
+			encounterType = Context.getEncounterService().getEncounterType(id);
+			
+			if (encounterType != null)
+				return encounterType;
+		}
+		
+		// no match found
+		return null;
 	}
 }

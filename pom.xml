@@ -3,7 +3,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>htmlformentry</artifactId>
-	<version>1.9.5-SNAPSHOT</version>
+	<version>1.10.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>HTML Form Entry</name>
 	<description>Parent project for HTML Form Entry</description>
@@ -282,7 +282,7 @@
 			<id>openmrs-1.9</id>
 
 			<properties>
-				<openMRSVersion>1.9.0-RC</openMRSVersion>
+				<openMRSVersion>1.9.0</openMRSVersion>
 				<openMRSMinorVersion>1.9</openMRSMinorVersion>
 				<logicVersion>0.5</logicVersion>
 			</properties>

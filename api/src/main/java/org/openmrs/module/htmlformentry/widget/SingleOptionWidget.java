@@ -44,7 +44,7 @@ public abstract class SingleOptionWidget implements Widget {
      * @see Widget#getValue(FormEntryContext, HttpServletRequest)
      */
     @Override
-    public String getValue(FormEntryContext context, HttpServletRequest request) {
+    public Object getValue(FormEntryContext context, HttpServletRequest request) {
         return request.getParameter(context.getFieldName(this));
     }
 
