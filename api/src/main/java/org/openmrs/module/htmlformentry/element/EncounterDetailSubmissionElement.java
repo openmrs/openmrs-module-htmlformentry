@@ -574,10 +574,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
      * @return
      */
     private String getGetterFunction(Widget widget) {
-		if (widget == null)
-			return null;
-		if (widget instanceof AutocompleteWidget)
+		if (widget == null) {
+            return null;
+        }
+		if (widget instanceof AutocompleteWidget) {
 			return "autocompleteGetterFunction";
+        }
 		return null;
 	}
 
@@ -587,10 +589,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
      * @return
      */
     private String getSetterFunction(Widget widget) {
-		if (widget == null)
+		if (widget == null) {
 			return null;
-		if (widget instanceof AutocompleteWidget)
+        }
+		if (widget instanceof AutocompleteWidget) {
 			return "autocompleteSetterFunction";
+        }
 		return null;
 	}
 

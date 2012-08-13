@@ -414,13 +414,15 @@ function checkboxSetterFunction(widgetId, value) {
 function dateFieldGetterFunction(widgetId) {
 	return jQuery('#' + widgetId + '-display');
 }
+
+// custom setter for date widgets
+function dateSetterFunction(widgetId, value) {
+    setDatePickerValue('#' + widgetId + '-display', value);
+}
+
 //fetches the displayed value within the "read-only text box of new relationship "
 function newRelationshipFieldGetterFunction(widgetId) {
 	return document.getElementById(widgetId+'name').value;
-}
-// custom setter for date widgets
-function dateSetterFunction(widgetId, value) {
-	setDatePickerValue('#' + widgetId + '-display', value);
 }
 
 // custom setter for Autocomplete widget
