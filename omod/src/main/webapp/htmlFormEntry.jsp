@@ -68,39 +68,39 @@
 		// triggered whenever any input with toggleDim attribute is changed.  Currently, only supports
 		// checkbox style inputs.
 		$j('input[toggleDim]').change(function () {
-				var target = $j(this).attr("toggleDim");
-				if ($j(this).is(":checked")) {
-					$j("#" + target + " :input").removeAttr('disabled');
-					$j("#" + target).animate({opacity:1.0}, 0);
-					restoreContainerInputs($j("#" + target));
-				} else {
-					$j("#" + target + " :input").attr('disabled', true);
-					$j("#" + target).animate({opacity:0.5}, 100);
-					clearContainerInputs($j("#" + target));
-				}
-      })
-      .change();
+            var target = $j(this).attr("toggleDim");
+            if ($j(this).is(":checked")) {
+                $j("#" + target + " :input").removeAttr('disabled');
+                $j("#" + target).animate({opacity:1.0}, 0);
+                restoreContainerInputs($j("#" + target));
+            } else {
+                $j("#" + target + " :input").attr('disabled', true);
+                $j("#" + target).animate({opacity:0.5}, 100);
+                clearContainerInputs($j("#" + target));
+            }
+        })
+        .change();
 
 		// triggered whenever any input with toggleHide attribute is changed.  Currently, only supports
 		// checkbox style inputs.
-		$j('input[toggleHide]').change(function () {
-			var target = $j(this).attr("toggleHide");
-			if ($j(this).is(":checked")) {
-				$j("#" + target).fadeIn();
-				restoreContainerInputs($j("#" + target));
-			} else {
-				$j("#" + target).hide();
-				clearContainerInputs($j("#" + target));
-			}
-      })
-      .change();
+        $j('input[toggleHide]').change(function () {
+            var target = $j(this).attr("toggleHide");
+            if ($j(this).is(":checked")) {
+                $j("#" + target).fadeIn();
+                restoreContainerInputs($j("#" + target));
+            } else {
+                $j("#" + target).hide();
+                clearContainerInputs($j("#" + target));
+            }
+        })
+        .change();
 
-		// triggered whenever any input widget on the page is changed
-   	$j(':input').change(function () {
+        // triggered whenever any input widget on the page is changed
+   	    $j(':input').change(function () {
 			$j(':input.has-changed-ind').val('true');
 		});
 
-      //  warn user that his/her changes will be lost if he/she leaves the page
+        // warn user that his/her changes will be lost if he/she leaves the page
 		$j(window).bind('beforeunload', function(){
 			var hasChangedInd = $j(':input.has-changed-ind').val();
 			if (hasChangedInd == 'true' && !isSubmittingInd && !isDiscardingInd) {
@@ -108,8 +108,8 @@
 			}
 		});
 
-		// catch form submit button (not currently used)
-      $j('form').submit(function() {
+	    // catch form submit button (not currently used)
+        $j('form').submit(function() {
 			isSubmittingInd = true;
 			return true;
 		});
@@ -152,16 +152,18 @@
 	
 	// restores toggle container's inputs from the last time the trigger checkbox was unchecked
 	function restoreContainerInputs($container) {
-	    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
-	    	$j(this).val($j(this).data('origVal'));
-	    });
-	    $container.find('input:radio, input:checkbox').each( function() {
-	    	if ($j(this).data('origState') == 'checked') {
-	    		$j(this).attr("checked", "checked");
-	    	} else {
-	    		$j(this).removeAttr("checked");
-	    	}
-	    });
+		if (!initInd) {
+		    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
+		    	$j(this).val($j(this).data('origVal'));
+		    });
+		    $container.find('input:radio, input:checkbox').each( function() {
+		    	if ($j(this).data('origState') == 'checked') {
+		    		$j(this).attr("checked", "checked");
+		    	} else {
+		    		$j(this).removeAttr("checked");
+		    	}
+		    });
+		}
 	}
 
 	var tryingToSubmit = false;
