@@ -816,6 +816,8 @@ public class FormEntrySession {
                         // set the value of the widget based on it's name
                         sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
                                 + "');\n");
+                        // this is added mainly to trigger the change() event with <exitFromCare> tag widgets
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     }
 
 
@@ -828,6 +830,8 @@ public class FormEntrySession {
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
                     } else {
                         sb.append("setValueByName('" + widgetFieldName + "', '');\n");
+                        // this is added mainly to trigger the change() event with <exitFromCare> tag widgets
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     }
                 }
             }

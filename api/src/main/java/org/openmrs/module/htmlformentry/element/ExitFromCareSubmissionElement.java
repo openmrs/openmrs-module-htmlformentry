@@ -85,7 +85,6 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
 
         // set the cause for the death and reason for death fields if the reason for the patient's exit is, that the
         // patient has died
-
         String causeOfDeathConId = Context.getAdministrationService().getGlobalProperty("concept.causeOfDeath");
         Concept causeOfDeathConcept = Context.getConceptService().getConcept(causeOfDeathConId);
         List<Obs> obsDeath = Context.getObsService().getObservationsByPersonAndConcept(patient, causeOfDeathConcept);
@@ -192,7 +191,6 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                     }
                 }
             }
-
         }
 
         if (causeOfDeathWidget != null) {
@@ -219,7 +217,6 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                 }
             }
         }
-
 
         // this validation is added to avoid user resetting the 'exit from care'
         if (obsList != null && obsList.size() == 1) {
@@ -338,21 +335,13 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
                 sb.append("<script>");
                 sb.append("$j(document).ready(function(){");
-
-                //this code 342-348 is added to set the value back into widget when it is changed, i have
-                //used in built setValueByName() method here but it is not working, when form is reloaded
-                // after submit fail
-                sb.append("$j(\"#" + reasonWidgetId + "\").change(function(){");
-                sb.append("var reasonVal = $j(\"#" + reasonWidgetId + "\").val();");
-                sb.append("setValueByName($j(\"#" + reasonWidgetId + "\"),reasonVal,null);");
-                sb.append("});");
-
                 sb.append("var rVal = $j(\"#" + reasonWidgetId + "\").val();");
                 sb.append("if (rVal == \"" + patientDiedConId + "\")\n"
                         + " { $j(\"#" + causeWidgetId + "\").show();}\n"
                         + "if (rVal != \"" + patientDiedConId + "\")\n"
                         + " { $j(\"#" + causeWidgetId + "\").val(\"\"); $j(\"#" + causeWidgetId + "\").hide();"
                         + " $j(\"#" + otherTextWidgetId + "\").val(\"\"); $j(\"#" + otherTextWidgetId + "\").hide();}");
+
                 sb.append("});");
                 sb.append("</script>");
             }
@@ -397,11 +386,11 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                     if (obs.getValueCoded().getConceptId().equals(patientDiedConcept.getConceptId())) {
                         sb.append(causeOfDeathWidget.generateHtml(context));
                     }
-                }else if(obsList != null && obsList.size() == 0){
+                } else if (obsList != null && obsList.size() == 0) {
                     // this state may not be happen often, but in case that there is no exit from case
                     // observation, but however patient is dead, we are displaying cause of death then
-                    if(obsDeath != null && obsDeath.size() == 1){
-                      sb.append(causeOfDeathWidget.generateHtml(context));
+                    if (obsDeath != null && obsDeath.size() == 1) {
+                        sb.append(causeOfDeathWidget.generateHtml(context));
                     }
                 }
             } else {
@@ -425,8 +414,7 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                 sb.append("</script>");
             }
             if (context.getMode() == FormEntryContext.Mode.EDIT) {
-               // if(! reasonForExitWidget.getInitialValue().equals(patientDiedConcept.getDisplayString())){
-                  sb.append("<script>");
+                sb.append("<script>");
                 sb.append("$j(document).ready(function(){");
                 sb.append("var cVal = $j(\"#" + causeWidgetId + "\").val();");
                 sb.append("if (cVal == \"" + otherNonCodedConId + "\")\n"
@@ -435,7 +423,6 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                         + " { $j(\"#" + otherTextWidgetId + "\").val(\"\"); $j(\"#" + otherTextWidgetId + "\").hide();}");
                 sb.append("});");
                 sb.append("</script>");
-
             }
         }
 
@@ -469,15 +456,14 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
                             sb.append(otherReasonWidget.generateHtml(context));
                         }
                     }
-
-
                 }
             } else {
                 sb.append(otherReasonWidget.generateHtml(context));
             }
 
-            if (context.getMode() != FormEntryContext.Mode.VIEW)
+            if (context.getMode() != FormEntryContext.Mode.VIEW) {
                 sb.append(otherReasonErrorWidget.generateHtml(context));
+            }
 
             // only show otherReasonWidget if there is an initial value, else hide it
             if (context.getMode() == FormEntryContext.Mode.ENTER) {
