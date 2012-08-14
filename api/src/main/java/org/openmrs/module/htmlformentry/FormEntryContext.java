@@ -548,7 +548,7 @@ public class FormEntryContext {
             List<Obs> rankTable = new ArrayList<Obs>();
             int topRanking = 0;
             
-            for (Obs parentObs:contenders){
+            for (Obs parentObs : contenders){
                 int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs));
 
                 if (rank > 0) {
@@ -567,16 +567,16 @@ public class FormEntryContext {
                  * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
                  * a subsequent form scan.
                  */
-                log.debug("No matching obsGroup found; returning null obsGroup.");
+//                log.debug("No matching obsGroup found; returning null obsGroup.");
             } else if (rankTable.size() == 1) {
                 ret = rankTable.get(0);
-                log.debug("Found exactly one matching obsGroup; returning that obsGroup.");
+//                log.debug("Found exactly one matching obsGroup; returning that obsGroup.");
             } else if (rankTable.size() > 1) {
                 /* Multiple obsgroups support obs set, returning null obsGroup.  This will 
                  * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
                  * a subsequent form scan.
                  */
-                log.debug("Multiple obsgroups support obs set; returning null obsGroup");
+//                log.debug("Multiple obsgroups support obs set; returning null obsGroup");
             }
         }
         
