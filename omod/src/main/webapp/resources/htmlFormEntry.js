@@ -437,13 +437,7 @@ function autocompleteSetterFunction(widgetId, value) {
 
 // custom getter for Autocomplete widget
 function autocompleteGetterFunction(widgetId) {
-	var sel = DWRUtil.getValue(widgetId);
-	if (sel) {
-		return jQuery('#' + widgetId).val();
-
-	} else {
-		return null;
-	}
+    return jQuery('#' + widgetId + '_hid').val();
 }
 
 //does an ajax lookup to see if this form has already been filled out for this encounter date.
