@@ -754,6 +754,12 @@ public class FormEntrySession {
                 String widgetFieldName = entry.getValue();
                 String val = lastSubmission.getParameter(widgetFieldName);
 
+
+    //there are jquery change() events have been appended into all widgets, however this is still used
+    //to trigger the change() event with <exitFromCare> tag widgets. But this is appended with each as
+    //we need to add a convention of triggering a change event in all cases, so that we can use it with
+    //other tags in future if needed
+
                 if (val != null) {
                     // special case to set the display field when autocomplete is used
                     if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
@@ -777,6 +783,7 @@ public class FormEntrySession {
                                         + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
                                 sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
                                         + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getId().toString())) + "\");\n");
+                                sb.append("$j('#" + widgetFieldName + "').change();\n");
 
                             } else if (widgetClass.getSimpleName().equals("Person")) {
                                 Person provider = null;
@@ -791,6 +798,7 @@ public class FormEntrySession {
                                         + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
                                 sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
                                         + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getId().toString())) + "\");\n");
+                                sb.append("$j('#" + widgetFieldName + "').change();\n");
                             }
                         }
                     }
@@ -811,12 +819,11 @@ public class FormEntrySession {
                         sb.append("$j('#" + widgetFieldName + "').val(\""
                                 + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString())) + "\");\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\"" + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
-
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     } else {
                         // set the value of the widget based on it's name
                         sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
                                 + "');\n");
-                        // this is added mainly to trigger the change() event with <exitFromCare> tag widgets
                         sb.append("$j('#" + widgetFieldName + "').change();\n");
                     }
 
@@ -825,12 +832,13 @@ public class FormEntrySession {
                     if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
                         sb.append("$j('#" + widgetFieldName + "').val('');\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     } else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
                         sb.append("$j('#" + widgetFieldName + "').val('');\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     } else {
                         sb.append("setValueByName('" + widgetFieldName + "', '');\n");
-                        // this is added mainly to trigger the change() event with <exitFromCare> tag widgets
                         sb.append("$j('#" + widgetFieldName + "').change();\n");
                     }
                 }

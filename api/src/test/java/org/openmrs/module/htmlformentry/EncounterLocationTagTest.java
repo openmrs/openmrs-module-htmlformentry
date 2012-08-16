@@ -65,10 +65,10 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
         FormEntrySession session = new FormEntrySession(null, htmlform);
         Assert.assertTrue(session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Test Location\"") > -1);
-
     }
 
-	@Test
+
+    @Test
 	public void encounterLocationTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
@@ -76,7 +76,6 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
 	}
-
 	@Test
 
 	public void encounterLocationTag_shouldSupportDefaultSelectyByGlobalProperty() throws Exception {
