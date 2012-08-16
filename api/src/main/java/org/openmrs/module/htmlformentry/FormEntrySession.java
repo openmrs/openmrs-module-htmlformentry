@@ -754,11 +754,10 @@ public class FormEntrySession {
                 String widgetFieldName = entry.getValue();
                 String val = lastSubmission.getParameter(widgetFieldName);
 
-
-    //there are jquery change() events have been appended into all widgets, however this is still used
-    //to trigger the change() event with <exitFromCare> tag widgets. But this is appended with each as
-    //we need to add a convention of triggering a change event in all cases, so that we can use it with
-    //other tags in future if needed
+                // note that for each widget we set, we also trigger the change event on that widget
+                // this is so any custom change handlers that a widget or tag may configure are called
+                // when we set a value here; this is specifically used to make sure we trigger the change
+                // handlers configured by the <exitFromCare> tag
 
                 if (val != null) {
                     // special case to set the display field when autocomplete is used
