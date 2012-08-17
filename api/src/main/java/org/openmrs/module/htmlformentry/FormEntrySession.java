@@ -667,8 +667,6 @@ public class FormEntrySession {
           }
           */
 
-        
-
         // save the patient
         // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
         // we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
@@ -678,12 +676,16 @@ public class FormEntrySession {
             Context.getPersonService().savePerson(patient);
         }
 
-        // exit the patient from care
-        if(submissionActions.getExitFromCareProperty() != null){
+        // exit the patient from care or process patient's death
+        if (submissionActions.getExitFromCareProperty() != null) {
             ExitFromCareProperty exitFromCareProperty =
                     submissionActions.getExitFromCareProperty();
-            Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
-
+            if (exitFromCareProperty.getCauseOfDeathConcept() != null) {
+                Context.getPatientService().processDeath(this.getPatient(), exitFromCareProperty.getDateOfExit(),
+                        exitFromCareProperty.getCauseOfDeathConcept(), exitFromCareProperty.getOtherReason());
+            } else {
+                Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
+            }
 
         }
 
@@ -752,6 +754,11 @@ public class FormEntrySession {
                 String widgetFieldName = entry.getValue();
                 String val = lastSubmission.getParameter(widgetFieldName);
 
+                // note that for each widget we set, we also trigger the change event on that widget
+                // this is so any custom change handlers that a widget or tag may configure are called
+                // when we set a value here; this is specifically used to make sure we trigger the change
+                // handlers configured by the <exitFromCare> tag
+
                 if (val != null) {
                     // special case to set the display field when autocomplete is used
                     if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
@@ -775,6 +782,7 @@ public class FormEntrySession {
                                         + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName())) + "\");\n");
                                 sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
                                         + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getId().toString())) + "\");\n");
+                                sb.append("$j('#" + widgetFieldName + "').change();\n");
 
                             } else if (widgetClass.getSimpleName().equals("Person")) {
                                 Person provider = null;
@@ -789,6 +797,7 @@ public class FormEntrySession {
                                         + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName())) + "\");\n");
                                 sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
                                         + (provider == null ? "" : JavaScriptUtils.javaScriptEscape(provider.getId().toString())) + "\");\n");
+                                sb.append("$j('#" + widgetFieldName + "').change();\n");
                             }
                         }
                     }
@@ -809,11 +818,12 @@ public class FormEntrySession {
                         sb.append("$j('#" + widgetFieldName + "').val(\""
                                 + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString())) + "\");\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\"" + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString())) + "\");\n");
-
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     } else {
                         // set the value of the widget based on it's name
                         sb.append("setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val)
                                 + "');\n");
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     }
 
 
@@ -821,11 +831,14 @@ public class FormEntrySession {
                     if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
                         sb.append("$j('#" + widgetFieldName + "').val('');\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     } else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
                         sb.append("$j('#" + widgetFieldName + "').val('');\n");
                         sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     } else {
                         sb.append("setValueByName('" + widgetFieldName + "', '');\n");
+                        sb.append("$j('#" + widgetFieldName + "').change();\n");
                     }
                 }
             }

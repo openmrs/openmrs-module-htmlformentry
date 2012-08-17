@@ -262,7 +262,21 @@
   <concept_name voided="false" concept_name_id="4201" concept_id="4201" name="RECOVERED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
   <concept_answer concept_answer_id="3001" concept_id="4200" answer_concept="4201" creator="1" date_created="2012-01-01 00:00:00.0"/>
   <concept concept_id="4202" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b1e3-001ec94a0cc7"/>
-  <concept_name voided="false" concept_name_id="4202" concept_id="4202" name="PERSON DIED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="4202" concept_id="4202" name="PATIENT DIED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
   <concept_answer concept_answer_id="3002" concept_id="4200" answer_concept="4202" creator="1" date_created="2012-01-01 00:00:00.0"/>
+
+  <global_property property="concept.causeOfDeath" property_value="4300" uuid="4f55827e-26fe-102b-81cb-0017b4ec71b3"/>
+  <global_property property="concept.patientDied" property_value="4202" uuid="4f55827e-26fe-102b-82cb-0017b4ec71b3"/>
+  <global_property property="concept.otherNonCoded" property_value="4302" uuid="4f55827e-26fe-102b-82cb-0027b4ec71b3"/>
+
+  <concept concept_id="4300" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296160-03aa-102d-bb7e-001ec4ec0334"/>
+  <concept_name voided="false" concept_name_id="4300" concept_id="4300" name="CAUSE OF DEATH" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+
+  <concept concept_id="4301" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32496060-03aa-102d-b0e3-001ec93a0cc7"/>
+  <concept_name voided="false" concept_name_id="4301" concept_id="4301" name="STROKE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3003" concept_id="4300" answer_concept="4301" creator="1" date_created="2012-01-01 00:00:00.0"/>
+  <concept concept_id="4302" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32496060-03aa-102d-b1e3-001ec94a0cc7"/>
+  <concept_name voided="false" concept_name_id="4302" concept_id="4302" name="OTHER NON-CODED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3004" concept_id="4300" answer_concept="4302" creator="1" date_created="2012-01-01 00:00:00.0"/>
 
 </dataset>

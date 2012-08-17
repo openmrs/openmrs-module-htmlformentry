@@ -12,11 +12,15 @@ public class ExitFromCareProperty {
 
     private Date dateOfExit;
     private Concept reasonExitConcept;
+    private Concept causeOfDeathConcept;
+    private String otherReason;
 
-    public ExitFromCareProperty(Date dateOfExit, Concept reasonExitConcept) {
+    public ExitFromCareProperty(Date dateOfExit, Concept reasonExitConcept, Concept causeOfDeathConcept, String otherReason) {
 
         this.dateOfExit = dateOfExit;
         this.reasonExitConcept = reasonExitConcept;
+        this.causeOfDeathConcept = causeOfDeathConcept;
+        this.otherReason = otherReason;
     }
 
     public Date getDateOfExit() {
@@ -26,5 +30,14 @@ public class ExitFromCareProperty {
     public Concept getReasonExitConcept() {
         return reasonExitConcept;
     }
+
+    public Concept getCauseOfDeathConcept() {
+        return causeOfDeathConcept;
+    }
+
+    public String getOtherReason() {
+        return otherReason;
+    }
+
 
 }
