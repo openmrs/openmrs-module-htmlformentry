@@ -374,6 +374,92 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
+	
+	@Test
+	public void viewObsgroupsWithMultipleAnswerConceptIds() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupsWithMultipleAnswerConceptIds";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1004), new Date(),
+						1002, Context.getConceptService().getConcept(1119), new Date()
+						);
+				TestUtil.addObsGroup(e, 7, new Date(),
+						1000, Context.getConceptService().getConcept(1005), new Date(), 
+						1002, Context.getConceptService().getConcept(2474), new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1008), new Date(), 
+						1002, Context.getConceptService().getConcept(3017), new Date());
+
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect1</span><span class=\"value\">Option1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect2</span><span class=\"value\">Option2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect3</span><span class=\"value\">Option3</span>", html);
+			}
+
+		}.run();
+	}
+
+	@Test
+	public void viewObsgroupsWithMultipleAnswerConceptIdsAndMiddleBlank() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupsWithMultipleAnswerConceptIds";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1004), new Date(),
+						1002, Context.getConceptService().getConcept(1119), new Date()
+						);
+				TestUtil.addObsGroup(e, 7, new Date(),
+						1000, null, new Date(), 
+						1002, null, new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1008), new Date(), 
+						1002, Context.getConceptService().getConcept(3017), new Date());
+
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect1</span><span class=\"value\">Option1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Effect2</span><span class=\"emptyValue\">____</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect3</span><span class=\"value\">Option3</span>", html);
+			}
+
+		}.run();
+	}
 
 	@Test
 	public void viewObsGroupsWithDifferentGroupingConceptsButSameMemberConcepts() throws Exception {
