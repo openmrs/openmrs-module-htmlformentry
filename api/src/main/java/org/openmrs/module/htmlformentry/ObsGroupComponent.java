@@ -66,9 +66,6 @@ public class ObsGroupComponent {
 
 	@Deprecated
 	public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs parentObs, Set<Obs> group) {
-		//      for (ObsGroupComponent ogc: questionsAndAnswers){
-		//          log.debug(ogc.getQuestion() + " " + ogc.getAnswer());
-		//      }
 		for (Obs obs : group) {
 			boolean match = false;
 			for (ObsGroupComponent test : questionsAndAnswers) {
@@ -80,86 +77,52 @@ public class ObsGroupComponent {
 					break;
 				}
 
-				//              log.debug("First comparison, questionMatches evaluated "+ questionMatches+ " based on test"  + test.getQuestion().getConceptId() + " and obs.concept" + obs.getConcept().getConceptId() + " AND answer concept evaluated " + answerMatches  );
 				if (questionMatches && answerMatches) {
 					match = true;
-					//                  break;
 				}
 			}
 			if (!match){
-				//              log.debug("returning false for " + parentObs);
 				return false;
 			}    
 		}
-		//      log.debug("returning true for " + parentObs);
 		return true;
 	}
 
 	public static int supportingRank(List<ObsGroupComponent> obsGroupComponents, Obs parentObs, Set<Obs> obsSet) {
 		int rank = 0;
 
-//		log.debug("\n********************************************************* BEGIN SUPPORTING RANK *********************************************************");
-//		log.debug("\n >>>>>>  OBS SET FOR obsGroup: " + parentObs.getId() + " <<<<<< \n");
-
 		for (Obs obs : obsSet) {
-//			log.debug("\n   ---> NEXT OBS SET: " + obs + " <---\n");
 			Set<Integer> obsGroupComponentMatchLog = new HashSet<Integer>();
 
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
 				boolean questionMatches = obsGroupComponent.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
 				boolean answerMatches = obsGroupComponent.getAnswer() == null ||(obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
 
-				if (questionMatches) {
-//					log.debug("> ...   question concept " + obsGroupComponent.getQuestion().getConceptId() + " with obs concept " + obs.getConcept().getConceptId());
-					if (obsGroupComponent.getAnswer() != null && obs.getValueCoded() != null) {
-//						log.debug("  ... < answer concept " + obsGroupComponent.getAnswer().getConceptId() + " with obs concept " + obs.getValueCoded().getConceptId());
-					} else {
-//						log.debug("  ... < non-coded answer...skipping comparison... " + obsGroupComponent.getAnswer() + " ::" + obs.getValueCoded());
-					}
-				}
-
 				if (questionMatches && !answerMatches) {					
-//					log.debug("} ...  question matches but answer doesn't: " + obs.getValueCoded() + " :: " + (obs.getValueCoded() != null ? obs.getValueCoded().getConceptId() : "null"));
-					
 					if (!obsGroupComponentMatchLog.contains(obsGroupComponent.getQuestion().getConceptId())) {
 						if (obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null) {
-//							log.debug("  --- { RETURNING 0");
 							return 0;
 						} else {
 							if (obsGroupComponent.isPartOfSet()) {
-//								log.debug(" --- { This obsGroupComponent is part of an answer set.");
 								if (obsGroupComponent.getRemainingInSet() == 1) {
-									// If we exhaust the set and we haven't found a match, then we can stop checking and return an insurmountable ranking
-//									log.debug("  --- { RETURNING -1000 :: (this is NOT a match and we can stop checking and return an insurmountable ranking)");
 									return -1000;
-								} else {
-									// If this doesn't match but we have more members of the set then we do nothing now and wait for the evaluation of the next
-									// set member.
-//									log.debug(" --- { Not a match but IGNORING for now until set is exhausted");
 								}
 							} else {
 								// If this ever happens, this is NOT a match and we can stop checking and return an insurmountable ranking
-//								log.debug("  --- { RETURNING -1000 :: (this is NOT a match and we can stop checking and return an insurmountable ranking)");
 								return -1000;
 							}
 						}
-					} else {
-//						log.debug("  !!! { Ignore this \"mismatch;\" we already have a perfect match for this obs question.");
 					}
 				} else if (questionMatches && answerMatches) {
-//					log.debug("} +++ question and answer MATCH");
 					if (obsGroupComponent.getAnswer() != null) {
 						// add extra weight to this matching...
-//						log.debug("  +++ { ADDING 1 :: adding extra weight to this matching...");
 						rank++;
 					}
-//					log.debug("  +++ { ADDING " + (rank + 1) + " :: adding rank for this match...");
 					obsGroupComponentMatchLog.add(obsGroupComponent.getQuestion().getConceptId());
 					rank++;
 				}
 			}
 		}
-//		log.debug("  +++ { RETURNING " + rank);
 		return rank;
 	}
 
@@ -251,13 +214,11 @@ public class ObsGroupComponent {
 				if (answersList != null && answersList.size() > 0) {
 					int setCounter = 0;
 					for (Concept c : answersList) {
-						//if (c != null) log.debug("Adding answer list question/answer: " + (question != null ? question.getId() : "" ) + " ==> " + c.getId());
 						obsGroupComponents.add(new ObsGroupComponent(question, c, answersList.size() - (setCounter++)));
 					}
 				} else if (questions != null && questions.size() > 0) {
 					int setCounter = 0;
 					for (Concept c: questions) {
-						//if (c != null) log.debug("Adding question list question/answer: " + (question != null ? question.getId() : "" ) + " ==> " + c.getId());
 						obsGroupComponents.add(new ObsGroupComponent(c, answer, questions.size() - (setCounter++)));
 					}
 				} else {

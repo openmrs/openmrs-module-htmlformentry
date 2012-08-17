@@ -64,8 +64,6 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         boolean digDeeper = true;
         
         if (thisGroup == null && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW)) {
-        	
-// slorenz: why only do this once?        	
         	if (!session.getContext().isUnmatchedMode()) {
             	unmatchedInd = true;
 
