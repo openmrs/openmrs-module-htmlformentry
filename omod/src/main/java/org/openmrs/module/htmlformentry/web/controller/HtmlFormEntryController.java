@@ -211,7 +211,7 @@ public class HtmlFormEntryController {
             int i=0;
             while (iterator.hasNext()){
                 Obs xy=(Obs) iterator.next();
-                if(HtmlFormEntryConstants.COMPLEX_UUID.equals(xy.getUuid())) {
+                if(xy.isComplex()) {
                     complexObs.put(i,xy);
                     i++;
                 }
