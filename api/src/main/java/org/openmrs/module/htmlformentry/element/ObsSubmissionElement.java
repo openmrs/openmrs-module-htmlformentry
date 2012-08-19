@@ -327,7 +327,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 			}//else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(concept.getUuid())) { // if concept is of datatype complex then create new widget
-            else if (concept.getDatatype().isComplex()) {
+            else if (concept.isComplex()) {
                 valueWidget = new UploadWidget();
                 String lookFor = existingObs == null ? null : existingObs.getValueComplex();
                 Obs initialValue = null;

@@ -243,8 +243,10 @@ public class HtmlFormEntryController {
 
                         File complexObsDir = OpenmrsUtil.getDirectoryInApplicationDataDirectory(as.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_COMPLEX_OBS_DIR));
                         if (complexObsDir.exists() && complexObsDir.canWrite()) {
-                            String pathtostoreFile = complexObsDir.toPath().resolve(file[i].getOriginalFilename()).toString();
-                            FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
+                            //String pathtostoreFile = complexObsDir.toPath().resolve(file[i].getOriginalFilename()).toString();
+                           String pathtostoreFile = complexObsDir.toString()+file[i].getOriginalFilename().toString();
+                            
+                           FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
                             byte[] bytes = file[i].getBytes();
                             fileOutputStream.write(bytes);
                             fileOutputStream.close();
