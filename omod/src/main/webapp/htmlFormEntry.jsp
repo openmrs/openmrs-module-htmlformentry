@@ -44,6 +44,21 @@
    var isDiscardingInd = false;
 
 	$j(document).ready(function() {
+
+        $j('.complexValue').each(function() {
+            $j("#makeVoid").attr("id",$j(this).attr("id"));
+        });
+
+        var names=new Array();
+        key=0;
+
+        $j("input:checkbox").change(function(){
+            $j("#"+this.id).parent().parent().parent().parent().fadeOut();
+            names[key]=this.id;
+            key++;
+            $j("#nullObsIds").attr("value",names);
+        });
+
 		$j('#deleteButton').click(function() {
 			// display a "deleting form" message
 			$j('#confirmDeleteFormPopup').children("center").html('<spring:message code="htmlformentry.deletingForm"/>');
@@ -384,7 +399,7 @@
 </c:if>
 
 <c:if test="${command.context.mode != 'VIEW'}">
-	<form id="htmlform" method="post" onSubmit="submitHtmlForm(); return false;">
+	<form id="htmlform" method="post" onSubmit="submitHtmlForm(); return false;" enctype="multipart/form-data">
 		<input type="hidden" name="personId" value="${ command.patient.personId }"/>
 		<input type="hidden" name="htmlFormId" value="${ command.htmlFormId }"/>
 		<input type="hidden" name="formModifiedTimestamp" value="${ command.formModifiedTimestamp }"/>
@@ -392,6 +407,9 @@
 		<c:if test="${ not empty command.encounter }">
 			<input type="hidden" name="encounterId" value="${ command.encounter.encounterId }"/>
 		</c:if>
+        <c:if test="${command.context.mode=='EDIT'}">
+            <input type="hidden" name="nullObsIds" id="nullObsIds">  <!-- used to store the value of any obs that need to be voided--currently used by complex obs only -->
+        </c:if>
 		<input type="hidden" name="closeAfterSubmission" value="${param.closeAfterSubmission}"/>
 		<input type="hidden" name="hasChangedInd" class="has-changed-ind" value="${ command.hasChangedInd }" />
 </c:if>

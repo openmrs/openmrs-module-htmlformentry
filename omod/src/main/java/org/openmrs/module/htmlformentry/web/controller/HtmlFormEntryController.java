@@ -1,25 +1,16 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlForm;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.ValidationException;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,8 +20,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.*;
 
 /**
  * The controller for entering/viewing a form.
@@ -197,9 +197,79 @@ public class HtmlFormEntryController {
      */
     @RequestMapping(method=RequestMethod.POST, value=FORM_PATH)
     public ModelAndView handleSubmit(@ModelAttribute("command") FormEntrySession session,
-                               Errors errors,
-                               HttpServletRequest request,
-                               Model model) throws Exception {
+                                     Errors errors,
+                                     @RequestParam(value = "upldWidget", required = false) MultipartFile file[] ,
+                                     @RequestParam(value = "nullObsIds",required = false) String nullObsIds,
+                                     HttpServletRequest request,
+                                     Model model) throws Exception {
+
+        // first handle any complex obs that may have been uploaded via an upload widget
+        HashMap fileNames = new HashMap();
+        HashMap complexObs = new HashMap();
+
+        // extract any existing complexObs into a HashMap
+        if(session.getContext().getMode().toString().equalsIgnoreCase("EDIT")) {
+            Set<Obs> allObs = session.getEncounter().getAllObs();
+            Iterator iterator=allObs.iterator();
+            int i=0;
+            while (iterator.hasNext()){
+                Obs xy=(Obs) iterator.next();
+                if(xy.isComplex()) {
+                    complexObs.put(i,xy);
+                    i++;
+                }
+            }
+        }
+
+        try {
+            if (request instanceof MultipartHttpServletRequest && file != null) {
+                // iterate through all the files that have been uploaded
+                for (int i = 0; i < file.length; i++) {
+                    /* If the Mode is "EDIT" mode and file is empty then there  are two possibilities.
+                    * 1. The file has to be deleted
+                    * 2. The file has to retained */
+                    if (session.getContext().getMode().toString().equalsIgnoreCase("EDIT") && file[i].isEmpty() && i < complexObs.size()) {
+                        fileNames.put(i, null);
+                        for (int k = 0;k < complexObs.size();k++) {
+                            Obs retainingObs = (Obs) complexObs.get(i);
+
+                            /* If the Id of Obs is not among the ids that has to deleted then retain the name of the complexObs */
+                            if(!nullObsIds.contains(retainingObs.getId().toString())){
+                                fileNames.put(i, retainingObs.getValueComplex());
+                            }
+                        }
+                    }
+                    else if (file[i].isEmpty()) { /* In all other cases when file is empty, means nothing is being uploaded */
+                        fileNames.put(i, null);
+                    }
+
+                    if (!file[i].isEmpty()) {
+                        AdministrationService as = Context.getAdministrationService();
+
+                        File complexObsDir = OpenmrsUtil.getDirectoryInApplicationDataDirectory(as.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_COMPLEX_OBS_DIR));
+                        if (complexObsDir.exists() && complexObsDir.canWrite()) {
+                            String pathtostoreFile = complexObsDir.toString() + file[i].getOriginalFilename().toString();
+                            
+                            FileOutputStream fileOutputStream = new FileOutputStream(pathtostoreFile);
+                            byte[] bytes = file[i].getBytes();
+                            fileOutputStream.write(bytes);
+                            fileOutputStream.close();
+                            fileNames.put(i, file[i].getOriginalFilename());
+                        }
+                        log.info("File Uploaded successfully");
+                    } else {
+                        log.info("File not Uploaded");
+                    }
+                    request.setAttribute("upldWidget", fileNames);
+                }
+            }
+        } catch (Exception exception) {
+            log.error("Exception during File Upload", exception);
+            errors.reject("Exception during File Upload, see log for further details: " + exception);
+        }
+
+        // check for validation errors
+
     	try {
             List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
             if (validationErrors != null && validationErrors.size() > 0) {
@@ -257,3 +327,4 @@ public class HtmlFormEntryController {
 		return "?patientId=" + formEntrySession.getPatient().getPersonId();
 	}
 }
+

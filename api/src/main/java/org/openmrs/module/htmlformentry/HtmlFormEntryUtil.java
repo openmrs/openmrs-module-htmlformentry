@@ -189,9 +189,14 @@ public class HtmlFormEntryUtil {
 		ConceptDatatype dt = obs.getConcept().getDatatype();
 		if (dt.isNumeric()) {
 			obs.setValueNumeric(Double.parseDouble(value.toString()));
-		} else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(dt.getUuid())) {
-			obs.setComplexData((ComplexData) value);
-			obs.setValueComplex(obs.getComplexData().getTitle());
+		}else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(dt.getUuid())) {
+            if(!(value instanceof String)) {
+                obs.setComplexData((ComplexData) value);
+                obs.setValueComplex(obs.getComplexData().getTitle());
+            }
+            else {
+                obs.setValueComplex(value.toString());
+            }
 		} else if (dt.isText()) {
 			if (value instanceof Location) {
 				Location location = (Location) value;

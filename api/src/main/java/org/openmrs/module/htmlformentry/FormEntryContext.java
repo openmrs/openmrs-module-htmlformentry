@@ -103,6 +103,14 @@ public class FormEntryContext {
     public String registerWidget(Widget widget) {
         if (fieldNames.containsKey(widget))
             throw new IllegalArgumentException("This widget is already registered");
+        //An Upload widget has to be registered separately since the name of the widget
+        // will be required in @RequestParam(value = "upldWidget", required = false) MultipartFile file[]
+        // in the file HtmlFormEntryController.java
+        if(widget.getClass().getSimpleName().toString().equals("UploadWidget") )
+        {
+            fieldNames.put(widget,"upldWidget");
+            return "upldWidget";
+        }
         int thisVal = 0;
         synchronized (sequenceNextVal) {
             thisVal = sequenceNextVal;

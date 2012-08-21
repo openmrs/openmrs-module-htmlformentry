@@ -11,16 +11,15 @@ import org.openmrs.Obs;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlFormEntryService;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
+import org.openmrs.module.htmlformentry.widget.*;
+import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
@@ -35,8 +34,6 @@ import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
-import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.util.OpenmrsUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -329,7 +326,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
 					}
 				}
-			} else if (concept.getDatatype().isText()) {
+			}
+            else if (concept.isComplex()) {
+                valueWidget = new UploadWidget();
+                String lookFor = existingObs == null ? null : existingObs.getValueComplex();
+                Obs initialValue = null;
+                if (lookFor != null) {
+                    initialValue = existingObs;  }
+                valueWidget.setInitialValue(initialValue);
+            } else if (concept.getDatatype().isText()) {
 
 				String initialValue = null;
 				if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
@@ -338,7 +343,6 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (existingObs != null) {
 					initialValue = existingObs.getValueText();
 				}
-
 				if (parameters.get("answers") != null) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ","); st.hasMoreTokens();) {
