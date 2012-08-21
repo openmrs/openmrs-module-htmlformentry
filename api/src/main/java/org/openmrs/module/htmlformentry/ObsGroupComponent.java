@@ -135,12 +135,6 @@ public class ObsGroupComponent {
 
 	private static void findQuestionsAndAnswersForGroupHelper(String parentGroupingConceptId, Node node, List<ObsGroupComponent> obsGroupComponents) {
 
-
-
-
-
-
-		//fixme: i think the problem is in here....this returns too many group members...		
 		if ("obs".equals(node.getNodeName())) {
 			Concept question = null;
 			List<Concept> questions = null;
