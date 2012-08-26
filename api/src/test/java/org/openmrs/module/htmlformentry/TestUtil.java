@@ -53,9 +53,8 @@ public class TestUtil {
 	
 	
 	/**
-	 * Loads the proper test dataset based on what version of OpenMRS we are testing against
+	 * Determines the name of the proper test dataset based on what version of OpenMRS we are testing against
 	 */
-    @SuppressWarnings("deprecation")
     public String getTestDatasetFilename(String testDatasetName) throws Exception {
 		
 		InputStream propertiesFileStream = null;
