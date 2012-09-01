@@ -50,7 +50,7 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
             autocompleteWidget.addOption(optionDouble);
             autocompleteWidget.addOption(optionSingle);
             String generatedHtml = autocompleteWidget.generateHtml(enterContext);
-            Assert.assertTrue(generatedHtml.indexOf("Never Never Land,Unknown Location,Xanadu,Te\\'st LocationDou,Te\\'st LocationSin") > -1);
+            Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Te\\'st LocationDou,Te\\'st LocationSin") > -1);
         }
 
     }
@@ -77,7 +77,7 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
         if (autocompleteWidget != null) {
             autocompleteWidget.addOption(optionDouble);
             String generatedHtml = autocompleteWidget.generateHtml(enterContext);
-            Assert.assertTrue(generatedHtml.indexOf("Never Never Land,Unknown Location,Xanadu,Tést Locãtion Doùblê") > -1);
+            Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Tést Locãtion Doùblê") > -1);
         }
 
     }

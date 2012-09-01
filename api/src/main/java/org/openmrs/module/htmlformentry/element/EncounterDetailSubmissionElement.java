@@ -323,6 +323,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             }
 
+            // if no locations have been specified by the order attribute, use all non-retired locations
+            if (locations.isEmpty()) {
+                locations = Context.getLocationService().getAllLocations(false);
+            }
+
             // Set default values
             Location defaultLocation = null;
             if (context.getExistingEncounter() != null) {
@@ -336,21 +341,21 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
             locationWidget.setInitialValue(defaultLocation);
 
-            if (!locations.isEmpty()) {
-                for (Location location : locations) {
-                    String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
-                    locationOptions.add(option);
-                }
-            } else {
-                locations = Context.getLocationService().getAllLocations();
-                for (Location location : locations) {
-                    String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
-                    locationOptions.add(option);
-                }
-                Collections.sort(locationOptions, new OptionComparator());
+            // make sure that the default/selected location is one of the location options
+            if (defaultLocation != null) {
+               if (!locations.contains(defaultLocation)) {
+                   locations.add(defaultLocation);
+               }
             }
+
+            // now create the actual location options and sort them
+            for (Location location : locations) {
+                String label = location.getName();
+                Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
+                locationOptions.add(option);
+            }
+
+            Collections.sort(locationOptions, new OptionComparator());
 
             if ("autocomplete".equals(parameters.get("type"))) {
                 locationWidget.addOption(new Option());
