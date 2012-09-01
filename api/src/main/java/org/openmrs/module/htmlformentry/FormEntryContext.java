@@ -510,8 +510,9 @@ public class FormEntryContext {
     		}
     	}
         if (ret != null){
-        	if (unmatchedContenterCount > 1) guessingInd = true;
-        	
+        	if (unmatchedContenterCount > 1) {
+                guessingInd = true;
+            }
             existingObsInGroups.remove(ret);
             existingObs.remove(ret);
             return ret;
@@ -520,7 +521,9 @@ public class FormEntryContext {
     }
     
     public int getExistingObsInGroupsCount() {
-    	if (existingObsInGroups != null) return existingObsInGroups.size();
+    	if (existingObsInGroups != null) {
+            return existingObsInGroups.size();
+        }
     	return 0;
     }
     
@@ -533,22 +536,26 @@ public class FormEntryContext {
      * @param obsGroupDepth  the depth level of the obsGroup in the xml
      * @return the first matching {@see ObsGroup}
      */
-    public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept, String path) {
+   public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept, String path) {
         Set<Obs> contenders = new HashSet<Obs>();
         // first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are 
         // saved as contenders
         for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet() ) {
-//            log.debug("Comparing obsVal " + ObsGroupComponent.getObsGroupPath(e.getKey()) + " to xmlval " + path);
-            if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey())) )
+
+            log.debug("Comparing obsVal " + ObsGroupComponent.getObsGroupPath(e.getKey()) + " to xmlval " + path);
+
+            if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey())) ) {
                 contenders.add(e.getKey());
+            }
          }
+
         Obs ret = null;
         
         if (contenders.size() > 0){
             List<Obs> rankTable = new ArrayList<Obs>();
             int topRanking = 0;
             
-            for (Obs parentObs:contenders){
+            for (Obs parentObs : contenders){
                 int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs, existingObsInGroups.get(parentObs));
 
                 if (rank > 0) {
@@ -562,21 +569,16 @@ public class FormEntryContext {
                 }
             } 
             
-            if (rankTable.size() == 0) {
-                /* No matching obsGroup found; returning null obsGroup.  This will 
+            if (rankTable.size() == 0 || rankTable.size() > 1) {
+                /* No unique mathcing obsGroup found; returning null obsGroup.  This will
                  * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
                  * a subsequent form scan.
                  */
-                log.debug("No matching obsGroup found; returning null obsGroup.");
-            } else if (rankTable.size() == 1) {
+                ret = null;
+            }
+            else {
+                // exactly one matching obs group
                 ret = rankTable.get(0);
-                log.debug("Found exactly one matching obsGroup; returning that obsGroup.");
-            } else if (rankTable.size() > 1) {
-                /* Multiple obsgroups support obs set, returning null obsGroup.  This will 
-                 * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
-                 * a subsequent form scan.
-                 */
-                log.debug("Multiple obsgroups support obs set; returning null obsGroup");
             }
         }
         
@@ -585,8 +587,10 @@ public class FormEntryContext {
             existingObs.remove(ret);
             return ret;
         }
-        return null;
-    }
+        else {
+            return null;
+        }
+   }
 
     /**
      * Returns the patient currently associated with the context
