@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -49,6 +37,17 @@ import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -182,7 +181,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// if not 'false' we treat as 'true'
 					existingObs = context.removeExistingObs(concept, true);
 				}
-			} else {
+            // if we use 'checkbox' with numeric values, first find exisitng obs for each answer
+			}else if (concept.getDatatype().isNumeric() && "checkbox".equals(parameters.get("style"))){
+                String numericAns = parameters.get("answer");
+                existingObs = context.acquireExistingObs(concept, numericAns);
+            } else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
 		} else {
@@ -279,8 +282,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 				ConceptNumeric cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
-				if (numericAnswers.size() == 0) {
-					valueWidget = new NumberFieldWidget(cn, parameters.get("size"));
+				// added to avoid creating this widget when a checkbox is needed
+                if (numericAnswers.size() == 0) {
+                    if(!"checkbox".equals(parameters.get("style"))){
+                        valueWidget = new NumberFieldWidget(cn, parameters.get("size"));
+                    }
 				} else {
 					if ("radio".equals(parameters.get("style"))) {
 						valueWidget = new RadioButtonsWidget();
@@ -309,18 +315,50 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					if (lookFor != null)
 						((SingleOptionWidget) valueWidget)
 						        .addOption(new Option(lookFor.toString(), lookFor.toString(), true));
-				}
-				if (existingObs != null) {
-					valueWidget.setInitialValue(existingObs.getValueNumeric());
-				} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
-					try {
-						Double initialValue = Double.valueOf(defaultValue);
-						valueWidget.setInitialValue(initialValue);
-					}
-					catch (NumberFormatException e) {
-						throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
-					}
-				}
+                }
+                if (valueWidget != null) {
+                    if (existingObs != null) {
+                        valueWidget.setInitialValue(existingObs.getValueNumeric());
+                    } else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+                        try {
+                            Double initialValue = Double.valueOf(defaultValue);
+                            valueWidget.setInitialValue(initialValue);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
+                        }
+                    }
+                }
+
+                // render CheckboxWidgets for <obs> tag with numeric datatype;
+                // i.e. <obs conceptId="1234" answer="8" answerLabel="Eight" style="checkbox"/>
+                if(parameters.get("answer") != null){
+
+                    ArrayList<Number> answers = new ArrayList<Number>();
+                    try{
+                       Number number = Double.valueOf(parameters.get("answer"));
+                       answers.add(number);
+                       answerLabel = parameters.get("answerLabel");
+                        if(number != null){
+                            if("checkbox".equals(parameters.get("style"))) {
+                                valueWidget = new CheckboxWidget(answerLabel, number.toString());
+                            }
+                        }
+
+                    }
+                    catch (Exception ex){
+                        throw new RuntimeException("Error in answer for concept " + concept.getConceptId() + " ("
+						        + ex.toString() + "): ");
+                    }
+
+                    // if the widget is already "checked", mark the initial value
+                    Number initialVal = existingObs == null ? null : existingObs.getValueNumeric();
+                    if(initialVal != null){
+                        if (answers.size() == 1 && answers.get(0).equals(initialVal)){
+                            valueWidget.setInitialValue(initialVal);
+                        }
+                    }
+
+                }
 			} else if (concept.getDatatype().isText()) {
 				if (parameters.get("answers") != null) {
 					try {

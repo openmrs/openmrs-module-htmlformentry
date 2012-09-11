@@ -337,7 +337,7 @@ public class FormEntryContext {
     
     /**
      * 
-     * Sets obs associated with an obs groups in existin obs groups.
+     * Sets obs associated with an obs groups in existing obs groups.
      * 
      * @param oSet the obsGroup to add to existingObsInGroups
      */     
@@ -389,11 +389,36 @@ public class FormEntryContext {
         }
         return null;
     }
-    
-	/**
+
+    /**
+     * Finds whether there is existing obs created for the question concept and numeric answer,
+     * returns that <obs> if any, Use this only when datatype is numeric and style="checkbox"
+     *
+     * @param question - the concept associated with the Obs to acquire
+     * @param numericAns - numeric answer given with <obs/> declaration
+     * @return the matching Obs, if any
+     */
+    public Obs acquireExistingObs(Concept question, String numericAns) {
+
+        Obs initialObs = null;
+        Number numVal = Double.valueOf(numericAns);
+        Set<Obs> obsSet = existingEncounter == null? null :existingEncounter.getObs();
+        if (obsSet != null) {
+            for (Obs obs : obsSet) {
+                if (obs.getConcept().equals(question) && obs.getValueNumeric().equals(numVal)) {
+                    initialObs = obs;
+                }
+            }
+        }
+
+        return initialObs;
+    }
+
+
+    /**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
 	 * 
-	 * @param question the concept associated with the Obs to remove
+	 * @param concept - question the concept associated with the Obs to remove
 	 * @return
 	 */
 	public Order removeExistingOrder(Concept concept) {
@@ -432,7 +457,7 @@ public class FormEntryContext {
 	/**
      * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
      * 
-     * @param question the concept associated with the Obs to remove
+     * @param drug- the drug associated with the DrugOrder to remove
      * @return
      */
     public DrugOrder removeExistingDrugOrder(Drug drug) {
@@ -477,8 +502,8 @@ public class FormEntryContext {
      * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs.
      * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
      * 
-     * param question the concept associated with the Obs to remove
-     * @param parseBoolean the boolean value of the obs
+     * @param question - the concept associated with the Obs to remove
+     * @param answer - the boolean value of the obs
      * @return
      */
     public Obs removeExistingObs(Concept question, Boolean answer) {
@@ -617,7 +642,7 @@ public class FormEntryContext {
     public HtmlFormSchema getSchema() {
     	return schema;
     }
-    
+
     /**
      * Modes associated with the HTML Form context
      */

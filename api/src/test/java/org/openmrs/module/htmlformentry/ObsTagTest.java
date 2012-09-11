@@ -367,7 +367,21 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertFalse("Edit should not contain default coded value: " + html, html.contains("checked=\"true\""));
 			}
 			
-			
+
 		}.run();
+	}
+
+    @Test
+	public void shouldSupportCheckboxForNumericObs() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"8\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		Assert.assertTrue("Result: " + session.getHtmlToDisplay(),
+		   session.getHtmlToDisplay().contains("<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"8.0\"/>"));
+	}
+
+    @Test(expected = NumberFormatException.class)
+	public void shouldThrowExceptionWithCheckboxIfAnswerIsNotNumeric() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"eight\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
+		new FormEntrySession(patient, htmlform);
 	}
 }
