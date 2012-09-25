@@ -11,6 +11,7 @@ import org.openmrs.RelationshipType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
  * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person 
@@ -21,7 +22,8 @@ public class RelationshipWidget implements Widget {
 	private List<RelationshipType> relationshipsToCreate = new ArrayList<RelationshipType>();
 	private List<String> roleInRelationship = new ArrayList<String>();
 	private boolean allRelationshipsFullfilled = true;
-	
+    private String parentId;
+
 	public RelationshipWidget() { }
 
 	@Override
@@ -39,10 +41,11 @@ public class RelationshipWidget implements Widget {
 		//TODO: probably need a new mode for previewing to better deal with this sort of stuff.
 		if(context.getExistingPatient() != null && context.getExistingPatient().getId() != null)
 		{
+			sb.append("<table border=1 style=\"border-collapse:collapse;border:1px solid black\"><tr><th colspan=2>");
 			sb.append("<strong>");
 			sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsLabel"));
-			sb.append(" </strong><br />");
-			
+			sb.append(" </strong>");
+			sb.append("</th></tr>");
 			//okay we need to first display any existing relationships
 			List<Relationship> existingRelationships = Context.getPersonService().getRelationshipsByPerson(context.getExistingPatient());
 			for(int i=0; i < relationshipsToCreate.size(); i++)
@@ -54,16 +57,21 @@ public class RelationshipWidget implements Widget {
 				
 				RelationshipType rt = relationshipsToCreate.get(i);
 				String side = roleInRelationship.get(i);
-				sb.append("&#160;&#160;");
+				sb.append("<tr><td>" +" " );
+				String rl;
+				StringBuilder val = new StringBuilder();
 				if(side.equals("A"))
 				{
-					sb.append(rt.getbIsToA());
+					rl=rt.getbIsToA();
 				}
 				else
 				{
-					sb.append(rt.getaIsToB());
+					rl=rt.getaIsToB();
 				}
+				sb.append(rl);
 				sb.append(": ");
+				sb.append("</td>");
+				sb.append("<td>" + " ");
 				boolean addComma = false;
 				
 				for(Relationship r: existingRelationships)
@@ -77,14 +85,15 @@ public class RelationshipWidget implements Widget {
 	    						if(addComma)
 	    						{
 	    							sb.append(",");
+	    							val.append(",");
 	    						}
 	    						else
 	    						{
 	    							addComma = true;
 	    						}
-	    						sb.append(r.getPersonB().getGivenName());
-	    						sb.append(" ");
-	    						sb.append(r.getPersonB().getFamilyName());
+	    						String s = r.getPersonB().getGivenName()+" "+r.getPersonB().getFamilyName();	    						
+	    						sb.append(s);	    	
+	    						val.append(s);
 	    						if (context.getMode() == Mode.VIEW) {
 	    							sb.append(" ");
 	    							sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsAdded"));
@@ -101,14 +110,15 @@ public class RelationshipWidget implements Widget {
 	    						if(addComma)
 	    						{
 	    							sb.append(",");
+	    							val.append(",");
 	    						}
 	    						else
 	    						{
 	    							addComma = true;
 	    						}
-	    						sb.append(r.getPersonA().getGivenName());
-	    						sb.append(" ");
-	    						sb.append(r.getPersonA().getFamilyName());
+	    						String s =r.getPersonA().getGivenName()+" "+r.getPersonA().getFamilyName();
+	    						sb.append(s);
+	    						val.append(s);
 	    						if (context.getMode() == Mode.VIEW) {
 	    							sb.append(" ");
 	    							sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsAdded"));
@@ -119,15 +129,28 @@ public class RelationshipWidget implements Widget {
 	    				}
 					}
 				}
-				
-				//this is how we know one of the relationships is not currently populated, 
-				//so that required validation
-				//can run against the field
+
+                // store the current relationships in hidden fields and register them as property accessors
+                // these hidden fields *are not* used at all during form submittal; they are just used to provide
+                // access to existing relationships for javascript validation (for instance, to validate on submittal
+                // that a patient as at least one relationship of type x)
+
+				sb.append("<input name='");
+		    	sb.append(context.getFieldName(this));
+		    	sb.append("' id='");
+		    	sb.append(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl));
+		    	sb.append("' value='");
+		    	sb.append(val);
+		    	sb.append("' type='hidden'>");
+		    	context.registerPropertyAccessorInfo(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl) + ".value", context.getFieldNameIfRegistered(this), null,null, null);
+				sb.append("</td>");
+				sb.append("</tr>");
 				if(!addComma)
 				{
 					allRelationshipsFullfilled = false;
 				}
 			}
+			sb.append("</table>");
 		}
     	
         return sb.toString();
@@ -186,4 +209,12 @@ public class RelationshipWidget implements Widget {
     public void setAllRelationshipsFullfilled(boolean allRelationshipsFullfilled) {
     	this.allRelationshipsFullfilled = allRelationshipsFullfilled;
     }
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
 }

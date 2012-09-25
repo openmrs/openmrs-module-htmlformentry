@@ -374,6 +374,92 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
+	
+	@Test
+	public void viewObsgroupsWithMultipleAnswerConceptIds() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupsWithMultipleAnswerConceptIds";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1004), new Date(),
+						1002, Context.getConceptService().getConcept(1119), new Date()
+						);
+				TestUtil.addObsGroup(e, 7, new Date(),
+						1000, Context.getConceptService().getConcept(1005), new Date(), 
+						1002, Context.getConceptService().getConcept(2474), new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1008), new Date(), 
+						1002, Context.getConceptService().getConcept(3017), new Date());
+
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect1</span><span class=\"value\">Option1</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect2</span><span class=\"value\">Option2</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect3</span><span class=\"value\">Option3</span>", html);
+			}
+
+		}.run();
+	}
+
+	@Test
+	public void viewObsgroupsWithMultipleAnswerConceptIdsAndMiddleBlank() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "obsGroupsWithMultipleAnswerConceptIds";
+			}
+
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.setProvider(Context.getPersonService().getPerson(502));
+
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1004), new Date(),
+						1002, Context.getConceptService().getConcept(1119), new Date()
+						);
+				TestUtil.addObsGroup(e, 7, new Date(),
+						1000, null, new Date(), 
+						1002, null, new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 
+						1000, Context.getConceptService().getConcept(1008), new Date(), 
+						1002, Context.getConceptService().getConcept(3017), new Date());
+
+				return e;
+			}
+
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect1</span><span class=\"value\">Option1</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Effect2</span><span class=\"emptyValue\">____</span>", html);
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect3</span><span class=\"value\">Option3</span>", html);
+			}
+
+		}.run();
+	}
 
 	@Test
 	public void viewObsGroupsWithDifferentGroupingConceptsButSameMemberConcepts() throws Exception {
@@ -1625,6 +1711,121 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				// we just want trigger a view to confirm that the invalid boolean value causes an exception to be thrown
 			}
 
+
+		}.run();
+	}
+
+    @Test
+	public void testEditEncounterLocationWithAutocomplete() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "locationAutocompleteForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:"};
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+
+			}
+
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Location:" };
+			};
+
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Location:"), "3");
+			};
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+                results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(3);
+			};
+
+		}.run();
+	}
+
+    @Test
+	public void testEditEncounterProviderWithAutocomplete() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "providerAutocompleteForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:"};
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+
+			}
+
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Provider:" };
+			};
+
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                // todo create a new provider in data set and change the provider into it
+				request.setParameter(widgets.get("Provider:"), "502");
+			};
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+                results.assertEncounterCreated();
+				results.assertProvider(502);  // add a new value
+				results.assertLocation(2);
+			};
 
 		}.run();
 	}

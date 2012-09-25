@@ -1,12 +1,11 @@
 package org.openmrs.module.htmlformentry.action;
 
-import java.util.Collection;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
  * Represents an action that should be taken on form submission. Often this is related to an element

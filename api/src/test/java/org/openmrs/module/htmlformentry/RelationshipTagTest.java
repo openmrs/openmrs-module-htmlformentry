@@ -824,7 +824,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				// confirm the existing relationship has been displayed
-				TestUtil.assertFuzzyContains("Doctor: Hippocrates Of Cos", html);
+				TestUtil.assertFuzzyContains("Doctor: </td><td> Hippocrates Of Cos", html);
 			}
 		}.run();
 	}

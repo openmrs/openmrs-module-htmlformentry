@@ -1,11 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.GlobalProperty;
@@ -16,6 +13,11 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -53,7 +55,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
@@ -595,7 +597,66 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-	
+
+    // unit test to reproduce HTML-378: Cannot create a patient and enroll that patient in a program on the same form
+
+    @Ignore
+    @Test
+    public void testCreatePatientAndEnrollInProgram() throws Exception {
+        final Date date = new Date();
+
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "patientAndEnrollInProgramForm";
+            }
+
+            @Override
+            public Patient getPatient() {
+                return new Patient();
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
+                        "Identifier:", "Identifier Location:", "Identifier Type:", "Date:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.setParameter(widgets.get("PersonName.givenName"), "Given");
+                request.setParameter(widgets.get("PersonName.familyName"), "Family");
+                request.setParameter(widgets.get("Gender:"), "F");
+                request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+                request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+                request.setParameter(widgets.get("Identifier Location:"), "2");
+                // hack because identifier type is a hidden input with no label
+                request.setParameter("w17", "2");
+
+                request.setParameter(widgets.get("Date:"), dateAsString(date));
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                Date datePartOnly = ymdToDate(dateAsString(date));
+
+                results.assertNoErrors();
+
+                results.assertPatient();
+                Assert.assertEquals("Given", results.getPatient().getPersonName().getGivenName());
+                Assert.assertEquals("Family", results.getPatient().getPersonName().getFamilyName());
+                Assert.assertEquals("F", results.getPatient().getGender());
+                Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
+                Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
+                Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+
+                // TODO: once HTML-378 is fixed an assertion should be added to this method that the patient is indeed enrolled in the program
+
+            }
+        }.run();
+    }
+
 	@Test
 	public void testEditPatientAndCreatingObs() throws Exception {
 		final Date date = new Date();
@@ -935,7 +996,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void testCreatePatientBirthdateByAge() throws Exception {
-		final Integer expectedAge = 40;
+		final Integer expectedAge = 42;
 		Person person = new Person();
 		person.setBirthdateFromAge(expectedAge, new Date());
 		final Date expectedBirthDate = person.getBirthdate();
@@ -1039,6 +1100,125 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
+	
+	
+	
+	/**
+	 * Tests applying decimal ages to patients
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreatePatientBirthdateByBirthdateDecimalAge() throws Exception {
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "createPatientBirthdateByAgeForm";
+			}
+			
+			@Override
+			public Patient getPatientToEdit() {
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			@Override
+			public boolean doViewEncounter() {
+				return true;
+			};
+			
+			@Override
+			public Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Age:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Age:"), "5.2");
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				//the birthdate should have been computed basing on the entered age
+				long oneYear = Long.valueOf("31536000000");
+				long oneMonth = Long.valueOf("2628000000");
+				Assert.assertTrue(((new Date()).getTime() - oneYear*5) > results.getPatient().getBirthdate().getTime()); //birthdate is before 5 years ago
+				Assert.assertTrue(((new Date()).getTime() - oneYear*5) < (results.getPatient().getBirthdate().getTime() + (4*oneMonth))); //birthdate + 4 months is greater than 5years ago
+				results.assertEncounterEdited();
+			}
+		}.run();
+	}
+	
+	
+	/**
+	 * Tests that the birthdate works with any date format string. orininally replicated HTML-339
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testCreatePatientBirthdateByBirthdateAndAgeAgainstNonStandardDateFormat() throws Exception {
+		
+		GlobalProperty gp = new GlobalProperty(HtmlFormEntryConstants.GP_DATE_FORMAT, "MM-yyyy-dd");
+		Context.getAdministrationService().saveGlobalProperty(gp);
+		Context.getUserContext().setLocale(new Locale("en", "US"));
+		
+		final Integer expectedAge = 40;
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.YEAR, -expectedAge);
+		final Date expectedBirthDate = cal.getTime();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "editPatientBirthdateForm";
+			}
+			
+			@Override
+			public Patient getPatientToEdit() {
+				Patient p = Context.getPatientService().getPatient(2);
+				return Context.getPatientService().getPatient(2);
+			};
+			
+			@Override
+			public boolean doViewEncounter() {
+				return true;
+			};
+			
+			@Override
+			public Encounter getEncounterToView() {
+				return Context.getEncounterService().getEncounter(101);
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] {"Birthdate:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(expectedBirthDate));
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertPatient();
+				//the birthdate should have been computed basing on the entered birthdate
+				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
+				results.assertEncounterEdited();
+			}
+		}.run();
+	}
+	
+	
 	
 	private void setupAddressTemplate() {
 		

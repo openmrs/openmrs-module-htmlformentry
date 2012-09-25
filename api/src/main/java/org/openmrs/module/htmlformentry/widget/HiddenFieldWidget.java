@@ -12,7 +12,6 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 public class HiddenFieldWidget implements Widget {
 
 	private String initialValue;
-
 	/**
 	 * Gets the initial value associated with this widget
 	 * 

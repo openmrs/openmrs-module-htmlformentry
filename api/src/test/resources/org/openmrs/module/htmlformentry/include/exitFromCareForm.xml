@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider/>
+    Exit From Care:<exitFromCare/>
+	<submit/>
+</htmlform>

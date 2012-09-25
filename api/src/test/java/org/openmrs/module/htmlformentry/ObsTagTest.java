@@ -13,18 +13,21 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Tests the obs tag.
@@ -367,7 +370,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertFalse("Edit should not contain default coded value: " + html, html.contains("checked=\"true\""));
 			}
 			
-
+			
 		}.run();
 	}
 

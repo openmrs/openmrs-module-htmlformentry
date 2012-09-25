@@ -102,7 +102,7 @@ public class NameWidget extends Gadget {
 		returnPersonName.setFamilyNameSuffix(getWidgetValue("familyNameSuffix", context, request));
 		returnPersonName.setDegree(getWidgetValue("degree", context, request));
 		
-		if (context.getMode() == Mode.EDIT) {
+		if (context.getExistingPatient() != null) {
 			PersonName originalPreferedName = context.getExistingPatient().getPersonName();
 			
 			if (originalPreferedName != null && isPersonNameEqual(originalPreferedName, returnPersonName)) {

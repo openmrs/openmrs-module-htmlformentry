@@ -13,15 +13,8 @@
  */
 package org.openmrs.module.htmlformentry.element;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.math.BigDecimal;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -42,12 +35,12 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.widget.AddressWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.HiddenFieldWidget;
-import org.openmrs.module.htmlformentry.widget.LocationWidget;
 import org.openmrs.module.htmlformentry.widget.NameWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
@@ -139,16 +132,30 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		}
 		else if (FIELD_IDENTIFIER.equalsIgnoreCase(field)) {
 
+			PatientIdentifierType idType = HtmlFormEntryUtil.getPatientIdentifierType(attributes.get("identifierTypeId"));
+			
 			identifierTypeValueWidget = new TextFieldWidget();
 			identifierTypeValueErrorWidget = new ErrorWidget();
-			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, existingPatient != null
-					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getIdentifier() : null);
+			String initialValue = null;
+			if (existingPatient != null) {
+				if (idType == null) {
+					if (existingPatient.getPatientIdentifier() != null) {
+						initialValue = existingPatient.getPatientIdentifier().getIdentifier();
+					}
+				} else {
+					if (existingPatient.getPatientIdentifier(idType) != null) {
+						initialValue = existingPatient.getPatientIdentifier(idType).getIdentifier();
+					}
+				}
+			}
+			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
 
 			String typeId = attributes.get("identifierTypeId");
-			if (StringUtils.hasText(typeId)) {
+			if (idType != null) {
 				identifierTypeWidget = new HiddenFieldWidget();
-				createWidgets(context, identifierTypeWidget, null, typeId);
-			}else{
+				createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
+			}
+			else {
 				identifierTypeWidget = new DropdownWidget();
 				List<PatientIdentifierType> patientIdentifierTypes = HtmlFormEntryUtil.getPatientIdentifierTypes();
 
@@ -163,17 +170,32 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 		}
 		else if (FIELD_IDENTIFIER_LOCATION.equalsIgnoreCase(field)) {
-			identifierLocationWidget = new LocationWidget();
+			identifierLocationWidget = new DropdownWidget();
 			identifierLocationErrorWidget = new ErrorWidget();
 
-			List<Location> locations = Context.getLocationService().getAllLocations();
-			((LocationWidget) identifierLocationWidget).setOptions(locations);
-
-			Location defaultLocation = existingPatient != null
+            Location defaultLocation = existingPatient != null
 					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getLocation() : null;
 			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+            identifierLocationWidget.setInitialValue(defaultLocation);
+
+            List<Option> locationOptions = new ArrayList<Option>();
+            for(Location location:Context.getLocationService().getAllLocations()) {
+                Option option = new Option(location.getName(), location.getId().toString(), location.equals(defaultLocation));
+                locationOptions.add(option);
+            }
+            Collections.sort(locationOptions, new OptionComparator());
+
+            // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+            boolean initialValueIsSet = !(defaultLocation == null);
+            ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "", !initialValueIsSet));
+            if (!locationOptions.isEmpty()) {
+                    for(Option option: locationOptions){
+                    ((DropdownWidget) identifierLocationWidget).addOption(option);
+                    }
+            }
 			createWidgets(context, identifierLocationWidget, identifierLocationErrorWidget, defaultLocation);
 		}
+
 		else if (FIELD_ADDRESS.equalsIgnoreCase(field)) {
 			addressWidget = new AddressWidget();
 			createWidgets(context, addressWidget, null, existingPatient != null ? existingPatient.getPersonAddress() : null);
@@ -266,7 +288,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
 		if (nameWidget != null) {
 			PersonName name = (PersonName) nameWidget.getValue(context, request);
-			if (context.getMode() == Mode.EDIT) {
+
+			if (patient != null) {
 				if (!name.isPreferred()) {
 					PersonName currentPreferredName = context.getExistingPatient().getPersonName();
 					if (currentPreferredName != null){
@@ -296,16 +319,14 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
 		if (ageWidget != null) {
 			Double value = (Double) ageWidget.getValue(context, request);
-			if (value != null) {
-				calculateBirthDate(patient, null, value.intValue() + "");
-			}
+			if (value != null)
+				calculateBirthDate(patient, null, value);
 		}
 
 		if (birthDateWidget != null) {
 			Date value = (Date) birthDateWidget.getValue(context, request);
 			if (value != null) {
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-				calculateBirthDate(patient, formatter.format(value), null);
+				calculateBirthDate(patient, value, null);
 			}
 		}
  
@@ -339,8 +360,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				patient.addIdentifier(patientIdentifier);
 			}
 
-			Location location = (Location) identifierLocationWidget.getValue(context, request);
-
+			Object locationString = identifierLocationWidget.getValue(context, request);
+            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
 			patientIdentifier.setLocation(location);
 			patientIdentifier.setPreferred(true);
 
@@ -358,6 +379,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			personAddress.setPreferred(true);
 			patient.addAddress(personAddress);
 		}
+
+        session.getSubmissionActions().setPatientUpdateRequired(true);
 	}
 
 	private void validateIdentifier(Integer identifierType, String identifier) {
@@ -479,38 +502,39 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		return true;
 	}
 
-	private void calculateBirthDate(Person person, String date, String age) {
+	/**
+	 * If there's a birthdate specified
+	 */
+	private void calculateBirthDate(Person person, Date date, Double age) {
 		Date birthdate = null;
 		boolean birthdateEstimated = false;
-		if (date != null && !date.equals("")) {
-			try {
-				// only a year was passed as parameter
-				if (date.length() < 5) {
-					Calendar c = Calendar.getInstance();
-					c.set(Calendar.YEAR, Integer.valueOf(date));
-					c.set(Calendar.MONTH, 0);
-					c.set(Calendar.DATE, 1);
-					birthdate = c.getTime();
-					birthdateEstimated = true;
-				}
-				// a full birthdate was passed as a parameter
-				else {
-					birthdate = Context.getDateFormat().parse(date);
-					birthdateEstimated = false;
-				}
-			}
-			catch (ParseException e) {
-				throw new RuntimeException("Error getting date from birthdate", e);
-			}
+		if (date != null) {
+				birthdate = date;
+				//if you have a previous date that's marked as estimated and date does not change -->  keep it that way
+				//if you have a previous date that's marked as estimated but date changes --> not estimated
+				//if new --> not estimated
+				//if existing and not estimated --> not estimated
+				birthdateEstimated = person.getBirthdate() != null && person.getBirthdateEstimated() != null && person.getBirthdate().equals(date) ? person.getBirthdateEstimated() : false;
 		}
-		else if (age != null && !age.equals("")) {			
+		else if (age != null) {	
 			try {
-				person.setBirthdateFromAge(new Integer(age), new Date());
+				Double ageRemainder  = BigDecimal.valueOf(age).subtract(BigDecimal.valueOf(Math.floor(age))).doubleValue();
+				if (ageRemainder.equals(Double.valueOf(0)))
+					person.setBirthdateFromAge(age.intValue(), new Date()); //default to usual behavior from core
+				else { //a decimal was entered
+					Calendar c = Calendar.getInstance();
+					c.setTime(new Date());
+					c.add(Calendar.DAY_OF_MONTH, - Double.valueOf((ageRemainder * 365)).intValue()); //if patient is 2.2 years old, patient was 2.0 years 2.2 - (.2*365) days ago
+					c.add(Calendar.YEAR, -1 * Double.valueOf(Math.floor(age)).intValue());
+					birthdate = c.getTime();
+				}
 				birthdateEstimated = true;
 			}
 			catch (NumberFormatException e) {
 				throw new RuntimeException("Error getting date from age", e);
 			}
+		} else {
+			throw new IllegalArgumentException("You must provide either an age or a birthdate for this patient.");
 		}
 		if (birthdate != null)
 			person.setBirthdate(birthdate);

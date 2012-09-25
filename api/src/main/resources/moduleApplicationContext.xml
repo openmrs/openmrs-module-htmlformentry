@@ -93,7 +93,15 @@
 								        <key><value>standardRegimen</value></key>
 								        <bean class="org.openmrs.module.htmlformentry.handler.StandardRegimenTagHandler"/>
 							      	</entry>
-							    </map>  
+							      	<entry>
+								        <key><value>encounterType</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.EncounterTypeTagHandler"/>
+							      	</entry>
+                                    <entry>
+								        <key><value>exitFromCare</value></key>
+								        <bean class="org.openmrs.module.htmlformentry.handler.ExitFromCareTagHandler"/>
+							      	</entry>
+							    </map>
 							</property>
 							<property name="basicFormXmlTemplate">
 								<value>

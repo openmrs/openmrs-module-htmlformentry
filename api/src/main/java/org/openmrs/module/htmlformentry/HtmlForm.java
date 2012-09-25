@@ -141,7 +141,7 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	}
 	
 	/** Allows HtmlForm to be shared via Metadata Sharing Module **/
-	protected HtmlForm writeReplace() {
+	protected Object writeReplace() {
 		HtmlFormExporter exporter = new HtmlFormExporter(this);
 		
 		// default: includeLocations = true, includePersons = false, includeRoles = true, includePatientIdentifierTypes = true
