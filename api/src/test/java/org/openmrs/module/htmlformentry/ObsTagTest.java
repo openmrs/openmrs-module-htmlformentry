@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +22,9 @@ import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * Tests the obs tag.
@@ -383,5 +383,119 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldThrowExceptionWithCheckboxIfAnswerIsNotNumeric() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"eight\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
 		new FormEntrySession(patient, htmlform);
+	}
+
+    @Test
+	public void shouldSubmitObsWithNumericValueCheckbox() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "SingleObsFormWithNumericCheckbox";
+			}
+
+			public Patient getPatient() {
+				return patient;
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "NumericValue:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("NumericValue:"), "8");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(1);
+                results.assertObsCreated(1, "8.0");
+			}
+
+            public boolean doViewEncounter() {
+				return true;
+			}
+
+            public void testViewingEncounter(Encounter encounter, String html) {
+				Assert.assertTrue("View should contain checked numeric value: " + html, html.contains("NumericValue: <span class=\"value\">[X]&#160;"));
+			}
+		}.run();
+	}
+
+
+    /**
+     * verifies whether the previous obs is correctly voided when a new obs created, with changing the numeric value
+     * of checkbox, tests the changing of numeric value too.
+     * @throws Exception
+     */
+    @Test
+	public void shouldVoidPreviousObsWhenEditNumericValueCheckbox() throws Exception {
+		new RegressionTestHelper() {
+
+            Date date = new Date();
+			@Override
+			public String getFormName() {
+				return "SingleObsFormWithNumericCheckbox";
+			}
+
+			public Patient getPatient() {
+				return patient;
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "NumericValue:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("NumericValue:"), "8");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(1);
+                results.assertObsCreated(1,"8.0");
+			}
+
+            @Override
+            public boolean doEditEncounter() {
+		            return true;
+	        }
+
+            @Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] {"Date:", "NumericValue:" };
+			}
+            @Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("NumericValue:"), "4");
+			}
+
+            @Override
+            public void testEditedResults(SubmissionResults results){
+                results.assertNoErrors();
+                results.assertObsCreatedCount(1);
+                results.assertObsVoided(1,"8.0");
+                results.assertObsCreated(1,"4.0");
+
+            }
+		}.run();
 	}
 }

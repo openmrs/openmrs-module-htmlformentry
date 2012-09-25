@@ -398,7 +398,7 @@ public class FormEntryContext {
      * @param numericAns - numeric answer given with <obs/> declaration
      * @return the matching Obs, if any
      */
-    public Obs acquireExistingObs(Concept question, String numericAns) {
+    public Obs removeExistingObs(Concept question, String numericAns) {
 
         Obs initialObs = null;
         Number numVal = Double.valueOf(numericAns);
