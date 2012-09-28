@@ -53,13 +53,8 @@ public class TestUtil {
 	
 	
 	/**
-	 * Mimics org.openmrs.web.Listener.getRuntimeProperties()
-	 * 
-	 * @param webappName name to use when looking up the runtime properties env var or filename
-	 * @return Properties runtime
-	 * @throws Exception 
+	 * Determines the name of the proper test dataset based on what version of OpenMRS we are testing against
 	 */
-    @SuppressWarnings("deprecation")
     public String getTestDatasetFilename(String testDatasetName) throws Exception {
 		
 		InputStream propertiesFileStream = null;

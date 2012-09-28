@@ -25,6 +25,7 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
@@ -322,6 +323,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             }
 
+            // if no locations have been specified by the order attribute, use all non-retired locations
+            if (locations.isEmpty()) {
+                locations = Context.getLocationService().getAllLocations(false);
+            }
+
             // Set default values
             Location defaultLocation = null;
             if (context.getExistingEncounter() != null) {
@@ -335,21 +341,21 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
             locationWidget.setInitialValue(defaultLocation);
 
-            if (!locations.isEmpty()) {
-                for (Location location : locations) {
-                    String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
-                    locationOptions.add(option);
-                }
-            } else {
-                locations = Context.getLocationService().getAllLocations();
-                for (Location location : locations) {
-                    String label = location.getName();
-                    Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
-                    locationOptions.add(option);
-                }
-                Collections.sort(locationOptions, new OptionComparator());
+            // make sure that the default/selected location is one of the location options
+            if (defaultLocation != null) {
+               if (!locations.contains(defaultLocation)) {
+                   locations.add(defaultLocation);
+               }
             }
+
+            // now create the actual location options and sort them
+            for (Location location : locations) {
+                String label = location.getName();
+                Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
+                locationOptions.add(option);
+            }
+
+            Collections.sort(locationOptions, new OptionComparator());
 
             if ("autocomplete".equals(parameters.get("type"))) {
                 locationWidget.addOption(new Option());
@@ -512,12 +518,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                         null, null);
             } else if (providerWidget != null) {
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
-                        null, null);
+                        getGetterFunction(providerWidget), getSetterFunction(providerWidget));
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget),
                         null, null, null);
             } else if (locationWidget != null) {
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null,
-                        null, null);
+                        getGetterFunction(locationWidget), getSetterFunction(locationWidget));
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
                         null, null, null);
             }else if (encounterTypeWidget != null) {
@@ -566,6 +572,36 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
         return ret.toString();
     }
+
+    /**
+     * selects the correct setter function for provider/location widgets according to its type
+     * @param widget- dropdown or autocomplete
+     * @return
+     */
+    private String getGetterFunction(Widget widget) {
+		if (widget == null) {
+            return null;
+        }
+		if (widget instanceof AutocompleteWidget) {
+			return "autocompleteGetterFunction";
+        }
+		return null;
+	}
+
+    /**
+     * selects the correct getter function for provider/location widgets according to its type
+     * @param widget - dropdown or autocomplete
+     * @return
+     */
+    private String getSetterFunction(Widget widget) {
+		if (widget == null) {
+			return null;
+        }
+		if (widget instanceof AutocompleteWidget) {
+			return "autocompleteSetterFunction";
+        }
+		return null;
+	}
 
     /**
      * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)

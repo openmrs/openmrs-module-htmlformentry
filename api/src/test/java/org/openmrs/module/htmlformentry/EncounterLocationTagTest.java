@@ -13,18 +13,20 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Encounter;
 import org.openmrs.GlobalProperty;
+import org.openmrs.Location;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.aop.interceptor.SimpleTraceInterceptor;
+
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -61,8 +63,16 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
-	
-	@Test
+
+    @Test
+    public void encounterLocationTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
+        String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform);
+        Assert.assertTrue(session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Test Location\"") > -1);
+    }
+
+
+    @Test
 	public void encounterLocationTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
@@ -70,8 +80,8 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
 	}
-	@Test
 
+	@Test
 	public void encounterLocationTag_shouldSupportDefaultSelectyByGlobalProperty() throws Exception {
 		String GP_NAME = "kenyaemr.defaultLocation";
 		String GP_VALUE = "2";
@@ -88,8 +98,9 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		//String selectedId = matcher.group(1);
 		//Assert.assertEquals("2", selectedId);
 	}
-	
-	public void encounterLocationTag_shouldSupportDefaultSelectyByUserProperty() throws Exception {
+
+    @Test
+	public void encounterLocationTag_shouldSupportDefaultSelectByUserProperty() throws Exception {
 		String UP_NAME = "kenyaemr.defaultLocation";
 		String UP_VALUE = "2";
 		Assert.assertNotNull(Context.getLocationService().getLocation(Integer.valueOf(UP_VALUE)));
@@ -97,11 +108,39 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		
 		String htmlform = "<htmlform><encounterLocation default=\"UserProperty:" + UP_NAME + "\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
-		
-		Matcher matcher = Pattern.compile("<option.+?selected=\"true\".+?value=\"(.+?)\".*?>").matcher(session.getHtmlToDisplay());
-		Assert.assertTrue(matcher.find());
-		String selectedId = matcher.group(1);
-		Assert.assertEquals("2", selectedId);
+
+
+        TestUtil.assertFuzzyContains("<option value=\"2\" selected=\"true\">", session.getHtmlToDisplay());
 	}
+
+    @Test
+    public void encounterLocationTag_shouldNotShowRetiredLocations() throws Exception {
+        String htmlform = "<htmlform><encounterLocation /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform);
+        TestUtil.assertFuzzyDoesNotContain("<option value=\"3\">Never Never Land</option>", session.getHtmlToDisplay());
+    }
+
+
+    @Test
+    public void encounterLocationTag_shouldShowRetiredLocationIfPreviouslySelected() throws Exception {
+
+        // create an encounter associated with a retired location
+        Location location = Context.getLocationService().getLocation(3);
+        Patient patient = Context.getPatientService().getPatient(2);
+        Encounter encounter = Context.getEncounterService().getEncounter(101);
+
+        // (sanity check)
+        Assert.assertTrue(location.isRetired());
+
+        // set the location on this encounter to the retired location
+        encounter.setLocation(location);
+
+        // now render a form using that encounter
+        HtmlForm htmlform = new HtmlForm();
+        htmlform.setXmlData( "<htmlform><encounterLocation /></htmlform>");
+        FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, htmlform);
+        TestUtil.assertFuzzyContains("<option value=\"3\" selected=\"true\">Never Never Land</option>", session.getHtmlToDisplay());
+
+    }
 
 }

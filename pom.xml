@@ -3,7 +3,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>htmlformentry</artifactId>
-	<version>1.10.1-SNAPSHOT</version>
+	<version>2.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>HTML Form Entry</name>
 	<description>Parent project for HTML Form Entry</description>
@@ -14,7 +14,8 @@
 		<connection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</connection>
 		<developerConnection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</developerConnection>
 		<url>https://github.com/OpenMRS/openmrs-module-htmlformentry/</url>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<distributionManagement>
 		<repository>
@@ -113,6 +114,14 @@
 						</execution>
 					</executions>
 				</plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.3.2</version>
+                    <configuration>
+                        <pushChanges>false</pushChanges>
+                    </configuration>
+                </plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>

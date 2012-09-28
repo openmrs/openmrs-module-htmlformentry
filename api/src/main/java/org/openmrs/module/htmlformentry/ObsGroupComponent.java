@@ -2,11 +2,15 @@ package org.openmrs.module.htmlformentry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.w3c.dom.NamedNodeMap;
@@ -20,6 +24,10 @@ public class ObsGroupComponent {
 
 	private Concept question;
 	private Concept answer;
+	private int remainingInSet = 0;
+
+	/** Logger for this class and subclasses */
+	protected final static Log log = LogFactory.getLog(ObsGroupComponent.class);
 
 	public ObsGroupComponent() {
 	}
@@ -27,6 +35,12 @@ public class ObsGroupComponent {
 	public ObsGroupComponent(Concept question, Concept answer) {
 		this.question = question;
 		this.answer = answer;
+	}
+
+	public ObsGroupComponent(Concept question, Concept answer, int remainingInSet) {
+		this.question = question;
+		this.answer = answer;
+		this.remainingInSet = remainingInSet;
 	}
 
 
@@ -52,9 +66,6 @@ public class ObsGroupComponent {
 
 	@Deprecated
 	public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs parentObs, Set<Obs> group) {
-		//      for (ObsGroupComponent ogc: questionsAndAnswers){
-		//          log.debug(ogc.getQuestion() + " " + ogc.getAnswer());
-		//      }
 		for (Obs obs : group) {
 			boolean match = false;
 			for (ObsGroupComponent test : questionsAndAnswers) {
@@ -66,18 +77,14 @@ public class ObsGroupComponent {
 					break;
 				}
 
-				//              log.debug("First comparison, questionMatches evaluated "+ questionMatches+ " based on test"  + test.getQuestion().getConceptId() + " and obs.concept" + obs.getConcept().getConceptId() + " AND answer concept evaluated " + answerMatches  );
 				if (questionMatches && answerMatches) {
 					match = true;
-					//                  break;
 				}
 			}
 			if (!match){
-				//              log.debug("returning false for " + parentObs);
 				return false;
 			}    
 		}
-		//      log.debug("returning true for " + parentObs);
 		return true;
 	}
 
@@ -85,31 +92,33 @@ public class ObsGroupComponent {
 		int rank = 0;
 
 		for (Obs obs : obsSet) {
+			Set<Integer> obsGroupComponentMatchLog = new HashSet<Integer>();
+
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
 				boolean questionMatches = obsGroupComponent.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
 				boolean answerMatches = obsGroupComponent.getAnswer() == null ||(obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
 
-//				if (questionMatches) {
-//					System.out.println("> ...   question concept " + obsGroupComponent.getQuestion().getConceptId() + " with obs concept " + obs.getConcept().getConceptId());
-//					if (obsGroupComponent.getAnswer() != null && obs.getValueCoded() != null) {
-//						System.out.println("  ... < answer concept " + obsGroupComponent.getAnswer().getConceptId() + " with obs concept " + obs.getValueCoded().getConceptId());
-//					} else {
-//						System.out.println("  ... < non-coded answer...skipping comparison... " + obsGroupComponent.getAnswer() + " ::" + obs.getValueCoded());
-//					}
-//				}
-
-				if (questionMatches && !answerMatches) {
-					if (obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null) {
-						return 0;
-					} else {
-						// If this ever happens, this is NOT a match and we can stop checking and return an insurmountable ranking
-						return -1000;
+				if (questionMatches && !answerMatches) {					
+					if (!obsGroupComponentMatchLog.contains(obsGroupComponent.getQuestion().getConceptId())) {
+						if (obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null) {
+							return 0;
+						} else {
+							if (obsGroupComponent.isPartOfSet()) {
+								if (obsGroupComponent.getRemainingInSet() == 1) {
+									return -1000;
+								}
+							} else {
+								// If this ever happens, this is NOT a match and we can stop checking and return an insurmountable ranking
+								return -1000;
+							}
+						}
 					}
 				} else if (questionMatches && answerMatches) {
 					if (obsGroupComponent.getAnswer() != null) {
 						// add extra weight to this matching...
 						rank++;
 					}
+					obsGroupComponentMatchLog.add(obsGroupComponent.getQuestion().getConceptId());
 					rank++;
 				}
 			}
@@ -124,7 +133,8 @@ public class ObsGroupComponent {
 	}
 
 
-	private static void findQuestionsAndAnswersForGroupHelper(String parentGroupingConceptId, Node node, List<ObsGroupComponent> ret) {
+	private static void findQuestionsAndAnswersForGroupHelper(String parentGroupingConceptId, Node node, List<ObsGroupComponent> obsGroupComponents) {
+
 		if ("obs".equals(node.getNodeName())) {
 			Concept question = null;
 			List<Concept> questions = null;
@@ -176,8 +186,8 @@ public class ObsGroupComponent {
 			//deterimine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
 			boolean thisObsInThisGroup = false;
 			Node pTmp = node.getParentNode();
-			while(pTmp.getParentNode() != null){
 
+			while(pTmp.getParentNode() != null) {
 				Map<String, String> attributes = new HashMap<String, String>();        
 				NamedNodeMap map = pTmp.getAttributes();
 				if (map != null)
@@ -195,31 +205,33 @@ public class ObsGroupComponent {
 			}
 
 			if (thisObsInThisGroup){
-				if (answersList != null && answersList.size() > 0)
-					for (Concept c : answersList)
-						ret.add(new ObsGroupComponent(question, c));
-							else if (questions != null && questions.size() > 0)
-								for (Concept c: questions)
-									ret.add(new ObsGroupComponent(c, answer));
-										else 
-											ret.add(new ObsGroupComponent(question, answer));     
+				if (answersList != null && answersList.size() > 0) {
+					int setCounter = 0;
+					for (Concept c : answersList) {
+						obsGroupComponents.add(new ObsGroupComponent(question, c, answersList.size() - (setCounter++)));
+					}
+				} else if (questions != null && questions.size() > 0) {
+					int setCounter = 0;
+					for (Concept c: questions) {
+						obsGroupComponents.add(new ObsGroupComponent(c, answer, questions.size() - (setCounter++)));
+					}
+				} else {
+					obsGroupComponents.add(new ObsGroupComponent(question, answer));
+				}	     
 			} 
-		} else {
-			if ("obsgroup".equals(node.getNodeName())){
-				try {
-					NamedNodeMap attrs = node.getAttributes();
-					attrs.getNamedItem("groupingConceptId").getNodeValue();
-					ret.add(new ObsGroupComponent(HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue()), null));
-				} catch (Exception ex){
-					throw new RuntimeException("Unable to get groupingConcept out of obsgroup tag.");
-				}    
-			}
-			NodeList nl = node.getChildNodes();
-			for (int i = 0; i < nl.getLength(); ++i) {
-				findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), ret);
-			}
-		}     
-
+		} else if ("obsgroup".equals(node.getNodeName())){
+			try {
+				NamedNodeMap attrs = node.getAttributes();
+				attrs.getNamedItem("groupingConceptId").getNodeValue();
+				obsGroupComponents.add(new ObsGroupComponent(HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue()), null));
+			} catch (Exception ex){
+				throw new RuntimeException("Unable to get groupingConcept out of obsgroup tag.");
+			}    
+		}
+		NodeList nl = node.getChildNodes();
+		for (int i = 0; i < nl.getLength(); ++i) {
+			findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), obsGroupComponents);
+		}
 	}
 
 	/**
@@ -261,4 +273,17 @@ public class ObsGroupComponent {
 		}
 		return st.toString();
 	}
+
+	public boolean isPartOfSet() {
+		return remainingInSet > 0;
+	}
+
+	public int getRemainingInSet() {
+		return remainingInSet;
+	}
+
+	public void setRemainingInSet(int remainingInSet) {
+		this.remainingInSet = remainingInSet;
+	}
+
 }

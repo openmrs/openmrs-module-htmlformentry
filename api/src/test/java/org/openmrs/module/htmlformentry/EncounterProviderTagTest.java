@@ -59,6 +59,14 @@ public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
 	}
 
     @Test
+    public void encounterProviderTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
+        String htmlform = "<htmlform><encounterProvider type=\"autocomplete\" default=\"502\" /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform);
+        TestUtil.assertFuzzyContains("<input type=\"text\" id=\"w1\" value=\"Hippocrates of Cos\"",session.getHtmlToDisplay());
+
+    }
+
+    @Test
 	public void encounterProviderTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterProvider/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform);
@@ -68,3 +76,4 @@ public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
 	}
 
 }
+
