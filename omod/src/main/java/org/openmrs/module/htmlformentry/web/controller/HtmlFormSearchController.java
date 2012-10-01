@@ -18,6 +18,7 @@ import org.openmrs.ConceptWord;
 import org.openmrs.api.context.Context;
 import org.openmrs.propertyeditor.ConceptClassEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
+import org.openmrs.web.WebUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -91,9 +92,9 @@ public class HtmlFormSearchController {
 			out.print("{ \"value\":\"");
 			if (w.getConceptName().isPreferred()
 					|| w.getConceptName().getName().equalsIgnoreCase(ds)) {
-				out.print(w.getConceptName().getName());
+				out.print(WebUtil.escapeQuotes(w.getConceptName().getName()));
 			} else {
-				out.print(w.getConcept().getDisplayString());
+				out.print(WebUtil.escapeQuotes(w.getConcept().getDisplayString()));
 			}
 			out.print("\",\"id\"");
 			out.print(":\"" + w.getConcept().getId());
