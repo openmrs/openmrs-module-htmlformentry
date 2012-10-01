@@ -1321,6 +1321,9 @@ public class HtmlFormEntryUtil {
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
 		
+		if (patient.getPatientId() == null)
+			return false;
+		
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
 		    null, date, date, null, false);
 		
@@ -1340,6 +1343,9 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("program should not be null");
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
+		
+		if (patient.getPatientId() == null)
+			return null;
 		
 		PatientProgram closestProgram = null;
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
