@@ -91,9 +91,9 @@ public class HtmlFormSearchController {
 			out.print("{ \"value\":\"");
 			if (w.getConceptName().isPreferred()
 					|| w.getConceptName().getName().equalsIgnoreCase(ds)) {
-				out.print(w.getConceptName().getName());
+				out.print(escapeJsonSpecialCharacters(w.getConceptName().getName()));
 			} else {
-				out.print(w.getConcept().getDisplayString());
+				out.print(escapeJsonSpecialCharacters(w.getConcept().getDisplayString()));
 			}
 			out.print("\",\"id\"");
 			out.print(":\"" + w.getConcept().getId());
@@ -102,5 +102,10 @@ public class HtmlFormSearchController {
 				out.print(",");
 		}
 		out.print("]");
+	}
+	
+	private String escapeJsonSpecialCharacters(String s) {
+		//replace " with \"
+		return s.replace("\"", "\\\"");
 	}
 }
