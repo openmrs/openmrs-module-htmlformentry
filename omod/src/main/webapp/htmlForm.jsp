@@ -144,7 +144,7 @@
 </c:if>
 
 <form method="post">
-	<table>
+	<table style="width:100%">
 		<tr class="show-later">
 			<td><spring:message code="general.id"/></td>
 			<td>${htmlForm.id}</td>
@@ -265,9 +265,9 @@
 		</tr>
 		<tr class="show-later">
 			<td valign="top"><spring:message code="htmlformentry.HtmlForm.html"/>:</td>
-			<td>
+			<td style="width:100%">
 				<spring:bind path="htmlForm.xmlData">
-					<textarea id="xmlData" rows="20" cols="80" name="${status.expression}"><c:out value="${status.value}" escapeXml="true"/></textarea>
+					<textarea id="xmlData" rows="20" style="width:100%" name="${status.expression}"><c:out value="${status.value}" escapeXml="true"/></textarea>
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
