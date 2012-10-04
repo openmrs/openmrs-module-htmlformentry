@@ -296,7 +296,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 if (numericAnswers.size() == 0) {
                     if (!"checkbox".equals(parameters.get("style"))) {
                         valueWidget = new NumberFieldWidget(cn, parameters.get("size"));
-                    } else if ("checkbox".equals(parameters.get("style"))) {
+                    } else {
                         // render CheckboxWidgets for <obs> tag with numeric datatype;
                         // i.e. <obs conceptId="1234" answer="8" answerLabel="Eight" style="checkbox"/>
                         if (parameters.get("answer") != null) {

@@ -400,18 +400,22 @@ public class FormEntryContext {
      */
     public Obs removeExistingObs(Concept question, String numericAns) {
 
-        Obs initialObs = null;
         Number numVal = Double.valueOf(numericAns);
-        Set<Obs> obsSet = existingEncounter == null? null :existingEncounter.getObs();
-        if (obsSet != null) {
-            for (Obs obs : obsSet) {
-                if (obs.getConcept().equals(question) && obs.getValueNumeric().equals(numVal)) {
-                    initialObs = obs;
+        List<Obs> list = existingObs.get(question);
+        if (list != null) {
+            for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
+                Obs test = iter.next();
+                if (test.getValueNumeric().equals(numVal)) {
+                    iter.remove();
+                    if (list.size() == 0) {
+                        existingObs.remove(question);
+                    }
+                    return test;
                 }
             }
         }
 
-        return initialObs;
+        return null;
     }
 
 
