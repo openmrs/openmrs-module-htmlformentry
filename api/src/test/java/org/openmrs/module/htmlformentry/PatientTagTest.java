@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.GlobalProperty;
 import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
@@ -16,6 +17,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -598,9 +600,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
-    // unit test to reproduce HTML-378: Cannot create a patient and enroll that patient in a program on the same form
-
-    @Ignore
     @Test
     public void testCreatePatientAndEnrollInProgram() throws Exception {
         final Date date = new Date();
@@ -651,8 +650,9 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
                 Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
                 Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
 
-                // TODO: once HTML-378 is fixed an assertion should be added to this method that the patient is indeed enrolled in the program
-
+                List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(
+                		results.getPatient(), null, null, null, null, null, false);
+            	Assert.assertTrue(patientPrograms.size() == 1);
             }
         }.run();
     }
