@@ -29,6 +29,7 @@ import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
@@ -190,7 +191,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// if not 'false' we treat as 'true'
 					existingObs = context.removeExistingObs(concept, true);
 				}
-			} else {
+            // if we use 'checkbox' with numeric values, first find existing obs for each answer
+			}else if (concept.getDatatype().isNumeric() && "checkbox".equals(parameters.get("style"))){
+                String numericAns = parameters.get("answer");
+                existingObs = context.removeExistingObs(concept, numericAns);
+            } else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
 		} else {
@@ -264,7 +269,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 			answerLabel = getValueLabel();
 		} else {
-			
+
 			// Obs of datatypes date, time, and datetime support the attributes
 			// defaultDatetime. Make sure this date format string matches the
 			// format documented at
@@ -272,7 +277,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			// See <obs> section, attributes defaultDatetime and
 			// defaultObsDatetime
 			String defaultDatetimeFormat = "yyyy-MM-dd-HH-mm";
-			
+
 			if (concept.getDatatype().isNumeric()) {
 				if (parameters.get("answers") != null) {
 					try {
@@ -287,9 +292,29 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				}
 				ConceptNumeric cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
-				if (numericAnswers.size() == 0) {
-					valueWidget = new NumberFieldWidget(cn, parameters.get("size"));
-				} else {
+				// added to avoid creating this widget when a checkbox is needed
+                if (numericAnswers.size() == 0) {
+                    if (!"checkbox".equals(parameters.get("style"))) {
+                        valueWidget = new NumberFieldWidget(cn, parameters.get("size"));
+                    } else {
+                        // render CheckboxWidgets for <obs> tag with numeric datatype;
+                        // i.e. <obs conceptId="1234" answer="8" answerLabel="Eight" style="checkbox"/>
+                        if (parameters.get("answer") != null) {
+                            try {
+                                Number number = Double.valueOf(parameters.get("answer"));
+                                numericAnswers.add(number);
+                                answerLabel = parameters.get("answerLabel");
+                                if (number != null) {
+                                    valueWidget = new CheckboxWidget(answerLabel, number.toString());
+                                }
+
+                            } catch (Exception ex) {
+                                throw new RuntimeException("Error in answer for concept " + concept.getConceptId() + " ("
+                                        + ex.toString() + "): ");
+                            }
+                        }
+                    }
+                }else {
 					if ("radio".equals(parameters.get("style"))) {
 						valueWidget = new RadioButtonsWidget();
 						if (StringUtils.isNotBlank(answerSeparator))
@@ -317,18 +342,20 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					if (lookFor != null)
 						((SingleOptionWidget) valueWidget)
 						        .addOption(new Option(lookFor.toString(), lookFor.toString(), true));
-				}
-				if (existingObs != null) {
-					valueWidget.setInitialValue(existingObs.getValueNumeric());
-				} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
-					try {
-						Double initialValue = Double.valueOf(defaultValue);
-						valueWidget.setInitialValue(initialValue);
-					}
-					catch (NumberFormatException e) {
-						throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
-					}
-				}
+                }
+                if (valueWidget != null) {
+                    if (existingObs != null) {
+                        valueWidget.setInitialValue(existingObs.getValueNumeric());
+                    } else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+                        try {
+                            Double initialValue = Double.valueOf(defaultValue);
+                            valueWidget.setInitialValue(initialValue);
+                        } catch (NumberFormatException e) {
+                            throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
+                        }
+                    }
+                }
+
 			} else if (concept.getDatatype().isText()) {
 
 				String initialValue = null;
@@ -417,24 +444,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						//    					sortOptions = true;
 					}
 
-                    for (PersonStub personStub : options){
-                        String personName= personStub.getDisplayValue();
-                        Option personOption = new Option(personName, personStub.getId().toString(), personStub.getId().toString().equals(initialValue));
-                        personOptions.add(personOption);
-                    }
-                    Collections.sort(personOptions, new OptionComparator());
+					valueWidget = new PersonStubWidget(options);
 
-					valueWidget = new DropdownWidget();
-                    // if initialValueIsSet=false, no initial/default person, hence this shows the 'select input' field as first option
-                    boolean initialValueIsSet = !(initialValue == null);
-
-                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAPerson"), "", !initialValueIsSet));
-                    if(!personOptions.isEmpty()){
-                        for(Option option: personOptions){
-                          ((DropdownWidget)valueWidget).addOption(option);
-                        }
-                    }
-					
 				} else {
 					if (textAnswers.size() == 0) {
 						Integer rows = null;
@@ -550,14 +561,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							answerLabel = answerConcept.getBestName(Context.getLocale()).getName();
 						}
 					}
-
-					if (parameters.get("toggle") != null) {
-						ToggleWidget toggleWidget = new ToggleWidget(parameters.get("toggle"));
-						valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString(), toggleWidget.getTargetId(), toggleWidget.isToggleDim());
-					} else {
-						valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
-					}
-					
+					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
 					if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
@@ -1008,7 +1012,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (value instanceof Concept)
 					concept = (Concept) value;
 				else
-					concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString().trim(), Concept.class);
+					concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Unable to convert response to a concept!");
