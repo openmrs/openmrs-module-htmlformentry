@@ -357,7 +357,7 @@ public class HtmlFormEntryUtil {
 		}
 		
 		for (PersonAttributeType type : Context.getPersonService().getAllPersonAttributeTypes()) {
-			if (type.getFormat().equals("java.lang.String")) {
+			if (type.getFormat() != null && type.getFormat().equals("java.lang.String")) {
 				demo.addAttribute(new PersonAttribute(type, "Test " + type.getName() + " Attribute"));
 			}
 		}
