@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import org.apache.xerces.dom.AttributeMap;
 import org.openmrs.Role;
 import org.openmrs.User;
 import org.apache.commons.lang.StringUtils;
@@ -213,6 +214,21 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * }
      * </pre>
      *
+     * Takes an XML string, finds each {@code <repeat with=""></repeat>} sections in it, and applies those
+     * substitutions for element style; checkbox.
+     * <pre>
+     * { @code}
+     * <repeat with="[664,'No Complaints'], [832,'Weight Loss']">
+     *    <obs conceptId="1069" answerConceptId="{0}" answerLabel="{1}" style="checkbox" /><br/>
+     * </repeat>
+     * }
+     * this will be replaced with,
+     * { @code
+     * <obs conceptId="1069" answerConceptId="644" answerLabel="No Complaints" style="checkbox" /><br/>
+     * <obs conceptId="1069" answerConceptId="832" answerLabel="Weight Loss" style="checkbox" /><br/>
+     * }
+     *
+     * </pre>
      * @param xml the xml string to process for repeat sections
      * @return the xml string after repeat substitutions have been made
      * @throws Exception
@@ -225,25 +241,45 @@ public class HtmlFormEntryGenerator implements TagHandler {
         // We can refactor later as needed if we can get it to work properly, or replace the xml library
         // First we need to parse the document to get the node attributes for repeating elements
         List<List<Map<String, String>>> renderMaps = new ArrayList<List<Map<String, String>>>();
+
+        // The conceptId-answerLabel pairs defined with the <repeat> tag will be stored in the hashmap below
+        Map<String, String> idLabelPairs = new HashMap<String, String>();
+
+        loadObsElementsForEachRepeatElement(content, idLabelPairs);
         loadRenderElementsForEachRepeatElement(content, renderMaps);
 
         // Now we are just going to use String replacements to explode the repeat tags properly
         Iterator<List<Map<String, String>>> renderMapIter = renderMaps.iterator();
-        while (xml.contains("<repeat>")) {
-            int startIndex = xml.indexOf("<repeat>");
+        while (xml.contains("<repeat")) {
+            int startIndex = xml.indexOf("<repeat");
             int endIndex = xml.indexOf("</repeat>") + 9;
             String xmlToReplace = xml.substring(startIndex, endIndex);
-            String template = xmlToReplace.substring(xmlToReplace.indexOf("<template>") + 10,
-                    xmlToReplace.indexOf("</template>"));
-            StringBuilder replacement = new StringBuilder();
-            for (Map<String, String> replacements : renderMapIter.next()) {
-                String curr = template;
-                for (String key : replacements.keySet()) {
-                    curr = curr.replace("{" + key + "}", replacements.get(key));
+            if(xmlToReplace.contains("with=")){
+                int repeatWithEndIndex = xmlToReplace.indexOf("]\">");
+                int xmlToReplaceEndIndex = xmlToReplace.indexOf("</repeat>");
+                String obsTagsToReplace = xmlToReplace.substring(repeatWithEndIndex + 3, xmlToReplaceEndIndex);
+                Set<Map.Entry<String, String>> entries = idLabelPairs.entrySet();
+                StringBuilder sb = new StringBuilder();
+                String currentTag;
+                for (Map.Entry<String, String> replacement : entries) {
+                    currentTag = obsTagsToReplace.replace("{0}", replacement.getKey()).replace("{1}", replacement.getValue());
+                    sb.append(currentTag);
                 }
-                replacement.append(curr);
+                xml = xml.substring(0, startIndex) + sb + xml.substring(endIndex);
+            } else {
+                String template = xmlToReplace.substring(xmlToReplace.indexOf("<template>") + 10,
+                        xmlToReplace.indexOf("</template>"));
+                StringBuilder replacement = new StringBuilder();
+                for (Map<String, String> replacements : renderMapIter.next()) {
+                    String curr = template;
+                    for (String key : replacements.keySet()) {
+                        curr = curr.replace("{" + key + "}", replacements.get(key));
+                    }
+                    replacement.append(curr);
+                }
+                xml = xml.substring(0, startIndex) + replacement + xml.substring(endIndex);
             }
-            xml = xml.substring(0, startIndex) + replacement + xml.substring(endIndex);
+
         }
 
         return xml;
@@ -255,7 +291,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         NodeList list = node.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node n = list.item(i);
-            if (n.getNodeName().equalsIgnoreCase("repeat")) {
+            if (n.getNodeName().equalsIgnoreCase("repeat") && !n.hasAttributes()) {
                 Node templateNode = HtmlFormEntryUtil.findChild(n, "template");
                 if (templateNode == null) {
                     throw new IllegalArgumentException("All <repeat> elements must contain a child <template> element.");
@@ -271,6 +307,34 @@ public class HtmlFormEntryGenerator implements TagHandler {
                 renderMaps.add(l);
             } else {
                 loadRenderElementsForEachRepeatElement(n, renderMaps);
+            }
+        }
+    }
+
+    private void loadObsElementsForEachRepeatElement(Node content, Map<String, String> idLabelPairs) {
+
+        NodeList nodeList = content.getChildNodes();
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if (node.getNodeName().equalsIgnoreCase("repeat") && node.hasAttributes()) {
+                AttributeMap attributMap = (AttributeMap) node.getAttributes();
+                for (int j = 0; j < attributMap.getLength(); j++) {
+                    Node attNode = attributMap.item(j);
+                    if (attNode.getNodeName().equalsIgnoreCase("with")) {
+                        String val = attNode.getNodeValue();
+                        String[] values = val.replaceAll("\\[", "").replaceAll("\\]", "").split(",");
+
+                        // put each id-label pair into map by stepping through two items in each turn
+                        // e.g. values[0] = 664
+                        //      values[1] = 'No Complaints'
+                        // then 664 (key) --> No Complains (value)
+                        for (int k = 0; k < values.length; k = k + 2) {
+                            idLabelPairs.put(values[k].trim(), values[k + 1].trim().replaceAll("'", ""));
+                        }
+                    }
+                }
+            } else {
+                loadObsElementsForEachRepeatElement(node, idLabelPairs);
             }
         }
     }

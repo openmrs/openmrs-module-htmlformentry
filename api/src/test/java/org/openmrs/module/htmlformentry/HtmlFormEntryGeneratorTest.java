@@ -19,13 +19,16 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
 	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
+
+    protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	private Patient patient = null;
 	
 	@Before
 	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
-		patient = Context.getPatientService().getPatient(2);
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+        patient = Context.getPatientService().getPatient(2);
 	}
 	
 	/**
@@ -51,6 +54,44 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a man</div>", session.getHtmlToDisplay());
 	}
+
+    /**
+	 * @see {@link HtmlFormEntryGenerator#applyTemplates(String)}
+     * @throws Exception
+	 */
+	@Test
+	@Verifies(value = "should return correct xml after apply <repeat with=''> tag", method = "applyTemplates(String)")
+    public void applyTemplates_shouldReturnCorrectXmlAfterApplyTemplates() throws Exception {
+
+        /* verifies correct html when there is '<repeat with=""> tag only*/
+        String htmlform = "<htmlform><repeat with=\"[4301,'STROKE'],[4302,'OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+                "</repeat></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4302\"/><label for=\"w2\">OTHER NON-CODED</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4301\"/><label for=\"w4\">STROKE</label>";
+        Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
+
+        /* verifies correct html when there is '<repeat with=""> tag after <repeat> tag together*/
+        String htmlform2 = "<htmlform><repeat with=\"[4301,'STROKE'],[4302,'OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+                "</repeat><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
+                "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
+        FormEntrySession session2 = new FormEntrySession(patient, htmlform2);
+        String testText2 = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4302\"/><label for=\"w2\">OTHER NON-CODED</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
+                "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4301\"/><label for=\"w4\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/>" +
+                "<label for=\"w6\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">Other Non-coded</label>";
+        Assert.assertTrue(session2.getHtmlToDisplay().contains(testText2));
+
+        /* verifies correct html when there is <repeat> tag after '<repeat with=""> tag together*/
+        String htmlform3 = "<htmlform><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
+                "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat><repeat with=\"[4301,'STROKE'],[4302,'OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+                "</repeat></htmlform>";
+        FormEntrySession session3 = new FormEntrySession(patient, htmlform3);
+        String testText3 = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/>" +
+                "<label for=\"w4\">Other Non-coded</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4302\"/><label for=\"w6\">OTHER NON-CODED</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span>" +
+                "<input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4301\"/><label for=\"w8\">STROKE</label>";
+        Assert.assertTrue(session3.getHtmlToDisplay().contains(testText3));
+
+
+    }
 
     /**
 	 * @see {@link HtmlFormEntryGenerator#applyRoleRestrictions(String)}
