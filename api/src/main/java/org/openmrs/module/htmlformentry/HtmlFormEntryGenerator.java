@@ -1,13 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import org.apache.xerces.dom.AttributeMap;
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Role;
 import org.openmrs.User;
-import org.apache.commons.lang.StringUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
@@ -20,6 +15,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -186,12 +184,25 @@ public class HtmlFormEntryGenerator implements TagHandler {
         return xml;
     }
 
+
     /**
+     * Calls the two underlying methods for handling the "<repeat>" tag
+     *
+     * @param xml
+     * @return
+     * @throws Exception
+     */
+    public String applyRepeats(String xml) throws Exception {
+        xml = applyRepeatTemplateTags(xml);
+        xml = applyRepeatWithTags(xml);
+        return xml;
+    }
+
+    /**
+     * Handles the original version of the <repeat>:
+     *
      * Takes an XML string, finds each {@code <repeat></repeat>} section in it, and applies those
      * substitutions
-     * <p/>
-     * <p/>
-     * <pre>
      * {@code
      * <htmlform>
      *   <repeat>
@@ -212,29 +223,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
      *   </repeat>
      * </htmlform>
      * }
-     * </pre>
-     * <p/>
-     * Takes an XML string, finds each {@code <repeat with=""></repeat>} sections in it, and applies those
-     * substitutions for element style; checkbox.
-     * <pre>
-     * { @code}
-     * <repeat with="[664,'No Complaints'], [832,'Weight Loss']">
-     *    <obs conceptId="1069" answerConceptId="{0}" answerLabel="{1}" style="checkbox" /><br/>
-     * </repeat>
-     * }
-     * this will be replaced with,
-     * { @code
-     * <obs conceptId="1069" answerConceptId="644" answerLabel="No Complaints" style="checkbox" /><br/>
-     * <obs conceptId="1069" answerConceptId="832" answerLabel="Weight Loss" style="checkbox" /><br/>
-     * }
-     *
-     * </pre>
-     *
-     * @param xml the xml string to process for repeat sections
-     * @return the xml string after repeat substitutions have been made
-     * @throws Exception
-     */
-    public String applyTemplates(String xml) throws Exception {
+     **/
+    private String applyRepeatTemplateTags(String xml) throws Exception {
         Document doc = HtmlFormEntryUtil.stringToDocument(xml);
         Node content = HtmlFormEntryUtil.findChild(doc, "htmlform");
 
@@ -243,57 +233,27 @@ public class HtmlFormEntryGenerator implements TagHandler {
         // First we need to parse the document to get the node attributes for repeating elements
         List<List<Map<String, String>>> renderMaps = new ArrayList<List<Map<String, String>>>();
 
-        // The value entries defined with the <repeat> tag will be stored in the hashmap below
-        Map<Integer, String> idLabelPairs = new HashMap<Integer, String>();
-
-        loadElementsForEachRepeatElement(content, idLabelPairs);
         loadRenderElementsForEachRepeatElement(content, renderMaps);
 
         // Now we are just going to use String replacements to explode the repeat tags properly
         Iterator<List<Map<String, String>>> renderMapIter = renderMaps.iterator();
         int idLabelpairIndex = 0;
-        while (xml.contains("<repeat")) {
-            int startIndex = xml.indexOf("<repeat");
-            int endIndex = xml.indexOf("</repeat>") + 9;
+        while (xml.contains("<repeat>")) {
+            int startIndex = xml.indexOf("<repeat>");
+            int endIndex = xml.indexOf("</repeat>", startIndex) + 9;
             String xmlToReplace = xml.substring(startIndex, endIndex);
-            if (xmlToReplace.contains("with=")) {
-                int repeatWithEndIndex = xmlToReplace.indexOf("]\">");
-                int xmlToReplaceEndIndex = xmlToReplace.indexOf("</repeat>");
-                String elementTagsToReplace = xmlToReplace.substring(repeatWithEndIndex + 3, xmlToReplaceEndIndex);
-                StringBuilder sb = new StringBuilder();
 
-                if (idLabelpairIndex < idLabelPairs.size()) {
-                    Map<Integer, String[]> result = processForRepeatElements(idLabelPairs.get(idLabelpairIndex));
-                    int listVal = 0; //keeps track of the index of list element while iterating
-                    String currentTag = elementTagsToReplace;
-                    for (Map.Entry<Integer, String[]> entry : result.entrySet()) {
-                        String[] vals = entry.getValue();
-                        for (int j = 0; j < entry.getValue().length; j = j + entry.getKey()) {
-                            for (int n = 0; n < entry.getKey(); n++) {
-                                currentTag = currentTag.replace("{" + n + "}", vals[listVal]);
-                                listVal++;
-                            }
-                            sb.append(currentTag);
-                            currentTag = elementTagsToReplace;
-                        }
-                    }
-
+            String template = xmlToReplace.substring(xmlToReplace.indexOf("<template>") + 10,
+                    xmlToReplace.indexOf("</template>"));
+            StringBuilder replacement = new StringBuilder();
+            for (Map<String, String> replacements : renderMapIter.next()) {
+                String curr = template;
+                for (String key : replacements.keySet()) {
+                    curr = curr.replace("{" + key + "}", replacements.get(key));
                 }
-                idLabelpairIndex++;
-                xml = xml.substring(0, startIndex) + sb + xml.substring(endIndex);
-            } else {
-                String template = xmlToReplace.substring(xmlToReplace.indexOf("<template>") + 10,
-                        xmlToReplace.indexOf("</template>"));
-                StringBuilder replacement = new StringBuilder();
-                for (Map<String, String> replacements : renderMapIter.next()) {
-                    String curr = template;
-                    for (String key : replacements.keySet()) {
-                        curr = curr.replace("{" + key + "}", replacements.get(key));
-                    }
-                    replacement.append(curr);
-                }
-                xml = xml.substring(0, startIndex) + replacement + xml.substring(endIndex);
+                replacement.append(curr);
             }
+            xml = xml.substring(0, startIndex) + replacement + xml.substring(endIndex);
 
         }
 
@@ -326,28 +286,68 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
     }
 
-    private void loadElementsForEachRepeatElement(Node content, Map<Integer, String> idLabelPairs) {
+    /**
+     * Handle the new, less-verbose version of the <repeat> tag:
+     *
+    * </pre>
+    * <p/>
+    * Takes an XML string, finds each {@code <repeat with=""></repeat>} sections in it, and applies those
+    * substitutions
+    * <pre>
+    * { @code}
+    * <repeat with="['664','No Complaints'], ['832','Weight Loss']">
+    *    <obs conceptId="1069" answerConceptId="{0}" answerLabel="{1}" style="checkbox" /><br/>
+    * </repeat>
+    * }
+    * this will be replaced with,
+    * { @code
+    * <obs conceptId="1069" answerConceptId="644" answerLabel="No Complaints" style="checkbox" /><br/>
+    * <obs conceptId="1069" answerConceptId="832" answerLabel="Weight Loss" style="checkbox" /><br/>
+    * }
+    *
+    * </pre>
+    *
+    * @param xml the xml string to process for repeat sections
+    * @return the xml string after repeat substitutions have been made
+    * @throws Exception
+    */
+    private String applyRepeatWithTags(String xml) throws Exception {
 
-        int n = 0;
-        NodeList nodeList = content.getChildNodes();
-        for (int i = 0; i < nodeList.getLength(); i++) {
-            Node node = nodeList.item(i);
-            if (node.getNodeName().equalsIgnoreCase("repeat") && node.hasAttributes()) {
-                AttributeMap attributMap = (AttributeMap) node.getAttributes();
-                for (int j = 0; j < attributMap.getLength(); j++) {
-                    Node attNode = attributMap.item(j);
-                    if (attNode.getNodeName().equalsIgnoreCase("with")) {
-                        String val = attNode.getNodeValue().trim();
-                        idLabelPairs.put(n, val);
-                        n++;
-                    }
+        while (xml.contains("<repeat with=")) {
+
+            int startIndex = xml.indexOf("<repeat with=");
+            int endIndex = xml.indexOf("</repeat>", startIndex) + 9;
+
+            String xmlToReplace = xml.substring(startIndex, endIndex);
+
+            int substitutionSetsStartIndex = xmlToReplace.indexOf("with=") + 6;
+            int substitutionSetsEndIndex =  xmlToReplace.indexOf("]\">") + 1;
+            List<List<String>> substitutionSets = getSubstitutionSets(xmlToReplace.substring(substitutionSetsStartIndex, substitutionSetsEndIndex));
+
+            int templateStartIndex = xmlToReplace.indexOf("]\">") + 3;
+            int templateEndIndex = xmlToReplace.indexOf("</repeat>");
+            String template = xmlToReplace.substring(templateStartIndex, templateEndIndex);
+
+            StringBuilder sb = new StringBuilder();
+
+            String current = template;
+            for (List<String> substitutionSet : substitutionSets) {
+
+                int i = 0;
+
+                for (String substitution : substitutionSet) {
+                    current = current.replace("{" + i + "}", substitution);
+                    i++;
                 }
-            } else {
-                loadElementsForEachRepeatElement(node, idLabelPairs);
+
+                sb.append(current);
+                current = template;
             }
-        }
 
+            xml = xml.substring(0, startIndex) + sb + xml.substring(endIndex);
+         }
 
+        return xml;
     }
 
     /**
@@ -356,20 +356,32 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @param val = the string to process and get the entires
      * @return
      */
-    public Map<Integer, String[]> processForRepeatElements(String val) {
+    private List<List<String>> getSubstitutionSets(String val) {
 
-        Map<Integer, String[]> valsOfSingleRepeatWithBlock = new HashMap<Integer, String[]>();
-        int n;
-        // this is to find n, the number of values in a single entry eg: "[cough],[cold]" n = 1
-        int start = val.indexOf("[");
-        int end = val.indexOf("]");
-        n = val.substring(start, end + 1).split(",").length;
-        String[] values = val.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("'", "").split(",");
-        valsOfSingleRepeatWithBlock.put(n, values);
-        // put n and values[] pair into map
-        // e.g. n=numberOfValuesIntoSingleEntry (Key) --> values[]= values array (Value)
+        List<List<String>> substitutionSet = new ArrayList<List<String>>();
 
-        return valsOfSingleRepeatWithBlock;
+        // first, strip off the leading and trailing brackets
+        val = val.replaceFirst("\\s*\\[\\s*", "");
+        val = val.replaceFirst("\\s*\\]\\s*$", "");
+
+        // split on " ] , [ "
+        for (String subVal : val.split("\\s*\\]\\s*\\,\\s*\\[\\s*")) {
+
+            List<String> set= new ArrayList<String>();
+
+            // trim off the leading quote and trailing quote
+            subVal = subVal.replaceFirst("\\s*\\'", "");
+            subVal = subVal.replaceFirst("\\s*'\\s*$","");
+
+            // split on " ',' "
+            for (String str : subVal.split("\\s*\\'\\s*\\,\\s*\\'\\s*")) {
+                set.add(str);
+            }
+
+            substitutionSet.add(set);
+        }
+
+        return substitutionSet;
     }
 
     public String applyUnmatchedTags(FormEntrySession session, String xml) throws Exception {
@@ -831,6 +843,18 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
 
         return xml;
+    }
+
+    /**
+     * Deprecated methods
+     */
+
+    /**
+     * Old name of the "applyRepeats" tag
+     */
+    @Deprecated
+    public String applyTemplates(String xml) throws Exception {
+        return applyRepeats(xml);
     }
 
 }

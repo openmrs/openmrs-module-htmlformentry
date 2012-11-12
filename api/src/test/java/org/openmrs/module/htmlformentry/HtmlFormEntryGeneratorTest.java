@@ -55,41 +55,89 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a man</div>", session.getHtmlToDisplay());
 	}
 
-    /**
-	 * @see {@link HtmlFormEntryGenerator#applyTemplates(String)}
-     * @throws Exception
-	 */
-	@Test
-	@Verifies(value = "should return correct xml after apply <repeat with=''> tag", method = "applyTemplates(String)")
-    public void applyTemplates_shouldReturnCorrectXmlAfterApplyTemplates() throws Exception {
+    @Test
+    @Verifies(value = "should return correct xml after applying <repeat> tag", method = "applyRepeats(String)")
+    public void applyRepeats_shouldReturnCorrectValueAfterApplyRepeatTag() throws Exception {
 
-        /* verifies correct html when there is '<repeat with=""> tag only*/
-        String htmlform = "<htmlform><repeat with=\"[4301,'STROKE'],[4302,'OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+        String htmlform = "<htmlform><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
+                "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String testText = "<input type=\"hidden\" name=\"_w2\"/><input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/>" +
+                "<label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">Other Non-coded</label>";
+        Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
+
+    }
+
+    @Test
+    @Verifies(value = "should return correct xml after applying <repeat with=''> tag", method = "applyRepeats(String)")
+    public void applyRepeats_shouldReturnCorrectValueAfterApplyRepeatWithTag() throws Exception {
+
+        // note that we throw in some random spaces here to make sure that we handle them correctly
+        String htmlform = "<htmlform><repeat with=\" [ '4301','STROKE' ], ['4302', 'OTHER NON-CODED' ]\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform);
         String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
+    }
+
+    @Test
+    @Verifies(value = "should return correct xml after applying multiple <repeat with=''> tag", method = "applyRepeats(String)")
+    public void applyRepeats_shouldReturnCorrectVaueAfterApplyingMultipleRepeatWithTag() throws Exception {
+
+        String htmlform = "<htmlform><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+                "</repeat><repeat with=\"['4302','CANCER'],['4301','FLU']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+                "</repeat></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> " +
+               "<span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
+                "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> " +
+                "<span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/>" +
+                "<input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4302\"/><label for=\"w6\">CANCER</label> " +
+                "<span class=\"error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/>" +
+                "<input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4301\"/><label for=\"w8\">FLU</label>" ;
+
+        Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
+
+    }
+
+    /**
+	 * @see {@link HtmlFormEntryGenerator#applyRepeats(String)}
+     * @throws Exception
+	 */
+	@Test
+	@Verifies(value = "should return correct xml with <repeat with> tag after <repeat> tag", method = "applyRepeats(String)")
+    public void applyTemplates_shouldReturnCorrectXmlRepeathWithTagAfterRepeatTag() throws Exception {
+
         /* verifies correct html when there is '<repeat with=""> tag after <repeat> tag together*/
-        String htmlform2 = "<htmlform><repeat with=\"[4301,'STROKE'],[4302,'OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+        String htmlform = "<htmlform><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
-        FormEntrySession session2 = new FormEntrySession(patient, htmlform2);
-        String testText2 = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
                 "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/>" +
                 "<label for=\"w6\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">Other Non-coded</label>";
-        Assert.assertTrue(session2.getHtmlToDisplay().contains(testText2));
+        Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
+
+    }
+
+    /**
+     * @see {@link HtmlFormEntryGenerator#applyRepeats(String)}
+     * @throws Exception
+     */
+    @Test
+    @Verifies(value = "should return correct xml with <repeat with> tag before <repeat> tag", method = "applyRepeats(String)")
+    public void applyTemplates_shouldReturnCorrectXmlRepeatWithTagBeforeRepeatTag() throws Exception {
 
         /*verifies correct html when there is <repeat> tag after '<repeat with=""> tag together*/
-        String htmlform3 = "<htmlform><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
-                "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat><repeat with=\"[4301,'STROKE'],[4302,'OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
+        String htmlform = "<htmlform><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
+                "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
-        FormEntrySession session3 = new FormEntrySession(patient, htmlform3);
-        String testText3 = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/>" +
+        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/>" +
                 "<label for=\"w4\">Other Non-coded</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/><label for=\"w6\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span>" +
                 "<input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">OTHER NON-CODED</label>";
-        Assert.assertTrue(session3.getHtmlToDisplay().contains(testText3));
-
+        Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
     }
 

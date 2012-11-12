@@ -1,16 +1,16 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Currently not used--the {@code <repeat>} tag is currently handled by {@see org.openmrs.module.htmlformentry.HtmlFormEntryGenerator#applyTemplates(String)}.
+ * Currently not used--the {@code <repeat>} tag is currently handled by {@see org.openmrs.module.htmlformentry.HtmlFormEntryGenerator#applyRepeats(String)}.
  */
 public abstract class RepeatTagHandler implements IteratingTagHandler {
 

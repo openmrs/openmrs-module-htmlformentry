@@ -1,13 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +23,14 @@ import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 import org.openmrs.order.DrugSuggestion;
 import org.openmrs.order.RegimenSuggestion;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
@@ -89,7 +89,7 @@ public class HtmlFormExporter {
 		
 		try {
 			xml = generator.applyMacros(xml);
-			xml = generator.applyTemplates(xml);
+			xml = generator.applyRepeats(xml);
 		}
 		catch (Exception e) {
 			throw new APIException("Unable to process macros and templates when processing form to make it shareable", e);
