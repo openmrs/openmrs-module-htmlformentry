@@ -10,7 +10,6 @@ import org.openmrs.Person;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
