@@ -161,4 +161,7 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 * @return a List<Integer>
 	 */
 	public List<PersonStub> getPeopleAsPersonStubs(List<String> attributeIds, List<String> attributeValues, List<String> programIds, List<Person> personsToExclude);
+	
+	@Transactional
+	public void applyActions(FormEntrySession session) throws BadFormDesignException;
 }
