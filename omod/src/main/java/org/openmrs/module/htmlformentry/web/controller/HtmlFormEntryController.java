@@ -227,7 +227,7 @@ public class HtmlFormEntryController {
         
     	try {
             session.getSubmissionController().handleFormSubmission(session, request);
-            session.applyActions();
+            HtmlFormEntryUtil.getService().applyActions(session);
             String successView = session.getReturnUrlWithParameters();
             if (successView == null)
                 successView = request.getContextPath() + "/patientDashboard.form" + getQueryPrameters(request, session);
