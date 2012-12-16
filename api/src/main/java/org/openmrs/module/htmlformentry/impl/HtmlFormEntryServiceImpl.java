@@ -23,6 +23,8 @@ import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -295,5 +297,12 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 			}
 		}
 		return stubs;
+	}
+	
+	@Override
+	public void applyActions(FormEntrySession session) throws BadFormDesignException {
+		//Wrapped in a transactional service method such that actions in it 
+		//either pass or fail together. See TRUNK-3572
+		session.applyActions();
 	}
 }
