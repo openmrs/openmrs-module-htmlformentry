@@ -1,8 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Date;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +17,9 @@ import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Date;
+import java.util.Map;
 
 public class RegressionTest extends BaseModuleContextSensitiveTest {
 
@@ -1829,4 +1829,38 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
+
+    @Test
+    public void testIfModeTag() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "ifModeForm";
+            }
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Entry mode <input", html);
+                TestUtil.assertFuzzyDoesNotContain("View mode", html);
+                TestUtil.assertFuzzyDoesNotContain("Edit mode", html);
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyDoesNotContain("Entry mode", html);
+                TestUtil.assertContains("View mode", html);
+                TestUtil.assertFuzzyDoesNotContain("Edit mode", html);
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyDoesNotContain("Entry mode", html);
+                TestUtil.assertFuzzyDoesNotContain("View mode", html);
+                TestUtil.assertContains("Edit mode", html);
+            }
+
+        }.run();
+    }
+
 }
