@@ -1,0 +1,22 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation />
+    Provider: <encounterProvider role="Provider"/>
+
+    <ifMode mode="ENTER">
+        Entry mode
+        <obs conceptId="5089"/>
+    </ifMode>
+
+    <ifMode mode="VIEW">
+        <script type="text/javascript">
+            window.alert("View mode");
+        </script>
+    </ifMode>
+
+    <ifMode mode="EDIT">
+        Edit mode
+    </ifMode>
+
+    <submit/>
+</htmlform>

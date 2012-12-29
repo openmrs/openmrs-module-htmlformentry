@@ -139,6 +139,8 @@ public class FormEntrySession {
         velocityContext.put("patient", patient);
         velocityContext.put("fn", new VelocityFunctions(this));
         velocityContext.put("user", Context.getAuthenticatedUser());
+        velocityContext.put("session", this);
+        velocityContext.put("context", context);
 
         {
             Map<String, List<String>> identifiers = new HashMap<String, List<String>>();
