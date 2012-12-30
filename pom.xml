@@ -14,8 +14,8 @@
 		<connection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</connection>
 		<developerConnection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</developerConnection>
 		<url>https://github.com/OpenMRS/openmrs-module-htmlformentry/</url>
-	  <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
 	<distributionManagement>
 		<repository>
