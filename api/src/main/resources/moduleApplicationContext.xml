@@ -89,6 +89,10 @@
                             <key><value>exitFromCare</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ExitFromCareTagHandler"/>
                         </entry>
+                        <entry>
+                            <key><value>ifMode</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.IfModeTagHandler"/>
+                        </entry>
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">
