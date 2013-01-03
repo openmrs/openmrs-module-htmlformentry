@@ -26,7 +26,7 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayDatePropertyAccessor() throws Exception {
 	String htmlform = "<htmlform><encounterDate id=\"myEncounter\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
 	}
@@ -34,7 +34,7 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayProviderValuePropertyAccessor() throws Exception {
 	String htmlform = "<htmlform><encounterProvider id=\"myEncounter\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 				
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());
@@ -43,7 +43,7 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayLocationValuePropertyAccessor() throws Exception {
 	String htmlform = "<htmlform><encounterLocation id=\"myEncounter\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 				
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.value'\\]", session.getFieldAccessorJavascript());
 		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myEncounter.error'\\]", session.getFieldAccessorJavascript());

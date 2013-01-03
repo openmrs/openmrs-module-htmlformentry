@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
@@ -31,6 +24,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The controller for entering/viewing a form.
@@ -158,10 +157,10 @@ public class HtmlFormEntryController {
 			patient = new Patient();			
 		}
 		if (encounter != null) {
-			session = new FormEntrySession(patient, encounter, mode, htmlForm);				
+			session = new FormEntrySession(patient, encounter, mode, htmlForm, request.getSession());
 		} 
 		else {
-			session = new FormEntrySession(patient, htmlForm);
+			session = new FormEntrySession(patient, htmlForm, request.getSession());
 		}
 
         if (StringUtils.hasText(returnUrl)) {

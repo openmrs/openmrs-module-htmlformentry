@@ -13,21 +13,18 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.Concept;
 import org.openmrs.Encounter;
-import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * Tests the obs tag.
@@ -50,27 +47,27 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldSetDefaultNumericValue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" defaultValue=\"60\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("value=\"60.0\""));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultNumericValueIsInvalid() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" defaultValue=\"invalidNumber\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
 	public void shouldSetDefaultTextValue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"8\" defaultValue=\"sometext\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("value=\"sometext\""));
 	}
 	
 	@Test
 	public void shouldSetDefaultCodedValue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"1001\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"1001\" selected=\"true\">"));
 	}
@@ -78,19 +75,19 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultCodedValueIsInvalid() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"invalidValue\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultCodedValueIsNotAllowedAnswer() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"2\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
 	public void shouldSetDefaultBooleanValueToTrue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"true\" style=\"no_yes_dropdown\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"true\" selected=\"true\">"));
 	}
@@ -99,7 +96,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldSetDefaultBooleanValueToFalse() throws Exception {
 		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"false\" style=\"no_yes_dropdown\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"false\" selected=\"true\">"));
 	}
@@ -107,7 +104,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldSetDefaultBooleanValueToNone() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"\" style=\"no_yes_dropdown\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">"));
 	}
@@ -115,27 +112,27 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultBooleanValueIsInvalid() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"yes\" style=\"no_yes_dropdown\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
 	public void shouldSetDefaultDateValue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1119\" defaultValue=\"2011-02-02-00-00\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("2011-02-02"));
 	}
 	
 	@Test
 	public void shouldSetDefaultDatetimeValue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1119\" defaultDatetime=\"2011-02-02-00-00\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("2011-02-02"));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultDateAndDefaultDatetimeSet() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1119\" defaultValue=\"2011-02-02-00-00\" defaultDatetime=\"2011-02-02-00-00\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
@@ -377,7 +374,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
     @Test
 	public void shouldSupportCheckboxForNumericObs() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"8\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(),
 		   session.getHtmlToDisplay().contains("<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"8.0\"/>"));
 	}
@@ -385,7 +382,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
     @Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionWithCheckboxIfAnswerIsNotNumeric() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"eight\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 
     @Test

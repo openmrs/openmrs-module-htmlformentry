@@ -1,8 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -24,7 +21,11 @@ import org.openmrs.api.context.Context;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
+import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
@@ -72,15 +73,31 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#getLocation(String)} this is the uuid test
+	 * @see {@link HtmlFormEntryUtil#getLocation(String)} this is the id|name test
 	 */
 	@Test
 	@Verifies(value = "should find a location by in Id|Name format", method = "getLocation(String)")
 	public void getLocation_shouldFindALocationInIdNameFormat() throws Exception {
 		Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("2 - Xanadu").getId().toString());
 	}
-	
-	/**
+
+    /**
+     * @see {@link HtmlFormEntryUtil#getLocation(String, FormEntryContext)}
+     */
+    @Test
+    @Verifies(value = "should find a location by session attribute", method = "getLocation(String,FormEntrySession)")
+    public void getLocation_shouldFindALocationBySessionAttribute() throws Exception {
+        String attrName = "emr.sessionLocation";
+        MockHttpSession httpSession = new MockHttpSession();
+        httpSession.setAttribute(attrName, "2");
+
+        FormEntryContext formEntryContext = new FormEntryContext(FormEntryContext.Mode.ENTER);
+        formEntryContext.setHttpSession(httpSession);
+
+        Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("SessionAttribute:" + attrName, formEntryContext).getId().toString());
+    }
+
+    /**
 	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
 	 */
 	@Test
