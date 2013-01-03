@@ -1,22 +1,5 @@
 package org.openmrs.module.htmlformentry.export;
 
-import java.io.StringWriter;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -43,6 +26,22 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 public class HtmlFormEntryExportUtil {
     
     protected final static Log log = LogFactory.getLog(HtmlFormEntryExportUtil.class);
@@ -67,7 +66,7 @@ public class HtmlFormEntryExportUtil {
      */
     public static Map<Integer, String> getSectionIndex(HtmlForm htmlForm) throws Exception{
         Document doc = HtmlFormEntryUtil.stringToDocument(htmlForm.getXmlData());
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlForm);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlForm, null); // session gets a null HttpSession
         NodeList nl = doc.getElementsByTagName("section");
         Map<Integer, String> ret = new LinkedHashMap<Integer, String>();
         for (int i = 0; i < nl.getLength(); i++){
@@ -161,7 +160,7 @@ public class HtmlFormEntryExportUtil {
     public static Encounter trimEncounterToMatchForm(Encounter e, HtmlForm htmlform) throws Exception {
         
        //this should move existing obs from session to tag handlers.
-        FormEntrySession session = new FormEntrySession(e.getPatient(), e, FormEntryContext.Mode.VIEW, htmlform);
+        FormEntrySession session = new FormEntrySession(e.getPatient(), e, FormEntryContext.Mode.VIEW, htmlform, null); // session gets a null HttpSession
         
         if (log.isDebugEnabled()){
             Map<Concept, List<Obs>>  map = session.getContext().getExistingObs();
@@ -238,7 +237,7 @@ public class HtmlFormEntryExportUtil {
      * @throws Exception
      */ 
     public static String generateColumnHeadersFromHtmlForm(HtmlForm form, List<String> extraCols, StringBuffer sb, List<PatientIdentifierType> pitList) throws Exception {
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), form);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), form, null); // session gets a null HttpSession
         HtmlFormSchema hfs = session.getContext().getSchema();
         
         sb.
@@ -375,7 +374,7 @@ public class HtmlFormEntryExportUtil {
                 index ++;
             }
             
-            FormEntrySession session = new FormEntrySession(e.getPatient(), e, Mode.VIEW, form);
+            FormEntrySession session = new FormEntrySession(e.getPatient(), e, Mode.VIEW, form, null); // session doesn't get HttpSession
             FormSubmissionController  fsa = session.getSubmissionController();
             List<FormSubmissionControllerAction> actions = fsa.getActions();
             for (FormSubmissionControllerAction fsca : actions){

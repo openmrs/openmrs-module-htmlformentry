@@ -39,7 +39,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	public void applyExcludes_shouldReturnCorrectXmlAfterApplyExcludeIfTag() throws Exception {
 		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><excludeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</excludeIf><excludeIf logicTest=\"GENDER = M\">This shows a logic test for a man</excludeIf></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a woman</div>", session.getHtmlToDisplay());
 	}
 	
@@ -51,7 +51,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	public void applyIncludes_shouldReturnCorrectXmlAfterApplyIncludeTag() throws Exception {
 		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><includeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</includeIf><includeIf logicTest=\"GENDER = M\">This shows a logic test for a man</includeIf></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a man</div>", session.getHtmlToDisplay());
 	}
 
@@ -61,7 +61,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 
         String htmlform = "<htmlform><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"hidden\" name=\"_w2\"/><input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/>" +
                 "<label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">Other Non-coded</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
@@ -75,7 +75,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         // note that we throw in some random spaces here to make sure that we handle them correctly
         String htmlform = "<htmlform><repeat with=\" [ '4301','STROKE' ], ['4302', 'OTHER NON-CODED' ]\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
@@ -88,7 +88,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat><repeat with=\"['4302','CANCER'],['4301','FLU']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> " +
                "<span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
                 "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> " +
@@ -113,7 +113,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
                 "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/>" +
                 "<label for=\"w6\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">Other Non-coded</label>";
@@ -133,7 +133,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/>" +
                 "<label for=\"w4\">Other Non-coded</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/><label for=\"w6\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span>" +
                 "<input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">OTHER NON-CODED</label>";
@@ -151,31 +151,31 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 
         /* check the restriction with a single role in include/exclude */
         String htmlform = "<htmlform><restrictByRole include=\"System Developer\">This is shown to admin as as content is included</restrictByRole><restrictByRole include=\"Data Manager\">This is not shown to admin as it doesn't contain this role</restrictByRole></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">This is shown to admin as as content is included</div>", session.getHtmlToDisplay());
 
         String htmlform2 = "<htmlform><restrictByRole exclude=\"System Developer\">This is not shown to admin as content is excluded</restrictByRole><restrictByRole exclude=\"Data Manager\">This is shown to admin as content is not excluded</restrictByRole></htmlform>";
-		FormEntrySession session2 = new FormEntrySession(patient, htmlform2);
+		FormEntrySession session2 = new FormEntrySession(patient, htmlform2, null);
 		Assert.assertEquals("<div class=\"htmlform\">This is shown to admin as content is not excluded</div>", session2.getHtmlToDisplay());
 
         /* check the restriction with multiple roles in include/exclude */
         String htmlform3 = "<htmlform><restrictByRole include=\"System Developer,Data Manager\">This is shown to admin with multiple roles in include field</restrictByRole><restrictByRole include=\"Provider,Data Manager\">This is not shown to admin with multiple roles in include field</restrictByRole></htmlform>";
-		FormEntrySession session3 = new FormEntrySession(patient, htmlform3);
+		FormEntrySession session3 = new FormEntrySession(patient, htmlform3, null);
 		Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles in include field</div>", session3.getHtmlToDisplay());
 
         String htmlform4 = "<htmlform><restrictByRole exclude=\"System Developer,Data Manager\">This is not shown to admin with multiple roles in exclude field</restrictByRole><restrictByRole exclude=\"Provider,Data Manager\">This is shown to admin with multiple roles in exclude field</restrictByRole></htmlform>";
-        FormEntrySession session4 = new FormEntrySession(patient, htmlform4);
+        FormEntrySession session4 = new FormEntrySession(patient, htmlform4, null);
         Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles in exclude field</div>", session4.getHtmlToDisplay());
 
         /* check the restriction for a single user with multiple roles */
         Context.getAuthenticatedUser().addRole(new Role("Test Role", "A temporary role for the test"));
 
         String htmlform5 = "<htmlform><restrictByRole include=\"System Developer,Test Role\">This is shown to admin with multiple roles to single user in include field</restrictByRole><restrictByRole include=\"Provider,Data Manager\">This is not shown to admin with multiple roles to single user in include field</restrictByRole></htmlform>";
-        FormEntrySession session5 = new FormEntrySession(patient, htmlform5);
+        FormEntrySession session5 = new FormEntrySession(patient, htmlform5, null);
         Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles to single user in include field</div>", session5.getHtmlToDisplay());
 
         String htmlform6 = "<htmlform><restrictByRole exclude=\"System Developer,Test Role\">This is not shown to admin with multiple roles to single user in exclude field</restrictByRole><restrictByRole exclude=\"Provider,Data Manager\">This is shown to admin with multiple roles to single user in exclude field</restrictByRole></htmlform>";
-        FormEntrySession session6 = new FormEntrySession(patient, htmlform6);
+        FormEntrySession session6 = new FormEntrySession(patient, htmlform6, null);
         Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles to single user in exclude field</div>", session6.getHtmlToDisplay());
 
     }
@@ -203,7 +203,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><includeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</includeIf><includeIf logicTest=\"GENDER = M\">This shows a logic test for a man</includeIf></htmlform>";
 		String testStr = "logicTest=\"GENDER = M\">";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals(true, HtmlFormEntryGenerator.processIncludeLogic(session, testStr));
 	}
 	
@@ -214,7 +214,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void wrapInDiv_shouldRemoveHtmlformTagAndWrapFormInDiv() throws Exception {
 		String htmlform = "<htmlform>\rsomeContent</htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		TestUtil.assertFuzzyContains("(?s)<div class=\"htmlform\">(.*)someContent</div>", session.getHtmlToDisplay());
 	}
 	
@@ -240,7 +240,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
     public void stripComments_shouldReturnCorrectHtmlAfterFilteringOutComments() throws Exception {
         LogicUtil.registerDefaultRules();
         String htmlform = "<htmlform><section><!--some comment that should not be displayed--></section></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         Assert.assertEquals("<div class=\"htmlform\"><div class=\"section\"></div></div>", session.getHtmlToDisplay());
     }
     
@@ -253,7 +253,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
     public void doStartTag_shouldCloseBrTags() throws Exception {
         LogicUtil.registerDefaultRules();
         String htmlform = "<htmlform><section><span></span><br/><h1></h1></section></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String html = session.getHtmlToDisplay();
         Assert.assertTrue("<br/> should be closed with one tag", html.contains("<br/>"));
         Assert.assertTrue("<span> and other tags can be open", html.contains("<span></span>"));
@@ -271,7 +271,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
     public void doEndTag_shouldCloseBrTags() throws Exception {
         LogicUtil.registerDefaultRules();
         String htmlform = "<htmlform><section><span></span><BR/><h1></h1></section></htmlform>";
-        FormEntrySession session = new FormEntrySession(patient, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String html = session.getHtmlToDisplay();
         Assert.assertTrue("<BR/> should be closed with one tag", html.contains("<BR/>"));
         Assert.assertTrue("<span> and other tags can be open", html.contains("<span></span>"));

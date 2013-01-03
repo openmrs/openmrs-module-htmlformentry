@@ -48,7 +48,7 @@ public class HtmlFormValidator implements Validator {
         if (hf.getXmlData() != null) {
             try {
                 @SuppressWarnings("unused")
-                FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), hf.getXmlData());
+                FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), hf.getXmlData(), null); // can't access an HttpSession here
                 if (hf.getForm() != null) {
 					if (hf.getForm().getEncounterType() != null && hasEncounterTypeTag(hf.getXmlData())) {
 						 throw new FormEntryException("encounterType tag is not allowed for a form that is already associated to encounter type");

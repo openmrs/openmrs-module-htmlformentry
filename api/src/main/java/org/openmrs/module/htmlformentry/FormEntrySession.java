@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -108,6 +109,8 @@ public class FormEntrySession {
     
     private String hasChangedInd = "false";
 
+    private HttpSession httpSession;
+
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the
      * specified {@Mode}
@@ -115,10 +118,13 @@ public class FormEntrySession {
      * @param patient
      * @param mode
      * @param defaultLocation
+     * @param httpSession
      */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation) {
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation, HttpSession httpSession) {
         context = new FormEntryContext(mode);
         context.setDefaultLocation(defaultLocation);
+        context.setHttpSession(httpSession);
+        this.httpSession = httpSession;
         this.patient = patient;
         context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
@@ -208,9 +214,10 @@ public class FormEntrySession {
      *
      * @param patient
      * @param mode
+     * @param httpSession
      */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode) {
-        this(patient, mode, null);
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, HttpSession httpSession) {
+        this(patient, mode, null, httpSession);
     }
 
     /**
@@ -219,10 +226,11 @@ public class FormEntrySession {
      *
      * @param patient
      * @param xml
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, String xml) throws Exception {
-        this(patient, Mode.ENTER);
+    public FormEntrySession(Patient patient, String xml, HttpSession httpSession) throws Exception {
+        this(patient, Mode.ENTER, httpSession);
         submissionController = new FormSubmissionController();
 
         this.htmlToDisplay = createForm(xml);
@@ -234,18 +242,19 @@ public class FormEntrySession {
      *
      * @param patient
      * @param htmlForm
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, HtmlForm htmlForm) throws Exception {
-        this(patient, htmlForm, Mode.ENTER);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, HttpSession httpSession) throws Exception {
+        this(patient, htmlForm, Mode.ENTER, httpSession);
     }
 
-    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode) throws Exception {
-        this(patient, htmlForm, mode, null);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, HttpSession httpSession) throws Exception {
+        this(patient, htmlForm, mode, null, httpSession);
     }
 
-    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation) throws Exception {
-        this(patient, mode, defaultLocation);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation, HttpSession httpSession) throws Exception {
+        this(patient, mode, defaultLocation, httpSession);
         this.htmlForm = htmlForm;
         this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated() : htmlForm
                 .getDateChanged()).getTime();
@@ -267,10 +276,11 @@ public class FormEntrySession {
      *
      * @param patient
      * @param form
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, Form form) throws Exception {
-        this(patient, Mode.ENTER);
+    public FormEntrySession(Patient patient, Form form, HttpSession httpSession) throws Exception {
+        this(patient, Mode.ENTER, httpSession);
         this.form = form;
 
         velocityContext.put("form", form);
@@ -290,10 +300,11 @@ public class FormEntrySession {
      * @param encounter
      * @param mode
      * @param htmlForm
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm) throws Exception {
-        this(patient, encounter, mode, htmlForm, null);
+    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, HttpSession httpSession) throws Exception {
+        this(patient, encounter, mode, htmlForm, null, httpSession);
     }
 
     /**
@@ -305,11 +316,12 @@ public class FormEntrySession {
      * @param mode
      * @param htmlForm
      * @param defaultLocation
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, Location defaultLocation)
-            throws Exception {
-        this(patient, mode, defaultLocation);
+    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, Location defaultLocation,
+                            HttpSession httpSession) throws Exception {
+        this(patient, mode, defaultLocation, httpSession);
         this.htmlForm = htmlForm;
         if (htmlForm != null) {
             if (htmlForm.getId() != null)
@@ -1014,5 +1026,8 @@ public class FormEntrySession {
 		this.hasChangedInd = hasChangedInd;
 	}
 
+    public HttpSession getHttpSession() {
+        return httpSession;
+    }
 
 }

@@ -49,7 +49,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		String includeText = "Patient is atleast " + age;
 		String htmlform = "<htmlform><includeIf velocityTest=\"$patient.age >= " + age + "\">" + includeText
 		        + "</includeIf></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">Patient is atleast " + age + "</div>", session.getHtmlToDisplay());
 	}
 	
@@ -63,7 +63,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		String excludeText = "Patient is atleast " + age;
 		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= " + age + "\">" + excludeText
 		        + "</excludeIf></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\"></div>", session.getHtmlToDisplay());
 	}
 	
@@ -76,7 +76,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		String includeText = "Patient age is valid";
 		String htmlform = "<htmlform><includeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + includeText
 		        + "</includeIf></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">" + includeText + "</div>", session.getHtmlToDisplay());
 	}
 	
@@ -89,7 +89,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		String excludeText = "Patient age is valid";
 		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + excludeText
 		        + "</excludeIf></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\"></div>", session.getHtmlToDisplay());
 	}
 }

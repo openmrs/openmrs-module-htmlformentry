@@ -1,19 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -32,6 +18,21 @@ import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * This class holds the context data around generating html widgets from tags in an HtmlForm.
@@ -77,7 +78,8 @@ public class FormEntryContext {
     private boolean unmatchedMode = false;
     
     private boolean guessingInd = false;
-    
+    private HttpSession httpSession;
+
     public FormEntryContext(Mode mode) {
         this.mode = mode;
         setupExistingData((Encounter) null);
@@ -650,7 +652,15 @@ public class FormEntryContext {
     public HtmlFormSchema getSchema() {
     	return schema;
     }
-    
+
+    public void setHttpSession(HttpSession httpSession) {
+        this.httpSession = httpSession;
+    }
+
+    public HttpSession getHttpSession() {
+        return httpSession;
+    }
+
     /**
      * Modes associated with the HTML Form context
      */
