@@ -500,7 +500,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
 				if (initialValue != null) {
 					if ("location".equals(parameters.get("style"))) {
-						Location l = HtmlFormEntryUtil.getLocation(initialValue);
+						Location l = HtmlFormEntryUtil.getLocation(initialValue, context);
 						if (l == null) {
 							throw new RuntimeException("Cannot find Location: " + initialValue);
 						}
