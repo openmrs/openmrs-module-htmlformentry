@@ -1,13 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
@@ -21,6 +14,12 @@ import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Tests of the various program-related tags
@@ -467,7 +466,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void editPatientProgram_shouldNotDisplayEnrollmentDateWidgetIfShowDateFalse() throws Exception {
 		String htmlform = "<htmlform>Enroll In Program: <enrollInProgram programId=\"1\" showDate=\"false\" stateIds=\"2\" /><submit/></htmlform>";
-		FormEntrySession session = new FormEntrySession(Context.getPatientService().getPatient(2), htmlform);
+		FormEntrySession session = new FormEntrySession(Context.getPatientService().getPatient(2), htmlform, null);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("setupDatePicker") == -1);
 	}
 	
@@ -671,6 +670,6 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	public void enrollInProgram_shouldFailIfAnyOfTheStatesIsNotMarkedAsInitialAndThePatientIsNotEnrolledInTheProgram()
 	    throws Exception {
 		String htmlform = "<htmlform>Enroll In Program: <enrollInProgram programId=\"10\" showDate=\"true\" stateIds=\"201\" /><submit/></htmlform>";
-		new FormEntrySession(Context.getPatientService().getPatient(6), htmlform);
+		new FormEntrySession(Context.getPatientService().getPatient(6), htmlform, null);
 	}
 }

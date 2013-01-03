@@ -484,23 +484,40 @@ public class HtmlFormEntryUtil {
 		return c;
 	}
 	
-	/***
-	 * Get the location by: 1)an integer id like 5090 or 2) uuid like
-	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) location name like "Boston" or 4) an id/name
-	 * pair like "501 - Boston" (this format is used when saving a location on a obs as a value
-	 * text) or 5) "GlobalProperty:property.name" or 6) "UserProperty:propertyName"
-	 * 
-	 * @param id
-	 * @return the location if exist, else null
-	 * @should find a location by its locationId
-	 * @should find a location by name
-	 * @should find a location by its uuid
-	 * @should find a location by global property
-	 * @should find a location by user property
-	 * @should return null otherwise
+	/**
+     * This method doesn't support "SessionAttribute:", but is otherwise like the similarly-named method.
+	 * @see #getLocation(String, FormEntryContext)
 	 */
 	public static Location getLocation(String id) {
-		
+        return getLocation(id, null);
+    }
+
+    /**
+     * Get the location by:
+     * <ol>
+     *     <li>an integer id like 5090</li>
+     *     <li>a uuid like "a3e12268-74bf-11df-9768-17cfc9833272"</li>
+     *     <li>a name like "Boston"</li>
+     *     <li>an id/name pair like "501 - Boston" (this format is used when saving a location on a obs as a value text)</li>
+     *     <li>"GlobalProperty:property.name"</li>
+     *     <li>"UserProperty:propertyName"</li>
+     *     <li>"SessionAttribute:attributeName"</li>
+     * </ol>
+     *
+     *
+     * @param id
+     * @param context
+     * @return the location if exist, else null
+     * @should find a location by its locationId
+     * @should find a location by name
+     * @should find a location by its uuid
+     * @should find a location by global property
+     * @should find a location by user property
+     * @should find a location by session attribute
+     * @should return null otherwise
+     */
+	public static Location getLocation(String id, FormEntryContext context) {
+
 		Location location = null;
 		
 		if (id != null) {
@@ -510,7 +527,7 @@ public class HtmlFormEntryUtil {
 				String gpName = id.substring("GlobalProperty:".length());
 				String gpValue = Context.getAdministrationService().getGlobalProperty(gpName);
 				if (StringUtils.isNotEmpty(gpValue)) {
-					return getLocation(gpValue);
+					return getLocation(gpValue, context);
 				}
 			}
 			
@@ -519,11 +536,26 @@ public class HtmlFormEntryUtil {
 				String upName = id.substring("UserProperty:".length());
 				String upValue = Context.getAuthenticatedUser().getUserProperty(upName);
 				if (StringUtils.isNotEmpty(upValue)) {
-					return getLocation(upValue);
+					return getLocation(upValue, context);
 				}
 			}
-			
-			// see if this is parseable int; if so, try looking up by id
+
+            // handle SessionAttribute:attributeName
+            if (id.startsWith("SessionAttribute:")) {
+                String saName = id.substring("SessionAttribute:".length());
+                Object saValue = context.getHttpSession().getAttribute(saName);
+                if (saValue == null) {
+                    return null;
+                } else if (saValue instanceof Location) {
+                    return (Location) saValue;
+                } else if (saValue instanceof String) {
+                    return getLocation((String) saValue, context);
+                } else {
+                    return getLocation(saValue.toString(), context);
+                }
+            }
+
+            // see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int locationId = Integer.parseInt(id);
 				location = Context.getLocationService().getLocation(locationId);
@@ -970,7 +1002,7 @@ public class HtmlFormEntryUtil {
 			Map<Obs, Obs> replacementObs = new HashMap<Obs, Obs>();//new, then source
 			Map<Order, Order> replacementOrders = new HashMap<Order, Order>();//new, then source
 			Encounter eTmp = returnEncounterCopy(e, replacementObs, replacementOrders);
-			FormEntrySession session = new FormEntrySession(eTmp.getPatient(), eTmp, Mode.VIEW, htmlform);
+			FormEntrySession session = new FormEntrySession(eTmp.getPatient(), eTmp, Mode.VIEW, htmlform, null); // session gets a null HttpSession
 			List<FormSubmissionControllerAction> actions = session.getSubmissionController().getActions();
 			Set<Obs> matchedObs = new HashSet<Obs>();
 			Set<Order> matchedOrders = new HashSet<Order>();

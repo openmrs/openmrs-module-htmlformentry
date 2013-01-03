@@ -1,9 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +9,10 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 	
@@ -92,7 +92,7 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         htmlform.setXmlData("<htmlform></htmlform>");
         
         Patient p = new Patient(patientId);
-        FormEntrySession session = new FormEntrySession(p, htmlform);
+        FormEntrySession session = new FormEntrySession(p, htmlform, null);
         return new VelocityFunctions(session);
 	}
 }

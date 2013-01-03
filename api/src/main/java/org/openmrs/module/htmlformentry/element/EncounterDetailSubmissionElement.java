@@ -314,7 +314,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
                 String[] temp = ((String) parameters.get("order")).split(",");
                 for (String s : temp) {
-                    Location loc = HtmlFormEntryUtil.getLocation(s);
+                    Location loc = HtmlFormEntryUtil.getLocation(s, context);
                     if (loc == null) {
                         throw new RuntimeException("Cannot find location: " + loc);
                     }
@@ -335,7 +335,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             } else {
                 String defaultLocId = (String) parameters.get("default");
                 if (StringUtils.hasText(defaultLocId)) {
-                    defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
+                    defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId, context);
                 }
             }
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;

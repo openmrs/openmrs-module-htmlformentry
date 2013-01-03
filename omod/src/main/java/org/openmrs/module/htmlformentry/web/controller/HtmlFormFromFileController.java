@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.StringWriter;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
@@ -24,6 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.StringWriter;
 
 /**
  * The controller for previewing a HtmlForm by loading the xml file that defines that HtmlForm from
@@ -90,7 +89,7 @@ public class HtmlFormFromFileController {
 				}
 				HtmlForm fakeForm = new HtmlForm();
 				fakeForm.setXmlData(xml);
-				FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm);
+				FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm, request.getSession());
 				String html = fes.getHtmlToDisplay();
 				if (fes.getFieldAccessorJavascript() != null) {
                 	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";

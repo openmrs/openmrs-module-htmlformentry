@@ -851,7 +851,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
 		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
-		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
 		HtmlFormSchema hfs = session.getContext().getSchema();
 		String ret = "";
 		int count = 0;
