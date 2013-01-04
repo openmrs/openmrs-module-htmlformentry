@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.Translator;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
@@ -20,29 +19,23 @@ public class SectionTagHandler extends AbstractTagHandler {
     
     @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-        String sectionStyleClass = "section";
-        String headerStyleClass = "sectionHeader";
-        String headerLabel = null;
-        NamedNodeMap map = node.getAttributes();
-        for (int i = 0; i < map.getLength(); ++i) {
-            Node attribute = map.item(i);
-            if (attribute.getNodeName().equals("sectionStyle")) {
-            	sectionStyleClass = attribute.getNodeValue();
-            }
-            if (attribute.getNodeName().equals("headerStyle")) {
-            	headerStyleClass = attribute.getNodeValue();
-            }
-            if (attribute.getNodeName().equals("headerLabel")) {
-            	headerLabel = attribute.getNodeValue();
-            }
-            if (attribute.getNodeName().equals("headerCode")) {
-            	Translator trans = session.getContext().getTranslator();
-            	headerLabel = trans.translate(Context.getLocale().toString(), attribute.getNodeValue());
+        String sectionTag = getAttribute(node, "sectionTag", "div");
+        String headerTag = getAttribute(node, "headerTag", "span");
+        String sectionStyleClass = getAttribute(node, "sectionStyle", "section");
+        String headerStyleClass = getAttribute(node, "headerStyle", "sectionHeader");
+
+        String headerLabel = getAttribute(node, "headerLabel", null);
+        if (headerLabel == null) {
+            String headerCode = getAttribute(node, "headerCode", null);
+            if (headerCode != null) {
+                Translator trans = session.getContext().getTranslator();
+                headerLabel = trans.translate(Context.getLocale().toString(), headerCode);
             }
         }
-        out.print("<div class=\""+sectionStyleClass+"\">");
+
+        out.print("<" + sectionTag + " class=\""+sectionStyleClass+"\">");
         if (headerLabel != null) {
-        	out.print("<span class=\""+headerStyleClass+"\">"+headerLabel+"</span>");
+        	out.print("<" + headerTag + " class=\""+headerStyleClass+"\">"+headerLabel+"</" + headerTag + ">");
         }
         
         session.getContext().getSchema().startNewSection();
@@ -53,7 +46,8 @@ public class SectionTagHandler extends AbstractTagHandler {
 
     @Override
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-    	out.print("</div>");
+        String sectionTag = getAttribute(node, "sectionTag", "div");
+    	out.print("</" + sectionTag + ">");
     	session.getContext().getSchema().endSection();
     }
 
