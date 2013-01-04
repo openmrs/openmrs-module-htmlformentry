@@ -32,5 +32,21 @@ public abstract class AbstractTagHandler implements TagHandler {
 
     @Override
     abstract public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException;
+
+    /**
+     * Helper method for getting an attribute value, with a default.
+     * @param node
+     * @param attributeName
+     * @param defaultValue
+     * @return
+     */
+    public String getAttribute(Node node, String attributeName, String defaultValue) {
+        Node item = node.getAttributes().getNamedItem(attributeName);
+        String ret = null;
+        if (item != null) {
+            ret = item.getNodeValue();
+        }
+        return ret != null ? ret : defaultValue;
+    }
     
 }
