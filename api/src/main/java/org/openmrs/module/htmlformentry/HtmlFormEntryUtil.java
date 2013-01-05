@@ -302,8 +302,30 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
-	/**
+
+    /**
+     * Finds the first descendant of this node with the given tag name
+     * @param node
+     * @param tagName
+     * @return
+     */
+    public static Node findDescendant(Node node, String tagName) {
+        if (node == null)
+            return null;
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            if (tagName.equals(node.getNodeName()))
+                return node;
+            Node matchingDescendant = findDescendant(child, tagName);
+            if (matchingDescendant != null) {
+                return matchingDescendant;
+            }
+        }
+        return null;
+    }
+
+    /**
 	 * Returns all the attributes associated with a Node
 	 * 
 	 * @param node the Node to retrieve attributes from
@@ -1494,4 +1516,5 @@ public class HtmlFormEntryUtil {
 		// no match found
 		return null;
 	}
+
 }
