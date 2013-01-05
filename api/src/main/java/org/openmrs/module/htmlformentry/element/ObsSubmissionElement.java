@@ -75,7 +75,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private String accessionNumberLabel;
 	
 	private TextFieldWidget accessionNumberWidget;
-	
+
+	private String commentFieldLabel;
+
 	private TextFieldWidget commentFieldWidget;
 
 	private ErrorWidget errorWidget;
@@ -764,8 +766,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		// if a date is requested, do that too
 		if ("true".equals(parameters.get("showDate")) || parameters.containsKey("dateLabel")) {
-			if (parameters.containsKey("dateLabel"))
-				dateLabel = parameters.get("dateLabel");
+			if (parameters.containsKey("dateLabel")){
+                dateLabel = parameters.get("dateLabel");
+            }
 			dateWidget = new DateWidget();
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, errorWidget);
@@ -783,8 +786,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		// if an accessionNumber is requested, do that too
 		if ("true".equals(parameters.get("showAccessionNumber")) || parameters.containsKey("accessionNumberLabel")) {
-			if (parameters.containsKey("accessionNumberLabel"))
-				accessionNumberLabel = parameters.get("accessionNumberLabel");
+			if (parameters.containsKey("accessionNumberLabel")) {
+               accessionNumberLabel = parameters.get("accessionNumberLabel");
+            }
 			accessionNumberWidget = new TextFieldWidget();
 			context.registerWidget(accessionNumberWidget);
 			context.registerErrorWidget(accessionNumberWidget, errorWidget);
@@ -793,9 +797,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 		}
 		
-		// if an showCommentField is requested
-		if ("true".equals(parameters.get("showCommentField"))) {
-			commentFieldWidget = new TextFieldWidget();
+		// if a comment is requested, do that too
+		if ("true".equals(parameters.get("showCommentField"))  || parameters.containsKey("commentFieldLabel")) {
+			if(parameters.containsKey("commentFieldLabel")){
+                commentFieldLabel = parameters.get("commentFieldLabel");
+            }
+            commentFieldWidget = new TextFieldWidget();
 			context.registerWidget(commentFieldWidget);
 			context.registerErrorWidget(commentFieldWidget, errorWidget);
 			if (existingObs != null) {
@@ -890,7 +897,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		}
 		if (commentFieldWidget != null) {
 			ret.append(" ");
-			ret.append(Context.getMessageSourceService().getMessage("htmlformentry.comment")+":");
+            if(commentFieldLabel != null){
+               ret.append(commentFieldLabel);
+            }else {
+               ret.append(Context.getMessageSourceService().getMessage("htmlformentry.comment")+":");
+            }
 			ret.append(" ");
 			ret.append(commentFieldWidget.generateHtml(context));
 		}

@@ -498,4 +498,22 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
             }
 		}.run();
 	}
+
+    @Test
+	public void shouldDisplayDefaultOrUserDefinedCommentFieldLabelIfRequested() throws Exception {
+		// If there is no comment label text defined, show the default comment text
+        String htmlform = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\"/></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        Assert.assertTrue(session.getHtmlToDisplay().contains("htmlformentry.comment: <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+
+        // else show the user entered comment field text
+        String htmlform2 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" commentFieldLabel=\"Add comment\"/></htmlform>";
+		FormEntrySession session2 = new FormEntrySession(patient, htmlform2, null);
+		Assert.assertTrue(session2.getHtmlToDisplay().contains("Add comment <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+
+        String htmlform3 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldLabel=\"Add comment\"/></htmlform>";
+        FormEntrySession session3 = new FormEntrySession(patient, htmlform3, null);
+        Assert.assertTrue(session3.getHtmlToDisplay().contains("Add comment <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+
+	}
 }
