@@ -64,11 +64,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
-				
+				request.setParameter("w17", "1");
 			}
 			
 			@Override
@@ -107,10 +106,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 				
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
 				request.setParameter(widgets.get("Encounter Location:"), "2");
@@ -128,7 +127,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("F", results.getPatient().getGender());
 				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
 				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
-				Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+				Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
 				
 				results.assertEncounterCreated();
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
@@ -559,10 +558,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 				
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
 				request.setParameter(widgets.get("Encounter Location:"), "2");
@@ -585,7 +584,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("F", results.getPatient().getGender());
 				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
 				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
-				Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+				Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
 				
 				results.assertEncounterCreated();
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
@@ -628,10 +627,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
                 request.setParameter(widgets.get("PersonName.familyName"), "Family");
                 request.setParameter(widgets.get("Gender:"), "F");
                 request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-                request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+                request.setParameter(widgets.get("Identifier:"), "987654-1");
                 request.setParameter(widgets.get("Identifier Location:"), "2");
                 // hack because identifier type is a hidden input with no label
-                request.setParameter("w17", "2");
+                request.setParameter("w17", "1");
 
                 request.setParameter(widgets.get("Date:"), dateAsString(date));
             }
@@ -648,7 +647,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
                 Assert.assertEquals("F", results.getPatient().getGender());
                 Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
                 Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
-                Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+                Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
 
                 List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(
                 		results.getPatient(), null, null, null, null, null, false);
@@ -692,10 +691,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 				
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
 				request.setParameter(widgets.get("Encounter Location:"), "2");
@@ -712,10 +711,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 			}
 			
 			@Override
@@ -747,7 +746,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("F", results.getPatient().getGender());
 				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
 				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
-				Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+				Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
 			}
 		}.run();
 	}
@@ -786,10 +785,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 				
 				request.setParameter(widgets.get("Date:"), dateAsString(date));
 				request.setParameter(widgets.get("Encounter Location:"), "2");
@@ -812,7 +811,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("F", results.getPatient().getGender());
 				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
 				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
-				Assert.assertEquals("9234923dfasd2", results.getPatient().getPatientIdentifier().getIdentifier());
+				Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
 				
 				results.assertEncounterEdited();
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
@@ -871,10 +870,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 				request.addParameter(widgets.get("Location.address1"), "410 w 10th St.");
 				request.addParameter(widgets.get("Location.cityVillage"), "Indianapolis");
 				request.addParameter(widgets.get("Location.stateProvince"), "Indiana");
@@ -943,10 +942,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("PersonName.familyName"), "Family");
 				request.setParameter(widgets.get("Gender:"), "F");
 				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-				request.setParameter(widgets.get("Identifier:"), "9234923dfasd2");
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
 				request.setParameter(widgets.get("Identifier Location:"), "2");
 				// hack because identifier type is a hidden input with no label
-				request.setParameter("w17", "2");
+				request.setParameter("w17", "1");
 				request.addParameter(widgets.get("Location.address1"), "410 w 10th St.");
 				request.addParameter(widgets.get("Location.cityVillage"), "Indianapolis");
 				request.addParameter(widgets.get("Location.stateProvince"), "Indiana");
