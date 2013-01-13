@@ -150,7 +150,6 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
 
-			String typeId = attributes.get("identifierTypeId");
 			if (idType != null) {
 				identifierTypeWidget = new HiddenFieldWidget();
 				createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
