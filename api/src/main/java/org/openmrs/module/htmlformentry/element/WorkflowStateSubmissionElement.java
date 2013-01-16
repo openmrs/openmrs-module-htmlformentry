@@ -184,7 +184,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	 * @return
 	 */
 	private PatientState getActivePatientState(Patient patient, Date encounterDatetime, ProgramWorkflow workflow) {
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(patient, workflow, encounterDatetime);
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
 		if (patientProgram != null) {
 			for (PatientState patientState : patientProgram.statesInWorkflow(workflow,false)) {
 				if (patientState.getActive(encounterDatetime)) {

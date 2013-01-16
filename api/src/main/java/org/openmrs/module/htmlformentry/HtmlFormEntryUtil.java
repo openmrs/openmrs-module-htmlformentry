@@ -1324,8 +1324,35 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
-	public static PatientProgram getPatientProgram(Patient patient, ProgramWorkflow workflow, Date encounterDatetime) {
+
+    /**
+     * Given a list of patient programs and a program, returns the first patient program
+     * that matches the specified program
+     *
+     * @param patientPrograms
+     * @param program
+     * @return
+     */
+    public static PatientProgram getPatientProgramByProgram(List<PatientProgram> patientPrograms, Program program) {
+
+        for (PatientProgram patientProgram : patientPrograms) {
+            if (patientProgram.getProgram().equals(program)) {
+                return patientProgram;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Given a patient and a program workflow, returns the first patient program that contains
+     * a state in the specified workflow
+     *
+     * @param patient
+     * @param workflow
+     * @return
+     */
+	public static PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow) {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    workflow.getProgram(), null, null, null, null, false);
 		

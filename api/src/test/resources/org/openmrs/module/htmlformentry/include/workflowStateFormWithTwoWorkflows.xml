@@ -1,0 +1,9 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+
+    State: <workflowState workflowId="100" />
+    AnotherState: <workflowState workflowId="107" />
+    <submit/>
+</htmlform>

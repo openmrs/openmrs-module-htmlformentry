@@ -1747,8 +1747,58 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}
-	
-	/**
+
+
+    @Test
+    public void shouldNotEnrollInProgramTwiceIfTwoWorkflowStateSelectorsOnForm() throws Exception {
+        //Given: Patient has no workflow state and is not enrolled in the program
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "workflowStateFormWithTwoWorkflows";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "State:", "AnotherState:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                //When: Html form is entered in which workflow state Y is selected
+                request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+                request.addParameter(widgets.get("State:"), START_STATE);
+                request.addParameter(widgets.get("AnotherState:"), "67337cdc-53ad-11e1-8cb6-00248140a5eb");    // workflow state 207 in regressionTestData
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+
+                Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+
+                // double check that states have been set
+                ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+                ProgramWorkflowState anotherState = Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb");
+                PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+                PatientState patientState = getPatientState(patientProgram, state, DATE);
+                PatientState anotherPatientState = getPatientState(patientProgram, anotherState, DATE);
+
+                Assert.assertNotNull(patientProgram);
+                Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+                Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+                Assert.assertEquals(dateAsString(DATE), dateAsString(anotherPatientState.getStartDate()));
+
+            }
+        }.run();
+    }
+
+
+    /**
 	 * @param session
 	 */
 	private void assertNotPresent(FormEntrySession session, String state) {

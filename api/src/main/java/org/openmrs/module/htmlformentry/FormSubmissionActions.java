@@ -474,10 +474,20 @@ public class FormSubmissionActions {
 		Encounter encounter = highestOnStack(Encounter.class);
 		if (encounter == null)
 			throw new IllegalArgumentException("Cannot change state without an Encounter");
-		
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(patient, state.getProgramWorkflow(),
-		    encounter.getEncounterDatetime());
-		
+
+        // see if there is an existing patient program
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, state.getProgramWorkflow());
+
+        // if no existing patient program, see if this program is already set to be created at part of this submission (HTML-416)
+        if (patientProgram == null) {
+           patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToCreate, state.getProgramWorkflow().getProgram());
+        }
+
+        if (patientProgram == null) {
+            patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToUpdate, state.getProgramWorkflow().getProgram());
+        }
+
+        // if patient program is still null, we need to create a new program
 		if (patientProgram == null) {
 			patientProgram = new PatientProgram();
 			patientProgram.setPatient(patient);
