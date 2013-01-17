@@ -221,6 +221,16 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 				
 				// if no old state, simply transition to this new state
 				if (oldPatientState == null) {
+
+                    // if there is an active program enrollment in this program, add it to the programs to update (so that
+                    // it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
+                    PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
+                            newState.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
+
+                    if (patientProgram != null) {
+                        session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
+                    }
+
 					session.getSubmissionActions().transitionToState(newState);
 				}
 				else {
@@ -279,8 +289,18 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 					
 					session.getSubmissionActions().getPatientProgramsToUpdate().add(oldPatientState.getPatientProgram());
 				}
-			} else {
+			} else {   // handle ENTER state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
+
+                // if there is an active program enrollment in the state, add it to the programs to update (so that
+                // it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
+                PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
+                        state.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
+
+                if (patientProgram != null) {
+                    session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
+                }
+
 				session.getSubmissionActions().transitionToState(state);
 			}
 		}

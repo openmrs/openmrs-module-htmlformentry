@@ -25,6 +25,7 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.User;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
@@ -1377,7 +1378,33 @@ public class HtmlFormEntryUtil {
 		
 		return patientProgram;
 	}
-	
+
+    /**
+     * If the specified patient is enrolled in the specified program on the specified date,
+     * return the associated patient program, otherwise return null
+     *
+     * @param patient
+     * @param program
+     * @param date
+     * @return
+     */
+    public static PatientProgram getPatientProgramByProgramOnDate(Patient patient, Program program, Date date) {
+
+        List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+
+        if (patientPrograms.size() > 1) {
+            throw new APIException("Simultaneous program enrollments in same program not supported");
+        }
+
+        if (patientPrograms.size() == 1) {
+            return patientPrograms.get(0);
+        }
+        else {
+            return null;
+        }
+
+    }
+
 	/**
 	 * Checks whether the encounter has a provider specified (including ugly reflection code for
 	 * 1.9+)
