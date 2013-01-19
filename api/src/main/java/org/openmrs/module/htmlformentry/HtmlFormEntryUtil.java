@@ -25,6 +25,7 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.User;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
@@ -1324,8 +1325,35 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
-	public static PatientProgram getPatientProgram(Patient patient, ProgramWorkflow workflow, Date encounterDatetime) {
+
+    /**
+     * Given a list of patient programs and a program, returns the first patient program
+     * that matches the specified program
+     *
+     * @param patientPrograms
+     * @param program
+     * @return
+     */
+    public static PatientProgram getPatientProgramByProgram(List<PatientProgram> patientPrograms, Program program) {
+
+        for (PatientProgram patientProgram : patientPrograms) {
+            if (patientProgram.getProgram().equals(program)) {
+                return patientProgram;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Given a patient and a program workflow, returns the first patient program that contains
+     * a state in the specified workflow
+     *
+     * @param patient
+     * @param workflow
+     * @return
+     */
+	public static PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow) {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    workflow.getProgram(), null, null, null, null, false);
 		
@@ -1350,7 +1378,33 @@ public class HtmlFormEntryUtil {
 		
 		return patientProgram;
 	}
-	
+
+    /**
+     * If the specified patient is enrolled in the specified program on the specified date,
+     * return the associated patient program, otherwise return null
+     *
+     * @param patient
+     * @param program
+     * @param date
+     * @return
+     */
+    public static PatientProgram getPatientProgramByProgramOnDate(Patient patient, Program program, Date date) {
+
+        List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+
+        if (patientPrograms.size() > 1) {
+            throw new APIException("Simultaneous program enrollments in same program not supported");
+        }
+
+        if (patientPrograms.size() == 1) {
+            return patientPrograms.get(0);
+        }
+        else {
+            return null;
+        }
+
+    }
+
 	/**
 	 * Checks whether the encounter has a provider specified (including ugly reflection code for
 	 * 1.9+)
