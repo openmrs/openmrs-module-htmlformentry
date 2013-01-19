@@ -828,5 +828,4 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-	
 }
