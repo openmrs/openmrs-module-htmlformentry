@@ -72,7 +72,7 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
         String replaceCurrent = parameters.get(FIELD_REPLACE_CURRENT);
 
         if (relationshipsToBeCreated == null || whoAmI == null || replaceCurrent == null){
-            throw new RuntimeException("You must include type,whoAmI and changeExistingRelationship" +
+            throw new RuntimeException("You must include type, whoAmI and changeExistingRelationship" +
                     " fields in a relationship tag, all three fields are required");
         }
 
