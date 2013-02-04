@@ -1,5 +1,5 @@
-
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%@ taglib prefix="htmlformentryTag" tagdir="/WEB-INF/tags/module/htmlformentry" %>
 
 <%@ page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -34,6 +34,10 @@
 			</c:otherwise>
 		</c:choose>
 
+		<style>
+			.box {width:auto;}
+			.boxHeader {width:auto;}
+		</style>
 
 		<script type="text/javascript">
 			/* variable used in js to know the context path */
@@ -47,185 +51,81 @@
 		</openmrs:extensionPoint>
 
 	</head>
+	<body>
+		<script type="text/javascript">
+			// prevents users getting popup alerts when viewing pages
+			var handler = function(msg, ex) {
+				var div = document.getElementById("openmrs_dwr_error");
+				div.style.display = ""; // show the error div
+				var msgDiv = document.getElementById("openmrs_dwr_error_msg");
+				msgDiv.innerHTML = '<spring:message code="error.dwr"/>' + " <b>" + msg + "</b>";
 
-			<script type="text/javascript">
-				// prevents users getting popup alerts when viewing pages
-				var handler = function(msg, ex) {
-					var div = document.getElementById("openmrs_dwr_error");
-					div.style.display = ""; // show the error div
-					var msgDiv = document.getElementById("openmrs_dwr_error_msg");
-					msgDiv.innerHTML = '<spring:message code="error.dwr"/>' + " <b>" + msg + "</b>";
-					
-				};
-				dwr.engine.setErrorHandler(handler);
-				dwr.engine.setWarningHandler(handler);
-			</script>
+			};
+			dwr.engine.setErrorHandler(handler);
+			dwr.engine.setWarningHandler(handler);
+		</script>
 
-			<openmrs:forEachAlert>
-				<c:if test="${varStatus.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
-					<div class="alert">
-						<a href="#markRead" onClick="return markAlertRead(this, '${alert.alertId}')" HIDEFOCUS class="markAlertRead">
-							<img src="${pageContext.request.contextPath}/images/markRead.gif" alt='<spring:message code="Alert.mark"/>' title='<spring:message code="Alert.mark"/>'/> <span class="markAlertText"><spring:message code="Alert.markAsRead"/></span>
-						</a>
-						${alert.text} ${alert.dateToExpire} <c:if test="${alert.satisfiedByAny}"><i class="smallMessage">(<spring:message code="Alert.mark.satisfiedByAny"/>)</i></c:if>
-					</div>
-				<c:if test="${varStatus.last}">
-					</div>
-					<div id="alertBar">
-						<img src="${pageContext.request.contextPath}/images/alert.gif" align="center" alt='<spring:message code="Alert.unreadAlert"/>' title='<spring:message code="Alert.unreadAlert"/>'/>
-						<c:if test="${varStatus.count == 1}"><spring:message code="Alert.unreadAlert"/></c:if>
-						<c:if test="${varStatus.count != 1}"><spring:message code="Alert.unreadAlerts" arguments="${varStatus.count}" /></c:if>
-					</div>
-					</div>
-				</c:if>
-			</openmrs:forEachAlert>
-
-			<c:if test="${msg != null}">
-				<div id="openmrs_msg"><spring:message code="${msg}" text="${msg}" arguments="${msgArgs}" /></div>
-			</c:if>
-			<c:if test="${err != null}">
-				<div id="openmrs_error"><spring:message code="${err}" text="${err}" arguments="${errArgs}"/></div>
-			</c:if>
-			<div id="openmrs_dwr_error" style="display:none" class="error">
-				<div id="openmrs_dwr_error_msg"></div>
-				<div id="openmrs_dwr_error_close" class="smallMessage">
-					<i><spring:message code="error.dwr.stacktrace"/></i> &nbsp; 
-					<a href="#" onclick="this.parentNode.parentNode.style.display='none'"><spring:message code="error.dwr.hide"/></a>
+		<openmrs:forEachAlert>
+			<c:if test="${varStatus.first}"><div id="alertOuterBox"><div id="alertInnerBox"></c:if>
+				<div class="alert">
+					<a href="#markRead" onClick="return markAlertRead(this, '${alert.alertId}')" HIDEFOCUS class="markAlertRead">
+						<img src="${pageContext.request.contextPath}/images/markRead.gif" alt='<spring:message code="Alert.mark"/>' title='<spring:message code="Alert.mark"/>'/> <span class="markAlertText"><spring:message code="Alert.markAsRead"/></span>
+					</a>
+					${alert.text} ${alert.dateToExpire} <c:if test="${alert.satisfiedByAny}"><i class="smallMessage">(<spring:message code="Alert.mark.satisfiedByAny"/>)</i></c:if>
 				</div>
+			<c:if test="${varStatus.last}">
+				</div>
+				<div id="alertBar">
+					<img src="${pageContext.request.contextPath}/images/alert.gif" align="center" alt='<spring:message code="Alert.unreadAlert"/>' title='<spring:message code="Alert.unreadAlert"/>'/>
+					<c:if test="${varStatus.count == 1}"><spring:message code="Alert.unreadAlert"/></c:if>
+					<c:if test="${varStatus.count != 1}"><spring:message code="Alert.unreadAlerts" arguments="${varStatus.count}" /></c:if>
+				</div>
+				</div>
+			</c:if>
+		</openmrs:forEachAlert>
+
+		<c:if test="${msg != null}">
+			<div id="openmrs_msg"><spring:message code="${msg}" text="${msg}" arguments="${msgArgs}" /></div>
+		</c:if>
+		<c:if test="${err != null}">
+			<div id="openmrs_error"><spring:message code="${err}" text="${err}" arguments="${errArgs}"/></div>
+		</c:if>
+		<div id="openmrs_dwr_error" style="display:none" class="error">
+			<div id="openmrs_dwr_error_msg"></div>
+			<div id="openmrs_dwr_error_close" class="smallMessage">
+				<i><spring:message code="error.dwr.stacktrace"/></i> &nbsp;
+				<a href="#" onclick="this.parentNode.parentNode.style.display='none'"><spring:message code="error.dwr.hide"/></a>
 			</div>
-
-
-<style>
-	tr,th {text-align:left; vertical-align:top;}
-</style>
-
-<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
-
-<c:if test="${ not empty message }">
-	<span style="color:red;">${message}</span>
-</c:if>
-<!--
-<c:if test="${ not empty schema }">
-	<a href="htmlFormFromFile.form?filePath=${filePath}">Preview Form</a>
-	<br/>
--->	
-
-
-
-	<center>
-	<h3>Form Schema Preview</h3>
-	</center>
-	<b>${schema.name}</b>
-	<br>
-	
-	
-	<c:forEach items="${schema.sections}" var="section">
-		<div class="box">
-			<div class="boxHeader" style="background-color:yellow; color:black; font-weight:bold;">${section.name}</div>
-			<c:forEach items="${section.fields}" var="field">
-				<c:choose>
-					<c:when test="${field.class.name == 'org.openmrs.module.htmlformentry.schema.ObsGroup'}">
-						<div class="box">
-							<div class="boxHeader">${field.concept.displayString} (${field.concept.conceptId})</div>
-							<c:forEach items="${field.children}" var="child">
-								<table>
-									<tr>
-										<th>Concept:</th> 
-										<td>
-											${child.name} -&gt; 
-											<a style="color:green;" target="_blank" href="${pageContext.request.contextPath}/dictionary/concept.htm?conceptId=${child.question.conceptId}">
-												${child.question.displayString} (${child.question.conceptId})
-											</a>
-										</td>
-										<c:choose>
-											<c:when test="${fn:length(child.answers) <= 1}">
-												<th>Answer:</th>
-												<td>
-													<c:choose>
-														<c:when test="${fn:length(child.answers) == 1}">
-															${child.answers[0].displayName} -&gt; 
-															<a style="color:green;" target="_blank" href="${pageContext.request.contextPath}/dictionary/concept.htm?conceptId=${child.answers[0].concept.conceptId}">
-																${child.answers[0].concept.displayString} (${child.answers[0].concept.conceptId})
-															</a>
-														</c:when>
-														<c:otherwise>
-															${child.question.datatype.name}
-														</c:otherwise>
-													</c:choose>
-												</td>
-											</c:when>
-											<c:otherwise>
-												<th>Answers:</th>
-												<td>
-													<c:forEach items="${child.answers}" var="ans">
-														${ans.displayName} -&gt; 
-														<a style="color:green;" target="_blank" href="${pageContext.request.contextPath}/dictionary/concept.htm?conceptId=${ans.concept.conceptId}">
-															${ans.concept.displayString} (${ans.concept.conceptId})
-														</a>
-														<br/>
-													</c:forEach>
-												</td>
-											</c:otherwise>
-										</c:choose>
-									</tr>
-								</table>
-							</c:forEach>
-						</div>
-					</c:when>
-					<c:otherwise>
-						<table>
-							<tr>
-								<th>Concept: </th>
-								<td>${field.name} -&gt; 
-								<a style="color:green;" target="_blank" href="${pageContext.request.contextPath}/dictionary/concept.htm?conceptId=${field.question.conceptId}">
-									${field.question.displayString} (${field.question.conceptId})
-								</a>
-								</td>
-								<c:choose>
-									<c:when test="${fn:length(field.answers) <= 1}">
-										<th>Answer:</th>
-										<td>
-											<c:choose>
-												<c:when test="${fn:length(field.answers) == 1}">
-													${field.answers[0].displayName} -&gt; 
-													<a style="color:green;" target="_blank" href="${pageContext.request.contextPath}/dictionary/concept.htm?conceptId=${field.answers[0].concept.conceptId}">
-														${field.answers[0].concept.displayString} (${field.answers[0].concept.conceptId})
-													</a>
-												</c:when>
-												<c:otherwise>
-													${field.question.datatype.name}
-												</c:otherwise>
-											</c:choose>
-										</td>
-									</c:when>
-									<c:otherwise>
-										<th>Answers:</th>
-										<td>
-											<c:forEach items="${field.answers}" var="ans">
-												${ans.displayName} -&gt; 
-												<a style="color:green;" target="_blank" href="${pageContext.request.contextPath}/dictionary/concept.htm?conceptId=${ans.concept.conceptId}">
-													${ans.concept.displayString} (${ans.concept.conceptId})
-												</a>
-												<br/>
-											</c:forEach>
-										</td>
-									</c:otherwise>
-								</c:choose>
-							</tr>
-						</table>
-					</c:otherwise>
-				</c:choose>
-				<br/>
-			</c:forEach>
 		</div>
-	</c:forEach>
-</c:if>
-            
-<br>
-<br>
-<center>
-<FORM>
-<font size="3">
-<INPUT type="button" value="Close Schema" onClick="window.close()">
-</FORM> 
-</center>
+
+		<style>
+			tr,th {text-align:left; vertical-align:top;}
+		</style>
+
+		<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
+
+		<c:if test="${ not empty message }">
+			<span style="color:red;">${message}</span>
+		</c:if>
+
+		<h3>Form Schema Preview</h3>
+		<b>${schema.name}</b>
+		<br>
+
+		<c:forEach items="${schema.sections}" var="section">
+			<div class="box">
+				<div class="boxHeader" style="background-color:yellow; color:black; font-weight:bold;">${section.name}</div>
+				<c:forEach items="${section.fields}" var="field">
+					<div>
+						<htmlformentryTag:viewSchemaField field="${field}"/>
+					</div>
+					<br/>
+				</c:forEach>
+			</div>
+		</c:forEach>
+
+		<br>
+		<br>
+		<INPUT type="button" value="Close Schema" onClick="window.close()">
+	</body>
+</html>
