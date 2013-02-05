@@ -484,17 +484,7 @@ public class FormEntrySession {
         }
 
         // remove any obs groups that don't contain children
-        for (Iterator<Obs> iter = submissionActions.getObsToCreate().iterator(); iter.hasNext(); ) {
-            Obs o = iter.next();
-            if (o.hasGroupMembers())
-                continue;
-            if (!StringUtils.hasText(o.getValueAsString(Context.getLocale()))) {
-                // this has no value, and we already checked for children. So remove it.
-                log.trace("Removing empty obs group");
-                o.getEncounter().removeObs(o);
-                iter.remove();
-            }
-        }
+		HtmlFormEntryUtil.removeEmptyObs(submissionActions.getObsToCreate());
 
         // propagate encounterDatetime to Obs where necessary
         if (submissionActions.getObsToCreate() != null) {
@@ -645,9 +635,7 @@ public class FormEntrySession {
                     log.debug("voiding obs: " + o.getObsId());
                 obsService.voidObs(o, "htmlformentry");
                 // if o was in a group and it has no obs left, void the group
-                if (noObsLeftInGroup(o.getObsGroup())) {
-                    obsService.voidObs(o.getObsGroup(), "htmlformentry");
-                }
+				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
             }
         }
 
@@ -711,14 +699,17 @@ public class FormEntrySession {
      * @param group
      * @return
      */
-    private boolean noObsLeftInGroup(Obs group) {
-        if (group == null)
-            return false;
-        for (Obs member : group.getGroupMembers()) {
-            if (!member.isVoided())
-                return false;
-        }
-        return true;
+    private void voidObsGroupIfAllChildObsVoided(Obs group) {
+		if (group != null) {
+			boolean allObsVoided = true;
+			for (Obs member : group.getGroupMembers()) {
+				allObsVoided = allObsVoided && member.isVoided();
+			}
+			if (allObsVoided) {
+				Context.getObsService().voidObs(group, "htmlformentry");
+			}
+			voidObsGroupIfAllChildObsVoided(group.getObsGroup());
+		}
     }
 
     /**

@@ -61,17 +61,7 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * HTML Form Entry utility methods
@@ -1571,4 +1561,31 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 
+	/**
+	 * Removes any Obs that are empty or which have only empty children
+	 */
+	public static void removeEmptyObs(Collection<Obs> obsList) {
+		if (obsList != null) {
+			Set<Obs> obsToRemove = new HashSet<Obs>();
+			for (Obs o : obsList) {
+				removeEmptyObs(o.getGroupMembers());
+				boolean valueEmpty = StringUtils.isEmpty(o.getValueAsString(Context.getLocale()));
+				boolean membersEmpty = o.getGroupMembers() == null || o.getGroupMembers().isEmpty();
+				if (valueEmpty && membersEmpty) {
+					obsToRemove.add(o);
+				}
+			}
+			for (Obs o : obsToRemove) {
+				if (o.getObsGroup() != null) {
+					o.getObsGroup().removeGroupMember(o);
+					o.setObsGroup(null);
+				}
+				if (o.getEncounter() != null) {
+					o.getEncounter().removeObs(o);
+					o.setEncounter(null);
+				}
+				obsList.remove(o);
+			}
+		}
+	}
 }

@@ -1863,4 +1863,41 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
         }.run();
     }
 
+	/**
+	 * Do not save nested Obs groups if no Obs are saved within them
+	 */
+	@Test
+	public void nestedObsGroup_doNotSaveThoseWithoutObs() throws Exception {
+
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "multiLevelObsGroup2";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "INH colonies:", "Result Date:"};
+			}
+
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("INH colonies:"), "");
+				request.addParameter(widgets.get("Result Date:"), "");
+			}
+
+			public void testResults(SubmissionResults results) {
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(0);
+				results.assertObsGroupCreatedCount(0);
+			}
+		}.run();
+
+	}
+
 }
