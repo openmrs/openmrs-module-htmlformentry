@@ -61,7 +61,17 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * HTML Form Entry utility methods
@@ -527,6 +537,7 @@ public class HtmlFormEntryUtil {
      * @should find a location by global property
      * @should find a location by user property
      * @should find a location by session attribute
+     * @should not fail if trying to find a location by session attribute and we have no session
      * @should return null otherwise
      */
 	public static Location getLocation(String id, FormEntryContext context) {
@@ -555,6 +566,10 @@ public class HtmlFormEntryUtil {
 
             // handle SessionAttribute:attributeName
             if (id.startsWith("SessionAttribute:")) {
+                if (context.getHttpSession() == null) {
+                    // if we don't have access to a session, e.g. when validating a form, we can't do anything
+                    return null;
+                }
                 String saName = id.substring("SessionAttribute:".length());
                 Object saValue = context.getHttpSession().getAttribute(saName);
                 if (saValue == null) {

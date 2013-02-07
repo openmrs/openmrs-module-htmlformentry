@@ -98,6 +98,16 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
     }
 
     /**
+     * @see {@link HtmlFormEntryUtil#getLocation(String, FormEntryContext)}
+     * @verifies not fail if trying to find a location by session attribute and we have no session
+     */
+    @Test
+    public void getLocation_shouldNotFailIfTryingToFindALocationBySessionAttriubteAndWeHaveNoSession() {
+        FormEntryContext formEntryContext = new FormEntryContext(FormEntryContext.Mode.ENTER);
+        Assert.assertNull(HtmlFormEntryUtil.getLocation("SessionAttribute:someSessionAttribute", formEntryContext));
+    }
+
+    /**
 	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
 	 */
 	@Test
