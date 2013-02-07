@@ -245,8 +245,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				                + parameters);
 			if ("radio".equals(parameters.get("style"))) {
 				valueWidget = new RadioButtonsWidget();
-				if (StringUtils.isNotBlank(answerSeparator))
+				if (answerSeparator != null) {
 					((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+                }
 			} else { // dropdown
 				valueWidget = new DropdownWidget();
 				((DropdownWidget) valueWidget).addOption(new Option());
@@ -320,8 +321,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 }else {
 					if ("radio".equals(parameters.get("style"))) {
 						valueWidget = new RadioButtonsWidget();
-						if (StringUtils.isNotBlank(answerSeparator))
+						if (answerSeparator != null) {
 							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+                        }
 					} else { // dropdown
 						valueWidget = new DropdownWidget();
 						((DropdownWidget) valueWidget).addOption(new Option());
@@ -474,8 +476,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					} else {
 						if ("radio".equals(parameters.get("style"))) {
 							valueWidget = new RadioButtonsWidget();
-							if (StringUtils.isNotBlank(answerSeparator))
+							if (answerSeparator != null) {
 								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+                            }
 						} else { // dropdown
 							valueWidget = new DropdownWidget();
 							((DropdownWidget) valueWidget).addOption(new Option());
@@ -617,8 +620,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						boolean isRadio = "radio".equals(parameters.get("style"));
 						if (isRadio) {
 							valueWidget = new RadioButtonsWidget();
-							if (StringUtils.isNotBlank(answerSeparator))
+							if (answerSeparator != null) {
 								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+                            }
 						} else {
 							valueWidget = new DropdownWidget();
 							((DropdownWidget) valueWidget).addOption(new Option());
