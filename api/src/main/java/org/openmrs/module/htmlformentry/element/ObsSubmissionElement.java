@@ -116,8 +116,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		String conceptId = parameters.get("conceptId");
 		String conceptIds = parameters.get("conceptIds");
 		defaultValue = parameters.get("defaultValue");
-		if (StringUtils.isNotBlank(parameters.get("answerSeparator")))
+		if (parameters.get("answerSeparator") != null) {
 			answerSeparator = parameters.get("answerSeparator");
+        }
 		
 		if (conceptId != null && conceptIds != null)
 			throw new RuntimeException("You can't use conceptId and conceptIds in the same tag!");
