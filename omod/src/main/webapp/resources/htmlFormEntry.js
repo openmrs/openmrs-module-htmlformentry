@@ -141,25 +141,24 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 	if (hiddenField.length > 0 && textField.length > 0) {
 		textField.autocomplete( {
 			 source: function(req, add){
-	        //pass request to server
-			jQuery.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {
+	            //pass request to server
+                var contextPath = typeof OPENMRS_CONTEXT_PATH == 'undefined' ? openmrsContextPath : OPENMRS_CONTEXT_PATH;
+			    jQuery.getJSON('/' + contextPath + '/module/htmlformentry/' + src + '?answerids=' + answerids + '&answerclasses=' + answerclasses, req, function(data) {
 
-			//create array for response objects
-			var suggestions = [];
+			        //create array for response objects
+			        var suggestions = [];
 
-			jQuery.each(data, function(i, val){
-			suggestions.push(val);
-		   });
+			        jQuery.each(data, function(i, val){
+			        suggestions.push(val);
+		        });
 
-		   	//this clears the error if it returns no result
-		    //if the input field is not empty
-		    //the error will be triggered in onblur below
-			if (suggestions.length==0) hiddenField.val("");
-
-
-			add(suggestions);
-		 });
-		}
+                //this clears the error if it returns no result
+                //if the input field is not empty
+                //the error will be triggered in onblur below
+                if (suggestions.length==0) hiddenField.val("");
+        			add(suggestions);
+		        });
+		    }
 			,
 			minLength: 2,
 			select: function(event, ui) {
