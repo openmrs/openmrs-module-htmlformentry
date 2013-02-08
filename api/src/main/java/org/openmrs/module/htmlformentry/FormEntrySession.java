@@ -34,7 +34,6 @@ import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -52,11 +51,6 @@ import java.util.Map;
  * To validate and submit a form you need to do something like this:
  * <p/>
  * <pre>
- *
- *
- *
- * {
- * 	&#064;code
  * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
@@ -250,11 +244,14 @@ public class FormEntrySession {
     }
 
     public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, HttpSession httpSession) throws Exception {
-        this(patient, htmlForm, mode, null, httpSession);
+        this(patient, htmlForm, mode, null, httpSession, true, false);
     }
 
-    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation, HttpSession httpSession) throws Exception {
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation, HttpSession httpSession,
+                            boolean automaticClientSideValidation, boolean clientSideValidationHints) throws Exception {
         this(patient, mode, defaultLocation, httpSession);
+        this.context.setAutomaticClientSideValidation(automaticClientSideValidation);
+        this.context.setClientSideValidationHints(clientSideValidationHints);
         this.htmlForm = htmlForm;
         this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated() : htmlForm
                 .getDateChanged()).getTime();
@@ -304,7 +301,7 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, HttpSession httpSession) throws Exception {
-        this(patient, encounter, mode, htmlForm, null, httpSession);
+        this(patient, encounter, mode, htmlForm, null, httpSession, true, false);
     }
 
     /**
@@ -320,8 +317,11 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, Location defaultLocation,
-                            HttpSession httpSession) throws Exception {
+                            HttpSession httpSession, boolean automaticClientSideValidation,
+                            boolean clientSideValidationHints) throws Exception {
         this(patient, mode, defaultLocation, httpSession);
+        this.context.setAutomaticClientSideValidation(automaticClientSideValidation);
+        this.context.setClientSideValidationHints(clientSideValidationHints);
         this.htmlForm = htmlForm;
         if (htmlForm != null) {
             if (htmlForm.getId() != null)
@@ -1019,6 +1019,14 @@ public class FormEntrySession {
 
     public HttpSession getHttpSession() {
         return httpSession;
+    }
+
+    public void setAutomaticClientSideValidation(boolean automaticClientSideValidation) {
+        context.setAutomaticClientSideValidation(automaticClientSideValidation);
+    }
+
+    public void setClientSideValidationHints(boolean clientSideValidationHints) {
+        context.setClientSideValidationHints(true);
     }
 
 }

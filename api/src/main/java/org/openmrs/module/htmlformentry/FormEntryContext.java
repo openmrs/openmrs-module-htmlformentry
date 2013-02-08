@@ -47,6 +47,12 @@ import java.util.Stack;
  * TODO rename this class: it's really more of the html generation context than a form entry context
  * </p>
  * TODO move Mode class up to FormEntrySession instead?
+ * <p>
+ * 'automaticClientSideValidation' means that elements and widgets should generate HTML that does things like numeric range
+ * checking when you blur a text field.
+ * 'clientSideValidationHints' means that elements and widgets should generate HTML where inputs have classes like "required"
+ * and "numeric-range", and attributes like "min" and "max".
+ * </p>
  */
 public class FormEntryContext {
 
@@ -79,6 +85,9 @@ public class FormEntryContext {
     
     private boolean guessingInd = false;
     private HttpSession httpSession;
+
+    private boolean automaticClientSideValidation = true;
+    private boolean clientSideValidationHints = false;
 
     public FormEntryContext(Mode mode) {
         this.mode = mode;
@@ -802,4 +811,19 @@ public class FormEntryContext {
 		this.unmatchedMode = unmatchedMode;
 	}
 
+    public boolean isAutomaticClientSideValidation() {
+        return automaticClientSideValidation;
+    }
+
+    public void setAutomaticClientSideValidation(boolean automaticClientSideValidation) {
+        this.automaticClientSideValidation = automaticClientSideValidation;
+    }
+
+    public boolean isClientSideValidationHints() {
+        return clientSideValidationHints;
+    }
+
+    public void setClientSideValidationHints(boolean clientSideValidationHints) {
+        this.clientSideValidationHints = clientSideValidationHints;
+    }
 }

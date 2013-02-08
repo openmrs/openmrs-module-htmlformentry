@@ -63,7 +63,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"hidden\" name=\"_w2\"/><input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/>" +
-                "<label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">Other Non-coded</label>";
+                "<label for=\"w2\">Stroke</label> <span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">Other Non-coded</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
     }
@@ -76,7 +76,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><repeat with=\" [ '4301','STROKE' ], ['4302', 'OTHER NON-CODED' ]\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
-        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label>";
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
     }
@@ -90,11 +90,11 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
                 "</repeat></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> " +
-               "<span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
+               "<span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
                 "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> " +
-                "<span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/>" +
+                "<span class=\"error field-error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/>" +
                 "<input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4302\"/><label for=\"w6\">CANCER</label> " +
-                "<span class=\"error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/>" +
+                "<span class=\"error field-error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/>" +
                 "<input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4301\"/><label for=\"w8\">FLU</label>" ;
 
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
@@ -114,9 +114,9 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
                 "</repeat><repeat><template><obs conceptId=\"4300\" answerConceptId=\"{concept}\" answerLabel=\"{effect}\"/></template><render concept=\"4301\" effect=\"Stroke\"/>" +
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
-        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
-                "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/>" +
-                "<label for=\"w6\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">Other Non-coded</label>";
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label> <span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/>" +
+                "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label> <span class=\"error field-error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/>" +
+                "<label for=\"w6\">Stroke</label> <span class=\"error field-error\" style=\"display: none\" id=\"w5\"></span><input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">Other Non-coded</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
     }
@@ -134,8 +134,8 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
                 "<render concept=\"4302\" effect=\"Other Non-coded\"/></repeat><repeat with=\"['4301','STROKE'],['4302','OTHER NON-CODED']\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />" +
                 "</repeat></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
-        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">Stroke</label> <span class=\"error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/>" +
-                "<label for=\"w4\">Other Non-coded</label> <span class=\"error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/><label for=\"w6\">STROKE</label> <span class=\"error\" style=\"display: none\" id=\"w5\"></span>" +
+        String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">Stroke</label> <span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span><input type=\"hidden\" name=\"_w4\"/><input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/>" +
+                "<label for=\"w4\">Other Non-coded</label> <span class=\"error field-error\" style=\"display: none\" id=\"w3\"></span><input type=\"hidden\" name=\"_w6\"/><input type=\"checkbox\" id=\"w6\" name=\"w6\" value=\"4301\"/><label for=\"w6\">STROKE</label> <span class=\"error field-error\" style=\"display: none\" id=\"w5\"></span>" +
                 "<input type=\"hidden\" name=\"_w8\"/><input type=\"checkbox\" id=\"w8\" name=\"w8\" value=\"4302\"/><label for=\"w8\">OTHER NON-CODED</label>";
         Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
 
