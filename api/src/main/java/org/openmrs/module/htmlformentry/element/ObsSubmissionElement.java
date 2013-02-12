@@ -67,6 +67,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private String defaultValue;
 	
 	private boolean showUnits = false;
+
+    private String unitsCode;
 	
 	private String dateLabel;
 	
@@ -295,7 +297,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						        + ex.toString() + "): " + conceptAnswers);
 					}
 				}
-				ConceptNumeric cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
+				ConceptNumeric cn;
+                if (concept instanceof ConceptNumeric) {
+                    cn = (ConceptNumeric) concept;
+                } else {
+                    cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
+                }
 				// added to avoid creating this widget when a checkbox is needed
                 if (numericAnswers.size() == 0) {
                     if (!"checkbox".equals(parameters.get("style"))) {
@@ -766,7 +773,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		context.registerErrorWidget(valueWidget, errorWidget);
 		
 		if (parameters.get("showUnits") != null) {
-			showUnits = Boolean.parseBoolean(parameters.get("showUnits"));
+            if ("true".equalsIgnoreCase(parameters.get("showUnits"))) {
+                showUnits = true;
+            } else if (!"false".equalsIgnoreCase(parameters.get("showUnits"))) {
+                showUnits = true;
+                unitsCode = parameters.get("showUnits");
+            }
 		}
 		
 		// if a date is requested, do that too
@@ -856,7 +868,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
 		if (id != null) {
-			ret.append("<span id='" + id + "'>");
+			ret.append("<span id='" + id + "' class='obs-field'>");
 			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget),
 			    getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
 			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget),
@@ -884,7 +896,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			} else {
 				units = Context.getConceptService().getConceptNumeric(concept.getConceptId()).getUnits();
 			}
-			ret.append(units != null ? units : "");
+			ret.append("<span class=\"units\">");
+            if (unitsCode != null) {
+                ret.append(context.getTranslator().translate(Context.getLocale().toString(), unitsCode));
+            } else if (units != null) {
+                ret.append(units);
+            }
+            ret.append("</span>");
 		}
 		if (dateWidget != null) {
 			ret.append(" ");
