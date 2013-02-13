@@ -69,6 +69,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private boolean showUnits = false;
 
     private String unitsCode;
+
+    private String unitsCssClass = "units";
 	
 	private String dateLabel;
 	
@@ -780,8 +782,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 unitsCode = parameters.get("showUnits");
             }
 		}
-		
-		// if a date is requested, do that too
+
+        if (parameters.get("unitsCssClass") != null) {
+            unitsCssClass = parameters.get("unitsCssClass");
+        }
+
+        // if a date is requested, do that too
 		if ("true".equals(parameters.get("showDate")) || parameters.containsKey("dateLabel")) {
 			if (parameters.containsKey("dateLabel")){
                 dateLabel = parameters.get("dateLabel");
@@ -896,7 +902,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			} else {
 				units = Context.getConceptService().getConceptNumeric(concept.getConceptId()).getUnits();
 			}
-			ret.append("<span class=\"units\">");
+			ret.append("<span class=\"" + unitsCssClass + "\">");
             if (unitsCode != null) {
                 ret.append(context.getTranslator().translate(Context.getLocale().toString(), unitsCode));
             } else if (units != null) {
