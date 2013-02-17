@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,9 +25,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.Date;
-import java.util.Map;
 
 /**
  * Tests the obs tag.

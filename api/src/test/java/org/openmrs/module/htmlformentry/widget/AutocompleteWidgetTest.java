@@ -13,14 +13,14 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.Map;
-import java.util.Set;
 
 public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
 

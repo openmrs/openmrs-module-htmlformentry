@@ -13,14 +13,14 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
 

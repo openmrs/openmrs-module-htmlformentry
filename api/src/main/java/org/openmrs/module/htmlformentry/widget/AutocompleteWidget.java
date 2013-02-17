@@ -1,12 +1,11 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.springframework.web.util.HtmlUtils;
-
-import java.lang.String;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  *   A single option auto complete widget which provides auto complete suggestions using a

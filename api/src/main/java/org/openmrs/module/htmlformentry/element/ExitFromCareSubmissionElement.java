@@ -1,6 +1,14 @@
 package org.openmrs.module.htmlformentry.element;
 
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.Obs;
@@ -17,13 +25,6 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.util.OpenmrsUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Holds the widgets used to record details of exiting a person from care center, and serves as both the

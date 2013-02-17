@@ -1,7 +1,8 @@
 package org.openmrs.module.htmlformentry.comparator;
 
-import org.openmrs.module.htmlformentry.widget.Option;
 import java.util.Comparator;
+
+import org.openmrs.module.htmlformentry.widget.Option;
 
 /**
  *  Used to sort the options in a drop down menu in alphabetical order

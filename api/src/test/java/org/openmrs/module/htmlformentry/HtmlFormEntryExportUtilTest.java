@@ -1,5 +1,13 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -14,14 +22,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest {
 

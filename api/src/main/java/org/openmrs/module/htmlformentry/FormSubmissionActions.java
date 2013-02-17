@@ -1,5 +1,15 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.Vector;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,16 +27,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
-
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.Vector;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually be

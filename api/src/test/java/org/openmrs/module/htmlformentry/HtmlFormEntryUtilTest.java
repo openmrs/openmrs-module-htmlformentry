@@ -1,5 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -23,9 +26,6 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
-
-import java.util.Calendar;
-import java.util.Date;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml

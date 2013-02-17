@@ -1,6 +1,5 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 

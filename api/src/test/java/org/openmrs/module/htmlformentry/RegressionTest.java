@@ -1,5 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +20,6 @@ import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.Date;
-import java.util.Map;
 
 public class RegressionTest extends BaseModuleContextSensitiveTest {
 

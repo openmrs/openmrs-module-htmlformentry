@@ -1,14 +1,15 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.openmrs.ConceptNumeric;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.OpenmrsUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A widget that implements an input field that takes a numeric answer.

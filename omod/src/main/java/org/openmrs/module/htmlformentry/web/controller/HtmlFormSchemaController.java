@@ -1,5 +1,9 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import java.io.File;
+
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
@@ -16,9 +20,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpSession;
-import java.io.File;
 
 /**
  * Handles the display of an HTML Form Schema.

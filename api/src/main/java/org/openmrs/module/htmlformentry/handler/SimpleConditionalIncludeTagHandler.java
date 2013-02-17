@@ -14,11 +14,11 @@
 
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.PrintWriter;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.w3c.dom.Node;
-
-import java.io.PrintWriter;
 
 /**
  * Helper for subclasses that want to decide whether or not to include certain content. (This doesn't support having the

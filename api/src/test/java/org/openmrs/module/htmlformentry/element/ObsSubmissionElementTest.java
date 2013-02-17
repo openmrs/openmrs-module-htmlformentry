@@ -14,32 +14,25 @@
 
 package org.openmrs.module.htmlformentry.element;
 
-import org.hamcrest.CoreMatchers;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.matchers.StringContains;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.internal.matchers.Contains;
-import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.util.OpenmrsUtil;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;

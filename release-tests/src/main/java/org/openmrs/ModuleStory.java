@@ -1,13 +1,13 @@
 package org.openmrs;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.web.WebConstants;
 import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.util.Properties;
 
 /**
  * The contents of this file are subject to the OpenMRS Public License

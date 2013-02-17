@@ -8,10 +8,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Program;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 
 /**

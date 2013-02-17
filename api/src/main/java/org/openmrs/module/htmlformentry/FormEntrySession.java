@@ -1,5 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -28,14 +37,6 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to

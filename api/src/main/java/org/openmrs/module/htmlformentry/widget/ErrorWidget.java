@@ -1,8 +1,8 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.openmrs.module.htmlformentry.FormEntryContext;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.openmrs.module.htmlformentry.FormEntryContext;
 
 /**
  * A widget the represents as error field.

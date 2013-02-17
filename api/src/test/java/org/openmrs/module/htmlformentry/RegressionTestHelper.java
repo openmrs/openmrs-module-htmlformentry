@@ -1,18 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Assert;
-import org.openmrs.Encounter;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +19,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.junit.Assert;
+import org.openmrs.Encounter;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 
 public abstract class RegressionTestHelper {
 	

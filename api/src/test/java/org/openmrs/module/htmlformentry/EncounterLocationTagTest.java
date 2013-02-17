@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +26,6 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	

@@ -8,8 +8,8 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
  * A widget that allows the selection of a certain time-of-day.  To handle both

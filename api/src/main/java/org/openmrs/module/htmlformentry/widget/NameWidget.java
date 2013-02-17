@@ -15,7 +15,6 @@ import org.openmrs.layout.web.name.NameSupport;
 import org.openmrs.layout.web.name.NameTemplate;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
  * A widget that allows the input of a Person name. Implemented using text fields

@@ -1,8 +1,9 @@
 package org.openmrs.module.htmlformentry.property;
 
 
-import org.openmrs.Concept;
 import java.util.Date;
+
+import org.openmrs.Concept;
 
 /**
  * The property instance which keeps the details needed to exit a person from care center such as

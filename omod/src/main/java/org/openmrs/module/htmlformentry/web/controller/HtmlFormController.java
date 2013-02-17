@@ -1,5 +1,10 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,10 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
-
-import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 @Controller
 public class HtmlFormController {
