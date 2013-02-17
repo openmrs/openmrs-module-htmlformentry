@@ -24,14 +24,13 @@ import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.junit.Assert.assertThat;
-import static org.junit.matchers.StringContains.containsString;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -82,7 +81,7 @@ public class ObsSubmissionElementTest {
         ObsSubmissionElement element = new ObsSubmissionElement(context, params);
         String html = element.generateHtml(context);
 
-        assertThat(html, containsString("<span class=\"units\">" + units + "</span>"));
+        TestUtil.assertContains("<span class=\"units\">" + units + "</span>", html);
     }
 
     @Test
@@ -103,6 +102,6 @@ public class ObsSubmissionElementTest {
         ObsSubmissionElement element = new ObsSubmissionElement(context, params);
         String html = element.generateHtml(context);
 
-        assertThat(html, containsString("<span class=\"units\">" + unitsCode + "</span>"));
+        TestUtil.assertContains("<span class=\"units\">" + unitsCode + "</span>", html);
     }
 }
