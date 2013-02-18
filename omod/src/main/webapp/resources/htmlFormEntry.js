@@ -50,23 +50,29 @@ function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax) {
 	}
 }
 
+/**
+ * Verifies the numerical value of an input
+ * @param el the input element
+ * @param floatOkay whether floating point values are acceptable
+ * @param absoluteMin the minimum acceptable value (may be null)
+ * @param absoluteMax the maximum acceptable value (may be null)
+ * @return null or error message
+ */
 function verifyNumber(el, floatOkay, absoluteMin, absoluteMax) {
-	var val = el.value;
+	var val = el.value.trim();
 	if (val == '')
 		return null;
 
-	// TODO replace parse* functions with something that catches 12a.
 	if (floatOkay) {
+		if (! /^[+-]?\d+(\.\d+)?$/.test(val)) {
+			return "Not a number";
+		}
 		val = parseFloat(val);
 	} else {
-		val = parseInt(val);
-	}
-
-	if (isNaN(val)) {
-		if (floatOkay)
-			return "Not a number";
-		else
+		if (! /^[+-]?\d+$/.test(val)) {
 			return "Not an integer";
+		}
+		val = parseInt(val);
 	}
 
 	if (absoluteMin != null) {
