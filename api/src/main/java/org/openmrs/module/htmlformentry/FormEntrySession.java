@@ -702,6 +702,9 @@ public class FormEntrySession {
      */
     private void voidObsGroupIfAllChildObsVoided(Obs group) {
 		if (group != null) {
+
+            // probably should be able to just tet if group.getGroupMembers() == 0 since
+            // getGroupMembers only returns non-voided members?
 			boolean allObsVoided = true;
 			for (Obs member : group.getGroupMembers()) {
 				allObsVoided = allObsVoided && member.isVoided();
