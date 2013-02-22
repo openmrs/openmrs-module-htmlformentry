@@ -706,6 +706,16 @@ public abstract class RegressionTestHelper {
 			Assert.assertEquals(expectedEncounterTypeId, getEncounterCreated().getEncounterType().getEncounterTypeId());
 		}
 
+        public void assertEncounterDatetime() {
+            assertEncounterCreated();
+            Assert.assertNotNull(getEncounterCreated().getEncounterDatetime());
+        }
+
+        public void assertEncounterDatetime(Date expectedEncounterDate) {
+            assertEncounterDatetime();
+            Assert.assertEquals(expectedEncounterDate, getEncounterCreated().getEncounterDatetime());
+        }
+
 		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'
 		 * 

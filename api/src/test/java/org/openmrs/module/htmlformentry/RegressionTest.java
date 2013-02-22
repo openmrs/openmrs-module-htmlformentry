@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -1897,7 +1898,62 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsGroupCreatedCount(0);
 			}
 		}.run();
-
 	}
 
+
+    @Test
+    public void testEncounterDateWithTimeComponent() throws Exception {
+
+        final Date date = new Date();
+
+        new RegressionTestHelper() {
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                System.out.println(html);
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestFormWithTimeComponent";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                request.addParameter(widgets.get("Date:"), dateAsString(date));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                // hack since time components don't have labels, have to specify actual widget names
+                request.addParameter("w1hours", String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
+                request.addParameter("w1minutes", String.valueOf(cal.get(Calendar.MINUTE)));
+                request.addParameter("w1seconds", String.valueOf(cal.get(Calendar.SECOND)));
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                results.assertEncounterDatetime(cal.getTime());
+            }
+        }.run();
+    }
 }
