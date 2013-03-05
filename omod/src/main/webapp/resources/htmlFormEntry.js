@@ -149,7 +149,8 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 			 source: function(req, add){
 	            //pass request to server
                 var contextPath = typeof OPENMRS_CONTEXT_PATH == 'undefined' ? openmrsContextPath : OPENMRS_CONTEXT_PATH;
-			    jQuery.getJSON('/' + contextPath + '/module/htmlformentry/' + src + '?answerids=' + answerids + '&answerclasses=' + answerclasses, req, function(data) {
+			    jQuery.getJSON(location.protocol + '//' + location.host + contextPath + '/module/htmlformentry/' + src
+                    + '?answerids=' + answerids + '&answerclasses=' + answerclasses, req, function(data) {
 
 			        //create array for response objects
 			        var suggestions = [];
