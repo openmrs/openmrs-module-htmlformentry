@@ -25,15 +25,18 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 		String id = context.getFieldName(this);
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode() == Mode.VIEW) {
-			for (Option opt : getOptions()) {
+            for (int i = 0; i < getOptions().size(); ++i) {
+                Option opt = getOptions().get(i);
 				boolean selected = getInitialValue() == null ? "".equals(opt.getValue()) : getInitialValue().equals(
 				    opt.getValue());
-				sb.append(getAnswerSeparator());
 				if (selected) {
-					sb.append(WidgetFactory.displayValue("[X]&#160;" + opt.getLabel() + "&#160;"));
+					sb.append(WidgetFactory.displayValue("[X]&#160;" + opt.getLabel()));
 				} else {
 					sb.append(WidgetFactory.displayEmptyValue("[&#160;&#160;]&#160;" + opt.getLabel()));
 				}
+                if (i < getOptions().size() - 1) {
+                    sb.append(getAnswerSeparator());
+                }
 			}
 		} else {
 			for (int i = 0; i < getOptions().size(); ++i) {
@@ -42,15 +45,16 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 				if (!selected)
 					selected = getInitialValue() == null ? option.getValue().equals("") : getInitialValue().equals(
 					    option.getValue());
-				sb.append(getAnswerSeparator() + "<input type=\"radio\" id=\"").append(id + "_" + i).append("\" name=\"")
+				sb.append("<input type=\"radio\" id=\"").append(id + "_" + i).append("\" name=\"")
 				        .append(id).append("\" value=\"").append(option.getValue()).append("\"");
 				if (selected)
 					sb.append(" checked=\"true\"");
 				sb.append(" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"");
 				sb.append("/>");
 				sb.append("<label for=\"").append(id + "_" + i).append("\">").append(option.getLabel()).append("</label>");
-				if (i < getOptions().size() - 1)
-					sb.append("&#160;");
+				if (i < getOptions().size() - 1) {
+					sb.append(getAnswerSeparator());
+                }
 			}
 		}
 		return sb.toString();
@@ -61,7 +65,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	 */
 	public String getAnswerSeparator() {
 		if (answerSeparator == null)
-			answerSeparator = "";
+			answerSeparator = "&#160;";
 		return answerSeparator;
 	}
 	

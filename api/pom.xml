@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
-		<version>2.0.1-SNAPSHOT</version>
+		<version>2.0.7-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>htmlformentry-api</artifactId>
@@ -42,6 +42,18 @@
 			<groupId>xalan</groupId>
 			<artifactId>xalan</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+        </dependency>
 	</dependencies>
 
 	<build>

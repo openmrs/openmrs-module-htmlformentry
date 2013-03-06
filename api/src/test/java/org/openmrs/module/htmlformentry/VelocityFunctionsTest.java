@@ -92,7 +92,7 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         htmlform.setXmlData("<htmlform></htmlform>");
         
         Patient p = new Patient(patientId);
-        FormEntrySession session = new FormEntrySession(p, htmlform);
+        FormEntrySession session = new FormEntrySession(p, htmlform, null);
         return new VelocityFunctions(session);
 	}
 }

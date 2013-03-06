@@ -1,5 +1,15 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.Vector;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,16 +27,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
-
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.Vector;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually be
@@ -474,10 +474,20 @@ public class FormSubmissionActions {
 		Encounter encounter = highestOnStack(Encounter.class);
 		if (encounter == null)
 			throw new IllegalArgumentException("Cannot change state without an Encounter");
-		
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgram(patient, state.getProgramWorkflow(),
-		    encounter.getEncounterDatetime());
-		
+
+        // fetch any existing patient program with a state from this workflow
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, state.getProgramWorkflow());
+
+        // if no existing patient program, see if a patient program for this program is already set to be created at part of this submission (HTML-416)
+        if (patientProgram == null) {
+           patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToCreate, state.getProgramWorkflow().getProgram());
+        }
+
+        if (patientProgram == null) {
+            patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToUpdate, state.getProgramWorkflow().getProgram());
+        }
+
+        // if patient program is still null, we need to create a new program
 		if (patientProgram == null) {
 			patientProgram = new PatientProgram();
 			patientProgram.setPatient(patient);

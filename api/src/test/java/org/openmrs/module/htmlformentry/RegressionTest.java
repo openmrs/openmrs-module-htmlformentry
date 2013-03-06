@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -851,7 +852,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
 		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
-		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
 		HtmlFormSchema hfs = session.getContext().getSchema();
 		String ret = "";
 		int count = 0;
@@ -1829,4 +1830,130 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
+
+    @Test
+    public void testIfModeTag() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "ifModeForm";
+            }
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Entry mode <input", html);
+                TestUtil.assertFuzzyDoesNotContain("View mode", html);
+                TestUtil.assertFuzzyDoesNotContain("Edit mode", html);
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyDoesNotContain("Entry mode", html);
+                TestUtil.assertContains("View mode", html);
+                TestUtil.assertFuzzyDoesNotContain("Edit mode", html);
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyDoesNotContain("Entry mode", html);
+                TestUtil.assertFuzzyDoesNotContain("View mode", html);
+                TestUtil.assertContains("Edit mode", html);
+            }
+
+        }.run();
+    }
+
+	/**
+	 * Do not save nested Obs groups if no Obs are saved within them
+	 */
+	@Test
+	public void nestedObsGroup_doNotSaveThoseWithoutObs() throws Exception {
+
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "multiLevelObsGroup2";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "INH colonies:", "Result Date:"};
+			}
+
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("INH colonies:"), "");
+				request.addParameter(widgets.get("Result Date:"), "");
+			}
+
+			public void testResults(SubmissionResults results) {
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(0);
+				results.assertObsGroupCreatedCount(0);
+			}
+		}.run();
+	}
+
+
+    @Test
+    public void testEncounterDateWithTimeComponent() throws Exception {
+
+        final Date date = new Date();
+
+        new RegressionTestHelper() {
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                System.out.println(html);
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestFormWithTimeComponent";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                request.addParameter(widgets.get("Date:"), dateAsString(date));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                // hack since time components don't have labels, have to specify actual widget names
+                request.addParameter("w1hours", String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
+                request.addParameter("w1minutes", String.valueOf(cal.get(Calendar.MINUTE)));
+                request.addParameter("w1seconds", String.valueOf(cal.get(Calendar.SECOND)));
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                results.assertEncounterDatetime(cal.getTime());
+            }
+        }.run();
+    }
 }

@@ -50,23 +50,29 @@ function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax) {
 	}
 }
 
+/**
+ * Verifies the numerical value of an input
+ * @param el the input element
+ * @param floatOkay whether floating point values are acceptable
+ * @param absoluteMin the minimum acceptable value (may be null)
+ * @param absoluteMax the maximum acceptable value (may be null)
+ * @return null or error message
+ */
 function verifyNumber(el, floatOkay, absoluteMin, absoluteMax) {
-	var val = el.value;
+	var val = el.value.trim();
 	if (val == '')
 		return null;
 
-	// TODO replace parse* functions with something that catches 12a.
 	if (floatOkay) {
+		if (! /^[+-]?\d+(\.\d+)?$/.test(val)) {
+			return "Not a number";
+		}
 		val = parseFloat(val);
 	} else {
-		val = parseInt(val);
-	}
-
-	if (isNaN(val)) {
-		if (floatOkay)
-			return "Not a number";
-		else
+		if (! /^[+-]?\d+$/.test(val)) {
 			return "Not an integer";
+		}
+		val = parseInt(val);
 	}
 
 	if (absoluteMin != null) {
@@ -141,25 +147,25 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 	if (hiddenField.length > 0 && textField.length > 0) {
 		textField.autocomplete( {
 			 source: function(req, add){
-	        //pass request to server
-			jQuery.getJSON(src+'?answerids='+answerids+'&answerclasses='+answerclasses, req, function(data) {
+	            //pass request to server
+                var contextPath = typeof OPENMRS_CONTEXT_PATH == 'undefined' ? openmrsContextPath : OPENMRS_CONTEXT_PATH;
+			    jQuery.getJSON(location.protocol + '//' + location.host + contextPath + '/module/htmlformentry/' + src
+                    + '?answerids=' + answerids + '&answerclasses=' + answerclasses, req, function(data) {
 
-			//create array for response objects
-			var suggestions = [];
+			        //create array for response objects
+			        var suggestions = [];
 
-			jQuery.each(data, function(i, val){
-			suggestions.push(val);
-		   });
+			        jQuery.each(data, function(i, val){
+			        suggestions.push(val);
+		        });
 
-		   	//this clears the error if it returns no result
-		    //if the input field is not empty
-		    //the error will be triggered in onblur below
-			if (suggestions.length==0) hiddenField.val("");
-
-
-			add(suggestions);
-		 });
-		}
+                //this clears the error if it returns no result
+                //if the input field is not empty
+                //the error will be triggered in onblur below
+                if (suggestions.length==0) hiddenField.val("");
+        			add(suggestions);
+		        });
+		    }
 			,
 			minLength: 2,
 			select: function(event, ui) {

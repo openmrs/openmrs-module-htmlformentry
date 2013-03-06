@@ -1,12 +1,12 @@
 package org.openmrs.stories;
 
+import java.util.List;
+
 import org.openmrs.Steps;
 import org.openmrs.Story;
 import org.openmrs.steps.AdminSteps;
 import org.openmrs.steps.CreateANewHtmlFormSteps;
 import org.openmrs.steps.LoginSteps;
-
-import java.util.List;
 
 import static java.util.Arrays.asList;
 

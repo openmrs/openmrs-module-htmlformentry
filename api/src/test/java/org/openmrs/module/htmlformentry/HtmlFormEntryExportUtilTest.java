@@ -70,7 +70,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         String newXml = HtmlFormEntryExportUtil.getSectionAsFormXml(htmlform, 1);
         //System.out.println(newXML);
         htmlform.setXmlData(newXml);
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
         String html = session.getHtmlToDisplay();
         System.out.println(html);
         TestUtil.assertFuzzyContains("<span class=\"sectionHeader\">Section One Inner One</span>", html);
@@ -363,7 +363,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         form.setEncounterType(new EncounterType());
         htmlform.setDateChanged(new Date());
         htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
         String xml = session.createForm(htmlform.getXmlData());
 //        System.out.println(xml);
         Assert.assertTrue(xml.contains("<option value=\"\" selected=\"true\"></option><option value=\"2474\">Susc</option><option value=\"3017\">Interm</option>"));

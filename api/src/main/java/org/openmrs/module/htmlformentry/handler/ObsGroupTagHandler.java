@@ -9,10 +9,10 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.Obs;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;

@@ -14,7 +14,6 @@
 package org.openmrs.module.htmlformentry;
 
 import junit.framework.Assert;
-
 import org.junit.Test;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;

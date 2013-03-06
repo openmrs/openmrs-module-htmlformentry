@@ -1,11 +1,15 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.ConceptNumeric;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.util.OpenmrsUtil;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -127,12 +131,28 @@ public class NumberFieldWidget implements Widget {
             String id = context.getFieldName(this);
             String errorId = context.getErrorFieldId(this);
             sb.append("<input type=\"text\" size=\"" + numberFieldSize + "\" id=\"" + id + "\" name=\"" + id + "\"");
-            // TODO escape value
-            if (initialValue != null)
+            if (initialValue != null) {
                 sb.append(" value=\"" + initialValue + "\"");
-            sb.append(" onBlur=\"checkNumber(this,'" + errorId + "'," + floatingPoint + ",");
-            sb.append(absoluteMinimum + ",");
-            sb.append(absoluteMaximum + ")\"");
+            }
+            if (context.isAutomaticClientSideValidation()) {
+                sb.append(" onBlur=\"checkNumber(this,'" + errorId + "'," + floatingPoint + ",");
+                sb.append(absoluteMinimum + ",");
+                sb.append(absoluteMaximum + ")\"");
+            }
+            if (context.isClientSideValidationHints()) {
+                if (absoluteMinimum != null) {
+                    sb.append(" min=\"" + absoluteMinimum + "\"");
+                }
+                if (absoluteMaximum != null) {
+                    sb.append(" max=\"" + absoluteMaximum + "\"");
+                }
+                List<String> classes = new ArrayList<String>();
+                classes.add(floatingPoint ? "number" : "integer");
+                if (absoluteMinimum != null || absoluteMaximum != null) {
+                    classes.add("numeric-range");
+                }
+                sb.append(" class=\"" + OpenmrsUtil.join(classes, " ") + "\"");
+            }
             sb.append("/>");
         }
         return sb.toString();

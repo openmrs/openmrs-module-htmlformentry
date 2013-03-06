@@ -1,5 +1,18 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -29,18 +42,6 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -314,7 +315,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
                 String[] temp = ((String) parameters.get("order")).split(",");
                 for (String s : temp) {
-                    Location loc = HtmlFormEntryUtil.getLocation(s);
+                    Location loc = HtmlFormEntryUtil.getLocation(s, context);
                     if (loc == null) {
                         throw new RuntimeException("Cannot find location: " + loc);
                     }
@@ -335,7 +336,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             } else {
                 String defaultLocId = (String) parameters.get("default");
                 if (StringUtils.hasText(defaultLocId)) {
-                    defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId);
+                    defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId, context);
                 }
             }
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;

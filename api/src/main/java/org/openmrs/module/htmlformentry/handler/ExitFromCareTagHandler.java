@@ -1,15 +1,12 @@
 package org.openmrs.module.htmlformentry.handler;
 
 
+import java.util.Map;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.ExitFromCareSubmissionElement;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Handles the {@code <exitFromCare>} tag

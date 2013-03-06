@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import junit.framework.Assert;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
@@ -828,5 +827,4 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-	
 }

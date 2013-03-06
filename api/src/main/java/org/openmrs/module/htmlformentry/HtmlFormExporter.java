@@ -89,7 +89,7 @@ public class HtmlFormExporter {
 		
 		try {
 			xml = generator.applyMacros(xml);
-			xml = generator.applyTemplates(xml);
+			xml = generator.applyRepeats(xml);
 		}
 		catch (Exception e) {
 			throw new APIException("Unable to process macros and templates when processing form to make it shareable", e);

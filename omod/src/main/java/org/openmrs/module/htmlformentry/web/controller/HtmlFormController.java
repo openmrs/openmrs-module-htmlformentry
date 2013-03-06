@@ -3,6 +3,8 @@ package org.openmrs.module.htmlformentry.web.controller;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,6 +70,7 @@ public class HtmlFormController {
 	 */
 	@RequestMapping(value="/module/htmlformentry/htmlForm", method=RequestMethod.GET)
 	public void showHtmlForm(Model model,
+                             HttpSession httpSession,
 	                         @ModelAttribute("htmlForm") HtmlForm htmlForm) {
 		HtmlForm hf = (HtmlForm) model.asMap().get("htmlForm");
 		if (hf.getId() == null) {
@@ -75,7 +78,7 @@ public class HtmlFormController {
 		} else {
 			try {
                 Patient demo = HtmlFormEntryUtil.getFakePerson();
-                FormEntrySession fes = new FormEntrySession(demo, hf.getXmlData());
+                FormEntrySession fes = new FormEntrySession(demo, hf.getXmlData(), httpSession);
                 String html = fes.getHtmlToDisplay();
                 if (fes.getFieldAccessorJavascript() != null) {
                 	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";

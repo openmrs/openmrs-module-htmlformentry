@@ -1,5 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -29,14 +38,6 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
  * fill out or to view. </p> Creating one of these requires an HtmlForm object, or at least the xml
@@ -51,11 +52,6 @@ import java.util.Map;
  * To validate and submit a form you need to do something like this:
  * <p/>
  * <pre>
- *
- *
- *
- * {
- * 	&#064;code
  * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
@@ -108,6 +104,8 @@ public class FormEntrySession {
     
     private String hasChangedInd = "false";
 
+    private HttpSession httpSession;
+
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the
      * specified {@Mode}
@@ -115,10 +113,13 @@ public class FormEntrySession {
      * @param patient
      * @param mode
      * @param defaultLocation
+     * @param httpSession
      */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation) {
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation, HttpSession httpSession) {
         context = new FormEntryContext(mode);
         context.setDefaultLocation(defaultLocation);
+        context.setHttpSession(httpSession);
+        this.httpSession = httpSession;
         this.patient = patient;
         context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
@@ -139,6 +140,8 @@ public class FormEntrySession {
         velocityContext.put("patient", patient);
         velocityContext.put("fn", new VelocityFunctions(this));
         velocityContext.put("user", Context.getAuthenticatedUser());
+        velocityContext.put("session", this);
+        velocityContext.put("context", context);
 
         {
             Map<String, List<String>> identifiers = new HashMap<String, List<String>>();
@@ -206,9 +209,10 @@ public class FormEntrySession {
      *
      * @param patient
      * @param mode
+     * @param httpSession
      */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode) {
-        this(patient, mode, null);
+    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, HttpSession httpSession) {
+        this(patient, mode, null, httpSession);
     }
 
     /**
@@ -217,10 +221,11 @@ public class FormEntrySession {
      *
      * @param patient
      * @param xml
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, String xml) throws Exception {
-        this(patient, Mode.ENTER);
+    public FormEntrySession(Patient patient, String xml, HttpSession httpSession) throws Exception {
+        this(patient, Mode.ENTER, httpSession);
         submissionController = new FormSubmissionController();
 
         this.htmlToDisplay = createForm(xml);
@@ -232,18 +237,22 @@ public class FormEntrySession {
      *
      * @param patient
      * @param htmlForm
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, HtmlForm htmlForm) throws Exception {
-        this(patient, htmlForm, Mode.ENTER);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, HttpSession httpSession) throws Exception {
+        this(patient, htmlForm, Mode.ENTER, httpSession);
     }
 
-    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode) throws Exception {
-        this(patient, htmlForm, mode, null);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, HttpSession httpSession) throws Exception {
+        this(patient, htmlForm, mode, null, httpSession, true, false);
     }
 
-    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation) throws Exception {
-        this(patient, mode, defaultLocation);
+    public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation, HttpSession httpSession,
+                            boolean automaticClientSideValidation, boolean clientSideValidationHints) throws Exception {
+        this(patient, mode, defaultLocation, httpSession);
+        this.context.setAutomaticClientSideValidation(automaticClientSideValidation);
+        this.context.setClientSideValidationHints(clientSideValidationHints);
         this.htmlForm = htmlForm;
         this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated() : htmlForm
                 .getDateChanged()).getTime();
@@ -265,10 +274,11 @@ public class FormEntrySession {
      *
      * @param patient
      * @param form
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, Form form) throws Exception {
-        this(patient, Mode.ENTER);
+    public FormEntrySession(Patient patient, Form form, HttpSession httpSession) throws Exception {
+        this(patient, Mode.ENTER, httpSession);
         this.form = form;
 
         velocityContext.put("form", form);
@@ -288,10 +298,11 @@ public class FormEntrySession {
      * @param encounter
      * @param mode
      * @param htmlForm
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm) throws Exception {
-        this(patient, encounter, mode, htmlForm, null);
+    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, HttpSession httpSession) throws Exception {
+        this(patient, encounter, mode, htmlForm, null, httpSession, true, false);
     }
 
     /**
@@ -303,11 +314,15 @@ public class FormEntrySession {
      * @param mode
      * @param htmlForm
      * @param defaultLocation
+     * @param httpSession
      * @throws Exception
      */
-    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, Location defaultLocation)
-            throws Exception {
-        this(patient, mode, defaultLocation);
+    public FormEntrySession(Patient patient, Encounter encounter, Mode mode, HtmlForm htmlForm, Location defaultLocation,
+                            HttpSession httpSession, boolean automaticClientSideValidation,
+                            boolean clientSideValidationHints) throws Exception {
+        this(patient, mode, defaultLocation, httpSession);
+        this.context.setAutomaticClientSideValidation(automaticClientSideValidation);
+        this.context.setClientSideValidationHints(clientSideValidationHints);
         this.htmlForm = htmlForm;
         if (htmlForm != null) {
             if (htmlForm.getId() != null)
@@ -391,7 +406,7 @@ public class FormEntrySession {
         xml = htmlGenerator.applyExcludes(this, xml);
         xml = htmlGenerator.applyRoleRestrictions(xml);
         xml = htmlGenerator.applyMacros(xml);
-        xml = htmlGenerator.applyTemplates(xml);
+        xml = htmlGenerator.applyRepeats(xml);
         xml = htmlGenerator.applyTranslations(xml, context);
         xml = htmlGenerator.applyTags(this, xml);
 
@@ -470,17 +485,7 @@ public class FormEntrySession {
         }
 
         // remove any obs groups that don't contain children
-        for (Iterator<Obs> iter = submissionActions.getObsToCreate().iterator(); iter.hasNext(); ) {
-            Obs o = iter.next();
-            if (o.hasGroupMembers())
-                continue;
-            if (!StringUtils.hasText(o.getValueAsString(Context.getLocale()))) {
-                // this has no value, and we already checked for children. So remove it.
-                log.trace("Removing empty obs group");
-                o.getEncounter().removeObs(o);
-                iter.remove();
-            }
-        }
+		HtmlFormEntryUtil.removeEmptyObs(submissionActions.getObsToCreate());
 
         // propagate encounterDatetime to Obs where necessary
         if (submissionActions.getObsToCreate() != null) {
@@ -631,9 +636,7 @@ public class FormEntrySession {
                     log.debug("voiding obs: " + o.getObsId());
                 obsService.voidObs(o, "htmlformentry");
                 // if o was in a group and it has no obs left, void the group
-                if (noObsLeftInGroup(o.getObsGroup())) {
-                    obsService.voidObs(o.getObsGroup(), "htmlformentry");
-                }
+				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
             }
         }
 
@@ -697,14 +700,20 @@ public class FormEntrySession {
      * @param group
      * @return
      */
-    private boolean noObsLeftInGroup(Obs group) {
-        if (group == null)
-            return false;
-        for (Obs member : group.getGroupMembers()) {
-            if (!member.isVoided())
-                return false;
-        }
-        return true;
+    private void voidObsGroupIfAllChildObsVoided(Obs group) {
+		if (group != null) {
+
+            // probably should be able to just tet if group.getGroupMembers() == 0 since
+            // getGroupMembers only returns non-voided members?
+			boolean allObsVoided = true;
+			for (Obs member : group.getGroupMembers()) {
+				allObsVoided = allObsVoided && member.isVoided();
+			}
+			if (allObsVoided) {
+				Context.getObsService().voidObs(group, "htmlformentry");
+			}
+			voidObsGroupIfAllChildObsVoided(group.getObsGroup());
+		}
     }
 
     /**
@@ -1012,5 +1021,16 @@ public class FormEntrySession {
 		this.hasChangedInd = hasChangedInd;
 	}
 
+    public HttpSession getHttpSession() {
+        return httpSession;
+    }
+
+    public void setAutomaticClientSideValidation(boolean automaticClientSideValidation) {
+        context.setAutomaticClientSideValidation(automaticClientSideValidation);
+    }
+
+    public void setClientSideValidationHints(boolean clientSideValidationHints) {
+        context.setClientSideValidationHints(true);
+    }
 
 }

@@ -67,10 +67,17 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
     private boolean required = false;
 
     public RelationshipSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
+        String relationshipsToBeCreated = parameters.get(FIELD_TYPE);
+        String whoAmI = parameters.get(FIELD_WHO_AM_I);
+        String replaceCurrent = parameters.get(FIELD_REPLACE_CURRENT);
+
+        if (relationshipsToBeCreated == null || whoAmI == null || replaceCurrent == null){
+            throw new RuntimeException("You must include type, whoAmI and changeExistingRelationship" +
+                    " fields in a relationship tag, all three fields are required");
+        }
 
         relationshipWidget = new RelationshipWidget();
 
-        String relationshipsToBeCreated = parameters.get(FIELD_TYPE);
         if (relationshipsToBeCreated != null) {
             String[] relationships = relationshipsToBeCreated.split(",");
 
@@ -89,7 +96,6 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
             relationshipWidget.setRelationshipsToCreate(relationshipsToCreate);
         }
 
-        String whoAmI = parameters.get(FIELD_WHO_AM_I);
         if (whoAmI != null) {
             String[] who = whoAmI.split(",");
             for (String side : who) {
@@ -99,7 +105,6 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
             relationshipWidget.setRoleInRelationship(roleInRelationship);
         }
 
-        String replaceCurrent = parameters.get(FIELD_REPLACE_CURRENT);
         if (replaceCurrent != null) {
             String[] replace = replaceCurrent.split(",");
             for (String rep : replace) {

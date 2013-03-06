@@ -1,16 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Assert;
-import org.openmrs.Encounter;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.mock.web.MockHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,6 +19,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.junit.Assert;
+import org.openmrs.Encounter;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
 
 public abstract class RegressionTestHelper {
 	
@@ -257,10 +260,11 @@ public abstract class RegressionTestHelper {
 		testFormEntrySessionAttribute(session);
 		String html = session.getHtmlToDisplay();
 		testBlankFormHtml(html);
-		
+
 		// submit some initial data and test it
 		Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
 		MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setSession(session.getHttpSession());
 		setupRequest(request, labeledWidgets);
 		Patient patientToView = null;
 		Encounter encounterToView = null;
@@ -270,7 +274,7 @@ public abstract class RegressionTestHelper {
 			patientToView = results.getPatient();
 			encounterToView = results.getEncounterCreated();
 		}
-		
+
 		// view that patient and run tests on it
 		Patient overridePatient = getPatientToView();
 		boolean doViewPatient = overridePatient != null || doViewPatient();
@@ -282,42 +286,43 @@ public abstract class RegressionTestHelper {
 			html = session.getHtmlToDisplay();
 			testViewingPatient(patientToView, html);
 		}
-		
+
 		// view that encounter and run tests on that
 		Encounter override = getEncounterToView();
 		boolean doViewEncounter = override != null || doViewEncounter();
 		if (doViewEncounter) {
 			if (override != null)
 				encounterToView = override;
+
 			session = setupFormViewSession(patientToView, encounterToView, getFormName());
 			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingEncounter(encounterToView, html);
 		}
-		
+
 		// edit the encounter, and run tests on that
 		override = getEncounterToEdit();
 		boolean doEditEncounter = override != null || doEditEncounter();
-		
+
 		overridePatient = getPatientToEdit();
 		boolean doEditPatient = overridePatient != null || doEditPatient();
-		
+
 		if (doEditEncounter || doEditPatient) {
 			Encounter toEdit = encounterToView;
 			if (override != null)
 				toEdit = override;
-			
+
 			Patient patientToEdit = patientToView;
 			if (overridePatient != null)
 				patientToEdit = overridePatient;
-			
+
 			session = setupFormEditSession(patientToEdit, toEdit, getFormName());
 			testFormEditSessionAttribute(session);
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
-			
+
 			Map<String, String> labeledWidgetsForEdit = getLabeledWidgets(editHtml, widgetLabelsForEdit());
-			MockHttpServletRequest editRequest = createEditRequest(editHtml);
+			MockHttpServletRequest editRequest = createEditRequest(editHtml, session.getHttpSession());
 			setupEditRequest(editRequest, labeledWidgetsForEdit);
 			if (editRequest.getParameterMap().size() > 0) {
 				SubmissionResults results = doSubmission(session, editRequest);
@@ -326,11 +331,12 @@ public abstract class RegressionTestHelper {
 				results.getPatient();
 			}
 		}
-		
+
 	}
-	
-	private MockHttpServletRequest createEditRequest(String html) {
+
+	private MockHttpServletRequest createEditRequest(String html, HttpSession httpSession) {
 		MockHttpServletRequest ret = new MockHttpServletRequest();
+        ret.setSession(httpSession);
 		
 		// used for input and for select option
 		Pattern forValue = Pattern.compile("value=\"(.*?)\"");
@@ -407,7 +413,7 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
-		FormEntrySession session = new FormEntrySession(patient, null, FormEntryContext.Mode.ENTER, fakeForm);
+		FormEntrySession session = new FormEntrySession(patient, null, FormEntryContext.Mode.ENTER, fakeForm, new MockHttpSession());
 		return session;
 	}
 	
@@ -417,7 +423,7 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
-		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.VIEW, fakeForm);
+		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.VIEW, fakeForm, new MockHttpSession());
 		return session;
 	}
 	
@@ -427,7 +433,7 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
-		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, fakeForm);
+		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, fakeForm, new MockHttpSession());
 		return session;
 	}
 	
@@ -699,6 +705,16 @@ public abstract class RegressionTestHelper {
 			assertEncounterType();
 			Assert.assertEquals(expectedEncounterTypeId, getEncounterCreated().getEncounterType().getEncounterTypeId());
 		}
+
+        public void assertEncounterDatetime() {
+            assertEncounterCreated();
+            Assert.assertNotNull(getEncounterCreated().getEncounterDatetime());
+        }
+
+        public void assertEncounterDatetime(Date expectedEncounterDate) {
+            assertEncounterDatetime();
+            Assert.assertEquals(expectedEncounterDate, getEncounterCreated().getEncounterDatetime());
+        }
 
 		/**
 		 * Fails if the number of obs in encounterCreated is not 'expected'

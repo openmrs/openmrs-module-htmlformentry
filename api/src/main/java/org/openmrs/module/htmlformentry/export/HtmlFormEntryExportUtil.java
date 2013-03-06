@@ -67,7 +67,7 @@ public class HtmlFormEntryExportUtil {
      */
     public static Map<Integer, String> getSectionIndex(HtmlForm htmlForm) throws Exception{
         Document doc = HtmlFormEntryUtil.stringToDocument(htmlForm.getXmlData());
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlForm);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlForm, null); // session gets a null HttpSession
         NodeList nl = doc.getElementsByTagName("section");
         Map<Integer, String> ret = new LinkedHashMap<Integer, String>();
         for (int i = 0; i < nl.getLength(); i++){
@@ -161,7 +161,7 @@ public class HtmlFormEntryExportUtil {
     public static Encounter trimEncounterToMatchForm(Encounter e, HtmlForm htmlform) throws Exception {
         
        //this should move existing obs from session to tag handlers.
-        FormEntrySession session = new FormEntrySession(e.getPatient(), e, FormEntryContext.Mode.VIEW, htmlform);
+        FormEntrySession session = new FormEntrySession(e.getPatient(), e, FormEntryContext.Mode.VIEW, htmlform, null); // session gets a null HttpSession
         
         if (log.isDebugEnabled()){
             Map<Concept, List<Obs>>  map = session.getContext().getExistingObs();
@@ -238,7 +238,7 @@ public class HtmlFormEntryExportUtil {
      * @throws Exception
      */ 
     public static String generateColumnHeadersFromHtmlForm(HtmlForm form, List<String> extraCols, StringBuffer sb, List<PatientIdentifierType> pitList) throws Exception {
-        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), form);
+        FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), form, null); // session gets a null HttpSession
         HtmlFormSchema hfs = session.getContext().getSchema();
         
         sb.
@@ -375,7 +375,7 @@ public class HtmlFormEntryExportUtil {
                 index ++;
             }
             
-            FormEntrySession session = new FormEntrySession(e.getPatient(), e, Mode.VIEW, form);
+            FormEntrySession session = new FormEntrySession(e.getPatient(), e, Mode.VIEW, form, null); // session doesn't get HttpSession
             FormSubmissionController  fsa = session.getSubmissionController();
             List<FormSubmissionControllerAction> actions = fsa.getActions();
             for (FormSubmissionControllerAction fsca : actions){

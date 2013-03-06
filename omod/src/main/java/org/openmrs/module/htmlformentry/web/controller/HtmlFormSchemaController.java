@@ -2,6 +2,8 @@ package org.openmrs.module.htmlformentry.web.controller;
 
 import java.io.File;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
@@ -33,7 +35,7 @@ public class HtmlFormSchemaController {
     @RequestMapping("/module/htmlformentry/htmlFormSchema")
     public void viewSchema(@RequestParam(value="id", required=false) Integer id,
                            @RequestParam(value="filePath", required=false) String filePath,
-                           Model model) throws Exception {
+                           Model model, HttpSession httpSession) throws Exception {
         String message = "";
         String xml = null;
         if (StringUtils.hasText(filePath)) {
@@ -63,7 +65,7 @@ public class HtmlFormSchemaController {
 		Patient p = HtmlFormEntryUtil.getFakePerson();
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
-        FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm);
+        FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm, httpSession);
         HtmlFormSchema schema = fes.getContext().getSchema();
         model.addAttribute("schema", schema);
         model.addAttribute("message", message);

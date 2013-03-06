@@ -13,14 +13,14 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.Map;
-import java.util.Set;
 
 public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
 
@@ -30,7 +30,7 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
 
         AutocompleteWidget autocompleteWidget = null;
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
         FormEntryContext enterContext = session.getContext();
         Map<Widget, String> widgets = enterContext.getFieldNames();
         Set<Map.Entry<Widget,String>> entries = widgets.entrySet();
@@ -60,7 +60,7 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
 
         AutocompleteWidget autocompleteWidget = null;
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
         FormEntryContext enterContext = session.getContext();
         Map<Widget, String> widgets = enterContext.getFieldNames();
         Set<Map.Entry<Widget,String>> entries = widgets.entrySet();

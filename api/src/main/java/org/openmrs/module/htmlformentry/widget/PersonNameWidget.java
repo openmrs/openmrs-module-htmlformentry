@@ -4,8 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.PersonName;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
 
 /**

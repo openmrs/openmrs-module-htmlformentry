@@ -14,7 +14,14 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -150,7 +157,6 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
 
-			String typeId = attributes.get("identifierTypeId");
 			if (idType != null) {
 				identifierTypeWidget = new HiddenFieldWidget();
 				createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
@@ -331,28 +337,41 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		}
  
 		if (identifierTypeValueWidget != null && identifierTypeWidget != null) {
-			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
+			String identifier = (String) identifierTypeValueWidget.getValue(context, request);
+			PatientIdentifierType identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
+
+			// Look for an existing identifier of this type
+			PatientIdentifier patientIdentifier = patient.getPatientIdentifier(identifierType);
+
+			// No existing identifier of this type, so create new
 			if (patientIdentifier == null) {
 				patientIdentifier = new PatientIdentifier();
+				patientIdentifier.setIdentifierType(identifierType);
+
 				// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
 				patientIdentifier.setDateChanged(new Date());
 				patientIdentifier.setUuid(UUID.randomUUID().toString());
+
+				// For 1.9+ onwards patients require a preferred identifier
+				if (patient.getPatientId() == null) {
+					patientIdentifier.setPreferred(true);
+				}
+
 				patient.addIdentifier(patientIdentifier);
 			}
-			
-			String identifier = (String) identifierTypeValueWidget.getValue(context, request);
-			
-			PatientIdentifierType identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
 
 			if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
 				validateIdentifier(identifierType.getId(), identifier);
 			}
-			
-			patientIdentifier.setIdentifierType(identifierType);
+
 			patientIdentifier.setIdentifier(identifier);
-			patientIdentifier.setPreferred(true);
 		}
 
+		//
+		// TODO current behavior always updates location of the preferred identifier rather than
+		// a specific identifier type being edited by the identifier widget. But identifier location
+		// widget isn't aware of the identifier type widget
+		//
 		if (identifierLocationWidget != null) {
 			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
 			if (patientIdentifier == null) {
@@ -361,7 +380,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			}
 
 			Object locationString = identifierLocationWidget.getValue(context, request);
-            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
+			Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
 			patientIdentifier.setLocation(location);
 			patientIdentifier.setPreferred(true);
 

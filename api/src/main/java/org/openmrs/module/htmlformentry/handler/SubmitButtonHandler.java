@@ -3,10 +3,10 @@ package org.openmrs.module.htmlformentry.handler;
 import java.util.Map;
 
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.Translator;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
 /**
  * Handles the {@code <submit>} tag

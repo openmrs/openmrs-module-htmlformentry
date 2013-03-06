@@ -81,13 +81,13 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfWorkflowIdMissing() throws Exception {
 		String htmlform = "<htmlform><workflowState/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
 	public void shouldDisplayOnlyInitialStateIfNotEnrolled() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		assertNotPresent(session, MIDDLE_STATE);
 		assertNotPresent(session, END_STATE);
@@ -98,7 +98,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		transitionToState(START_STATE);
 		
 		String htmlform = "<htmlform><workflowState workflowId=\"100\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		assertPresent(session, MIDDLE_STATE);
 		assertPresent(session, END_STATE);
@@ -109,47 +109,47 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		transitionToState(START_STATE);
 		
 		String htmlform = "<htmlform><workflowState workflowId=\"100\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertNotPresent(session, RETIRED_STATE);
 	}
 	
 	@Test
 	public void shouldDisplayDropdownIfNoStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("option"));
 	}
 	
 	@Test
 	public void shouldDisplayDropdownIfDropdownStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"dropdown\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("option"));
 	}
 	
 	@Test
 	public void shouldDisplayRadioIfRadioStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"radio\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("type=\"radio\""));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndCheckboxStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"checkbox\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndHiddenStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"hidden\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfInvalidStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"invalid\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
@@ -158,7 +158,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "," + END_STATE
 		        + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		assertPresent(session, END_STATE);
 		assertNotPresent(session, MIDDLE_STATE);
@@ -169,7 +169,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		transitionToState(START_STATE);
 		
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"200,201\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		assertPresent(session, END_STATE);
 		assertNotPresent(session, MIDDLE_STATE);
@@ -179,20 +179,20 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldFailIfSpecifiedInvalidStates() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + ",some invalid state,"
 		        + END_STATE + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedDifferentProgramStates() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + ","
 		        + DIFFERENT_PROGRAM_WORKFLOW_STATE + "," + END_STATE + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
 	public void shouldDisplayOnlySpecifiedStateAndDefaultToCheckbox() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		assertNotPresent(session, MIDDLE_STATE);
 		assertNotPresent(session, END_STATE);
@@ -203,7 +203,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_TEST_DATASET));	
 		String htmlform = "<htmlform><workflowState workflowId=\"108\" stateId=\"SNOMED CT:Test Code\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, MAPPED_STATE);
 	}
 	
@@ -211,7 +211,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldDisplayIfSpecifiedStateAndCheckboxStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
 		        + "\" type=\"checkbox\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("checkbox"));
 	}
@@ -220,7 +220,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldDisplayIfSpecifiedStateAndHiddenStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
 		        + "\" type=\"hidden\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, START_STATE);
 		Assert.assertTrue("Checkbox result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("hidden"));
 	}
@@ -229,34 +229,34 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldDisplaySpecifiedStateWithWhitespaces() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"    " + START_STATE
 		        + "      \"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedStateAndDropdownStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
 		        + "\" type=\"dropdown\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedStateAndRadioStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
 		        + "\" type=\"radio\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedInvalidState() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"invalid\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedDifferentProgramState() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + DIFFERENT_PROGRAM_WORKFLOW_STATE
 		        + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
@@ -267,7 +267,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String endState = "Transition to end state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "," + END_STATE
 		        + "\" stateLabels=\"" + startState + ", " + endState + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, startState);
 		assertPresent(session, endState);
 	}
@@ -279,7 +279,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "," + END_STATE
 		        + "\" stateLabels=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -289,7 +289,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "," + END_STATE
 		        + "\" stateLabels=\"" + startState + ",someState,someOtherState\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
@@ -297,7 +297,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE + "\" stateLabel=\""
 		        + startState + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, startState);
 	}
 	
@@ -306,7 +306,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE + "\" stateLabels=\""
 		        + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -314,21 +314,21 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "\" stateLabel=\""
 		        + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStatesAndStateLabel() throws Exception {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateLabel=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStatesAndStateLabels() throws Exception {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateLabels=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -336,14 +336,14 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE + "\" stateLabel=\""
 		        + startState + "\" stateLabels=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform);
+		new FormEntrySession(patient, htmlform, null);
 	}
 	
 	@Test
 	public void shouldDisplayLabel() throws Exception {
 		String label = "Some label text";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" labelText=\"" + label + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform);
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, label);
 	}
 	
@@ -1747,8 +1747,184 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			
 		}.run();
 	}
-	
-	/**
+
+
+    @Test
+    public void shouldNotEnrollInProgramTwiceIfTwoWorkflowStateSelectorsOnForm() throws Exception {
+        //Given: Patient has no workflow state and is not enrolled in the program
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "workflowStateFormWithTwoWorkflows";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "State:", "AnotherState:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                //When: Html form is entered in which workflow state Y is selected
+                request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+                request.addParameter(widgets.get("State:"), START_STATE);
+                request.addParameter(widgets.get("AnotherState:"), "67337cdc-53ad-11e1-8cb6-00248140a5eb");    // workflow state 207 in regressionTestData
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+
+                Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+
+                // double check that states have been set
+                ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+                ProgramWorkflowState anotherState = Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb");
+                PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+                PatientState patientState = getPatientState(patientProgram, state, DATE);
+                PatientState anotherPatientState = getPatientState(patientProgram, anotherState, DATE);
+
+                Assert.assertNotNull(patientProgram);
+                Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+                Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+                Assert.assertEquals(dateAsString(DATE), dateAsString(anotherPatientState.getStartDate()));
+
+            }
+        }.run();
+    }
+
+    @Test
+    public void shouldNotEnrollInProgramAgainIfPatientAlreadyEnrolledInProgram() throws Exception {
+
+        // create a program enrollment for test patient
+        PatientProgram patientProgram = new PatientProgram();
+        patientProgram.setPatient(patient);
+        patientProgram.setProgram(Context.getProgramWorkflowService().getProgram(10));
+        patientProgram.setDateEnrolled(PAST_DATE);
+        Context.getProgramWorkflowService().savePatientProgram(patientProgram);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return XML_FORM_NAME;
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "State:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                //When: Html form is entered in which workflow state Y is selected
+                request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+                request.addParameter(widgets.get("State:"), START_STATE);
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+
+                Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+
+                // double check that state has been set
+                ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+                PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+                PatientState patientState = getPatientState(patientProgram, state, DATE);
+
+                Assert.assertNotNull(patientProgram);
+                Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+                Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+            }
+        }.run();
+    }
+
+    @Test
+    public void shouldNotEnrollInProgramOnEditIfPatientAlreadyEnrolledInProgram() throws Exception {
+
+        // create a program enrollment for test patient
+        PatientProgram patientProgram = new PatientProgram();
+        patientProgram.setPatient(patient);
+        patientProgram.setProgram(Context.getProgramWorkflowService().getProgram(10));
+        patientProgram.setDateEnrolled(PAST_DATE);
+        Context.getProgramWorkflowService().savePatientProgram(patientProgram);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return XML_FORM_NAME;
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "State:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                // on first submit, don't submit any state
+                request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+                request.addParameter(widgets.get("State:"), "");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+
+                // sanity check
+                Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+
+                // sanity check: program should not yet be in the start state
+                ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+                PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+                Assert.assertNull(patientProgram);
+            }
+
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            public String[] widgetLabelsForEdit() {
+                return new String[] { "Date:", "Location:", "Provider:", "State:" };
+            }
+
+            public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+                request.setParameter(widgets.get("Location:"), "2");
+                request.setParameter(widgets.get("Provider:"), "502");
+                request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+                request.setParameter(widgets.get("State:"), START_STATE);
+            }
+
+            public void testEditedResults(SubmissionResults results) {
+                results.assertNoErrors();
+
+                Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+
+                // double check that state has been set
+                ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+                PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+                PatientState patientState = getPatientState(patientProgram, state, DATE);
+
+                Assert.assertNotNull(patientProgram);
+                Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+                Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+            }
+        }.run();
+    }
+
+    /**
 	 * @param session
 	 */
 	private void assertNotPresent(FormEntrySession session, String state) {

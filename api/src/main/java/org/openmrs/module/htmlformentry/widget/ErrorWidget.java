@@ -12,7 +12,7 @@ public class ErrorWidget implements Widget {
     @Override
     public String generateHtml(FormEntryContext context) {
     	// error widgets are always hidden at first--they are revealed by javascript if necessary  
-        return "<span class=\"error\" style=\"display: none\" id=\"" + context.getFieldName(this) + "\"></span>";
+        return "<span class=\"error field-error\" style=\"display: none\" id=\"" + context.getFieldName(this) + "\"></span>";
     }
 
     @Override

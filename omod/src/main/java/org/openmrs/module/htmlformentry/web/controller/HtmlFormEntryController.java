@@ -158,10 +158,10 @@ public class HtmlFormEntryController {
 			patient = new Patient();			
 		}
 		if (encounter != null) {
-			session = new FormEntrySession(patient, encounter, mode, htmlForm);				
+			session = new FormEntrySession(patient, encounter, mode, htmlForm, request.getSession());
 		} 
 		else {
-			session = new FormEntrySession(patient, htmlForm);
+			session = new FormEntrySession(patient, htmlForm, request.getSession());
 		}
 
         if (StringUtils.hasText(returnUrl)) {
@@ -227,7 +227,7 @@ public class HtmlFormEntryController {
         
     	try {
             session.getSubmissionController().handleFormSubmission(session, request);
-            session.applyActions();
+            HtmlFormEntryUtil.getService().applyActions(session);
             String successView = session.getReturnUrlWithParameters();
             if (successView == null)
                 successView = request.getContextPath() + "/patientDashboard.form" + getQueryPrameters(request, session);

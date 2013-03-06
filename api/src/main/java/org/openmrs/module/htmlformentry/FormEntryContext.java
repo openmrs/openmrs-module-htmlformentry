@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -46,6 +48,12 @@ import org.openmrs.util.OpenmrsUtil;
  * TODO rename this class: it's really more of the html generation context than a form entry context
  * </p>
  * TODO move Mode class up to FormEntrySession instead?
+ * <p>
+ * 'automaticClientSideValidation' means that elements and widgets should generate HTML that does things like numeric range
+ * checking when you blur a text field.
+ * 'clientSideValidationHints' means that elements and widgets should generate HTML where inputs have classes like "required"
+ * and "numeric-range", and attributes like "min" and "max".
+ * </p>
  */
 public class FormEntryContext {
 
@@ -77,7 +85,11 @@ public class FormEntryContext {
     private boolean unmatchedMode = false;
     
     private boolean guessingInd = false;
-    
+    private HttpSession httpSession;
+
+    private boolean automaticClientSideValidation = true;
+    private boolean clientSideValidationHints = false;
+
     public FormEntryContext(Mode mode) {
         this.mode = mode;
         setupExistingData((Encounter) null);
@@ -337,7 +349,7 @@ public class FormEntryContext {
     
     /**
      * 
-     * Sets obs associated with an obs groups in existin obs groups.
+     * Sets obs associated with an obs groups in existing obs groups.
      * 
      * @param oSet the obsGroup to add to existingObsInGroups
      */     
@@ -389,11 +401,40 @@ public class FormEntryContext {
         }
         return null;
     }
-    
-	/**
+
+    /**
+     * Finds whether there is existing obs created for the question concept and numeric answer,
+     * returns that <obs> if any, Use this only when datatype is numeric and style="checkbox"
+     *
+     * @param question - the concept associated with the Obs to acquire
+     * @param numericAns - numeric answer given with <obs/> declaration
+     * @return the matching Obs, if any
+     */
+    public Obs removeExistingObs(Concept question, String numericAns) {
+
+        Number numVal = Double.valueOf(numericAns);
+        List<Obs> list = existingObs.get(question);
+        if (list != null) {
+            for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
+                Obs test = iter.next();
+                if (test.getValueNumeric().equals(numVal)) {
+                    iter.remove();
+                    if (list.size() == 0) {
+                        existingObs.remove(question);
+                    }
+                    return test;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
 	 * 
-	 * @param question the concept associated with the Obs to remove
+	 * @param concept - question the concept associated with the Obs to remove
 	 * @return
 	 */
 	public Order removeExistingOrder(Concept concept) {
@@ -432,7 +473,7 @@ public class FormEntryContext {
 	/**
      * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
      * 
-     * @param question the concept associated with the Obs to remove
+     * @param drug- the drug associated with the DrugOrder to remove
      * @return
      */
     public DrugOrder removeExistingDrugOrder(Drug drug) {
@@ -477,8 +518,8 @@ public class FormEntryContext {
      * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs.
      * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
      * 
-     * param question the concept associated with the Obs to remove
-     * @param parseBoolean the boolean value of the obs
+     * @param question - the concept associated with the Obs to remove
+     * @param answer - the boolean value of the obs
      * @return
      */
     public Obs removeExistingObs(Concept question, Boolean answer) {
@@ -621,7 +662,15 @@ public class FormEntryContext {
     public HtmlFormSchema getSchema() {
     	return schema;
     }
-    
+
+    public void setHttpSession(HttpSession httpSession) {
+        this.httpSession = httpSession;
+    }
+
+    public HttpSession getHttpSession() {
+        return httpSession;
+    }
+
     /**
      * Modes associated with the HTML Form context
      */
@@ -763,4 +812,19 @@ public class FormEntryContext {
 		this.unmatchedMode = unmatchedMode;
 	}
 
+    public boolean isAutomaticClientSideValidation() {
+        return automaticClientSideValidation;
+    }
+
+    public void setAutomaticClientSideValidation(boolean automaticClientSideValidation) {
+        this.automaticClientSideValidation = automaticClientSideValidation;
+    }
+
+    public boolean isClientSideValidationHints() {
+        return clientSideValidationHints;
+    }
+
+    public void setClientSideValidationHints(boolean clientSideValidationHints) {
+        this.clientSideValidationHints = clientSideValidationHints;
+    }
 }

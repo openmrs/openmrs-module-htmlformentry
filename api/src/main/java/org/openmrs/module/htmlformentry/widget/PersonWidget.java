@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.openmrs.Person;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
 
 /**

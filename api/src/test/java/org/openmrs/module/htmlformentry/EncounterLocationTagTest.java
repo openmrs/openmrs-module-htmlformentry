@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,10 +26,6 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -43,7 +42,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
@@ -51,7 +50,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void encounterLocationTag_shouldDisplayEnterOptionIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") == -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") > -1);
 	}
@@ -59,7 +58,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void encounterLocationTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"invalid\" /></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
@@ -67,7 +66,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
     @Test
     public void encounterLocationTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
-        FormEntrySession session = new FormEntrySession(null, htmlform);
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
         Assert.assertTrue(session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Test Location\"") > -1);
     }
 
@@ -75,7 +74,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
     @Test
 	public void encounterLocationTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
@@ -89,7 +88,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Context.getAdministrationService().saveGlobalProperty(new GlobalProperty(GP_NAME, GP_VALUE));
 		
 		String htmlform = "<htmlform><encounterLocation default=\"GlobalProperty:" + GP_NAME + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertTrue(matcher.find());
@@ -107,7 +106,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Context.getAuthenticatedUser().setUserProperty(UP_NAME, UP_VALUE);
 		
 		String htmlform = "<htmlform><encounterLocation default=\"UserProperty:" + UP_NAME + "\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(null, htmlform);
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 
 
         TestUtil.assertFuzzyContains("<option value=\"2\" selected=\"true\">", session.getHtmlToDisplay());
@@ -116,7 +115,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
     @Test
     public void encounterLocationTag_shouldNotShowRetiredLocations() throws Exception {
         String htmlform = "<htmlform><encounterLocation /></htmlform>";
-        FormEntrySession session = new FormEntrySession(null, htmlform);
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
         TestUtil.assertFuzzyDoesNotContain("<option value=\"3\">Never Never Land</option>", session.getHtmlToDisplay());
     }
 
@@ -138,7 +137,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
         // now render a form using that encounter
         HtmlForm htmlform = new HtmlForm();
         htmlform.setXmlData( "<htmlform><encounterLocation /></htmlform>");
-        FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, htmlform);
+        FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, htmlform, null);
         TestUtil.assertFuzzyContains("<option value=\"3\" selected=\"true\">Never Never Land</option>", session.getHtmlToDisplay());
 
     }

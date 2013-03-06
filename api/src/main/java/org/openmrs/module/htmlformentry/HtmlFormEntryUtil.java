@@ -54,6 +54,7 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.User;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
@@ -303,8 +304,30 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
-	/**
+
+    /**
+     * Finds the first descendant of this node with the given tag name
+     * @param node
+     * @param tagName
+     * @return
+     */
+    public static Node findDescendant(Node node, String tagName) {
+        if (node == null)
+            return null;
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            if (tagName.equals(node.getNodeName()))
+                return node;
+            Node matchingDescendant = findDescendant(child, tagName);
+            if (matchingDescendant != null) {
+                return matchingDescendant;
+            }
+        }
+        return null;
+    }
+
+    /**
 	 * Returns all the attributes associated with a Node
 	 * 
 	 * @param node the Node to retrieve attributes from
@@ -333,8 +356,25 @@ public class HtmlFormEntryUtil {
 		String ret = getNodeAttributes(node).get(attributeName);
 		return (ret == null ? defaultVal : ret);
 	}
-	
-	/**
+
+    /**
+     * @param node
+     * @return the contents of node as a String
+     */
+    public static String getNodeContentsAsString(Node node) {
+        StringWriter sw = new StringWriter();
+        try {
+            Transformer t = TransformerFactory.newInstance().newTransformer();
+            t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            t.setOutputProperty(OutputKeys.INDENT, "yes");
+            t.transform(new DOMSource(node), new StreamResult(sw));
+        } catch (TransformerException ex) {
+            throw new RuntimeException("Error transforming node", ex);
+        }
+        return sw.toString();
+    }
+
+    /**
 	 * Creates a non-persistent "Fake" Person (used when previewing or validating an HTML Form)
 	 * 
 	 * @return the "fake" person
@@ -357,7 +397,7 @@ public class HtmlFormEntryUtil {
 		}
 		
 		for (PersonAttributeType type : Context.getPersonService().getAllPersonAttributeTypes()) {
-			if (type.getFormat().equals("java.lang.String")) {
+			if (type.getFormat() != null && type.getFormat().equals("java.lang.String")) {
 				demo.addAttribute(new PersonAttribute(type, "Test " + type.getName() + " Attribute"));
 			}
 		}
@@ -468,23 +508,41 @@ public class HtmlFormEntryUtil {
 		return c;
 	}
 	
-	/***
-	 * Get the location by: 1)an integer id like 5090 or 2) uuid like
-	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) location name like "Boston" or 4) an id/name
-	 * pair like "501 - Boston" (this format is used when saving a location on a obs as a value
-	 * text) or 5) "GlobalProperty:property.name" or 6) "UserProperty:propertyName"
-	 * 
-	 * @param id
-	 * @return the location if exist, else null
-	 * @should find a location by its locationId
-	 * @should find a location by name
-	 * @should find a location by its uuid
-	 * @should find a location by global property
-	 * @should find a location by user property
-	 * @should return null otherwise
+	/**
+     * This method doesn't support "SessionAttribute:", but is otherwise like the similarly-named method.
+	 * @see #getLocation(String, FormEntryContext)
 	 */
 	public static Location getLocation(String id) {
-		
+        return getLocation(id, null);
+    }
+
+    /**
+     * Get the location by:
+     * <ol>
+     *     <li>an integer id like 5090</li>
+     *     <li>a uuid like "a3e12268-74bf-11df-9768-17cfc9833272"</li>
+     *     <li>a name like "Boston"</li>
+     *     <li>an id/name pair like "501 - Boston" (this format is used when saving a location on a obs as a value text)</li>
+     *     <li>"GlobalProperty:property.name"</li>
+     *     <li>"UserProperty:propertyName"</li>
+     *     <li>"SessionAttribute:attributeName"</li>
+     * </ol>
+     *
+     *
+     * @param id
+     * @param context
+     * @return the location if exist, else null
+     * @should find a location by its locationId
+     * @should find a location by name
+     * @should find a location by its uuid
+     * @should find a location by global property
+     * @should find a location by user property
+     * @should find a location by session attribute
+     * @should not fail if trying to find a location by session attribute and we have no session
+     * @should return null otherwise
+     */
+	public static Location getLocation(String id, FormEntryContext context) {
+
 		Location location = null;
 		
 		if (id != null) {
@@ -494,7 +552,7 @@ public class HtmlFormEntryUtil {
 				String gpName = id.substring("GlobalProperty:".length());
 				String gpValue = Context.getAdministrationService().getGlobalProperty(gpName);
 				if (StringUtils.isNotEmpty(gpValue)) {
-					return getLocation(gpValue);
+					return getLocation(gpValue, context);
 				}
 			}
 			
@@ -503,11 +561,30 @@ public class HtmlFormEntryUtil {
 				String upName = id.substring("UserProperty:".length());
 				String upValue = Context.getAuthenticatedUser().getUserProperty(upName);
 				if (StringUtils.isNotEmpty(upValue)) {
-					return getLocation(upValue);
+					return getLocation(upValue, context);
 				}
 			}
-			
-			// see if this is parseable int; if so, try looking up by id
+
+            // handle SessionAttribute:attributeName
+            if (id.startsWith("SessionAttribute:")) {
+                if (context.getHttpSession() == null) {
+                    // if we don't have access to a session, e.g. when validating a form, we can't do anything
+                    return null;
+                }
+                String saName = id.substring("SessionAttribute:".length());
+                Object saValue = context.getHttpSession().getAttribute(saName);
+                if (saValue == null) {
+                    return null;
+                } else if (saValue instanceof Location) {
+                    return (Location) saValue;
+                } else if (saValue instanceof String) {
+                    return getLocation((String) saValue, context);
+                } else {
+                    return getLocation(saValue.toString(), context);
+                }
+            }
+
+            // see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int locationId = Integer.parseInt(id);
 				location = Context.getLocationService().getLocation(locationId);
@@ -954,7 +1031,7 @@ public class HtmlFormEntryUtil {
 			Map<Obs, Obs> replacementObs = new HashMap<Obs, Obs>();//new, then source
 			Map<Order, Order> replacementOrders = new HashMap<Order, Order>();//new, then source
 			Encounter eTmp = returnEncounterCopy(e, replacementObs, replacementOrders);
-			FormEntrySession session = new FormEntrySession(eTmp.getPatient(), eTmp, Mode.VIEW, htmlform);
+			FormEntrySession session = new FormEntrySession(eTmp.getPatient(), eTmp, Mode.VIEW, htmlform, null); // session gets a null HttpSession
 			List<FormSubmissionControllerAction> actions = session.getSubmissionController().getActions();
 			Set<Obs> matchedObs = new HashSet<Obs>();
 			Set<Order> matchedOrders = new HashSet<Order>();
@@ -1254,8 +1331,35 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
-	public static PatientProgram getPatientProgram(Patient patient, ProgramWorkflow workflow, Date encounterDatetime) {
+
+    /**
+     * Given a list of patient programs and a program, returns the first patient program
+     * that matches the specified program
+     *
+     * @param patientPrograms
+     * @param program
+     * @return
+     */
+    public static PatientProgram getPatientProgramByProgram(List<PatientProgram> patientPrograms, Program program) {
+
+        for (PatientProgram patientProgram : patientPrograms) {
+            if (patientProgram.getProgram().equals(program)) {
+                return patientProgram;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Given a patient and a program workflow, returns the first patient program that contains
+     * a state in the specified workflow
+     *
+     * @param patient
+     * @param workflow
+     * @return
+     */
+	public static PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow) {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    workflow.getProgram(), null, null, null, null, false);
 		
@@ -1280,7 +1384,33 @@ public class HtmlFormEntryUtil {
 		
 		return patientProgram;
 	}
-	
+
+    /**
+     * If the specified patient is enrolled in the specified program on the specified date,
+     * return the associated patient program, otherwise return null
+     *
+     * @param patient
+     * @param program
+     * @param date
+     * @return
+     */
+    public static PatientProgram getPatientProgramByProgramOnDate(Patient patient, Program program, Date date) {
+
+        List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, date, date, null, false);
+
+        if (patientPrograms.size() > 1) {
+            throw new APIException("Simultaneous program enrollments in same program not supported");
+        }
+
+        if (patientPrograms.size() == 1) {
+            return patientPrograms.get(0);
+        }
+        else {
+            return null;
+        }
+
+    }
+
 	/**
 	 * Checks whether the encounter has a provider specified (including ugly reflection code for
 	 * 1.9+)
@@ -1321,6 +1451,9 @@ public class HtmlFormEntryUtil {
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
 		
+		if (patient.getPatientId() == null)
+			return false;
+		
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
 		    null, date, date, null, false);
 		
@@ -1340,6 +1473,9 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("program should not be null");
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
+		
+		if (patient.getPatientId() == null)
+			return null;
 		
 		PatientProgram closestProgram = null;
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program,
@@ -1439,5 +1575,33 @@ public class HtmlFormEntryUtil {
 		
 		// no match found
 		return null;
+	}
+
+	/**
+	 * Removes any Obs that are empty or which have only empty children
+	 */
+	public static void removeEmptyObs(Collection<Obs> obsList) {
+		if (obsList != null) {
+			Set<Obs> obsToRemove = new HashSet<Obs>();
+			for (Obs o : obsList) {
+				removeEmptyObs(o.getGroupMembers());
+				boolean valueEmpty = StringUtils.isEmpty(o.getValueAsString(Context.getLocale()));
+				boolean membersEmpty = o.getGroupMembers() == null || o.getGroupMembers().isEmpty();
+				if (valueEmpty && membersEmpty) {
+					obsToRemove.add(o);
+				}
+			}
+			for (Obs o : obsToRemove) {
+				if (o.getObsGroup() != null) {
+					o.getObsGroup().removeGroupMember(o);
+					o.setObsGroup(null);
+				}
+				if (o.getEncounter() != null) {
+					o.getEncounter().removeObs(o);
+					o.setEncounter(null);
+				}
+				obsList.remove(o);
+			}
+		}
 	}
 }

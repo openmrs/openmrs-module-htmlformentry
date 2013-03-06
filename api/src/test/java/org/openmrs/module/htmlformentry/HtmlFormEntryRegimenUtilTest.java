@@ -17,7 +17,6 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.regimen.RegimenUtil;
 import org.openmrs.order.RegimenSuggestion;
 import org.openmrs.test.BaseModuleContextSensitiveTest;

@@ -1,0 +1,11 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+		<obsgroup groupingConceptId="3040">
+			<obsgroup groupingConceptId="3025">
+				INH colonies: <obs conceptId="3016"/>
+			</obsgroup>
+		</obsgroup>
+		Result Date: <obs conceptId="3032"/>
+</htmlform>
