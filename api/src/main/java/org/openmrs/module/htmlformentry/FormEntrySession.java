@@ -2,8 +2,6 @@ package org.openmrs.module.htmlformentry;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +37,7 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -108,10 +107,6 @@ public class FormEntrySession {
 
     private HttpSession httpSession;
 
-    private int ageInDays;
-
-    private int ageInMonths;
-
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the
      * specified {@Mode}
@@ -127,9 +122,6 @@ public class FormEntrySession {
         context.setHttpSession(httpSession);
         this.httpSession = httpSession;
         this.patient = patient;
-        if(patient != null){
-            this.ageInMonths = getPatientAgeInMonths(patient.getBirthdate());
-        }
 
         context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
@@ -148,7 +140,6 @@ public class FormEntrySession {
         velocityContext = new VelocityContext();
         velocityContext.put("locale", Context.getLocale());
         velocityContext.put("patient", patient);
-        velocityContext.put("patientAgeInMonths", ageInMonths);
         velocityContext.put("fn", new VelocityFunctions(this));
         velocityContext.put("user", Context.getAuthenticatedUser());
         velocityContext.put("session", this);
@@ -214,33 +205,6 @@ public class FormEntrySession {
         htmlGenerator = new HtmlFormEntryGenerator();
     }
 
-    private Integer getPatientAgeInMonths(Date birthdate) {
-
-        if (birthdate == null){
-           return 0;
-        }
-
-
-        Calendar today = Calendar.getInstance();
-        Calendar dob = Calendar.getInstance();
-        dob.setTime(birthdate);
-        int ageInMonths = 0;
-        int monthsRemain = Math.abs(dob.get(Calendar.MONTH) - today.get(Calendar.MONTH));
-        int age = today.get(Calendar.YEAR) - dob.get(Calendar.YEAR);
-
-        if (today.get(Calendar.MONTH) < dob.get(Calendar.MONTH)) {
-            age--;
-            ageInMonths = (age*12) + (12- monthsRemain);
-
-        }else if (today.get(Calendar.MONTH) == dob.get(Calendar.MONTH)) {
-            ageInMonths = age *12;
-        }else {
-            ageInMonths = (age*12)+ monthsRemain;
-
-        }
-
-        return ageInMonths;
-    }
 
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the

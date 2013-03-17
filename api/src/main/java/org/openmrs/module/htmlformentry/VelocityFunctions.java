@@ -1,8 +1,12 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Months;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -200,4 +204,40 @@ public class VelocityFunctions {
 		}
 		return null;
 	}
+
+ /**
+     *
+     * @return   patient's age given in months
+     * @should  return the ageInMonths accurately to the nearest month
+     */
+
+    public Integer patientAgeInMonths() {
+
+        Patient patient = session.getPatient();
+        if(patient == null || patient.getId() == null || patient.getBirthdate() == null){
+          return 0;     // if there is error in patient's data return age as 0
+        }
+        Date birthdate = patient.getBirthdate();
+        DateTime today = new DateTime();
+        DateTime dob = new DateTime(birthdate.getTime());
+        return Months.monthsBetween(dob.toDateMidnight(), today.toDateMidnight()).getMonths();
+    }
+
+ /**
+     *
+     * @return   patient's age in days
+     * @should  return the ageInDays accurately to the nearest date
+     */
+    public Integer patientAgeInDays(){
+
+        Patient patient = session.getPatient();
+        if(patient == null || patient.getId() == null || patient.getBirthdate() == null){
+          return 0;   // if there is error in patient's data return age as 0
+        }
+        Date birthdate = patient.getBirthdate();
+        DateTime today = new DateTime();
+        DateTime dob = new DateTime(birthdate.getTime());
+        return Days.daysBetween(dob.toDateMidnight(), today.toDateMidnight()).getDays();
+    }
+
 }
