@@ -130,6 +130,17 @@ function removeRow(tableId, anElementInRow) {
 	}
 }
 
+/**
+ * Gets the context path of OpenMRS
+ */
+function getContextPath() {
+	var contextPath = typeof OPENMRS_CONTEXT_PATH == 'undefined' ? openmrsContextPath : OPENMRS_CONTEXT_PATH;
+	if (contextPath.charAt(0) != '/') {
+		contextPath = '/' + contextPath;
+	}
+	return contextPath;
+}
+
 function setupAutocomplete(element,src, answerids, answerclasses) {
 	var hiddenField = jQuery("#"+element.id+"_hid");
 	var textField = jQuery(element);
@@ -147,16 +158,16 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 	if (hiddenField.length > 0 && textField.length > 0) {
 		textField.autocomplete( {
 			 source: function(req, add){
-	            //pass request to server
-                var contextPath = typeof OPENMRS_CONTEXT_PATH == 'undefined' ? openmrsContextPath : OPENMRS_CONTEXT_PATH;
-			    jQuery.getJSON(location.protocol + '//' + location.host + contextPath + '/module/htmlformentry/' + src
+				//pass request to server
+
+			    jQuery.getJSON(location.protocol + '//' + location.host + getContextPath() + '/module/htmlformentry/' + src
                     + '?answerids=' + answerids + '&answerclasses=' + answerclasses, req, function(data) {
 
-			        //create array for response objects
-			        var suggestions = [];
+					//create array for response objects
+					var suggestions = [];
 
-			        jQuery.each(data, function(i, val){
-			        suggestions.push(val);
+					jQuery.each(data, function(i, val){
+					suggestions.push(val);
 		        });
 
                 //this clears the error if it returns no result
