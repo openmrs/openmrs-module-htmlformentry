@@ -1,9 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -22,6 +18,10 @@ import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
 import org.openmrs.logic.result.EmptyResult;
 import org.openmrs.logic.result.Result;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 public class VelocityFunctions {
@@ -214,8 +214,8 @@ public class VelocityFunctions {
     public Integer patientAgeInMonths() {
 
         Patient patient = session.getPatient();
-        if(patient == null || patient.getId() == null || patient.getBirthdate() == null){
-          return 0;     // if there is error in patient's data return age as 0
+        if(patient == null || patient.getBirthdate() == null){
+          return null;     // if there is error in patient's data return age as null
         }
         Date birthdate = patient.getBirthdate();
         DateTime today = new DateTime();
@@ -231,8 +231,8 @@ public class VelocityFunctions {
     public Integer patientAgeInDays(){
 
         Patient patient = session.getPatient();
-        if(patient == null || patient.getId() == null || patient.getBirthdate() == null){
-          return 0;   // if there is error in patient's data return age as 0
+        if(patient == null  || patient.getBirthdate() == null){
+          return null;   // if there is error in patient's data return age as null
         }
         Date birthdate = patient.getBirthdate();
         DateTime today = new DateTime();

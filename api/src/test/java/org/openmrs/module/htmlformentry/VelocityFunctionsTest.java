@@ -1,10 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.Months;
@@ -16,6 +13,10 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 
@@ -98,7 +99,8 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         htmlform.setXmlData("<htmlform></htmlform>");
         
         Patient p = new Patient(patientId);
-        p.setBirthdate(new Date(771000));    // the patient's birthday is set to 1970.01.01 to verify ageInMonths and ageInDays
+        String[] datePattern = {"yyyy.MM.dd"};
+        p.setBirthdate(DateUtils.parseDate("1970.01.01",datePattern ));
         measureAgeInDaysAndMonths(htmlform.getDateChanged(), p.getBirthdate());
         FormEntrySession session = new FormEntrySession(p, htmlform, null);
         return new VelocityFunctions(session);
