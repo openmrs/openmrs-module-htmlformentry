@@ -335,8 +335,22 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
                         }
 					} else { // dropdown
-						valueWidget = new DropdownWidget();
-						((DropdownWidget) valueWidget).addOption(new Option());
+                        Integer size = null;
+                        boolean addEmptyOption = true;
+                        try {
+                            size = Integer.valueOf(parameters.get("selectSize"));
+                        }catch (Exception ex) {}
+                        if(size!=null && size.intValue()>0){
+                            valueWidget = new DropdownWidget(size);
+                            if(required){
+                                addEmptyOption = false;
+                            }
+                        }else{
+                            valueWidget = new DropdownWidget();
+                        }
+                        if(addEmptyOption){
+                            ((DropdownWidget) valueWidget).addOption(new Option());
+                        }
 					}
 					// need to make sure we have the initialValue too
 					Number lookFor = existingObs == null ? null : existingObs.getValueNumeric();

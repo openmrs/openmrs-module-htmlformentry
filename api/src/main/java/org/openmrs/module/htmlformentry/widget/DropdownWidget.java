@@ -7,11 +7,16 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
  * A dropdown widget, like {@code <select name="..."><option value="...">...</option></select>}
  */
 public class DropdownWidget extends SingleOptionWidget {
-    
+
+    private Integer selectSize;
 	/**
 	 * Default Constructor
 	 */
     public DropdownWidget() { }
+
+    public DropdownWidget(Integer selectSize) {
+           this.selectSize = selectSize;
+    }
 
     /**
      * 
@@ -41,7 +46,11 @@ public class DropdownWidget extends SingleOptionWidget {
             }
         } else {
             String id = context.getFieldName(this);
-            sb.append("<select id=\"" + id + "\" name=\"" + id + "\">");
+            sb.append("<select id=\"" + id + "\" name=\"" + id +"\"");
+            if(selectSize!=null){
+                sb.append(" size=").append(selectSize.intValue());
+            }
+            sb.append(">");
             for (int i = 0; i < getOptions().size(); ++i) {
                 Option option = getOptions().get(i);
                 boolean selected = option.isSelected();
