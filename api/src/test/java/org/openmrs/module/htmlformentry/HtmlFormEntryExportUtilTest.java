@@ -74,7 +74,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         String html = session.getHtmlToDisplay();
         System.out.println(html);
         TestUtil.assertFuzzyContains("<span class=\"sectionHeader\">Section One Inner One</span>", html);
-        TestUtil.assertFuzzyContains("ISONIAZID <select id=\"w2\" name=\"w2\"><option value=\"\" selected=\"true\"></option><option value=\"2474\">Susceptible</option><option value=\"3017\">Intermediate</option><option value=\"1441\">Resistant</option></select>", html);
+        TestUtil.assertFuzzyContains("ISONIAZID <select id=\"w2\" name=\"w2\" size=1><option value=\"\" selected=\"true\"></option><option value=\"2474\">Susceptible</option><option value=\"3017\">Intermediate</option><option value=\"1441\">Resistant</option></select>", html);
     }
     
 
