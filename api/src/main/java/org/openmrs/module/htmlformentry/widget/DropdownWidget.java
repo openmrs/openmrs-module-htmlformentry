@@ -8,14 +8,14 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
  */
 public class DropdownWidget extends SingleOptionWidget {
 
-    private Integer selectSize;
+    private Integer size;
 	/**
 	 * Default Constructor
 	 */
     public DropdownWidget() { }
 
-    public DropdownWidget(Integer selectSize) {
-           this.selectSize = selectSize;
+    public DropdownWidget(Integer size) {
+           this.size = size;
     }
 
     /**
@@ -47,8 +47,8 @@ public class DropdownWidget extends SingleOptionWidget {
         } else {
             String id = context.getFieldName(this);
             sb.append("<select id=\"" + id + "\" name=\"" + id +"\"");
-            if(selectSize!=null){
-                sb.append(" size=").append(selectSize.intValue());
+            if(size !=null){
+                sb.append(" size=").append(size.intValue());
             }
             sb.append(">");
             for (int i = 0; i < getOptions().size(); ++i) {
