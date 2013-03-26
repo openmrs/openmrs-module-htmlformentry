@@ -945,13 +945,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.append(commentFieldWidget.generateHtml(context));
 		}
 
-		// if value is required
-		if (required) {
-			ret.append("<span class='required'>*</span>");
-		}
-		
 		if (context.getMode() != Mode.VIEW) {
-			ret.append(" ");
+            // if value is required
+            if (required) {
+                ret.append("<span class='required'>*</span>");
+            }
+            ret.append(" ");
 			ret.append(errorWidget.generateHtml(context));
 		}
 		if (id != null)
