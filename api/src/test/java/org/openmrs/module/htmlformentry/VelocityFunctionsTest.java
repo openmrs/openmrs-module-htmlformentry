@@ -86,8 +86,31 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 		EncounterType type = Context.getEncounterService().getEncounterType(6);
         Assert.assertNull(functions.latestEncounter(type));
 	}
-	
-	/**
+
+    /**
+     *  @see  VelocityFunctions@patientAgeInMonths()
+     *  @verifies return the ageInMonths accurately to the nearest month
+     * @throws Exception
+     */
+    @Test
+    public void patientAgeInMonths_shouldReturnAgeInMonthsAccurateToNearestMonth() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        Assert.assertEquals(ageInMonths,functions.patientAgeInMonths());
+    }
+
+    /**
+     *  @see  VelocityFunctions@patientAgeInDays()
+     *  @verifies return the ageInDays accurately to the nearest date
+     * @throws Exception
+     */
+    @Test
+    public void patientAgeInDays_shouldReturnAgeInDaysAccuratelyToNearestDate() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        Assert.assertEquals(ageInDays,functions.patientAgeInDays());
+    }
+
+
+    /**
 	 * @return a new VelocityFunctions instance for the given patientId
 	 */
 	private VelocityFunctions setupFunctionsForPatient(Integer patientId) throws Exception {
@@ -101,7 +124,7 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         Patient p = new Patient(patientId);
         String[] datePattern = {"yyyy.MM.dd"};
         p.setBirthdate(DateUtils.parseDate("1970.01.01",datePattern ));
-        measureAgeInDaysAndMonths(htmlform.getDateChanged(), p.getBirthdate());
+        measureAgeInDaysAndMonths(new Date(), p.getBirthdate());
         FormEntrySession session = new FormEntrySession(p, htmlform, null);
         return new VelocityFunctions(session);
 	}
@@ -111,28 +134,6 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
                 (new DateTime(birthdate.getTime()).toDateMidnight(), new DateTime(dateChanged.getTime()).toDateMidnight()).getMonths();
         ageInDays = Days.daysBetween
                 (new DateTime(birthdate.getTime()).toDateMidnight(), new DateTime(dateChanged.getTime()).toDateMidnight()).getDays();
-    }
-
-    /**
-     *  @see  VelocityFunctions@patientAgeInMonths()
-     *  @verifies return the ageInMonths accurately to the nearest month
-     * @throws Exception
-     */
-	@Test
-	public void patientAgeInMonths_shouldReturnAgeInMonthsAccurateToNearestMonth() throws Exception {
-       VelocityFunctions functions = setupFunctionsForPatient(7);
-       Assert.assertEquals(ageInMonths,functions.patientAgeInMonths());
-    }
-
-    /**
-     *  @see  VelocityFunctions@patientAgeInDays()
-     *  @verifies return the ageInDays accurately to the nearest date
-     * @throws Exception
-     */
-	@Test
-	public void patientAgeInDays_shouldReturnAgeInDaysAccuratelyToNearestDate() throws Exception {
-       VelocityFunctions functions = setupFunctionsForPatient(7);
-       Assert.assertEquals(ageInDays,functions.patientAgeInDays());
     }
 
 
