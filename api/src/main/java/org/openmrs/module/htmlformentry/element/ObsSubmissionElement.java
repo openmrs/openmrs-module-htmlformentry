@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -50,6 +38,17 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -910,7 +909,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			if (concept instanceof ConceptNumeric) {
 				units = ((ConceptNumeric) concept).getUnits();
 			} else {
-				units = Context.getConceptService().getConceptNumeric(concept.getConceptId()).getUnits();
+				ConceptNumeric asConceptNumeric = Context.getConceptService().getConceptNumeric(concept.getConceptId());
+				if (asConceptNumeric == null) {
+					throw new IllegalStateException("Concept " + concept + " (" + concept.getName().getName() + ") has datatype = Numeric, but no row in concept_numeric");
+				}
+				units = asConceptNumeric.getUnits();
 			}
 			ret.append("<span class=\"" + unitsCssClass + "\">");
             if (unitsCode != null) {
