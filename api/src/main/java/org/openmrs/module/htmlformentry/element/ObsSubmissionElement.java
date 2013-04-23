@@ -339,7 +339,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                             }
                         }
                     }
-                }else {
+                } else {
 					if ("radio".equals(parameters.get("style"))) {
 						valueWidget = new RadioButtonsWidget();
 						if (answerSeparator != null) {
@@ -367,19 +367,24 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					if (lookFor != null)
 						((SingleOptionWidget) valueWidget)
 						        .addOption(new Option(lookFor.toString(), lookFor.toString(), true));
-                }
-                if (valueWidget != null) {
-                    if (existingObs != null) {
-                        valueWidget.setInitialValue(existingObs.getValueNumeric());
-                    } else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
-                        try {
-                            Double initialValue = Double.valueOf(defaultValue);
-                            valueWidget.setInitialValue(initialValue);
-                        } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException("Invalid default value. Cannot parse Double: " + defaultValue, e);
-                        }
-                    }
-                }
+				}
+
+				if (valueWidget != null) {
+					boolean isPrecise = cn != null ? cn.isPrecise() : true; // test data is missing concept numerics
+					Number initialValue = null;
+
+					if (existingObs != null && existingObs.getValueNumeric() != null) {
+						// for non-precise numeric obs, initial value should be rendered as an integer
+						initialValue = isPrecise ? ((Number) existingObs.getValueNumeric()) : existingObs.getValueNumeric().intValue();
+					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+						try {
+							initialValue = isPrecise ? ((Number) Double.valueOf(defaultValue)) : Integer.valueOf(defaultValue);
+						} catch (NumberFormatException e) {
+							throw new IllegalArgumentException("Default value " + defaultValue + " is not a valid " + (isPrecise ? "double" : "integer"), e);
+						}
+					}
+					valueWidget.setInitialValue(initialValue);
+				}
 
 			} else if (concept.getDatatype().isText()) {
 
