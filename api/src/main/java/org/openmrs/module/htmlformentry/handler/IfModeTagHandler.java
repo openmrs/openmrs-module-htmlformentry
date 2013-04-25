@@ -19,14 +19,21 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.w3c.dom.Node;
 
 /**
- * Works like <ifMode mode="ENTER"/> or
+ * Works like <ifNotMode mode="ENTER" include="true" />
  */
 public class IfModeTagHandler extends SimpleConditionalIncludeTagHandler {
 
-    @Override
-    public boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) {
-        String mode = HtmlFormEntryUtil.getNodeAttribute(node, "mode", null);
-        return mode != null && mode.equalsIgnoreCase(session.getContext().getMode().toString());
-    }
+	@Override
+	public boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) {
+		String mode = HtmlFormEntryUtil.getNodeAttribute(node, "mode", null);
+		String include = HtmlFormEntryUtil.getNodeAttribute(node, "include", "true");
 
+		if (mode == null) {
+			throw new RuntimeException("ifMode tag requires the mode attribute");
+		}
+
+		boolean modeIsCurrent = mode.equalsIgnoreCase(session.getContext().getMode().toString());
+
+		return include.equals("true") ? modeIsCurrent : !modeIsCurrent;
+	}
 }
