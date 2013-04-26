@@ -18,5 +18,36 @@
         Edit mode
     </ifMode>
 
+    <ifMode mode="ENTER" include="true">
+        Include True Enter
+        <obs conceptId="5089"/>
+    </ifMode>
+
+    <ifMode mode="VIEW" include="true">
+        Include True View
+        <obs conceptId="5089"/>
+    </ifMode>
+
+    <ifMode mode="EDIT" include="true">
+        Include True Edit
+        <obs conceptId="5089"/>
+    </ifMode>
+
+
+    <ifMode mode="ENTER" include="false">
+        Include False Enter
+        <obs conceptId="5089"/>
+    </ifMode>
+
+    <ifMode mode="VIEW" include="false">
+        Include False View
+        <obs conceptId="5089"/>
+    </ifMode>
+
+    <ifMode mode="EDIT" include="false">
+        Include False Edit
+        <obs conceptId="5089"/>
+    </ifMode>
+
     <submit/>
 </htmlform>
