@@ -3,8 +3,10 @@ package org.openmrs.module.htmlformentry;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -67,7 +69,10 @@ public class FormSubmissionActions {
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
 
     private ExitFromCareProperty exitFromCareProperty;
-	
+
+    // tags added by other modules can store their own actions here for access by their own extenders
+    private Map<String,List<Object>> otherActions = new HashMap<String, List<Object>>();
+
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
 	
@@ -593,6 +598,21 @@ public class FormSubmissionActions {
         }
     }
 
+    /**
+     * Add the specified object for a new action
+     * example use: addOtherAction("ensureEncounterProviderExists", EncounterProvider)
+     *
+     * @param actionName
+     * @param actionObject
+     */
+    public void addOtherAction(String actionName, Object actionObject) {
+        if (!otherActions.containsKey(actionName)) {
+            otherActions.put(actionName, new Vector<Object>());
+        }
+
+        otherActions.get(actionName).add(actionObject);
+    }
+
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
@@ -850,5 +870,13 @@ public class FormSubmissionActions {
 
     public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
         this.exitFromCareProperty = exitFromCareProperty;
+    }
+
+    public Map<String, List<Object>> getOtherActions() {
+        return otherActions;
+    }
+
+    public void setOtherActions(Map<String, List<Object>> otherActions) {
+        this.otherActions = otherActions;
     }
 }
