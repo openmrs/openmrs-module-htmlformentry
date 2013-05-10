@@ -33,6 +33,7 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
@@ -94,6 +95,7 @@ public class FormEntryContext {
         this.mode = mode;
         setupExistingData((Encounter) null);
         schema.addSection(new HtmlFormSection());
+        translator.setDefaultLocaleStr(LocaleUtility.getDefaultLocale().toString());
     }
     
     /**
