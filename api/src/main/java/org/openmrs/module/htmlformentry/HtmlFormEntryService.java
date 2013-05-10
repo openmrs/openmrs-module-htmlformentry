@@ -9,7 +9,6 @@ import org.openmrs.OpenmrsObject;
 import org.openmrs.Person;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
-import org.openmrs.module.htmlformentry.extender.FormSubmissionActionsExtender;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,22 +90,6 @@ public interface HtmlFormEntryService extends OpenmrsService {
     @Transactional(readOnly=true)
     public Map<String, TagHandler> getHandlers();
 
-    /**
-     * Add a form submission actions extender
-     *
-     * @param name
-     * @param extender
-     */
-    @Transactional(readOnly=true)
-    public void addFormSubmissionActionsExtender(String name, FormSubmissionActionsExtender extender);
-
-    /**
-     * Get all form submission action extenders
-     *
-     * @return
-     */
-    @Transactional(readOnly=true)
-    public Map<String, FormSubmissionActionsExtender> getFormSubmissionActionsExtenders();
     /**
      * In version 1.7 of the module we drop the name and description properties of the
      * HtmlForm object, because those should really come from the underlying Form. However
