@@ -527,4 +527,28 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
         Assert.assertTrue(session3.getHtmlToDisplay().contains("Add comment <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
 
 	}
+
+    @Test
+    public void shouldAddCustomIdToSpanAroundObs() throws Exception {
+        String htmlform = "<htmlform><obs id=\"obs-id\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        String htmlToDisplay = session.getHtmlToDisplay();
+        Assert.assertTrue(htmlToDisplay.contains("<span id=\"obs-id\" class=\"obs-field\">"));
+    }
+
+    @Test
+    public void shouldAddCustomClassToSpanAroundObs() throws Exception {
+        String htmlform = "<htmlform><obs class=\"custom-class\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        String htmlToDisplay = session.getHtmlToDisplay();
+        Assert.assertTrue(htmlToDisplay.contains("<span class=\"obs-field custom-class\">"));
+    }
+
+    @Test
+    public void shouldAddCustomIDAndClassToSpanAroundObs() throws Exception {
+        String htmlform = "<htmlform><obs id=\"obs-id\" class=\"custom-class\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        String htmlToDisplay = session.getHtmlToDisplay();
+        Assert.assertTrue(htmlToDisplay.contains("<span id=\"obs-id\" class=\"obs-field custom-class\">"));
+    }
 }

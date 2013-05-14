@@ -57,7 +57,9 @@ import java.util.StringTokenizer;
 public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
 	private String id;
-	
+
+    private String clazz;
+
 	private Concept concept;
 	
 	private String valueLabel;
@@ -174,8 +176,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if ("true".equals(parameters.get("required"))) {
 			required = true;
 		}
-		if (parameters.get("id") != null)
+		if (parameters.get("id") != null) {
 			id = parameters.get("id");
+        }
+        if (parameters.get("class") !=null) {
+            clazz = parameters.get("class");
+        }
+
 		prepareWidgets(context, parameters);
 	}
 
@@ -883,12 +890,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			context.getSchema().addField(field);
 		}
 	}
-	
+
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
-		if (id != null) {
-			ret.append("<span id='" + id + "' class='obs-field'>");
+		if (id != null || clazz != null) {
+			ret.append("<span " + (id != null ?  "id=\"" + id + "\" " : "") +
+                    "class=\"obs-field"+ (clazz !=null ? " " + clazz : "") + "\">");
 			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget),
 			    getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
 			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget),
@@ -961,8 +969,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             ret.append(" ");
 			ret.append(errorWidget.generateHtml(context));
 		}
-		if (id != null)
+		if (id != null || clazz != null) {
 			ret.append("</span>");
+        }
 		return ret.toString();
 	}
 	
