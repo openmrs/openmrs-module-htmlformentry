@@ -960,7 +960,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				//submitButtonLabelAndStyleForm has both custom label and style
 				TestUtil.assertFuzzyContains(
-						"<input type=\"button\" class=\"someOtherCSSClassReference\" value=\"submit label test\"", html);
+						"<input type=\"button\" class=\"submitButton someOtherCSSClassReference\" value=\"submit label test\"", html);
 				return;
 			}
 
