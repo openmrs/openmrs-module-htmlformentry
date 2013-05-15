@@ -41,6 +41,9 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
         if (parameters.containsKey("submitClass")) {
 	    	submitClass = submitClass + " " + parameters.get("submitClass");  //append any other classes specified
         }
+        if (parameters.containsKey("class")) {
+            submitClass = submitClass + " " + parameters.get("class");  // append any other classes specified
+        }
 	
         //render it
     	return "<input type=\"button\" class=\"" + submitClass + "\" value=\"" + submitLabel + "\" onClick=\"submitHtmlForm()\"/>";

@@ -86,9 +86,19 @@ public class SubmitButtonHandlerTest {
     }
 
     @Test
-    public void getSubstitution_shouldGenerateProperHtmlWithCustomClass() {
+    public void getSubstitution_shouldGenerateProperHtmlWithCustomClassSpecifiedInSubmitClassAttribute() {
         Map<String,String> params = new HashMap<String, String>();
         params.put("submitClass", "custom-class");
+
+        when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+        String html = submitButtonHandler.getSubstitution(session, formSubmissionController, params);
+        assertThat(html, is("<input type=\"button\" class=\"submitButton custom-class\" value=\"Save\" onClick=\"submitHtmlForm()\"/>"));
+    }
+
+    @Test
+    public void getSubstitution_shouldGenerateProperHtmlWithCustomClassSpecifiedInClassAttribute() {
+        Map<String,String> params = new HashMap<String, String>();
+        params.put("class", "custom-class");
 
         when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
         String html = submitButtonHandler.getSubstitution(session, formSubmissionController, params);
