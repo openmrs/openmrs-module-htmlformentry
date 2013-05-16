@@ -3,7 +3,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>htmlformentry</artifactId>
-	<version>2.0.7-SNAPSHOT</version>
+	<version>2.0.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>HTML Form Entry</name>
 	<description>Parent project for HTML Form Entry</description>
@@ -85,6 +85,16 @@
                 <artifactId>powermock-module-junit4</artifactId>
                 <version>1.4.12</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.joda</groupId>
+                <artifactId>joda-convert</artifactId>
+                <version>1.2</version>
             </dependency>
 		</dependencies>
 	</dependencyManagement>

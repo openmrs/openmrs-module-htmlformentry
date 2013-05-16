@@ -31,12 +31,14 @@ import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
+import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -121,6 +123,7 @@ public class FormEntrySession {
         context.setHttpSession(httpSession);
         this.httpSession = httpSession;
         this.patient = patient;
+
         context.setupExistingData(patient);
         velocityEngine = new VelocityEngine();
 
@@ -200,8 +203,14 @@ public class FormEntrySession {
             velocityContext.put("relationshipMap", relMap);
         }
 
+		// finally allow modules to provide content to the velocity context
+		for (VelocityContextContentProvider provider : Context.getRegisteredComponents(VelocityContextContentProvider.class)) {
+			provider.populateContext(this, velocityContext);
+		}
+
         htmlGenerator = new HtmlFormEntryGenerator();
     }
+
 
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the

@@ -523,7 +523,7 @@ public abstract class RegressionTestHelper {
 		        && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
 		                .getEncountersToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an encounter");
-		session.applyActions();
+		Context.getService(HtmlFormEntryService.class).applyActions(session);
 		results.setPatient(session.getPatient());
 		results.setEncounterCreated(getLastEncounter(session.getPatient()));
 		return results;

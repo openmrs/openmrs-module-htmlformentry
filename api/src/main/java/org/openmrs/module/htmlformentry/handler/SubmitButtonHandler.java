@@ -39,7 +39,10 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
 	    	submitLabel = trans.translate(Context.getLocale().toString(), parameters.get("submitCode"));
         }
         if (parameters.containsKey("submitClass")) {
-	    	submitClass = parameters.get("submitClass");
+	    	submitClass = submitClass + " " + parameters.get("submitClass");  //append any other classes specified
+        }
+        if (parameters.containsKey("class")) {
+            submitClass = submitClass + " " + parameters.get("class");  // append any other classes specified
         }
 	
         //render it

@@ -1,10 +1,10 @@
 package org.openmrs.module.htmlformentry;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.Months;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openmrs.EncounterType;
@@ -14,7 +14,14 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
+
+    private Integer ageInMonths;
+    private Integer ageInDays;
 	
 	/**
 	 * @see VelocityFunctions#earliestObs(Integer)
@@ -79,8 +86,31 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 		EncounterType type = Context.getEncounterService().getEncounterType(6);
         Assert.assertNull(functions.latestEncounter(type));
 	}
-	
-	/**
+
+    /**
+     *  @see  VelocityFunctions@patientAgeInMonths()
+     *  @verifies return the ageInMonths accurately to the nearest month
+     * @throws Exception
+     */
+    @Test
+    public void patientAgeInMonths_shouldReturnAgeInMonthsAccurateToNearestMonth() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        Assert.assertEquals(ageInMonths,functions.patientAgeInMonths());
+    }
+
+    /**
+     *  @see  VelocityFunctions@patientAgeInDays()
+     *  @verifies return the ageInDays accurately to the nearest date
+     * @throws Exception
+     */
+    @Test
+    public void patientAgeInDays_shouldReturnAgeInDaysAccuratelyToNearestDate() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        Assert.assertEquals(ageInDays,functions.patientAgeInDays());
+    }
+
+
+    /**
 	 * @return a new VelocityFunctions instance for the given patientId
 	 */
 	private VelocityFunctions setupFunctionsForPatient(Integer patientId) throws Exception {
@@ -92,7 +122,19 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         htmlform.setXmlData("<htmlform></htmlform>");
         
         Patient p = new Patient(patientId);
+        String[] datePattern = {"yyyy.MM.dd"};
+        p.setBirthdate(DateUtils.parseDate("1970.01.01",datePattern ));
+        measureAgeInDaysAndMonths(new Date(), p.getBirthdate());
         FormEntrySession session = new FormEntrySession(p, htmlform, null);
         return new VelocityFunctions(session);
 	}
+
+    private void measureAgeInDaysAndMonths(Date dateChanged, Date birthdate) {
+        ageInMonths = Months.monthsBetween
+                (new DateTime(birthdate.getTime()).toDateMidnight(), new DateTime(dateChanged.getTime()).toDateMidnight()).getMonths();
+        ageInDays = Days.daysBetween
+                (new DateTime(birthdate.getTime()).toDateMidnight(), new DateTime(dateChanged.getTime()).toDateMidnight()).getDays();
+    }
+
+
 }

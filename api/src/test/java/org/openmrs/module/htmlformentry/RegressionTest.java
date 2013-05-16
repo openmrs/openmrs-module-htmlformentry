@@ -960,7 +960,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				//submitButtonLabelAndStyleForm has both custom label and style
 				TestUtil.assertFuzzyContains(
-						"<input type=\"button\" class=\"someOtherCSSClassReference\" value=\"submit label test\"", html);
+						"<input type=\"button\" class=\"submitButton someOtherCSSClassReference\" value=\"submit label test\"", html);
 				return;
 			}
 
@@ -1845,6 +1845,14 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
                 TestUtil.assertFuzzyContains("Entry mode <input", html);
                 TestUtil.assertFuzzyDoesNotContain("View mode", html);
                 TestUtil.assertFuzzyDoesNotContain("Edit mode", html);
+
+                TestUtil.assertFuzzyContains("Include True Enter", html);
+                TestUtil.assertFuzzyDoesNotContain("Include True View", html);
+                TestUtil.assertFuzzyDoesNotContain("Include True Edit", html);
+
+                TestUtil.assertFuzzyDoesNotContain("Include False Enter", html);
+                TestUtil.assertFuzzyContains("Include False View", html);
+                TestUtil.assertFuzzyContains("Include False Edit", html);
             }
 
             @Override
@@ -1852,6 +1860,14 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
                 TestUtil.assertFuzzyDoesNotContain("Entry mode", html);
                 TestUtil.assertContains("View mode", html);
                 TestUtil.assertFuzzyDoesNotContain("Edit mode", html);
+
+                TestUtil.assertFuzzyDoesNotContain("Include True Enter", html);
+                TestUtil.assertFuzzyContains("Include True View", html);
+                TestUtil.assertFuzzyDoesNotContain("Include True Edit", html);
+
+                TestUtil.assertFuzzyContains("Include False Enter", html);
+                TestUtil.assertFuzzyDoesNotContain("Include False View", html);
+                TestUtil.assertFuzzyContains("Include False Edit", html);
             }
 
             @Override
@@ -1859,6 +1875,14 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
                 TestUtil.assertFuzzyDoesNotContain("Entry mode", html);
                 TestUtil.assertFuzzyDoesNotContain("View mode", html);
                 TestUtil.assertContains("Edit mode", html);
+
+                TestUtil.assertFuzzyDoesNotContain("Include True Enter", html);
+                TestUtil.assertFuzzyDoesNotContain("Include True View", html);
+                TestUtil.assertFuzzyContains("Include True Edit", html);
+
+                TestUtil.assertFuzzyContains("Include False Enter", html);
+                TestUtil.assertFuzzyContains("Include False View", html);
+                TestUtil.assertFuzzyDoesNotContain("Include False Edit", html);
             }
 
         }.run();
