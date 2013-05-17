@@ -20,9 +20,12 @@ import org.openmrs.PersonName;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
+ * // TODO: this is deprecated  the PersonByNameComparator in core is the one that should now be used=
+ *
  * A simple person comparator for sorting persons by name. Sorts names based on the following
  * precedence: FamilyName, FamilyName2, GivenName, MiddleName, FamilyNamePrefix, FamilyNameSuffix
  */
+@Deprecated
 public class PersonByNameComparator implements Comparator<Person> {
 	@Override
     public int compare(Person person1, Person person2) {
