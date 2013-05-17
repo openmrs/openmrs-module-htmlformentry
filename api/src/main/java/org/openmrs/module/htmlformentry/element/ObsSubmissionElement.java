@@ -756,8 +756,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			} else {
 				DateWidget dateWidget = null;
 				TimeWidget timeWidget = null;
+				boolean disableTime = "false".equals(parameters.get("allowTime"));
 				
-				if (ConceptDatatype.DATE.equals(concept.getDatatype().getHl7Abbreviation())) {
+				if (ConceptDatatype.DATE.equals(concept.getDatatype().getHl7Abbreviation()) || (ConceptDatatype.DATETIME.equals(concept.getDatatype().getHl7Abbreviation()) && disableTime)) {
 					valueWidget = new DateWidget();
 				} else if (ConceptDatatype.TIME.equals(concept.getDatatype().getHl7Abbreviation())) {
 					valueWidget = new TimeWidget();
