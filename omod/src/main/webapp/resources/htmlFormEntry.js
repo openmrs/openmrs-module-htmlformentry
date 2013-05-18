@@ -644,3 +644,35 @@ function setupDatePickerLocalization(locale) {
 			yearSuffix: ''};
 	}
 }
+
+openmrs = document.openmrs || {};
+openmrs.htmlformentry = openmrs.htmlformentry || {};
+//used for dynamicAutocomplete widget
+openmrs.htmlformentry.refresh = function(v) {
+	var flag = true;
+	var string = ((v).split("span", 1)) + "_hid";
+	var divId = ((v).split("span", 1)) + "_div";
+	var temp = ((v).split("span", 1)) + "span_";
+	$j('#' + divId + ' span').each(
+			function(index) {
+				$j('#' + divId).data("count", index + 1);
+				$j('#' + string).attr('value', $j('#' + divId).data("count"));
+				flag = false;
+				var spanId = this.id;
+				var newSpanId = spanId.split('_', 1) + '_' + index;
+				this.id = newSpanId;
+				$j('#' + spanId + '_hid').attr('id', newSpanId + '_hid');
+				$j('#' + spanId + '_button').removeAttr('onclick', null)
+						.unbind('click').attr('id', newSpanId + '_button')
+						.click(
+								function() {
+									$j('#' + newSpanId).remove();
+									openmrs.htmlformentry.refresh(newSpanId
+											+ "_button");
+								});
+				$j('#' + newSpanId + '_hid').attr('name', newSpanId + '_hid');
+			});
+	if (flag)
+		$j('#' + divId).data("count", 0);
+	$j('#' + string).attr('value', $j('#' + divId).data("count"));
+}

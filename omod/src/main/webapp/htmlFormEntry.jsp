@@ -128,7 +128,32 @@
 
 		// indicates this function has completed
 		initInd = false;
-
+		
+		//managing the id of the newly generated id's of dynamicAutocomplete widgets
+		$j('div .dynamicAutocomplete').each(function(index) {
+			var string=((this.id).split("_div",1))+"_hid";
+			if(!$j('#'+string).attr('value'))
+				$j('#'+this.id).data("count",0);
+			else
+				$j('#'+this.id).data("count",parseInt($j('#'+string).attr('value')));
+			});
+		//add button for dynamic autocomplete
+		$j(':button.addConceptButton').click(function() {
+			  	var string=(this.id).replace("_button","");
+		        var conceptValue=$j('#'+string+'_hid').attr('value')
+		        if($j('#'+string).css('color')=='green'){
+		        	var	divId=string+"_div";
+	        		 var spanid=string+'span_'+ $j('#'+divId).data("count");
+	        		 var count= $j('#'+divId).data("count");
+	        		 $j('#'+divId).data("count",++count);
+	        		 $j('#'+string+'_hid').attr('value',$j('#'+divId).data("count"));
+	        		 var hidId=spanid+'_hid';
+	          		 var v='<span id="'+spanid+'"></br>'+$j('#'+string).val()+'<input id="'+hidId+'"  class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
+	                 var q='<input id="'+spanid+'_button" type="button" value="remove" onClick="$j(\'#'+spanid+'\').remove();openmrs.htmlformentry.refresh(this.id)"></span>';
+	                 $j('#'+divId).append(v+q);
+	                 $j('#'+string).val('');
+	        } 
+	        });
 	});
 
 	// clear toggle container's inputs but saves the input values until form is submitted/validated in case the user
