@@ -260,7 +260,7 @@ public class HtmlFormEntryUtil {
 		//set up a transformer
 		Transformer trans = null;
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		
+
 		try {
 			trans = transfac.newTransformer();
 		}
@@ -270,6 +270,7 @@ public class HtmlFormEntryUtil {
 		trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, HtmlFormEntryConstants.CONSTANT_YES);
 		trans.setOutputProperty(OutputKeys.INDENT, HtmlFormEntryConstants.CONSTANT_YES);
 		trans.setOutputProperty(OutputKeys.METHOD, HtmlFormEntryConstants.CONSTANT_XML);
+        trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		
 		//create string from xml tree
 		StringWriter sw = new StringWriter();
