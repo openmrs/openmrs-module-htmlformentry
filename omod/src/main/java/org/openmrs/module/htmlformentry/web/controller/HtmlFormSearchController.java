@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptWord;
@@ -25,6 +13,17 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 @Controller
 public class HtmlFormSearchController {
@@ -50,7 +49,9 @@ public class HtmlFormSearchController {
 			throws Exception {
 
 		response.setContentType("application/json");
-		ServletOutputStream out = response.getOutputStream();
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+
 		List<Locale> l = new Vector<Locale>();
 		l.add(Context.getLocale());
 
