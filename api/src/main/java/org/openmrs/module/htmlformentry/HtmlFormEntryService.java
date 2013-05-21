@@ -1,16 +1,17 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.List;
-import java.util.Map;
-
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Person;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
+import org.openmrs.module.htmlformentry.extender.FormActionsExtender;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Defines the services provided by the HTML Form Entry module
@@ -90,6 +91,22 @@ public interface HtmlFormEntryService extends OpenmrsService {
     @Transactional(readOnly=true)
     public Map<String, TagHandler> getHandlers();
 
+    /**
+     * Add a form submission actions extender
+     *
+     * @param name
+     * @param extender
+     */
+    @Transactional(readOnly=true)
+    public void addFormSubmissionActionsExtender(String name, FormActionsExtender extender);
+
+    /**
+     * Get all form submission action extenders
+     *
+     * @return
+     */
+    @Transactional(readOnly=true)
+    public Map<String, FormActionsExtender> getFormSubmissionActionsExtenders();
     /**
      * In version 1.7 of the module we drop the name and description properties of the
      * HtmlForm object, because those should really come from the underlying Form. However

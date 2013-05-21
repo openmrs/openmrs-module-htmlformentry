@@ -30,6 +30,8 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
+import org.openmrs.module.htmlformentry.extender.FormActionsExtender;
+import org.openmrs.module.htmlformentry.extender.FormActionsExtenderType;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 
 /**
@@ -41,6 +43,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     
     private HtmlFormEntryDAO dao;
     private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
+    private static Map<String, FormActionsExtender> formSubmissionActionsExtenders = new LinkedHashMap<String, FormActionsExtender>();
     private String basicFormXmlTemplate;
 
 	/*
@@ -66,7 +69,18 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     public Map<String, TagHandler> getHandlers(){
         return handlers;
     }
-    
+
+    @Override
+    public void addFormSubmissionActionsExtender(String name, FormActionsExtender extender) {
+        formSubmissionActionsExtenders.put(name, extender);
+    }
+
+    @Override
+    public Map<String, FormActionsExtender> getFormSubmissionActionsExtenders() {
+        return formSubmissionActionsExtenders;
+    }
+
+
     /**
      * Sets the tag handlers 
      * 
@@ -75,7 +89,11 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     public void setHandlers(Map<String, TagHandler> handlersToSet) {
         handlers.putAll(handlersToSet);
     }
-    
+
+    public static void setFormSubmissionActionsExtenders(Map<String, FormActionsExtender> formSubmissionActionsExtenders) {
+        HtmlFormEntryServiceImpl.formSubmissionActionsExtenders = formSubmissionActionsExtenders;
+    }
+
     /**
      * Sets the DAO
      * 
@@ -301,8 +319,24 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	
 	@Override
 	public void applyActions(FormEntrySession session) throws BadFormDesignException {
-		//Wrapped in a transactional service method such that actions in it 
-		//either pass or fail together. See TRUNK-3572
+        //Wrapped in a transactional service method such that actions in it
+        //either pass or fail together. See TRUNK-3572
+
+        // apply any before actions defined by external modules
+        for (FormActionsExtender extender : formSubmissionActionsExtenders.values()) {
+            if (extender.getType() == FormActionsExtenderType.BEFORE_FORM_SUBMISSION_ACTIONS) {
+                extender.applyActions(session);
+            }
+        }
+
 		session.applyActions();
+
+        // apply any after actions defined by external modules
+        for (FormActionsExtender extender : formSubmissionActionsExtenders.values()) {
+            if (extender.getType() == FormActionsExtenderType.AFTER_FORM_SUBMISSION_ACTIONS) {
+                extender.applyActions(session);
+            }
+        }
+
 	}
 }
