@@ -106,7 +106,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
 	
-	private List<Obs> existingObsList;
+	private List<Obs> existingObsList;  // used by the dynamic autocomplete which allows the selection of multiple answers
 	
 	private boolean required;
 	
@@ -654,12 +654,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							        "style \"autocomplete\" but there are no possible answers. Looked for answerConcepts and answerClasses attributes, and answers for concept "
 							                + concept.getConceptId());
 						}
-						if ("true".equals(parameters.get("selectMulti")))
+						if ("true".equals(parameters.get("selectMulti"))) {
 							valueWidget = new DynamicAutoCompleteWidget(conceptAnswers, cptClasses);
-						else
-						valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
+                        }
+                        else {
+						    valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
+                        }
 					} else {
-			// Show Radio Buttons if specified, otherwise default to Drop
+			            // Show Radio Buttons if specified, otherwise default to Drop
 						// Down 
 						boolean isRadio = "radio".equals(parameters.get("style"));
 						if (isRadio) {

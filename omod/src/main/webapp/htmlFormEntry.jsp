@@ -149,7 +149,7 @@
 	        		 $j('#'+string+'_hid').attr('value',$j('#'+divId).data("count"));
 	        		 var hidId=spanid+'_hid';
 	          		 var v='<span id="'+spanid+'"></br>'+$j('#'+string).val()+'<input id="'+hidId+'"  class="autoCompleteHidden" type="hidden" name="'+hidId+'" value="'+conceptValue+'">';
-	                 var q='<input id="'+spanid+'_button" type="button" value="remove" onClick="$j(\'#'+spanid+'\').remove();openmrs.htmlformentry.refresh(this.id)"></span>';
+	                 var q='<input id="'+spanid+'_button" type="button" value="Remove" onClick="$j(\'#'+spanid+'\').remove();openmrs.htmlformentry.refresh(this.id)"></span>';
 	                 $j('#'+divId).append(v+q);
 	                 $j('#'+string).val('');
 	        } 
