@@ -432,7 +432,21 @@ public class FormEntryContext {
         return null;
     }
 
-
+    /**
+	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns the list for
+	 * the question. Use this version for obtaining the whole list of obs saved for the single
+	 * Question concept.Presently used for dynamic lists.
+	 * 
+	 * @param question concept associated with the Obs to remove
+	 * @return the list of obs associated with it
+	 */
+	public List<Obs> removeExistingObs(Concept question) {
+		List<Obs> list = existingObs.get(question);
+		existingObs.remove(question);
+		return list;
+	}
+    
+    
     /**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
 	 * 
