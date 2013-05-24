@@ -1,14 +1,13 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.Iterator;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A double parameter autocomplete widget to do the <obs><obs/> auto completion
@@ -27,7 +26,7 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 		this.src = src;
 		
 		//only 1 of them is used to specify the filter
-		if (allowedconceptclasses.size() == 0) {
+		if (allowedconceptclasses == null || allowedconceptclasses.size() == 0) {
 			StringBuilder sb = new StringBuilder();
 			for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
 				sb.append(it.next().getConceptId());

@@ -26,6 +26,7 @@ import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
+import org.openmrs.module.htmlformentry.widget.DynamicAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
@@ -49,6 +50,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -103,6 +105,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private String answerLabel;
 	
 	private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
+	
+	private List<Obs> existingObsList;  // used by the dynamic autocomplete which allows the selection of multiple answers
 	
 	private boolean required;
 	
@@ -222,7 +226,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}else if (concept.getDatatype().isNumeric() && "checkbox".equals(parameters.get("style"))){
                 String numericAns = parameters.get("answer");
                 existingObs = context.removeExistingObs(concept, numericAns);
-            } else {
+                //for dynamicAutocomplete if selectMulti is true
+			} else if ("autocomplete".equals(parameters.get("style")) && "true".equals(parameters.get("selectMulti"))) {
+				existingObsList = context.removeExistingObs(concept);
+			} else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
 			}
 		} else {
@@ -599,7 +606,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						}
 					}
 					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
-					if (existingObs != null) {
+					if (existingObsList != null && !existingObsList.isEmpty()) {
+						for (int i = 0; i < existingObsList.size(); i++) {
+							((DynamicAutocompleteWidget)valueWidget).addInitialValue(existingObsList.get(i).getValueCoded());
+						}
+					} else if (existingObs != null) {
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
@@ -643,10 +654,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							        "style \"autocomplete\" but there are no possible answers. Looked for answerConcepts and answerClasses attributes, and answers for concept "
 							                + concept.getConceptId());
 						}
-						
-						valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
+						if ("true".equals(parameters.get("selectMulti"))) {
+							valueWidget = new DynamicAutocompleteWidget(conceptAnswers, cptClasses);
+                        }
+                        else {
+						    valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
+                        }
 					} else {
-			// Show Radio Buttons if specified, otherwise default to Drop
+			            // Show Radio Buttons if specified, otherwise default to Drop
 						// Down 
 						boolean isRadio = "radio".equals(parameters.get("style"));
 						if (isRadio) {
@@ -667,6 +682,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							}
 							((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(),
 							        false));
+						}
+					}
+					if (existingObsList != null && !existingObsList.isEmpty()) {
+						for (int i = 0; i < existingObsList.size(); i++) {
+							((DynamicAutocompleteWidget)valueWidget).addInitialValue(existingObsList.get(i).getValueCoded());
 						}
 					}
 					if (existingObs != null) {
@@ -1096,7 +1116,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if(commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
 
-		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
+		if (existingObsList != null && session.getContext().getMode() == Mode.EDIT) {
+
+		    // trying to break this up a little bit by factoring specific functionality for specific widgets into separate methods at least
+            handleDynamicAutocompleteSubmissionInEditMode(session, submission, value, obsDatetime, accessionNumberValue);
+
+	    } else if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
 			if (concepts != null)
@@ -1108,11 +1133,64 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			if (concepts != null && value != null && !"".equals(value) && concept != null) {
 				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue, comment);
 			} else if (value != null && !"".equals(value)) {
-				session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment);
-			}
+				if (valueWidget instanceof DynamicAutocompleteWidget) {
+
+                    // trying to break this up a little bit by factoring specific functionality for specific widgets into separate methods at least
+				    handleDynamicAutocompleteSubmissionInEnterMode(session, submission, value, obsDatetime, accessionNumberValue);
+
+                } else {
+				    session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment);
+			    }
+            }
 		}
 	}
-	
+
+    private void handleDynamicAutocompleteSubmissionInEnterMode(FormEntrySession session, HttpServletRequest submission, Object value, Date obsDatetime, String accessionNumberValue) {
+
+        List values = (List) value;
+
+        // create an obs for each value
+        for (Object val : values) {
+            int conceptId = Integer.valueOf((String) val);
+            ((DynamicAutocompleteWidget)valueWidget).addInitialValue(Context.getConceptService().getConcept(conceptId));
+            session.getSubmissionActions().createObs(concept, conceptId, obsDatetime, accessionNumberValue);
+        }
+
+    }
+
+    private void handleDynamicAutocompleteSubmissionInEditMode(FormEntrySession session, HttpServletRequest submission, Object value, Date obsDatetime, String accessionNumberValue) {
+
+        List values = (List) value;
+
+        List<Concept> newConceptList = new Vector<Concept>();
+        List<Concept> existingConceptList = ((DynamicAutocompleteWidget) valueWidget).getInitialValueList();
+
+        // get the list of concepts entered on the form
+        for (Object val : values) {
+            if (StringUtils.isNotBlank((String) val)) {
+                int conceptId = Integer.valueOf((String) val);
+                newConceptList.add(Context.getConceptService().getConcept(conceptId));
+            }
+        }
+
+        // figure out what obs we need to create and what ones we need to remove
+        for (Concept c : existingConceptList) {
+            if (newConceptList.contains(c))
+                newConceptList.remove(c);
+            else {
+                for (Obs o : existingObsList) {
+                    if (o.getValueCoded().equals(c))
+                        session.getSubmissionActions().modifyObs(o, concept, null, obsDatetime, accessionNumberValue);
+                }
+            }
+        }
+        if (!newConceptList.isEmpty()) {
+            for (Concept c : newConceptList) {
+                session.getSubmissionActions().createObs(concept, c, obsDatetime, accessionNumberValue);
+            }
+        }
+    }
+
 	private Comparator<Concept> conceptNameComparator = new Comparator<Concept>() {
 		
 		@Override
