@@ -655,7 +655,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
     }
 
     @Test
-    public void shouldSubmitObsWithMultiAutocomplete() throws Exception {
+    public void dynamicAutocomplete_shouldSubmitObs() throws Exception {
         new RegressionTestHelper() {
 
             @Override
@@ -697,7 +697,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
     }
 
     @Test
-    public void shouldEditExistingObsWithMultiAutocomplete() throws Exception {
+    public void dynamicAutocomplete_shouldEditExistingObs() throws Exception {
         new RegressionTestHelper() {
 
             @Override
@@ -754,7 +754,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 Set<Integer> valueCoded = new HashSet<Integer>();
 
 
-                for (Obs obs : encounter.getAllObs(false)) {
+                for (Obs obs : encounter.getAllObs(true)) {
                     if (obs.isVoided()) {
                         Assert.assertThat(obs.getValueCoded().getId(), is(1001));
                     }
@@ -770,4 +770,135 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
         }.run();
     }
 
+    @Test
+    public void dynamicAutocomplete_shouldEditExistingObsWhenSomeObsAreRemoved() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsFormWithMultiAutocomplete";
+            }
+
+            public Patient getPatient() {
+                return patient;
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "Coded:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+                request.addParameter(widgets.get("Coded:"), "2");  // in the dynamic autocomplete, the widget value is just the count of the number of entries
+                request.addParameter("w8span_0_hid", "1001");
+                request.addParameter("w8span_1_hid", "1002");
+            }
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public String[] widgetLabelsForEdit() {
+                return new String[] { "Coded:" };
+            }
+
+
+            @Override
+            public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.setParameter(widgets.get("Coded:"), "1");  // in the dynamic autocomplete, the widget value is just the count of the number of entries
+                request.setParameter("w8span_0_hid", "1003");
+                request.removeParameter("w8span_1_hid");
+            }
+
+            @Override
+            public void testEditedResults(SubmissionResults results) {
+
+                results.assertNoErrors();
+                Encounter encounter = results.getEncounterCreated();
+
+                Assert.assertThat(encounter.getAllObs(false).size(), is(1));   // should be one non-voided obs of value 1003
+                Assert.assertThat(encounter.getAllObs(true).size(), is(3));   // should be three obs included the voided obs for 1001 and 1002
+
+                Set<Integer> valueCoded = new HashSet<Integer>();
+
+                for (Obs obs : encounter.getAllObs(true)) {
+                    if (!obs.isVoided()) {
+                        Assert.assertThat(obs.getValueCoded().getId(), is(1003));
+                    }
+                    else {
+                        valueCoded.add(obs.getValueCoded().getId());
+                    }
+                }
+
+                Assert.assertTrue(valueCoded.contains(1002));
+                Assert.assertTrue(valueCoded.contains(1001));
+            }
+
+        }.run();
+    }
+
+    @Test
+    public void dynamicAutocomplete_shouldVoidAllExistingObsIfEmpty() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsFormWithMultiAutocomplete";
+            }
+
+            public Patient getPatient() {
+                return patient;
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "Coded:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+                request.addParameter(widgets.get("Coded:"), "2");  // in the dynamic autocomplete, the widget value is just the count of the number of entries
+                request.addParameter("w8span_0_hid", "1001");
+                request.addParameter("w8span_1_hid", "1002");
+            }
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public String[] widgetLabelsForEdit() {
+                return new String[] { "Coded:" };
+            }
+
+
+            @Override
+            public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.setParameter(widgets.get("Coded:"), "0");  // in the dynamic autocomplete, the widget value is just the count of the number of entries
+                request.removeParameter("w8span_0_hid");
+                request.removeParameter("w8span_1_hid");
+            }
+
+            @Override
+            public void testEditedResults(SubmissionResults results) {
+
+                results.assertNoErrors();
+                Encounter encounter = results.getEncounterCreated();
+
+                Assert.assertThat(encounter.getAllObs(false).size(), is(0));   // no none-voided obs
+                Assert.assertThat(encounter.getAllObs(true).size(), is(2));   // the existing obs should have been voided
+            }
+
+        }.run();
+    }
 }

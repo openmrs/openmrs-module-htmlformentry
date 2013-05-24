@@ -1147,30 +1147,33 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
     private void handleDynamicAutocompleteSubmissionInEnterMode(FormEntrySession session, HttpServletRequest submission, Object value, Date obsDatetime, String accessionNumberValue) {
 
-        int i = Integer.parseInt((String) value);      // the main "value" of the widget it really just a count of the number of dynamic elements
+        List values = (List) value;
 
-        String conceptValue = session.getContext().getFieldName(valueWidget) + "span_";
-
-        for (int k = 0; k < i; k++) {
-            ((DynamicAutocompleteWidget)valueWidget).addInitialValue(Context.getConceptService().getConcept(
-                    submission.getParameter(conceptValue + k + "_hid")));
-            session.getSubmissionActions().createObs(concept,
-                    submission.getParameter(conceptValue + k + "_hid"), obsDatetime, accessionNumberValue);
+        // create an obs for each value
+        for (Object val : values) {
+            int conceptId = Integer.valueOf((String) val);
+            ((DynamicAutocompleteWidget)valueWidget).addInitialValue(Context.getConceptService().getConcept(conceptId));
+            session.getSubmissionActions().createObs(concept, conceptId, obsDatetime, accessionNumberValue);
         }
+
     }
 
     private void handleDynamicAutocompleteSubmissionInEditMode(FormEntrySession session, HttpServletRequest submission, Object value, Date obsDatetime, String accessionNumberValue) {
 
-        int i = Integer.parseInt((String) value); // the main "value" of the widget it really just a count of the number of dynamic elements
-
-        String conceptValue = session.getContext().getFieldName(valueWidget) + "span_";
+        List values = (List) value;
 
         List<Concept> newConceptList = new Vector<Concept>();
         List<Concept> existingConceptList = ((DynamicAutocompleteWidget) valueWidget).getInitialValueList();
-        for (int k = 0; k < i; k++) {
-            newConceptList.add(Context.getConceptService()
-                    .getConcept(submission.getParameter(conceptValue + k + "_hid")));
+
+        // get the list of concepts entered on the form
+        for (Object val : values) {
+            if (StringUtils.isNotBlank((String) val)) {
+                int conceptId = Integer.valueOf((String) val);
+                newConceptList.add(Context.getConceptService().getConcept(conceptId));
+            }
         }
+
+        // figure out what obs we need to create and what ones we need to remove
         for (Concept c : existingConceptList) {
             if (newConceptList.contains(c))
                 newConceptList.remove(c);
