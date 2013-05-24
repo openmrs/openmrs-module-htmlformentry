@@ -8,21 +8,31 @@ import org.openmrs.ConceptName;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.TestUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.any;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
 
 
 public class DynamicAutocompleteWidgetTest {
 
     private FormEntryContext context;
 
+    private HttpServletRequest request;
+
     @Before
     public void setup() {
+        request = mock(HttpServletRequest.class);
         context = mock(FormEntryContext.class);
         when(context.getFieldName(argThat(any(Widget.class)))).thenReturn("w2");
     }
@@ -96,6 +106,36 @@ public class DynamicAutocompleteWidgetTest {
         TestUtil.assertFuzzyContains("concept1;concept2;", html);
     }
 
+
+    @Test
+    public void getValue_shouldReturnProperValues() {
+
+        when(request.getParameter("w2_hid")).thenReturn("3");
+        when(request.getParameter("w2span_0_hid")).thenReturn("1001");
+        when(request.getParameter("w2span_1_hid")).thenReturn("1002");
+        when(request.getParameter("w2span_2_hid")).thenReturn("1003");
+
+        DynamicAutocompleteWidget dynamicAutocompleteWidget = new DynamicAutocompleteWidget(generateConceptList(), null);
+        List values = (List) dynamicAutocompleteWidget.getValue(context, request);
+        assertThat(values.size(), is(3));
+
+        Set<String> results = new HashSet<String>();
+
+        for (Object val : values) {
+            results.add((String) val);
+        }
+
+        assertTrue(results.contains("1001"));
+        assertTrue(results.contains("1002"));
+        assertTrue(results.contains("1003"));
+    }
+
+    @Test
+    public void getValue_shouldReturnEmptyListIfNoValuesInRequest() {
+        DynamicAutocompleteWidget dynamicAutocompleteWidget = new DynamicAutocompleteWidget(generateConceptList(), null);
+        List values = (List) dynamicAutocompleteWidget.getValue(context, request);
+        assertThat(values.size(), is(0));
+    }
 
 
     private List<Concept> generateConceptList() {

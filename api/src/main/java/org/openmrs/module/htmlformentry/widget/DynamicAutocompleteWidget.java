@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -105,14 +106,16 @@ public class DynamicAutocompleteWidget implements Widget {
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 
-        String widgetName = context.getFieldName(this);
-
-        int count = Integer.parseInt(request.getParameter(widgetName + "_hid"));
-
         List values = new ArrayList<Object>();
+        String widgetName = context.getFieldName(this);
+        String entryCount = request.getParameter(widgetName + "_hid");
 
-        for (int i = 0; i < count; i++) {
-            values.add(request.getParameter(widgetName + "span_" + i + "_hid"));
+        if (StringUtils.isNotBlank(entryCount)) {
+            int count = Integer.parseInt(entryCount);
+
+            for (int i = 0; i < count; i++) {
+                values.add(request.getParameter(widgetName + "span_" + i + "_hid"));
+            }
         }
 
         return values;
