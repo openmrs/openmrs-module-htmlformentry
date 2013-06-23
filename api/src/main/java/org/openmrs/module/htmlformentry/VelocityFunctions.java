@@ -240,4 +240,12 @@ public class VelocityFunctions {
         return Days.daysBetween(dob.toDateMidnight(), today.toDateMidnight()).getDays();
     }
 
+    /**
+    * 
+    * @return	concept of given id
+    * @should	return Concept object against given concept code (id, uuid or mapping)
+    */
+    public Concept getConcept(String conceptCode) {
+        return HtmlFormEntryUtil.getConcept(conceptCode);
+    }
 }
