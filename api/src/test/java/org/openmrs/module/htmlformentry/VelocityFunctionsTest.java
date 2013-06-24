@@ -7,6 +7,7 @@ import org.joda.time.Days;
 import org.joda.time.Months;
 import org.junit.Assert;
 import org.junit.Test;
+import org.openmrs.Concept;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
@@ -109,7 +110,6 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals(ageInDays,functions.patientAgeInDays());
     }
 
-
     /**
 	 * @return a new VelocityFunctions instance for the given patientId
 	 */
@@ -136,5 +136,14 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
                 (new DateTime(birthdate.getTime()).toDateMidnight(), new DateTime(dateChanged.getTime()).toDateMidnight()).getDays();
     }
 
-
+    /**
+	 * @see VelocityFunctions@getConcept()
+	 * @verifies return concept id of a concept code or uuid
+	 */
+	@Test
+	public void getConcept_shouldReturnConceptIdOfGivenCode() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		Concept concept = Context.getConceptService ().getConcept (5089);
+		Assert.assertEquals(concept.getDisplayString (), functions.getConcept ("5089").getDisplayString ());
+	}
 }
