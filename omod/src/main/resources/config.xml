@@ -103,6 +103,10 @@
 		<lang>es</lang>
 		<file>messages_es.properties</file>
 	</messages>
+    <messages>
+        <lang>ht</lang>
+        <file>messages_ht.properties</file>
+    </messages>
 	<!-- /Internationalization -->
 	
 	<mappingFiles>
