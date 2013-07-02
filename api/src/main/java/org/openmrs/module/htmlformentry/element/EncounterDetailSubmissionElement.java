@@ -1,18 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -42,6 +29,18 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -351,7 +350,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             // now create the actual location options and sort them
             for (Location location : locations) {
-                String label = location.getName();
+                String label = HtmlFormEntryUtil.format(location);
                 Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
                 locationOptions.add(option);
             }

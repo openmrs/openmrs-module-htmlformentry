@@ -141,7 +141,7 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 	 * @verifies return concept id of a concept code or uuid
 	 */
 	@Test
-	public void getConcept_shouldReturnConceptIdOfGivenCode() throws Exception {
+	public void getConcept_shouldReturnConceptWithGivenId() throws Exception {
 		VelocityFunctions functions = setupFunctionsForPatient(7);
 		Concept concept = Context.getConceptService ().getConcept (5089);
 		Assert.assertEquals(concept.getDisplayString (), functions.getConcept ("5089").getDisplayString ());

@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,6 +40,7 @@ import org.openmrs.EncounterType;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.OpenmrsMetadata;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -56,6 +58,7 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
@@ -1605,4 +1608,57 @@ public class HtmlFormEntryUtil {
 			}
 		}
 	}
+
+
+    /**
+     * Formats a piece of Metadata for Display
+     *
+     * @param md
+     * @param locale
+     * @return
+     */
+    public static String format(OpenmrsMetadata md) {
+        return format(md, Context.getLocale());
+    }
+
+    /**
+     * Formats a piece of Metadata for Display
+     *
+     * TODO This was copied from UiFramework--we probably should come up with a way to inject a formatter directly into HFE
+     *
+     * @param md
+     * @param locale
+     * @return
+     */
+    public static String format(OpenmrsMetadata md, Locale locale) {
+        String override = getLocalization(locale, md.getClass().getSimpleName(), md.getUuid());
+        return override != null ? override : md.getName();
+    }
+
+    /**
+     * See if there is a custom name for this message in the messages.properties files
+     *
+     * TODO This was copied from UiFramework--we probably should come up with a way to inject a formatter directly into HFE
+     *
+     * @param md
+     * @param locale
+     * @return
+     */
+    private static String getLocalization(Locale locale, String shortClassName, String uuid) {
+
+        // in case this is a hibernate proxy, strip off anything after an underscore
+        // ie: EncounterType_$$_javassist_26 needs to be converted to EncounterType
+        int underscoreIndex = shortClassName.indexOf("_$");
+        if (underscoreIndex > 0) {
+            shortClassName = shortClassName.substring(0, underscoreIndex);
+        }
+
+        String code = "ui.i18n." + shortClassName + ".name." + uuid;
+        String localization = Context.getService(MessageSourceService.class).getMessage(code, null, locale);
+        if (localization == null || localization.equals(code)) {
+            return null;
+        } else {
+            return localization;
+        }
+    }
 }

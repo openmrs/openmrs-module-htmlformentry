@@ -1,8 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -14,6 +11,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
@@ -26,6 +24,10 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
@@ -977,5 +979,16 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	    Assert.assertEquals(o.getValueComplex(),complexData.getTitle());
 		
 	}
+
+    @Test
+    @Verifies(value="shouldReturnMetadataNameIfNoFormatterPresent", method="format(OpenmrsMetadata md, Locale locale)")
+    public void sholdReturnMetadataNameIfNoFormatterPresent() {
+
+        Location location = new Location();
+        location.setName("Test name");
+
+        Assert.assertTrue(HtmlFormEntryUtil.format(location, Locale.US).equals("Test name"));
+    }
+
 
 }
