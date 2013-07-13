@@ -108,6 +108,8 @@ public class FormEntrySession {
 
     private HttpSession httpSession;
 
+    private Map<String, Object> attributes = new HashMap<String, Object>();
+
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the
      * specified {@Mode}
@@ -1040,6 +1042,14 @@ public class FormEntrySession {
 
     public void setClientSideValidationHints(boolean clientSideValidationHints) {
         context.setClientSideValidationHints(true);
+    }
+
+    public void setAttribute(String key, Object value) {
+        attributes.put(key, value);
+    }
+
+    public Object getAttribute(String key) {
+        return attributes.get(key);
     }
 
 }
