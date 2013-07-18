@@ -1,35 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,6 +9,7 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
 import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.Order;
@@ -76,6 +47,35 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * HTML Form Entry utility methods
@@ -655,7 +655,7 @@ public class HtmlFormEntryUtil {
 		Program program = null;
 		
 		if (id != null) {
-			
+
 			// see if this is parseable int; if so, try looking up by id
 			try {//handle integer: id
 				int programId = Integer.parseInt(id);
@@ -934,7 +934,44 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
+    /**
+     * Fetches a location tag by name or id
+     * (Will add support for uuid once we stop supporting OpenMRS 1.6, which doesn't a uuid on location tag)
+     *
+     * @param identifier
+     * @return
+     */
+    public static LocationTag getLocationTag(String identifier) {
+
+        LocationTag tag = null;
+
+        if (identifier != null) {
+            // first try to fetch by id
+            try {
+                Integer id = Integer.valueOf(identifier);
+                tag = Context.getLocationService().getLocationTag(id);
+
+                if (tag != null) {
+                    return tag;
+                }
+            }
+            catch (NumberFormatException e) {}
+
+            // if not, try to fetch by name
+            tag = Context.getLocationService().getLocationTagByName(identifier);
+
+            if (tag != null) {
+                return tag;
+            }
+
+           // TODO add ability to fetch by uuid once we are no longer worried about being compatible with OpenMRS 1.6 (since getLocationTagByUuid is not available in 1.6)
+
+        }
+
+        return null;
+    }
+
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
 	 * programWorkflowStateId, or uuid
@@ -970,7 +1007,7 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/***
 	 * Determines if the passed string is in valid uuid format By OpenMRS standards, a uuid must be
 	 * 36 characters in length and not contain whitespace, but we do not enforce that a uuid be in

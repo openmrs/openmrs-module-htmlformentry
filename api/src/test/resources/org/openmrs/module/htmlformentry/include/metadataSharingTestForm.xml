@@ -3,7 +3,7 @@
 	<!-- note that we use capitalize tag names to test that exporter is case-insensitive -->
 
 	Date: <encounterDate/>
-	Location: <encounterLocation default="2" order="1,9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land"/>
+	Location: <encounterLocation default="2" order="1,9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land" tags="Some Tag"/>  <!-- having both a tags and order attribute in the same encounterLocation is illegal, but we are doing here just so we can test in one fell swoop -->
 	Provider: <EncounterProvider role="Provider" default="9"/>
 	<obsgroup GROUPINGCONCEPTID="7">
 	

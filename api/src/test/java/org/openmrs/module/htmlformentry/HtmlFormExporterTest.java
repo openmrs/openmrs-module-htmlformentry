@@ -1,7 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Collection;
-
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +9,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsConstants;
+
+import java.util.Collection;
 
 public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	
@@ -132,6 +132,8 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		    "92b70b00-58b1-11e0-80e3-0800200c9a66")));
 		Assert.assertTrue(dependencies.contains(Context.getUserService().getRoleByUuid(
 		    "a238c500-58b1-11e0-80e3-0800200c9a66")));
+
+        // TODO test exporting location tags once we upgrade to only supporting OpenMRS 1.7 and above (since in 1.6, locations tags don't have names)
 		
 	}
 	

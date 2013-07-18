@@ -12,6 +12,7 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
@@ -990,5 +991,26 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
         Assert.assertTrue(HtmlFormEntryUtil.format(location, Locale.US).equals("Test name"));
     }
 
+    @Test
+    @Verifies(value="shouldFetchLocationTagByName", method="getLocationTag(String identifier)")
+    public void shouldFetchLocationTagByName() throws Exception {
+        // this tag is in the regression test dataset
+        executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+
+        LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
+        Assert.assertNotNull(tag);
+        Assert.assertEquals("Some Tag", tag.getTag());
+    }
+
+    @Test
+    @Verifies(value="shouldFetchLocationTagById", method="getLocationTag(String identifier)")
+    public void shouldFetchLocationTagById() throws Exception {
+        // this tag is in the regression test dataset
+        executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+
+        LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
+        Assert.assertNotNull(tag);
+        Assert.assertEquals("Some Tag", tag.getTag());
+    }
 
 }

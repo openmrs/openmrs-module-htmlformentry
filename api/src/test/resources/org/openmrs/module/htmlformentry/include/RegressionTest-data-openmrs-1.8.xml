@@ -87,7 +87,6 @@
   <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" check_digit="false" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
   
   <!-- Required metadata -->
-  <location location_id="1" name="Test Location" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
   <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
   <field_type field_type_id="1" creator="1" date_created="2005-01-01 00:00:00.0" name="Concept" is_set="false" />
   <field_type field_type_id="2" creator="1" date_created="2005-01-01 00:00:00.0" name="Database element" is_set="false" />
@@ -278,5 +277,22 @@
   <concept concept_id="4302" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32496060-03aa-102d-b1e3-001ec94a0cc7"/>
   <concept_name voided="false" concept_name_id="4302" concept_id="4302" name="OTHER NON-CODED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
   <concept_answer concept_answer_id="3004" concept_id="4300" answer_concept="4302" creator="1" date_created="2012-01-01 00:00:00.0"/>
+
+  <!-- some location tags and additional location-->
+  <location_tag location_tag_id="1001" name="Some Tag" retired="false" creator="1" date_created="2008-08-15 15:51:57.0" uuid="321c1f44-0459-4201-bf70-0b90535ba362"/>
+  <location_tag location_tag_id="1002" name="Another Tag" retired="false" creator="1" date_created="2008-08-15 15:51:57.0" uuid="362c1fcc-0459-4201-bf70-0b90535ba362"/>
+
+  <location location_id="1001" name="Kigali" creator="1" date_created="2005-09-22 00:00:00.0" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba362"/>
+  <location location_id="1002" name="Mirebalais" creator="1" date_created="2008-08-15 13:46:50.0" retired="false" uuid="92326400c-a5a2-4532-8f2b-2361b3446eb8"/>
+  <location location_id="1003" name="Indianapolis" creator="1" date_created="2008-08-15 15:28:54.0" retired="true" retired_by="1" date_retired="2008-08-15 00:00:00.0" retire_reason="test" uuid="167ce666-4785-4285-9119-d197268f7f4a"/>
+  <location location_id="1004" name="Boston" creator="1" date_created="2008-08-15 13:46:50.0" retired="false" uuid="9356400c-a5a2-4588-8f2b-2361b3446eb8"/>
+  <location location_id="1005" name="Scituate" creator="1" date_created="2008-08-15 15:28:54.0" retired="false" uuid="167ce20c-4325-4285-9119-d197268f7f4a"/>
+
+  <location_tag_map location_id="1001" location_tag_id="1001" />
+  <location_tag_map location_id="1002" location_tag_id="1001" />
+  <location_tag_map location_id="1003" location_tag_id="1001" />
+  <location_tag_map location_id="1003" location_tag_id="1002" />
+  <location_tag_map location_id="1004" location_tag_id="1002" />
+  <location_tag_map location_id="1005" location_tag_id="1002" />
 
 </dataset>

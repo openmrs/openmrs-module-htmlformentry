@@ -4,6 +4,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
@@ -309,8 +310,27 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 locationWidget = new DropdownWidget();
             }
 
+            if (parameters.get("tags") != null && parameters.get("orders") != null) {
+                throw new RuntimeException("Using both \"order\" and \"tags\" attribute in an encounterLocation tag is not currently supported");
+            }
+
+            // if the "tags" attribute has been specified, load all the locations referenced by tag
+            if (parameters.get("tags") != null) {
+
+                List<LocationTag> tags = new ArrayList<LocationTag>();
+                String temp[] = ((String) parameters.get("tags")).split(",");
+                for (String s : temp) {
+
+                    LocationTag tag = HtmlFormEntryUtil.getLocationTag(s);
+                    if (tag == null) {
+                        throw new RuntimeException("Cannot find tag: " + tag);
+                    }
+                    tags.add(tag);
+                }
+                locations.addAll(Context.getLocationService().getLocationsHavingAnyTag(tags));
+            }
             // If the "order" attribute is passed in, limit to the specified locations in order
-            if (parameters.get("order") != null) {
+            else if (parameters.get("order") != null) {
 
                 String[] temp = ((String) parameters.get("order")).split(",");
                 for (String s : temp) {
@@ -348,14 +368,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                }
             }
 
-            // now create the actual location options and sort them
+            // now create the actual location options
             for (Location location : locations) {
                 String label = HtmlFormEntryUtil.format(location);
                 Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
                 locationOptions.add(option);
             }
 
-            Collections.sort(locationOptions, new OptionComparator());
+            // sort options (if a specific order hasn't been specified
+            if (parameters.get("order") == null) {
+                Collections.sort(locationOptions, new OptionComparator());
+            }
 
             if ("autocomplete".equals(parameters.get("type"))) {
                 locationWidget.addOption(new Option());

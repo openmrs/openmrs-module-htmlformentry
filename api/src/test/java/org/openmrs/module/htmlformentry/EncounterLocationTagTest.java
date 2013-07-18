@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +23,9 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -67,7 +67,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
     public void encounterLocationTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
         FormEntrySession session = new FormEntrySession(null, htmlform, null);
-        Assert.assertTrue(session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Test Location\"") > -1);
+        Assert.assertTrue(session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Unknown Location\"") > -1);
     }
 
 
@@ -140,6 +140,52 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
         FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, htmlform, null);
         TestUtil.assertFuzzyContains("<option value=\"3\" selected=\"true\">Never Never Land</option>", session.getHtmlToDisplay());
 
+    }
+
+    @Test
+    public void encounterLocationTag_shouldRestrictToTaggedLocations() throws Exception {
+        String htmlform = "<htmlform><encounterLocation tags=\"Some Tag,1002\"/></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+        TestUtil.assertFuzzyContains("Kigali", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyContains("Mirebalais", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyContains("Boston", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyContains("Scituate", session.getHtmlToDisplay());
+
+        // this location has been retired, so it should not be displayed
+        TestUtil.assertFuzzyDoesNotContain("Indianapolis", session.getHtmlToDisplay());
+
+        // should *not* contain any of the options from the standard test dataset (as they are not tagged)
+        TestUtil.assertFuzzyDoesNotContain("Unknown Location", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyDoesNotContain("Xanadu", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyDoesNotContain("Never Never Land", session.getHtmlToDisplay());
+    }
+
+    @Test
+    public void encounterLocationTag_shouldSortLocationsByDefault() throws Exception {
+        String htmlform = "<htmlform><encounterLocation/></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+        String htmlToDisplay = session.getHtmlToDisplay();
+
+        Assert.assertTrue(htmlToDisplay.indexOf("Boston") < htmlToDisplay.indexOf("Kigali"));
+        Assert.assertTrue(htmlToDisplay.indexOf("Kigali") < htmlToDisplay.indexOf("Mirebalais"));
+        Assert.assertTrue(htmlToDisplay.indexOf("Mirebalais") < htmlToDisplay.indexOf("Scituate"));
+        Assert.assertTrue(htmlToDisplay.indexOf("Scituate") < htmlToDisplay.indexOf("Unknown Location"));
+        Assert.assertTrue(htmlToDisplay.indexOf("Unknown Location") < htmlToDisplay.indexOf("Xanadu"));
+
+    }
+
+
+    @Test
+    public void shouldListLocationsInSpecifiedOrderIfOrderAttributePresent() throws Exception {
+        String htmlform = "<htmlform><encounterLocation order=\"1002,1003,1004\"/></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+        String htmlToDisplay = session.getHtmlToDisplay();
+
+        Assert.assertTrue(htmlToDisplay.indexOf("Mirebalais") < htmlToDisplay.indexOf("Indianapolis"));
+        Assert.assertTrue(htmlToDisplay.indexOf("Indianapolis") < htmlToDisplay.indexOf("Boston"));
     }
 
 }
