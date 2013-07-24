@@ -96,6 +96,7 @@ public class FormEntrySession {
 
     private FormSubmissionActions submissionActions;
 
+    // calling the getter will build this once, then cache it
     private String htmlToDisplay;
 
     private VelocityEngine velocityEngine;
@@ -108,6 +109,11 @@ public class FormEntrySession {
 
     private HttpSession httpSession;
 
+    private String xmlDefinition;
+
+    /**
+     * Applications and UI Frameworks that embed HTML Forms may store context variables as attributes to make them available to tags
+     */
     private Map<String, Object> attributes = new HashMap<String, Object>();
 
     /**
@@ -239,7 +245,7 @@ public class FormEntrySession {
         this(patient, Mode.ENTER, httpSession);
         submissionController = new FormSubmissionController();
 
-        this.htmlToDisplay = createForm(xml);
+        this.xmlDefinition = xml;
     }
 
     /**
@@ -276,7 +282,7 @@ public class FormEntrySession {
         if (form.getEncounterType() != null)
             form.getEncounterType().getName();
 
-        htmlToDisplay = createForm(htmlForm.getXmlData());
+        xmlDefinition = htmlForm.getXmlData();
     }
 
     /**
@@ -298,7 +304,7 @@ public class FormEntrySession {
         HtmlForm temp = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
         this.formModifiedTimestamp = (temp.getDateChanged() == null ? temp.getDateCreated() : temp.getDateChanged())
                 .getTime();
-        htmlToDisplay = createForm(temp.getXmlData());
+        xmlDefinition = temp.getXmlData();
     }
 
     /**
@@ -354,7 +360,7 @@ public class FormEntrySession {
 
         submissionController = new FormSubmissionController();
         context.setupExistingData(encounter);
-        this.htmlToDisplay = createForm(htmlForm.getXmlData());
+        this.xmlDefinition = htmlForm.getXmlData();
     }
 
     /*
@@ -749,9 +755,14 @@ public class FormEntrySession {
     }
 
     /**
-     * Return the form display html associated with the session
+     * Return the form display html associated with the session.
+     * The HTML is built from this session's xmlDefinition the first time you call this getter, and it is cached for
+     * subsequent calls.
      */
-    public String getHtmlToDisplay() {
+    public String getHtmlToDisplay() throws Exception {
+        if (htmlToDisplay == null) {
+            htmlToDisplay = createForm(xmlDefinition);
+        }
         return htmlToDisplay;
     }
 

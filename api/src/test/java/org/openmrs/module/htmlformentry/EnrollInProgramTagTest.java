@@ -670,6 +670,6 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	public void enrollInProgram_shouldFailIfAnyOfTheStatesIsNotMarkedAsInitialAndThePatientIsNotEnrolledInTheProgram()
 	    throws Exception {
 		String htmlform = "<htmlform>Enroll In Program: <enrollInProgram programId=\"10\" showDate=\"true\" stateIds=\"201\" /><submit/></htmlform>";
-		new FormEntrySession(Context.getPatientService().getPatient(6), htmlform, null);
+		new FormEntrySession(Context.getPatientService().getPatient(6), htmlform, null).getHtmlToDisplay();
 	}
 }

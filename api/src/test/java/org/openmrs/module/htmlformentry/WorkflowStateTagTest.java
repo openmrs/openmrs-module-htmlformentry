@@ -81,7 +81,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfWorkflowIdMissing() throws Exception {
 		String htmlform = "<htmlform><workflowState/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -137,19 +137,19 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndCheckboxStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"checkbox\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStateIdAndHiddenStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"hidden\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfInvalidStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" type=\"invalid\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -179,14 +179,14 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldFailIfSpecifiedInvalidStates() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + ",some invalid state,"
 		        + END_STATE + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedDifferentProgramStates() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + ","
 		        + DIFFERENT_PROGRAM_WORKFLOW_STATE + "," + END_STATE + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -236,27 +236,27 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldFailIfSpecifiedStateAndDropdownStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
 		        + "\" type=\"dropdown\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedStateAndRadioStyle() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE
 		        + "\" type=\"radio\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedInvalidState() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"invalid\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfSpecifiedDifferentProgramState() throws Exception {
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + DIFFERENT_PROGRAM_WORKFLOW_STATE
 		        + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -279,7 +279,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "," + END_STATE
 		        + "\" stateLabels=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -289,7 +289,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "," + END_STATE
 		        + "\" stateLabels=\"" + startState + ",someState,someOtherState\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -306,7 +306,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE + "\" stateLabels=\""
 		        + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -314,21 +314,21 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateIds=\"" + START_STATE + "\" stateLabel=\""
 		        + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStatesAndStateLabel() throws Exception {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateLabel=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailIfNoStatesAndStateLabels() throws Exception {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateLabels=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
@@ -336,7 +336,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		String startState = "Transition to start state";
 		String htmlform = "<htmlform><workflowState workflowId=\"100\" stateId=\"" + START_STATE + "\" stateLabel=\""
 		        + startState + "\" stateLabels=\"" + startState + "\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -1927,7 +1927,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
     /**
 	 * @param session
 	 */
-	private void assertNotPresent(FormEntrySession session, String state) {
+	private void assertNotPresent(FormEntrySession session, String state) throws Exception {
 		Assert.assertFalse("No " + state + " in result:" + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains(state));
 	}
@@ -1935,7 +1935,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	/**
 	 * @param session
 	 */
-	private void assertPresent(FormEntrySession session, String state) {
+	private void assertPresent(FormEntrySession session, String state) throws Exception {
 		Assert.assertTrue(state + " in result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains(state));
 	}
 	

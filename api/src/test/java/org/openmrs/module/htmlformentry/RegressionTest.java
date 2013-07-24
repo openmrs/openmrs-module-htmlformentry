@@ -853,6 +853,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		htmlform.setDateChanged(new Date());
 		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
 		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
+        session.getHtmlToDisplay();
 		HtmlFormSchema hfs = session.getContext().getSchema();
 		String ret = "";
 		int count = 0;
@@ -864,8 +865,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			ret += ") ";
 			count++;
 		}
-		Assert.assertTrue(ret
-				.equals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) "));
+		Assert.assertEquals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) ", ret);
 	}
 
 	/**

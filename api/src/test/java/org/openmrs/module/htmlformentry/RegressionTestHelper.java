@@ -414,6 +414,7 @@ public abstract class RegressionTestHelper {
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
 		FormEntrySession session = new FormEntrySession(patient, null, FormEntryContext.Mode.ENTER, fakeForm, new MockHttpSession());
+        session.getHtmlToDisplay();
 		return session;
 	}
 	
@@ -424,6 +425,7 @@ public abstract class RegressionTestHelper {
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
 		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.VIEW, fakeForm, new MockHttpSession());
+        session.getHtmlToDisplay();
 		return session;
 	}
 	
