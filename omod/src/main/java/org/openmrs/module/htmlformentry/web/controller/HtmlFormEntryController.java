@@ -184,6 +184,9 @@ public class HtmlFormEntryController {
         
         if (hasChangedInd != null) session.setHasChangedInd(hasChangedInd);
 
+        // ensure we've generated the form's HTML (and thus set up the submission actions, etc) before we do anything
+        session.getHtmlToDisplay();
+
         Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
         log.info("Took " + (System.currentTimeMillis() - ts) + " ms");

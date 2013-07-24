@@ -54,6 +54,7 @@ import org.springframework.web.util.JavaScriptUtils;
  * To validate and submit a form you need to do something like this:
  * <p/>
  * <pre>
+ *  session.getHtmlToDisplay();
  * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
@@ -755,9 +756,11 @@ public class FormEntrySession {
     }
 
     /**
-     * Return the form display html associated with the session.
-     * The HTML is built from this session's xmlDefinition the first time you call this getter, and it is cached for
-     * subsequent calls.
+     * Return the form display HTML associated with the session. This has the important side-effect of having tags
+     * populate the submissionActions list, so you must ensure this is called before you attempt to validate or process
+     * a form's submission.
+     * The first time you call this method on an instance will generate the HTML and cache it, so that subsequent calls
+     * are fast (and so that the submissionActions list is only populated once).
      */
     public String getHtmlToDisplay() throws Exception {
         if (htmlToDisplay == null) {
