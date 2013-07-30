@@ -59,7 +59,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultNumericValueIsInvalid() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" defaultValue=\"invalidNumber\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -80,13 +80,13 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultCodedValueIsInvalid() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"invalidValue\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultCodedValueIsNotAllowedAnswer() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1000\" defaultValue=\"2\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -126,7 +126,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultBooleanValueIsInvalid() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"yes\" style=\"no_yes_dropdown\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -146,7 +146,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultDateAndDefaultDatetimeSet() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"1119\" defaultValue=\"2011-02-02-00-00\" defaultDatetime=\"2011-02-02-00-00\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
@@ -396,7 +396,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
     @Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionWithCheckboxIfAnswerIsNotNumeric() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"eight\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
-		new FormEntrySession(patient, htmlform, null);
+		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 
     @Test
