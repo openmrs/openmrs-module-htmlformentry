@@ -406,7 +406,16 @@ public abstract class RegressionTestHelper {
 	protected String getXmlDatasetPath() {
 		return RegressionTest.XML_DATASET_PATH;
 	}
-	
+
+    /**
+     * Override this if you want to populate the FormEntrySession with extra attributes.
+     * This will be applied for Enter, Edit, and View.
+     * @return map of attributes to be set on the FormEntrySession
+     */
+    public Map<String, Object> getFormEntrySessionAttributes() {
+        return null;
+    }
+
 	private FormEntrySession setupFormEntrySession(Patient patient, String filename) throws Exception {
 		String xml = loadXmlFromFile(getXmlDatasetPath() + filename + ".xml");
 		
@@ -414,6 +423,7 @@ public abstract class RegressionTestHelper {
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
 		FormEntrySession session = new FormEntrySession(patient, null, FormEntryContext.Mode.ENTER, fakeForm, new MockHttpSession());
+        session.setAttributes(getFormEntrySessionAttributes());
         session.getHtmlToDisplay();
 		return session;
 	}
@@ -425,6 +435,7 @@ public abstract class RegressionTestHelper {
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
 		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.VIEW, fakeForm, new MockHttpSession());
+        session.setAttributes(getFormEntrySessionAttributes());
         session.getHtmlToDisplay();
 		return session;
 	}
@@ -436,6 +447,8 @@ public abstract class RegressionTestHelper {
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
 		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, fakeForm, new MockHttpSession());
+        session.setAttributes(getFormEntrySessionAttributes());
+        session.getHtmlToDisplay();
 		return session;
 	}
 	

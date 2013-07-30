@@ -222,18 +222,6 @@ public class FormEntrySession {
 
 
     /**
-     * Private constructor that creates a new Form Entry Session for the specified Patient in the
-     * specified {@Mode}
-     *
-     * @param patient
-     * @param mode
-     * @param httpSession
-     */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, HttpSession httpSession) {
-        this(patient, mode, null, httpSession);
-    }
-
-    /**
      * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the
      * specified xml string to create the HTML Form object
      *
@@ -243,7 +231,7 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, String xml, HttpSession httpSession) throws Exception {
-        this(patient, Mode.ENTER, httpSession);
+        this(patient, Mode.ENTER, null, httpSession);
         submissionController = new FormSubmissionController();
 
         this.xmlDefinition = xml;
@@ -296,7 +284,7 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, Form form, HttpSession httpSession) throws Exception {
-        this(patient, Mode.ENTER, httpSession);
+        this(patient, Mode.ENTER, null, httpSession);
         this.form = form;
 
         velocityContext.put("form", form);
@@ -364,19 +352,6 @@ public class FormEntrySession {
         this.xmlDefinition = htmlForm.getXmlData();
     }
 
-    /*
-     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, String htmlToDisplay) throws Exception {
-         this(patient);
-         this.encounter = encounter;
-         context = new FormEntryContext(mode);
-
-         velocityContext.put("encounter", encounter);
-         submissionController = new FormSubmissionController();
-
-         context.setupExistingData(encounter);
-         this.htmlToDisplay = createForm(htmlToDisplay);
-     }
-     */
 
     /**
      * Evaluates a velocity expression and returns the result as a string
@@ -1064,6 +1039,12 @@ public class FormEntrySession {
 
     public Object getAttribute(String key) {
         return attributes.get(key);
+    }
+
+    public void setAttributes(Map<String, Object> moreAttributes) {
+        if (moreAttributes != null) {
+            attributes.putAll(moreAttributes);
+        }
     }
 
 }
