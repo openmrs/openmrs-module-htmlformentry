@@ -162,6 +162,7 @@ public class HtmlFormEntryExportUtil {
         
        //this should move existing obs from session to tag handlers.
         FormEntrySession session = new FormEntrySession(e.getPatient(), e, FormEntryContext.Mode.VIEW, htmlform, null); // session gets a null HttpSession
+        session.getHtmlToDisplay();
         
         if (log.isDebugEnabled()){
             Map<Concept, List<Obs>>  map = session.getContext().getExistingObs();
@@ -239,6 +240,7 @@ public class HtmlFormEntryExportUtil {
      */ 
     public static String generateColumnHeadersFromHtmlForm(HtmlForm form, List<String> extraCols, StringBuffer sb, List<PatientIdentifierType> pitList) throws Exception {
         FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), form, null); // session gets a null HttpSession
+        session.getHtmlToDisplay();
         HtmlFormSchema hfs = session.getContext().getSchema();
         
         sb.
@@ -376,6 +378,7 @@ public class HtmlFormEntryExportUtil {
             }
             
             FormEntrySession session = new FormEntrySession(e.getPatient(), e, Mode.VIEW, form, null); // session doesn't get HttpSession
+            session.getHtmlToDisplay();
             FormSubmissionController  fsa = session.getSubmissionController();
             List<FormSubmissionControllerAction> actions = fsa.getActions();
             for (FormSubmissionControllerAction fsca : actions){

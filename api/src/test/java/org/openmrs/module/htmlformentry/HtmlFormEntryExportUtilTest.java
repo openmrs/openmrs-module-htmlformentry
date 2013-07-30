@@ -119,7 +119,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         }
         //Note, this assertion corresponds to section index 0 in the form, so 5 obs should be returned
             // the form has 6 obs under section 0, but we didn't create the obs for conceptId = 9
-        Assert.assertTrue(e.getAllObs().size() == 5);
+        Assert.assertEquals(5, e.getAllObs().size());
         
     }
     

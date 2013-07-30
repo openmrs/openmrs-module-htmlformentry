@@ -54,6 +54,7 @@ import org.springframework.web.util.JavaScriptUtils;
  * To validate and submit a form you need to do something like this:
  * <p/>
  * <pre>
+ *  session.getHtmlToDisplay();
  * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
@@ -96,6 +97,7 @@ public class FormEntrySession {
 
     private FormSubmissionActions submissionActions;
 
+    // calling the getter will build this once, then cache it
     private String htmlToDisplay;
 
     private VelocityEngine velocityEngine;
@@ -107,6 +109,13 @@ public class FormEntrySession {
     private String hasChangedInd = "false";
 
     private HttpSession httpSession;
+
+    private String xmlDefinition;
+
+    /**
+     * Applications and UI Frameworks that embed HTML Forms may store context variables as attributes to make them available to tags
+     */
+    private Map<String, Object> attributes = new HashMap<String, Object>();
 
     /**
      * Private constructor that creates a new Form Entry Session for the specified Patient in the
@@ -213,18 +222,6 @@ public class FormEntrySession {
 
 
     /**
-     * Private constructor that creates a new Form Entry Session for the specified Patient in the
-     * specified {@Mode}
-     *
-     * @param patient
-     * @param mode
-     * @param httpSession
-     */
-    private FormEntrySession(Patient patient, FormEntryContext.Mode mode, HttpSession httpSession) {
-        this(patient, mode, null, httpSession);
-    }
-
-    /**
      * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the
      * specified xml string to create the HTML Form object
      *
@@ -234,10 +231,10 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, String xml, HttpSession httpSession) throws Exception {
-        this(patient, Mode.ENTER, httpSession);
+        this(patient, Mode.ENTER, null, httpSession);
         submissionController = new FormSubmissionController();
 
-        this.htmlToDisplay = createForm(xml);
+        this.xmlDefinition = xml;
     }
 
     /**
@@ -274,7 +271,7 @@ public class FormEntrySession {
         if (form.getEncounterType() != null)
             form.getEncounterType().getName();
 
-        htmlToDisplay = createForm(htmlForm.getXmlData());
+        xmlDefinition = htmlForm.getXmlData();
     }
 
     /**
@@ -287,7 +284,7 @@ public class FormEntrySession {
      * @throws Exception
      */
     public FormEntrySession(Patient patient, Form form, HttpSession httpSession) throws Exception {
-        this(patient, Mode.ENTER, httpSession);
+        this(patient, Mode.ENTER, null, httpSession);
         this.form = form;
 
         velocityContext.put("form", form);
@@ -296,7 +293,7 @@ public class FormEntrySession {
         HtmlForm temp = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
         this.formModifiedTimestamp = (temp.getDateChanged() == null ? temp.getDateCreated() : temp.getDateChanged())
                 .getTime();
-        htmlToDisplay = createForm(temp.getXmlData());
+        xmlDefinition = temp.getXmlData();
     }
 
     /**
@@ -352,22 +349,9 @@ public class FormEntrySession {
 
         submissionController = new FormSubmissionController();
         context.setupExistingData(encounter);
-        this.htmlToDisplay = createForm(htmlForm.getXmlData());
+        this.xmlDefinition = htmlForm.getXmlData();
     }
 
-    /*
-     public FormEntrySession(Patient patient, Encounter encounter, Mode mode, String htmlToDisplay) throws Exception {
-         this(patient);
-         this.encounter = encounter;
-         context = new FormEntryContext(mode);
-
-         velocityContext.put("encounter", encounter);
-         submissionController = new FormSubmissionController();
-
-         context.setupExistingData(encounter);
-         this.htmlToDisplay = createForm(htmlToDisplay);
-     }
-     */
 
     /**
      * Evaluates a velocity expression and returns the result as a string
@@ -747,9 +731,16 @@ public class FormEntrySession {
     }
 
     /**
-     * Return the form display html associated with the session
+     * Return the form display HTML associated with the session. This has the important side-effect of having tags
+     * populate the submissionActions list, so you must ensure this is called before you attempt to validate or process
+     * a form's submission.
+     * The first time you call this method on an instance will generate the HTML and cache it, so that subsequent calls
+     * are fast (and so that the submissionActions list is only populated once).
      */
-    public String getHtmlToDisplay() {
+    public String getHtmlToDisplay() throws Exception {
+        if (htmlToDisplay == null) {
+            htmlToDisplay = createForm(xmlDefinition);
+        }
         return htmlToDisplay;
     }
 
@@ -1040,6 +1031,20 @@ public class FormEntrySession {
 
     public void setClientSideValidationHints(boolean clientSideValidationHints) {
         context.setClientSideValidationHints(true);
+    }
+
+    public void setAttribute(String key, Object value) {
+        attributes.put(key, value);
+    }
+
+    public Object getAttribute(String key) {
+        return attributes.get(key);
+    }
+
+    public void setAttributes(Map<String, Object> moreAttributes) {
+        if (moreAttributes != null) {
+            attributes.putAll(moreAttributes);
+        }
     }
 
 }

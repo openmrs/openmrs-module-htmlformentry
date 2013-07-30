@@ -1073,6 +1073,7 @@ public class HtmlFormEntryUtil {
 			Map<Order, Order> replacementOrders = new HashMap<Order, Order>();//new, then source
 			Encounter eTmp = returnEncounterCopy(e, replacementObs, replacementOrders);
 			FormEntrySession session = new FormEntrySession(eTmp.getPatient(), eTmp, Mode.VIEW, htmlform, null); // session gets a null HttpSession
+            session.getHtmlToDisplay();
 			List<FormSubmissionControllerAction> actions = session.getSubmissionController().getActions();
 			Set<Obs> matchedObs = new HashSet<Obs>();
 			Set<Order> matchedOrders = new HashSet<Order>();
