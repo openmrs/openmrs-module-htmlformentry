@@ -361,8 +361,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
             locationWidget.setInitialValue(defaultLocation);
 
-            // make sure that the default/selected location is one of the location options
-            if (defaultLocation != null) {
+            // if in EDIT mode, make sure that the default/selected location is one of the location options, so we don't accidentally lose it
+            if (defaultLocation != null && context.getMode().equals(Mode.EDIT)) {
                if (!locations.contains(defaultLocation)) {
                    locations.add(defaultLocation);
                }
