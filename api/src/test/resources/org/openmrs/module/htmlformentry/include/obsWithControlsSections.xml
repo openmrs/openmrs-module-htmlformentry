@@ -1,0 +1,17 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Coded:
+    <obs conceptId="1000" id="allergy">
+        <controls>
+            <when value="32296060-03aa-102d-b0e3-001ec94a0cc5" thenDisplay="#penicillin-followup"/>
+            <when value="1002" thenDisplay="#cats-followup"/>
+        </controls>
+    </obs>
+
+    <div id="penicillin-followup">blah</div>
+    <div id="cats-followup">meow</div>
+
+    <submit/>
+</htmlform>

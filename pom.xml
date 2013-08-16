@@ -50,6 +50,20 @@
 				<version>${logicVersion}</version>
 				<scope>test</scope>
 			</dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${jacksonVersion}</version>
+                <type>jar</type>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>${jacksonVersion}</version>
+                <type>jar</type>
+                <scope>provided</scope>
+            </dependency>
 			<dependency>
 				<groupId>org.codehaus.groovy</groupId>
 				<artifactId>groovy</artifactId>
@@ -104,8 +118,9 @@
 		<openMRSVersion>1.6.5</openMRSVersion>
 		<openMRSMinorVersion>1.6</openMRSMinorVersion>
 		<logicVersion>0.5</logicVersion>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+        <jacksonVersion>1.5.0</jacksonVersion>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
 	<modules>
 		<module>api</module>
