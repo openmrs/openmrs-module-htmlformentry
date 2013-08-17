@@ -39,13 +39,8 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
     @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out,
             Node parent, Node node) {
-        
-        Map<String, String> attributes = new HashMap<String, String>();        
-        NamedNodeMap map = node.getAttributes();
-        for (int i = 0; i < map.getLength(); ++i) {
-            Node attribute = map.item(i);
-            attributes.put(attribute.getNodeName(), attribute.getNodeValue());
-        }
+
+        Map<String, String> attributes = getAttributes(node);
         if (attributes.get("groupingConceptId") == null) {
             throw new NullPointerException("obsgroup tag requires a groupingConceptId attribute");
         }

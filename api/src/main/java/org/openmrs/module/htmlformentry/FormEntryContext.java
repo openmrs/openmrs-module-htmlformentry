@@ -27,6 +27,7 @@ import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
@@ -90,6 +91,8 @@ public class FormEntryContext {
 
     private boolean automaticClientSideValidation = true;
     private boolean clientSideValidationHints = false;
+
+    private Stack<Object> stack = new Stack<Object>();
 
     public FormEntryContext(Mode mode) {
         this.mode = mode;
@@ -685,6 +688,24 @@ public class FormEntryContext {
 
     public HttpSession getHttpSession() {
         return httpSession;
+    }
+
+    public void pushToStack(Object object) {
+        stack.push(object);
+    }
+
+    public Object popFromStack() {
+        return stack.pop();
+    }
+
+    public <T> T getHighestOnStack(Class<T> clazz) {
+        for (int i = stack.size() - 1; i >= 0; --i) {
+            Object candidate = stack.get(i);
+            if (clazz.isAssignableFrom(candidate.getClass())) {
+                return (T) candidate;
+            }
+        }
+        return null;
     }
 
     /**

@@ -36,14 +36,8 @@ public abstract class SubstitutionTagHandler extends AbstractTagHandler {
     
     @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
-        Map<String, String> attributes = new HashMap<String, String>();        
-        NamedNodeMap map = node.getAttributes();
-        for (int i = 0; i < map.getLength(); ++i) {
-            Node attribute = map.item(i);
-            attributes.put(attribute.getNodeName(), attribute.getNodeValue());
-        }
-        
-        String replacement = getSubstitution(session, session.getSubmissionController(), attributes);
+
+        String replacement = getSubstitution(session, session.getSubmissionController(), getAttributes(node));
         out.print(replacement);
         return false; // skip contents/children
     }
