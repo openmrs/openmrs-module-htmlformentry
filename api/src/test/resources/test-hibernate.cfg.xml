@@ -6,6 +6,6 @@
 <hibernate-configuration>
 	<session-factory>
 		<mapping resource="HtmlFormEntryHtmlForm.hbm.xml" />
-		<mapping resource="LogicRuleToken.hbm.xml" />
+		<mapping resource="TokenRegistration.hbm.xml" />
 	</session-factory>
 </hibernate-configuration>
