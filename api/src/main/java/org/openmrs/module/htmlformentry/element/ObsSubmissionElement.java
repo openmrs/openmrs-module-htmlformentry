@@ -47,6 +47,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -121,7 +122,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
     private List<Option> locationOptions = new ArrayList<Option>();
 
-	
+    private Map<Object, String> whenValueThenDisplaySection = new LinkedHashMap<Object, String>();
+
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		String conceptId = parameters.get("conceptId");
 		String conceptIds = parameters.get("conceptIds");
@@ -1257,5 +1259,17 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	public Obs getExistingObs() {
 		return existingObs;
 	}
-	
+
+    public void whenValueThenDisplaySection(Object value, String thenSection) {
+        whenValueThenDisplaySection.put(value, thenSection);
+    }
+
+    public Map<Object, String> getWhenValueThenDisplaySection() {
+        return whenValueThenDisplaySection;
+    }
+
+    public String getId() {
+        return id;
+    }
+
 }

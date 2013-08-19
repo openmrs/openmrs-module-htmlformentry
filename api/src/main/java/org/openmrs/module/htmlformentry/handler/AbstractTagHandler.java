@@ -1,10 +1,15 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 /**
@@ -48,5 +53,22 @@ public abstract class AbstractTagHandler implements TagHandler {
         }
         return ret != null ? ret : defaultValue;
     }
-    
+
+    public Map<String, String> getAttributes(Node node) {
+        Map<String, String> attributes = new HashMap<String, String>();
+        NamedNodeMap map = node.getAttributes();
+        for (int i = 0; i < map.getLength(); ++i) {
+            Node attribute = map.item(i);
+            attributes.put(attribute.getNodeName(), attribute.getNodeValue());
+        }
+        return attributes;
+    }
+
+    protected String toJson(Object object) {
+        try {
+            return new ObjectMapper().writeValueAsString(object);
+        } catch (IOException e) {
+            throw new RuntimeException("Error generating JSON", e);
+        }
+    }
 }

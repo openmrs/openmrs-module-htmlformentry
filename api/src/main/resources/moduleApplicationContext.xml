@@ -22,6 +22,14 @@
                             <bean class="org.openmrs.module.htmlformentry.handler.ObsTagHandler"/>
                         </entry>
                         <entry>
+                            <key><value>controls</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.ControlsTagHandler"/>
+                        </entry>
+                        <entry>
+                            <key><value>when</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.WhenTagHandler"></bean>
+                        </entry>
+                        <entry>
                             <key><value>obsgroup</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ObsGroupTagHandler"/>
                         </entry>
