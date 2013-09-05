@@ -1,3 +1,7 @@
+/*
+ * Note to HTML Form Entry developers: going forwards new functionality should be put in htmlForm.js
+ */
+
     var tempRadioStatus;
 
 // remember the status of this radio button when it is first clicked, for use in the radioClicked method

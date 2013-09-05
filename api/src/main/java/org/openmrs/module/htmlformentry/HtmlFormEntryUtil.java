@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.Drug;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
@@ -37,6 +38,7 @@ import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.propertyeditor.ConceptEditor;
+import org.openmrs.propertyeditor.DrugEditor;
 import org.openmrs.propertyeditor.EncounterTypeEditor;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
@@ -144,7 +146,11 @@ public class HtmlFormEntryUtil {
 			ConceptEditor ed = new ConceptEditor();
 			ed.setAsText(val);
 			return ed.getValue();
-		} else if (Patient.class.isAssignableFrom(clazz)) {
+        } else if (Drug.class.isAssignableFrom(clazz)) {
+            DrugEditor ed = new DrugEditor();
+            ed.setAsText(val);
+            return ed.getValue();
+        } else if (Patient.class.isAssignableFrom(clazz)) {
 			PatientEditor ed = new PatientEditor();
 			ed.setAsText(val);
 			return ed.getValue();
@@ -207,10 +213,14 @@ public class HtmlFormEntryUtil {
 				obs.setValueText(value.toString());
 			}
 		} else if (dt.isCoded()) {
-			if (value instanceof Concept)
+            if (value instanceof Drug) {
+                obs.setValueDrug((Drug) value);
+                obs.setValueCoded(((Drug) value).getConcept());
+            } else if (value instanceof Concept) {
 				obs.setValueCoded((Concept) value);
-			else
+            } else {
 				obs.setValueCoded((Concept) convertToType(value.toString(), Concept.class));
+            }
 		} else if (dt.isBoolean()) {
 			boolean booleanValue = value != null && !Boolean.FALSE.equals(value) && !"false".equals(value);
 			obs.setValueNumeric(booleanValue ? 1.0 : 0.0);

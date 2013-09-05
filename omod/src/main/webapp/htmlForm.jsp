@@ -10,6 +10,7 @@
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.css" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.min.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/handlebars.min.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
 
 <script>
@@ -293,7 +294,8 @@
 	
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
-	
+    <openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlForm.js" />
+
 	<br/>
 	<br/>
 

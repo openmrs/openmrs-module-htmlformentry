@@ -6,6 +6,7 @@ import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptNumeric;
+import org.openmrs.Drug;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Person;
@@ -32,6 +33,7 @@ import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.PersonStubWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
+import org.openmrs.module.htmlformentry.widget.RemoteJsonAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
@@ -39,6 +41,7 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.web.WebConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -632,7 +635,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// allow selecting one of multiple possible coded values
 					
 					// if no answers are specified explicitly (by conceptAnswers or conceptClasses), get them from concept.answers.
-					if (!parameters.containsKey("answerConceptIds") && !parameters.containsKey("answerClasses")) {
+					if (!parameters.containsKey("answerConceptIds") && !parameters.containsKey("answerClasses") && !parameters.containsKey("answerDrugs")) {
 						conceptAnswers = new ArrayList<Concept>();
 						for (ConceptAnswer ca : concept.getAnswers(false)) {
 							conceptAnswers.add(ca.getAnswerConcept());
@@ -662,7 +665,21 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                         else {
 						    valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
                         }
-					} else {
+                    } else if (parameters.get("answerDrugs") != null) {
+                        // we support searching through all drugs via AJAX
+                        RemoteJsonAutocompleteWidget widget = new RemoteJsonAutocompleteWidget("/" + WebConstants.WEBAPP_NAME + "/module/htmlformentry/drugSearch.form");
+                        widget.setValueTemplate("Drug:{{id}}");
+                        if (parameters.get("displayTemplate") != null) {
+                            widget.setDisplayTemplate(parameters.get("displayTemplate"));
+                        } else {
+                            widget.setDisplayTemplate("{{name}}");
+                        }
+                        if (existingObs != null && existingObs.getValueDrug() != null) {
+                            widget.setInitialValue(new Option(existingObs.getValueDrug().getName(), existingObs.getValueDrug().getDrugId().toString(), true));
+                        }
+                        valueWidget = widget;
+
+                    } else {
 			            // Show Radio Buttons if specified, otherwise default to Drop
 						// Down 
 						boolean isRadio = "radio".equals(parameters.get("style"));
@@ -692,8 +709,12 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						}
 					}
 					if (existingObs != null) {
-						valueWidget.setInitialValue(existingObs.getValueCoded());
-					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
+                        if (existingObs.getValueDrug() != null) {
+                            valueWidget.setInitialValue(existingObs.getValueDrug());
+                        } else {
+                            valueWidget.setInitialValue(existingObs.getValueCoded());
+                        }
+                    } else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
 						if (initialValue == null) {
 							throw new IllegalArgumentException("Invalid default value. Cannot find concept: " + defaultValue);
@@ -1096,6 +1117,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		Object value = valueWidget.getValue(session.getContext(), submission);
+        if (value instanceof String && ((String) value).startsWith("Drug:")) {
+            String drugId = ((String) value).substring("Drug:".length());
+            value = HtmlFormEntryUtil.convertToType(drugId, Drug.class);
+        }
 		if (concepts != null) {
 			try {
 				if (value instanceof Concept)

@@ -30,7 +30,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.StringContains.containsString;
 
 /**
  * Tests the obs tag.
@@ -749,15 +751,15 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 results.assertNoErrors();
                 Encounter encounter = results.getEncounterCreated();
 
-                Assert.assertThat(encounter.getAllObs(false).size(), is(2));   // should be two non-voided obs of value 1002 & 1003
-                Assert.assertThat(encounter.getAllObs(true).size(), is(3));   // should be three obs included the voided obs for 1001
+                assertThat(encounter.getAllObs(false).size(), is(2));   // should be two non-voided obs of value 1002 & 1003
+                assertThat(encounter.getAllObs(true).size(), is(3));   // should be three obs included the voided obs for 1001
 
                 Set<Integer> valueCoded = new HashSet<Integer>();
 
 
                 for (Obs obs : encounter.getAllObs(true)) {
                     if (obs.isVoided()) {
-                        Assert.assertThat(obs.getValueCoded().getId(), is(1001));
+                        assertThat(obs.getValueCoded().getId(), is(1001));
                     }
                     else {
                         valueCoded.add(obs.getValueCoded().getId());
@@ -823,14 +825,14 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 results.assertNoErrors();
                 Encounter encounter = results.getEncounterCreated();
 
-                Assert.assertThat(encounter.getAllObs(false).size(), is(1));   // should be one non-voided obs of value 1003
-                Assert.assertThat(encounter.getAllObs(true).size(), is(3));   // should be three obs included the voided obs for 1001 and 1002
+                assertThat(encounter.getAllObs(false).size(), is(1));   // should be one non-voided obs of value 1003
+                assertThat(encounter.getAllObs(true).size(), is(3));   // should be three obs included the voided obs for 1001 and 1002
 
                 Set<Integer> valueCoded = new HashSet<Integer>();
 
                 for (Obs obs : encounter.getAllObs(true)) {
                     if (!obs.isVoided()) {
-                        Assert.assertThat(obs.getValueCoded().getId(), is(1003));
+                        assertThat(obs.getValueCoded().getId(), is(1003));
                     }
                     else {
                         valueCoded.add(obs.getValueCoded().getId());
@@ -896,8 +898,8 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 results.assertNoErrors();
                 Encounter encounter = results.getEncounterCreated();
 
-                Assert.assertThat(encounter.getAllObs(false).size(), is(0));   // no none-voided obs
-                Assert.assertThat(encounter.getAllObs(true).size(), is(2));   // the existing obs should have been voided
+                assertThat(encounter.getAllObs(false).size(), is(0));   // no none-voided obs
+                assertThat(encounter.getAllObs(true).size(), is(2));   // the existing obs should have been voided
             }
 
         }.run();
@@ -914,6 +916,51 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
             @Override
             public void testBlankFormHtml(String html) {
                 assertTrue(html.contains("htmlForm.setupWhenThenDisplay('allergy', {\"1001\":\"#penicillin-followup\",\"1002\":\"#cats-followup\"});"));
+            }
+        }.run();
+    }
+
+    @Test
+    public void testObsDrug() throws Exception {
+        new RegressionTestHelper() {
+            @Override
+            public String getFormName() {
+                return "obsDrugForm";
+            }
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                System.out.println(html);
+                assertTrue(html.contains("autocomplete"));
+                assertTrue(html.contains("source: '/openmrs/module/htmlformentry/drugSearch.form'"));
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "Allergic to drug:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+                request.addParameter(widgets.get("Allergic to drug:"), "Drug:3");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+                results.assertObsCreatedCount(1);
+                results.assertObsCreated(1000, Context.getConceptService().getDrug(3));
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                assertThat(html, containsString("Allergic to drug: Aspirin"));
             }
         }.run();
     }

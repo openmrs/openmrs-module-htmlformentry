@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Allergic to drug: <obs conceptId="1000" answerDrugs="true"/>
+    <submit/>
+</htmlform>

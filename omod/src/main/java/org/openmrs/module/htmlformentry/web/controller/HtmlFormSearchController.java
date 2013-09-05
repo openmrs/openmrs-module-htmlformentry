@@ -1,12 +1,16 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptWord;
+import org.openmrs.Drug;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.propertyeditor.ConceptClassEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.web.WebUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.WebDataBinder;
@@ -16,17 +20,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
 @Controller
 public class HtmlFormSearchController {
+
+    @Autowired
+    private ConceptService conceptService;
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -66,16 +76,16 @@ public class HtmlFormSearchController {
 		} else if (!"null".equals(answerclasses)&& !"".equals(answerclasses)) {
 			for (StringTokenizer st = new StringTokenizer(answerclasses, ","); st
 					.hasMoreTokens();) {
-				cptClassList.add(Context.getConceptService()
+				cptClassList.add(conceptService
 						.getConceptClassByName(st.nextToken()));
 			}
 		} else {
 			throw new Exception(
 					"answerconceptids set and answerclasses are both empty.");
 		}
-		List<ConceptWord> words = Context.getConceptService().getConceptWords(
-				query, l, false, cptClassList, null, null, null, null, null,
-				null);
+		List<ConceptWord> words = conceptService.getConceptWords(
+                query, l, false, cptClassList, null, null, null, null, null,
+                null);
 		if (!set.isEmpty()) {
 			for (Iterator<ConceptWord> it = words.iterator(); it.hasNext();) {
 				if (!set.contains(it.next().getConcept().getConceptId())) {
@@ -105,4 +115,45 @@ public class HtmlFormSearchController {
 		}
 		out.print("]");
 	}
+
+    @RequestMapping("/module/htmlformentry/drugSearch")
+    public void localizedMessage(@RequestParam("term") String query,
+                                 HttpServletResponse response) throws IOException {
+
+        // this call would be better but it's from a later core version:
+        // List<Drug> drugs = conceptService.getDrugs(query, null, true, true, false, 0, 100);
+        List<Drug> drugs = conceptService.getDrugs(query);
+        List<Map<String, Object>> simplified = simplify(drugs);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+
+        new ObjectMapper().writeValue(out, simplified);
+    }
+
+    private List<Map<String, Object>> simplify(List<Drug> drugs) {
+        List<Map<String, Object>> simplified = new ArrayList<Map<String, Object>>();
+        Locale locale = Context.getLocale();
+        for (Drug drug : drugs) {
+            Map<String, Object> item = new LinkedHashMap<String, Object>();
+            item.put("id", drug.getId());
+            item.put("name", drug.getName());
+            if (drug.getDosageForm() != null) {
+                item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
+            }
+            if (drug.getRoute() != null) {
+                item.put("route", drug.getRoute().getName(locale).getName());
+            }
+            item.put("doseStrength", drug.getDoseStrength());
+            item.put("units", drug.getUnits());
+            item.put("combination", drug.getCombination());
+            if (drug.getConcept() != null) {
+                item.put("concept", drug.getConcept().getName(locale).getName());
+            }
+            simplified.add(item);
+        }
+        return simplified;
+    }
+
 }

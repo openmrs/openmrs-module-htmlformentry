@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
@@ -122,7 +123,9 @@ public class TestUtil {
 			return Format.format((Date) value);
 		else if (value instanceof Number)
 			return "" + ((Number) value).doubleValue();
-		else
+        else if (value instanceof Drug) {
+            return "" + ((Drug) value).getFullName(Context.getLocale());
+        } else
 			return value.toString();
 	}
 	
