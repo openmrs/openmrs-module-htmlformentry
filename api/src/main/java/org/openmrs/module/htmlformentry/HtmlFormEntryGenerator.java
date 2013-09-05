@@ -390,7 +390,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         for (ObsGroupEntity obsGroupEntity : obsGroupEntities) {
             StringWriter out = new StringWriter();
             applyTagsHelper(session, new PrintWriter(out), null, obsGroupEntity.getNode(), null);
-            xml = xml.replaceAll("<unmatched id=\"" + obsGroupEntity.getId() + "\" />", out.toString());
+            xml = xml.replaceAll("<unmatched id=\"" + obsGroupEntity.getId() + "\" />", Matcher.quoteReplacement(out.toString()));
         }
 
         return xml;
