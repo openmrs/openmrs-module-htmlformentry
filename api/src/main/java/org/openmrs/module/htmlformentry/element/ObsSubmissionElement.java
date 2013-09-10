@@ -16,6 +16,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
@@ -429,8 +430,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if ("location".equals(parameters.get("style"))) {
 
                     valueWidget = new DropdownWidget();
+                    // if "answerLocationTags" attribute is present try to get locations by tags
+                    List<Location> locationList = HtmlFormEntryUtil.getLocationsByTags(HtmlFormEntryConstants.ANSWER_LOCATION_TAGS, parameters);
+                    if ((locationList == null) ||
+                            (locationList != null && locationList.size()<1)){
+                        // if no locations by tags are found then get all locations
+                        locationList = Context.getLocationService().getAllLocations();
+                    }
 
-                       for (Location location : Context.getLocationService().getAllLocations()) {
+                    for (Location location : locationList) {
                             String label = location.getName();
                             Option option = new Option(label, location.getId().toString(), location.getId().toString().equals(initialValue));
                             locationOptions.add(option);

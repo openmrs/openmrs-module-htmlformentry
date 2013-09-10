@@ -945,6 +945,24 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 
+    public static List<Location> getLocationsByTags(String attributeName, Map<String, String> parameters){
+        List<Location> locations = null;
+        String locationTags = parameters.get(attributeName);
+        if ( locationTags != null) {
+            List<LocationTag> tags = new ArrayList<LocationTag>();
+            String[] temp = locationTags.split(",");
+            for (String s : temp) {
+                LocationTag tag = getLocationTag(s);
+                if (tag == null) {
+                    throw new RuntimeException("Cannot find tag: " + tag);
+                }
+                tags.add(tag);
+            }
+            locations =  new ArrayList<Location>();
+            locations.addAll(Context.getLocationService().getLocationsHavingAnyTag(tags));
+        }
+        return locations;
+    }
     /**
      * Fetches a location tag by name or id
      * (Will add support for uuid once we stop supporting OpenMRS 1.6, which doesn't a uuid on location tag)
