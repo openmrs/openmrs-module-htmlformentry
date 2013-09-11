@@ -439,7 +439,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                     }
 
                     for (Location location : locationList) {
-                            String label = location.getName();
+                            String label = HtmlFormEntryUtil.format(location);
                             Option option = new Option(label, location.getId().toString(), location.getId().toString().equals(initialValue));
                             locationOptions.add(option);
                        }
