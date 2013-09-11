@@ -20,7 +20,7 @@
     htmlForm.setupWhenThenDisplay = function(obsId, valueToSection) {
         var field = getField(obsId + '.value');
         field.data('whenValueThenDisplaySection', valueToSection);
-        field.change(onObsChangedCheck);
+        field.change(onObsChangedCheck).change();
     };
 
     htmlForm.compileMustacheTemplate = function(source) {
