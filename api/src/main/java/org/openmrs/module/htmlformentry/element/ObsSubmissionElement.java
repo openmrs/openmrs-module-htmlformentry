@@ -525,7 +525,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							catch (Exception ex) {}
 							valueWidget = new TextFieldWidget(textFieldSize);
 						}
-					} else {
+                        ((TextFieldWidget) valueWidget).setPlaceholder(parameters.get("placeholder"));
+                    } else {
 						if ("radio".equals(parameters.get("style"))) {
 							valueWidget = new RadioButtonsWidget();
 							if (answerSeparator != null) {

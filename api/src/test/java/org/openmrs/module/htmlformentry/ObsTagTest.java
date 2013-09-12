@@ -151,8 +151,24 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 		String htmlform = "<htmlform><obs conceptId=\"1119\" defaultValue=\"2011-02-02-00-00\" defaultDatetime=\"2011-02-02-00-00\"/></htmlform>";
 		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
-	
-	@Test
+
+    @Test
+    public void shouldDisplayPlaceholderInTextObs() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsFormWithTextPlaceholder";
+            }
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                assertTrue(html.contains("Text: <input type=\"text\" name=\"w8\" id=\"w8\" placeholder=\"type something\"/>"));
+            }
+        }.run();
+    }
+
+    @Test
 	public void shouldNotDisplayDefaultValueForEmptyTextValueInViewAndEdit() throws Exception {
 		new RegressionTestHelper() {
 			

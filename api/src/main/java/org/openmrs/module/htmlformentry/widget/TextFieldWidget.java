@@ -17,6 +17,7 @@ public class TextFieldWidget implements Widget {
     private Integer textAreaColumns;
     private String initialValue;
     private Integer textFieldMaxLength;
+    private String placeholder;
     
     /**
      * Default constructor implements the text field as a simple input field, like {@code <input type="text"/>}.
@@ -98,6 +99,10 @@ public class TextFieldWidget implements Widget {
                     sb.append(" rows=\"" + textAreaRows + "\"");
                 if (textAreaColumns != null)
                     sb.append(" cols=\"" + textAreaColumns + "\"");
+                if (placeholder != null) {
+                    // TODO escape
+                    sb.append(" placeholder=\"").append(placeholder).append("\"");
+                }
                 sb.append(">");
                 if (initialValue != null)
                     sb.append(initialValue);
@@ -110,6 +115,10 @@ public class TextFieldWidget implements Widget {
                     sb.append(" value=\"" + initialValue + "\"");
                 if (textFieldMaxLength != null && textFieldMaxLength.intValue() > 0){
                 	sb.append(" maxlength=\"" + textFieldMaxLength.intValue() + "\"");
+                }
+                if (placeholder != null) {
+                    // TODO escape
+                    sb.append(" placeholder=\"").append(placeholder).append("\"");
                 }
                 sb.append("/>");
             }
@@ -129,4 +138,9 @@ public class TextFieldWidget implements Widget {
 	public void setTextFieldSize(Integer textFieldSize){
 		this.textFieldSize = textFieldSize;
 	}
+
+    public void setPlaceholder(String placeholder) {
+        this.placeholder = placeholder;
+    }
+
 }
