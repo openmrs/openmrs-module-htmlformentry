@@ -1,18 +1,20 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import org.openmrs.Concept;
+import org.openmrs.LocationTag;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
+import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
+import org.w3c.dom.Node;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.openmrs.Concept;
-import org.openmrs.module.htmlformentry.BadFormDesignException;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
-import org.w3c.dom.Node;
 
 /**
  * Handles the {@code <obs>} tag
@@ -26,8 +28,10 @@ public class ObsTagHandler extends AbstractTagHandler {
 		attributeDescriptors.add(new AttributeDescriptor("conceptIds", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("answerConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("answerConceptIds", Concept.class));
+        attributeDescriptors.add(new AttributeDescriptor(HtmlFormEntryConstants.ANSWER_LOCATION_TAGS, LocationTag.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
+
 
     @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
