@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.LocalDate;
 import org.joda.time.Months;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
@@ -248,4 +249,15 @@ public class VelocityFunctions {
     public Concept getConcept(String conceptCode) {
         return HtmlFormEntryUtil.getConcept(conceptCode);
     }
+
+
+    /**
+     * @param date
+     * @return date with any time component smaller than day set to zero
+     */
+    public Date startOfDay(Date date) {
+        LocalDate day = new LocalDate(date.getTime());
+        return day.toDate();
+    }
+
 }
