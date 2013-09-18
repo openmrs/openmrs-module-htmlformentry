@@ -10,7 +10,7 @@
                     $(thenSection).show();
                 } else {
                     $(thenSection).hide();
-                    $(thenSection).find('input:text, input:password, input:file, select, textarea').val('');
+                    $(thenSection).find('input:hidden, input:text, input:password, input:file, select, textarea').val('');
                     $(thenSection).find('input:checkbox, input:radio').removeAttr('checked').removeAttr('selected');
                 }
             });
