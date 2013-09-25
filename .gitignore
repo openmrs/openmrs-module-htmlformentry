@@ -11,3 +11,4 @@ omod/.settings/*
 omod/target/*
 /.settings
 *.iml
+*.idea

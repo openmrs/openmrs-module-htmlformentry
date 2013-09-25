@@ -29,8 +29,13 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
         // this location has been retired, so it should not be displayed
         TestUtil.assertFuzzyDoesNotContain("Indianapolis", htmlToDisplay);
 
+        // should *not* contain Lacolline
+        TestUtil.assertFuzzyDoesNotContain("Lacolline", session.getHtmlToDisplay());
+
         // should *not* contain any of the options from the standard test dataset (as they are not tagged)
-        TestUtil.assertFuzzyDoesNotContain("Lacolline", htmlToDisplay);
+        TestUtil.assertFuzzyDoesNotContain("Unknown Location", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyDoesNotContain("Xanadu", session.getHtmlToDisplay());
+        TestUtil.assertFuzzyDoesNotContain("Never Never Land", session.getHtmlToDisplay());
 
     }
 

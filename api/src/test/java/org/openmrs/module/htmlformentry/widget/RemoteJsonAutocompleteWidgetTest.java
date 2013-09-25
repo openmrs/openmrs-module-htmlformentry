@@ -1,12 +1,10 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 
 import static org.junit.Assert.assertThat;
-import static org.junit.matchers.StringContains.containsString;
-import static org.mockito.Matchers.contains;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
