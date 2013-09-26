@@ -70,6 +70,8 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         sb.append("    focus: function(event, ui) {\n");
         sb.append("      if (ui.item.name != 'No results') {\n");
         sb.append("         $j('#" + formFieldName + "-display').val(displayTemplate" + formFieldName + "(ui.item));\n");
+        sb.append("      } else {\n");
+        sb.append("         $j('#" + formFieldName + "-value').val('');\n");
         sb.append("      }\n");
         sb.append("      return false;\n");
         sb.append("    },\n");
@@ -77,6 +79,8 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         sb.append("      if (ui.item.name != 'No results') {\n");
         sb.append("         $j('#" + formFieldName + "-display').val(displayTemplate" + formFieldName + "(ui.item));\n");
         sb.append("         $j('#" + formFieldName + "-value').val(valueTemplate" + formFieldName + "(ui.item));\n");
+        sb.append("      } else {\n");
+        sb.append("         $j('#" + formFieldName + "-value').val('');\n");
         sb.append("      }\n");
         sb.append("      return false;");
         sb.append("    },\n");
