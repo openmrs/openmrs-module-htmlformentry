@@ -128,6 +128,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
     private Map<Object, String> whenValueThenDisplaySection = new LinkedHashMap<Object, String>();
 
+    private Boolean isLocationObs; // determines whether the valueText for this obs should be a location_id;
+
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 		String conceptId = parameters.get("conceptId");
 		String conceptIds = parameters.get("conceptIds");
@@ -192,6 +194,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
         if (parameters.get("class") !=null) {
             clazz = parameters.get("class");
         }
+
+        isLocationObs = "location".equals(parameters.get("style"));
 
 		prepareWidgets(context, parameters);
 	}
@@ -427,7 +431,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						        + ex.toString() + "): " + conceptAnswers);
 					}
 				}
-				if ("location".equals(parameters.get("style"))) {
+
+                // configure the special obs type that allows selection of a location (the location_id PK is stored as the valueText)
+				if (isLocationObs) {
 
                     valueWidget = new DropdownWidget();
                     // if "answerLocationTags" attribute is present try to get locations by tags
@@ -557,7 +563,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				}
 
 				if (initialValue != null) {
-					if ("location".equals(parameters.get("style"))) {
+					if (isLocationObs) {
 						Location l = HtmlFormEntryUtil.getLocation(initialValue, context);
 						if (l == null) {
 							throw new RuntimeException("Cannot find Location: " + initialValue);
@@ -1149,8 +1155,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			accessionNumberValue = (String) accessionNumberWidget.getValue(session.getContext(), submission);
 
 		String comment = null;
-		if(commentFieldWidget != null)
+		if (commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
+
+        // note that for the remote use case where showCommentField=true and style=location won't work, as "org.openmrs.Location"
+        // will override any user-entered comment
+        if (isLocationObs) {
+            comment = "org.openmrs.Location";
+        }
 
 		if (existingObsList != null && session.getContext().getMode() == Mode.EDIT) {
 

@@ -1067,6 +1067,100 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
+    @Test
+    public void saveFormWithLocationObs() throws Exception {
+        final Date date = new Date();
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleLocationObsForm";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "Favorite Health Clinic to Eat:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(date));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+                request.addParameter(widgets.get("Favorite Health Clinic to Eat:"), "2");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+                results.assertObsCreatedCount(1);
+
+                Obs locationObs = results.getEncounterCreated().getObs().iterator().next();
+
+                Assert.assertEquals("2", locationObs.getValueText());
+                Assert.assertNull(locationObs.getValueCoded());
+                Assert.assertEquals("org.openmrs.Location", locationObs.getComment());
+            }
+        }.run();
+    }
+
+    @Test
+    public void editFormWithLocationObs() throws Exception {
+        final Date date = new Date();
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleLocationObsForm";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "Favorite Health Clinic to Eat:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(date));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+                request.addParameter(widgets.get("Favorite Health Clinic to Eat:"), "2");
+            }
+
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public String[] widgetLabelsForEdit() {
+                return new String[] { "Favorite Health Clinic to Eat:" };
+            };
+
+            @Override
+            public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.setParameter(widgets.get("Favorite Health Clinic to Eat:"), "3");
+            };
+
+            @Override
+            public void testEditedResults(SubmissionResults results) {
+                results.assertNoErrors();;
+                results.assertProvider(502);
+                results.assertLocation(2);
+                results.assertObsCreatedCount(1);
+
+                Obs locationObs = results.getEncounterCreated().getObs().iterator().next();
+
+                Assert.assertEquals("3", locationObs.getValueText());
+                Assert.assertNull(locationObs.getValueCoded());
+                Assert.assertEquals("org.openmrs.Location", locationObs.getComment());
+            };
+
+        }.run();
+    }
+
 	@Test
 	public void answerConceptIdsShouldMapToAnswerLabels() throws Exception {
 		new RegressionTestHelper() {
