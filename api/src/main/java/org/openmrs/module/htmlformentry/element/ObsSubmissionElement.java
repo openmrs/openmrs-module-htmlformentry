@@ -1181,10 +1181,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
 	    } else if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
 	    	// For complex obs: if value is to be retained, get the value from existingObs
-			if (valueWidget instanceof UploadWidget) {
-				if (((UploadWidget) valueWidget).shouldDelete(session.getContext(), submission)) {
-					value = null;
-				} else {
+			if (valueWidget instanceof UploadWidget && value == null) {
+				if (!((UploadWidget) valueWidget).shouldDelete(session.getContext(), submission)) {
 					value = new ComplexData(existingObs.getValueComplex(), null);
 				}
 			}
