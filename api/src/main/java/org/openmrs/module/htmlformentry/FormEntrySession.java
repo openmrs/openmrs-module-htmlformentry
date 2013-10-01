@@ -665,6 +665,15 @@ public class FormEntrySession {
           }
           */
 
+		if (submissionActions.getIdentifiersToVoid() != null) {
+			for (PatientIdentifier patientIdentifier : submissionActions.getIdentifiersToVoid()) {
+				patientIdentifier.setVoided(true);
+				patientIdentifier.setVoidedBy(Context.getAuthenticatedUser());
+				patientIdentifier.setVoidReason(getForm().getName()); // Use form name as reason
+				patientIdentifier.setDateVoided(new Date());
+			}
+		}
+
         // save the patient
         // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
         // we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
