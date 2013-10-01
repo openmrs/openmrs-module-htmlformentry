@@ -18,6 +18,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.Person;
@@ -65,6 +66,8 @@ public class FormSubmissionActions {
 	private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
 	
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
+
+	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
 
     private ExitFromCareProperty exitFromCareProperty;
 	
@@ -838,6 +841,20 @@ public class FormSubmissionActions {
 	 */
 	public void setPatientProgramsToUpdate(List<PatientProgram> patientProgramsToUpdate) {
 		this.patientProgramsToUpdate = patientProgramsToUpdate;
+	}
+
+	/**
+	 * @return the identifiersToVoid
+	 */
+	public List<PatientIdentifier> getIdentifiersToVoid() {
+		return identifiersToVoid;
+	}
+
+	/**
+	 * @param identifiersToVoid the identifiersToVoid to set
+	 */
+	public void setIdentifiersToVoid(List<PatientIdentifier> identifiersToVoid) {
+		this.identifiersToVoid = identifiersToVoid;
 	}
 
     /**
