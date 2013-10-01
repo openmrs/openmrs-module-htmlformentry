@@ -39,7 +39,9 @@ import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+import org.openmrs.module.htmlformentry.widget.UploadWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.obs.ComplexData;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.web.WebConstants;
@@ -410,6 +412,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					valueWidget.setInitialValue(initialValue);
 				}
 
+			} else if (concept.isComplex()) {
+				valueWidget = new UploadWidget();
+				String lookFor = existingObs == null ? null : existingObs.getValueComplex();
+				Obs initialValue = null;
+				if (lookFor != null) {
+					initialValue = existingObs;
+				}
+				valueWidget.setInitialValue(initialValue);
 			} else if (concept.getDatatype().isText()) {
 
 				String initialValue = null;
@@ -1170,6 +1180,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             handleDynamicAutocompleteSubmissionInEditMode(session, submission, value, obsDatetime, accessionNumberValue);
 
 	    } else if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
+	    	// For complex obs: if value is to be retained, get the value from existingObs
+			if (valueWidget instanceof UploadWidget) {
+				if (((UploadWidget) valueWidget).shouldDelete(session.getContext(), submission)) {
+					value = null;
+				} else {
+					value = new ComplexData(existingObs.getValueComplex(), null);
+				}
+			}
+	    				
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
 			if (concepts != null)

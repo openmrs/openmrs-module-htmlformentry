@@ -7,6 +7,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.UploadWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 
 /**
@@ -41,6 +42,13 @@ public class WidgetTest {
         dw.addOption(new Option("Extra Large", "XL", false));
         dw.addOption(new Option("Large", "L", true));
         Assert.assertEquals("<select id=\"w1\" name=\"w1\"><option value=\"XL\">Extra Large</option><option value=\"L\" selected=\"true\">Large</option></select>", dw.generateHtml(context));
+    }
+
+    @Test
+    public void UploadWidgetShouldProduceHtml(){
+        UploadWidget uw = new UploadWidget();
+        context.registerWidget(uw);
+        Assert.assertEquals("<input type=\"file\" class=\"uploadWidget\" id=\"w1\" name=\"w1\"/>",uw.generateHtml(context));
     }
     
     @Test

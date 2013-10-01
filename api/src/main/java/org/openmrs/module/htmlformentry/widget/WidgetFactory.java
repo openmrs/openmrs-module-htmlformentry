@@ -1,7 +1,16 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.io.File;
+
+import org.openmrs.ConceptComplex;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.FormField;
+import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
+import org.openmrs.obs.handler.AbstractHandler;
+import org.openmrs.obs.handler.ImageHandler;
+import org.openmrs.web.WebConstants;
 
 /**
  * Contains shortcut methods to instantiate Widgets, and related utility methods.
@@ -20,6 +29,7 @@ public class WidgetFactory {
         DROPDOWN,
         CHECKBOX_LIST,
         MULTISELECT,
+        UPLOAD_WIDGET,
         DATE,
         DATE_TIME
     }
@@ -42,7 +52,9 @@ public class WidgetFactory {
                 return WidgetTypeHint.CHECKBOX;
             else
                 return WidgetTypeHint.DROPDOWN;
-        } else {
+        } else if (HtmlFormEntryConstants.COMPLEX_UUID.equals(dt.getUuid())) {
+			return WidgetTypeHint.UPLOAD_WIDGET;
+		} else {
             throw new IllegalArgumentException(
                     "Autodetecting widget type from concept datatype not yet implemented for "
                             + dt.getName());
@@ -118,4 +130,42 @@ public class WidgetFactory {
         return "<span class=\"emptyValue\">" + value + "</span>";
     }
     
+    /**
+	 * Returns the HTML to display the complex value. If the value is an image it is displayed by
+	 * <img> </img> tag else it is displayed as hyperlink that can be downloaded by the user.
+	 * 
+	 * @param obs the obs whose complex value needs to be displayed
+	 * @return the HTML code that renders the complex obs
+	 */
+	public static String displayComplexValue(Obs obs) {
+		String hyperlink = getViewHyperlink(obs);
+		
+		// check if concept is complex and uses ImageHandler. If so, display image
+		ConceptComplex complex = Context.getConceptService().getConceptComplex(obs.getConcept().getId());
+		if (complex != null) {
+			try {
+				if (ImageHandler.class.isAssignableFrom(Class.forName(AbstractHandler.class.getPackage().getName() + "."
+				        + complex.getHandler()))) {
+					String imgTag = "<img src='" + hyperlink + "' class=\"complexImage\" />";
+					return "<a href=\"" + hyperlink + "\">" + imgTag + "</a><br/><a href=\"" + getDownloadHyperlink(obs)
+					        + "\">Download</a>";
+				}
+			}
+			catch (ClassNotFoundException e) {}
+		}
+		
+		File file = AbstractHandler.getComplexDataFile(obs);
+		String fileName = file.getName();
+		String value = "<p class=\"value\">" + fileName + "<br/><a href=\"" + hyperlink + "\">View</a> | <a href=\""
+		        + getDownloadHyperlink(obs) + "\">Download</a></p>";
+		return "<span>" + value + "</span>";
+	}
+	
+	private static String getViewHyperlink(Obs obs) {
+		return "/" + WebConstants.WEBAPP_NAME + "/complexObsServlet?obsId=" + obs.getObsId();
+	}
+	
+	private static String getDownloadHyperlink(Obs obs) {
+		return getViewHyperlink(obs) + "&view=download&viewType=download";
+	}
 }
