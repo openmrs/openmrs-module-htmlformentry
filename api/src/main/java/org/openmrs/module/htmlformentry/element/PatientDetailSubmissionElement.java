@@ -105,9 +105,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		String field = attributes.get("field");
 		Patient existingPatient = context.getExistingPatient();
 
-		if ("true".equals(attributes.get("required"))) {
-			required = true;
-		}
+		// Required attribute defaults to true if not specified
+		required = ! "false".equals(attributes.get("required"));
 
 		if (FIELD_PERSON_NAME.equalsIgnoreCase(field)) {
 			nameWidget = new NameWidget();
