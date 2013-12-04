@@ -451,13 +451,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                        }
                     Collections.sort(locationOptions, new OptionComparator());
 
-                // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
-                boolean initialValueIsSet = !(initialValue == null);
-                ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",!initialValueIsSet));
-                if (!locationOptions.isEmpty()) {
-                    for(Option option: locationOptions)
-                        ((DropdownWidget)valueWidget).addOption(option);
-                }
+                    // if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+                    boolean initialValueIsSet = !(initialValue == null);
+                    ((DropdownWidget)valueWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),"",!initialValueIsSet));
+                    if (!locationOptions.isEmpty()) {
+                        for(Option option: locationOptions)
+                            ((DropdownWidget)valueWidget).addOption(option);
+                    }
 
 				} else if ("person".equals(parameters.get("style"))) {
 					

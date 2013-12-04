@@ -462,10 +462,13 @@ public class HtmlFormEntryUtil {
 	 * @should find a concept by its mapping with a space in between
 	 */
 	public static Concept getConcept(String id) {
-		Concept cpt = null;
+
+        Concept cpt = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
 			// see if this is a parseable int; if so, try looking up concept by id
 			try { //handle integer: id
 				int conceptId = Integer.parseInt(id);
@@ -510,6 +513,7 @@ public class HtmlFormEntryUtil {
 	 * @throws IllegalArgumentException
 	 */
 	public static Concept getConcept(String id, String errorMessageIfNotFound) throws IllegalArgumentException {
+
 		Concept c = null;
 		try {
 			c = getConcept(id);
@@ -560,7 +564,9 @@ public class HtmlFormEntryUtil {
 		Location location = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
 			// handle GlobalProperty:property.name
 			if (id.startsWith("GlobalProperty:")) {
 				String gpName = id.substring("GlobalProperty:".length());
@@ -666,6 +672,8 @@ public class HtmlFormEntryUtil {
 		
 		if (id != null) {
 
+            id = id.trim();
+
 			// see if this is parseable int; if so, try looking up by id
 			try {//handle integer: id
 				int programId = Integer.parseInt(id);
@@ -714,7 +722,9 @@ public class HtmlFormEntryUtil {
 		Person person = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int personId = Integer.parseInt(id);
@@ -779,7 +789,9 @@ public class HtmlFormEntryUtil {
 		PatientIdentifierType identifierType = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int identifierTypeId = Integer.parseInt(id);
@@ -818,6 +830,9 @@ public class HtmlFormEntryUtil {
 		ProgramWorkflow workflow = null;
 		
 		if (identifier != null) {
+
+            identifier = identifier.trim();
+
 			// first try to fetch by id
 			try {
 				Integer id = Integer.valueOf(identifier);
@@ -886,7 +901,9 @@ public class HtmlFormEntryUtil {
 		}
 		// if we didn't find a match, see if this is a concept mapping
 		else {
-			int index = identifier.indexOf(":");
+			identifier = identifier.trim();
+
+            int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
 				if (concept != null) {
@@ -930,6 +947,8 @@ public class HtmlFormEntryUtil {
 		
 		// if we didn't find a match, see if this is a concept mapping
 		else {
+            identifier = identifier.trim();
+
 			int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
@@ -947,7 +966,9 @@ public class HtmlFormEntryUtil {
 
     public static List<Location> getLocationsByTags(String attributeName, Map<String, String> parameters){
         List<Location> locations = null;
+
         String locationTags = parameters.get(attributeName);
+
         if ( locationTags != null) {
             List<LocationTag> tags = new ArrayList<LocationTag>();
             String[] temp = locationTags.split(",");
@@ -975,6 +996,9 @@ public class HtmlFormEntryUtil {
         LocationTag tag = null;
 
         if (identifier != null) {
+
+            identifier = identifier.trim();
+
             // first try to fetch by id
             try {
                 Integer id = Integer.valueOf(identifier);
@@ -1016,6 +1040,9 @@ public class HtmlFormEntryUtil {
 		
 		if (identifier != null) {
 			try {
+
+				identifier = identifier.trim();
+
 				Integer id = Integer.valueOf(identifier);
 				state = Context.getProgramWorkflowService().getState(id);
 				
