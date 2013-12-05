@@ -179,33 +179,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals("<div class=\"htmlform\">This is shown to admin with multiple roles to single user in exclude field</div>", session6.getHtmlToDisplay());
 
     }
-
-
-	/**
-	 * @see {@link HtmlFormEntryGenerator#getTestStr(String)}
-	 */
-	@Test
-	@Verifies(value = "should extract the correct expression from teststr", method = "getTestStr(String)")
-	public void getTestStr_shouldExtractTheCorrectExpressionFromTeststr() throws Exception {
-		String includeStr = "logicTest = \"GENDER = F\">";// <includeIf test =
-		// "FEMALE">
-		Assert.assertEquals("GENDER = F", HtmlFormEntryGenerator.getTestStr(includeStr));
-		includeStr = "velocityTest = \"$patient.gender == 'F'\">";
-		Assert.assertEquals("$patient.gender == 'F'", HtmlFormEntryGenerator.getTestStr(includeStr));
-	}
-	
-	/**
-	 * @see {@link HtmlFormEntryGenerator#processIncludeLogic(FormEntrySession,String)}
-	 */
-	@Test
-	@Verifies(value = "should return a correct boolean value for logic test string", method = "processIncludeLogic(FormEntrySession,String)")
-	public void processIncludeLogic_shouldReturnACorrectBooleanValueForLogicTestString() throws Exception {
-		LogicUtil.registerDefaultRules();
-		String htmlform = "<htmlform><includeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</includeIf><includeIf logicTest=\"GENDER = M\">This shows a logic test for a man</includeIf></htmlform>";
-		String testStr = "logicTest=\"GENDER = M\">";
-		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
-		Assert.assertEquals(true, HtmlFormEntryGenerator.processIncludeLogic(session, testStr));
-	}
 	
 	/**
 	 * @see HtmlFormEntryGenerator#wrapInDiv(String)

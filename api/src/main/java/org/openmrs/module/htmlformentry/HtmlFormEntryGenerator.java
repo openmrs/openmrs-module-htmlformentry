@@ -13,12 +13,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.openmrs.Role;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.LogicCriteria;
-import org.openmrs.logic.LogicService;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -182,6 +179,47 @@ public class HtmlFormEntryGenerator implements TagHandler {
         xml = matcher.replaceAll("");
 
         return xml;
+    }
+
+    /**
+     * Replaces &&, < and > within form with their encoded values within velocity and logic expressions
+     * (provides backwards compatibility after refactoring includeIf and excludeIf)
+     *
+     * @param xml
+     * @return
+     * @throws Exception
+     */
+    public String convertSpecialCharactersWithinLogicAndVelocityTests(String xml) throws Exception {
+
+        Pattern lessThan = Pattern.compile("<");
+        Pattern greaterThan = Pattern.compile(">");
+        Pattern doubleAmpersand = Pattern.compile("&&");
+
+        Matcher velocityMatcher = Pattern.compile("velocityTest=\"[^\"]*\"").matcher(xml);
+        StringBuffer afterVelocityChanges = new StringBuffer();
+
+        while (velocityMatcher.find()) {
+            String str = velocityMatcher.group();
+            str = doubleAmpersand.matcher(str).replaceAll("&amp;&amp;");
+            str = lessThan.matcher(str).replaceAll("&lt;");
+            str = greaterThan.matcher(str).replaceAll("&gt;");
+            velocityMatcher.appendReplacement(afterVelocityChanges, Matcher.quoteReplacement(str));
+        }
+        velocityMatcher.appendTail(afterVelocityChanges);
+
+        Matcher logicMatcher = Pattern.compile("logicTest=\"[^\"]*\"").matcher(afterVelocityChanges);
+        StringBuffer afterLogicChanges = new StringBuffer();
+
+        while (logicMatcher.find()) {
+            String str = logicMatcher.group();
+            str = doubleAmpersand.matcher(str).replaceAll("&amp;&amp;");
+            str = lessThan.matcher(str).replaceAll("&lt;");
+            str = greaterThan.matcher(str).replaceAll("&gt;");
+            logicMatcher.appendReplacement(afterLogicChanges, Matcher.quoteReplacement(str));
+        }
+
+        logicMatcher.appendTail(afterLogicChanges);
+        return afterLogicChanges.toString();
     }
 
 
@@ -537,41 +575,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
         }
     }
 
-    /**
-     * Takes an XML string, finds the {@code <includeIf></includeIf>} section in it, make a test
-     * against the logicTest/velocityTest to include/exclude the content within
-     * <p/>
-     * For example the following input:
-     * <p/>
-     * <pre>
-     * {@code
-     * <htmlform>
-     *      <includeIf logicTest="FEMALE">
-     * 		<obs conceptId="123" labelText="Pregnant?"/>
-     * 	</includeIf>
-     * </htmlform>
-     * }
-     * </pre>
-     * <p/>
-     * Would include the following only if the logicTest="FEMALE" success
-     * <p/>
-     * <pre>
-     * {@code
-     * <htmlform>
-     * 		<obs conceptId="123" labelText="Pregnant?"/>
-     * </htmlform>
-     * }
-     * </pre>
-     *
-     * @param xml the xml string to process for includeIf tag
-     * @return the xml string with after includeIf substitution
-     * @throws BadFormDesignException
-     * @should return correct xml after apply include tag
-     * @should return correct xml when the expression contains greater than character
-     */
-    public String applyIncludes(FormEntrySession session, String xml) throws BadFormDesignException {
-        return processIncludeOrExcludeTag(session, xml, true);
-    }
 
     /**
      * Removes htmlform tag and wraps the form in the div tag.
@@ -586,19 +589,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
         return xml;
     }
 
-    /**
-     * this is an opposite of includeif see applyIncludes
-     *
-     * @param session
-     * @param xml
-     * @return the xml after applied ExcludeIf tag
-     * @throws BadFormDesignException
-     * @should return correct xml after apply excludeIf tag
-     * @should return correct xml when the expression contains greater than character
-     */
-    public String applyExcludes(FormEntrySession session, String xml) throws BadFormDesignException {
-        return processIncludeOrExcludeTag(session, xml, false);
-    }
 
     /**
      * Takes an XML string, finds the {@code <restrictByRole></restrictByRole>} section in it, verifies whether
@@ -665,7 +655,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         boolean excluderesult = true;
 
         if (includeOrExcludeTestIndex >= 0) { // contains list of roles in 'include'
-            testStr = getTestStr(includeStr.substring(includeOrExcludeTestIndex));
+            testStr = HtmlFormEntryUtil.getTestStr(includeStr.substring(includeOrExcludeTestIndex));
             testRoles = testStr.split(",");
             User currentUser = Context.getUserContext().getAuthenticatedUser();
             try {
@@ -685,7 +675,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         } else {
             includeOrExcludeTestIndex = includeStr.indexOf("exclude");
             if (includeOrExcludeTestIndex != -1) { // contains list of roles in 'exclude'
-                testStr = getTestStr(includeStr.substring(includeOrExcludeTestIndex));
+                testStr = HtmlFormEntryUtil.getTestStr(includeStr.substring(includeOrExcludeTestIndex)) ;
                 testRoles = testStr.split(",");
                 User currentUser = Context.getUserContext().getAuthenticatedUser();
                 try {
@@ -703,88 +693,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
             }
             return excluderesult;
         }
-
-
-    }
-
-    /**
-     * Given a include/exclude string. fetch the test expression
-     *
-     * @param teststr
-     * @return a substring of a test expression
-     * @throws BadFormDesignException
-     * @should extract the correct expression from teststr
-     */
-    protected static String getTestStr(String teststr) throws BadFormDesignException {
-        if (StringUtils.isBlank(teststr))
-            throw new BadFormDesignException("Can't extract the test expression from " + teststr);
-
-        //get the text inside the quotes, i.e the expression
-        String[] actualExpression = StringUtils.substringsBetween(teststr, "\"", "\"");
-
-        if (actualExpression == null || actualExpression.length != 1 || StringUtils.isBlank(actualExpression[0])) {
-            throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here
-        }
-
-        return actualExpression[0];
-    }
-
-    /**
-     * given a test string, parse the string to return a boolean value for logicTest result or
-     * Velocity result
-     *
-     * @param session
-     * @param includeStr for ex. = "logicTest='GENDER = F' >"
-     * @return a boolean value if this patient is a female
-     * @throws BadFormDesignException
-     * @should return a correct boolean value for logic test string
-     */
-    protected static boolean processIncludeLogic(FormEntrySession session, String includeStr) throws BadFormDesignException {
-
-        int logicTestIndex = includeStr.indexOf("logicTest");
-        String testStr = "";
-        boolean result;
-
-        if (logicTestIndex >= 0) {//constains a logicTest
-
-            testStr = getTestStr(includeStr.substring(logicTestIndex));
-
-            LogicService ls = Context.getLogicService();
-            LogicCriteria logicCriteria = null;
-            try {
-                logicCriteria = ls.parse(testStr);
-            } catch (Exception ex) {
-                throw new BadFormDesignException(ex.getMessage());
-            }
-
-            if (logicCriteria != null) {
-                if ("testing-html-form-entry".equals(session.getPatient().getUuid()))
-                    result = false;
-                else {
-                    try {
-                        result = ls.eval(session.getPatient(), logicCriteria).toBoolean();
-                    } catch (Exception ex) {
-                        throw new BadFormDesignException(ex.getMessage());
-                    }
-                }
-            } else {
-                throw new BadFormDesignException("The " + testStr + "is not a valid logic expression");//throw a bad form design
-
-            }
-        } else {
-            int velocityTestIndex = includeStr.indexOf("velocityTest");
-            if (velocityTestIndex != -1) {
-
-                testStr = getTestStr(includeStr.substring(velocityTestIndex));
-
-                //("#if($patient.getPatientIdentifier(5))true #else false #end"));
-                testStr = "#if (" + testStr + ") true #else false #end";
-                result = session.evaluateVelocityExpression(testStr).trim().equals("true");
-            } else {
-                throw new BadFormDesignException("The " + testStr + "is not a valid velocity expression");//throw a bad form design
-            }
-        }
-        return result;
     }
 
     public static StringBuilder removeFirstTagOccurrence(StringBuilder sb, String tagName, boolean keepcontent) {
@@ -816,34 +724,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
         return sb;
     }
 
-    /**
-     * Utility method that process and replaces the includeIf/excludeIf tags
-     *
-     * @param session
-     * @param xml
-     * @param isInclude
-     * @return the new processed xml
-     * @throws BadFormDesignException
-     */
-    private String processIncludeOrExcludeTag(FormEntrySession session, String xml, boolean isInclude) throws BadFormDesignException {
-        StringBuilder sb = new StringBuilder(xml);
-        String tagName = (isInclude) ? "<includeIf" : "<excludeIf";
-        while (xml.contains(tagName)) {
-            int startIndex = sb.indexOf(tagName) + 10;
-            int indexOfOpeningQuote = sb.substring(startIndex).indexOf("\"");
-            //get test up to closing quote
-            int endIndex = sb.substring(startIndex).indexOf("\"", indexOfOpeningQuote + 1);
-            String includeStr = sb.substring(startIndex, startIndex + endIndex + 1);
-            boolean result = HtmlFormEntryGenerator.processIncludeLogic(session, includeStr);
-
-            String processedTagName = tagName.substring(1);
-            HtmlFormEntryGenerator.removeFirstTagOccurrence(sb, processedTagName, (isInclude) ? result : !result);
-
-            xml = sb.toString();
-        }
-
-        return xml;
-    }
 
     /**
      * Deprecated methods

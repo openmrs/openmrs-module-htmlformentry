@@ -1754,4 +1754,27 @@ public class HtmlFormEntryUtil {
             return localization;
         }
     }
+
+    /**
+     * Given a include/exclude string. fetch the test expression
+     *
+     * @param teststr
+     * @return a substring of a test expression
+     * @throws BadFormDesignException
+     * @should extract the correct expression from teststr
+     */
+    public static String getTestStr(String teststr) throws BadFormDesignException {
+        if (StringUtils.isBlank(teststr))
+            throw new BadFormDesignException("Can't extract the test expression from " + teststr);
+
+        //get the text inside the quotes, i.e the expression
+        String[] actualExpression = StringUtils.substringsBetween(teststr, "\"", "\"");
+
+        if (actualExpression == null || actualExpression.length != 1 || StringUtils.isBlank(actualExpression[0])) {
+            throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here
+        }
+
+        return actualExpression[0];
+    }
+
 }

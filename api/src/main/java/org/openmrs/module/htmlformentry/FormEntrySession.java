@@ -397,8 +397,7 @@ public class FormEntrySession {
             context.setUnmatchedMode(false);
         }
         xml = htmlGenerator.stripComments(xml);
-        xml = htmlGenerator.applyIncludes(this, xml);
-        xml = htmlGenerator.applyExcludes(this, xml);
+        xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
         xml = htmlGenerator.applyRoleRestrictions(xml);
         xml = htmlGenerator.applyMacros(xml);
         xml = htmlGenerator.applyRepeats(xml);

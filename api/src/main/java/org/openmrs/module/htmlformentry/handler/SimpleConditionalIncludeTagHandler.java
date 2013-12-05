@@ -32,7 +32,7 @@ public abstract class SimpleConditionalIncludeTagHandler extends AbstractTagHand
      * @param node
      * @return whether or not to include the content
      */
-    public abstract boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node);
+    public abstract boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) throws BadFormDesignException;
 
     /**
      * @param session
@@ -51,7 +51,6 @@ public abstract class SimpleConditionalIncludeTagHandler extends AbstractTagHand
             if (toInclude == null) {
                 return true;
             }
-            out.print(toInclude);
         }
         return false;
     }
