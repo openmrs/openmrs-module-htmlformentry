@@ -65,14 +65,14 @@ public class SubmitButtonHandlerTest {
     public void getSubstitution_shouldGenerateProperHtmlInEnterMode() {
         when(context.getMode()).thenReturn(FormEntryContext.Mode.ENTER);
         String html = submitButtonHandler.getSubstitution(session, formSubmissionController, new HashMap<String, String>());
-        assertThat(html, is("<input type=\"button\" class=\"submitButton\" value=\"Enter\" onClick=\"submitHtmlForm()\"/>"));
+        assertThat(html, is("<button type=\"button\" class=\"submitButton\" onclick=\"submitHtmlForm()\">Enter</button>"));
     }
 
     @Test
     public void getSubstitution_shouldGenerateProperHtmlInEditMode() {
         when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
         String html = submitButtonHandler.getSubstitution(session, formSubmissionController, new HashMap<String, String>());
-        assertThat(html, is("<input type=\"button\" class=\"submitButton\" value=\"Save\" onClick=\"submitHtmlForm()\"/>"));
+        assertThat(html, is("<button type=\"button\" class=\"submitButton\" onclick=\"submitHtmlForm()\">Save</button>"));
     }
 
     @Test
@@ -82,7 +82,7 @@ public class SubmitButtonHandlerTest {
 
         when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
         String html = submitButtonHandler.getSubstitution(session, formSubmissionController, params);
-        assertThat(html, is("<input type=\"button\" class=\"submitButton\" value=\"Custom Button\" onClick=\"submitHtmlForm()\"/>"));
+        assertThat(html, is("<button type=\"button\" class=\"submitButton\" onclick=\"submitHtmlForm()\">Custom Button</button>"));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class SubmitButtonHandlerTest {
 
         when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
         String html = submitButtonHandler.getSubstitution(session, formSubmissionController, params);
-        assertThat(html, is("<input type=\"button\" class=\"submitButton custom-class\" value=\"Save\" onClick=\"submitHtmlForm()\"/>"));
+        assertThat(html, is("<button type=\"button\" class=\"submitButton custom-class\" onclick=\"submitHtmlForm()\">Save</button>"));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class SubmitButtonHandlerTest {
 
         when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
         String html = submitButtonHandler.getSubstitution(session, formSubmissionController, params);
-        assertThat(html, is("<input type=\"button\" class=\"submitButton custom-class\" value=\"Save\" onClick=\"submitHtmlForm()\"/>"));
+        assertThat(html, is("<button type=\"button\" class=\"submitButton custom-class\" onclick=\"submitHtmlForm()\">Save</button>"));
     }
 
 }
