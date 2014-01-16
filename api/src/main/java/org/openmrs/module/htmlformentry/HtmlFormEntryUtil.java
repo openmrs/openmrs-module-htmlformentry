@@ -35,6 +35,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
+import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.propertyeditor.ConceptEditor;
@@ -1207,8 +1208,8 @@ public class HtmlFormEntryUtil {
 						matchedObs.add(oga.getExistingGroup());
 					}
 				}
-				if (lfca instanceof DrugOrderSubmissionElement) {
-					DrugOrderSubmissionElement dse = (DrugOrderSubmissionElement) lfca;
+				if (lfca instanceof GettingExistingOrder) {
+					GettingExistingOrder dse = (GettingExistingOrder) lfca;
 					if (dse.getExistingOrder() != null) {
 						matchedOrders.add(dse.getExistingOrder());
 					}
