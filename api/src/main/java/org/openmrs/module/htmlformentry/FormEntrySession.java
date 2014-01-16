@@ -1,13 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +31,7 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.impl.EncounterSaveSupport;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
@@ -539,7 +541,7 @@ public class FormEntrySession {
                     if (form.getEncounterType() != null)
                         e.setEncounterType(form.getEncounterType());
                 }
-                Context.getEncounterService().saveEncounter(e);
+                Context.getRegisteredComponents(EncounterSaveSupport.class).get(0).saveEncounter(encounter);
             }
         }
 
@@ -645,7 +647,7 @@ public class FormEntrySession {
                         throw new RuntimeException("Unable to void encounter.", ex);
                     }
                 }
-                Context.getEncounterService().saveEncounter(encounter);
+                Context.getRegisteredComponents(EncounterSaveSupport.class).get(0).saveEncounter(encounter);
             } else if (submissionActions.getObsToCreate() != null) {
                 // this may not work right due to savehandlers (similar error to HTML-135) but this branch is
                 // unreachable until html forms are allowed to edit data without an encounter

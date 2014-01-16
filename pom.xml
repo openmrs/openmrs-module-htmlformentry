@@ -39,6 +39,20 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.openmrs.api</groupId>
+				<artifactId>openmrs-api</artifactId>
+				<version>${openMRSVersion}</version>
+				<classifier>tests</classifier>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openmrs.test</groupId>
+				<artifactId>openmrs-test</artifactId>
+				<type>pom</type>
+				<version>${openMRSVersion}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.openmrs.web</groupId>
 				<artifactId>openmrs-web</artifactId>
 				<version>${openMRSVersion}</version>
@@ -83,24 +97,6 @@
 				<scope>test</scope>
 			</dependency>
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>1.9.0</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>1.4.12</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>1.4.12</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>2.1</version>
@@ -115,14 +111,15 @@
 
 	<!-- default property values, required for eclipse build path configuration -->
 	<properties>
-		<openMRSVersion>1.6.5</openMRSVersion>
-		<openMRSMinorVersion>1.6</openMRSMinorVersion>
+		<openMRSVersion>1.8.5-SNAPSHOT</openMRSVersion>
+		<openMRSMinorVersion>1.8</openMRSMinorVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modules>
 		<module>api</module>
+		<module>api-1.10</module>
 		<module>omod</module>
 	</modules>
 

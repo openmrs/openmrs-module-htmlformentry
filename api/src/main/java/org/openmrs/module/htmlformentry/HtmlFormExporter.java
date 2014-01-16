@@ -29,6 +29,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
+import org.openmrs.order.DrugOrderSupport;
 import org.openmrs.order.DrugSuggestion;
 import org.openmrs.order.RegimenSuggestion;
 
@@ -193,7 +194,7 @@ public class HtmlFormExporter {
 								}
 								//RegimenSuggestion -- see global property 'dashboard.regimen.standardRegimens'
 								if (RegimenSuggestion.class.equals(attributeDescriptor.getClazz())){
-									List<RegimenSuggestion> stRegimens = Context.getOrderService().getStandardRegimens();
+									List<RegimenSuggestion> stRegimens = DrugOrderSupport.getInstance().getStandardRegimens();
 									if (stRegimens != null){
 										ConceptService cs = Context.getConceptService();
 										for (RegimenSuggestion rs : stRegimens){
