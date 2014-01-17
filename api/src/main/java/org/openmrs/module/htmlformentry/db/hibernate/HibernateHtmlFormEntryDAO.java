@@ -37,6 +37,12 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     }
     
     @Override
+    public HtmlForm getHtmlFormByUuid(String uuid)  {
+        Query q = sessionFactory.getCurrentSession().createQuery("from HtmlForm f where f.uuid = :uuid");
+        return (HtmlForm) q.setString("uuid", uuid).uniqueResult();
+    }
+    
+    @Override
     public HtmlForm saveHtmlForm(HtmlForm htmlForm) {
         sessionFactory.getCurrentSession().saveOrUpdate(htmlForm);
         return htmlForm;

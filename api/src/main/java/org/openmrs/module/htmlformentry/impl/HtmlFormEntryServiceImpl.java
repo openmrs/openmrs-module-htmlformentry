@@ -103,6 +103,11 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     public HtmlForm getHtmlForm(Integer id) {
         return dao.getHtmlForm(id);
     }
+	
+	@Override
+    public HtmlForm getHtmlFormByUuid(String uuid)  {
+        return dao.getHtmlFormByUuid(uuid);
+	}
     
     @Override
     public HtmlForm saveHtmlForm(HtmlForm htmlForm) {

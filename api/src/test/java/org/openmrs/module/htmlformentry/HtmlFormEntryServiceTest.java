@@ -37,6 +37,15 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
+	 * @see {@link HtmlFormEntryService#getHtmlFormByUuid()}
+	 */
+	@Test
+	@Verifies(value = "should return the HtmlForm with the given uuid", method = "getHtmlFormByUuid()")
+	public void getHtmlFormByUuid_shouldReturnTheHtmlFormWithTheGivenUuid() throws Exception {
+		Assert.assertNotNull(service.getHtmlFormByUuid("12e41146-e162-11df-9195-001e378eb67e"));
+	}
+	
+	/**
      * @see {@link HtmlFormEntryService#getProviderStub()}
      */
     @Test
