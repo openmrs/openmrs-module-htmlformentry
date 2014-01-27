@@ -632,6 +632,15 @@ public class HtmlFormEntryUtil {
 			if (location != null) {
 				return location;
 			}
+			if(id.contains("SYSTEM_DEFAULT"))
+			{
+				location= Context.getLocationService().getDefaultLocation();
+				if(location!=null)
+				{
+					return location;
+				
+				}
+			}
 			
 			// try the "101 - Cange" case
 			if (id.contains(" ")) {
@@ -645,6 +654,7 @@ public class HtmlFormEntryUtil {
 					}
 				}
 				catch (Exception ex) {
+					ex.printStackTrace();
 					//do nothing 
 				}
 			}
