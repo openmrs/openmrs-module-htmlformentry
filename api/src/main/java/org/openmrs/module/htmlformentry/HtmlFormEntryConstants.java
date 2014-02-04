@@ -21,7 +21,7 @@ public class HtmlFormEntryConstants {
     public final static String[] PATIENT_TAGS = {"patient"};
 
     public final static String GP_DATE_FORMAT = "htmlformentry.dateFormat";
-    
+    public final static String GP_DEAFULT_LOCATION = "DEFAULT_LOCATION";
     public final static String GP_SHOW_DATE_FORMAT = "htmlformentry.showDateFormat";
 
     public final static String GP_CLASSES_NOT_TO_EXPORT_WITH_MDS = "htmlformentry.classesNotToExportWithMetadataSharing";
