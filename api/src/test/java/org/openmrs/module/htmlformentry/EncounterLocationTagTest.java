@@ -97,10 +97,12 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
 		Assert.assertTrue(matcher.find());
         Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"2\" selected=\"true\">Xanadu</option>") > -1);
+                 //String selectedId = matcher.group(1);
+        		//Assert.assertEquals("2", selectedId);
 	}
 	
 	@Test
-	public void encounterLocationTag_shouldSupportDefaultselectbuDeafultLocation() throws Exception {
+	public void encounterLocationTag_shouldSupportDefaultSelectByDeafultLocation() throws Exception {
 		
 		String htmlform = "<htmlform><encounterLocation default=\"SYSTEM_DEFAULT\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null,htmlform,null);
