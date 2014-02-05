@@ -575,6 +575,7 @@ public class HtmlFormEntryUtil {
 					return getLocation(gpValue, context);
 				}
 			}
+		
 			
 			// handle UserProperty:propName
 			if (id.startsWith("UserProperty:")) {
@@ -584,6 +585,7 @@ public class HtmlFormEntryUtil {
 					return getLocation(upValue, context);
 				}
 			}
+			
 
             // handle SessionAttribute:attributeName
             if (id.startsWith("SessionAttribute:")) {
@@ -632,6 +634,15 @@ public class HtmlFormEntryUtil {
 			if (location != null) {
 				return location;
 			}
+			if(id.contains(HtmlFormEntryConstants.GP_DEAFULT_LOCATION))
+			{
+				location= Context.getLocationService().getDefaultLocation();
+				if(location!=null)
+				{
+					return location;
+				
+				}
+			}
 			
 			// try the "101 - Cange" case
 			if (id.contains(" ")) {
@@ -645,6 +656,7 @@ public class HtmlFormEntryUtil {
 					}
 				}
 				catch (Exception ex) {
+					ex.printStackTrace();
 					//do nothing 
 				}
 			}
