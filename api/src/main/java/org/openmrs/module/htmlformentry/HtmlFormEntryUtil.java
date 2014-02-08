@@ -584,7 +584,15 @@ public class HtmlFormEntryUtil {
 					return getLocation(upValue, context);
 				}
 			}
-
+			if(id.contains(HtmlFormEntryConstants.SYSTEM_DEFAULT))
+				 			{
+				 				location= Context.getLocationService().getDefaultLocation();
+				 				if(location!=null)
+				 				{
+				 					return location;
+				 				
+				 				}
+				 			}
             // handle SessionAttribute:attributeName
             if (id.startsWith("SessionAttribute:")) {
                 if (context.getHttpSession() == null) {
