@@ -14,6 +14,8 @@
 package org.openmrs.module.htmlformentry;
 
 import junit.framework.Assert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
@@ -101,7 +103,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	 	public void encounterLocationTag_shouldSupportDefaultSelectByDeafultLocation() throws Exception {
 	 		
-	 String htmlform = "<htmlform><encounterLocation default=\"SYSTEM_DEFAULT\"/></htmlform>";
+	 String htmlform = "<htmlform><encounterLocation default=\"SystemDefault\"/></htmlform>";
 	 	FormEntrySession session = new FormEntrySession(null,htmlform,null);
 	 	 log.debug(session.getHtmlToDisplay());
 	 	 TestUtil.assertFuzzyContains("<option value=\"1\" selected=\"true\">Unknown Location</option>", session.getHtmlToDisplay());

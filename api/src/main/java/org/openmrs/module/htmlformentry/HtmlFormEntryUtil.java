@@ -567,6 +567,14 @@ public class HtmlFormEntryUtil {
 
             id = id.trim();
 
+            // handle "SystemDefault" setting
+            if(id.equals(HtmlFormEntryConstants.SYSTEM_DEFAULT)) {
+                location= Context.getLocationService().getDefaultLocation();
+                if (location != null) {
+                    return location;
+
+                }
+            }
 			// handle GlobalProperty:property.name
 			if (id.startsWith("GlobalProperty:")) {
 				String gpName = id.substring("GlobalProperty:".length());
@@ -584,15 +592,6 @@ public class HtmlFormEntryUtil {
 					return getLocation(upValue, context);
 				}
 			}
-			if(id.contains(HtmlFormEntryConstants.SYSTEM_DEFAULT))
-				 			{
-				 				location= Context.getLocationService().getDefaultLocation();
-				 				if(location!=null)
-				 				{
-				 					return location;
-				 				
-				 				}
-				 			}
             // handle SessionAttribute:attributeName
             if (id.startsWith("SessionAttribute:")) {
                 if (context.getHttpSession() == null) {
