@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+
+    <changeSet id="htmlformentry_html_form_create_table" author="Darius Jazayeri">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="htmlformentry_html_form"/>
+            </not>
+        </preConditions>
+
+        <comment >
+            Create table htmlformentry_html_form, for storing html form templates
+        </comment>
+
+        <createTable tableName="htmlformentry_html_form">
+
+            <column name="id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="form_id" type="int"/>
+
+            <column name="name" type="varchar(100)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="xml_data" type="mediumtext">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="creator" type="int" defaultValueNumeric="0">
+                <constraints nullable="false" />
+
+            </column>
+
+            <column name="date_created" type="datetime" defaultValueDate="0000-00-00 00:00:00">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="changed_by" type="int"/>
+
+            <column name="date_changed" type="datetime"/>
+
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="creator"
+                                 constraintName="User who created htmlformentry_htmlform"
+                                 referencedTableName="users" referencedColumnNames="user_id" />
+        <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="form_id"
+                                 constraintName="Form with which this htmlform is related"
+                                 referencedTableName="form" referencedColumnNames="form_id" />
+        <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="changed_by"
+                                 constraintName="User who changed htmlformentry_htmlform"
+                                 referencedTableName="users" referencedColumnNames="user_id" />
+    </changeSet>
+
+
+    <changeSet id="htmlformentry_html_form_add_uuid" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="htmlformentry_html_form" columnName="uuid"/>
+            </not>
+        </preConditions>
+
+        <comment>
+            Update htmlformentry_html_form table to contain uuid column
+        </comment>
+
+        <addColumn tableName="htmlformentry_html_form">
+            <column name="uuid" type="char(38)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_add_description" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="htmlformentry_html_form" columnName="description"/>
+            </not>
+        </preConditions>
+
+        <comment>
+            Update htmlformentry_html_form table to contain description column
+        </comment>
+
+        <addColumn tableName="htmlformentry_html_form">
+            <column name="description" type="varchar(1000)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_add_retired_by" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="htmlformentry_html_form" columnName="retired_by"/>
+            </not>
+        </preConditions>
+
+        <comment>
+            Update htmlformentry_html_form table to contain retired_by column
+        </comment>
+
+        <addColumn tableName="htmlformentry_html_form">
+            <column name="retired_by" type="int"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_add_date_retired" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="htmlformentry_html_form" columnName="date_retired"/>
+            </not>
+        </preConditions>
+
+        <comment>
+            Update htmlformentry_html_form table to contain date_retired column
+        </comment>
+
+        <addColumn tableName="htmlformentry_html_form">
+            <column name="date_retired" type="datetime"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_add_retire_reason" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="htmlformentry_html_form" columnName="retire_reason"/>
+            </not>
+        </preConditions>
+
+        <comment>
+            Update htmlformentry_html_form table to contain retire_reason column
+        </comment>
+
+        <addColumn tableName="htmlformentry_html_form">
+            <column name="retire_reason" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_add_foreign_key_to_retired_by" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <foreignKeyConstraintExists foreignKeyName="user_who_retired_html_form"/>
+            </not>
+        </preConditions>
+
+        <comment>
+            Add foreign key user_who_retired_html_form
+        </comment>
+
+        <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="retired_by"
+                                 constraintName="user_who_retired_html_form"
+                                 referencedTableName="users" referencedColumnNames="user_id"/>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_update_uuid" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="htmlformentry_html_form" columnName="uuid"/>
+        </preConditions>
+
+        <comment>
+            Remove null values from uuid column
+        </comment>
+
+        <sql>
+            UPDATE htmlformentry_html_form SET uuid = UUID() WHERE uuid is null;
+        </sql>
+
+        <modifyColumn tableName="htmlformentry_html_form">
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false"/>
+            </column>
+        </modifyColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_create_index_for_uuid" author="Mark Goodrich">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <columnExists tableName="htmlformentry_html_form" columnName="uuid"/>
+                <not>
+                    <indexExists indexName="htmlformentry_html_form_uuid_index"/>
+                </not>
+            </and>
+        </preConditions>
+
+        <comment>
+            Create index htmlformentry_html_form_uuid_index
+        </comment>
+
+        <createIndex tableName="htmlformentry_html_form"
+                     indexName="htmlformentry_html_form_uuid_index"
+                     unique="true">
+            <column name="uuid"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_make_name_nullable" author="Darius Jazayeri">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="htmlformentry_html_form" columnName="name"/>
+        </preConditions>
+        <comment>
+            Make name column nullable (because we're deprecating it)
+        </comment>
+
+        <modifyColumn tableName="htmlformentry_html_form">
+            <column name="name" type="varchar(255)"/>
+        </modifyColumn>
+
+    </changeSet>
+
+</databaseChangeLog>
