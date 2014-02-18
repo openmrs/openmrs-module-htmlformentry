@@ -33,7 +33,12 @@ public class DateWidget implements Widget {
     		return Context.getDateFormat();
     	}
     }
-    
+    public String showyears()
+    {
+    	
+    	String range= Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE);
+    	return range;
+    }
     private String jsDateFormat() {
     	String ret = dateFormat().toPattern();
     	if (ret.contains("yyyy"))
@@ -84,7 +89,7 @@ public class DateWidget implements Widget {
             	sb.append(" (" + dateFormat().toPattern().toLowerCase() + ")");
             }
             
-            sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
+            sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + showyears() + "','" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
             if (initialValue != null)
             	sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
             sb.append(")</script>");
