@@ -60,10 +60,10 @@
 		</description>
 	</globalProperty>
 	<globalProperty>
-		<property>htmlformentry.showYearsRange</property>
-		<defaultValue></defaultValue>
+		<property>htmlformentry.datePickerYearsRange</property>
+		<defaultValue>"110,20"</defaultValue>
 		<description>
-			datepicker yearRange parameter can be  set here Eg:'20,110' meaning that the possible years that appear in the datepicker dropdown range from  20 years past the current year, and 110 years prior to the current year.
+			datePickerYearsRange parameter can be  set here Eg:'110,20' meaning that the possible years that appear in the datepicker dropdown range from  20 years past the current year, and 110 years prior to the current year.
 		</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->
