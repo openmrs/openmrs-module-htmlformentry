@@ -1,17 +1,16 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * A widget that allows the selection of a specific day, month, and year. To handle both
@@ -33,15 +32,9 @@ public class DateWidget implements Widget {
     		return Context.getDateFormat();
     	}
     }
-    public String getYearRange()
+    public String getYearsRange()
     {
-    	
-    	String range= Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE);
-    	if(range==null)
-    	{
     	 return Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE, "110,20");
-    	}
-    	return range;
     }
     private String jsDateFormat() {
     	String ret = dateFormat().toPattern();
@@ -93,7 +86,7 @@ public class DateWidget implements Widget {
             	sb.append(" (" + dateFormat().toPattern().toLowerCase() + ")");
             }
             
-            sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearRange() + "','" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
+            sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
             if (initialValue != null)
             	sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
             sb.append(")</script>");
