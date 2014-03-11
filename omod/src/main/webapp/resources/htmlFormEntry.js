@@ -517,8 +517,8 @@ function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, val
 		if (!jQuery.datepicker.regional[jsLocale])
 			setupDatePickerLocalization(jsLocale);
 	}
-	range=yearsrange.split(",");
-	
+
+	var range = yearsrange.split(",");
 
 	var jq = jQuery(displaySelector)
 	jq.datepicker({
