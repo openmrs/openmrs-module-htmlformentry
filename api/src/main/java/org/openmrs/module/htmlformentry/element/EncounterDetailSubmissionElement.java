@@ -528,35 +528,36 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     public String generateHtml(FormEntryContext context) {
         StringBuilder ret = new StringBuilder();
 
-        // wrap the whole encounter element in a span tag so that we access property values via javascript
-
-        // note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
-        if (dateWidget != null) {
-            id = id != null ? id : "encounterDate";
-            context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget),
-                    "dateFieldGetterFunction", null, "dateSetterFunction");
-            context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
-                    null, null);
-        } else if (providerWidget != null) {
-            id = id != null ? id : "encounterProvider";
-            context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
-                    getGetterFunction(providerWidget), getSetterFunction(providerWidget));
-            context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget),
-                    null, null, null);
-        } else if (locationWidget != null) {
-            id = id != null ? id : "encounterLocation";
-            context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null,
-                    getGetterFunction(locationWidget), getSetterFunction(locationWidget));
-            context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
-                    null, null, null);
-        } else if (encounterTypeWidget != null) {
-            id = id != null ? id : "encounterType";
-            context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(encounterTypeWidget),
-                    null, null, null);
-            context.registerPropertyAccessorInfo(id + ".error",
-                    context.getFieldNameIfRegistered(encounterTypeErrorWidget), null, null, null);
+        if (id != null || !context.getMode().equals(Mode.VIEW)) {
+            // wrap the whole encounter element in a span tag so that we access property values via javascript
+            // note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
+            if (dateWidget != null) {
+                id = id != null ? id : "encounterDate";
+                context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget),
+                        "dateFieldGetterFunction", null, "dateSetterFunction");
+                context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
+                        null, null);
+            } else if (providerWidget != null) {
+                id = id != null ? id : "encounterProvider";
+                context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
+                        getGetterFunction(providerWidget), getSetterFunction(providerWidget));
+                context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget),
+                        null, null, null);
+            } else if (locationWidget != null) {
+                id = id != null ? id : "encounterLocation";
+                context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null,
+                        getGetterFunction(locationWidget), getSetterFunction(locationWidget));
+                context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
+                        null, null, null);
+            } else if (encounterTypeWidget != null) {
+                id = id != null ? id : "encounterType";
+                context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(encounterTypeWidget),
+                        null, null, null);
+                context.registerPropertyAccessorInfo(id + ".error",
+                        context.getFieldNameIfRegistered(encounterTypeErrorWidget), null, null, null);
+            }
+            ret.append("<span id='" + id + "'>");
         }
-        ret.append("<span id='" + id + "'>");
 
         if (dateWidget != null) {
             ret.append(dateWidget.generateHtml(context));
