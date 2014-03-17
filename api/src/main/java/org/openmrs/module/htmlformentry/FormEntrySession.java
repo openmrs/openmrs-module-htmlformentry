@@ -1,14 +1,13 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -693,6 +692,13 @@ public class FormEntrySession {
                 Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
             }
 
+        }
+
+        // handle any custom actions
+        if (submissionActions.getCustomFormSubmissionActions() != null) {
+            for (CustomFormSubmissionAction customFormSubmissionAction : submissionActions.getCustomFormSubmissionActions()) {
+                customFormSubmissionAction.applyAction(this);
+            }
         }
 
     }

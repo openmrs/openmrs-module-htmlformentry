@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -70,7 +71,9 @@ public class FormSubmissionActions {
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
 
     private ExitFromCareProperty exitFromCareProperty;
-	
+
+    private List<CustomFormSubmissionAction> customFormSubmissionActions;
+
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
 	
@@ -596,6 +599,14 @@ public class FormSubmissionActions {
         }
     }
 
+    public void addCustomFormSubmissionAction(CustomFormSubmissionAction action) {
+        if (customFormSubmissionActions == null) {
+            customFormSubmissionActions = new ArrayList<CustomFormSubmissionAction>();
+        }
+
+        customFormSubmissionActions.add(action);
+    }
+
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
@@ -867,5 +878,13 @@ public class FormSubmissionActions {
 
     public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
         this.exitFromCareProperty = exitFromCareProperty;
+    }
+
+    public List<CustomFormSubmissionAction> getCustomFormSubmissionActions() {
+        return customFormSubmissionActions;
+    }
+
+    public void setCustomFormSubmissionActions(List<CustomFormSubmissionAction> customFormSubmissionActions) {
+        this.customFormSubmissionActions = customFormSubmissionActions;
     }
 }
