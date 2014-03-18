@@ -694,7 +694,7 @@ public class FormEntrySession {
 
         }
 
-        // handle any custom actions
+        // handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
         if (submissionActions.getCustomFormSubmissionActions() != null) {
             for (CustomFormSubmissionAction customFormSubmissionAction : submissionActions.getCustomFormSubmissionActions()) {
                 customFormSubmissionAction.applyAction(this);
