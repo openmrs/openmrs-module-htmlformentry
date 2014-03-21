@@ -449,25 +449,29 @@ public class HtmlFormEntryUtil {
 		return cal.getTime();
 	}
 	
-	/***
-	 * Get the concept by id, the id can either be 1)an integer id like 5090 or 2)mapping type id
-	 * like "XYZ:HT" or 3)uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	/**
+	 * Get the concept by id where the id can either be:
+	 *   1) an integer id like 5090
+	 *   2) a mapping type id like "XYZ:HT"
+	 *   3) a uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   4) the fully qualified name of a Java constant that contains one of above
 	 * 
-	 * @param id
+	 * @param id the concept identifier
 	 * @return the concept if exist, else null
 	 * @should find a concept by its conceptId
 	 * @should find a concept by its mapping
 	 * @should find a concept by its uuid
+	 * @should find a concept by static constant
 	 * @should return null otherwise
 	 * @should find a concept by its mapping with a space in between
 	 */
 	public static Concept getConcept(String id) {
 
-        Concept cpt = null;
+		Concept cpt = null;
 		
 		if (id != null) {
 
-            id = id.trim();
+			id = id.trim();
 
 			// see if this is a parseable int; if so, try looking up concept by id
 			try { //handle integer: id
@@ -494,9 +498,13 @@ public class HtmlFormEntryUtil {
 				}
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid format
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid format
 			if (isValidUuidFormat(id)) {
 				cpt = Context.getConceptService().getConceptByUuid(id);
+			}
+			// finally, if input contains at least one period handle recursively as a code constant
+			else if (id.contains(".")) {
+				return getConcept(evaluateStaticConstant(id));
 			}
 		}
 		
@@ -1078,13 +1086,38 @@ public class HtmlFormEntryUtil {
 	 * characters in length, since the uuid data field is 38 characters long)
 	 */
 	public static boolean isValidUuidFormat(String uuid) {
-		if (uuid.length() < 36 || uuid.length() > 38 || uuid.contains(" ")) {
+		if (uuid.length() < 36 || uuid.length() > 38 || uuid.contains(" ") || uuid.contains(".")) {
 			return false;
 		}
 		
 		return true;
 	}
-	
+
+	/**
+	 * Evaluates the specified Java constant using reflection
+	 * @param fqn the fully qualified name of the constant
+	 * @return the constant value
+	 */
+	protected static String evaluateStaticConstant(String fqn) {
+		int lastPeriod = fqn.lastIndexOf(".");
+		String clazzName = fqn.substring(0, lastPeriod);
+		String constantName = fqn.substring(lastPeriod + 1);
+
+		try {
+			Class<?> clazz = Context.loadClass(clazzName);
+			Field constantField = clazz.getField(constantName);
+			Object val = constantField.get(null);
+			return val != null ? String.valueOf(val) : null;
+		}
+		catch (Exception ex) {
+			throw new IllegalArgumentException("Unable to evaluate " + fqn, ex);
+		}
+	}
+
+	/**
+	 * Gets all patient identifier types
+	 * @return the patient identifier types
+	 */
 	public static List<PatientIdentifierType> getPatientIdentifierTypes() {
 		return Context.getPatientService().getAllPatientIdentifierTypes();
 	}

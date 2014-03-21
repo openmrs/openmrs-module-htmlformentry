@@ -30,6 +30,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import static org.hamcrest.CoreMatchers.*;
+
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
  */
@@ -42,6 +44,11 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+
+	// For testing concept lookups by static constant
+	public static final int TEST_CONCEPT_CONSTANT_ID = 3;
+	public static final String TEST_CONCEPT_CONSTANT_UUID = "0cbe2ed3-cd5f-4f46-9459-26127c9265ab";
+	public static final String TEST_CONCEPT_CONSTANT_MAPPING = "XYZ:HT";
 	
 	@Before
 	public void setupDatabase() throws Exception {
@@ -296,6 +303,17 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		String id = "1000";
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
+
+	/**
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests static constant containing ids, mappings and UUIDs
+	 */
+	@Test
+	@Verifies(value = "should find a concept by static constant", method = "getConcept(String)")
+	public void getConcept_shouldFindAConceptByStaticConstant() throws Exception {
+		Assert.assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_ID"), notNullValue());
+		Assert.assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_UUID"), notNullValue());
+		Assert.assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_MAPPING"), notNullValue());
+	}
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getConcept(String)}
@@ -398,6 +416,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("afasdfasd")); // less than 36 characters
 		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("012345678901234567890123456789012345678")); // more than 38 characters
 		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAA AAAAAAAAA AAAAAAAAAA AAAA")); // includes whitespace
+		Assert.assertFalse(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAA.AAAAAAAAA.AAAAAAAAAA.AAAA")); // contains periods
 	}
 	
 	@Test
@@ -1013,4 +1032,15 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals("Some Tag", tag.getTag());
     }
 
+	@Test
+	public void evaluateStaticConstant_shouldReturnEvaluatedConstant() {
+		Assert.assertThat(HtmlFormEntryUtil.evaluateStaticConstant(
+				"org.openmrs.module.htmlformentry.HtmlFormEntryConstants.CONSTANT_YES"),
+				is((Object) HtmlFormEntryConstants.CONSTANT_YES));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void evaluateStaticConstant_shouldThrowExceptionForNonExistentConstant() {
+		HtmlFormEntryUtil.evaluateStaticConstant("xxx.yyy.ZZZ");
+	}
 }
