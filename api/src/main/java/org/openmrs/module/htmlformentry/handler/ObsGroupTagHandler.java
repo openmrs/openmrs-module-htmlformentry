@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -16,8 +9,13 @@ import org.openmrs.module.htmlformentry.ObsGroupComponent;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Handles the {@code <obsGroup>} tag
@@ -48,6 +46,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         if (groupingConcept == null) {
             throw new NullPointerException("could not find concept " + attributes.get("groupingConceptId") + " as grouping obs for an obsgroup tag");
         }
+        boolean ignoreIfEmpty = session.getContext().getMode() == Mode.VIEW && "false".equals(attributes.get("showIfEmpty"));
                     
         // avoid lazy init exception
         groupingConcept.getDatatype().getHl7Abbreviation();
@@ -75,7 +74,11 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         } else {
         	unmatchedInd = false;
         }
-        
+
+        if (ignoreIfEmpty && thisGroup == null) {
+            digDeeper = false;
+        }
+
         // sets up the obs group stack, sets current obs group to this one
         ObsGroup ogSchemaObj = new ObsGroup(groupingConcept, name);
         session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
