@@ -332,10 +332,8 @@ public class FormEntryContext {
 			}
 			for (Order order : encounter.getOrders()) {
 			    if (!order.isVoided()){
-    			  //load DrugOrders for later retrieval as DrugOrders
-                    if (order.isDrugOrder()){
-                        order = (Order) Context.getOrderService().getOrder(order.getOrderId(), DrugOrder.class);
-                    }
+    			  //load subclasses for later retrieval
+                    order = (Order) Context.getOrderService().getOrder(order.getOrderId());
     			    List<Order> list = existingOrders.get(order.getConcept());
     				if (list == null) {
     					list = new LinkedList<Order>();
@@ -501,7 +499,7 @@ public class FormEntryContext {
             if (list != null) {
                 for (Iterator<Order> iter = list.iterator(); iter.hasNext();) {
                     Order test = iter.next();
-                    if (test.isDrugOrder()){
+                    if (test instanceof DrugOrder){
                         DrugOrder testDrugOrder = (DrugOrder) test;
                         if (equalDrug(testDrugOrder.getDrug(), drug)) {
                             iter.remove();

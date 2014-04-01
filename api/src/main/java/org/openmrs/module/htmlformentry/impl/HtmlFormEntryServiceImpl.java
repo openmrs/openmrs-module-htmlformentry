@@ -98,7 +98,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     public void setBasicFormXmlTemplate(String basicFormXmlTemplate) {
     	this.basicFormXmlTemplate = basicFormXmlTemplate;
     }
-
+    
 	@Override
     public HtmlForm getHtmlForm(Integer id) {
         return dao.getHtmlForm(id);

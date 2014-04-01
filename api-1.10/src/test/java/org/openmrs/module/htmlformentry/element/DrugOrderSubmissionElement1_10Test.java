@@ -16,7 +16,7 @@ import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
-public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTest {
+public class DrugOrderSubmissionElement1_10Test extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
@@ -38,61 +38,61 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
 	
 	/**
 	 * @see {@link
-	 *      DrugOrderSubmissionElement#DrugOrderSubmissionElement(FormEntryContext,Map<QString;
-	 *      QString;>)}
+	 *      DrugOrderSubmissionElement1_10#DrugOrderSubmissionElement1_10(org.openmrs.module.htmlformentry.FormEntryContext, java.util.Map<String;
+	 *      String;>)}
 	 */
 	@Test(expected = IllegalArgumentException.class)
-	@Verifies(value = "should only instantiate object if required parameter FIELD_DRUG_NAMES is passed", method = "DrugOrderSubmissionElement(FormEntryContext,Map<QString;QString;>)")
-	public void DrugOrderSubmissionElement_shouldOnlyInstantiateObjectIfRequiredParameterFIELD_DRUG_NAMESIsPassed()
+	@Verifies(value = "should only instantiate object if required parameter FIELD_DRUG_NAMES is passed", method = "DrugOrderSubmissionElement1_10(FormEntryContext,Map<QString;QString;>)")
+	public void DrugOrderSubmissionElement1_10_shouldOnlyInstantiateObjectIfRequiredParameterFIELD_DRUG_NAMESIsPassed()
 	                                                                                                               throws Exception {
 		Map<String, String> parameters;
 		@SuppressWarnings("unused")
-        DrugOrderSubmissionElement element;
+        DrugOrderSubmissionElement1_10 element;
 		
 		// test empty parameters map
 		parameters = new HashMap<String, String>();
-		element = new DrugOrderSubmissionElement(context, parameters);
+		element = new DrugOrderSubmissionElement1_10(context, parameters);
 		Assert.fail("IllegalArgumentException expected");
 	}
 	
 	/**
 	 * @see {@link
-	 *      DrugOrderSubmissionElement#DrugOrderSubmissionElement(FormEntryContext,Map<QString;
-	 *      QString;>)}
+	 *      DrugOrderSubmissionElement1_10#DrugOrderSubmissionElement1_10(org.openmrs.module.htmlformentry.FormEntryContext, java.util.Map<String;
+	 *      String;>)}
 	 */
 	@Test(expected = IllegalArgumentException.class)
-	@Verifies(value = "should only instantiate object if required parameter FIELD_DRUG_NAMES is passed", method = "DrugOrderSubmissionElement(FormEntryContext,Map<QString;QString;>)")
-	public void DrugOrderSubmissionElement_shouldInstantiateObject() throws Exception {
+	@Verifies(value = "should only instantiate object if required parameter FIELD_DRUG_NAMES is passed", method = "DrugOrderSubmissionElement1_10(FormEntryContext,Map<QString;QString;>)")
+	public void DrugOrderSubmissionElement1_10_shouldInstantiateObject() throws Exception {
 		Map<String, String> parameters;
 		@SuppressWarnings("unused")
-        DrugOrderSubmissionElement element;
+        DrugOrderSubmissionElement1_10 element;
 		// test parameters map, at least one valid drug name
 		parameters = new HashMap<String, String>();
-		parameters.put(DrugOrderSubmissionElement.FIELD_DRUG_NAMES, "3, INVALIDDRUGNAME");
+		parameters.put(DrugOrderSubmissionElement1_10.FIELD_DRUG_NAMES, "3, INVALIDDRUGNAME");
 		
-		element = new DrugOrderSubmissionElement(context, parameters);
+		element = new DrugOrderSubmissionElement1_10(context, parameters);
 		Assert.fail("IllegalArgumentException expected");
 	}
 	
 	/**
-	 * @see {@link DrugOrderSubmissionElement#generateHtml(FormEntryContext)}
+	 * @see {@link DrugOrderSubmissionElement1_10#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)}
 	 */
 	@Test
 	@Verifies(value = "should return HTML snippet", method = "generateHtml(FormEntryContext)")
 	public void generateHtml_shouldReturnHTMLSnippet() throws Exception {
 		Map<String, String> parameters;
-		DrugOrderSubmissionElement element;
+		DrugOrderSubmissionElement1_10 element;
 		
 		parameters = new HashMap<String, String>();
-		parameters.put(DrugOrderSubmissionElement.FIELD_DRUG_NAMES, "3");
-		element = new DrugOrderSubmissionElement(context, parameters);
+		parameters.put(DrugOrderSubmissionElement1_10.FIELD_DRUG_NAMES, "3");
+		element = new DrugOrderSubmissionElement1_10(context, parameters);
 		String resultHTML = element.generateHtml(context);
 		Assert.assertTrue(resultHTML.length() > 0);
 		Assert.assertTrue(resultHTML.indexOf("<input") > 0);
 		
 		// VIEW mode
 		context = new FormEntryContext(Mode.VIEW);
-		element = new DrugOrderSubmissionElement(context, parameters);
+		element = new DrugOrderSubmissionElement1_10(context, parameters);
 		resultHTML = element.generateHtml(context);
 		Assert.assertTrue(resultHTML.length() > 0);
 		Assert.assertFalse(resultHTML.indexOf("<input") > 0);
@@ -100,18 +100,18 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
 	
 	/**
      * @see {@link
-     *      DrugOrderSubmissionElement#DrugOrderSubmissionElement(FormEntryContext,Map<QString;
-     *      QString;>)}
+     *      DrugOrderSubmissionElement1_10#DrugOrderSubmissionElement1_10(org.openmrs.module.htmlformentry.FormEntryContext, java.util.Map<String;
+     *      String;>)}
      */
     @Test
-    @Verifies(value = "should return valid drugOrder schema elements", method = "DrugOrderSubmissionElement(FormEntryContext,Map<QString;QString;>)")
-    public void DrugOrderSubmissionElement_shouldReturnCorrectSchema() throws Exception {
+    @Verifies(value = "should return valid drugOrder schema elements", method = "DrugOrderSubmissionElement1_10(FormEntryContext,Map<QString;QString;>)")
+    public void DrugOrderSubmissionElement1_10_shouldReturnCorrectSchema() throws Exception {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("drugNames", "Aspirin,Triomune-30");
         parameters.put("discontinuedReasonConceptId", "101");
         parameters.put("discontinueReasonAnswers", "102,103");
         parameters.put("discontinueReasonAnswerLabels", "DRUG1, DRUG2");
-        new DrugOrderSubmissionElement(context, parameters);
+        new DrugOrderSubmissionElement1_10(context, parameters);
         List<HtmlFormField> fields = context.getSchema().getAllFields();
         for (HtmlFormField field : fields){
             if (field instanceof DrugOrderField){
@@ -131,18 +131,18 @@ public class DrugOrderSubmissionElementTest extends BaseModuleContextSensitiveTe
     
     /**
      * @see {@link
-     *      DrugOrderSubmissionElement#DrugOrderSubmissionElement(FormEntryContext,Map<QString;
-     *      QString;>)}
+     *      DrugOrderSubmissionElement1_10#DrugOrderSubmissionElement1_10(org.openmrs.module.htmlformentry.FormEntryContext, java.util.Map<String;
+     *      String;>)}
      */
     @Test
-    @Verifies(value = "should return valid drugOrder schema elements when referenced by mapping", method = "DrugOrderSubmissionElement(FormEntryContext,Map<QString;QString;>)")
-    public void DrugOrderSubmissionElementWhenReferencedByMapping_shouldReturnCorrectSchema() throws Exception {
+    @Verifies(value = "should return valid drugOrder schema elements when referenced by mapping", method = "DrugOrderSubmissionElement1_10(FormEntryContext,Map<QString;QString;>)")
+    public void DrugOrderSubmissionElement1_10WhenReferencedByMapping_shouldReturnCorrectSchema() throws Exception {
         Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("drugNames", "Aspirin,Triomune-30");
         parameters.put("discontinuedReasonConceptId", "SNOMED CT:7345693");
         parameters.put("discontinueReasonAnswers", "SNOMED CT:2332523,103");
         parameters.put("discontinueReasonAnswerLabels", "DRUG1, DRUG2");
-        new DrugOrderSubmissionElement(context, parameters);
+        new DrugOrderSubmissionElement1_10(context, parameters);
         List<HtmlFormField> fields = context.getSchema().getAllFields();
         for (HtmlFormField field : fields){
             if (field instanceof DrugOrderField){
