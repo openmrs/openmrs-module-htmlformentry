@@ -46,7 +46,7 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
         }
 	
         //render it
-    	return "<input type=\"button\" class=\"" + submitClass + "\" value=\"" + submitLabel + "\" onClick=\"submitHtmlForm()\"/>";
+    	return "<button type=\"button\" class=\"" + submitClass + "\" onclick=\"submitHtmlForm()\">" + submitLabel + "</button>";
     }
 
 }
