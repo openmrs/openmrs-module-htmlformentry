@@ -66,6 +66,7 @@ public class HtmlFormSchemaController {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
         FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm, httpSession);
+        fes.getHtmlToDisplay();
         HtmlFormSchema schema = fes.getContext().getSchema();
         model.addAttribute("schema", schema);
         model.addAttribute("message", message);

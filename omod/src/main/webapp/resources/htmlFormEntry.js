@@ -512,11 +512,13 @@ function existingEncounterOnDate(item, instruction){
 	    }
 }
 
-function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector, initialDateYMD) {
+function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, valueSelector, initialDateYMD) {
 	if (jsLocale && jsLocale != 'en' && jsLocale != 'en-US') {
 		if (!jQuery.datepicker.regional[jsLocale])
 			setupDatePickerLocalization(jsLocale);
 	}
+
+	var range = yearsrange.split(",");
 
 	var jq = jQuery(displaySelector)
 	jq.datepicker({
@@ -528,7 +530,7 @@ function setupDatePicker(jsDateFormat, jsLocale, displaySelector, valueSelector,
 		changeYear: true,
 		showOtherMonths: true,
 		selectOtherMonths: true,
-        yearRange: '-110:+20'
+        yearRange: '-'+range[0]+':+'+range[1]
 	});
 	if (jsLocale && jQuery.datepicker.regional[jsLocale])
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);

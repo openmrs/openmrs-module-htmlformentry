@@ -22,6 +22,14 @@ public interface HtmlFormEntryDAO {
 	 */
     public HtmlForm getHtmlForm(Integer id);
     
+	/**
+	 * Retrieves the HtmlForm referenced by uuid
+	 * 
+	 * @param uuid
+	 * @return HtmlForm
+	 */
+	public HtmlForm getHtmlFormByUuid(String uuid) ;
+    
     /**
      * Retrieves the HtmlForm associated with a standard OpenMRS Form object
      * 

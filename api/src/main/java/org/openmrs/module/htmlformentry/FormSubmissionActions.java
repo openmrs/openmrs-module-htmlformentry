@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -18,6 +19,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.Person;
@@ -66,8 +68,12 @@ public class FormSubmissionActions {
 	
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
 
+	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
+
     private ExitFromCareProperty exitFromCareProperty;
-	
+
+    private List<CustomFormSubmissionAction> customFormSubmissionActions;
+
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
 	
@@ -593,6 +599,14 @@ public class FormSubmissionActions {
         }
     }
 
+    public void addCustomFormSubmissionAction(CustomFormSubmissionAction action) {
+        if (customFormSubmissionActions == null) {
+            customFormSubmissionActions = new ArrayList<CustomFormSubmissionAction>();
+        }
+
+        customFormSubmissionActions.add(action);
+    }
+
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
@@ -840,6 +854,20 @@ public class FormSubmissionActions {
 		this.patientProgramsToUpdate = patientProgramsToUpdate;
 	}
 
+	/**
+	 * @return the identifiersToVoid
+	 */
+	public List<PatientIdentifier> getIdentifiersToVoid() {
+		return identifiersToVoid;
+	}
+
+	/**
+	 * @param identifiersToVoid the identifiersToVoid to set
+	 */
+	public void setIdentifiersToVoid(List<PatientIdentifier> identifiersToVoid) {
+		this.identifiersToVoid = identifiersToVoid;
+	}
+
     /**
      *
      * @return the exitFromCareProperty
@@ -850,5 +878,13 @@ public class FormSubmissionActions {
 
     public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
         this.exitFromCareProperty = exitFromCareProperty;
+    }
+
+    public List<CustomFormSubmissionAction> getCustomFormSubmissionActions() {
+        return customFormSubmissionActions;
+    }
+
+    public void setCustomFormSubmissionActions(List<CustomFormSubmissionAction> customFormSubmissionActions) {
+        this.customFormSubmissionActions = customFormSubmissionActions;
     }
 }

@@ -101,6 +101,14 @@
                             <key><value>ifMode</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.IfModeTagHandler"/>
                         </entry>
+                        <entry>
+                            <key><value>includeIf</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.IncludeIfTagHandler"/>
+                        </entry>
+                        <entry>
+                            <key><value>excludeIf</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.ExcludeIfTagHandler"/>
+                        </entry>
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">

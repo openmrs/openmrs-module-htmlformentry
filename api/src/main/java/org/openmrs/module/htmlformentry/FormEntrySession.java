@@ -1,14 +1,13 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -397,8 +396,7 @@ public class FormEntrySession {
             context.setUnmatchedMode(false);
         }
         xml = htmlGenerator.stripComments(xml);
-        xml = htmlGenerator.applyIncludes(this, xml);
-        xml = htmlGenerator.applyExcludes(this, xml);
+        xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
         xml = htmlGenerator.applyRoleRestrictions(xml);
         xml = htmlGenerator.applyMacros(xml);
         xml = htmlGenerator.applyRepeats(xml);
@@ -665,6 +663,15 @@ public class FormEntrySession {
           }
           */
 
+		if (submissionActions.getIdentifiersToVoid() != null) {
+			for (PatientIdentifier patientIdentifier : submissionActions.getIdentifiersToVoid()) {
+				patientIdentifier.setVoided(true);
+				patientIdentifier.setVoidedBy(Context.getAuthenticatedUser());
+				patientIdentifier.setVoidReason(getForm().getName()); // Use form name as reason
+				patientIdentifier.setDateVoided(new Date());
+			}
+		}
+
         // save the patient
         // TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
         // we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
@@ -685,6 +692,13 @@ public class FormEntrySession {
                 Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
             }
 
+        }
+
+        // handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
+        if (submissionActions.getCustomFormSubmissionActions() != null) {
+            for (CustomFormSubmissionAction customFormSubmissionAction : submissionActions.getCustomFormSubmissionActions()) {
+                customFormSubmissionAction.applyAction(this);
+            }
         }
 
     }

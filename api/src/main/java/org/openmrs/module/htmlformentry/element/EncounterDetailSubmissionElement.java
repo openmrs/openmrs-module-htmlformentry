@@ -1,5 +1,17 @@
 package org.openmrs.module.htmlformentry.element;
 
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -30,18 +42,6 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -528,33 +528,35 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     public String generateHtml(FormEntryContext context) {
         StringBuilder ret = new StringBuilder();
 
-        // if an id has been specified, wrap the whole encounter element in a span tag so that we access property values via javascript
-        // also register property accessors for all the widgets
-        if (id != null) {
-            ret.append("<span id='" + id + "'>");
-
+        if (id != null || !context.getMode().equals(Mode.VIEW)) {
+            // wrap the whole encounter element in a span tag so that we access property values via javascript
             // note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
             if (dateWidget != null) {
+                id = id != null ? id : "encounterDate";
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget),
                         "dateFieldGetterFunction", null, "dateSetterFunction");
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
                         null, null);
             } else if (providerWidget != null) {
+                id = id != null ? id : "encounterProvider";
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
                         getGetterFunction(providerWidget), getSetterFunction(providerWidget));
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(providerErrorWidget),
                         null, null, null);
             } else if (locationWidget != null) {
+                id = id != null ? id : "encounterLocation";
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(locationWidget), null,
                         getGetterFunction(locationWidget), getSetterFunction(locationWidget));
                 context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(locationErrorWidget),
                         null, null, null);
-            }else if (encounterTypeWidget != null) {
+            } else if (encounterTypeWidget != null) {
+                id = id != null ? id : "encounterType";
                 context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(encounterTypeWidget),
                         null, null, null);
                 context.registerPropertyAccessorInfo(id + ".error",
                         context.getFieldNameIfRegistered(encounterTypeErrorWidget), null, null, null);
             }
+            ret.append("<span id='" + id + "'>");
         }
 
         if (dateWidget != null) {

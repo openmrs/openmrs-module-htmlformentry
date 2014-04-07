@@ -14,6 +14,8 @@
 package org.openmrs.module.htmlformentry;
 
 import junit.framework.Assert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
@@ -28,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
+	private static Log log = LogFactory.getLog(EncounterLocationTagTest.class);
 	
 	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
@@ -97,6 +100,16 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		//String selectedId = matcher.group(1);
 		//Assert.assertEquals("2", selectedId);
 	}
+	@Test
+	 	public void encounterLocationTag_shouldSupportDefaultSelectByDeafultLocation() throws Exception {
+	 		
+	 String htmlform = "<htmlform><encounterLocation default=\"SystemDefault\"/></htmlform>";
+	 	FormEntrySession session = new FormEntrySession(null,htmlform,null);
+	 	 log.debug(session.getHtmlToDisplay());
+	 	 TestUtil.assertFuzzyContains("<option value=\"1\" selected=\"true\">Unknown Location</option>", session.getHtmlToDisplay());
+	 	
+	 	 
+	  	}
 
     @Test
 	public void encounterLocationTag_shouldSupportDefaultSelectByUserProperty() throws Exception {

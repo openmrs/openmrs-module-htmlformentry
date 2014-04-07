@@ -26,6 +26,16 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 */
     @Transactional(readOnly=true)
     public HtmlForm getHtmlForm(Integer id);
+    
+    /**
+     * Retrieves the HTML Form with the specified uuid
+     * 
+     * @param uuid
+     * @return the HtmlForm with the given uuid
+     * 
+     */
+    @Transactional(readOnly=true)
+    public HtmlForm getHtmlFormByUuid(String uuid);
 
     /**
      * Retrieves the most-recently-created HtmlForm for the given Form

@@ -106,7 +106,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String htmlToDisplay = session.getHtmlToDisplay();
         assertTrue("Result: " + htmlToDisplay,
-                htmlToDisplay.matches(".*<select.*size=3.*"));
+                htmlToDisplay.matches(".*<select.*size=\"3\".*"));
     }
 
 	@Test

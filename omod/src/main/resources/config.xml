@@ -59,6 +59,13 @@
 			Set to true if you want static text for the date format to be displayed next to date widgets, else set to false. 
 		</description>
 	</globalProperty>
+	<globalProperty>
+		<property>htmlformentry.datePickerYearsRange</property>
+		<defaultValue>110,20</defaultValue>
+		<description>
+			datePickerYearsRange parameter can be  set here Eg:'110,20' meaning that the possible years that appear in the datepicker dropdown range from  20 years past the current year, and 110 years prior to the current year.
+		</description>
+	</globalProperty>
 	<!-- /Required Global Properties -->
 	
 	<dwr>

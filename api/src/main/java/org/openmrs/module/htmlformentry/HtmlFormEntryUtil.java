@@ -471,23 +471,30 @@ public class HtmlFormEntryUtil {
 		return cal.getTime();
 	}
 	
-	/***
-	 * Get the concept by id, the id can either be 1)an integer id like 5090 or 2)mapping type id
-	 * like "XYZ:HT" or 3)uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	/**
+	 * Get the concept by id where the id can either be:
+	 *   1) an integer id like 5090
+	 *   2) a mapping type id like "XYZ:HT"
+	 *   3) a uuid like "a3e12268-74bf-11df-9768-17cfc9833272"
+	 *   4) the fully qualified name of a Java constant that contains one of above
 	 * 
-	 * @param id
+	 * @param id the concept identifier
 	 * @return the concept if exist, else null
 	 * @should find a concept by its conceptId
 	 * @should find a concept by its mapping
 	 * @should find a concept by its uuid
+	 * @should find a concept by static constant
 	 * @should return null otherwise
 	 * @should find a concept by its mapping with a space in between
 	 */
 	public static Concept getConcept(String id) {
+
 		Concept cpt = null;
 		
 		if (id != null) {
-			
+
+			id = id.trim();
+
 			// see if this is a parseable int; if so, try looking up concept by id
 			try { //handle integer: id
 				int conceptId = Integer.parseInt(id);
@@ -513,9 +520,13 @@ public class HtmlFormEntryUtil {
 				}
 			}
 			
-			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid format
+			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid format
 			if (isValidUuidFormat(id)) {
 				cpt = Context.getConceptService().getConceptByUuid(id);
+			}
+			// finally, if input contains at least one period handle recursively as a code constant
+			else if (id.contains(".")) {
+				return getConcept(evaluateStaticConstant(id));
 			}
 		}
 		
@@ -532,6 +543,7 @@ public class HtmlFormEntryUtil {
 	 * @throws IllegalArgumentException
 	 */
 	public static Concept getConcept(String id, String errorMessageIfNotFound) throws IllegalArgumentException {
+
 		Concept c = null;
 		try {
 			c = getConcept(id);
@@ -582,7 +594,17 @@ public class HtmlFormEntryUtil {
 		Location location = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
+            // handle "SystemDefault" setting
+            if(id.equals(HtmlFormEntryConstants.SYSTEM_DEFAULT)) {
+                location= Context.getLocationService().getDefaultLocation();
+                if (location != null) {
+                    return location;
+
+                }
+            }
 			// handle GlobalProperty:property.name
 			if (id.startsWith("GlobalProperty:")) {
 				String gpName = id.substring("GlobalProperty:".length());
@@ -600,7 +622,6 @@ public class HtmlFormEntryUtil {
 					return getLocation(upValue, context);
 				}
 			}
-
             // handle SessionAttribute:attributeName
             if (id.startsWith("SessionAttribute:")) {
                 if (context.getHttpSession() == null) {
@@ -688,6 +709,8 @@ public class HtmlFormEntryUtil {
 		
 		if (id != null) {
 
+            id = id.trim();
+
 			// see if this is parseable int; if so, try looking up by id
 			try {//handle integer: id
 				int programId = Integer.parseInt(id);
@@ -736,7 +759,9 @@ public class HtmlFormEntryUtil {
 		Person person = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int personId = Integer.parseInt(id);
@@ -801,7 +826,9 @@ public class HtmlFormEntryUtil {
 		PatientIdentifierType identifierType = null;
 		
 		if (id != null) {
-			
+
+            id = id.trim();
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int identifierTypeId = Integer.parseInt(id);
@@ -840,6 +867,9 @@ public class HtmlFormEntryUtil {
 		ProgramWorkflow workflow = null;
 		
 		if (identifier != null) {
+
+            identifier = identifier.trim();
+
 			// first try to fetch by id
 			try {
 				Integer id = Integer.valueOf(identifier);
@@ -908,7 +938,9 @@ public class HtmlFormEntryUtil {
 		}
 		// if we didn't find a match, see if this is a concept mapping
 		else {
-			int index = identifier.indexOf(":");
+			identifier = identifier.trim();
+
+            int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
 				if (concept != null) {
@@ -952,6 +984,8 @@ public class HtmlFormEntryUtil {
 		
 		// if we didn't find a match, see if this is a concept mapping
 		else {
+            identifier = identifier.trim();
+
 			int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
@@ -969,7 +1003,9 @@ public class HtmlFormEntryUtil {
 
     public static List<Location> getLocationsByTags(String attributeName, Map<String, String> parameters){
         List<Location> locations = null;
+
         String locationTags = parameters.get(attributeName);
+
         if ( locationTags != null) {
             List<LocationTag> tags = new ArrayList<LocationTag>();
             String[] temp = locationTags.split(",");
@@ -997,6 +1033,9 @@ public class HtmlFormEntryUtil {
         LocationTag tag = null;
 
         if (identifier != null) {
+
+            identifier = identifier.trim();
+
             // first try to fetch by id
             try {
                 Integer id = Integer.valueOf(identifier);
@@ -1038,6 +1077,9 @@ public class HtmlFormEntryUtil {
 		
 		if (identifier != null) {
 			try {
+
+				identifier = identifier.trim();
+
 				Integer id = Integer.valueOf(identifier);
 				state = Context.getProgramWorkflowService().getState(id);
 				
@@ -1066,13 +1108,38 @@ public class HtmlFormEntryUtil {
 	 * characters in length, since the uuid data field is 38 characters long)
 	 */
 	public static boolean isValidUuidFormat(String uuid) {
-		if (uuid.length() < 36 || uuid.length() > 38 || uuid.contains(" ")) {
+		if (uuid.length() < 36 || uuid.length() > 38 || uuid.contains(" ") || uuid.contains(".")) {
 			return false;
 		}
 		
 		return true;
 	}
-	
+
+	/**
+	 * Evaluates the specified Java constant using reflection
+	 * @param fqn the fully qualified name of the constant
+	 * @return the constant value
+	 */
+	protected static String evaluateStaticConstant(String fqn) {
+		int lastPeriod = fqn.lastIndexOf(".");
+		String clazzName = fqn.substring(0, lastPeriod);
+		String constantName = fqn.substring(lastPeriod + 1);
+
+		try {
+			Class<?> clazz = Context.loadClass(clazzName);
+			Field constantField = clazz.getField(constantName);
+			Object val = constantField.get(null);
+			return val != null ? String.valueOf(val) : null;
+		}
+		catch (Exception ex) {
+			throw new IllegalArgumentException("Unable to evaluate " + fqn, ex);
+		}
+	}
+
+	/**
+	 * Gets all patient identifier types
+	 * @return the patient identifier types
+	 */
 	public static List<PatientIdentifierType> getPatientIdentifierTypes() {
 		return Context.getPatientService().getAllPatientIdentifierTypes();
 	}
@@ -1749,4 +1816,27 @@ public class HtmlFormEntryUtil {
             return localization;
         }
     }
+
+    /**
+     * Given a include/exclude string. fetch the test expression
+     *
+     * @param teststr
+     * @return a substring of a test expression
+     * @throws BadFormDesignException
+     * @should extract the correct expression from teststr
+     */
+    public static String getTestStr(String teststr) throws BadFormDesignException {
+        if (StringUtils.isBlank(teststr))
+            throw new BadFormDesignException("Can't extract the test expression from " + teststr);
+
+        //get the text inside the quotes, i.e the expression
+        String[] actualExpression = StringUtils.substringsBetween(teststr, "\"", "\"");
+
+        if (actualExpression == null || actualExpression.length != 1 || StringUtils.isBlank(actualExpression[0])) {
+            throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here
+        }
+
+        return actualExpression[0];
+    }
+
 }
