@@ -1,15 +1,14 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.ConceptNumeric;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -121,7 +120,7 @@ public class NumberFieldWidget implements Widget {
         if (context.getMode() == Mode.VIEW) {
             String toPrint = "";
             if (initialValue != null) {
-                toPrint = initialValue.toString();
+                toPrint = userFriendlyDisplay(initialValue);
                 return WidgetFactory.displayValue(toPrint);
             } else {
                 toPrint = "____";
@@ -132,7 +131,7 @@ public class NumberFieldWidget implements Widget {
             String errorId = context.getErrorFieldId(this);
             sb.append("<input type=\"text\" size=\"" + numberFieldSize + "\" id=\"" + id + "\" name=\"" + id + "\"");
             if (initialValue != null) {
-                sb.append(" value=\"" + initialValue + "\"");
+                sb.append(" value=\"" + userFriendlyDisplay(initialValue) + "\"");
             }
             if (context.isAutomaticClientSideValidation()) {
                 sb.append(" onBlur=\"checkNumber(this,'" + errorId + "'," + floatingPoint + ",");
@@ -156,6 +155,18 @@ public class NumberFieldWidget implements Widget {
             sb.append("/>");
         }
         return sb.toString();
+    }
+
+    private String userFriendlyDisplay(Number number) {
+        if (number == null) {
+            return "";
+        }
+        else if (number.doubleValue() == number.intValue()) {
+            return "" + number.intValue();
+        }
+        else {
+            return "" + number.toString();
+        }
     }
 
     @Override

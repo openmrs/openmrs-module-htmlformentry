@@ -56,6 +56,27 @@ public class NumberFieldWidgetTest {
         assertThat(getAttribute(html, "max"), is("100.0"));
     }
 
+    @Test
+    public void testDisplaysWholeNumbersWithoutDecimal() throws Exception {
+        when(context.getMode()).thenReturn(FormEntryContext.Mode.VIEW);
+
+        NumberFieldWidget widget = new NumberFieldWidget(null, null, true);
+        widget.setInitialValue(100d);
+
+        assertThat(widget.generateHtml(context), is("<span class=\"value\">100</span>"));
+    }
+
+    @Test
+    public void testShowsWholeNumberWithoutDecimalInEditMode() throws Exception {
+        when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+
+        NumberFieldWidget widget = new NumberFieldWidget(null, null, true);
+        widget.setInitialValue(100d);
+
+        String html = widget.generateHtml(context);
+        assertThat(getAttribute(html, "value"), is("100"));
+    }
+
     /**
      * Hacky, incomplete, but good enough for these tests
      */
