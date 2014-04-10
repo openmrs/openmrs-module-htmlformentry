@@ -1,8 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +19,8 @@ import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
@@ -673,7 +672,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("R <span class=\"value\">S</span>", html);
 				TestUtil.assertFuzzyContains("ISONIAZID <span class=\"value\">Resistant</span>", html);
-				TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200.0</span>", html);
+				TestUtil.assertFuzzyContains("INH colonies: <span class=\"value\">200</span>", html);
 				TestUtil.assertFuzzyContains("DST Result Date <span class=\"value\">01/02/2003</span>", html);
 				TestUtil.assertFuzzyContains("Intermediate", html);
 				TestUtil.assertFuzzyDoesNotContain("400", html);

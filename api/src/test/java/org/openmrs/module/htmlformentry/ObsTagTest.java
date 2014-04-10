@@ -56,7 +56,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldSetDefaultNumericValue() throws Exception {
 		String htmlform = "<htmlform><obs conceptId=\"2\" defaultValue=\"60\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
-		assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("value=\"60.0\""));
+		assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("value=\"60\""));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
