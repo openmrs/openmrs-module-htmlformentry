@@ -44,6 +44,8 @@ import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -59,6 +61,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -104,8 +107,27 @@ public class HtmlFormEntryUtil {
 	 * @return parameter, converted to appropriate type
 	 */
 	public static Object getParameterAsType(HttpServletRequest request, String name, Class<?> clazz) {
-		String val = request.getParameter(name);
-		return convertToType(val, clazz);
+		if (ComplexData.class.isAssignableFrom(clazz) && request instanceof MultipartHttpServletRequest) {
+			return convertToComplexData(request, name);
+		} else {
+			String val = request.getParameter(name);
+			return convertToType(val, clazz);
+		}
+	}
+	
+	public static ComplexData convertToComplexData(HttpServletRequest request, String name) {
+		MultipartHttpServletRequest mRequest = (MultipartHttpServletRequest) request;
+		MultipartFile file = mRequest.getFile(name);
+		if (file != null && file.getSize() > 0) {
+			try {
+				return new ComplexData(file.getOriginalFilename(), file.getInputStream());
+			}
+			catch (IOException e) {
+				throw new IllegalArgumentException(e);
+			}
+		} else {
+			return null;
+		}
 	}
 	
 	/**
