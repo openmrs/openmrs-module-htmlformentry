@@ -148,7 +148,8 @@ public class WidgetFactory {
 				        + complex.getHandler()))) {
 					String imgTag = "<img src='" + hyperlink + "' class=\"complexImage\" />";
 					return "<a href=\"" + hyperlink + "\">" + imgTag + "</a><br/><a href=\"" + getDownloadHyperlink(obs)
-					        + "\">Download</a>";
+					        + "\">" + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.download")
+					        + "</a>";
 				}
 			}
 			catch (ClassNotFoundException e) {}
@@ -156,8 +157,10 @@ public class WidgetFactory {
 		
 		File file = AbstractHandler.getComplexDataFile(obs);
 		String fileName = file.getName();
-		String value = "<p class=\"value\">" + fileName + "<br/><a href=\"" + hyperlink + "\">View</a> | <a href=\""
-		        + getDownloadHyperlink(obs) + "\">Download</a></p>";
+		String value = "<p class=\"value\">" + fileName + "<br/><a href=\"" + hyperlink + "\">"
+		        + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.view") + "</a> | <a href=\""
+		        + getDownloadHyperlink(obs) + "\">"
+		        + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.download") + "</a></p>";
 		return "<span>" + value + "</span>";
 	}
 	

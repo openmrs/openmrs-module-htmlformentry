@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.widget;
 import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.obs.ComplexData;
@@ -42,7 +43,8 @@ public class UploadWidget implements Widget {
 				sb.append("/>");
 				String complexValueHtml = WidgetFactory.displayComplexValue(initialValue);
 				return "<p>" + complexValueHtml + "</p>" + sb.toString() + "<input type=\"checkbox\" name=\"" + id
-				        + "_delete\" id=\"" + id + "_delete\" />Delete<br/>";
+				        + "_delete\" id=\"" + id + "_delete\" />"
+				        + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.delete") + "<br/>";
 			} else {
 				sb.append("/>");
 				return WidgetFactory.displayEmptyValue("") + sb.toString();
