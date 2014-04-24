@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,7 +74,7 @@ public class FormEntryContext {
     private Map<Concept, List<Obs>> existingObs;
     private Map<Concept, List<Order>> existingOrders;
     private Map<Obs, Set<Obs>> existingObsInGroups;
-    
+
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
     private Location defaultLocation;
@@ -92,6 +91,11 @@ public class FormEntryContext {
     private boolean clientSideValidationHints = false;
 
     private Stack<Object> stack = new Stack<Object>();
+
+    // TODO once Html Form Entry no longer supports older core versions that don't have visits, we should:
+    // TODO 1) change the type of this variable to visit
+    // TODO 2) change HtmlFormEntryController so that it correctly populates the context with the relevent visit (if available)
+    private Object visit;
 
     public FormEntryContext(Mode mode) {
         this.mode = mode;
@@ -844,7 +848,7 @@ public class FormEntryContext {
 		return unmatchedMode;
 	}
 
-	public void setUnmatchedMode(boolean unmatchedMode) {
+    public void setUnmatchedMode(boolean unmatchedMode) {
 		this.unmatchedMode = unmatchedMode;
 	}
 
@@ -863,4 +867,13 @@ public class FormEntryContext {
     public void setClientSideValidationHints(boolean clientSideValidationHints) {
         this.clientSideValidationHints = clientSideValidationHints;
     }
+
+    public Object getVisit() {
+        return visit;
+    }
+
+    public void setVisit(Object visit) {
+        this.visit = visit;
+    }
+
 }
