@@ -167,7 +167,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
-				assertThat(html, containsString("DrugOrder.dose <span class=\"value\">2.0</span>"));
+				assertThat(html, containsString("DrugOrder.dose <span class=\"value\">2</span>"));
 			}
 		}.run();
 	}
@@ -289,7 +289,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
-				assertThat(html, containsString("DrugOrder.dose <span class=\"value\">2.0</span>"));
+				assertThat(html, containsString("DrugOrder.dose <span class=\"value\">2</span>"));
 			}
 		}.run();
 	}
@@ -424,7 +424,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			public void testViewingEncounter(Encounter encounter, String html) {
-				assertThat(html, containsString("DrugOrder.dose <span class=\"value\">1.0</span>"));
+				assertThat(html, containsString("DrugOrder.dose <span class=\"value\">1</span>"));
 			}
 		}.run();
 	}

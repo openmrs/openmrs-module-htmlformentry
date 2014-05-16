@@ -7,17 +7,15 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.Drug;
-import org.openmrs.annotation.OpenmrsProfile;
+import org.openmrs.annotation.OpenmrsComponent;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement1_10;
-import org.springframework.stereotype.Component;
 
 /**
  * Handles the {@code <drugOrder>} tag
  */
-@Component
-@OpenmrsProfile(openmrsVersion = "1.10")
+@OpenmrsComponent(openmrsVersion = "1.10")
 public class DrugOrderTagHandlerSupport1_10 implements DrugOrderTagHandlerSupport {
 
 	@Override
