@@ -41,6 +41,19 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         				|| StringUtils.equals("2008-07-01", df.format(earliestWeight.getObsDatetime()))));
   	}
 
+    @Test
+    public void earliestObs_shouldReturnTheFirstObsGivenThePassedConcepUuid() throws Exception {
+
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        Obs earliestWeight = functions.earliestObs("c607c80f-1ea9-4da3-bb88-6276ce8868dd");
+        Assert.assertEquals(50, earliestWeight.getValueNumeric().intValue());
+        // this is a bit of a hack because for some reason the obsDatetime set for this obs in the standard test dataset changed between 1.7 and 1.8
+        Assert.assertTrue("Obs datetime not correct", (StringUtils.equals("2008-08-01", df.format(earliestWeight.getObsDatetime()))
+                || StringUtils.equals("2008-07-01", df.format(earliestWeight.getObsDatetime()))));
+    }
+
 	/**
 	 * @see VelocityFunctions#latestObs(Integer)
 	 * @verifies return the most recent obs given the passed conceptId
@@ -55,8 +68,20 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals(61, earliestWeight.getValueNumeric().intValue());
         Assert.assertEquals("2008-08-19", df.format(earliestWeight.getObsDatetime()));
 	}
-	
-	/**
+
+    @Test
+    public void latestObs_shouldReturnTheMostRecentObsGivenThePassedConceptUuid() throws Exception {
+
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        Obs earliestWeight = functions.latestObs("c607c80f-1ea9-4da3-bb88-6276ce8868dd");
+        Assert.assertEquals(61, earliestWeight.getValueNumeric().intValue());
+        Assert.assertEquals("2008-08-19", df.format(earliestWeight.getObsDatetime()));
+    }
+
+
+    /**
 	 * @see VelocityFunctions@latestEncounter(EncounterType)
 	 * @verifies return the most recent encounter if encounter type is null
 	 */

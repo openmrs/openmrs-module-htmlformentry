@@ -59,41 +59,72 @@ public class VelocityFunctions {
 			throw new CannotBePreviewedException();
     }
 
-	public List<Obs> allObs(Integer conceptId) {
-		if (session.getPatient() == null)
+	public List<Obs> allObs(String conceptId) {
+
+        if (session.getPatient() == null) {
 			return new ArrayList<Obs>();
-		cannotBePreviewed();
-		Patient p = session.getPatient();
-		if (p == null)
+        }
+
+        cannotBePreviewed();
+
+        Patient p = session.getPatient();
+		Concept concept = getConcept(conceptId);
+
+        if (p == null || concept == null) {
 			return new ArrayList<Obs>();
-		else
-			return getObsService().getObservationsByPersonAndConcept(p, new Concept(conceptId));
+        }
+        else {
+			return getObsService().getObservationsByPersonAndConcept(p, concept);
+        }
 	}
-	
-	/**
+
+    public List<Obs> allObs(Integer conceptId) {
+        return allObs(conceptId.toString());
+    }
+
+
+    /**
 	 * @return the most recent obs given the passed conceptId
 	 * @should return the most recent obs given the passed conceptId
 	 */
-	public Obs latestObs(Integer conceptId) {
-		List<Obs> obs = allObs(conceptId);
-		if (obs == null || obs.isEmpty())
+	public Obs latestObs(String conceptId) {
+
+        List<Obs> obs = allObs(conceptId);
+
+        if (obs == null || obs.isEmpty()) {
 			return null;
-		else
+        }
+		else {
 			return obs.get(0);
+        }
+
 	}
-	
+
+    public Obs latestObs(Integer conceptId) {
+        return latestObs(conceptId.toString());
+    }
+
 	/**
 	 * @return the first obs given the passed conceptId
 	 * @should return the first obs given the passed conceptId
 	 */
-	public Obs earliestObs(Integer conceptId) {
-		List<Obs> obs = allObs(conceptId);
-		if (obs == null || obs.isEmpty())
-			return null;
-		else
+	public Obs earliestObs(String conceptId) {
+
+        List<Obs> obs = allObs(conceptId);
+
+        if (obs == null || obs.isEmpty()) {
+				return null;
+        }
+		else {
 			return obs.get(obs.size() - 1);
+        }
+
 	}
-	
+
+    public Obs earliestObs(Integer conceptId) {
+        return earliestObs(conceptId.toString());
+    }
+
 	/**
 	 * @return the all the encounters of the specified type
 	 * @should return all the encounters of the specified type
