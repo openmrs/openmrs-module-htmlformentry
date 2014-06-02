@@ -68,7 +68,7 @@ public class VelocityFunctions {
         cannotBePreviewed();
 
         Patient p = session.getPatient();
-		Concept concept = getConcept(conceptId);
+		Concept concept = HtmlFormEntryUtil.getConcept(conceptId);
 
         if (p == null || concept == null) {
 			return new ArrayList<Obs>();
