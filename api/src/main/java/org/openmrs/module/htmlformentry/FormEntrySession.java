@@ -1,14 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -38,6 +29,15 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -364,6 +364,9 @@ public class FormEntrySession {
         StringWriter writer = new StringWriter();
         try {
             velocityEngine.evaluate(velocityContext, writer, FormEntrySession.class.getName(), velocityExpression);
+
+            // it appears that if velocity cannot properly evalu
+
             return writer.toString();
         } catch (CannotBePreviewedException ex) {
             return "Cannot be previewed";

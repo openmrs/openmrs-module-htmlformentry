@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Last Something: <lookup expression="fn.latestObs(9999).valueNumeric"/> units
+    <submit/>
+</htmlform>

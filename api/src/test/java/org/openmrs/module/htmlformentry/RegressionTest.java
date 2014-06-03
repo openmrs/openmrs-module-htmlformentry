@@ -731,6 +731,23 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
+    @Test
+    public void testVelocityExpressionWithNoValueShouldReturnEmptyString() throws Exception {
+        LogicUtil.registerDefaultRules();
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "velocityFormExpressionWithNoValueShouldReturnEmptyString";
+            }
+
+            @Override
+            public void testBlankFormHtml(String html) {
+                TestUtil.assertFuzzyContains(" Last Something:  units", html);
+            }
+        }.run();
+    }
+
 	@Test
 	public void testEditSingleObsForm() throws Exception {
 		final Date date = new Date();
