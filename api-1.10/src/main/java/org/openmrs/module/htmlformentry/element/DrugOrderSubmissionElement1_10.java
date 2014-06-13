@@ -11,9 +11,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.CareSetting;
+import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.DrugOrder.DosingType;
 import org.openmrs.EncounterProvider;
 import org.openmrs.Order;
 import org.openmrs.Order.Action;
@@ -27,76 +29,184 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
-
 
 public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 	
+	public static final String DRUG_ORDER_TYPE_UUID = "131168f4-15f5-102d-96e4-000c29c2a5d7";
+
+	private DropdownWidget routeWidget;
+	
+	private DropdownWidget careSettingWidget;
+	
+	private DropdownWidget dosingTypeWidget;
+	
+	private DropdownWidget doseUnitsWidget;
+	
+	private NumberFieldWidget quantityWidget;
+	
+	private ErrorWidget quantityErrorWidget;
+	
+	private DropdownWidget quantityUnitsWidget;
+	
+	private NumberFieldWidget durationWidget;
+	
+	private ErrorWidget durationErrorWidget;
+	
+	private DropdownWidget durationUnitsWidget;
+	
 	public DrugOrderSubmissionElement1_10(FormEntryContext context, Map<String, String> parameters) {
-	    super(context, parameters);
-    }
+		super(context, parameters);
+	}
 	
 	@Override
 	protected void createAdditionalWidgets(FormEntryContext context) {
+		createDosingTypeWidget(context);
+		
 		createDoseUnitsWidget(context);
-	    
-	    createRouteWidget(context);
-	    
-	    createCareSettingWidget(context);
+		
+		createQuantityWidget(context);
+		
+		createQuantityUnitsWidget(context);
+		
+		createDurationWidget(context);
+		
+		createDurationUnitsWidget(context);
+		
+		createRouteWidget(context);
+		
+		careSettingWidget = createCareSettingWidget(context, false);
 	}
-
+	
+	private void createDurationUnitsWidget(FormEntryContext context) {
+		durationUnitsWidget = new DropdownWidget();
+		List<Option> options = new ArrayList<Option>();
+		List<Concept> durationUnits = Context.getOrderService().getDurationUnits();
+		for (Concept concept : durationUnits) {
+			options.add(new Option(concept.getName().getName(), concept.getId().toString(), false));
+		}
+		
+		setupDropdownWidget(context, durationUnitsWidget, options);
+	}
+	
+	private void createDurationWidget(FormEntryContext context) {
+		durationWidget = new NumberFieldWidget(0d, 9999999d, true);
+		context.registerWidget(durationWidget);
+		
+		durationErrorWidget = new ErrorWidget();
+		context.registerErrorWidget(durationWidget, durationErrorWidget);
+	}
+	
+	private void createQuantityUnitsWidget(FormEntryContext context) {
+		quantityUnitsWidget = new DropdownWidget();
+		
+		List<Option> options = new ArrayList<Option>();
+		List<Concept> drugDispensingUnits = Context.getOrderService().getDrugDispensingUnits();
+		for (Concept concept : drugDispensingUnits) {
+			options.add(new Option(concept.getName().getName(), concept.getId().toString(), false));
+		}
+		
+		setupDropdownWidget(context, quantityUnitsWidget, options);
+	}
+	
+	private void createQuantityWidget(FormEntryContext context) {
+		quantityWidget = new NumberFieldWidget(0d, 9999999d, true);
+		context.registerWidget(quantityWidget);
+		
+		quantityErrorWidget = new ErrorWidget();
+		context.registerErrorWidget(quantityWidget, quantityErrorWidget);
+	}
+	
+	private void createDosingTypeWidget(FormEntryContext context) {
+		dosingTypeWidget = new DropdownWidget();
+		
+		List<Option> options = new ArrayList<Option>();
+		options.add(new Option(DosingType.SIMPLE.toString(), DosingType.SIMPLE.toString(), true));
+		options.add(new Option(DosingType.FREE_TEXT.toString(), DosingType.FREE_TEXT.toString(), false));
+		
+		setupDropdownWidget(context, dosingTypeWidget, options);
+	}
+	
+	@Override
+	protected String generateHtmlForAdditionalWidgets(FormEntryContext context) {
+		MessageSourceService mss = Context.getMessageSourceService();
+		
+		StringBuilder html = new StringBuilder();
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.dosingType") + " ", dosingTypeWidget, null));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.dose") + " ", doseWidget, doseErrorWidget));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.doseUnits") + " ", doseUnitsWidget, null));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.quantity") + " ", quantityWidget, quantityErrorWidget));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.quantityUnits") + " ", quantityUnitsWidget,
+		    null));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.duration") + " ", durationWidget, durationErrorWidget));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.durationUnits") + " ", durationUnitsWidget,
+		    null));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.route") + " ", routeWidget, null));
+		
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.careSetting") + " ", careSettingWidget, null));
+		
+		return html.toString();
+	}
+	
+	static void setupDropdownWidget(FormEntryContext context, DropdownWidget widget, List<Option> options) {
+		if (context.getMode() != Mode.VIEW) {
+			widget.setOptions(options);
+			if (!options.isEmpty()) {
+				widget.setInitialValue(options.get(0).getValue());
+			}
+		} else {
+			widget.setOptions(new ArrayList<Option>());
+		}
+		context.registerWidget(widget);
+	}
+	
 	private void createDoseUnitsWidget(FormEntryContext context) {
-	    doseUnitsWidget = new DropdownWidget();
-	    List<Concept> concepts = Context.getOrderService().getDrugDosingUnits();
-	    List<Option> options = new ArrayList<Option>();
-	    if (context.getMode() != Mode.VIEW) {
-		    for (Concept concept : concepts) {
-		        options.add(new Option(concept.getName().getName(), concept.getId().toString(), false));
-	        }
-		    
-		    if (!concepts.isEmpty()) {
-		    	doseUnitsWidget.setInitialValue(concepts.get(0).getId());
-		    }
-	    }
-	    doseUnitsWidget.setOptions(options);
-	    context.registerWidget(doseUnitsWidget);
-    }
-
-	private void createCareSettingWidget(FormEntryContext context) {
-	    careSettingWidget = new DropdownWidget();
-	    List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
-	    
-	    List<Option> options = new ArrayList<Option>();
-	    if (context.getMode() != Mode.VIEW) {
-		    for (CareSetting careSetting : careSettings) {
-		        options.add(new Option(careSetting.getName(), careSetting.getId().toString(), false));
-	        }
-		    
-		    if (!careSettings.isEmpty()) {
-		    	careSettingWidget.setInitialValue(careSettings.get(0).getId());
-		    }
-	    }
-	    careSettingWidget.setOptions(options);
-	    context.registerWidget(careSettingWidget);
-    }
-
+		doseUnitsWidget = new DropdownWidget();
+		List<Concept> concepts = Context.getOrderService().getDrugDosingUnits();
+		List<Option> options = new ArrayList<Option>();
+		
+		for (Concept concept : concepts) {
+			options.add(new Option(concept.getName().getName(), concept.getId().toString(), false));
+		}
+		
+		setupDropdownWidget(context, doseUnitsWidget, options);
+	}
+	
+	public static DropdownWidget createCareSettingWidget(FormEntryContext context, boolean inpatientOnly) {
+		DropdownWidget careSettingWidget = new DropdownWidget();
+		List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
+		List<Option> options = new ArrayList<Option>();
+		for (CareSetting careSetting : careSettings) {
+			if (!inpatientOnly || careSetting.getCareSettingType().equals(CareSettingType.INPATIENT)) {
+				options.add(new Option(careSetting.getName(), careSetting.getId().toString(), false));
+			}
+		}
+		
+		setupDropdownWidget(context, careSettingWidget, options);
+		
+		return careSettingWidget;
+	}
+	
 	private void createRouteWidget(FormEntryContext context) {
-	    routeWidget = new DropdownWidget();
-	    List<Concept> drugRoutes = Context.getOrderService().getDrugRoutes();
-	    
-	    List<Option> options = new ArrayList<Option>();
-	    if (context.getMode() != Mode.VIEW) {
-	    	for (Concept route : drugRoutes) {
-	            options.add(new Option(route.getName().getName(), route.getId().toString(), false));
-            }
-	    	
-	    	if (!drugRoutes.isEmpty()) {
-	    		routeWidget.setInitialValue(drugRoutes.get(0).getId());
-	    	}
-	    }
-	    routeWidget.setOptions(options);
-	    context.registerWidget(routeWidget);
-    }
+		routeWidget = new DropdownWidget();
+		List<Concept> drugRoutes = Context.getOrderService().getDrugRoutes();
+		
+		List<Option> options = new ArrayList<Option>();
+		for (Concept route : drugRoutes) {
+			options.add(new Option(route.getName().getName(), route.getId().toString(), false));
+		}
+		
+		setupDropdownWidget(context, routeWidget, options);
+	}
 	
 	@Override
 	protected void createFrequencyWeekWidget(FormEntryContext context, MessageSourceService mss) {
@@ -111,11 +221,12 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		List<OrderFrequency> orderFrequencies = Context.getOrderService().getOrderFrequencies(false);
 		
 		List<Option> freqOptions = new ArrayList<Option>();
-		if (context.getMode() != Mode.VIEW ) {
-    		for (OrderFrequency orderFrequency : orderFrequencies) {
-				freqOptions.add(new Option(orderFrequency.getConcept().getName().getName(), orderFrequency.getId().toString(), false));
+		if (context.getMode() != Mode.VIEW) {
+			for (OrderFrequency orderFrequency : orderFrequencies) {
+				freqOptions.add(new Option(orderFrequency.getConcept().getName().getName(), orderFrequency.getId()
+				        .toString(), false));
 			}
-    		frequencyWidget.setInitialValue(orderFrequencies.get(0).getId());
+			frequencyWidget.setInitialValue(orderFrequencies.get(0).getId());
 		}
 		frequencyWidget.setOptions(freqOptions);
 		context.registerWidget(frequencyWidget);
@@ -146,7 +257,8 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 								lastRevision = revisedOrder;
 								continue;
 							}
-							DrugOrder discontinuationOrder = (DrugOrder) Context.getOrderService().getDiscontinuationOrder(drugOrder);
+							DrugOrder discontinuationOrder = (DrugOrder) Context.getOrderService().getDiscontinuationOrder(
+							    drugOrder);
 							if (discontinuationOrder != null) {
 								drugOrder = discontinuationOrder;
 								continue;
@@ -163,34 +275,38 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 								((CheckboxWidget) drugWidget).setInitialValue("CHECKED");
 						}
 						
-						if (existingOrder.getAction().equals(Action.DISCONTINUE)) {
-							//existingOrder is discontinued
-							startDateWidget.setInitialValue(lastRevision.getStartDate());
-							
-							routeWidget.setInitialValue(lastRevision.getRoute().getId());
-							
-							careSettingWidget.setInitialValue(lastRevision.getCareSetting().getId());
-							if (!hideDoseAndFrequency) {
-								doseWidget.setInitialValue(lastRevision.getDose());
-								
-								doseUnitsWidget.setInitialValue(lastRevision.getDoseUnits().getId());
-								
-								frequencyWidget.setInitialValue(lastRevision.getFrequency().getConcept().getId());
-							}
-						} else {
-							startDateWidget.setInitialValue(drugOrder.getStartDate());
-							
-							routeWidget.setInitialValue(drugOrder.getRoute().getId());
-							
-							careSettingWidget.setInitialValue(drugOrder.getCareSetting().getId());
-							if (!hideDoseAndFrequency) {
-								doseWidget.setInitialValue(drugOrder.getDose());
-								
-								doseUnitsWidget.setInitialValue(drugOrder.getDoseUnits().getId());
-								
-								frequencyWidget.setInitialValue(drugOrder.getFrequency().getConcept().getId());
-							}
+						if (!existingOrder.getAction().equals(Action.DISCONTINUE)) {
+							lastRevision = drugOrder;
 						}
+						
+						startDateWidget.setInitialValue(lastRevision.getStartDate());
+						
+						routeWidget.setInitialValue(lastRevision.getRoute().getId());
+						
+						careSettingWidget.setInitialValue(lastRevision.getCareSetting().getId());
+						
+						dosingTypeWidget.setInitialValue(lastRevision.getDosingType().toString());
+						
+						doseWidget.setInitialValue(lastRevision.getDose());
+						
+						if (lastRevision.getDoseUnits() != null) {
+							doseUnitsWidget.setInitialValue(lastRevision.getDoseUnits().getId());
+						}
+						
+						quantityWidget.setInitialValue(lastRevision.getQuantity());
+						
+						if (lastRevision.getQuantityUnits() != null) {
+							quantityUnitsWidget.setInitialValue(lastRevision.getQuantityUnits().getId());
+						}
+						
+						durationWidget.setInitialValue(lastRevision.getDuration());
+						
+						if (lastRevision.getDurationUnits() != null) {
+							durationUnitsWidget.setInitialValue(lastRevision.getDurationUnits().getId());
+						}
+						
+						frequencyWidget.setInitialValue(lastRevision.getFrequency().getConcept().getId());
+						
 						if (!usingDurationField) {
 							discontinuedDateWidget.setInitialValue(drugOrder.getDateStopped());
 							Order discontinuationOrder = Context.getOrderService().getDiscontinuationOrder(drugOrder);
@@ -207,61 +323,75 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 	}
 	
 	@Override
-	protected void populateOrderTag(OrderTag orderTag, FormEntrySession session, HttpServletRequest submission) {
+	protected void populateOrderTag(OrderTag oldOrderTag, FormEntrySession session, HttpServletRequest submission) {
+		OrderTag1_10 orderTag = (OrderTag1_10) oldOrderTag;
+		
 		super.populateOrderTag(orderTag, session, submission);
 		
-		//1.10.x only
-	    if (doseUnitsWidget != null) {
-	    	String value = (String) doseUnitsWidget.getValue(session.getContext(), submission);
-	    	if (value != null) {
-	    		orderTag.doseUnits = Context.getConceptService().getConcept(Integer.valueOf(value));
-	    	}
-	    }
-	    if (careSettingWidget != null) {
-	    	String value = (String) careSettingWidget.getValue(session.getContext(), submission);
-	    	if (value != null) {
-	    		orderTag.careSettingId = Integer.valueOf(Integer.valueOf(value));
-	    	}
-	    }
-	    if (routeWidget != null) {
-	    	String value = (String) routeWidget.getValue(session.getContext(), submission);
-	    	if (value != null) {
-	    		orderTag.route = Context.getConceptService().getConcept(Integer.valueOf(value));
-	    	}
-	    }
+		orderTag.dosingType = DosingType.valueOf((String) dosingTypeWidget.getValue(session.getContext(), submission));
+		
+		String doseUnitsValue = (String) doseUnitsWidget.getValue(session.getContext(), submission);
+		if (doseUnitsValue != null) {
+			orderTag.doseUnits = Context.getConceptService().getConcept(Integer.valueOf(doseUnitsValue));
+		}
+		
+		orderTag.quantity = quantityWidget.getValue(session.getContext(), submission);
+		
+		String quantityUnitsValue = (String) quantityUnitsWidget.getValue(session.getContext(), submission);
+		if (quantityUnitsValue != null) {
+			orderTag.quantityUnits = Context.getConceptService().getConcept(Integer.valueOf(quantityUnitsValue));
+		}
+		
+		orderTag.duration = durationWidget.getValue(session.getContext(), submission);
+		
+		String durationUnitsValue = (String) durationUnitsWidget.getValue(session.getContext(), submission);
+		if (durationUnitsValue != null) {
+			orderTag.durationUnits = Context.getConceptService().getConcept(Integer.valueOf(durationUnitsValue));
+		}
+		
+		String careSettingValue = (String) careSettingWidget.getValue(session.getContext(), submission);
+		if (careSettingValue != null) {
+			orderTag.careSettingId = Integer.valueOf(Integer.valueOf(careSettingValue));
+		}
+		
+		String routeValue = (String) routeWidget.getValue(session.getContext(), submission);
+		if (routeValue != null) {
+			orderTag.route = Context.getConceptService().getConcept(Integer.valueOf(routeValue));
+		}
 	}
 	
 	@Override
-	protected void enterOrder(FormEntrySession session, OrderTag orderTag) {
+	protected void enterOrder(FormEntrySession session, OrderTag oldOrderTag) {
+		OrderTag1_10 orderTag = (OrderTag1_10) oldOrderTag;
+		
 		DrugOrder drugOrder = new DrugOrder();
-    	if (drugOrder.getDateCreated() == null)
-    	    drugOrder.setDateCreated(new Date());
-    	if (drugOrder.getCreator() == null)
-    	    drugOrder.setCreator(Context.getAuthenticatedUser());
-    	setOrderer(session, drugOrder);
-    	
-    	drugOrder.setDrug(orderTag.drug);
-    	drugOrder.setPatient(session.getPatient());
-    	drugOrder.setDose(orderTag.dose);
-    	drugOrder.setDoseUnits(orderTag.doseUnits);
-    	drugOrder.setRoute(orderTag.route);
-    	drugOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
-    	OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
-    	drugOrder.setFrequency(orderFrequency);
-    	drugOrder.setStartDate(orderTag.startDate);
-    	//order duration:
-    	if (orderTag.orderDuration != null)
-    	    drugOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
-    	drugOrder.setVoided(false);
-    	drugOrder.setDrug(orderTag.drug);
-    	drugOrder.setConcept(orderTag.drug.getConcept());
-    	drugOrder.setOrderType(Context.getOrderService().getOrderTypeByName("Drug order")); 
-    	if (!StringUtils.isEmpty(orderTag.instructions))
-    	    drugOrder.setInstructions((String) orderTag.instructions);
-    	
-    	DrugOrder discontinuationOrder = createDiscontinuationOrderIfNeeded(
-				drugOrder, orderTag.discontinuedDate, orderTag.discontinuedReasonStr);
-    	
+		setOrderer(session, drugOrder);
+		
+		drugOrder.setDrug(orderTag.drug);
+		drugOrder.setPatient(session.getPatient());
+		drugOrder.setDosingType(orderTag.dosingType);
+		drugOrder.setDose(orderTag.dose);
+		drugOrder.setDoseUnits(orderTag.doseUnits);
+		drugOrder.setQuantity(orderTag.quantity);
+		drugOrder.setQuantityUnits(orderTag.quantityUnits);
+		drugOrder.setDuration(orderTag.duration);
+		drugOrder.setDurationUnits(orderTag.durationUnits);
+		drugOrder.setRoute(orderTag.route);
+		drugOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
+		OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
+		drugOrder.setFrequency(orderFrequency);
+		drugOrder.setStartDate(orderTag.startDate);
+		//order duration:
+		if (orderTag.orderDuration != null)
+			drugOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
+		drugOrder.setVoided(false);
+		drugOrder.setOrderType(Context.getOrderService().getOrderTypeByUuid(DRUG_ORDER_TYPE_UUID));
+		if (!StringUtils.isEmpty(orderTag.instructions))
+			drugOrder.setInstructions((String) orderTag.instructions);
+		
+		DrugOrder discontinuationOrder = createDiscontinuationOrderIfNeeded(drugOrder, orderTag.discontinuedDate,
+		    orderTag.discontinuedReasonStr);
+		
 		log.debug("adding new drug order, drugId is " + orderTag.drugId + " and startDate is " + orderTag.startDate);
 		session.getSubmissionActions().getCurrentEncounter().addOrder(drugOrder);
 		if (discontinuationOrder != null) {
@@ -269,21 +399,23 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 			session.getSubmissionActions().getCurrentEncounter().addOrder(discontinuationOrder);
 		}
 	}
-
+	
 	private void setOrderer(FormEntrySession session, DrugOrder drugOrder) {
-	    if (drugOrder.getUuid() == null)
-    	    drugOrder.setUuid(UUID.randomUUID().toString());
-    	
-    	Set<EncounterProvider> encounterProviders = session.getSubmissionActions().getCurrentEncounter().getEncounterProviders();
-    	for (EncounterProvider encounterProvider : encounterProviders) {
-	        if (!encounterProvider.isVoided()) {
-	        	drugOrder.setOrderer(encounterProvider.getProvider());
-	        }
-        }
-    }
+		if (drugOrder.getUuid() == null)
+			drugOrder.setUuid(UUID.randomUUID().toString());
+		
+		Set<EncounterProvider> encounterProviders = session.getSubmissionActions().getCurrentEncounter()
+		        .getEncounterProviders();
+		for (EncounterProvider encounterProvider : encounterProviders) {
+			if (!encounterProvider.isVoided()) {
+				drugOrder.setOrderer(encounterProvider.getProvider());
+			}
+		}
+	}
 	
 	@Override
-	protected void editOrder(FormEntrySession session, OrderTag orderTag) {
+	protected void editOrder(FormEntrySession session, OrderTag oldOrderTag) {
+		OrderTag1_10 orderTag = (OrderTag1_10) oldOrderTag;
 		DrugOrder discontinuationOrder = null;
 		
 		if (!existingOrder.getAction().equals(Action.DISCONTINUE)) {
@@ -291,24 +423,29 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 			DrugOrder revisedOrder = existingOrder.cloneForRevision();
 			setOrderer(session, revisedOrder);
 			revisedOrder.setDrug(orderTag.drug);
+			revisedOrder.setDosingType(orderTag.dosingType);
 			revisedOrder.setDose(orderTag.dose);
 			revisedOrder.setDoseUnits(orderTag.doseUnits);
+			revisedOrder.setQuantity(orderTag.quantity);
+			revisedOrder.setQuantityUnits(orderTag.quantityUnits);
+			revisedOrder.setDuration(orderTag.duration);
+			revisedOrder.setDurationUnits(orderTag.durationUnits);
 			revisedOrder.setRoute(orderTag.route);
 			revisedOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
-	    	OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
-	    	revisedOrder.setFrequency(orderFrequency);
-	    	revisedOrder.setStartDate(orderTag.startDate);
-	    	if (orderTag.orderDuration != null)
-	    		revisedOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
-	    	revisedOrder.setConcept(orderTag.drug.getConcept());  	
-	    	if (!StringUtils.isEmpty(orderTag.instructions))
-	    		revisedOrder.setInstructions((String) orderTag.instructions);
-	    	
+			OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
+			revisedOrder.setFrequency(orderFrequency);
+			revisedOrder.setStartDate(orderTag.startDate);
+			if (orderTag.orderDuration != null)
+				revisedOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
+			if (!StringUtils.isEmpty(orderTag.instructions))
+				revisedOrder.setInstructions((String) orderTag.instructions);
+			
 			log.debug("modifying drug order, drugId is " + orderTag.drugId + " and startDate is " + orderTag.startDate);
 			session.getSubmissionActions().getCurrentEncounter().setDateChanged(new Date());
 			session.getSubmissionActions().getCurrentEncounter().addOrder(revisedOrder);
 			
-			discontinuationOrder = createDiscontinuationOrderIfNeeded(revisedOrder, orderTag.discontinuedDate, orderTag.discontinuedReasonStr);
+			discontinuationOrder = createDiscontinuationOrderIfNeeded(revisedOrder, orderTag.discontinuedDate,
+			    orderTag.discontinuedReasonStr);
 		} else {
 			Context.getOrderService().voidOrder(existingOrder, "Update discontinued date or reason");
 			discontinuationOrder = existingOrder.cloneForRevision();
@@ -322,12 +459,12 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 			session.getSubmissionActions().getCurrentEncounter().addOrder(discontinuationOrder);
 		}
 	}
-		
-	private DrugOrder createDiscontinuationOrderIfNeeded(DrugOrder drugOrder,
-			Date discontinuedDate, String discontinuedReasonStr) {
+	
+	private DrugOrder createDiscontinuationOrderIfNeeded(DrugOrder drugOrder, Date discontinuedDate,
+	        String discontinuedReasonStr) {
 		DrugOrder discontinuationOrder = null;
 		
-		if (discontinuedDate != null){
+		if (discontinuedDate != null) {
 			discontinuationOrder = drugOrder.cloneForDiscontinuing();
 			discontinuationOrder.setStartDate(discontinuedDate);
 			if (!StringUtils.isEmpty(discontinuedReasonStr))
@@ -342,5 +479,28 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		
 		return discontinuationOrder;
 	}
-
+	
+	@Override
+	protected OrderTag newOrderTag() {
+		return new OrderTag1_10();
+	}
+	
+	protected class OrderTag1_10 extends OrderTag {
+		
+		public DosingType dosingType;
+		
+		public Concept doseUnits;
+		
+		public Double quantity;
+		
+		public Concept quantityUnits;
+		
+		public Double duration;
+		
+		public Concept durationUnits;
+		
+		public Concept route;
+		
+		public Integer careSettingId;
+	}
 }

@@ -1,0 +1,66 @@
+
+<list>
+	<regimenSuggestion>
+			<drugComponents>
+				<drugSuggestion>
+					<drugId>2</drugId>
+					<dose>1</dose>
+					<units>tab (s)</units>
+					<frequency>1/day x 7 days/week</frequency>
+					<instructions />
+				</drugSuggestion>
+				<drugSuggestion>
+					<drugId>3</drugId>
+					<dose>200</dose>
+					<units>mg</units>
+					<frequency>1/day x 7 days/week</frequency>
+					<instructions />
+				</drugSuggestion>
+			</drugComponents>
+		<displayName>Drug 2 and 3</displayName>
+		<codeName>drug2and3</codeName>
+		<canReplace>ANTIRETROVIRAL DRUGS</canReplace>
+	</regimenSuggestion>
+	<regimenSuggestion>
+			<drugComponents>
+				<drugSuggestion>
+					<drugId>2</drugId>
+					<dose>1</dose>
+					<units>tab (s)</units>
+					<frequency>1/day x 7 days/week</frequency>
+					<instructions />
+				</drugSuggestion>
+			</drugComponents>
+		<displayName>Drug 2 by itself</displayName>
+		<codeName>drug2only</codeName>
+		<canReplace>ANTIRETROVIRAL DRUGS</canReplace>
+	</regimenSuggestion>
+		<regimenSuggestion>
+			<drugComponents>
+				<drugSuggestion>
+					<drugId>2</drugId>
+					<dose>1</dose>
+					<units>tab (s)</units>
+					<frequency>1/day x 7 days/week</frequency>
+					<instructions />
+				</drugSuggestion>
+				<drugSuggestion>
+					<drugId>3</drugId>
+					<dose>1</dose>
+					<units>tab (s)</units>
+					<frequency>1/day x 7 days/week</frequency>
+					<instructions />
+				</drugSuggestion>
+				<drugSuggestion>
+					<drugId>11</drugId>
+					<dose>1</dose>
+					<units>tab (s)</units>
+					<frequency>1/day x 7 days/week</frequency>
+					<instructions />
+				</drugSuggestion>
+			</drugComponents>
+		<displayName>all 3 drugs</displayName>
+		<codeName>all3</codeName>
+		<canReplace>ANTIRETROVIRAL DRUGS</canReplace>
+	</regimenSuggestion>
+</list>

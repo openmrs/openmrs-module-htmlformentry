@@ -178,6 +178,8 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	        context.registerErrorWidget(discontinuedReasonWidget, discontinuedReasonErrorWidget);
 		}
 		
+		createAdditionalWidgets(context, parameters);
+		
 		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {	
 			matchStandardRegimenInExistingOrders(context);
 		}
@@ -185,6 +187,10 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
         	startDateWidget.setInitialValue(regDrugOrders.get(0).getStartDate());
         context.getSchema().addField(srf);
 	}
+
+	protected void createAdditionalWidgets(FormEntryContext context, Map<String, String> parameters) {
+    }
+
 
 	protected void matchStandardRegimenInExistingOrders(FormEntryContext context) {
 	    Map<RegimenSuggestion, List<DrugOrder>> map =  RegimenUtil.findStrongestStandardRegimenInDrugOrders(possibleRegimens, context.getRemainingExistingOrders());
@@ -311,9 +317,9 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
     	}
     	if (!StringUtils.isEmpty(regCode)){
     		if (session.getContext().getMode() == Mode.ENTER || (session.getContext().getMode() == Mode.EDIT && regDrugOrders == null)) {
-    			enterStandardRegimen(session, regCode, startDate, discontinuedDate, discontinuedReasonStr);	
+    			enterStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);	
     		} else if (session.getContext().getMode() == Mode.EDIT) {
-    			editStandardRegimen(session, regCode, startDate, discontinuedDate, discontinuedReasonStr);
+    			editStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);
     		}	
     	} else if (regDrugOrders != null){
 	   	     //void all existing orders in standard regimen -- this is if you un-select an existing standardRegimen
@@ -323,7 +329,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 
     }
 
-	protected void editStandardRegimen(FormEntrySession session, String regCode, Date startDate, Date discontinuedDate,
+	protected void editStandardRegimen(FormEntrySession session, HttpServletRequest submission, String regCode, Date startDate, Date discontinuedDate,
             String discontinuedReasonStr) {
 	    if (existingStandardRegimen != null && regCode.equals(existingStandardRegimen.getCodeName())){
 	    	//the drug orders are already there and attached to the encounter.
@@ -339,12 +345,12 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	    } else {
 	    	//standard regimen changed in the drop-down...  I'm going to have this void the old DrugOrders, and create new ones.
 	    	 voidDrugOrders(regDrugOrders, session);
-	    	 enterStandardRegimen(session, regCode, startDate, discontinuedDate, discontinuedReasonStr);	
+	    	 enterStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);	
 	    }
     }
 
-	protected void enterStandardRegimen(FormEntrySession session, String regCode, Date startDate, Date discontinuedDate,
-            String discontinuedReasonStr) {
+	protected void enterStandardRegimen(FormEntrySession session, HttpServletRequest submission, String regCode, Date startDate,
+            Date discontinuedDate, String discontinuedReasonStr) {
 	    RegimenSuggestion rs = RegimenUtil.getStandardRegimenByCode(possibleRegimens, regCode);
 	    //create new drugOrders
 	    Set<Order> ords = RegimenUtil.standardRegimenToDrugOrders(rs, startDate, session.getPatient());	

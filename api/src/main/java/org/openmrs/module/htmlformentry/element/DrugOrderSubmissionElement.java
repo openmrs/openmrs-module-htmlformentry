@@ -1,5 +1,17 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,18 +40,6 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
 
 /**
  * Holds the widgets used to represent a specific drug order, and serves as both the HtmlGeneratorElement 
@@ -89,7 +89,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	protected Widget drugWidget;
 	private ErrorWidget drugErrorWidget;
 	protected Widget doseWidget;
-	private ErrorWidget doseErrorWidget;
+	protected ErrorWidget doseErrorWidget;
 	protected DateWidget startDateWidget;
 	private ErrorWidget startDateErrorWidget;
 	protected DateWidget discontinuedDateWidget;
@@ -109,9 +109,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     private TextFieldWidget orderDurationWidget;
     private ErrorWidget orderDurationErrorWidget;
     private Double defaultDose;
-    protected DropdownWidget doseUnitsWidget;
-	protected DropdownWidget routeWidget;
-	protected DropdownWidget careSettingWidget;
 
 	protected DrugOrder existingOrder;
 	protected List<Drug> drugsUsedAsKey;
@@ -466,24 +463,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 				ret.append(drugErrorWidget.generateHtml(context));
 			ret.append(" | ");
 		}
-		if (routeWidget != null) {
-			ret.append(mss.getMessage("DrugOrder.route") + " ");
-			ret.append(routeWidget.generateHtml(context)  + " ");
-		}
-		if (careSettingWidget != null) {
-			ret.append(mss.getMessage("DrugOrder.careSetting") + " ");
-			ret.append(careSettingWidget.generateHtml(context)  + " ");
-		}
-		if (doseWidget != null) {
-			ret.append(mss.getMessage("DrugOrder.dose") + " ");
-			ret.append(doseWidget.generateHtml(context)  + " ");
-			if (context.getMode() != Mode.VIEW)
-				ret.append(doseErrorWidget.generateHtml(context));
-		}
-		if (doseUnitsWidget != null) {
-			ret.append(mss.getMessage("DrugOrder.doseUnits") + " ");
-			ret.append(doseUnitsWidget.generateHtml(context)  + " ");
-		}
+		
+		ret.append(generateHtmlForAdditionalWidgets(context));
+		
 		if (frequencyWidget != null) {
 			ret.append(mss.getMessage("DrugOrder.frequency") + " ");
 			ret.append(frequencyWidget.generateHtml(context));
@@ -523,15 +505,30 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             if (context.getMode() != Mode.VIEW)
                 ret.append(discontinuedReasonErrorWidget.generateHtml(context));
         }
-		if (instructionsWidget != null){
-		    ret.append(instructionsLabel + " ");
-		    ret.append(instructionsWidget.generateHtml(context) + " ");
-		    if (context.getMode() != Mode.VIEW)
-                ret.append(instructionsErrorWidget.generateHtml(context));
-		}
+		
+		ret.append(generateHtmlForWidget(context, instructionsLabel + " ", instructionsWidget, instructionsErrorWidget));
 		
 		return ret.toString();
     }
+	
+	protected String generateHtmlForAdditionalWidgets(FormEntryContext context) {
+		MessageSourceService mss = Context.getMessageSourceService();
+		
+	    return generateHtmlForWidget(context, mss.getMessage("DrugOrder.dose") + " ", doseWidget, doseErrorWidget);
+    }
+
+	public static String generateHtmlForWidget(FormEntryContext context, String label, Widget widget, Widget errorWidget) {
+		StringBuilder html = new StringBuilder();
+		if (widget != null){
+			if (label != null) {
+				html.append(label);
+			}
+			html.append(widget.generateHtml(context) + " ");
+		    if (context.getMode() != Mode.VIEW && errorWidget != null)
+		    	html.append(errorWidget.generateHtml(context));
+		}
+		return html.toString();
+	}
 
 	/**
 	 * handleSubmission saves a drug order if in ENTER or EDIT-mode
@@ -540,7 +537,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	 */
 	@Override
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-		OrderTag orderTag = new OrderTag();
+		OrderTag orderTag = newOrderTag();
 		
 	    if (drugWidget.getValue(session.getContext(), submission) != null)
 	            orderTag.drugId = ((String) drugWidget.getValue(session.getContext(), submission));
@@ -588,6 +585,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	    
     	}
     }
+	
+	protected OrderTag newOrderTag() {
+		return new OrderTag();
+	}
 
 	protected void populateOrderTag(OrderTag orderTag, FormEntrySession session, HttpServletRequest submission) {
 	    
@@ -794,12 +795,6 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    public Drug drug;
 	    
 	    public Double dose;
-	    
-	    public Concept doseUnits;
-	    
-	    public Concept route;
-	    
-	    public Integer careSettingId;
 	    
 	    public String frequency;
     }

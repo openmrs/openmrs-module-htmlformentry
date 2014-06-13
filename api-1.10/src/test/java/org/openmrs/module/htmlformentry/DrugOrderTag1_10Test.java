@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -15,7 +14,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
@@ -82,13 +80,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				request.setParameter("w7", "2");
 				//start date
 				request.setParameter("w9", dateAsString(date));
+				//dosing type
+				request.setParameter("w17", "SIMPLE");
 				//dose
 				request.setParameter("w11", "1");
-				request.setParameter("w17", "51");
+				request.setParameter("w18", "51");
 				//care setting
-				request.setParameter("w19", "2");
+				request.setParameter("w26", "2");
 				//route
-				request.setParameter("w18", "22");
+				request.setParameter("w25", "22");
 				//frequency
 				request.setParameter("w13", "1");
 			}
@@ -122,13 +122,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				request.setParameter("w7", "2");
 				//start date
 				request.setParameter("w9", dateAsString(date));
+				//dosing type
+				request.setParameter("w17", "SIMPLE");
 				//dose
 				request.setParameter("w11", "2");
-				request.setParameter("w17", "51");
+				request.setParameter("w18", "51");
 				//care setting
-				request.setParameter("w19", "2");
+				request.setParameter("w26", "2");
 				//route
-				request.setParameter("w18", "22");
+				request.setParameter("w25", "22");
 				//frequency
 				request.setParameter("w13", "1");
 				
@@ -209,13 +211,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				request.setParameter("w7", "2");
 				//start date
 				request.setParameter("w9", dateAsString(date));
+				//dosing type
+				request.setParameter("w17", "SIMPLE");
 				//dose
 				request.setParameter("w11", "1");
-				request.setParameter("w17", "51");
+				request.setParameter("w18", "51");
 				//care setting
-				request.setParameter("w19", "2");
+				request.setParameter("w26", "2");
 				//route
-				request.setParameter("w18", "22");
+				request.setParameter("w25", "22");
 				//frequency
 				request.setParameter("w13", "1");
 			}
@@ -249,13 +253,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				request.setParameter("w7", "2");
 				//start date
 				request.setParameter("w9", dateAsString(date));
+				//dosing type
+				request.setParameter("w17", "SIMPLE");
 				//dose
 				request.setParameter("w11", "2");
-				request.setParameter("w17", "51");
+				request.setParameter("w18", "51");
 				//care setting
-				request.setParameter("w19", "2");
+				request.setParameter("w26", "2");
 				//route
-				request.setParameter("w18", "22");
+				request.setParameter("w25", "22");
 				//frequency
 				request.setParameter("w13", "1");
 			}
@@ -335,13 +341,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				request.setParameter("w7", "2");
 				//start date
 				request.setParameter("w9", dateAsString(date));
+				//dosing type
+				request.setParameter("w17", "SIMPLE");
 				//dose
 				request.setParameter("w11", "1");
-				request.setParameter("w17", "51");
+				request.setParameter("w18", "51");
 				//care setting
-				request.setParameter("w19", "2");
+				request.setParameter("w26", "2");
 				//route
-				request.setParameter("w18", "22");
+				request.setParameter("w25", "22");
 				//frequency
 				request.setParameter("w13", "1");
 				
@@ -379,13 +387,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				request.setParameter("w7", "2");
 				//start date
 				request.setParameter("w9", dateAsString(date));
+				//dosing type
+				request.setParameter("w17", "SIMPLE");
 				//dose
 				request.setParameter("w11", "2"); //changes to dose should not be persisted
-				request.setParameter("w17", "51");
+				request.setParameter("w18", "51");
 				//care setting
-				request.setParameter("w19", "2");
+				request.setParameter("w26", "2");
 				//route
-				request.setParameter("w18", "22");
+				request.setParameter("w25", "22");
 				//frequency
 				request.setParameter("w13", "1");
 				

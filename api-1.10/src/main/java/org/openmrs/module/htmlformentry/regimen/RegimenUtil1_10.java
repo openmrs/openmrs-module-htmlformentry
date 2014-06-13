@@ -16,9 +16,9 @@ import org.openmrs.Patient;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement1_10;
 import org.openmrs.order.DrugSuggestion;
 import org.openmrs.order.RegimenSuggestion;
-import org.openmrs.util.OpenmrsConstants;
 
 /**
  * Helper for standardRegimen tag.
@@ -110,7 +110,6 @@ public class RegimenUtil1_10 {
 			ConceptService conceptService = Context.getConceptService();
 			for (DrugSuggestion ds : rs.getDrugComponents()){
 				DrugOrder dor = new DrugOrder();
-				dor.setVoided(false);
 				Drug drug = Context.getConceptService().getDrugByNameOrId(ds.getDrugId());
 				if (drug == null)
 					drug = Context.getConceptService().getDrugByUuid(ds.getDrugId());
@@ -128,8 +127,7 @@ public class RegimenUtil1_10 {
 				dor.setPatient(patient);
 				dor.setDateChanged(new Date());
 				dor.setCreator(Context.getAuthenticatedUser());
-				dor.setOrderType(Context.getOrderService().getOrderTypeByName("Drug order"));
-				dor.setConcept(drug.getConcept());
+				dor.setOrderType(Context.getOrderService().getOrderTypeByUuid(DrugOrderSubmissionElement1_10.DRUG_ORDER_TYPE_UUID));
 				ret.add(dor);
 			}
 		}	
