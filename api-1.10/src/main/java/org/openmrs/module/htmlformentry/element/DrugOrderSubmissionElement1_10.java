@@ -134,25 +134,25 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		
 		StringBuilder html = new StringBuilder();
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.dosingType") + " ", dosingTypeWidget, null));
+		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.dosingType") + " ", dosingTypeWidget, null));
 		
 		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.dose") + " ", doseWidget, doseErrorWidget));
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.doseUnits") + " ", doseUnitsWidget, null));
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.dose") + " " + mss.getMessage("DrugOrder.units") + " ", doseUnitsWidget, null));
 		
 		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.quantity") + " ", quantityWidget, quantityErrorWidget));
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.quantityUnits") + " ", quantityUnitsWidget,
+		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.quantity") + " " + mss.getMessage("DrugOrder.units") + " ", quantityUnitsWidget,
 		    null));
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.duration") + " ", durationWidget, durationErrorWidget));
+		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.duration") + " ", durationWidget, durationErrorWidget));
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.durationUnits") + " ", durationUnitsWidget,
+		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.duration") + " " + mss.getMessage("DrugOrder.units") + " ", durationUnitsWidget,
 		    null));
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.route") + " ", routeWidget, null));
+		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.route") + " ", routeWidget, null));
 		
-		html.append(generateHtmlForWidget(context, mss.getMessage("DrugOrder.careSetting") + " ", careSettingWidget, null));
+		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.careSetting") + " ", careSettingWidget, null));
 		
 		return html.toString();
 	}
@@ -226,7 +226,10 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 				freqOptions.add(new Option(orderFrequency.getConcept().getName().getName(), orderFrequency.getId()
 				        .toString(), false));
 			}
-			frequencyWidget.setInitialValue(orderFrequencies.get(0).getId());
+			
+			if (!orderFrequencies.isEmpty()) {
+				frequencyWidget.setInitialValue(orderFrequencies.get(0).getId());
+			}
 		}
 		frequencyWidget.setOptions(freqOptions);
 		context.registerWidget(frequencyWidget);
@@ -368,6 +371,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		setOrderer(session, drugOrder);
 		
 		drugOrder.setDrug(orderTag.drug);
+		drugOrder.setConcept(orderTag.drug.getConcept());
 		drugOrder.setPatient(session.getPatient());
 		drugOrder.setDosingType(orderTag.dosingType);
 		drugOrder.setDose(orderTag.dose);
@@ -423,6 +427,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 			DrugOrder revisedOrder = existingOrder.cloneForRevision();
 			setOrderer(session, revisedOrder);
 			revisedOrder.setDrug(orderTag.drug);
+			revisedOrder.setConcept(orderTag.drug.getConcept());
 			revisedOrder.setDosingType(orderTag.dosingType);
 			revisedOrder.setDose(orderTag.dose);
 			revisedOrder.setDoseUnits(orderTag.doseUnits);

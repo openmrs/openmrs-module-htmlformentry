@@ -42,7 +42,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 	public String generateHtml(FormEntryContext context) {
 		MessageSourceService mss = Context.getMessageSourceService();
 		String html = super.generateHtml(context);
-		html += DrugOrderSubmissionElement.generateHtmlForWidget(context, mss.getMessage("DrugOrder.careSetting") + " ",
+		html += DrugOrderSubmissionElement.generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.careSetting") + " ",
 		    careSettingWidget, null);
 		return html;
 	}
