@@ -51,6 +51,12 @@
 				<type>pom</type>
 				<version>${openMRSBuildVersion}</version>
 				<scope>test</scope>
+				<exclusions>
+					<exclusion>
+						<artifactId>mockito-all</artifactId>
+						<groupId>org.mockito</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.openmrs.web</groupId>
@@ -107,6 +113,13 @@
                 <version>1.2</version>
             </dependency>
             
+            <!-- We want to use the same versions of test libraries regardless of OpenMRS version -->
+            <dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
             <dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
@@ -123,13 +136,13 @@
 				<groupId>org.powermock</groupId>
 				<artifactId>powermock-api-mockito</artifactId>
 				<version>1.5</version>
+				<scope>test</scope>
 				<exclusions>
 					<exclusion>
 						<artifactId>mockito-all</artifactId>
 						<groupId>org.mockito</groupId>
 					</exclusion>
 				</exclusions>
-				<scope>test</scope>
 			</dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>

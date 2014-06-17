@@ -17,12 +17,17 @@ import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class RegressionTest extends BaseModuleContextSensitiveTest {
@@ -726,7 +731,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				TestUtil.assertFuzzyContains("Last weight: 50.0", html);
 				TestUtil.assertFuzzyContains("Gender: M", html);
-				TestUtil.assertFuzzyContains("Location: Unknown Location", html);
+				List<Encounter> encounters = Context.getEncounterService().getEncountersByPatient(getPatient());
+				Encounter latestEncounter = encounters.get(encounters.size() - 1);
+				TestUtil.assertFuzzyContains("Location: " + latestEncounter.getLocation(), html);
 			}
 		}.run();
 	}

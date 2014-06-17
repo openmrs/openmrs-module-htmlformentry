@@ -542,7 +542,7 @@ public abstract class RegressionTestHelper {
 			throw new IllegalArgumentException("This form is not going to create an encounter");
 		Context.getService(HtmlFormEntryService.class).applyActions(session);
 		results.setPatient(session.getPatient());
-		results.setEncounterCreated(getLastEncounter(session.getPatient()));
+		results.setEncounterCreated(session.getEncounter());
 		return results;
 	}
 	

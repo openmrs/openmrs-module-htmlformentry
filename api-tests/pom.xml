@@ -87,6 +87,10 @@
 		</dependency>
 
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 		</dependency>
@@ -154,9 +158,11 @@
 						<artifactId>maven-compiler-plugin</artifactId>
 						<configuration>
 							<testExcludes>
+								<!-- Run only against OpenMRS versions before 1.10 -->
 								<testExclude>**/HtmlFormEntryRegimenUtilTest.java</testExclude>
 								<testExclude>**/StandardRegimenTagTest.java</testExclude>
 								<testExclude>**/HtmlFormEntryUtilTest.java</testExclude>
+								<testExclude>**/DrugOrderTagTest.java</testExclude>
 							</testExcludes>
 						</configuration>
 					</plugin>

@@ -140,8 +140,8 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 		Assert.assertFalse(formClone.getXmlData().contains(incomingLocationName));
 		Assert.assertTrue(formClone.getXmlData().contains(existingLocationName));
 		
-		Assert.assertFalse(formClone.getXmlData().contains(incomingDrugName));
-		Assert.assertTrue(formClone.getXmlData().contains(existingDrugName));
+		Assert.assertFalse(formClone.getXmlData().toLowerCase().contains(incomingDrugName.toLowerCase()));
+		Assert.assertTrue(formClone.getXmlData().toLowerCase().contains(existingDrugName.toLowerCase()));
 		
 		Assert.assertFalse(formClone.getXmlData().contains(incomingRoleName));
 		Assert.assertTrue(formClone.getXmlData().contains(existingRoleName));
