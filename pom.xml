@@ -35,13 +35,13 @@
 			<dependency>
 				<groupId>org.openmrs.api</groupId>
 				<artifactId>openmrs-api</artifactId>
-				<version>${openMRSVersion}</version>
+				<version>${openMRSBuildVersion}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.openmrs.api</groupId>
 				<artifactId>openmrs-api</artifactId>
-				<version>${openMRSVersion}</version>
+				<version>${openMRSBuildVersion}</version>
 				<classifier>tests</classifier>
 				<scope>test</scope>
 			</dependency>
@@ -49,13 +49,13 @@
 				<groupId>org.openmrs.test</groupId>
 				<artifactId>openmrs-test</artifactId>
 				<type>pom</type>
-				<version>${openMRSVersion}</version>
+				<version>${openMRSBuildVersion}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.openmrs.web</groupId>
 				<artifactId>openmrs-web</artifactId>
-				<version>${openMRSVersion}</version>
+				<version>${openMRSBuildVersion}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
@@ -106,12 +106,50 @@
                 <artifactId>joda-convert</artifactId>
                 <version>1.2</version>
             </dependency>
+            
+            <dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>1.9.5</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-junit4</artifactId>
+				<version>1.5</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>1.5</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>mockito-all</artifactId>
+						<groupId>org.mockito</groupId>
+					</exclusion>
+				</exclusions>
+				<scope>test</scope>
+			</dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-core</artifactId>
+                <version>1.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>1.3</version>
+                <scope>test</scope>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 
 	<!-- default property values, required for eclipse build path configuration -->
 	<properties>
 		<openMRSVersion>1.8.5-SNAPSHOT</openMRSVersion>
+		<openMRSBuildVersion>1.8.5-SNAPSHOT</openMRSBuildVersion>
 		<openMRSMinorVersion>1.8</openMRSMinorVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -120,6 +158,7 @@
 	<modules>
 		<module>api</module>
 		<module>api-1.10</module>
+		<module>api-tests</module>
 		<module>omod</module>
 	</modules>
 
@@ -257,18 +296,6 @@
 				<openMRSVersion>1.6.6</openMRSVersion>
 				<openMRSMinorVersion>1.6</openMRSMinorVersion>
 			</properties>
-
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.openmrs.test</groupId>
-						<artifactId>openmrs-test</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>jar</type>
-						<scope>test</scope>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
 		</profile>
 
 
@@ -279,18 +306,6 @@
 				<openMRSVersion>1.7.4</openMRSVersion>
 				<openMRSMinorVersion>1.7</openMRSMinorVersion>
 			</properties>
-
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.openmrs.test</groupId>
-						<artifactId>openmrs-test</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>jar</type>
-						<scope>test</scope>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
 		</profile>
 
 
@@ -298,70 +313,27 @@
 			<id>openmrs-1.8</id>
 
 			<properties>
-				<openMRSVersion>1.8.5-SNAPSHOT</openMRSVersion>
+				<openMRSVersion>1.8.4</openMRSVersion>
 				<openMRSMinorVersion>1.8</openMRSMinorVersion>
 			</properties>
-
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.openmrs.api</groupId>
-						<artifactId>openmrs-api</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>test-jar</type>
-						<scope>test</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.openmrs.web</groupId>
-						<artifactId>openmrs-web</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>test-jar</type>
-						<scope>test</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.openmrs.test</groupId>
-						<artifactId>openmrs-test</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>pom</type>
-						<scope>test</scope>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
 		</profile>
 
 		<profile>
 			<id>openmrs-1.9</id>
 
 			<properties>
-				<openMRSVersion>1.9.2-SNAPSHOT</openMRSVersion>
+				<openMRSVersion>1.9.7</openMRSVersion>
 				<openMRSMinorVersion>1.9</openMRSMinorVersion>
 			</properties>
+		</profile>
+		
+		<profile>
+			<id>openmrs-1.10</id>
 
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.openmrs.api</groupId>
-						<artifactId>openmrs-api</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>test-jar</type>
-						<scope>test</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.openmrs.web</groupId>
-						<artifactId>openmrs-web</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>test-jar</type>
-						<scope>test</scope>
-					</dependency>
-					<dependency>
-						<groupId>org.openmrs.test</groupId>
-						<artifactId>openmrs-test</artifactId>
-						<version>${openMRSVersion}</version>
-						<type>pom</type>
-						<scope>test</scope>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
+			<properties>
+				<openMRSVersion>1.10.0-alpha</openMRSVersion>
+				<openMRSMinorVersion>1.10</openMRSMinorVersion>
+			</properties>
 		</profile>
 
 		<profile>

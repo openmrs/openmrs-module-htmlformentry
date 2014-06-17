@@ -36,6 +36,8 @@ import org.springframework.mock.web.MockHttpSession;
 
 public abstract class RegressionTestHelper {
 	
+	private static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+
 	/**
 	 * @return will be used to look up the file test/.../include/{formName}.xml
 	 */
@@ -404,7 +406,7 @@ public abstract class RegressionTestHelper {
 	 * tests in modules that depend on HTML Form Entry. 
 	 */
 	protected String getXmlDatasetPath() {
-		return RegressionTest.XML_DATASET_PATH;
+		return RegressionTestHelper.XML_DATASET_PATH;
 	}
 
     /**
