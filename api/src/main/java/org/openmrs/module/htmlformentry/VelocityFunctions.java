@@ -291,4 +291,14 @@ public class VelocityFunctions {
         return day.toDate();
     }
 
+    /**
+     * Translates a message code based on current locale
+     *
+     * @param code
+     * @return localzied message for the code
+     */
+    public String message(String code) {
+        return session.getContext().getTranslator().translate(Context.getLocale().toString(), code);
+    }
+
 }
