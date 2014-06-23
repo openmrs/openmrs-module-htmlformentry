@@ -905,6 +905,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				
 		final Date date = new Date();
 		
+		setupAddressTemplate();
+		
 		new RegressionTestHelper() {
 			
 			@Override

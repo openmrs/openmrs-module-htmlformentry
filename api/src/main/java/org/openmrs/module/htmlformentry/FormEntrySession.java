@@ -1,5 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -38,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -542,7 +550,7 @@ public class FormEntrySession {
                     if (form.getEncounterType() != null)
                         e.setEncounterType(form.getEncounterType());
                 }
-                Context.getEncounterService().saveEncounter(e);
+                Context.getEncounterService().saveEncounter(encounter);
             }
         }
 

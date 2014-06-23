@@ -1,0 +1,9 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	    <section headerLabel="2. Test Section">
+            <drugOrder drugNames="2,3"/>
+        </section>
+	<submit/>
+</htmlform>

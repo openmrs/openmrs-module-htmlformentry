@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 public abstract class AbstractTagHandler implements TagHandler {
 
     /** Holds the attribute descriptors for this class **/
-	private List<AttributeDescriptor>  attributeDescriptors = createAttributeDescriptors();
+	private List<AttributeDescriptor>  attributeDescriptors;
 
 	/** Classes that extend this class can override this method to specify attribute descriptors */
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
@@ -29,6 +29,9 @@ public abstract class AbstractTagHandler implements TagHandler {
 	
 	@Override
     public List<AttributeDescriptor> getAttributeDescriptors() {
+		if (attributeDescriptors == null) {
+			attributeDescriptors = createAttributeDescriptors();
+		}
 		return attributeDescriptors;
 	}
 	

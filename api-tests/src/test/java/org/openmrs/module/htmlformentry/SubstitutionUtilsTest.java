@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Location;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
@@ -40,7 +42,9 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
 		HtmlFormSubstitutionUtils.replaceIdsWithUuids(form);
 		
-		TestUtil.assertFuzzyContains("<encounterLocation default=\"9356400c-a5a2-4532-8f2b-2361b3446eb8\" order=\"dc5c1fcc-0459-4201-bf70-0b90535ba362,9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land\"",form.getXmlData());
+		Location location1 = Context.getLocationService().getLocation(1);
+		
+		TestUtil.assertFuzzyContains("<encounterLocation default=\"9356400c-a5a2-4532-8f2b-2361b3446eb8\" order=\"" + location1.getUuid() + ",9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land\"",form.getXmlData());
 		TestUtil.assertFuzzyContains("<encounterProvider role=\"Provider\" default=\"c04ee3c8-b68f-43cc-bff3-5a831ee7225f\"", form.getXmlData());
 		
 		// test to make sure that underlying matcher is case-insensitive

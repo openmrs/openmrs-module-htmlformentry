@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.Assert;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -18,6 +19,7 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.regimen.RegimenUtil;
+import org.openmrs.order.DrugOrderSupport;
 import org.openmrs.order.RegimenSuggestion;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
@@ -270,7 +272,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				e.setLocation(Context.getLocationService().getLocation(2));
 
 				//add standard regimen to encounter:
-				List<RegimenSuggestion> rs = Context.getOrderService().getStandardRegimens();
+				List<RegimenSuggestion> rs = DrugOrderSupport.getInstance().getStandardRegimens();
 				RegimenSuggestion rsug = RegimenUtil.getStandardRegimenByCode(rs, "all3");
 				Set<Order> dors = RegimenUtil.standardRegimenToDrugOrders(rsug, date, p);
 				for (Order o : dors){

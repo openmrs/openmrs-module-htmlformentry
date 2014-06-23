@@ -7,12 +7,24 @@
 		<version>2.4-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>htmlformentry-api</artifactId>
+	<artifactId>htmlformentry-api-1.10</artifactId>
 	<packaging>jar</packaging>
-	<name>HTML Form Entry API</name>
+	<name>HTML Form Entry API 1.10</name>
 	<description>API project for HTML Form Entry</description>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>htmlformentry-api</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>htmlformentry-api</artifactId>
+			<version>${project.parent.version}</version>
+			<classifier>tests</classifier>
+		</dependency>
+
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
@@ -21,13 +33,11 @@
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
 			<classifier>tests</classifier>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.test</groupId>
 			<artifactId>openmrs-test</artifactId>
 			<type>pom</type>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.web</groupId>
@@ -106,5 +116,7 @@
 		<MODULE_NAME>${project.parent.name}</MODULE_NAME>
 		<MODULE_VERSION>${project.parent.version}</MODULE_VERSION>
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
+		<openMRSBuildVersion>1.10.0-SNAPSHOT</openMRSBuildVersion>
 	</properties>
+
 </project>

@@ -36,6 +36,8 @@ import org.springframework.mock.web.MockHttpSession;
 
 public abstract class RegressionTestHelper {
 	
+	private static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+
 	/**
 	 * @return will be used to look up the file test/.../include/{formName}.xml
 	 */
@@ -404,7 +406,7 @@ public abstract class RegressionTestHelper {
 	 * tests in modules that depend on HTML Form Entry. 
 	 */
 	protected String getXmlDatasetPath() {
-		return RegressionTest.XML_DATASET_PATH;
+		return RegressionTestHelper.XML_DATASET_PATH;
 	}
 
     /**
@@ -540,7 +542,7 @@ public abstract class RegressionTestHelper {
 			throw new IllegalArgumentException("This form is not going to create an encounter");
 		Context.getService(HtmlFormEntryService.class).applyActions(session);
 		results.setPatient(session.getPatient());
-		results.setEncounterCreated(getLastEncounter(session.getPatient()));
+		results.setEncounterCreated(session.getEncounter());
 		return results;
 	}
 	

@@ -18,6 +18,11 @@
 			<artifactId>htmlformentry-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>htmlformentry-api-1.10</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
@@ -163,94 +168,6 @@
 				</plugins>
 			</build>
 		</profile>
-
-		<profile>
-			<id>openmrs-1.6</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.openmrs.test</groupId>
-					<artifactId>openmrs-test</artifactId>
-					<type>jar</type>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.7</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.openmrs.test</groupId>
-					<artifactId>openmrs-test</artifactId>
-					<type>jar</type>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.8</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.openmrs.api</groupId>
-					<artifactId>openmrs-api</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.test</groupId>
-					<artifactId>openmrs-test</artifactId>
-					<type>pom</type>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.9</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.openmrs.api</groupId>
-					<artifactId>openmrs-api</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.test</groupId>
-					<artifactId>openmrs-test</artifactId>
-					<type>pom</type>
-				</dependency>
-			</dependencies>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.10</id>
-			<dependencies>
-				<dependency>
-					<groupId>org.openmrs.api</groupId>
-					<artifactId>openmrs-api</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.web</groupId>
-					<artifactId>openmrs-web</artifactId>
-					<type>test-jar</type>
-				</dependency>
-				<dependency>
-					<groupId>org.openmrs.test</groupId>
-					<artifactId>openmrs-test</artifactId>
-					<type>pom</type>
-				</dependency>
-			</dependencies>
-		</profile>
-
 	</profiles>
 
 </project>
