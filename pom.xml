@@ -311,7 +311,6 @@
 			</properties>
 		</profile>
 
-
 		<profile>
 			<id>openmrs-1.7</id>
 
@@ -320,7 +319,6 @@
 				<openMRSMinorVersion>1.7</openMRSMinorVersion>
 			</properties>
 		</profile>
-
 
 		<profile>
 			<id>openmrs-1.8</id>
@@ -349,79 +347,6 @@
 			</properties>
 		</profile>
 
-		<profile>
-			<id>openmrs-1.6.3</id>
-			<properties>
-				<openMRSVersion>1.6.3</openMRSVersion>
-				<openMRSMinorVersion>1.6</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-
-		<profile>
-			<id>openmrs-1.6.4</id>
-			<properties>
-				<openMRSVersion>1.6.4</openMRSVersion>
-				<openMRSMinorVersion>1.6</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.6.5</id>
-			<properties>
-				<openMRSVersion>1.6.5</openMRSVersion>
-				<openMRSMinorVersion>1.6</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.7.2</id>
-			<properties>
-				<openMRSVersion>1.7.2</openMRSVersion>
-				<openMRSMinorVersion>1.7</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.7.3</id>
-			<properties>
-				<openMRSVersion>1.7.3</openMRSVersion>
-				<openMRSMinorVersion>1.7</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.8.0</id>
-			<properties>
-				<openMRSVersion>1.8.0</openMRSVersion>
-				<openMRSMinorVersion>1.8</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.8.1</id>
-			<properties>
-				<openMRSVersion>1.8.1</openMRSVersion>
-				<openMRSMinorVersion>1.8</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.8.2</id>
-			<properties>
-				<openMRSVersion>1.8.2</openMRSVersion>
-				<openMRSMinorVersion>1.8</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.8.3</id>
-			<properties>
-				<openMRSVersion>1.8.3</openMRSVersion>
-				<openMRSMinorVersion>1.8</openMRSMinorVersion>
-			</properties>
-		</profile>
-		
 		<profile>
 			<id>release-tests</id>
 			<modules>
