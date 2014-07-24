@@ -23,12 +23,14 @@ import org.openmrs.api.context.Context;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
+import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.*;
 
@@ -694,7 +696,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
-	 * @see wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference for the date format
+	 * see wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference for the date format
 	 *      the Obs defaultDatetime and defaultObsDatetime attributes support
 	 */
 	@Test
@@ -857,7 +859,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgramOnDate(Patient, Program, Date)}
 	 */
 	@Test
 	@Verifies(value = "should return false if the patient is not enrolled in the program", method = "isEnrolledInProgram(Patient,Program,Date)")
@@ -868,7 +870,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgramOnDate(Patient,Program,Date)}
 	 */
 	@Test
 	@Verifies(value = "should return false if the program was completed", method = "isEnrolledInProgram(Patient,Program,Date)")
@@ -887,7 +889,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgramOnDate(Patient,Program,Date)}
 	 */
 	@Test
 	@Verifies(value = "should return true if the patient is enrolled in the program at the specified date", method = "isEnrolledInProgram(Patient,Program,Date)")
@@ -898,7 +900,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgram(Patient,Program,Date)}
+	 * @see {@link HtmlFormEntryUtil#isEnrolledInProgramOnDate(Patient,Program,Date)}
 	 */
 	@Test
 	@Verifies(value = "should return false if the date is before the existing patient program enrollment date", method = "isEnrolledInProgram(Patient,Program,Date)")
@@ -1000,6 +1002,18 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		
 	}
 
+	@Test
+	@Verifies(value="shouldSetTheValueOfABooleanConceptCorrectly",method="createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+	public void createObs_shouldSetTheValueOfABooleanConceptCorrectly(){
+		Concept c = new Concept();
+		c.setUuid(UUID.randomUUID().toString());
+		c.setDatatype(Context.getConceptService().getConceptDatatype(10));
+		checkBooleanObsValue(HtmlFormEntryUtil.createObs(c, "false", new Date(), ""), false);
+		checkBooleanObsValue(HtmlFormEntryUtil.createObs(c, Boolean.FALSE, new Date(), ""), false);
+		checkBooleanObsValue(HtmlFormEntryUtil.createObs(c, "true", new Date(), ""), true);
+		checkBooleanObsValue(HtmlFormEntryUtil.createObs(c, Boolean.TRUE, new Date(), ""), true);
+	}
+
     @Test
     @Verifies(value="shouldReturnMetadataNameIfNoFormatterPresent", method="format(OpenmrsMetadata md, Locale locale)")
     public void sholdReturnMetadataNameIfNoFormatterPresent() {
@@ -1042,5 +1056,17 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void evaluateStaticConstant_shouldThrowExceptionForNonExistentConstant() {
 		HtmlFormEntryUtil.evaluateStaticConstant("xxx.yyy.ZZZ");
+	}
+
+	protected void checkBooleanObsValue(Obs obs, boolean expected) {
+		if (OpenmrsConstants.OPENMRS_VERSION_SHORT.equals("1.6")) {
+			Double expectedValue = expected ? 1.0 : 0.0;
+			Assert.assertEquals(expectedValue, obs.getValueNumeric());
+		}
+		else {
+			String expectedGpProperty = expected ? "concept.true" : "concept.false";
+			String conceptId = Context.getAdministrationService().getGlobalProperty(expectedGpProperty);
+			Assert.assertEquals(conceptId, obs.getValueCoded().getConceptId().toString());
+		}
 	}
 }

@@ -245,8 +245,14 @@ public class HtmlFormEntryUtil {
 				obs.setValueCoded((Concept) convertToType(value.toString(), Concept.class));
             }
 		} else if (dt.isBoolean()) {
-			boolean booleanValue = value != null && !Boolean.FALSE.equals(value) && !"false".equals(value);
-			obs.setValueNumeric(booleanValue ? 1.0 : 0.0);
+			if (value != null) {
+				try {
+					obs.setValueAsString(value.toString());
+				}
+				catch (ParseException e) {
+					throw new IllegalArgumentException("Unable to convert " + value + " to a Boolean Obs value", e);
+				}
+			}
 		} else if (ConceptDatatype.DATE.equals(dt.getHl7Abbreviation())
 		        || ConceptDatatype.TIME.equals(dt.getHl7Abbreviation())
 		        || ConceptDatatype.DATETIME.equals(dt.getHl7Abbreviation())) {
@@ -1179,8 +1185,6 @@ public class HtmlFormEntryUtil {
 	 * and orders in encounter are voided. Does not call save, just updates the voided fields on all
 	 * objects in encounter Uses a 'dummy' FormEntrySession to use htmlformentry schema matching
 	 * mechanism, and then examines the leftover Obs, Orders from the FormEntrySession constructor
-	 * 
-	 * @param session
 	 */
 	public static void voidEncounterByHtmlFormSchema(Encounter e, HtmlForm htmlform, String voidReason) throws Exception {
 		if (e != null && htmlform != null) {
@@ -1341,7 +1345,6 @@ public class HtmlFormEntryUtil {
 	 * and setters and *are not* collection
 	 * 
 	 * @param source
-	 * @param replacements
 	 * @return A copy of an object
 	 * @throws Exception
 	 */
@@ -1693,7 +1696,7 @@ public class HtmlFormEntryUtil {
 	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
 	 * 
-	 * @param Id
+	 * @param id
 	 * @return the encounter type if exist, else null
 	 * @should find a encounter type by its encounterTypeId
 	 * @should find a encounter type by name
@@ -1770,7 +1773,6 @@ public class HtmlFormEntryUtil {
      * Formats a piece of Metadata for Display
      *
      * @param md
-     * @param locale
      * @return
      */
     public static String format(OpenmrsMetadata md) {
@@ -1796,7 +1798,6 @@ public class HtmlFormEntryUtil {
      *
      * TODO This was copied from UiFramework--we probably should come up with a way to inject a formatter directly into HFE
      *
-     * @param md
      * @param locale
      * @return
      */
