@@ -1,0 +1,9 @@
+<htmlform>
+    Date: <encounterDate default="today"/>
+    Location: <encounterLocation default="1"/>
+    Provider: <encounterProvider role="Provider" />
+
+    <redirectOnSave url="/my/module/page?patientId={{patient.id}}&amp;encounterId={{encounter.id}}"/>
+
+    <submit/>
+</htmlform>

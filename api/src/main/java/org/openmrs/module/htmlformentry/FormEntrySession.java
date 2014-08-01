@@ -30,14 +30,14 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -83,6 +83,8 @@ public class FormEntrySession {
     private Patient patient;
 
     private String returnUrl;
+
+    private String afterSaveUrlTemplate;
 
     private HtmlForm htmlForm;
 
@@ -1064,6 +1066,23 @@ public class FormEntrySession {
 
     public void addToVelocityContext(String key, Object value) {
         velocityContext.put(key, value);
+    }
+
+    public String getAfterSaveUrlTemplate() {
+        return afterSaveUrlTemplate;
+    }
+
+    /**
+     * After successfully submitting and saving a form, go to this url. (Null means that the web application should
+     * decide, based on its standard workflow.)
+     *
+     * This will be prepended with CONTEXTPATH/ and appropriate values will be substituted in for "{{patient.id}}" and
+     * "{{encounter.id}}"
+     *
+     * @param afterSaveUrlTemplate
+     */
+    public void setAfterSaveUrlTemplate(String afterSaveUrlTemplate) {
+        this.afterSaveUrlTemplate = afterSaveUrlTemplate;
     }
 
 }

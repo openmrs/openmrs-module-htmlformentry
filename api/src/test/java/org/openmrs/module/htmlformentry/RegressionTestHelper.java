@@ -1,5 +1,18 @@
 package org.openmrs.module.htmlformentry;
 
+import org.junit.Assert;
+import org.openmrs.Encounter;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,20 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.junit.Assert;
-import org.openmrs.Encounter;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
 
 public abstract class RegressionTestHelper {
 	
@@ -524,7 +523,7 @@ public abstract class RegressionTestHelper {
 		}
 		return ret;
 	}
-	
+
 	private SubmissionResults doSubmission(FormEntrySession session, HttpServletRequest request) throws Exception {
 		SubmissionResults results = new SubmissionResults();
 		session.prepareForSubmit();
@@ -535,14 +534,15 @@ public abstract class RegressionTestHelper {
 			return results;
 		}
 		session.getSubmissionController().handleFormSubmission(session, request);
-		
-		if (session.getContext().getMode() == Mode.ENTER 
+
+		if (session.getContext().getMode() == Mode.ENTER
 		        && session.hasEncouterTag() && (session.getSubmissionActions().getEncountersToCreate() == null || session.getSubmissionActions()
 		                .getEncountersToCreate().size() == 0))
 			throw new IllegalArgumentException("This form is not going to create an encounter");
 		Context.getService(HtmlFormEntryService.class).applyActions(session);
 		results.setPatient(session.getPatient());
 		results.setEncounterCreated(session.getEncounter());
+        results.setFormEntrySession(session);
 		return results;
 	}
 	
@@ -569,7 +569,17 @@ public abstract class RegressionTestHelper {
 		private Patient patient;
 		
 		private Encounter encounterCreated;
-		
+
+        private FormEntrySession formEntrySession;
+
+        public void setFormEntrySession(FormEntrySession formEntrySession) {
+            this.formEntrySession = formEntrySession;
+        }
+
+        public FormEntrySession getFormEntrySession() {
+            return formEntrySession;
+        }
+
 		public void assertNoEncounterCreated() {
 			Assert.assertNull(encounterCreated);
 		}
@@ -881,7 +891,7 @@ public abstract class RegressionTestHelper {
 			}
 			Assert.fail("Cannot find an obs group matching " + expected);
 		}
-		
+
 	}
 
 	public class ObsValue {

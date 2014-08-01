@@ -2,10 +2,9 @@
 
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:context="http://www.springframework.org/schema/context"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean id="htmlFormEntryService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager"><ref bean="transactionManager"/></property>
@@ -109,6 +108,10 @@
                         <entry>
                             <key><value>excludeIf</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ExcludeIfTagHandler"/>
+                        </entry>
+                        <entry>
+                            <key><value>redirectOnSave</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.RedirectOnSaveTagHandler"/>
                         </entry>
                     </map>
                 </property>

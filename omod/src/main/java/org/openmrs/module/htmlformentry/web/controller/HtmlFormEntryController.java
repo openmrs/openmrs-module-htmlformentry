@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
@@ -31,6 +24,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The controller for entering/viewing a form.
@@ -231,7 +230,14 @@ public class HtmlFormEntryController {
     	try {
             session.getSubmissionController().handleFormSubmission(session, request);
             HtmlFormEntryUtil.getService().applyActions(session);
-            String successView = session.getReturnUrlWithParameters();
+            String successView = session.getAfterSaveUrlTemplate();
+            if (successView != null) {
+                successView = successView.replaceAll("\\{\\{patient.id\\}\\}", session.getPatient().getId().toString());
+                successView = successView.replaceAll("\\{\\{encounter.id\\}\\}", session.getEncounter().getId().toString());
+                successView = request.getContextPath() + "/" + successView;
+            } else {
+                successView = session.getReturnUrlWithParameters();
+            }
             if (successView == null)
                 successView = request.getContextPath() + "/patientDashboard.form" + getQueryPrameters(request, session);
             if (StringUtils.hasText(request.getParameter("closeAfterSubmission"))) {

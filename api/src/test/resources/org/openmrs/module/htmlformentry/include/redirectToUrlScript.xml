@@ -1,0 +1,13 @@
+<htmlform>
+    Date: <encounterDate default="today"/>
+    Location: <encounterLocation default="1"/>
+    Provider: <encounterProvider role="Provider" />
+
+    <redirectOnSave script="groovy">
+        import org.openmrs.api.context.Context
+
+        return "test/" + Context.getConceptService().getConceptDatatype(1).getName();
+    </redirectOnSave>
+
+    <submit/>
+</htmlform>
