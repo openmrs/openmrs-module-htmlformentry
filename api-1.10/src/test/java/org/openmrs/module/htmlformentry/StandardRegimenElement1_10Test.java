@@ -1,37 +1,35 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import junit.framework.Assert;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.openmrs.Drug;
 import org.openmrs.Encounter;
-import org.openmrs.GlobalProperty;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.RegressionTestHelper.SubmissionResults;
+import org.openmrs.api.context.ServiceContext;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.annotation.NotTransactional;
+import org.springframework.test.annotation.DirtiesContext;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+@DirtiesContext
 public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
@@ -48,43 +46,58 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
-		
-		String xml = (new TestUtil()).loadXmlFromFile(XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
-		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS);
-		gp.setPropertyValue(xml);
-		Context.getAdministrationService().saveGlobalProperty(gp);
 	}
-	
+
+    private int orderNumberCounter = 1;
+
+    @Before
+    public void setUp() throws Exception {
+        String xml = (new TestUtil()).loadXmlFromFile(XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
+
+        // used to avoid lock timeout on GP#order.nextOrderNumberSeed
+        AdministrationService administrationService = mock(AdministrationService.class);
+
+        when(administrationService.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS))
+                .thenReturn(xml);
+
+        when(administrationService.getGlobalProperty("")).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return "" + orderNumberCounter++;
+            }
+        });
+
+        ServiceContext.getInstance().setAdministrationService(administrationService);
+    }
+
 	@Test
-	@NotTransactional
-	//used to avoid lock timeout on GP#order.nextOrderNumberSeed
 	public void testStandardRegimenTag_shouldCreateAndEditStandardRegimen() throws Exception {
 		new RegressionTestHelper() {
-			
+
 			final Date date = new Date();
-			
+
 			private Encounter encounter;
-			
+
 			@Override
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public Patient getPatient() {
 				return Context.getPatientService().getPatient(6);
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
-				
+
 			}
-			
+
 			@Override
 			public void testBlankFormHtml(String html) {
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -97,17 +110,17 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				//care setting
 				request.addParameter("w15", "2");
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				encounter = results.getEncounterCreated();
-				
+
 				Drug drug2 = Context.getConceptService().getDrug(2);
 				Drug drug3 = Context.getConceptService().getDrug(3);
 				Drug drug11 = Context.getConceptService().getDrug(11);
-				
+
 				assertThat(
 				    encounter.getOrders(),
 				    containsInAnyOrder(
@@ -118,17 +131,17 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				        allOf(hasProperty("drug", is(drug11)), hasProperty("dose", is(1.0)),
 				            hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
 			}
-			
+
 			@Override
 			public Encounter getEncounterToEdit() {
 				return encounter;
 			}
-			
+
 			@Override
 			public void testEditFormHtml(String html) {
 				System.out.println(html);
 			}
-			
+
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				//w7 is the standardRegimen tag
@@ -138,13 +151,13 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				//care setting
 				request.setParameter("w15", "2");
 			}
-			
+
 			public void testEditedResults(SubmissionResults results) {
 				Encounter editedEncounter = results.getEncounterCreated();
-				
+
 				Drug drug2 = Context.getConceptService().getDrug(2);
 				Drug drug3 = Context.getConceptService().getDrug(3);
-				
+
 				Set<Order> orders = new HashSet<Order>(editedEncounter.getOrders());
 				for (Iterator<Order> it = orders.iterator(); it.hasNext();) {
 					Order order = it.next();
@@ -152,7 +165,7 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 						it.remove();
 					}
 				}
-				
+
 				assertThat(
 				    orders,
 				    containsInAnyOrder(
