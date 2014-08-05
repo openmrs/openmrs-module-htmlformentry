@@ -82,8 +82,12 @@ public class FormEntrySession {
 
     private Patient patient;
 
+    // The default url to go to after saving or canceling the form, and is typically set by the web application in its
+    // controller for filling out HTML Forms
     private String returnUrl;
 
+    // The url to go to after saving (but not canceling). May be set by a form through the <redirectOnSave/> tag or a
+    // post-submission action. Values will be substituted for {{patient.id}} and {{encounter.id}}.
     private String afterSaveUrlTemplate;
 
     private HtmlForm htmlForm;
