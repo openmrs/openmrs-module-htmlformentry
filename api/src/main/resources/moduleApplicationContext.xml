@@ -113,6 +113,10 @@
                             <key><value>redirectOnSave</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.RedirectOnSaveTagHandler"/>
                         </entry>
+                        <entry>
+                            <key><value>postSubmissionAction</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.PostSubmissionActionTagHandler"/>
+                        </entry>
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">
