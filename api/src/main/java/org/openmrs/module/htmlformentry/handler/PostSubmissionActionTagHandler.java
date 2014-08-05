@@ -17,35 +17,42 @@ import java.util.Map;
 /**
  * Usage example: <postSubmissionAction class="org.openmrs.module.xyz.DecideWhereToRedirect"/>
  */
-public class PostSubmissionActionTagHandler extends SubstitutionTagHandler implements FormSubmissionControllerAction {
-
-    private String className;
+public class PostSubmissionActionTagHandler extends SubstitutionTagHandler {
 
     @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters) throws BadFormDesignException {
-        className = parameters.get("class");
+        String className = parameters.get("class");
         if (StringUtils.isEmpty(className)) {
             throw new BadFormDesignException("<postSubmissionAction/> tag requires a 'class' attribute");
         }
-        session.getSubmissionController().addAction(this);
+        session.getSubmissionController().addAction(new Action(className));
         return "";
     }
 
-    @Override
-    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-        // this can never fail validation
-        return null;
-    }
+    private class Action implements FormSubmissionControllerAction {
 
-    @Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-        try {
-            Class<?> actionClass = Context.loadClass(className);
-            CustomFormSubmissionAction actionInstance = (CustomFormSubmissionAction) actionClass.newInstance();
-            session.getSubmissionActions().addCustomFormSubmissionAction(actionInstance);
-        } catch (Exception ex) {
-            throw new IllegalStateException("Error loading/instantiating post submission action class " + className, ex);
+        private String className;
+
+        public Action(String className) {
+            this.className = className;
         }
-    }
 
+        @Override
+        public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+            // this can never fail validation
+            return null;
+        }
+
+        @Override
+        public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+            try {
+                Class<?> actionClass = Context.loadClass(className);
+                CustomFormSubmissionAction actionInstance = (CustomFormSubmissionAction) actionClass.newInstance();
+                session.getSubmissionActions().addCustomFormSubmissionAction(actionInstance);
+            } catch (Exception ex) {
+                throw new IllegalStateException("Error loading/instantiating post submission action class " + className, ex);
+            }
+        }
+
+    }
 }

@@ -26,24 +26,20 @@ import java.util.Collection;
  *     return "custom.form?view=" + customView + "&amp;patientId={{patient.id}}";
  * </redirectOnSave>
  */
-public class RedirectOnSaveTagHandler extends AbstractTagHandler implements FormSubmissionControllerAction, CustomFormSubmissionAction {
-
-    private String urlTemplate;
-
-    private String scriptType;
-    private String script;
+public class RedirectOnSaveTagHandler extends AbstractTagHandler {
 
     @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
-        urlTemplate = getAttribute(node, "url", null);
-        if (urlTemplate == null) {
-            scriptType = getAttribute(node, "script", null);
-            script = node.getTextContent();
+        String urlTemplate = getAttribute(node, "url", null);
+        if (urlTemplate != null) {
+            session.getSubmissionController().addAction(new UrlTemplateAction(urlTemplate));
         }
-        session.getSubmissionController().addAction(this);
-
-        if (urlTemplate == null && scriptType == null) {
-            throw new BadFormDesignException("<redirectOnSave> tag must specify url or script attribute");
+        else {
+            String scriptType = getAttribute(node, "script", null);
+            if (scriptType == null) {
+                throw new BadFormDesignException("<redirectOnSave> tag must specify url or script attribute");
+            }
+            session.getSubmissionController().addAction(new ScriptAction(scriptType, node.getTextContent()));
         }
         return false; // skip children
     }
@@ -53,23 +49,56 @@ public class RedirectOnSaveTagHandler extends AbstractTagHandler implements Form
         // do nothing
     }
 
-    @Override
-    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-        // this cannot fail validation
-        return null;
-    }
 
-    @Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-        session.getSubmissionActions().addCustomFormSubmissionAction(this);
-    }
+    private class UrlTemplateAction implements FormSubmissionControllerAction, CustomFormSubmissionAction {
 
-    @Override
-    public void applyAction(FormEntrySession session) {
-        if (urlTemplate != null) {
+        private final String urlTemplate;
+
+        public UrlTemplateAction(String urlTemplate) {
+            this.urlTemplate = urlTemplate;
+        }
+
+        @Override
+        public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+            // this cannot fail validation
+            return null;
+        }
+
+        @Override
+        public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+            session.getSubmissionActions().addCustomFormSubmissionAction(this);
+        }
+
+        @Override
+        public void applyAction(FormEntrySession session) {
             session.setAfterSaveUrlTemplate(urlTemplate);
         }
-        else if (scriptType != null) {
+    }
+
+
+    private class ScriptAction implements FormSubmissionControllerAction, CustomFormSubmissionAction {
+
+        private final String scriptType;
+        private final String script;
+
+        public ScriptAction(String scriptType, String script) {
+            this.scriptType = scriptType;
+            this.script = script;
+        }
+
+        @Override
+        public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+            // this cannot fail validation
+            return null;
+        }
+
+        @Override
+        public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+            session.getSubmissionActions().addCustomFormSubmissionAction(this);
+        }
+
+        @Override
+        public void applyAction(FormEntrySession session) {
             ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
             ScriptEngine scriptEngine = scriptEngineManager.getEngineByName(scriptType);
             scriptEngine.put("patient", session.getPatient());
