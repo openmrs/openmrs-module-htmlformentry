@@ -8,6 +8,7 @@ import org.joda.time.Months;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openmrs.Concept;
+import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
@@ -18,6 +19,7 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 
@@ -98,8 +100,8 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void latestEncounter_shouldReturnTheMostRecentEncounterByType() throws Exception {
 		VelocityFunctions functions = setupFunctionsForPatient(7); 
-		EncounterType type = Context.getEncounterService().getEncounterType(2);
-        Assert.assertEquals(new Integer(3), functions.latestEncounter(type).getEncounterId());
+		Encounter latestEncounter = functions.latestEncounter("2");
+        Assert.assertEquals(new Integer(3), latestEncounter.getEncounterId());
 	}
 	
 	/**
@@ -108,9 +110,18 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void latestEncounter_shouldReturnNullIfNoMatchingEncounter() throws Exception {
-		VelocityFunctions functions = setupFunctionsForPatient(7); 
-		EncounterType type = Context.getEncounterService().getEncounterType(6);
-        Assert.assertNull(functions.latestEncounter(type));
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+        Assert.assertNull(functions.latestEncounter("6"));
+	}
+	
+	/**
+	 * @see VelocityFunctions@allEncounters(EncounterType)
+	 * @verifies return all the encounters of the specified type
+	 */
+	public void allEncounters_shouldReturnAllTheEncountersOfTheSpecifiedType() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		List<Encounter> allEncounters = functions.allEncounters("2");
+		Assert.assertEquals(1, allEncounters.size());
 	}
 
     /**

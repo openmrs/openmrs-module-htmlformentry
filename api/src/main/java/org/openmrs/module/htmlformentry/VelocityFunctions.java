@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.joda.time.LocalDate;
@@ -130,7 +131,12 @@ public class VelocityFunctions {
 	 * @should return all the encounters of the specified type
 	 * @should return all encounters if no type specified
 	 */
-	public List<Encounter> allEncounters(EncounterType type) {
+    public List<Encounter> allEncounters(String encounterTypeId){
+		EncounterType encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
+		return getAllEncounters(encounterType);
+    }
+    
+	private List<Encounter> getAllEncounters(EncounterType type) {
 		if (session.getPatient() == null) {
 			return new ArrayList<Encounter>();
 		}
@@ -156,8 +162,17 @@ public class VelocityFunctions {
 	 * @should return the most recent encounter of the specified type
 	 * @should return the most recent encounter of any type if no type specified
 	 */
-	public Encounter latestEncounter(EncounterType type) {
-		List<Encounter> encounters = allEncounters(type);
+	public Encounter latestEncounter(String encounterTypeId){
+		EncounterType encounterType = null;
+		if (StringUtils.isNotEmpty(encounterTypeId)) {
+			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);			
+		}
+		
+		return getLatestEncounter(encounterType);
+	}
+	
+	private Encounter getLatestEncounter(EncounterType type) {
+		List<Encounter> encounters = getAllEncounters(type);
 		if (encounters == null || encounters.isEmpty()) {
 			return null;
 		}
