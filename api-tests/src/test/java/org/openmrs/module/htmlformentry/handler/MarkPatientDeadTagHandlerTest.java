@@ -4,6 +4,7 @@ import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.PatientService;
@@ -30,12 +31,15 @@ public class MarkPatientDeadTagHandlerTest {
     private Patient patient;
     private Encounter encounter;
     private PatientService patientService;
+    private Concept unknownConcept;
 
     @Before
     public void setUp() {
         patient = new Patient();
         encounter = new Encounter();
         encounter.setPatient(patient);
+
+        unknownConcept = new Concept();
 
         patientService = mock(PatientService.class);
         submissionController = mock(FormSubmissionController.class);
@@ -45,7 +49,12 @@ public class MarkPatientDeadTagHandlerTest {
         when(formEntrySession.getPatient()).thenReturn(patient);
         when(formEntrySession.getEncounter()).thenReturn(encounter);
 
-        tagHandler = new MarkPatientDeadTagHandler();
+        tagHandler = new MarkPatientDeadTagHandler() {
+            @Override
+            Concept getUnknownConcept() {
+                return unknownConcept;
+            }
+        };
         tagHandler.setPatientService(patientService);
     }
 
@@ -76,6 +85,7 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(deathDate));
+        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
@@ -93,6 +103,7 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(newDeathDate));
+        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
@@ -111,6 +122,7 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(oldDeathDate));
+        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
@@ -123,6 +135,7 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), nullValue());
+        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
