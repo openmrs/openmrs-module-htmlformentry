@@ -26,9 +26,10 @@ public class HtmlFormEntryConstants {
     public final static String GP_SHOW_DATE_FORMAT = "htmlformentry.showDateFormat";
 
     public final static String GP_CLASSES_NOT_TO_EXPORT_WITH_MDS = "htmlformentry.classesNotToExportWithMetadataSharing";
-    
+
+    public static final String GP_UNKNOWN_CONCEPT = "concept.unknown";
+
     public static final String COMPLEX_UUID = "8d4a6242-c2cc-11de-8d13-0010c6dffd0f";
 
     public static final String ANSWER_LOCATION_TAGS="answerLocationTags";
-      
 }

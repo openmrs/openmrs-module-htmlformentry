@@ -11,6 +11,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,6 @@ import java.util.Collection;
 import java.util.Map;
 
 public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
-
-    public static final String GP_UNKNOWN_CONCEPT = "concept.unknown";
 
     @Autowired
     private PatientService patientService;
@@ -57,11 +56,11 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 
     Concept getUnknownConcept() {
         try {
-            String conceptId = administrationService.getGlobalProperty(GP_UNKNOWN_CONCEPT);
+            String conceptId = administrationService.getGlobalProperty(HtmlFormEntryConstants.GP_UNKNOWN_CONCEPT);
             return HtmlFormEntryUtil.getConcept(conceptId);
         } catch (Exception ex) {
             throw new IllegalStateException("Error looking up \"Unknown\" concept for cause of death, which must be " +
-                    "specified in a global property called \"" + GP_UNKNOWN_CONCEPT + "\".", ex);
+                    "specified in a global property called \"" + HtmlFormEntryConstants.GP_UNKNOWN_CONCEPT + "\".", ex);
         }
     }
 
