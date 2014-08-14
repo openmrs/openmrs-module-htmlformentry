@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
+import org.openmrs.api.PatientService;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 
@@ -28,6 +29,7 @@ public class MarkPatientDeadTagHandlerTest {
     private MarkPatientDeadTagHandler tagHandler;
     private Patient patient;
     private Encounter encounter;
+    private PatientService patientService;
 
     @Before
     public void setUp() {
@@ -35,6 +37,7 @@ public class MarkPatientDeadTagHandlerTest {
         encounter = new Encounter();
         encounter.setPatient(patient);
 
+        patientService = mock(PatientService.class);
         submissionController = mock(FormSubmissionController.class);
 
         formEntrySession = mock(FormEntrySession.class);
@@ -43,6 +46,7 @@ public class MarkPatientDeadTagHandlerTest {
         when(formEntrySession.getEncounter()).thenReturn(encounter);
 
         tagHandler = new MarkPatientDeadTagHandler();
+        tagHandler.setPatientService(patientService);
     }
 
     @Test
@@ -65,13 +69,14 @@ public class MarkPatientDeadTagHandlerTest {
     public void testSettingDateFromEncounter() throws Exception {
         Date deathDate = new Date();
         encounter.setEncounterDatetime(deathDate);
-        MarkPatientDeadTagHandler.Action action = new MarkPatientDeadTagHandler.Action();
+        MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
         action.setDeathDateFromEncounter(true);
 
         action.applyAction(formEntrySession);
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(deathDate));
+        verify(patientService).savePatient(patient);
     }
 
     @Test
@@ -81,13 +86,14 @@ public class MarkPatientDeadTagHandlerTest {
 
         patient.setDeathDate(oldDeathDate);
         encounter.setEncounterDatetime(newDeathDate);
-        MarkPatientDeadTagHandler.Action action = new MarkPatientDeadTagHandler.Action();
+        MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
         action.setDeathDateFromEncounter(true);
 
         action.applyAction(formEntrySession);
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(newDeathDate));
+        verify(patientService).savePatient(patient);
     }
 
     @Test
@@ -97,7 +103,7 @@ public class MarkPatientDeadTagHandlerTest {
 
         patient.setDeathDate(oldDeathDate);
         encounter.setEncounterDatetime(newDeathDate);
-        MarkPatientDeadTagHandler.Action action = new MarkPatientDeadTagHandler.Action();
+        MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
         action.setDeathDateFromEncounter(true);
         action.setPreserveExistingDeathDate(true);
 
@@ -105,17 +111,19 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(oldDeathDate));
+        verify(patientService).savePatient(patient);
     }
 
     @Test
     public void testNotSettingDate() throws Exception {
-        MarkPatientDeadTagHandler.Action action = new MarkPatientDeadTagHandler.Action();
+        MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
         action.setDeathDateFromEncounter(true);
 
         action.applyAction(formEntrySession);
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), nullValue());
+        verify(patientService).savePatient(patient);
     }
 
     private Matcher<MarkPatientDeadTagHandler.Action> isDefaultAction() {
