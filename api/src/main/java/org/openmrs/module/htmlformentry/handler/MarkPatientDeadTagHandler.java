@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.handler;
 
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.PatientService;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
@@ -39,15 +42,25 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
     }
 
     @Override
+    protected List<AttributeDescriptor> createAttributeDescriptors() {
+        return Arrays.asList(new AttributeDescriptor("causeOfDeathFromObs", Concept.class));
+    }
+
+    @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> parameters) throws BadFormDesignException {
         boolean deathDateFromEncounter = parseBooleanAttribute(parameters.get("deathDateFromEncounter"), true);
         boolean preserveExistingDeathDate = parseBooleanAttribute(parameters.get("preserveExistingDeathDate"), false);
         boolean preserveExistingCauseOfDeath = parseBooleanAttribute(parameters.get("preserveExistingCauseOfDeath"), false);
+        Concept causeOfDeathFromObs = null;
+        if (parameters.containsKey("causeOfDeathFromObs")) {
+            causeOfDeathFromObs = HtmlFormEntryUtil.getConcept(parameters.get("causeOfDeathFromObs"));
+        }
 
         Action action = new Action();
         action.setDeathDateFromEncounter(deathDateFromEncounter);
         action.setPreserveExistingDeathDate(preserveExistingDeathDate);
         action.setPreserveExistingCauseOfDeath(preserveExistingCauseOfDeath);
+        action.setCauseOfDeathFromObs(causeOfDeathFromObs);
 
         controllerActions.addAction(action);
 
@@ -77,6 +90,7 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
         private boolean deathDateFromEncounter;
         private boolean preserveExistingDeathDate;
         private boolean preserveExistingCauseOfDeath;
+        private Concept causeOfDeathFromObs;
 
         @Override
         public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
@@ -100,9 +114,25 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
                 }
             }
             if (patient.getCauseOfDeath() == null || !preserveExistingCauseOfDeath) {
-                patient.setCauseOfDeath(getUnknownConcept());
+                Concept causeOfDeath = null;
+                if (causeOfDeathFromObs != null) {
+                    causeOfDeath = findObsCodedValue(session.getEncounter(), causeOfDeathFromObs);
+                }
+                if (causeOfDeath == null) {
+                    causeOfDeath = getUnknownConcept();
+                }
+                patient.setCauseOfDeath(causeOfDeath);
             }
             patientService.savePatient(patient);
+        }
+
+        private Concept findObsCodedValue(Encounter encounter, Concept concept) {
+            for (Obs candidate : encounter.getAllObs(false)) {
+                if (candidate.getConcept().equals(concept)) {
+                    return candidate.getValueCoded();
+                }
+            }
+            return null;
         }
 
         public boolean isDeathDateFromEncounter() {
@@ -127,6 +157,14 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 
         public void setPreserveExistingCauseOfDeath(boolean preserveExistingCauseOfDeath) {
             this.preserveExistingCauseOfDeath = preserveExistingCauseOfDeath;
+        }
+
+        public Concept getCauseOfDeathFromObs() {
+            return causeOfDeathFromObs;
+        }
+
+        public void setCauseOfDeathFromObs(Concept causeOfDeathFromObs) {
+            this.causeOfDeathFromObs = causeOfDeathFromObs;
         }
     }
 

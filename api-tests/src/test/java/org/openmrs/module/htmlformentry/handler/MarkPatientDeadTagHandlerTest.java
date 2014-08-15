@@ -3,13 +3,18 @@ package org.openmrs.module.htmlformentry.handler;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.PatientService;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -22,7 +27,10 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(HtmlFormEntryUtil.class)
 public class MarkPatientDeadTagHandlerTest {
 
     private FormSubmissionController submissionController;
@@ -65,13 +73,26 @@ public class MarkPatientDeadTagHandlerTest {
         verify(submissionController).addAction(argThat(isDefaultAction()));
     }
 
-
     @Test
     public void testNoDateSetup() throws Exception {
         Map<String, String> arguments = new HashMap<String, String>();
         arguments.put("deathDateFromEncounter", "false");
         assertThat(tagHandler.getSubstitution(formEntrySession, submissionController, arguments), is(""));
         verify(submissionController).addAction(argThat(actionDoesNotSetDate()));
+    }
+
+    @Test
+    public void testSetupWithCauseOfDeath() throws Exception {
+        int CONCEPT_ID = 12345;
+        Concept causeOfDeath = new Concept(CONCEPT_ID);
+
+        mockStatic(HtmlFormEntryUtil.class);
+        when(HtmlFormEntryUtil.getConcept("" + CONCEPT_ID)).thenReturn(causeOfDeath);
+
+        Map<String, String> arguments = new HashMap<String, String>();
+        arguments.put("causeOfDeathFromObs", "" + CONCEPT_ID);
+        assertThat(tagHandler.getSubstitution(formEntrySession, submissionController, arguments), is(""));
+        verify(submissionController).addAction(argThat(actionSetsCauseOfDeathFrom(causeOfDeath)));
     }
 
     @Test
@@ -85,7 +106,6 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(deathDate));
-        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
@@ -103,7 +123,6 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(newDeathDate));
-        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
@@ -122,7 +141,6 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), is(oldDeathDate));
-        assertThat(patient.getCauseOfDeath(), is(unknownConcept));
         verify(patientService).savePatient(patient);
     }
 
@@ -135,7 +153,36 @@ public class MarkPatientDeadTagHandlerTest {
 
         assertThat(patient.isDead(), is(true));
         assertThat(patient.getDeathDate(), nullValue());
+        verify(patientService).savePatient(patient);
+    }
+
+    @Test
+    public void testNotSettingCauseOfDeath() throws Exception {
+        MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
+
+        action.applyAction(formEntrySession);
+
+        assertThat(patient.isDead(), is(true));
         assertThat(patient.getCauseOfDeath(), is(unknownConcept));
+        verify(patientService).savePatient(patient);
+    }
+
+    @Test
+    public void testSettingCauseOfDeath() throws Exception {
+        Concept causeOfDeath = new Concept();
+        Concept lungCancer = new Concept();
+        Obs causeOfDeathObs = new Obs();
+        causeOfDeathObs.setConcept(causeOfDeath);
+        causeOfDeathObs.setValueCoded(lungCancer);
+        encounter.addObs(causeOfDeathObs);
+
+        MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
+        action.setCauseOfDeathFromObs(causeOfDeath);
+
+        action.applyAction(formEntrySession);
+
+        assertThat(patient.isDead(), is(true));
+        assertThat(patient.getCauseOfDeath(), is(lungCancer));
         verify(patientService).savePatient(patient);
     }
 
@@ -158,4 +205,16 @@ public class MarkPatientDeadTagHandlerTest {
             }
         };
     }
+
+    private Matcher<MarkPatientDeadTagHandler.Action> actionSetsCauseOfDeathFrom(final Concept concept) {
+        return new ArgumentMatcher<MarkPatientDeadTagHandler.Action>() {
+            @Override
+            public boolean matches(Object o) {
+                MarkPatientDeadTagHandler.Action action = (MarkPatientDeadTagHandler.Action) o;
+                return action.getCauseOfDeathFromObs() != null
+                        && action.getCauseOfDeathFromObs().getConceptId().equals(concept.getConceptId());
+            }
+        };
+    }
+
 }
