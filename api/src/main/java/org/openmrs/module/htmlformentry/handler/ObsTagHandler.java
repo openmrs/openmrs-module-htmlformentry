@@ -52,23 +52,33 @@ public class ObsTagHandler extends AbstractTagHandler {
         }
 
         ObsSubmissionElement element = (ObsSubmissionElement) popped;
-        Map<Object, String> whenThen = element.getWhenValueThenDisplaySection();
-        if (whenThen.size() > 0) {
+        if (session.getContext().getMode() != FormEntryContext.Mode.VIEW && element.hasWhenValueThen()) {
             if (element.getId() == null) {
                 throw new IllegalStateException("<obs> must have an id attribute to define when-then actions");
             }
-            Map<Object, String> simplified = new LinkedHashMap<Object, String>();
-            for (Map.Entry<Object, String> entry : whenThen.entrySet()) {
-                Object key = entry.getKey();
-                if (key instanceof Concept) {
-                    key = ((Concept) key).getConceptId();
-                }
-                simplified.put(key, entry.getValue());
-            }
             out.println("<script type=\"text/javascript\">");
-            out.println("jQuery(function() { htmlForm.setupWhenThenDisplay('" + element.getId() + "', " + toJson(simplified) + "); });");
+            out.println("jQuery(function() { htmlForm.setupWhenThen('" + element.getId() + "', "
+                    + simplifyWhenThen(element.getWhenValueThenDisplaySection()) + ", "
+                    + simplifyWhenThen(element.getWhenValueThenJavascript()) + ", "
+                    + simplifyWhenThen(element.getWhenValueElseJavascript())
+                    + "); });");
             out.println("</script>");
         }
+    }
+
+    private String simplifyWhenThen(Map<Object, String> whenThen) {
+        Map<Object, String> simplified = new LinkedHashMap<Object, String>();
+        if (whenThen.size() == 0) {
+            return "null";
+        }
+        for (Map.Entry<Object, String> entry : whenThen.entrySet()) {
+            Object key = entry.getKey();
+            if (key instanceof Concept) {
+                key = ((Concept) key).getConceptId();
+            }
+            simplified.put(key, entry.getValue());
+        }
+        return toJson(simplified);
     }
 
 }

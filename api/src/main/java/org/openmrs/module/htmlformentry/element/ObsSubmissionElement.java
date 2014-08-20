@@ -130,6 +130,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
     private Map<Object, String> whenValueThenDisplaySection = new LinkedHashMap<Object, String>();
 
+    private Map<Object, String> whenValueThenJavascript = new LinkedHashMap<Object, String>();
+
+    private Map<Object, String> whenValueElseJavascript = new LinkedHashMap<Object, String>();
+
     private Boolean isLocationObs; // determines whether the valueText for this obs should be a location_id;
 
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
@@ -1329,6 +1333,28 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
     public Map<Object, String> getWhenValueThenDisplaySection() {
         return whenValueThenDisplaySection;
+    }
+
+    public void whenValueThenJavaScript(Object value, String thenJavaScript) {
+        whenValueThenJavascript.put(value, thenJavaScript);
+    }
+
+    public Map<Object, String> getWhenValueThenJavascript() {
+        return whenValueThenJavascript;
+    }
+
+    public void whenValueElseJavaScript(Object value, String elseJavaScript) {
+        whenValueElseJavascript.put(value, elseJavaScript);
+    }
+
+    public Map<Object, String> getWhenValueElseJavascript() {
+        return whenValueElseJavascript;
+    }
+
+    public boolean hasWhenValueThen() {
+        return whenValueThenDisplaySection.size() > 0
+                || whenValueThenJavascript.size() > 0
+                || whenValueElseJavascript.size() > 0;
     }
 
     public String getId() {

@@ -15,11 +15,31 @@
                 }
             });
         }
+        var whenValueThenJs = $(this).data('whenValueThenJs');
+        if (whenValueThenJs) {
+            var val = $(this).val();
+            $.each(whenValueThenJs, function(ifValue, thenJs) {
+                if (val == ifValue) {
+                    eval(thenJs);
+                }
+            });
+        }
+        var whenValueElseJs = $(this).data('whenValueElseJs');
+        if (whenValueElseJs) {
+            var val = $(this).val();
+            $.each(whenValueElseJs, function(ifValue, elseJs) {
+                if (val != ifValue) {
+                    eval(elseJs);
+                }
+            });
+        }
     };
 
-    htmlForm.setupWhenThenDisplay = function(obsId, valueToSection) {
+    htmlForm.setupWhenThen = function(obsId, valueToSection, valueToThenJs, valueToElseJs) {
         var field = getField(obsId + '.value');
         field.data('whenValueThenDisplaySection', valueToSection);
+        field.data('whenValueThenJs', valueToThenJs);
+        field.data('whenValueElseJs', valueToElseJs);
         field.change(onObsChangedCheck).change();
     };
 

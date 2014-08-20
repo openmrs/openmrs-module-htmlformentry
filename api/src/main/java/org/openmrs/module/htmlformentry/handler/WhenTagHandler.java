@@ -16,15 +16,23 @@ public class WhenTagHandler extends SubstitutionTagHandler {
 
     public static final String WHEN_VALUE = "value";
     public static final String THEN_DISPLAY = "thenDisplay";
+    public static final String THEN_JS = "thenJavaScript";
+    public static final String ELSE_JS = "elseJavaScript";
 
     @Override
     protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions, Map<String, String> attributes) throws BadFormDesignException {
         String value = attributes.get(WHEN_VALUE);
         String thenDisplay = attributes.get(THEN_DISPLAY);
-        if (value == null || thenDisplay == null) {
-            throw new IllegalArgumentException("when tag must have '" + WHEN_VALUE + "' and '" + THEN_DISPLAY + "' attributes");
+        String thenJavaScript = attributes.get(THEN_JS);
+        String elseJavaScript = attributes.get(ELSE_JS);
+        if (value == null) {
+            throw new IllegalArgumentException("when tag must have '" + WHEN_VALUE + "'");
         }
-        if (!thenDisplay.startsWith("#") && !thenDisplay.startsWith(".")) {
+        if (thenDisplay == null && thenJavaScript == null && elseJavaScript == null) {
+            throw new IllegalArgumentException("when tag must have at least one of '" + THEN_DISPLAY + "', '"
+                    + THEN_JS + "', and '" + ELSE_JS + "' attributes");
+        }
+        if (thenDisplay != null && !thenDisplay.startsWith("#") && !thenDisplay.startsWith(".")) {
             throw new IllegalArgumentException("'" + THEN_DISPLAY + "' attribute must be a DOM #id or .class");
         }
 
@@ -32,7 +40,15 @@ public class WhenTagHandler extends SubstitutionTagHandler {
 
         // for now we only implement the case where value is a concept id/uuid/code
         Concept concept = HtmlFormEntryUtil.getConcept(value);
-        obs.whenValueThenDisplaySection(concept, thenDisplay);
+        if (thenDisplay != null) {
+            obs.whenValueThenDisplaySection(concept, thenDisplay);
+        }
+        if (thenJavaScript != null) {
+            obs.whenValueThenJavaScript(concept, thenJavaScript);
+        }
+        if (elseJavaScript != null) {
+            obs.whenValueElseJavaScript(concept, elseJavaScript);
+        }
         return "";
     }
 
