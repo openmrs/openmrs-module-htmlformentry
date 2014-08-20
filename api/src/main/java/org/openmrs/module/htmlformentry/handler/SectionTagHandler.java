@@ -1,13 +1,13 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.io.PrintWriter;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.Translator;
 import org.w3c.dom.Node;
+
+import java.io.PrintWriter;
 
 /**
  * Handles the {@code <section>} tag
@@ -23,6 +23,7 @@ public class SectionTagHandler extends AbstractTagHandler {
         String headerTag = getAttribute(node, "headerTag", "span");
         String sectionStyleClass = getAttribute(node, "sectionStyle", "section");
         String headerStyleClass = getAttribute(node, "headerStyle", "sectionHeader");
+        String sectionId = getAttribute(node, "id", null);
 
         String headerLabel = getAttribute(node, "headerLabel", null);
         if (headerLabel == null) {
@@ -33,7 +34,11 @@ public class SectionTagHandler extends AbstractTagHandler {
             }
         }
 
-        out.print("<" + sectionTag + " class=\""+sectionStyleClass+"\">");
+        out.print("<" + sectionTag + " class=\""+sectionStyleClass + "\"");
+        if (sectionId != null) {
+            out.print(" id=\"" + sectionId + "\"");
+        }
+        out.print(">");
         if (headerLabel != null) {
         	out.print("<" + headerTag + " class=\""+headerStyleClass+"\">"+headerLabel+"</" + headerTag + ">");
         }
