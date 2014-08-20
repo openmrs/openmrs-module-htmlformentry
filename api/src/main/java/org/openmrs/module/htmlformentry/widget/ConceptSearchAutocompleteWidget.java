@@ -67,14 +67,6 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 				return WidgetFactory.displayEmptyValue(toPrint);
 			}
 		} else {
-			sb.append("<input name=\"" + context.getFieldName(this) + "_hid"
-					+ "\" id=\"" + context.getFieldName(this) + "_hid" + "\""
-					+ " type=\"hidden\" class=\"autoCompleteHidden\" ");
-			if (initialValue != null) {
-				sb.append(" value=\"" + initialValue.getConceptId() + "\"");
-			}
-			sb.append("/>");
-
 			sb.append("<input type=\"text\"  id=\""
 					+ context.getFieldName(this) + "\"" + " name=\""
 					+ context.getFieldName(this) + "\" "
@@ -89,7 +81,14 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 				sb.append(" value=\"" + initialValue.getDisplayString() + "\"");
 			sb.append("/>");
 
-		}
+            sb.append("<input name=\"" + context.getFieldName(this) + "_hid"
+                    + "\" id=\"" + context.getFieldName(this) + "_hid" + "\""
+                    + " type=\"hidden\" class=\"autoCompleteHidden\" ");
+            if (initialValue != null) {
+                sb.append(" value=\"" + initialValue.getConceptId() + "\"");
+            }
+            sb.append("/>");
+        }
 		return sb.toString();
 	}
 

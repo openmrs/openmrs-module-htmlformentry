@@ -7,8 +7,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.UploadWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+import org.openmrs.module.htmlformentry.widget.UploadWidget;
 
 /**
  * Basic test cases for HTML Form Entry widgets
@@ -28,11 +28,11 @@ public class WidgetTest {
     public void checkboxWidgetShouldProduceHtml() {
         CheckboxWidget cw = new CheckboxWidget();
         context.registerWidget(cw);
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\"/>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\"/><input type=\"hidden\" name=\"_w1\"/>", cw.generateHtml(context));
         cw.setInitialValue("Something");
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" checked=\"true\"/>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" checked=\"true\"/><input type=\"hidden\" name=\"_w1\"/>", cw.generateHtml(context));
         cw.setLabel("This is a label");
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" checked=\"true\"/><label for=\"w1\">This is a label</label>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" checked=\"true\"/><label for=\"w1\">This is a label</label><input type=\"hidden\" name=\"_w1\"/>", cw.generateHtml(context));
     }
     
     @Test
@@ -56,7 +56,7 @@ public class WidgetTest {
 		ToggleWidget toggleWidget = new ToggleWidget("hatColors");
 		CheckboxWidget cw = new CheckboxWidget("Has a hat?", "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
         context.registerWidget(cw);
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleHide=\"hatColors\"/><label for=\"w1\">Has a hat?</label>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleHide=\"hatColors\"/><label for=\"w1\">Has a hat?</label><input type=\"hidden\" name=\"_w1\"/>", cw.generateHtml(context));
     }
     
     @Test
@@ -64,7 +64,7 @@ public class WidgetTest {
 		ToggleWidget toggleWidget = new ToggleWidget("{id: 'hatColors', style: 'dim'}");
 		CheckboxWidget cw = new CheckboxWidget("Has a hat?", "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
         context.registerWidget(cw);
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleDim=\"hatColors\"/><label for=\"w1\">Has a hat?</label>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleDim=\"hatColors\"/><label for=\"w1\">Has a hat?</label><input type=\"hidden\" name=\"_w1\"/>", cw.generateHtml(context));
     }
     
     @Test
@@ -72,7 +72,7 @@ public class WidgetTest {
 		ToggleWidget toggleWidget = new ToggleWidget("{id: 'hatColors', style: 'hide'}");
 		CheckboxWidget cw = new CheckboxWidget("Has a hat?", "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
         context.registerWidget(cw);
-        Assert.assertEquals("<input type=\"hidden\" name=\"_w1\"/><input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleHide=\"hatColors\"/><label for=\"w1\">Has a hat?</label>", cw.generateHtml(context));
+        Assert.assertEquals("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"true\" toggleHide=\"hatColors\"/><label for=\"w1\">Has a hat?</label><input type=\"hidden\" name=\"_w1\"/>", cw.generateHtml(context));
     }
     
 	@Test

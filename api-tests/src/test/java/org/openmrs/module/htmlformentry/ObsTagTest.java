@@ -589,7 +589,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String[] widgetLabels() {
-                return new String[] { "Date:", "Location:", "Provider:", "Coded:" };
+                return new String[] { "Date:", "Location:", "Provider:", "Coded:!!1" };
             }
 
             @Override
@@ -597,7 +597,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
                 request.addParameter(widgets.get("Location:"), "2");
                 request.addParameter(widgets.get("Provider:"), "502");
-                request.addParameter(widgets.get("Coded:"), "1001");
+                request.addParameter(widgets.get("Coded:!!1"), "1001");
             }
 
             @Override
@@ -635,7 +635,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String[] widgetLabels() {
-                return new String[] { "Date:", "Location:", "Provider:", "Coded:" };
+                return new String[] { "Date:", "Location:", "Provider:", "Coded:!!1" };
             }
 
             @Override
@@ -643,7 +643,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
                 request.addParameter(widgets.get("Location:"), "2");
                 request.addParameter(widgets.get("Provider:"), "502");
-                request.addParameter(widgets.get("Coded:"), "1001");
+                request.addParameter(widgets.get("Coded:!!1"), "1001");
             }
 
             @Override
@@ -653,13 +653,13 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String[] widgetLabelsForEdit() {
-                return new String[] { "Coded:" };
+                return new String[] { "Coded:!!1" };
             }
 
 
             @Override
             public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-                request.setParameter(widgets.get("Coded:"), "1002");
+                request.setParameter(widgets.get("Coded:!!1"), "1002");
             }
 
             @Override

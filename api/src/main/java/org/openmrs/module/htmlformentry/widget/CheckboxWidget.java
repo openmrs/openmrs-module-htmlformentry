@@ -1,9 +1,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * A checkbox widget, like {@code <input type="checkbox"/>}
@@ -91,7 +91,6 @@ public class CheckboxWidget implements Widget {
                 sb.append(WidgetFactory.displayEmptyValue("[&#160;&#160;]" + labelString));
             }    
         } else {
-            sb.append("<input type=\"hidden\" name=\"_").append(context.getFieldName(this)).append("\"/>");
             sb.append("<input type=\"checkbox\" id=\"").append(context.getFieldName(this)).append("\" name=\"").append(context.getFieldName(this))
                 .append("\" value=\"").append(value).append("\"");
             if (initialValue != null && !"".equals(initialValue))
@@ -101,6 +100,7 @@ public class CheckboxWidget implements Widget {
             sb.append("/>");
             if (label != null)
                 sb.append("<label for=\"").append(context.getFieldName(this)).append("\">").append(label).append("</label>");
+            sb.append("<input type=\"hidden\" name=\"_").append(context.getFieldName(this)).append("\"/>");
         }
         return sb.toString();
     }
