@@ -301,4 +301,47 @@ public class VelocityFunctions {
         return session.getContext().getTranslator().translate(Context.getLocale().toString(), code);
     }
 
+    /**
+     * Returns an arbitrary obs if there are multiple matches
+     * @param encounter
+     * @param conceptCode
+     * @return an obs in encounter for the given concept, or null if none exists
+     */
+    public Obs getObs(Encounter encounter, String conceptCode) {
+        if (encounter == null) {
+            return null;
+        }
+        Concept concept = HtmlFormEntryUtil.getConcept(conceptCode);
+        if (concept == null) {
+            throw new IllegalArgumentException("No concept found for: " + conceptCode);
+        }
+        for (Obs candidate : encounter.getAllObs()) {
+            if (candidate.getConcept().equals(concept)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param encounter
+     * @param conceptCode
+     * @return all obs in the encounter with the given concept
+     */
+    public List<Obs> allObs(Encounter encounter, String conceptCode) {
+        if (encounter == null) {
+            return null;
+        }
+        Concept concept = HtmlFormEntryUtil.getConcept(conceptCode);
+        if (concept == null) {
+            throw new IllegalArgumentException("No concept found for: " + conceptCode);
+        }
+        List<Obs> matches = new ArrayList<Obs>();
+        for (Obs candidate : encounter.getAllObs()) {
+            if (candidate.getConcept().equals(concept)) {
+                matches.add(candidate);
+            }
+        }
+        return matches;
+    }
 }

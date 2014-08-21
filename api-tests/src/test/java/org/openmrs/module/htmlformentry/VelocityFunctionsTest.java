@@ -8,6 +8,7 @@ import org.joda.time.Months;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openmrs.Concept;
+import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
@@ -18,6 +19,11 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 
@@ -145,7 +151,7 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         htmlform.setForm(form);
         htmlform.setDateChanged(new Date());
         htmlform.setXmlData("<htmlform></htmlform>");
-        
+
         Patient p = new Patient(patientId);
         String[] datePattern = {"yyyy.MM.dd"};
         p.setBirthdate(DateUtils.parseDate("1970.01.01",datePattern ));
@@ -171,4 +177,25 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 		Concept concept = Context.getConceptService ().getConcept (5089);
 		Assert.assertEquals(concept.getDisplayString (), functions.getConcept ("5089").getDisplayString ());
 	}
+
+    @Test
+    public void getObs_shouldReturnObsWithGivenConcept() throws Exception {
+        Encounter encounter = Context.getEncounterService().getEncounter(4);
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+
+        assertThat(functions.getObs(encounter, "5089").getValueNumeric(), is(55d));
+        assertThat(functions.getObs(encounter, "3"), nullValue());
+    }
+
+    @Test
+    public void allObs_shouldReturnObsWithGivenConcept() throws Exception {
+        Encounter encounter = Context.getEncounterService().getEncounter(4);
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+
+        List<Obs> allObs = functions.allObs(encounter, "5089");
+        assertThat(allObs.size(), is(1));
+        assertThat(allObs.get(0).getValueNumeric(), is(55d));
+        assertThat(functions.allObs(encounter, "3").size(), is(0));
+    }
+
 }
