@@ -1,15 +1,14 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+
+import javax.servlet.http.HttpServletRequest;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
  * A widget that allows the selection of a certain time-of-day.  To handle both
@@ -45,7 +44,7 @@ public class TimeWidget implements Widget {
 				valAsCal.setTime(initialValue);
 			}
 			StringBuilder sb = new StringBuilder();
-			sb.append("<select name=\"").append(context.getFieldName(this))
+			sb.append("<select class=\"hfe-hours\" name=\"").append(context.getFieldName(this))
 					.append("hours").append("\">");
 			for (int i = 0; i <= 23; ++i) {
 				String label = "" + i;
@@ -60,7 +59,7 @@ public class TimeWidget implements Widget {
 			}
 			sb.append("</select>");
 			sb.append(":");
-			sb.append("<select name=\"").append(context.getFieldName(this))
+			sb.append("<select class=\"hfe-minutes\" name=\"").append(context.getFieldName(this))
 					.append("minutes").append("\">");
 			for (int i = 0; i <= 59; ++i) {
 				String label = "" + i;
@@ -74,7 +73,7 @@ public class TimeWidget implements Widget {
 				sb.append(">" + label + "</option>");
 			}
 			sb.append("</select>");
-            sb.append("<select name=\"").append(context.getFieldName(this))
+            sb.append("<select class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
                     .append("seconds").append("\">");
             for (int i = 0; i <= 59; ++i) {
                 String label = "" + i;
