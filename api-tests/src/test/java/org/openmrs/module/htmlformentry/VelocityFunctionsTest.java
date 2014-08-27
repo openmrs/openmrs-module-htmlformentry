@@ -104,8 +104,8 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void latestEncounter_shouldReturnTheMostRecentEncounterByType() throws Exception {
 		VelocityFunctions functions = setupFunctionsForPatient(7); 
-		EncounterType type = Context.getEncounterService().getEncounterType(2);
-        Assert.assertEquals(new Integer(3), functions.latestEncounter(type).getEncounterId());
+		Encounter latestEncounter = functions.latestEncounter("2");
+        Assert.assertEquals(new Integer(3), latestEncounter.getEncounterId());
 	}
 	
 	/**
@@ -114,9 +114,18 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void latestEncounter_shouldReturnNullIfNoMatchingEncounter() throws Exception {
-		VelocityFunctions functions = setupFunctionsForPatient(7); 
-		EncounterType type = Context.getEncounterService().getEncounterType(6);
-        Assert.assertNull(functions.latestEncounter(type));
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+        Assert.assertNull(functions.latestEncounter("6"));
+	}
+	
+	/**
+	 * @see VelocityFunctions@allEncounters(EncounterType)
+	 * @verifies return all the encounters of the specified type
+	 */
+	public void allEncounters_shouldReturnAllTheEncountersOfTheSpecifiedType() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		List<Encounter> allEncounters = functions.allEncounters("2");
+		Assert.assertEquals(1, allEncounters.size());
 	}
 
     /**
