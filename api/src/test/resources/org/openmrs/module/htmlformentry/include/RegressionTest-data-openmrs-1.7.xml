@@ -296,13 +296,4 @@
   <location_tag_map location_id="1004" location_tag_id="1002" />
   <location_tag_map location_id="1005" location_tag_id="1002" />
 
-  <!-- concepts and global properties for true and false-->
-  <concept concept_id="5000" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32496270-03aa-102d-b0e3-001ec93a0cc7"/>
-  <concept_name voided="false" concept_name_id="5000" concept_id="5000" name="TRUE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
-  <concept concept_id="5001" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32411270-03aa-102d-b0e3-001ec93a0cc7"/>
-  <concept_name voided="false" concept_name_id="5001" concept_id="5001" name="FALSE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
-
-  <global_property property="concept.true" property_value="5000" uuid="4f55827e-26fe-102b-81cb-2217b4ec71b3"/>
-  <global_property property="concept.false" property_value="5001" uuid="4f55827e-26fe-102b-82cb-5617b4ec71b3"/>
-
 </dataset>

@@ -314,13 +314,4 @@
   <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
   <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
 
-  <!-- concepts and global properties for true and false-->
-  <concept concept_id="5000" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32496270-03aa-102d-b0e3-001ec93a0cc7"/>
-  <concept_name voided="false" concept_name_id="5000" concept_id="5000" name="TRUE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
-  <concept concept_id="5001" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32411270-03aa-102d-b0e3-001ec93a0cc7"/>
-  <concept_name voided="false" concept_name_id="5001" concept_id="5001" name="FALSE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
-
-  <global_property property="concept.true" property_value="5000" uuid="4f55827e-26fe-102b-81cb-2217b4ec71b3"/>
-  <global_property property="concept.false" property_value="5001" uuid="4f55827e-26fe-102b-82cb-5617b4ec71b3"/>
-
 </dataset>
