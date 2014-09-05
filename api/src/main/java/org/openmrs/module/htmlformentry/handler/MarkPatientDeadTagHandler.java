@@ -119,6 +119,10 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
                     causeOfDeath = findObsCodedValue(session.getEncounter(), causeOfDeathFromObs);
                 }
                 if (causeOfDeath == null) {
+                    // don't overwrite with Unknown, even if we haven't specifically said to preserve existing
+                    causeOfDeath = patient.getCauseOfDeath();
+                }
+                if (causeOfDeath == null) {
                     causeOfDeath = getUnknownConcept();
                 }
                 patient.setCauseOfDeath(causeOfDeath);
