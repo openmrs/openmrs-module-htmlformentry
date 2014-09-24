@@ -161,9 +161,9 @@
 
 	<!-- default property values, required for eclipse build path configuration -->
 	<properties>
-		<openMRSVersion>1.8.5-SNAPSHOT</openMRSVersion>
-		<openMRSBuildVersion>1.8.5-SNAPSHOT</openMRSBuildVersion>
-		<openMRSMinorVersion>1.8</openMRSMinorVersion>
+		<openMRSVersion>1.9.8</openMRSVersion>
+		<openMRSBuildVersion>1.9.8</openMRSBuildVersion>
+		<openMRSMinorVersion>1.9</openMRSMinorVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -303,24 +303,6 @@
 	<profiles>
 
 		<profile>
-			<id>openmrs-1.6</id>
-
-			<properties>
-				<openMRSVersion>1.6.6</openMRSVersion>
-				<openMRSMinorVersion>1.6</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>openmrs-1.7</id>
-
-			<properties>
-				<openMRSVersion>1.7.4</openMRSVersion>
-				<openMRSMinorVersion>1.7</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
 			<id>openmrs-1.8</id>
 
 			<properties>
@@ -333,7 +315,7 @@
 			<id>openmrs-1.9</id>
 
 			<properties>
-				<openMRSVersion>1.9.7</openMRSVersion>
+				<openMRSVersion>1.9.8</openMRSVersion>
 				<openMRSMinorVersion>1.9</openMRSMinorVersion>
 			</properties>
 		</profile>
@@ -342,7 +324,7 @@
 			<id>openmrs-1.10</id>
 
 			<properties>
-				<openMRSVersion>1.10.0-alpha</openMRSVersion>
+				<openMRSVersion>1.10.0</openMRSVersion>
 				<openMRSMinorVersion>1.10</openMRSMinorVersion>
 			</properties>
 		</profile>
