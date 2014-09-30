@@ -162,7 +162,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 	private Order newDiscontinuationOrder(Date discontinuedDate, String discontinuedReasonStr, Order o) {
 		Order discontinuationOrder;
 		discontinuationOrder = o.cloneForDiscontinuing();
-		discontinuationOrder.setStartDate(discontinuedDate);
+		discontinuationOrder.setDateActivated(discontinuedDate);
 		if (!StringUtils.isEmpty(discontinuedReasonStr)) {
 			discontinuationOrder.setOrderReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
 		}

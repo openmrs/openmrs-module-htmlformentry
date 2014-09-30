@@ -125,11 +125,11 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				    encounter.getOrders(),
 				    containsInAnyOrder(
 				        allOf(hasProperty("drug", is(drug2)), hasProperty("dose", is(1.0)),
-				            hasProperty("startDate", is(ymdToDate(dateAsString(date))))),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
 				        allOf(hasProperty("drug", is(drug3)), hasProperty("dose", is(1.0)),
-				            hasProperty("startDate", is(ymdToDate(dateAsString(date))))),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
 				        allOf(hasProperty("drug", is(drug11)), hasProperty("dose", is(1.0)),
-				            hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 
 			@Override
@@ -170,9 +170,9 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				    orders,
 				    containsInAnyOrder(
 				        allOf(hasProperty("drug", is(drug2)), hasProperty("dose", is(1.0)),
-				            hasProperty("startDate", is(ymdToDate(dateAsString(date))))),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
 				        allOf(hasProperty("drug", is(drug3)), hasProperty("dose", is(200.0)),
-				            hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 		}.run();
 	}

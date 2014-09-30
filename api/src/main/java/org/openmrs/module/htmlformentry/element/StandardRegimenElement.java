@@ -11,6 +11,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,8 +19,10 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -37,6 +40,7 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.order.DrugOrderSupport;
 import org.openmrs.order.RegimenSuggestion;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 
 
@@ -183,8 +187,15 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {	
 			matchStandardRegimenInExistingOrders(context);
 		}
-		if (regDrugOrders != null && regDrugOrders.size() > 0)
-        	startDateWidget.setInitialValue(regDrugOrders.get(0).getStartDate());
+		if (regDrugOrders != null && regDrugOrders.size() > 0){
+            String startDateFieldName = (ModuleUtil.compareVersion(
+                    OpenmrsConstants.OPENMRS_VERSION_SHORT, "1.10") > -1) ? "dateActivated" : "startDate";
+            try {
+                startDateWidget.setInitialValue(PropertyUtils.getProperty(regDrugOrders.get(0), startDateFieldName));
+            } catch (Exception e) {
+                throw new APIException(e);
+            }
+        }
         context.getSchema().addField(srf);
 	}
 
