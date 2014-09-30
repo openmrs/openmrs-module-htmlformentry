@@ -170,7 +170,7 @@
 
 	<modules>
 		<module>api</module>
-		<!-- disabled until 1.10 stabilizes <module>api-1.10</module> //-->
+		<module>api-1.10</module>
 		<module>api-tests</module>
 		<module>omod</module>
 	</modules>

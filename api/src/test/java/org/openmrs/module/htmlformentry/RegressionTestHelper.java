@@ -6,7 +6,9 @@ import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
@@ -334,6 +336,18 @@ public abstract class RegressionTestHelper {
 		}
 
 	}
+
+    private String formatObsValueDate(Date date){
+        if(date == null){
+            return null;
+        }
+        String valueAsString = TestUtil.valueAsStringHelper(date);
+        //The date format used by Obs.getValueAsString changed in 1.9.9
+        if(ModuleUtil.compareVersion(OpenmrsConstants.OPENMRS_VERSION_SHORT, "1.9.9") > -1){
+            valueAsString = new SimpleDateFormat("yyyy-MM-dd").format(date);
+        }
+        return valueAsString;
+    }
 
 	private MockHttpServletRequest createEditRequest(String html, HttpSession httpSession) {
 		MockHttpServletRequest ret = new MockHttpServletRequest();
@@ -820,8 +834,13 @@ public abstract class RegressionTestHelper {
 			Assert.assertNotNull(encounterCreated);
 			Collection<Obs> temp = encounterCreated.getAllObs(lookForVoided);
 			Assert.assertNotNull(temp);
-			
-			String valueAsString = TestUtil.valueAsStringHelper(value);
+
+			String valueAsString = null;
+            if(value instanceof Date){
+                valueAsString = formatObsValueDate((Date)value);
+            }else{
+                valueAsString = TestUtil.valueAsStringHelper(value);
+            }
 			for (Obs obs : temp) {
 				if (lookForVoided && !obs.isVoided())
 					continue;
@@ -915,8 +934,13 @@ public abstract class RegressionTestHelper {
 			if (!obs.getConcept().getConceptId().equals(conceptId)) {
 				return false;
 			}
-			
-			return OpenmrsUtil.nullSafeEquals(TestUtil.valueAsStringHelper(value), obs.getValueAsString(Context.getLocale()));
+            String valueAsString = null;
+            if(value instanceof Date){
+                valueAsString = formatObsValueDate((Date)value);
+            }else{
+                valueAsString = TestUtil.valueAsStringHelper(value);
+            }
+			return OpenmrsUtil.nullSafeEquals(valueAsString, obs.getValueAsString(Context.getLocale()));
 		}
-	}	
+	}
 }

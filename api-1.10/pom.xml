@@ -116,7 +116,7 @@
 		<MODULE_NAME>${project.parent.name}</MODULE_NAME>
 		<MODULE_VERSION>${project.parent.version}</MODULE_VERSION>
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
-		<openMRSBuildVersion>1.10.0-SNAPSHOT</openMRSBuildVersion>
+		<openMRSBuildVersion>1.10.0</openMRSBuildVersion>
 	</properties>
 
 </project>

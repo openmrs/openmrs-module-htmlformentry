@@ -13,13 +13,16 @@ import org.apache.commons.lang.StringUtils;
 import org.openmrs.CareSetting;
 import org.openmrs.CareSetting.CareSettingType;
 import org.openmrs.Concept;
+import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
-import org.openmrs.DrugOrder.DosingType;
 import org.openmrs.EncounterProvider;
+import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
 import org.openmrs.Order.Action;
 import org.openmrs.OrderFrequency;
+import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -122,8 +125,9 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		dosingTypeWidget = new DropdownWidget();
 		
 		List<Option> options = new ArrayList<Option>();
-		options.add(new Option(DosingType.SIMPLE.toString(), DosingType.SIMPLE.toString(), true));
-		options.add(new Option(DosingType.FREE_TEXT.toString(), DosingType.FREE_TEXT.toString(), false));
+        MessageSourceService mss = Context.getMessageSourceService();
+        options.add(new Option(mss.getMessage("htmlformentry.drugOrder.dosingType.simple"), SimpleDosingInstructions.class.getName(), true));
+        options.add(new Option(mss.getMessage("htmlformentry.drugOrder.dosingType.freetext"), FreeTextDosingInstructions.class.getName(), false));
 		
 		setupDropdownWidget(context, dosingTypeWidget, options);
 	}
@@ -282,7 +286,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 							lastRevision = drugOrder;
 						}
 						
-						startDateWidget.setInitialValue(lastRevision.getStartDate());
+						startDateWidget.setInitialValue(lastRevision.getDateActivated());
 						
 						routeWidget.setInitialValue(lastRevision.getRoute().getId());
 						
@@ -330,8 +334,12 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		OrderTag1_10 orderTag = (OrderTag1_10) oldOrderTag;
 		
 		super.populateOrderTag(orderTag, session, submission);
-		
-		orderTag.dosingType = DosingType.valueOf((String) dosingTypeWidget.getValue(session.getContext(), submission));
+
+        try {
+            orderTag.dosingType = (Class<? extends DosingInstructions>)Context.loadClass((String) dosingTypeWidget.getValue(session.getContext(), submission));
+        } catch (ClassNotFoundException e) {
+            throw new APIException(e);
+        }
 		
 		String doseUnitsValue = (String) doseUnitsWidget.getValue(session.getContext(), submission);
 		if (doseUnitsValue != null) {
@@ -344,8 +352,11 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		if (quantityUnitsValue != null) {
 			orderTag.quantityUnits = Context.getConceptService().getConcept(Integer.valueOf(quantityUnitsValue));
 		}
-		
-		orderTag.duration = durationWidget.getValue(session.getContext(), submission);
+
+        Double drugOrderDuration = durationWidget.getValue(session.getContext(), submission);
+        if (drugOrderDuration != null) {
+            orderTag.duration = drugOrderDuration.intValue();
+        }
 		
 		String durationUnitsValue = (String) durationUnitsWidget.getValue(session.getContext(), submission);
 		if (durationUnitsValue != null) {
@@ -384,7 +395,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		drugOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
 		OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
 		drugOrder.setFrequency(orderFrequency);
-		drugOrder.setStartDate(orderTag.startDate);
+		drugOrder.setDateActivated(orderTag.startDate);
 		//order duration:
 		if (orderTag.orderDuration != null)
 			drugOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
@@ -439,7 +450,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 			revisedOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
 			OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
 			revisedOrder.setFrequency(orderFrequency);
-			revisedOrder.setStartDate(orderTag.startDate);
+			revisedOrder.setDateActivated(orderTag.startDate);
 			if (orderTag.orderDuration != null)
 				revisedOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
 			if (!StringUtils.isEmpty(orderTag.instructions))
@@ -454,7 +465,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		} else {
 			Context.getOrderService().voidOrder(existingOrder, "Update discontinued date or reason");
 			discontinuationOrder = existingOrder.cloneForRevision();
-			discontinuationOrder.setStartDate(orderTag.discontinuedDate);
+			discontinuationOrder.setDateActivated(orderTag.discontinuedDate);
 			discontinuationOrder.setOrderReason(HtmlFormEntryUtil.getConcept(orderTag.discontinuedReasonStr));
 		}
 		
@@ -471,13 +482,13 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		
 		if (discontinuedDate != null) {
 			discontinuationOrder = drugOrder.cloneForDiscontinuing();
-			discontinuationOrder.setStartDate(discontinuedDate);
+			discontinuationOrder.setDateActivated(discontinuedDate);
 			if (!StringUtils.isEmpty(discontinuedReasonStr))
 				discontinuationOrder.setOrderReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
 		} else if (drugOrder.getAutoExpireDate() != null) {
 			Date date = new Date();
 			if (drugOrder.getAutoExpireDate().getTime() < date.getTime()) {
-				drugOrder.setStartDate(drugOrder.getAutoExpireDate());
+				drugOrder.setDateActivated(drugOrder.getAutoExpireDate());
 				discontinuationOrder = drugOrder.cloneForDiscontinuing();
 			}
 		}
@@ -492,7 +503,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 	
 	protected class OrderTag1_10 extends OrderTag {
 		
-		public DosingType dosingType;
+		public Class<? extends DosingInstructions> dosingType;
 		
 		public Concept doseUnits;
 		
@@ -500,7 +511,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		
 		public Concept quantityUnits;
 		
-		public Double duration;
+		public Integer duration;
 		
 		public Concept durationUnits;
 		

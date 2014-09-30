@@ -56,8 +56,8 @@ public class RegimenUtil1_10 {
 					DrugOrder dorToInspect = drugIdFoundInDrugSet(dc, drugOrders); //assumes patient will never have multiple drug orders of same drug in same encounter...
 					if (dorToInspect != null){ // there was a match by drug
 						if (startDate == null) // setup standard regimen start date
-							startDate = dorToInspect.getStartDate();
-						if (startDate.equals(dorToInspect.getStartDate())) //this will always be true for first drug matched.
+							startDate = dorToInspect.getDateActivated();
+						if (startDate.equals(dorToInspect.getDateActivated())) //this will always be true for first drug matched.
 							matchHolder.add(drugIdFoundInDrugSet(dc, drugOrders));
 						else {
 							//the drug was matched on drug type, but the start date was different.  This tag assumes equal start and stop dates to be a standard regimen.
@@ -123,7 +123,7 @@ public class RegimenUtil1_10 {
 				dor.setDose(Double.valueOf(ds.getDose()));
 				dor.setDoseUnits(conceptService.getConceptByName(ds.getUnits()));
 				dor.setRoute(Context.getConceptService().getConceptByName("UNKNOWN"));
-				dor.setStartDate(startDate);
+				dor.setDateActivated(startDate);
 				dor.setPatient(patient);
 				dor.setDateChanged(new Date());
 				dor.setCreator(Context.getAuthenticatedUser());

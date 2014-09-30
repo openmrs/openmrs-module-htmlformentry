@@ -81,7 +81,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.setParameter("w9", dateAsString(date));
 				//dosing type
-				request.setParameter("w17", "SIMPLE");
+				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
 				//dose
 				request.setParameter("w11", "1");
 				request.setParameter("w18", "51");
@@ -103,7 +103,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				
 				Drug drug = Context.getConceptService().getDrug(2);
 				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
+					hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 			
 			@Override
@@ -123,7 +123,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.setParameter("w9", dateAsString(date));
 				//dosing type
-				request.setParameter("w17", "SIMPLE");
+				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
 				//dose
 				request.setParameter("w11", "2");
 				request.setParameter("w18", "51");
@@ -146,14 +146,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				Drug drug = Context.getConceptService().getDrug(2);
 				assertThat(orders, contains(
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-						hasProperty("startDate", is(ymdToDate(dateAsString(date))))),
+						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)), 
 						hasProperty("action", is(Order.Action.REVISE)), hasProperty("dateStopped", is(ymdToDate(dateAsString(date))))), 
 					allOf(hasProperty("drug", is(drug)), 
-						hasProperty("startDate", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
+						hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
 					));
 			}
 		};
+        executeDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
 		//Test viewing edited drug order
@@ -212,7 +213,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.setParameter("w9", dateAsString(date));
 				//dosing type
-				request.setParameter("w17", "SIMPLE");
+				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
 				//dose
 				request.setParameter("w11", "1");
 				request.setParameter("w18", "51");
@@ -234,7 +235,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				
 				Drug drug = Context.getConceptService().getDrug(2);
 				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
+					hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 			
 			@Override
@@ -254,7 +255,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.setParameter("w9", dateAsString(date));
 				//dosing type
-				request.setParameter("w17", "SIMPLE");
+				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
 				//dose
 				request.setParameter("w11", "2");
 				request.setParameter("w18", "51");
@@ -274,15 +275,16 @@ protected final Log log = LogFactory.getLog(getClass());
 				Drug drug = Context.getConceptService().getDrug(2);
 				assertThat(orders, containsInAnyOrder(
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)), 
-					hasProperty("startDate", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.REVISE))),
+					hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.REVISE))),
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-						hasProperty("startDate", is(ymdToDate(dateAsString(date)))))
+						hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))
 					));
 			}
 		};
+        executeDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
-		//Test viewing edited drug order
+        //Test viewing edited drug order
 		new RegressionTestHelper() {
 			
 			@Override
@@ -342,7 +344,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.setParameter("w9", dateAsString(date));
 				//dosing type
-				request.setParameter("w17", "SIMPLE");
+				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
 				//dose
 				request.setParameter("w11", "1");
 				request.setParameter("w18", "51");
@@ -367,8 +369,8 @@ protected final Log log = LogFactory.getLog(getClass());
 				
 				Drug drug = Context.getConceptService().getDrug(2);
 				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("startDate", is(ymdToDate(dateAsString(date))))),
-					allOf(hasProperty("drug", is(drug)), hasProperty("action", is(Order.Action.DISCONTINUE)), hasProperty("startDate", is(ymdToDate(dateAsString(discontinueDate)))))));
+					hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+					allOf(hasProperty("drug", is(drug)), hasProperty("action", is(Order.Action.DISCONTINUE)), hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate)))))));
 			}
 			
 			@Override
@@ -388,7 +390,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.setParameter("w9", dateAsString(date));
 				//dosing type
-				request.setParameter("w17", "SIMPLE");
+				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
 				//dose
 				request.setParameter("w11", "2"); //changes to dose should not be persisted
 				request.setParameter("w18", "51");
@@ -411,11 +413,11 @@ protected final Log log = LogFactory.getLog(getClass());
 				Drug drug = Context.getConceptService().getDrug(2);
 				assertThat(orders, contains(
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-						hasProperty("startDate", is(ymdToDate(dateAsString(date))))),
+						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
 					allOf(hasProperty("drug", is(drug)), hasProperty("voided", is(true)), 
-						hasProperty("action", is(Order.Action.DISCONTINUE)), hasProperty("startDate", is(ymdToDate(dateAsString(discontinueDate))))), 
+						hasProperty("action", is(Order.Action.DISCONTINUE)), hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))),
 					allOf(hasProperty("drug", is(drug)), 
-						hasProperty("startDate", is(ymdToDate(dateAsString(newDiscontinueDate)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
+						hasProperty("dateActivated", is(ymdToDate(dateAsString(newDiscontinueDate)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
 					));
 			}
 		};
