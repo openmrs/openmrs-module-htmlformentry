@@ -280,7 +280,8 @@ protected final Log log = LogFactory.getLog(getClass());
 						hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))
 					));
 			}
-		};executeDataSet("otherConceptMappings.xml");
+		};
+        executeDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
         //Test viewing edited drug order
