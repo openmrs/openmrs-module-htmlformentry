@@ -11,11 +11,11 @@
 	<url>http://openmrs.org</url>
 
 	<scm>
-		<connection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</connection>
-		<developerConnection>scm:git:https://github.com/OpenMRS/openmrs-module-htmlformentry/</developerConnection>
-		<url>https://github.com/OpenMRS/openmrs-module-htmlformentry/</url>
-        <tag>HEAD</tag>
-    </scm>
+		<connection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</connection>
+		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</developerConnection>
+		<url>https://github.com/openmrs/openmrs-module-htmlformentry/</url>
+                <tag>HEAD</tag>
+        </scm>
 
 	<distributionManagement>
 		<repository>
