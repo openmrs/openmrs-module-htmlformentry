@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -42,6 +30,18 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -117,6 +117,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             }
             context.registerWidget(dateWidget);
             context.registerErrorWidget(dateWidget, dateErrorWidget);
+
+            if ("hidden".equals(parameters.get("widget"))) {
+                dateWidget.setHidden(true);
+                if (timeWidget != null) {
+                    timeWidget.setHidden(true);
+                }
+            }
         }
 
         // Register Provider widgets, if appropriate
@@ -565,7 +572,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 ret.append(dateErrorWidget.generateHtml(context));
         }
         if (timeWidget != null) {
-            ret.append("&#160;");
+            if (!timeWidget.isHidden() || (context.getMode() == Mode.VIEW)) {
+                ret.append("&#160;");
+            }
             ret.append(timeWidget.generateHtml(context));
             if (context.getMode() != Mode.VIEW)
                 ret.append(timeErrorWidget.generateHtml(context));

@@ -21,7 +21,8 @@ public class DateWidget implements Widget {
     private Date initialValue;
     private String onChangeFunction;
     private String dateFormat;
-    
+    private boolean hidden = false;
+
     public DateWidget() { }
 
     private SimpleDateFormat dateFormat() {
@@ -76,20 +77,29 @@ public class DateWidget implements Widget {
         } else {
             StringBuilder sb = new StringBuilder();
             String fieldName = context.getFieldName(this);
-            sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
-            sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
-            if (onChangeFunction != null)
-            	sb.append(" onChange=\"" + onChangeFunction + "\" ");
-            sb.append(" />");
-            
-            if ("true".equals(Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_SHOW_DATE_FORMAT))) {
-            	sb.append(" (" + dateFormat().toPattern().toLowerCase() + ")");
+            if (!hidden) {
+                sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
             }
-            
-            sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
-            if (initialValue != null)
-            	sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
-            sb.append(")</script>");
+            sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
+            if (onChangeFunction != null) {
+                sb.append(" onChange=\"" + onChangeFunction + "\" ");
+            }
+            if (hidden && initialValue != null) {
+                // set the value here, since it won't be set by the ui widget
+                sb.append(" value=\"" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "\"");
+            }
+            sb.append(" />");
+
+            if (!hidden) {
+                if ("true".equals(Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_SHOW_DATE_FORMAT))) {
+                    sb.append(" (" + dateFormat().toPattern().toLowerCase() + ")");
+                }
+
+                sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
+                if (initialValue != null)
+                    sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
+                sb.append(")</script>");
+            }
             return sb.toString();
         }
     }
@@ -119,4 +129,12 @@ public class DateWidget implements Widget {
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
 	}
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
 }
