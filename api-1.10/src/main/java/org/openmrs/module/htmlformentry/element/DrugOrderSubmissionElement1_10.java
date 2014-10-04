@@ -58,6 +58,10 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 	private ErrorWidget durationErrorWidget;
 	
 	private DropdownWidget durationUnitsWidget;
+
+    private NumberFieldWidget numRefillsWidget;
+
+    private ErrorWidget numRefillsErrorWidget;
 	
 	public DrugOrderSubmissionElement1_10(FormEntryContext context, Map<String, String> parameters) {
 		super(context, parameters);
@@ -80,6 +84,8 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		createRouteWidget(context);
 		
 		careSettingWidget = createCareSettingWidget(context, false);
+
+        createNumRefillsWidget(context);
 	}
 	
 	private void createDurationUnitsWidget(FormEntryContext context) {
@@ -127,10 +133,17 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		List<Option> options = new ArrayList<Option>();
         MessageSourceService mss = Context.getMessageSourceService();
         options.add(new Option(mss.getMessage("htmlformentry.drugOrder.dosingType.simple"), SimpleDosingInstructions.class.getName(), true));
-        options.add(new Option(mss.getMessage("htmlformentry.drugOrder.dosingType.freetext"), FreeTextDosingInstructions.class.getName(), false));
+        //options.add(new Option(mss.getMessage("htmlformentry.drugOrder.dosingType.freetext"), FreeTextDosingInstructions.class.getName(), false));
 		
 		setupDropdownWidget(context, dosingTypeWidget, options);
 	}
+
+    private void createNumRefillsWidget(FormEntryContext context){
+        numRefillsWidget = new NumberFieldWidget(0d, 9999999d, false);
+        context.registerWidget(numRefillsWidget);
+        numRefillsErrorWidget = new ErrorWidget();
+        context.registerErrorWidget(numRefillsWidget, numRefillsErrorWidget);
+    }
 	
 	@Override
 	protected String generateHtmlForAdditionalWidgets(FormEntryContext context) {
@@ -157,7 +170,9 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.route") + " ", routeWidget, null));
 		
 		html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.careSetting") + " ", careSettingWidget, null));
-		
+
+        html.append(generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.numRefills") + " ", numRefillsWidget, numRefillsErrorWidget));
+
 		return html.toString();
 	}
 	
@@ -295,6 +310,8 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 						dosingTypeWidget.setInitialValue(lastRevision.getDosingType().toString());
 						
 						doseWidget.setInitialValue(lastRevision.getDose());
+
+                        numRefillsWidget.setInitialValue(lastRevision.getNumRefills());
 						
 						if (lastRevision.getDoseUnits() != null) {
 							doseUnitsWidget.setInitialValue(lastRevision.getDoseUnits().getId());
@@ -372,6 +389,11 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		if (routeValue != null) {
 			orderTag.route = Context.getConceptService().getConcept(Integer.valueOf(routeValue));
 		}
+
+        Double refillsValue = numRefillsWidget.getValue(session.getContext(), submission);
+        if (refillsValue != null) {
+            orderTag.numRefills = refillsValue.intValue();
+        }
 	}
 	
 	@Override
@@ -396,6 +418,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
 		drugOrder.setFrequency(orderFrequency);
 		drugOrder.setDateActivated(orderTag.startDate);
+        drugOrder.setNumRefills(orderTag.numRefills);
 		//order duration:
 		if (orderTag.orderDuration != null)
 			drugOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
@@ -451,6 +474,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 			OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
 			revisedOrder.setFrequency(orderFrequency);
 			revisedOrder.setDateActivated(orderTag.startDate);
+            revisedOrder.setNumRefills(orderTag.numRefills);
 			if (orderTag.orderDuration != null)
 				revisedOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
 			if (!StringUtils.isEmpty(orderTag.instructions))
@@ -518,5 +542,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		public Concept route;
 		
 		public Integer careSettingId;
+
+        public Integer numRefills;
 	}
 }
