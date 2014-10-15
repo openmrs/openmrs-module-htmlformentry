@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptName;
 import org.openmrs.Drug;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -34,7 +35,6 @@ import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
-import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.obs.ComplexData;
@@ -213,7 +213,7 @@ public class HtmlFormEntryUtil {
 	 * @param concept concept associated with the Obs
 	 * @param value value associated with the Obs
 	 * @param datetime date/time associated with the Obs (may be null)
-	 * @param accessionNumber accession number associatd with the Obs (may be null)
+	 * @param accessionNumber accession number associated with the Obs (may be null)
 	 * @return the created Obs instance
 	 */
 	public static Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
@@ -239,6 +239,9 @@ public class HtmlFormEntryUtil {
             if (value instanceof Drug) {
                 obs.setValueDrug((Drug) value);
                 obs.setValueCoded(((Drug) value).getConcept());
+            } else if (value instanceof ConceptName) {
+                obs.setValueCodedName((ConceptName) value);
+                obs.setValueCoded(obs.getValueCodedName().getConcept());
             } else if (value instanceof Concept) {
 				obs.setValueCoded((Concept) value);
             } else {

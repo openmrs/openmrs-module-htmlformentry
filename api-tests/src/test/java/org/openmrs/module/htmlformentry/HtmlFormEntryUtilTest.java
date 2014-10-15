@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptName;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -32,7 +33,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
@@ -312,9 +315,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should find a concept by static constant", method = "getConcept(String)")
 	public void getConcept_shouldFindAConceptByStaticConstant() throws Exception {
-		Assert.assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_ID"), notNullValue());
-		Assert.assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_UUID"), notNullValue());
-		Assert.assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_MAPPING"), notNullValue());
+		assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_ID"), notNullValue());
+		assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_UUID"), notNullValue());
+		assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_MAPPING"), notNullValue());
 	}
 	
 	/**
@@ -1015,6 +1018,21 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 
     @Test
+    @Verifies(value="shouldSetValueCodedNameGivenAConceptName",method="createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+    public void createObs_shouldSetValueCodedNameGivenAConceptName() {
+        Concept answerConcept = new Concept();
+        ConceptName answer = new ConceptName("Answer", Context.getLocale());
+        answerConcept.addName(answer);
+
+        Concept question = new Concept();
+        question.setUuid(UUID.randomUUID().toString());
+        question.setDatatype(Context.getConceptService().getConceptDatatypeByName("Coded"));
+        Obs created = HtmlFormEntryUtil.createObs(question, answer, new Date(), "");
+        assertThat(created.getValueCodedName(), is(answerConcept.getPreferredName(Context.getLocale())));
+        assertThat(created.getValueCoded(), is(answerConcept));
+    }
+
+    @Test
     @Verifies(value="shouldReturnMetadataNameIfNoFormatterPresent", method="format(OpenmrsMetadata md, Locale locale)")
     public void sholdReturnMetadataNameIfNoFormatterPresent() {
 
@@ -1048,9 +1066,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 
 	@Test
 	public void evaluateStaticConstant_shouldReturnEvaluatedConstant() {
-		Assert.assertThat(HtmlFormEntryUtil.evaluateStaticConstant(
-				"org.openmrs.module.htmlformentry.HtmlFormEntryConstants.CONSTANT_YES"),
-				is((Object) HtmlFormEntryConstants.CONSTANT_YES));
+		assertThat(HtmlFormEntryUtil.evaluateStaticConstant(
+                        "org.openmrs.module.htmlformentry.HtmlFormEntryConstants.CONSTANT_YES"),
+                is((Object) HtmlFormEntryConstants.CONSTANT_YES));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
