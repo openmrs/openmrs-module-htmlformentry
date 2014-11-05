@@ -48,7 +48,7 @@
 	$j(document).ready(function() {
 		$j('#deleteButton').click(function() {
 			// display a "deleting form" message
-			$j('#confirmDeleteFormPopup').children("center").html('<spring:message code="htmlformentry.deletingForm"/>');
+			$j('#confirmDeleteFormPopup').children("center").html("<spring:message code='htmlformentry.deletingForm'/>");
 			
 			// do the post that does the actual delete
 			$j.post("<c:url value="/module/htmlformentry/deleteEncounter.form"/>", 
