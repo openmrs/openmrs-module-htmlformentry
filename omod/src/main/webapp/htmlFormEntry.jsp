@@ -106,7 +106,7 @@
 		$j(window).bind('beforeunload', function(){
 			var hasChangedInd = $j(':input.has-changed-ind').val();
 			if (hasChangedInd == 'true' && !isSubmittingInd && !isDiscardingInd) {
-				return '<spring:message code="htmlformentry.loseChangesWarning"/>';
+				return "<spring:message code='htmlformentry.loseChangesWarning'/>";
 			}
 		});
 
