@@ -267,7 +267,7 @@
 		<tr class="show-later">
 			<td valign="top"><spring:message code="htmlformentry.HtmlForm.html"/>:</td>
 			<td style="width:100%">
-				<spring:bind path="htmlForm.xmlData">
+				<spring:bind path="htmlForm.xmlData" htmlEscape="false">
 					<textarea id="xmlData" rows="20" style="width:100%" name="${status.expression}"><c:out value="${status.value}" escapeXml="true"/></textarea>
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
