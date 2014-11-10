@@ -1,0 +1,10 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	    <section headerLabel="2. Test Section">
+            <immunization vaccineConceptId="783AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" sequenceNumber="0" label="Polio" />
+            <immunization vaccineConceptId="886AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" sequenceNumber="1" label="Bacille" showDate="true" />
+        </section>
+	<submit/>
+</htmlform>
