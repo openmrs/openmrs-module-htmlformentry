@@ -121,6 +121,10 @@
                             <key><value>markPatientDead</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.MarkPatientDeadTagHandler"/>
                         </entry>
+                        <entry>
+                            <key><value>immunization</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.ImmunizationTagHandler"/>
+                        </entry>
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">
