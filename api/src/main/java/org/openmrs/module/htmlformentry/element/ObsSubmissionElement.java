@@ -42,6 +42,7 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.UploadWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.obs.ComplexData;
+import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.web.WebConstants;
@@ -55,6 +56,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -64,7 +66,9 @@ import java.util.Vector;
  * HtmlGeneratorElement and the FormSubmissionControllerAction for the Observation.
  */
 public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
-	
+
+    private Locale locale = Context.getLocale();
+
 	private String id;
 
     private String clazz;
@@ -137,18 +141,21 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
     private Boolean isLocationObs; // determines whether the valueText for this obs should be a location_id;
 
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
+        if (parameters.get("locale") != null) {
+            this.locale = LocaleUtility.fromSpecification(parameters.get("locale"));
+        }
 		String conceptId = parameters.get("conceptId");
 		String conceptIds = parameters.get("conceptIds");
 		defaultValue = parameters.get("defaultValue");
 		if (parameters.get("answerSeparator") != null) {
 			answerSeparator = parameters.get("answerSeparator");
         }
-		
+
 		if (conceptId != null && conceptIds != null)
 			throw new RuntimeException("You can't use conceptId and conceptIds in the same tag!");
 		else if (conceptId == null && conceptIds == null)
 			throw new RuntimeException("You must include either conceptId or conceptIds in an obs tag");
-		
+
 		if (conceptId != null) {
 			concept = HtmlFormEntryUtil.getConcept(conceptId);
 			if (concept == null)
@@ -168,7 +175,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				throw new IllegalArgumentException(
 				        "You must provide some valid conceptIds for the conceptIds attribute. Parameters: " + parameters);
 		}
-		
+
 		// test to make sure the answerConceptId, if it exists, is valid
 		String answerConceptId = parameters.get("answerConceptId");
 		if (StringUtils.isNotBlank(answerConceptId)) {
@@ -176,7 +183,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				throw new IllegalArgumentException("Cannot find concept for value " + answerConceptId
 				        + " in answerConceptId attribute value. Parameters: " + parameters);
 		}
-		
+
 		// test to make sure the answerConceptIds, if they exist, are valid
 		String answerConceptIds = parameters.get("answerConceptIds");
 		if (StringUtils.isNotBlank(answerConceptIds)) {
@@ -188,7 +195,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					        + " in answerConceptIds attribute value. Parameters: " + parameters);
 			}
 		}
-		
+
 		if ("true".equals(parameters.get("allowFutureDates")))
 			allowFutureDates = true;
 		if ("true".equals(parameters.get("required"))) {
@@ -216,7 +223,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
         return dropdownWidget;
     }
 	private void prepareWidgets(FormEntryContext context, Map<String, String> parameters) {
-		String userLocaleStr = Context.getLocale().toString();
+		String userLocaleStr = locale.toString();
 		try {
 			if (answerConcept == null)
 				answerConcept = HtmlFormEntryUtil.getConcept(parameters.get("answerConceptId"));
@@ -258,9 +265,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (parameters.containsKey("labelNameTag")) {
 			if (parameters.get("labelNameTag").equals("default"))
 				if (concepts != null)
-					valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
+					valueLabel = answerConcept.getBestName(locale).getName();
 				else
-					valueLabel = concept.getBestName(Context.getLocale()).getName();
+					valueLabel = concept.getBestName(locale).getName();
 			else
 				throw new IllegalArgumentException("Name tags other than 'default' not yet implemented");
 		} else if (parameters.containsKey("labelText")) {
@@ -269,7 +276,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			valueLabel = context.getTranslator().translate(userLocaleStr, parameters.get("labelCode"));
 		} else {
 			if (concepts != null)
-				valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
+				valueLabel = answerConcept.getBestName(locale).getName();
 			else
 				valueLabel = "";
 		}
@@ -304,7 +311,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (conceptLabels != null && i < conceptLabels.size()) {
 					label = conceptLabels.get(i);
 				} else {
-					label = c.getBestName(Context.getLocale()).getName();
+					label = c.getBestName(locale).getName();
 				}
 				((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(), false));
 			}
@@ -636,7 +643,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						if (answerCode != null) {
 							answerLabel = context.getTranslator().translate(userLocaleStr, answerCode);
 						} else {
-							answerLabel = answerConcept.getBestName(Context.getLocale()).getName();
+							answerLabel = answerConcept.getBestName(locale).getName();
 						}
 					}
 					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
@@ -726,7 +733,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							if (answerLabels != null && i < answerLabels.size()) {
 								label = answerLabels.get(i);
 							} else {
-								label = c.getBestName(Context.getLocale()).getName();
+								label = c.getBestName(locale).getName();
 							}
 							((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(),
 							        false));
@@ -1003,7 +1010,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 			ret.append("<span class=\"" + unitsCssClass + "\">");
             if (unitsCode != null) {
-                ret.append(context.getTranslator().translate(Context.getLocale().toString(), unitsCode));
+                ret.append(context.getTranslator().translate(locale.toString(), unitsCode));
             } else if (units != null) {
                 ret.append(units);
             }
@@ -1264,8 +1271,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		@Override
 		public int compare(Concept c1, Concept c2) {
-			String n1 = c1.getBestName(Context.getLocale()).getName();
-			String n2 = c2.getBestName(Context.getLocale()).getName();
+			String n1 = c1.getBestName(locale).getName();
+			String n2 = c2.getBestName(locale).getName();
 			return n1.compareTo(n2);
 		}
 	};
