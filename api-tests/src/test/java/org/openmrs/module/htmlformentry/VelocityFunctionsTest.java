@@ -20,6 +20,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -205,6 +206,13 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         assertThat(allObs.size(), is(1));
         assertThat(allObs.get(0).getValueNumeric(), is(55d));
         assertThat(functions.allObs(encounter, "3").size(), is(0));
+    }
+
+    @Test
+    public void testConstructLocale() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        Locale en = functions.locale("en");
+        assertThat(en, is(Locale.ENGLISH));
     }
 
 }

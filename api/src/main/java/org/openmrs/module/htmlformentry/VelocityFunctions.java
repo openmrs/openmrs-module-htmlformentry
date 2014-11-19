@@ -20,10 +20,12 @@ import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
 import org.openmrs.logic.result.EmptyResult;
 import org.openmrs.logic.result.Result;
+import org.openmrs.util.LocaleUtility;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 public class VelocityFunctions {
@@ -296,6 +298,13 @@ public class VelocityFunctions {
         return HtmlFormEntryUtil.getConcept(conceptCode);
     }
 
+    /**
+     * @param specification
+     * @return a java Locale object for the given String specification
+     */
+    public Locale locale(String specification) {
+        return LocaleUtility.fromSpecification(specification);
+    }
 
     /**
      * @param date
