@@ -1,13 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
+import org.openmrs.api.context.Context;
+import org.openmrs.util.LocaleUtility;
+
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.WordUtils;
-import org.openmrs.api.context.Context;
 
 /**
  * Encapsulates Translator functionality (see {@see HtmlFormEntryGenerator#applyTranslations(String, FormEntryContext)})
@@ -147,7 +148,7 @@ public class Translator {
 		Map<String, String> translations = getTranslations(localeStr);
 		String ret = translations.get(key);
 		if (StringUtils.isEmpty(ret)) {
-			ret = Context.getMessageSourceService().getMessage(key);
+			ret = Context.getMessageSourceService().getMessage(key, null, LocaleUtility.fromSpecification(localeStr));
 		}
 		return (ret == null ? key : ret);
 	}
