@@ -178,9 +178,11 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 			if (dateWidget != null) { 
 				Date date = dateWidget.getValue(context, submission);
 				
-				if (OpenmrsUtil.compare(date, new Date()) > 0) {
-					ret.add(new FormSubmissionError(dateWidget, Context.getMessageSourceService().getMessage(
-					    "htmlformentry.error.cannotBeInFuture")));
+				if (date != null) {
+					if (OpenmrsUtil.compare(date, new Date()) > 0) {
+						ret.add(new FormSubmissionError(dateWidget, Context.getMessageSourceService().getMessage(
+						    "htmlformentry.error.cannotBeInFuture")));
+					}
 				}
 			}
 		}
