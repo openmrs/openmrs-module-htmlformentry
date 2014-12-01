@@ -1,8 +1,18 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
@@ -13,14 +23,6 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.util.OpenmrsUtil;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Submission element for immunizations
@@ -170,8 +172,25 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 	 *      javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
-	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest httpServletRequest) {
-		return Collections.emptyList();
+	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+		try {
+			if (dateWidget != null) { 
+				Date date = dateWidget.getValue(context, submission);
+				
+				if (date != null) {
+					if (OpenmrsUtil.compare(date, new Date()) > 0) {
+						ret.add(new FormSubmissionError(dateWidget, Context.getMessageSourceService().getMessage(
+						    "htmlformentry.error.cannotBeInFuture")));
+					}
+				}
+			}
+		}
+		catch (Exception ex) {
+			ret.add(new FormSubmissionError(dateWidget, ex.getMessage()));
+		}
+		
+		return ret;
 	}
 	
 	/**

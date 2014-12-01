@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.openmrs.test.OpenmrsMatchers.hasId;
 
@@ -119,6 +120,53 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 				}
 				assertThat(immunizations, contains(hasId(783), hasId(886)));
 				assertThat(dates, contains(dateAsString(editedDate)));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testImmunizationTag_shouldNotAllowDateInFuture() throws Exception {
+		new RegressionTestHelper() {
+			
+			final Date date = new Date();
+						
+			@Override
+			public String getFormName() {
+				return "immunizationTestForm";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:" };
+				
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				//System.out.println(html);
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//w7 is the checkbox for Polio
+				request.addParameter("w7", "true");
+				
+				//w9 is the date for Bacille
+				Calendar futureDate = Calendar.getInstance();
+				futureDate.add(Calendar.DATE, 2);
+				request.addParameter("w9", dateAsString(futureDate.getTime()));
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(1);
+				
+				FormSubmissionError error = results.getValidationErrors().get(0);
+				assertThat(error.getError(), is("htmlformentry.error.cannotBeInFuture"));
+				
 			}
 		}.run();
 	}
