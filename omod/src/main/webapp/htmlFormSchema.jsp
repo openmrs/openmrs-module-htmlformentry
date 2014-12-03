@@ -126,6 +126,6 @@
 
 		<br>
 		<br>
-		<INPUT type="button" value='<spring:message code="htmlformentry.closeSchema' onClick="window.close()">
+		<INPUT type="button" value='<spring:message code="htmlformentry.closeSchema"/>' onClick="window.close()">
 	</body>
 </html>
