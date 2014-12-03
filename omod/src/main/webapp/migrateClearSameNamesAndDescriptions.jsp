@@ -8,28 +8,26 @@
 <h2><spring:message code="htmlformentry.migrateNamesAndDescriptions" /></h2>
 
 <div class="boxHeader">
-	Some HTML Forms can be automatically upgraded
+	<spring:message code="htmlformentry.migrate.autoUpgrade" />
 </div>
 <div class="box">
 	<form method="post" action="migrateNamesAndDescriptions.form">
 		<input type="hidden" name="migration" value="clearNamesAndDescriptions"/>
-		Since version 1.7 of HTML Form Entry, we do not support letting an HTML Form have
-		a different name or description from its underlying core Form.
+		<spring:message code="htmlformentry.migrate.differentNameNotSupported" />
 		<br/><br/>
-		You have some forms whose name and/or description exactly match those in their
-		underlying core Form.
+		<spring:message code="htmlformentry.migrate.someNamesMatch" />
 		<br/><br/>
-		<b><i>Continue to automatically upgrade the following:</i></b>
+		<b><i><spring:message code="htmlformentry.migrate.continueUpgrade" /></i></b>
 		<ul>
 			<c:forEach var="htmlForm" items="${sameName}">
 				<li>
-					Same name: ${htmlForm.name}
+					<spring:message code="htmlformentry.migrate.sameName" />: ${htmlForm.name}
 					<input type="hidden" name="clearName" value="${htmlForm.id}"/>
 				</li>
 			</c:forEach>
 			<c:forEach var="htmlForm" items="${sameDescription}">
 				<li>
-					Same description: ${htmlForm.description}
+					<spring:message code="htmlformentry.migrate.sameDescription" />: ${htmlForm.description}
 					<input type="hidden" name="clearDescription" value="${htmlForm.id}"/>
 				</li>
 			</c:forEach>

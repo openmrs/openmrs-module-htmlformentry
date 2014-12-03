@@ -17,8 +17,8 @@
 <br />
 <form method="get">
 	<b>
-		Located at: <input type="text" name="filePath" <c:if test="${isFileUpload == false}"> value="${filePath}"</c:if> size="40" />
-		<input type="submit" value="Preview"/>
+		<spring:message code="htmlformentry.locatedAt" />: <input type="text" name="filePath" <c:if test="${isFileUpload == false}"> value="${filePath}"</c:if> size="40" />
+		<input type="submit" value='<spring:message code="htmlformentry.form.preview" />'/>
 		<input type="hidden" name="isFileUpload" value="false" />
 	</b>
 </form>
@@ -31,7 +31,7 @@
 <form method="POST" enctype="multipart/form-data">
 	<b>
 		<input type="file" name="htmlFormFile" size="40" />
-		<input type="submit" value='Preview' />
+		<input type="submit" value='<spring:message code="htmlformentry.form.preview" />' />
 		<input type="hidden" name="isFileUpload" value="true" />
 	</b>
 </form>
@@ -43,7 +43,7 @@
 </c:if>
 
 <c:if test="${ not empty previewHtml }">
-	<input type="button" value="View Schema" onclick="document.location.href='htmlFormSchema.form?filePath=${filePath}';"/>
+	<input type="button" value='<spring:message code="htmlformentry.viewSchema" />' onclick="document.location.href='htmlFormSchema.form?filePath=${filePath}';"/>
 	<br/><br/>
 </c:if>
 <hr/>

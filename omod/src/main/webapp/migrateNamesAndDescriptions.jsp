@@ -13,18 +13,15 @@
 	</c:when>
 	<c:otherwise>
 		<div class="boxHeader">
-			You have HTML forms that need Name/Description migration
+			<spring:message code="htmlformentry.migrate.manualUpgrade" />
 		</div>
 		<div class="box">
 			<form method="post">
 				<input type="hidden" name="migration" value="namesAndDescriptions"/>
-				Before version 1.7 of HTML Form Entry you were allowed to give an HTML Form
-				a name and description that differed from those of its underlying Form. This
-				is no longer supported.
+				<spring:message code="htmlformentry.migrate.differentNameNoLongerSupported" />
 				<br/>
 				<br/>
-				<b><i>For each of the following forms, pick which name and description you want
-				to use going forwards:</i></b>
+				<b><i><spring:message code="htmlformentry.migrate.pickNames" />:</i></b>
 				<c:forEach var="htmlForm" items="${migrationNeeded}" varStatus="status">
 					<div class='${status.index % 2 == 0 ? "evenRow" : "oddRow"}'>
 						<br/>
@@ -44,21 +41,21 @@
 						<c:if test="${htmlForm.deprecatedName != null}">
 							<br/>
 							<input type="radio" name="name.${htmlForm.id}" value="html"/>
-							Use the HTML Form name <i>${htmlForm.deprecatedName}</i>
+							<spring:message code="htmlformentry.migrate.useHtmlFormName" /> <i>${htmlForm.deprecatedName}</i>
 							<br/>
 							<input type="radio" name="name.${htmlForm.id}" value="form"/>
-							Use the underlying Form name <i>${htmlForm.form.name}</i>
+							<spring:message code="htmlformentry.migrate.useUnderlyingFormName" /> <i>${htmlForm.form.name}</i>
 							<br/>
 						</c:if>
 
 						<c:if test="${htmlForm.deprecatedDescription != null}">
 							<br/>
 							<input type="radio" name="description.${htmlForm.id}" value="html"/>
-							Use the HTML Form description:<br/>
+							<spring:message code="htmlformentry.migrate.useHtmlFormDescription" />:<br/>
 							<i>${htmlForm.deprecatedDescription}</i>
 							<br/>
 							<input type="radio" name="description.${htmlForm.id}" value="form"/>
-							Use the underlying Form description:<br/>
+							<spring:message code="htmlformentry.migrate.useUnderlyingFormDescription" />:<br/>
 							<i>${htmlForm.form.description}</i>
 						</c:if>
 						<br/>

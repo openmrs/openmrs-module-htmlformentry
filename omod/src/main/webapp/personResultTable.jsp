@@ -20,7 +20,8 @@ $j('#personTable').load('load', function() {
         	null
     	],
 		"oLanguage": {
-				"sLengthMenu": 'Show <select><option value="15">15</option><option value="30">30</option><option value="50">50</option><option value="100">100</option></select> entries',
+				<c:set var="selectEl" value="<select><option value='15'>15</option><option value='30'>30</option><option value='50'>50</option><option value='100'>100</option></select>" />
+				"sLengthMenu": "<spring:message code="htmlformentry.showEntries" arguments="${selectEl}" />",
 				"sZeroRecords": '<spring:message code="htmlformentry.nopatientsfound"/>'
 		}
 	} );
