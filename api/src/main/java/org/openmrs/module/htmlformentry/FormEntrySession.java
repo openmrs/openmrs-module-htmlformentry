@@ -30,14 +30,14 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -160,6 +160,7 @@ public class FormEntrySession {
         velocityContext.put("session", this);
         velocityContext.put("context", context);
         velocityContext.put("formGeneratedDatetime", new Date());
+        velocityContext.put("visit", context.getVisit());
 
         {
             Map<String, List<String>> identifiers = new HashMap<String, List<String>>();
