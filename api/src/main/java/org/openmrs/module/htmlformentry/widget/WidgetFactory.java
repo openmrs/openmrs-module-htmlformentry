@@ -147,8 +147,8 @@ public class WidgetFactory {
 				if (ImageHandler.class.isAssignableFrom(Class.forName(AbstractHandler.class.getPackage().getName() + "."
 				        + complex.getHandler()))) {
 					String imgTag = "<img src='" + hyperlink + "' class=\"complexImage\" />";
-					return "<a href=\"" + hyperlink + "\">" + imgTag + "</a><br/><a href=\"" + getDownloadHyperlink(obs)
-					        + "\">" + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.download")
+					return "<a href=\"" + hyperlink + "\" target=\"_blank\">" + imgTag + "</a><br/><a href=\"" + getDownloadHyperlink(obs)
+					        + "\" target=\"_blank\">" + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.download")
 					        + "</a>";
 				}
 			}
@@ -157,9 +157,9 @@ public class WidgetFactory {
 		
 		File file = AbstractHandler.getComplexDataFile(obs);
 		String fileName = file.getName();
-		String value = "<p class=\"value\">" + fileName + "<br/><a href=\"" + hyperlink + "\">"
+		String value = "<p class=\"value\">" + fileName + "<br/><a href=\"" + hyperlink + "\" target=\"_blank\">"
 		        + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.view") + "</a> | <a href=\""
-		        + getDownloadHyperlink(obs) + "\">"
+		        + getDownloadHyperlink(obs) + "\" target=\"_blank\">"
 		        + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.download") + "</a></p>";
 		return "<span>" + value + "</span>";
 	}
