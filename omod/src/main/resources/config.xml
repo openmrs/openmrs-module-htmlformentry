@@ -66,6 +66,20 @@
 			datePickerYearsRange parameter can be  set here Eg:'110,20' meaning that the possible years that appear in the datepicker dropdown range from  20 years past the current year, and 110 years prior to the current year.
 		</description>
 	</globalProperty>
+	<globalProperty>
+		<property>htmlformentry.archiveDir</property>
+		<defaultValue>htmlformentry/archive/%Y/%m</defaultValue>
+		<description>
+			Used to specify the directory used to serialize data as a blob submitted via html forms before propagation to the database.
+			If a relative is specified then the directory is created in the default application data directory otherwise the absolute
+			path is used.The %Y and %M are replaced with 4 digit year and 2 digit month respectively. If this property is empty nothing then nothing is saved.
+		</description>
+	</globalProperty>
+	<globalProperty>
+		<property>htmlformentry.archiveHtmlForms</property>
+		<defaultValue>False</defaultValue>
+		<description>Set to True if you want to archive the submitted html forms and False otherwise</description>
+	</globalProperty>
 	<!-- /Required Global Properties -->
 	
 	<dwr>

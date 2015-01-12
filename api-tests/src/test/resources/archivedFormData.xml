@@ -1,0 +1,384 @@
+<org.openmrs.module.htmlformentry.SerializableFormObject>
+    <patientIdentifier>101-6</patientIdentifier>
+    <patientUuid>da7f524f-27ce-4bb2-86d6-6d1d05312bd5</patientUuid>
+    <encounterUuid></encounterUuid>
+    <parameterMap>
+        <entry>
+            <string>returnUrl</string>
+            <string-array>
+                <string></string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w12</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w15</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w14</string>
+            <string-array>
+                <string>600</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w17</string>
+            <string-array>
+                <string>450</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>htmlFormId</string>
+            <string-array>
+                <string>5</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w18</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w11</string>
+            <string-array>
+                <string>8</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>formModifiedTimestamp</string>
+            <string-array>
+                <string>1423645969000</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w32</string>
+            <string-array>
+                <string>1118</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w33</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>patientId</string>
+            <string-array>
+                <string>2</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w30</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w9</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>formId</string>
+            <string-array>
+                <string>1</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w8</string>
+            <string-array>
+                <string>200</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>personId</string>
+            <string-array>
+                <string>2</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>encounterModifiedTimestamp</string>
+            <string-array>
+                <string>0</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w36</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w35</string>
+            <string-array>
+                <string>580</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w26</string>
+            <string-array>
+                <string>2302</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w24</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w23</string>
+            <string-array>
+                <string>664</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w29</string>
+            <string-array>
+                <string>3.5</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w27</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w3</string>
+            <string-array>
+                <string>3</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w5</string>
+            <string-array>
+                <string>1</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w21</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w20</string>
+            <string-array>
+                <string>1138</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>w1</string>
+            <string-array>
+                <string>2015-02-01</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>hasChangedInd</string>
+            <string-array>
+                <string>true</string>
+            </string-array>
+        </entry>
+        <entry>
+            <string>closeAfterSubmission</string>
+            <string-array>
+                <string></string>
+            </string-array>
+        </entry>
+    </parameterMap>
+    <xmlDefinition>&lt;htmlform&gt;&#xd;
+        &lt;!-- Autogenerated example form  (template from 01-Nov-2010 --&gt;&#xd;
+        &lt;head&gt;&#xd;
+        &lt;!-- 1. A Script to Handle Add/remove problem list --&gt;&#xd;
+        &lt;script type=&quot;text/javascript&quot;&gt;&#xd;
+        if(jQuery){&#xd;
+        $j(document).ready(function(){&#xd;
+        $j(&apos;#1-removeEntry&apos;).remove();&#xd;
+        $j(&apos;#10-addEntry&apos;).remove();&#xd;
+        $j(&apos;#1-toggleContainer&apos;).show();&#xd;
+        &#xd;
+        $j(&apos;#11-removeEntry&apos;).remove();&#xd;
+        $j(&apos;#20-addEntry&apos;).remove();&#xd;
+        $j(&apos;#11-toggleContainer&apos;).show();&#xd;
+        &#xd;
+        $j(&apos;#21-removeEntry&apos;).remove();&#xd;
+        $j(&apos;#30-addEntry&apos;).remove();&#xd;
+        $j(&apos;#21-toggleContainer&apos;).show();&#xd;
+        });&#xd;
+        &#xd;
+        $j(document).ready(function(){&#xd;
+        $j(&apos;button.addEntry&apos;).live(&quot;click&quot;, function(){&#xd;
+        var correctedAddButtonId = parseFloat(this.id) + 1;&#xd;
+        var contentAddId = &quot;#&quot; + correctedAddButtonId + &quot;-toggleContainer&quot;;&#xd;
+        $j(contentAddId).toggle(true);&#xd;
+        $j(&apos;#&apos; + this.id).toggle(false); $j(&apos;#&apos; + parseFloat(this.id) + &apos;-removeEntry&apos;).toggle(false);&#xd;
+        return false;});&#xd;
+        });&#xd;
+        &#xd;
+        $j(document).ready(function(){&#xd;
+        $j(&apos;button.removeEntry&apos;).live(&quot;click&quot;, function(){&#xd;
+        var correctedRemoveButtonId = parseFloat(this.id) - 1;&#xd;
+        var contentAddId = &quot;#&quot; + parseFloat(this.id) + &quot;-toggleContainer&quot;;&#xd;
+        $j(contentAddId).toggle(false);&#xd;
+        $j( &apos;:input:not(:button)&apos;, contentAddId).val([]);&#xd;
+        $j(&apos;#&apos; + correctedRemoveButtonId + &apos;-addEntry&apos;).toggle(true); $j(&apos;#&apos; + correctedRemoveButtonId + &apos;-removeEntry&apos;).toggle(true);&#xd;
+        &#xd;
+        return false;});&#xd;
+        &#xd;
+        });&#xd;
+        }&#xd;
+        &lt;/script&gt;&#xd;
+        &#xd;
+        &lt;!-- 2. A Script to Handle Add/remove Drugs --&gt;&#xd;
+        &lt;script type=&quot;text/javascript&quot;&gt;&#xd;
+        if(jQuery){&#xd;
+        $j(document).ready(function(){&#xd;
+        $j(&apos;#1-removeDrug&apos;).remove();&#xd;
+        $j(&apos;#10-addDrug&apos;).remove();&#xd;
+        $j(&apos;#1-toggleDrug&apos;).show();&#xd;
+        &#xd;
+        });&#xd;
+        &#xd;
+        $j(document).ready(function(){&#xd;
+        $j(&apos;button.addDrug&apos;).live(&quot;click&quot;, function(){&#xd;
+        var addDrugButtonId = parseFloat(this.id) + 1;&#xd;
+        var addDrugId = &quot;#&quot; + addDrugButtonId + &quot;-toggleDrug&quot;;&#xd;
+        $j(addDrugId).toggle(true);&#xd;
+        $j(&apos;#&apos; + this.id).toggle(false); $j(&apos;#&apos; + parseFloat(this.id) + &apos;-removeDrug&apos;).toggle(false);&#xd;
+        return false;});&#xd;
+        });&#xd;
+        &#xd;
+        $j(document).ready(function(){&#xd;
+        $j(&apos;button.removeDrug&apos;).live(&quot;click&quot;, function(){&#xd;
+        var removeDrugButtonId = parseFloat(this.id) - 1;&#xd;
+        var addDrugId = &quot;#&quot; + parseFloat(this.id) + &quot;-toggleDrug&quot;;&#xd;
+        $j(addDrugId).toggle(false);&#xd;
+        $j( &apos;:input:not(:button)&apos;, addDrugId).val([]);&#xd;
+        $j(&apos;#&apos; + removeDrugButtonId + &apos;-addDrug&apos;).toggle(true); $j(&apos;#&apos; + removeDrugButtonId + &apos;-removeDrug&apos;).toggle(true);&#xd;
+        &#xd;
+        return false;});&#xd;
+        &#xd;
+        });&#xd;
+        }&#xd;
+        &lt;/script&gt;&#xd;
+        &#xd;
+        &lt;/head&gt;&#xd;
+        &lt;macros&gt;&#xd;
+        headerColor =#009d8e&#xd;
+        fontOnHeaderColor = white&#xd;
+        &lt;/macros&gt;&#xd;
+        &#xd;
+        &lt;style type=&quot;text/css&quot; media=&quot;screen&quot;&gt;table.viaform {&#xd;
+        border-collapse: collapse;&#xd;
+        margin: 10px;&#xd;
+        }&#xd;
+        table.viaform, table.viaform th, table.viaform td {&#xd;
+        border: 1px solid black;&#xd;
+        }&#xd;
+        table.viaform td {&#xd;
+        padding: 2px;&#xd;
+        vertical-align:top;&#xd;
+        }&#xd;
+        table.viaform ul {&#xd;
+        list-style-type: none;&#xd;
+        padding-left: 0px;&#xd;
+        margin-top: 0px;&#xd;
+        }&#xd;
+        h4 {&#xd;
+        display: inline;&#xd;
+        font-weight: bold;&#xd;
+        }&#xd;
+        table.layout {&#xd;
+        width: 130%;&#xd;
+        border-collapse: collapse;&#xd;
+        border: 0px;&#xd;
+        margin: 0px;&#xd;
+        }&#xd;
+        table.layout tbody {&#xd;
+        border: 0px;&#xd;
+        margin: 0px;&#xd;
+        }&#xd;
+        table.layout th, table.layout td {&#xd;
+        border: 0px;&#xd;
+        margin: 0px;&#xd;
+        padding: 0px;&#xd;
+        }&#xd;
+        .unsupported {&#xd;
+        background: #EEEEEE;&#xd;
+        }&#xd;
+        .value {&#xd;
+        color: black;&#xd;
+        }&#xd;
+        &#xd;
+        table.quartercolumns td {&#xd;
+        width: 25%;&#xd;
+        }&#xd;
+        &lt;/style&gt;&#xd;
+        &#xd;
+        &#xd;
+        &#xd;
+        &lt;div style=&quot;margin:0px; width:1000px;&quot;&gt;&#xd;
+        &#xd;
+        Date: &lt;encounterDate/&gt;&#xd;
+        Location: &lt;encounterLocation/&gt;&#xd;
+        Provider: &lt;encounterProvider role=&quot;Provider&quot;/&gt;&#xd;
+        &lt;table class=&quot;viaform&quot; width=&quot;130%&quot;&gt;&#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td colspan=&quot;4&quot;&gt;&lt;h4&gt;Test Results: (Please record date sample  was drawn, rather than date test was run)&lt;/h4&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td width=&quot;26%&quot;&gt;&lt;h5&gt;Test&lt;/h5&gt;&lt;/td&gt;&#xd;
+        &lt;td width=&quot;30%&quot;&gt;&lt;h5&gt;Result&lt;/h5&gt;&lt;/td&gt;&#xd;
+        &lt;td width=&quot;26%&quot;&gt;&lt;h5&gt;Test&lt;/h5&gt;&lt;/td&gt;&#xd;
+        &lt;td width=&quot;30%&quot;&gt;&lt;h5&gt;Result&lt;/h5&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td&gt;Platelets/mm3&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;   &#xd;
+        &lt;td&gt;Hgb g/dL&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;2&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td&gt;Creatinine mmol/L&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;WBC/mm3&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td&gt;Sputum Gene xpert&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;VDRL&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td&gt;Sputum  AFB Smear&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;ALC/ mm3&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &#xd;
+        &lt;tr&gt;&#xd;
+        &lt;td&gt;Sputum  Culture&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;CD4&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;/tr&gt;&#xd;
+        &lt;/table&gt;	&#xd;
+        &lt;submit/&gt;&#xd;
+        &lt;/div&gt;&#xd;
+        &lt;/htmlform&gt;</xmlDefinition>
+    <htmlFormId>1</htmlFormId>
+</org.openmrs.module.htmlformentry.SerializableFormObject>
