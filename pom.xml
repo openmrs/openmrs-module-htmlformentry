@@ -112,8 +112,13 @@
                 <artifactId>joda-convert</artifactId>
                 <version>1.2</version>
             </dependency>
-            
-            <!-- We want to use the same versions of test libraries regardless of OpenMRS version -->
+			<dependency>
+				<groupId>net.anotheria</groupId>
+				<artifactId>ano-web</artifactId>
+				<version>2.1.0</version>
+			</dependency>
+
+			<!-- We want to use the same versions of test libraries regardless of OpenMRS version -->
             <dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -198,6 +203,7 @@
 					<version>2.11</version>
 					<configuration>
 						<failIfNoTests>false</failIfNoTests>
+						<forkMode>never</forkMode>
 					</configuration>
 				</plugin>
 				<plugin>

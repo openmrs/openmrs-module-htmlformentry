@@ -1,13 +1,20 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openmrs.Encounter;
+import org.openmrs.Patient;
+import org.openmrs.api.APIException;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
+import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
-import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
 
 /**
  * Encapsulates how to validate and submit a form.
@@ -20,6 +27,8 @@ public class FormSubmissionController {
     private transient List<FormSubmissionError> lastSubmissionErrors;
     private transient HttpServletRequest lastSubmission;
     private RepeatControllerAction repeat = null;
+
+    private static Log log = LogFactory.getLog(FormSubmissionController.class);
     
     public FormSubmissionController() {
     }
@@ -84,10 +93,40 @@ public class FormSubmissionController {
      * @param session the Form Entry Session
      * @param submission
      */
-    public void handleFormSubmission(FormEntrySession session, HttpServletRequest submission) {
+    public void handleFormSubmission(FormEntrySession session, HttpServletRequest submission) throws Exception{
         lastSubmission = submission;
-        for (FormSubmissionControllerAction element : actions) {
-            element.handleSubmission(session, submission);
+        //Serialize when opted in.
+        String optedIn = Context.getAdministrationService().getGlobalProperty("htmlformentry.archiveHtmlForms","No");
+        if(Boolean.parseBoolean(optedIn)) {
+            //Try to serialize
+            try {
+                Patient patient = session.getPatient();
+                Encounter encounter = session.getEncounter();
+                SerializableFormObject formObject = null;
+                if (patient != null && encounter != null) {
+                    formObject = new SerializableFormObject(session.getXmlDefinition(),
+                            submission.getParameterMap(), patient.getPatientIdentifier().getIdentifier(),
+                            patient.getUuid(), encounter.getUuid(),session.getHtmlFormId());
+                } else if(patient==null || encounter==null) {
+                    if(log.isDebugEnabled()) log.debug("Either patient or encounter or both are null");
+
+                    //Serialize anyway
+                    formObject = new SerializableFormObject(session.getXmlDefinition(), submission.getParameterMap(),
+                                    session.getHtmlFormId());
+                }
+                if (formObject != null) {
+                    serializeFormData(formObject);
+                }
+            } finally {
+                //Submit even when you are not able to serialize.
+                for (FormSubmissionControllerAction element : actions) {
+                    element.handleSubmission(session, submission);
+                }
+            }
+        } else {  //Just submit
+            for (FormSubmissionControllerAction element : actions) {
+                element.handleSubmission(session, submission);
+            }
         }
     }
     
@@ -118,5 +157,38 @@ public class FormSubmissionController {
     public List<FormSubmissionControllerAction> getActions() {
                return actions;
     }
-    
+
+    /**
+     * Serializes an object formed by pairing the HttpServletRequest & FormEntrySession objects necessary for form
+     * submission
+     * @param submittedData  SerializableFormObject
+     * @throws Exception
+     */
+    protected void serializeFormData(final SerializableFormObject submittedData) throws Exception {
+        //Get archive Directory
+        String path = HtmlFormEntryUtil.getArchiveDirPath();
+
+        //Ignore if no path specified
+        if(path==null)return;
+
+        File   file = new File(path);
+        if(file.exists()) {
+            if(!file.isDirectory()) {
+                throw new APIException("The specified archive is not a directory, please use a proper directory");
+            }
+            //Proceed if it is a directory
+            if(!file.canWrite()) {
+                throw new APIException("The Archive directory is not writable, check the directory permissions");
+            }
+        }else{
+            //Try to create the directory if it does not exist.
+            if(!file.mkdirs()) {
+                throw new APIException("Failed to create subdirectories. Make sure you have proper write " +
+                        "permission set on the archive directory");
+            }
+        }
+
+        //Things are fine at this point
+        submittedData.serializeToXml(path);
+    }
 }

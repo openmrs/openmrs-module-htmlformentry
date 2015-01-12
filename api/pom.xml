@@ -70,6 +70,20 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
         </dependency>
+		<dependency>
+			<groupId>net.anotheria</groupId>
+			<artifactId>ano-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>ano-maf</artifactId>
+                    <groupId>net.anotheria</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jdom</artifactId>
+                    <groupId>org.jdom</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 	</dependencies>
 
 	<build>
