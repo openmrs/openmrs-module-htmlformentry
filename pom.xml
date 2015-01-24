@@ -198,6 +198,7 @@
 					<version>2.11</version>
 					<configuration>
 						<failIfNoTests>false</failIfNoTests>
+						<forkMode>never</forkMode>
 					</configuration>
 				</plugin>
 				<plugin>

@@ -1090,4 +1090,7 @@ public class FormEntrySession {
         this.afterSaveUrlTemplate = afterSaveUrlTemplate;
     }
 
+    public String getXmlDefinition() {
+        return xmlDefinition;
+    }
 }
