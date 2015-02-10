@@ -77,8 +77,8 @@
 	</globalProperty>
 	<globalProperty>
 		<property>htmlformentry.archiveHtmlForms</property>
-		<defaultValue>No</defaultValue>
-		<description>Set to Yes if you want to archive the submitted html forms and No otherwise</description>
+		<defaultValue>False</defaultValue>
+		<description>Set to True if you want to archive the submitted html forms and False otherwise</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->
 	

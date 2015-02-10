@@ -1,14 +1,4 @@
 package org.openmrs.module.htmlformentry;
-
-import org.openmrs.Encounter;
-import org.openmrs.Patient;
-
-import javax.servlet.http.Cookie;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
 /**
  * The contents of this file are subject to the OpenMRS Public License
  * Version 1.0 (the "License"); you may not use this file except in
@@ -23,6 +13,18 @@ import java.util.Map;
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
+import net.anotheria.webutils.servlet.request.HttpServletRequestMockImpl;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.serialization.OpenmrsSerializer;
+import org.openmrs.serialization.SimpleXStreamSerializer;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+
 public class SerializableFormObject implements Serializable{
     private static final long serialVersionUID = 1L;
 
@@ -32,6 +34,13 @@ public class SerializableFormObject implements Serializable{
     private Map<String,String[]> parameterMap;
     private String xmlDefinition;
 
+    private class InnerHttpServletRequestMock extends HttpServletRequestMockImpl{
+        InnerHttpServletRequestMock(Map<String,String[]> parameterMap){
+            super();
+            this.getParameterMap().clear();
+            this.getParameterMap().putAll(parameterMap);
+        }
+    }
 
     public SerializableFormObject() {
     }
@@ -94,9 +103,90 @@ public class SerializableFormObject implements Serializable{
         this.patientIdentifier = patientIdentifier;
     }
 
+    /**
+     * This method returns a FormEntrySession object using data in the instance object
+     * @return FormEntrySession object
+     * @throws Exception
+     */
+    private FormEntrySession createSession() throws Exception {
+        //TODO: Check for null patientUuid and try to parse the xml to obtain the patient ID instead.
+        Patient patient = Context.getPatientService().getPatientByUuid(getPatientUuid());
+        return new FormEntrySession(patient,getXmlDefinition(),null);
+    }
+
+    /**
+     *
+     * @return
+     */
+    private HttpServletRequest createHttpServletRequestFromSerializableFormObject() throws Exception{
+        if(getParameterMap()==null) {
+            throw new Exception("Could not create Request without parameters");
+        }
+        HttpServletRequest request = new InnerHttpServletRequestMock(getParameterMap());
+        return request;
+    }
+
     public String getFileName() {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd.HH.mm.ss");
         String filename =  patientUuid + "-" + df.format(new Date());
         return filename;
+    }
+
+    /**
+     *
+     * @param directoryPath
+     * @throws Exception
+     */
+    public void serializeToXml(String directoryPath) throws Exception {
+        String filename;
+        if(directoryPath.endsWith(File.separator)) {
+            filename = directoryPath.concat(getFileName());
+        } else {
+            filename = directoryPath.concat(File.separator + getFileName());
+        }
+
+        //Use OpenMRS simpleXStreamSerializer
+        OpenmrsSerializer serializer = Context.getSerializationService().getSerializer(SimpleXStreamSerializer.class);
+
+        String xmlEquivalent = serializer.serialize(this);
+
+        BufferedWriter bw = null;
+        try {
+            bw = new BufferedWriter(new FileWriter(filename+".xml"));
+            bw.write(xmlEquivalent);
+        }finally {
+            if(bw != null) bw.close();
+        }
+    }
+    /**
+     * Given path of the file this method tries to deserialize the contents of the file into SerializableFormObject
+     * @param path path to file (including the filename)
+     * @return  equivalent SerializableFormObject representation
+     * @throws Exception
+     */
+    public static SerializableFormObject deserializeXml(String path) throws Exception {
+        //TODO:Check for existence of folder
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(path)) ;
+            char[] buffer = new char[1024];
+            StringBuilder xmlSb = new StringBuilder();
+            int lengthRead;
+            while((lengthRead=br.read(buffer))!=-1) {
+                xmlSb.append(buffer,0,lengthRead);
+            }
+
+            OpenmrsSerializer serializer = Context.getSerializationService().getSerializer(SimpleXStreamSerializer.class);
+
+            return serializer.deserialize(xmlSb.toString(),SerializableFormObject.class);
+        }finally {
+            br.close();
+        }
+    }
+
+    public boolean handleSubmission() {
+        //TODO: Use the private createSession and CreateHttpServletRequest to reprocess the form here.
+        //Create the FormEntrySession and submit.
+        return true;
     }
 }

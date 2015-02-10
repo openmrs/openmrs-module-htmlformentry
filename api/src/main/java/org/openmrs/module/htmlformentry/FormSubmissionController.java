@@ -1,22 +1,18 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.APIException;
-import org.openmrs.api.SerializationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.RepeatControllerAction;
-import org.openmrs.serialization.OpenmrsSerializer;
-import org.openmrs.serialization.SimpleXStreamSerializer;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Encapsulates how to validate and submit a form.
@@ -97,7 +93,7 @@ public class FormSubmissionController {
         lastSubmission = submission;
         //Serialize when opted in.
         String optedIn = Context.getAdministrationService().getGlobalProperty("htmlformentry.archiveHtmlForms","No");
-        if(OpenmrsUtil.nullSafeEqualsIgnoreCase("Yes",optedIn)) {
+        if(Boolean.parseBoolean(optedIn)) {
             //Try to serialize
             try {
                 Patient patient = session.getPatient();
@@ -184,35 +180,7 @@ public class FormSubmissionController {
             }
         }
 
-        //Create the file name
-        String filename;
-        if(path.endsWith(File.separator)) {
-            filename = path.concat(submittedData.getFileName());
-        } else {
-            filename = path.concat(File.separator+submittedData.getFileName());
-        }
-
-//        ObjectOutputStream oos = null;
-//        try { //Try to serialize.
-//            oos = new ObjectOutputStream(new FileOutputStream(filename));
-//            oos.writeObject(submittedData);
-//        }finally{
-//            if(oos != null) oos.close();
-//        }
-
-        //Use OpenMRS simpleXStreamSerializer
-        SerializationService ss = Context.getSerializationService();
-        OpenmrsSerializer serializer = ss.getSerializer(SimpleXStreamSerializer.class);
-
-        String xmlEquivalent = serializer.serialize(submittedData);
-
-        BufferedWriter bw = null;
-        try {
-            bw = new BufferedWriter(new FileWriter(filename+".xml"));
-            bw.write(xmlEquivalent);
-        }finally {
-            if(bw != null) bw.close();
-        }
+        //Things are fine at this point
+        submittedData.serializeToXml(path);
     }
-    
 }
