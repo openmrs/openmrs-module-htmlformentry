@@ -12,3 +12,5 @@ omod/target/*
 /.settings
 *.iml
 *.idea
+*.ipr
+*.iws
