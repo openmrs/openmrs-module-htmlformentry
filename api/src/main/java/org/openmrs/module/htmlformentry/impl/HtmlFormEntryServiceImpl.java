@@ -23,7 +23,11 @@ import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.htmlformentry.*;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -306,23 +310,4 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 		//either pass or fail together. See TRUNK-3572
 		session.applyActions();
 	}
-
-	@Override
-	public void reprocessArchivedForm(String argument,boolean isPath) throws Exception {
-        SerializableFormObject formObject;
-		if(isPath) {
-             formObject = SerializableFormObject.deserializeXml(argument);
-        } else {
-             formObject = SerializableFormObject.deserializeXml(argument,false);
-        }
-		formObject.handleSubmission();
-
-		//Save data to database
-		HtmlFormEntryUtil.getService().applyActions(formObject.getSession());
-	}
-
-    @Override
-    public void reprocessArchivedForm(String path) throws Exception {
-        reprocessArchivedForm(path,true);
-    }
 }

@@ -1090,16 +1090,4 @@ public class FormEntrySession {
         this.afterSaveUrlTemplate = afterSaveUrlTemplate;
     }
 
-    public String getXmlDefinition() {
-        return xmlDefinition;
-    }
-
-    public void setForm(Form form) {
-        this.form = form;
-    }
-
-    public void setHtmlForm(HtmlForm htmlForm) {
-        this.htmlForm = htmlForm;
-        if(form != null) this.htmlForm.setForm(form);
-    }
 }

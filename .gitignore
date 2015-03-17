@@ -1,7 +1,6 @@
 .classpath
 .project
 .settings/*
-target/*
 api/.classpath
 api/.project
 api/.settings/*
@@ -13,5 +12,3 @@ omod/target/*
 /.settings
 *.iml
 *.idea
-*.ipr
-*.iws

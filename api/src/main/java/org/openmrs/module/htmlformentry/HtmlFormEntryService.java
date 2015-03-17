@@ -174,14 +174,4 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	
 	@Transactional
 	public void applyActions(FormEntrySession session) throws BadFormDesignException;
-
-    /**
-     * This takes an archived Form Data and attempt to reprocess it.
-     * @param argument is either a file path or a the content of the file
-     * @param isPath  when set to true means the first argument is file path.
-     * @throws Exception
-     */
-    public void reprocessArchivedForm(String argument,boolean isPath) throws Exception;
-
-    public void reprocessArchivedForm(String path) throws Exception;
 }
