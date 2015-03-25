@@ -1,17 +1,22 @@
 package org.openmrs.module.htmlformentry;
 
 
+import java.io.File;
 import java.util.Date;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.User;
+import org.openmrs.api.EncounterService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
+import org.openmrs.util.OpenmrsClassLoader;
+import org.openmrs.util.OpenmrsUtil;
 
 public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 
@@ -81,6 +86,27 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
         Assert.assertNull(ps.getFamilyName());
         Assert.assertNotNull(ps.getId());
  
+    }
+
+    @Test
+    @Verifies(value = "Should save archived form to the database", method = "reprocessArchivedForm")
+    public void reprocessArchivedForm_shouldProcessForm() throws Exception {
+        EncounterService encService = Context.getEncounterService();
+
+        String path = OpenmrsClassLoader.getInstance().getResource("archivedFormData.xml").getPath();
+        System.out.println("Path: "+path);
+
+        //Get the SerializableFormObject
+        SerializableFormObject formObject = SerializableFormObject.deserializeXml(path);
+        Assert.assertEquals("da7f524f-27ce-4bb2-86d6-6d1d05312bd5",formObject.getPatientUuid());
+
+        Patient patient = Context.getPatientService().getPatientByUuid("da7f524f-27ce-4bb2-86d6-6d1d05312bd5");
+
+        int noEnc = encService.getEncountersByPatient(patient).size();
+        service.reprocessArchivedForm(path);
+        int newNoEnc = encService.getEncountersByPatient(patient).size();
+
+        Assert.assertEquals(noEnc+1,newNoEnc);
     }
 	
 }

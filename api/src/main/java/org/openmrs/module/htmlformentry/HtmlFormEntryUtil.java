@@ -45,6 +45,7 @@ import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
 import org.openmrs.propertyeditor.UserEditor;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.w3c.dom.Document;
@@ -62,6 +63,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -70,18 +72,7 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * HTML Form Entry utility methods
@@ -1843,5 +1834,45 @@ public class HtmlFormEntryUtil {
 
         return actualExpression[0];
     }
+
+	/**
+	 * Read the global property htmlformentry.archiveDir and return the correct path
+	 * @return String representation of archive directory path
+	 * @should return null if htmlformentry.archiveDir is not defined
+	 * @should replace %Y with a four digit year value
+	 * @should replace %M with a 2 digit month value
+	 * @should prepend the application data if specified value is not absolute.
+	 */
+	public static String getArchiveDirPath() {
+		String value = Context.getAdministrationService().getGlobalProperty("htmlformentry.archiveDir");
+		if(value != null && org.springframework.util.StringUtils.hasLength(value)) {
+
+			//Replace %Y and %M if any
+			Date today = new Date();
+			GregorianCalendar gCal = new GregorianCalendar();
+			value = value.replace("%Y", String.valueOf(gCal.get(Calendar.YEAR)));
+			value = value.replace("%y",String.valueOf(gCal.get(Calendar.YEAR)));
+
+
+			int month = gCal.get(Calendar.MONTH);
+			month++;
+			if(month<10) {
+				value = value.replace("%M","0"+month);
+				value = value.replace("%m","0"+month);
+			}
+			else {
+				value = value.replace("%M",String.valueOf(month));
+				value = value.replace("%m",String.valueOf(month));
+			}
+
+			//Check if not absolute concatenate with application directory
+			File path = new File(value);
+			if(!path.isAbsolute()) {
+				 return OpenmrsUtil.getApplicationDataDirectory() + File.separator + value;
+			}
+			return value;
+		}
+		return null;
+	}
 
 }
