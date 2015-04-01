@@ -53,6 +53,13 @@
 		</description>
 	</globalProperty>
 	<globalProperty>
+		<property>htmlformentry.timeFormat</property>
+		<defaultValue>HH:mm</defaultValue>
+		<description>
+			Always display times in HTML Forms in this (Java) date format. E.g. "HH:mm" for 14:45.
+		</description>
+	</globalProperty>
+	<globalProperty>
 		<property>htmlformentry.showDateFormat</property>
 		<defaultValue>true</defaultValue>
 		<description>

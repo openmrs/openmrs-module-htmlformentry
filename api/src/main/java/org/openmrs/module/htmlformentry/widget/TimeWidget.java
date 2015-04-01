@@ -1,11 +1,13 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -16,12 +18,23 @@ import java.util.Date;
  */
 public class TimeWidget implements Widget {
 
+    public static final String DEFAULT_TIME_FORMAT = "HH:mm";
+
 	private Date initialValue;
     private boolean hidden;
+    private String timeFormat;
 
 	public TimeWidget() {
 
 	}
+
+    private SimpleDateFormat timeFormat() {
+        String df = timeFormat != null ? timeFormat : Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIME_FORMAT);
+        if (!StringUtils.hasText(df)) {
+            df = DEFAULT_TIME_FORMAT;
+        }
+        return new SimpleDateFormat(df, Context.getLocale());
+    }
 
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
@@ -31,8 +44,7 @@ public class TimeWidget implements Widget {
 		if (context.getMode() == Mode.VIEW) {
 			String toPrint = "";
 			if (initialValue != null) {
-				DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-				toPrint = timeFormat.format(initialValue);
+				toPrint = timeFormat().format(initialValue);
 				return WidgetFactory.displayValue(toPrint);
 			} else {
 				toPrint = "___:___:___";
@@ -151,5 +163,9 @@ public class TimeWidget implements Widget {
 
     public boolean isHidden() {
         return hidden;
+    }
+
+    public void setTimeFormat(String timeFormat) {
+        this.timeFormat = timeFormat;
     }
 }
