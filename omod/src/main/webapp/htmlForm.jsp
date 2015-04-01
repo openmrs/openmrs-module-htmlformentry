@@ -7,9 +7,9 @@
 <%@ include file="/WEB-INF/template/header.jsp"%>
 <%@ include file="localHeader.jsp" %>
 
-<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.css" />
-<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
-<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.min.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.9.2.custom.min.css" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.8.3.min.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.9.2.custom.min.js" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/handlebars.min.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
 

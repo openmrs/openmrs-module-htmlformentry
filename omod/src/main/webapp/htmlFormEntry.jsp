@@ -18,12 +18,12 @@
 	<openmrs:htmlInclude file="/dwr/engine.js" />
 	<openmrs:htmlInclude file="/dwr/util.js" />
 	<openmrs:htmlInclude file="/dwr/interface/DWRHtmlFormEntryService.js" />
-    <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.css" />
-    <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.4.2.min.js" />
+    <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.9.2.custom.min.css" />
+    <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.8.3.min.js" />
     <script type="text/javascript">
         $j = jQuery.noConflict();
     </script>
-    <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.8.17.custom.min.js" />
+    <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.9.2.custom.min.js" />
     <openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
     <openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlForm.js" />
