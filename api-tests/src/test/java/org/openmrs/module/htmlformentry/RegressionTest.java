@@ -17,15 +17,11 @@ import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -2133,6 +2129,44 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
+
+    @Test
+    public void testRedisplayNumericObsWithSpecificAnswers() throws Exception {
+        final Date date = new Date();
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsFormWithSpecificAnswers";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:", "CD4 COUNT:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(date));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+                request.addParameter(widgets.get("CD4 COUNT:"), "400");
+            }
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertContains("<option value=\"400\" selected=\"true\">400</option>", html);
+            }
+
+
+
+        }.run();
+    }
 	
 	// util method used by previous unit test
 	private BufferedImage createImage() {

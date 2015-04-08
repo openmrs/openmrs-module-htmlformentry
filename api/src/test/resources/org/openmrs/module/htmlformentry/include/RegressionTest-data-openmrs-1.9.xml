@@ -314,4 +314,11 @@
   <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
   <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
 
+   <!-- test data for non-precise numeric datatype concept -->
+    <concept concept_id="5497" retired="false" datatype_id="1" class_id="1" is_set="false" creator="1" date_created="2004-08-12 00:00:00.0" version="0.1" changed_by="1" date_changed="2006-06-09 14:57:33.0" uuid="a09ab2c5-878e-4905-b25d-5784167d0216"/>
+    <concept_name concept_id="5497" name="CD4 COUNT" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" concept_name_id="1847" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="6e77e374-18a1-4ec6-8ed4-4152a5a7d6a1"/>
+    <concept_numeric concept_id="5497" hi_normal="1497.0" low_critical="99.0" low_normal="445.0" hi_critical="1800.0" hi_absolute="2500.0" low_absolute="0.0" units="cells/mmL" precise="false"/>
+    <concept_description concept_description_id="2" concept_id="5497" description="Measure of CD4 (T-helper cells) in blood" locale="en" creator="1" date_created="2004-08-12 00:00:00.0" uuid="2677cc71-0580-4d91-b18f-0a63a1840aa0"/>
+
+
 </dataset>

@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+    CD4 COUNT: <obs conceptId="5497" style="dropdown" size="3" answerLabels="400,500" answers="400,500" />
+	<submit/>
+</htmlform>

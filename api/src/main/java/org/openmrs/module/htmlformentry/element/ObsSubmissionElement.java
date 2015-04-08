@@ -47,7 +47,6 @@ import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.web.WebConstants;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,6 +59,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -336,6 +336,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			String defaultDatetimeFormat = "yyyy-MM-dd-HH-mm";
 
 			if (concept.getDatatype().isNumeric()) {
+
+                ConceptNumeric cn;
+                if (concept instanceof ConceptNumeric) {
+                    cn = (ConceptNumeric) concept;
+                } else {
+                    cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
+                }
+
+                boolean isPrecise = cn != null ? cn.isPrecise() : true;
+
 				if (parameters.get("answers") != null) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answers"), ", "); st.hasMoreTokens();) {
@@ -348,12 +358,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						        + ex.toString() + "): " + conceptAnswers);
 					}
 				}
-				ConceptNumeric cn;
-                if (concept instanceof ConceptNumeric) {
-                    cn = (ConceptNumeric) concept;
-                } else {
-                    cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
-                }
+
 				// added to avoid creating this widget when a checkbox is needed
                 if (numericAnswers.size() == 0) {
                     if (!"checkbox".equals(parameters.get("style"))) {
@@ -367,7 +372,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                                 numericAnswers.add(number);
                                 answerLabel = parameters.get("answerLabel");
                                 if (number != null) {
-                                    valueWidget = new CheckboxWidget(answerLabel, number.toString());
+                                    valueWidget = new CheckboxWidget(answerLabel, isPrecise ? number.toString() : Integer.valueOf(number.intValue()).toString());
                                 }
 
                             } catch (Exception ex) {
@@ -397,17 +402,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						} else {
 							label = n.toString();
 						}
-						((SingleOptionWidget) valueWidget).addOption(new Option(label, n.toString(), false));
+						((SingleOptionWidget) valueWidget).addOption(new Option(label, isPrecise ?  n.toString() : Integer.valueOf(n.intValue()).toString(), false));
 					}
 					// if lookFor is still non-null, we need to add it directly as
 					// an option:
 					if (lookFor != null)
 						((SingleOptionWidget) valueWidget)
-						        .addOption(new Option(lookFor.toString(), lookFor.toString(), true));
+						        .addOption(new Option(lookFor.toString(), isPrecise ?  lookFor.toString() : Integer.valueOf(lookFor.intValue()).toString(), true));
 				}
 
 				if (valueWidget != null) {
-					boolean isPrecise = cn != null ? cn.isPrecise() : true; // test data is missing concept numerics
 					Number initialValue = null;
 
 					if (existingObs != null && existingObs.getValueNumeric() != null) {
