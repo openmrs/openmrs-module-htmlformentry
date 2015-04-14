@@ -11,6 +11,7 @@ import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
+import org.openmrs.GlobalProperty;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
@@ -215,4 +216,33 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         assertThat(en, is(Locale.ENGLISH));
     }
 
+    @Test
+    public void globalProperty_shouldReturnGlobalPropertyValue() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        setGlobalProperty("testGpName", "testGpValue");
+        assertThat("testGpValue", is(functions.globalProperty("testGpName")));
+    }
+
+    @Test
+    public void globalProperty_shouldReturnGlobalPropertyValueIfSet() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        setGlobalProperty("testGpName", "testGpValue");
+        assertThat("testGpValue", is(functions.globalProperty("testGpName", "")));
+    }
+
+    @Test
+    public void globalProperty_shouldReturnDefaultValueIfGlobalPropertyNotSet() throws Exception {
+        VelocityFunctions functions = setupFunctionsForPatient(7);
+        setGlobalProperty("testGpName", "");
+        assertThat("testGpDefault", is(functions.globalProperty("testGpName", "testGpDefault")));
+    }
+
+    private void setGlobalProperty(String name, String value) {
+        GlobalProperty gp = Context.getAdministrationService().getGlobalPropertyObject(name);
+        if (gp == null) {
+            gp = new GlobalProperty(name);
+        }
+        gp.setPropertyValue(value);
+        Context.getAdministrationService().saveGlobalProperty(gp);
+    }
 }

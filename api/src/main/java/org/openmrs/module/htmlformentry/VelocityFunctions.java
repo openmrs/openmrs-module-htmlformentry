@@ -13,6 +13,7 @@ import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
+import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
@@ -34,6 +35,7 @@ public class VelocityFunctions {
 	private ObsService obsService;
 	private LogicService logicService;
 	private ProgramWorkflowService programWorkflowService;
+	private AdministrationService administrationService;
 	
 	public VelocityFunctions(FormEntrySession session) {
 		this.session = session;
@@ -55,6 +57,12 @@ public class VelocityFunctions {
 		if (programWorkflowService == null)
 			programWorkflowService = Context.getProgramWorkflowService();
 		return programWorkflowService;
+	}
+
+	private AdministrationService getAdministrationService() {
+		if (administrationService == null)
+			administrationService = Context.getAdministrationService();
+		return administrationService;
 	}
 	
 	private void cannotBePreviewed() {
@@ -324,6 +332,25 @@ public class VelocityFunctions {
     public String message(String code) {
         return session.getContext().getTranslator().translate(Context.getLocale().toString(), code);
     }
+
+	/**
+	 * Retrieves a global property value by name
+	 * @param propertyName
+	 * @return the value of the global property with the given name, or an empty string if not configured
+	 */
+	public String globalProperty(String propertyName) {
+		return getAdministrationService().getGlobalProperty(propertyName, "");
+	}
+
+	/**
+	 * Retrieves a global property value by name
+	 * @param propertyName
+	 * @param defaultValue
+	 * @return the value of the global property with the given name, or the default value if not configured
+	 */
+	public String globalProperty(String propertyName, String defaultValue) {
+		return getAdministrationService().getGlobalProperty(propertyName, defaultValue);
+	}
 
     /**
      * Returns an arbitrary obs if there are multiple matches
