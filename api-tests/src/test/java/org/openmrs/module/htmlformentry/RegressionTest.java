@@ -1028,7 +1028,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
 
-		String result = generator.applyMacros(sb.toString()).trim();
+		String result = generator.applyMacros(null, sb.toString()).trim();
 		Assert.assertEquals("<htmlform>You can count like 1, 2, 3</htmlform>", result);
 	}
 
