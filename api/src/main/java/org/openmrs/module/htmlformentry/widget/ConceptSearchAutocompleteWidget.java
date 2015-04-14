@@ -63,8 +63,7 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 				toPrint = initialValue.getDisplayString();
 				return WidgetFactory.displayValue(toPrint);
 			} else {
-				toPrint = "_______________";
-				return WidgetFactory.displayEmptyValue(toPrint);
+				return WidgetFactory.displayDefaultEmptyValue();
 			}
 		} else {
 			sb.append("<input type=\"text\"  id=\""

@@ -129,6 +129,10 @@ public class WidgetFactory {
         value = value.replace("\n", "<br/>");
         return "<span class=\"emptyValue\">" + value + "</span>";
     }
+
+    public static String displayDefaultEmptyValue() {
+        return displayEmptyValue("_______________");
+    }
     
     /**
 	 * Returns the HTML to display the complex value. If the value is an image it is displayed by

@@ -41,8 +41,7 @@ public class DropdownWidget extends SingleOptionWidget {
                     toPrint = getInitialValue();
                 return WidgetFactory.displayValue(toPrint);
             } else {
-                toPrint = "____";
-                return WidgetFactory.displayEmptyValue(toPrint);
+                return WidgetFactory.displayDefaultEmptyValue();
             }
         } else {
             String id = context.getFieldName(this);

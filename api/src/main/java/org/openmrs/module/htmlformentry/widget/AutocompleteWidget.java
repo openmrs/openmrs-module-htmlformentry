@@ -52,8 +52,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
                 }
                 return WidgetFactory.displayValue(toPrint);
             } else {
-                toPrint = "____";
-                return WidgetFactory.displayEmptyValue(toPrint);
+                return WidgetFactory.displayDefaultEmptyValue();
             }
         }else {
             StringBuilder sb = new StringBuilder();

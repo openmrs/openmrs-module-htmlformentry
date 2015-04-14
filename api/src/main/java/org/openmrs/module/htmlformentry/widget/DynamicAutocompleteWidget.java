@@ -68,8 +68,7 @@ public class DynamicAutocompleteWidget implements Widget {
 				}
 				return WidgetFactory.displayValue(toPrint);
 			} else {
-				toPrint = "_______________";
-				return WidgetFactory.displayEmptyValue(toPrint);
+				return WidgetFactory.displayDefaultEmptyValue();
 			}
 		} else {
 			sb.append("<input name=\"" + context.getFieldName(this) + "_hid" + "\" id=\"" + context.getFieldName(this)

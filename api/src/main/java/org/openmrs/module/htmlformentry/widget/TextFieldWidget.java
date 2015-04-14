@@ -88,8 +88,7 @@ public class TextFieldWidget implements Widget {
                         toPrint += "\n";
                     return WidgetFactory.displayValue(toPrint);
                 } else {
-                    toPrint = "_______________";
-                    return WidgetFactory.displayEmptyValue(toPrint);
+                    return WidgetFactory.displayDefaultEmptyValue();
                 }
             }
         } else {
