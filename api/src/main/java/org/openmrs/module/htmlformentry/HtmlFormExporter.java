@@ -89,7 +89,7 @@ public class HtmlFormExporter {
 		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
 		
 		try {
-			xml = generator.applyMacros(null, xml);
+			xml = generator.applyMacros(xml);
 			xml = generator.applyRepeats(xml);
 		}
 		catch (Exception e) {

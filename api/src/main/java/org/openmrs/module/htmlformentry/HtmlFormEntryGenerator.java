@@ -34,6 +34,16 @@ import org.w3c.dom.NodeList;
 public class HtmlFormEntryGenerator implements TagHandler {
 
     /**
+     * @see #applyMacros(FormEntrySession, String)
+     * This method simply delegates to the applyMacros(FormEntrySession, String) method with a null formentry session.
+     * This is retained for backwards-compatibility, with the limitation that it does not support velocity expressions
+     * as macro values
+     */
+    public String applyMacros(String xml) throws Exception {
+        return applyMacros(null, xml);
+    }
+
+    /**
      * Takes an XML string, finds the {@code <macros></macros>} section in it, and applies those
      * substitutions
      * <p/>
@@ -79,7 +89,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
         String macrosText = macrosNode.getTextContent();
         if (macrosText != null) {
             macros.load(new ByteArrayInputStream(macrosText.getBytes()));
-            //macros.load(new StringReader(macrosText));
         }
 
         // Another way to define macros is as child tags to the macros node.
@@ -118,7 +127,6 @@ public class HtmlFormEntryGenerator implements TagHandler {
         for (Object temp : macros.keySet()) {
             String key = (String) temp;
             String value = macros.getProperty(key, "");
-
             xml = xml.replace("$" + key, value);
         }
 
