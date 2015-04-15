@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Role;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
@@ -31,6 +32,16 @@ import org.w3c.dom.NodeList;
  * and replace tags like {@code <obs/>}.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
+
+    /**
+     * @see #applyMacros(FormEntrySession, String)
+     * This method simply delegates to the applyMacros(FormEntrySession, String) method with a null formentry session.
+     * This is retained for backwards-compatibility, with the limitation that it does not support velocity expressions
+     * as macro values
+     */
+    public String applyMacros(String xml) throws Exception {
+        return applyMacros(null, xml);
+    }
 
     /**
      * Takes an XML string, finds the {@code <macros></macros>} section in it, and applies those
@@ -63,21 +74,47 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @return the xml string with after macro substitution
      * @throws Exception
      */
-    public String applyMacros(String xml) throws Exception {
+    public String applyMacros(FormEntrySession session, String xml) throws Exception {
         Document doc = HtmlFormEntryUtil.stringToDocument(xml);
         Node content = HtmlFormEntryUtil.findChild(doc, "htmlform");
         Node macrosNode = HtmlFormEntryUtil.findChild(content, "macros");
 
         // if there are no macros defined, we just return the original xml unchanged
-        if (macrosNode == null)
+        if (macrosNode == null) {
             return xml;
+        }
 
-        // otherwise get its contents
+        // One way to define macros is simply as the text content of the macros node.  This is left for backwards compatibility
         Properties macros = new Properties();
         String macrosText = macrosNode.getTextContent();
         if (macrosText != null) {
             macros.load(new ByteArrayInputStream(macrosText.getBytes()));
-            //macros.load(new StringReader(macrosText));
+        }
+
+        // Another way to define macros is as child tags to the macros node.
+        NodeList children = macrosNode.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node node = children.item(i);
+            if ("macro".equals(node.getNodeName())) {
+                String key = HtmlFormEntryUtil.getNodeAttribute(node, "key", "");
+                if (StringUtils.isBlank(key)) {
+                    throw new IllegalArgumentException("Macros must define a 'key' attribute");
+                }
+                String value = HtmlFormEntryUtil.getNodeAttribute(node, "value", "");
+                if (StringUtils.isBlank(value)) {
+                    String expression = HtmlFormEntryUtil.getNodeAttribute(node, "expression", "");
+                    if (StringUtils.isBlank(expression)) {
+                        throw new IllegalArgumentException("Macros must define either a 'value' or 'expression' attribute");
+                    }
+                    if (session != null) {
+                        value = session.evaluateVelocityExpression("$!{" + expression + "}");
+                    }
+                    else {
+                        value = expression;
+                    }
+                }
+                macros.put(key, value);
+            }
         }
 
         // now remove the macros node

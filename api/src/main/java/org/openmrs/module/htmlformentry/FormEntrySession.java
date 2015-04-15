@@ -404,7 +404,7 @@ public class FormEntrySession {
         xml = htmlGenerator.stripComments(xml);
         xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
         xml = htmlGenerator.applyRoleRestrictions(xml);
-        xml = htmlGenerator.applyMacros(xml);
+        xml = htmlGenerator.applyMacros(this, xml);
         xml = htmlGenerator.applyRepeats(xml);
         xml = htmlGenerator.applyTranslations(xml, context);
         xml = htmlGenerator.applyTags(this, xml);

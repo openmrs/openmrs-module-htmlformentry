@@ -30,10 +30,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
         patient = Context.getPatientService().getPatient(2);
 	}
-	
-	/**
-	 * @see {@link HtmlFormEntryGenerator#applyExcludes(FormEntrySession,String)}
-	 */
+
 	@Test
 	@Verifies(value = "should return correct xml after apply excludeIf tag", method = "applyExcludes(FormEntrySession,String)")
 	public void applyExcludes_shouldReturnCorrectXmlAfterApplyExcludeIfTag() throws Exception {
@@ -42,10 +39,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a woman</div>", session.getHtmlToDisplay());
 	}
-	
-	/**
-	 * @see {@link HtmlFormEntryGenerator#applyIncludes(FormEntrySession,String)}
-	 */
+
 	@Test
 	@Verifies(value = "should return correct xml after apply include tag", method = "applyIncludes(FormEntrySession,String)")
 	public void applyIncludes_shouldReturnCorrectXmlAfterApplyIncludeTag() throws Exception {
@@ -232,11 +226,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         Assert.assertEquals("<div class=\"htmlform\"><div class=\"section\"></div></div>", session.getHtmlToDisplay());
     }
-    
-    /**
-     * @see {@link HtmlFormEntryGenerator#doStartTag(FormEntrySession,PrintWriter,Node,Node)}
-     * @see {@link HtmlFormEntryGenerator#doEndTag(FormEntrySession,PrintWriter,Node,Node)}
-     */
+
     @Test
     @Verifies(value = "should close br tags", method = "doStartTag(FormEntrySession,PrintWriter,Node,Node)")
     public void doStartTag_shouldCloseBrTags() throws Exception {
@@ -251,9 +241,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
     
     /**
      * Similar to doStartTag test, but with capitalized BR tags.
-     * 
-     * @see {@link HtmlFormEntryGenerator#doStartTag(FormEntrySession,PrintWriter,Node,Node)}
-     * @see {@link HtmlFormEntryGenerator#doEndTag(FormEntrySession,PrintWriter,Node,Node)}
      */
     @Test
     @Verifies(value = "should skip br tags", method = "doEndTag(FormEntrySession,PrintWriter,Node,Node)")
@@ -266,5 +253,28 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         Assert.assertTrue("<span> and other tags can be open", html.contains("<span></span>"));
         Assert.assertTrue("<h1> and other tags can be open", html.contains("<h1></h1>"));
     }
-    
+
+    @Test
+    public void applyMacros_shouldApplyMacrosDefinedAsTextContent() throws Exception {
+        String htmlform = "<htmlform><macros>color=blue\nshape=circle</macros>$color $shape</htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        String html = session.getHtmlToDisplay();
+        Assert.assertEquals("<div class=\"htmlform\">blue circle</div>", html);
+    }
+
+    @Test
+    public void applyMacros_shouldApplyMacrosDefinedAsChildNodes() throws Exception {
+        String htmlform = "<htmlform><macros><macro key=\"color\" value=\"blue\"/><macro key=\"shape\" value=\"circle\"/></macros>$color $shape</htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        String html = session.getHtmlToDisplay();
+        Assert.assertEquals("<div class=\"htmlform\">blue circle</div>", html);
+    }
+
+    @Test
+    public void applyMacros_shouldApplyMacrosDefinedAsChildNodesWithExpressions() throws Exception {
+        String htmlform = "<htmlform><macros><macro key=\"loc\" expression=\"fn.locale('fr_FR').getDisplayName()\"/></macros>$loc</htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+        String html = session.getHtmlToDisplay();
+        Assert.assertEquals("<div class=\"htmlform\">French (France)</div>", html);
+    }
 }
