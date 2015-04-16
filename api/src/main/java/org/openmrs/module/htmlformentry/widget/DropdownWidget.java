@@ -47,6 +47,9 @@ public class DropdownWidget extends SingleOptionWidget {
             String id = context.getFieldName(this);
             sb.append("<select id=\"" + id + "\" name=\"" + id +"\"");
             if(size !=null){
+                if (size == 999) {
+                    size = getOptions().size()+1; // Add one to make sure all elements show up without scrollbar
+                }
                 sb.append(" size=").append("\"" + size.intValue() + "\"");
             }
             sb.append(">");
