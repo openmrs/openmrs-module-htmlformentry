@@ -45,7 +45,6 @@ import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.validator.PatientIdentifierValidator;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,6 +54,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Holds the widgets used to represent Patient Details, and serves as both the
@@ -512,7 +512,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			String identifierValue = (String) identifierTypeValueWidget.getValue(context, request);
 			if(StringUtils.hasText(identifierValue)){
 				try {
-					validateIdentifier(Integer.valueOf(identifierTypeId), identifierValue);
+					validateIdentifier(Integer.getInteger(identifierTypeId), identifierValue);
 				}
 				catch (Exception e) {
 					ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
