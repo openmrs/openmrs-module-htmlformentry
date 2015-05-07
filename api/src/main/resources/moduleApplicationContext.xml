@@ -12,7 +12,7 @@
             <bean class="org.openmrs.module.htmlformentry.impl.HtmlFormEntryServiceImpl">
                 <property name="dao">
                     <bean class="org.openmrs.module.htmlformentry.db.hibernate.HibernateHtmlFormEntryDAO">
-                        <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+                        <property name="sessionFactory"><ref bean="dbSessionFactory"/></property>
                     </bean>
                 </property>
                 <property name="handlers">

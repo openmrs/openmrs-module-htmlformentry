@@ -148,7 +148,7 @@ protected final Log log = LogFactory.getLog(getClass());
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
 						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
 					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)), 
-						hasProperty("action", is(Order.Action.REVISE)), hasProperty("dateStopped", is(ymdToDate(dateAsString(date))))), 
+						hasProperty("action", is(Order.Action.REVISE))), 
 					allOf(hasProperty("drug", is(drug)), 
 						hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
 					));

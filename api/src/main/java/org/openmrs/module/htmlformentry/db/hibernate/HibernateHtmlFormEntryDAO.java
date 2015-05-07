@@ -14,6 +14,7 @@ import org.hibernate.transform.Transformers;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.api.db.hibernate.DbSessionFactory;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
@@ -25,9 +26,9 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 
 	private static Log log = LogFactory.getLog(HibernateHtmlFormEntryDAO.class);
 	
-    private SessionFactory sessionFactory;
+    private DbSessionFactory sessionFactory;
     
-    public void setSessionFactory(SessionFactory sessionFactory) {
+    public void setSessionFactory(DbSessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
     
@@ -113,7 +114,7 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 	 @Override
     public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
     	 try {
-	    	 String idProperty = sessionFactory.getClassMetadata(type).getIdentifierPropertyName();
+	    	 String idProperty = sessionFactory.getHibernateSessionFactory().getClassMetadata(type).getIdentifierPropertyName();
 		 	 Criteria criteria = sessionFactory.getCurrentSession().createCriteria(type);
 		 	 criteria.add(Expression.eq(idProperty, id));
 		 	 OpenmrsObject result = (OpenmrsObject) criteria.uniqueResult();
