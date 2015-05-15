@@ -103,11 +103,15 @@ public class HtmlFormController {
 		if (htmlForm.getId() == null && StringUtils.isBlank(htmlForm.getXmlData())) {
 			htmlForm.setXmlData(service.getStartingFormXml(htmlForm));
 		}
-		new HtmlFormValidator().validate(htmlForm, result);
+		HtmlFormValidator validator = new HtmlFormValidator();
+		validator.validate(htmlForm, result);
+		if (validator.getHtmlFormWarnings().size() > 0) {
+			request.setAttribute("tagWarnings", validator.getHtmlFormWarnings(), WebRequest.SCOPE_SESSION);
+		}
 		if (result.hasErrors()) {
 			return null;
 		} else {
-	        htmlForm = service.saveHtmlForm(htmlForm);
+	        htmlForm = service.saveHtmlForm(htmlForm);	        
 	        request.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Saved " + htmlForm.getForm().getName() + " " + htmlForm.getForm().getVersion(), WebRequest.SCOPE_SESSION);
 			return "redirect:htmlForm.form?id=" + htmlForm.getId();
 		}

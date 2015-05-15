@@ -1,13 +1,22 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.module.htmlformentry.handler.TagAnalysis;
+import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.handler.TagValidator;
 import org.openmrs.validator.FormValidator;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * Spring validator for an HTML Form object.
@@ -16,6 +25,12 @@ public class HtmlFormValidator implements Validator {
 
 	protected final Log log = LogFactory.getLog(getClass());
 	
+	private List<String> htmlFormWarnings = new ArrayList<String>();
+
+	public List<String> getHtmlFormWarnings() {
+		return htmlFormWarnings;
+	}
+
 	/** 
      * Tests whether the validator supports the specified class
      */
@@ -54,10 +69,47 @@ public class HtmlFormValidator implements Validator {
 						 throw new FormEntryException("encounterType tag is not allowed for a form that is already associated to encounter type");
 					}
 				}
+                HtmlFormEntryGenerator htmlGenerator = new HtmlFormEntryGenerator();
+                String xml = hf.getXmlData();
+                xml = htmlGenerator.stripComments(xml);
+                xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
+                xml = htmlGenerator.applyRoleRestrictions(xml);
+                xml = htmlGenerator.applyMacros(session, xml);
+                xml = htmlGenerator.applyRepeats(xml);
+                Document document = HtmlFormEntryUtil.stringToDocument(xml);
+                validateTags(document, errors, null);
             } catch (Exception ex) {
                 errors.rejectValue("xmlData", null, ex.getMessage());
                 log.warn("Error in HTML form", ex);
             }
+        }
+    }
+
+    public void validateTags(Node node, Errors errors, Map<String, TagHandler> tagHandlerCache) {
+        if (tagHandlerCache == null) {
+            tagHandlerCache = new HashMap<String, TagHandler>();
+        }
+        TagHandler handler = null;
+        if (node.getNodeName() != null) {
+            if (tagHandlerCache.containsKey(node.getNodeName())) {
+                handler = tagHandlerCache.get(node.getNodeName());
+            } else {
+                handler = HtmlFormEntryUtil.getService().getHandlerByTagName(node.getNodeName());
+                tagHandlerCache.put(node.getNodeName(), handler);
+            }
+        }
+        if (handler != null && handler instanceof TagValidator) {
+            TagAnalysis analysis = ((TagValidator) handler).validate(node);
+            if (analysis.getWarnings().size() > 0 || analysis.getErrors().size() > 0) {
+                htmlFormWarnings.addAll(analysis.getWarnings());
+                for (String errorMsg : analysis.getErrors()) {
+                    errors.reject(errorMsg);
+                }
+            }
+        }
+        NodeList children = node.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            validateTags(children.item(i), errors, tagHandlerCache);
         }
     }
 

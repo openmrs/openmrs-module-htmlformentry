@@ -17,7 +17,7 @@ import org.w3c.dom.Node;
  * Tag handlers that extend this class can override createAttributeDescriptors if they need
  * to specify attribute descriptors
  */
-public abstract class AbstractTagHandler implements TagHandler {
+public abstract class AbstractTagHandler implements TagHandler, TagValidator {
 
     /** Holds the attribute descriptors for this class **/
 	private List<AttributeDescriptor>  attributeDescriptors;
@@ -40,6 +40,11 @@ public abstract class AbstractTagHandler implements TagHandler {
 
     @Override
     abstract public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException;
+    
+    @Override
+    public TagAnalysis validate(Node node) {
+        return new TagAnalysis();
+    }
 
     /**
      * Helper method for getting an attribute value, with a default.

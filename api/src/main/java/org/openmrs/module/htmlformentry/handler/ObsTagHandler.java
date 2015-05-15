@@ -2,19 +2,23 @@ package org.openmrs.module.htmlformentry.handler;
 
 import org.openmrs.Concept;
 import org.openmrs.LocationTag;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.w3c.dom.Node;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Handles the {@code <obs>} tag
@@ -79,6 +83,59 @@ public class ObsTagHandler extends AbstractTagHandler {
             simplified.put(key, entry.getValue());
         }
         return toJson(simplified);
+    }
+
+    @Override
+    public TagAnalysis validate(Node node) {
+        Concept concept = null;
+        TagAnalysis analysis = new TagAnalysis();
+        List<Concept> concepts = new ArrayList<Concept>();
+        String conceptId = HtmlFormEntryUtil.getNodeAttribute(node, "conceptId", null);
+        String conceptIds = HtmlFormEntryUtil.getNodeAttribute(node, "conceptIds", null);
+        if (conceptId == null && conceptIds == null) {
+            analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConceptIdsAttribute",
+                new Object[] { "[concept id]", "[concept ids]" }, null));
+        } else if (conceptId != null && conceptIds != null) {
+            analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConceptIdsAttribute",
+                new Object[] { conceptId, conceptIds }, null));
+        }
+        if (analysis.getErrors().size() == 0 && conceptId != null) {
+            concept = HtmlFormEntryUtil.getConcept(conceptId);
+            if (concept == null) {
+                analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
+                    new Object[] { conceptId }, null));
+            }
+        } else if (analysis.getErrors().size() == 0 && conceptIds != null) {
+            for (StringTokenizer st = new StringTokenizer(conceptIds, ","); st.hasMoreTokens();) {
+                String conceptIdString = st.nextToken().trim();
+                Concept c = HtmlFormEntryUtil.getConcept(conceptIdString);
+                if (c == null) {
+                    analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
+                        new Object[] { conceptIdString }, null));
+                }
+                concepts.add(c);
+            }
+        }
+        Node parentNode = node.getParentNode();
+        List<Concept> setMembers = concept == null ? concepts : Arrays.asList(concept);
+        while (parentNode.getParentNode() != null) {
+            String groupingConceptId = HtmlFormEntryUtil.getNodeAttribute(parentNode, "groupingConceptId", null);
+            if (groupingConceptId != null) {
+                Concept groupingConcept = HtmlFormEntryUtil.getConcept(groupingConceptId);
+                if (groupingConcept != null) {
+                    for (Concept setMember : setMembers) {
+                        if (!groupingConcept.getSetMembers().contains(setMember)) {
+                            analysis.addWarning(Context.getMessageSourceService().getMessage(
+                                "htmlformentry.warning.invalidMember",
+                                new Object[] { String.valueOf(setMember.getConceptId()), groupingConceptId }, null));
+                        }
+                    }
+                }
+                break;
+            }
+            parentNode = parentNode.getParentNode();
+        }
+        return analysis;
     }
 
 }

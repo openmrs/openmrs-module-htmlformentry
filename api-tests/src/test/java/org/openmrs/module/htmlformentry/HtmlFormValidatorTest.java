@@ -13,7 +13,7 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
@@ -64,5 +64,49 @@ public class HtmlFormValidatorTest extends BaseModuleContextSensitiveTest {
 		Errors errors = new BindException(htmlForm, "htmlForm");
 		new HtmlFormValidator().validate(htmlForm, errors);
 		Assert.assertTrue(errors.hasFieldErrors("xmlData"));
+	}
+
+	@Test
+	public void validate_shouldAllowXmlWithValidObsGroupAndSetMembers() throws Exception {
+		String xml = "<htmlform>"
+				+ "<obsgroup groupingConceptId=\"23\">"
+				+ "<obs conceptId=\"18\" />"
+				+ "</obsgroup>"
+				+ "Date: <encounterDate/>Location: <encounterLocation/>"
+				+ "Provider: <encounterProvider role=\"Provider\"/>"
+				+ "Encounter Type: <encounterType /> <submit/>"
+				+ "</htmlform>";
+		HtmlForm htmlForm = new HtmlForm();
+		Form form = Context.getFormService().getForm(1);
+		htmlForm.setXmlData(xml);
+		htmlForm.setForm(form);
+		Errors errors = new BindException(htmlForm, "htmlForm");
+		HtmlFormValidator validator = new HtmlFormValidator();
+		validator.validate(htmlForm, errors);
+		Assert.assertEquals(0, errors.getErrorCount());
+		Assert.assertEquals(0, validator.getHtmlFormWarnings().size());
+	}
+	
+	@Test
+	public void validate_shouldWarnWhenXmlObsGroupIsNotASet() throws Exception {
+		String xml = "<htmlform>"
+				+ "<obsgroup groupingConceptId=\"10\">\n"
+				+ "<obs conceptId=\"3\" />\n"
+				+ "<obs conceptId=\"4\" />\n"
+				+ "</obsgroup>\n"
+				+ "Date: <encounterDate/>Location: <encounterLocation/>"
+				+ "Provider: <encounterProvider role=\"Provider\"/>"
+				+ "Encounter Type: <encounterType />"
+				+ "<submit/>"
+				+ "</htmlform>";
+		HtmlForm htmlForm = new HtmlForm();
+		Form form = Context.getFormService().getForm(1);
+		htmlForm.setXmlData(xml);
+		htmlForm.setForm(form);
+		Errors errors = new BindException(htmlForm, "htmlForm");
+		HtmlFormValidator validator = new HtmlFormValidator();
+		validator.validate(htmlForm, errors);
+		Assert.assertEquals(0, errors.getErrorCount());
+		Assert.assertEquals(3, validator.getHtmlFormWarnings().size());
 	}
 }

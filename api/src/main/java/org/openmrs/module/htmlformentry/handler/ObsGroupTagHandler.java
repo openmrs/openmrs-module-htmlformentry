@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.handler;
 
 import org.openmrs.Concept;
 import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -110,6 +111,25 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 //                }
                  session.getContext().endObsGroup();
                  session.getSubmissionController().addAction(ObsGroupAction.end());
+    }
+	
+    @Override
+    public TagAnalysis validate(Node node) {
+        TagAnalysis analysis = new TagAnalysis();
+        String groupingConceptId = HtmlFormEntryUtil.getNodeAttribute(node, "groupingConceptId", null);
+        if (groupingConceptId == null) {
+            analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.groupingConceptIdMissing"));
+        }
+        Concept groupingConcept = HtmlFormEntryUtil.getConcept(groupingConceptId);
+        if (analysis.getErrors().size() == 0 && groupingConcept == null) {
+            analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
+                new Object[] { groupingConceptId }, null));
+        }
+        if (groupingConcept != null && !groupingConcept.isSet()) {
+            analysis.addWarning(Context.getMessageSourceService().getMessage("htmlformentry.warning.groupingConcept",
+                new Object[] { groupingConceptId }, null));
+        }
+        return analysis;
     }
     
 }
