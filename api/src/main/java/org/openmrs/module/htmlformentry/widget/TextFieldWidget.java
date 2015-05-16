@@ -98,6 +98,9 @@ public class TextFieldWidget implements Widget {
                     sb.append(" rows=\"" + textAreaRows + "\"");
                 if (textAreaColumns != null)
                     sb.append(" cols=\"" + textAreaColumns + "\"");
+                if (textFieldMaxLength != null && textFieldMaxLength.intValue() > 0){
+                    sb.append(" maxlength=\"" + textFieldMaxLength.intValue() + "\"");
+                }
                 if (placeholder != null) {
                     // TODO escape
                     sb.append(" placeholder=\"").append(placeholder).append("\"");

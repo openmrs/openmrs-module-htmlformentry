@@ -538,6 +538,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					if (textAnswers.size() == 0) {
 						Integer rows = null;
 						Integer cols = null;
+
 						try {
 							rows = Integer.valueOf(parameters.get("rows"));
 						}
@@ -546,6 +547,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							cols = Integer.valueOf(parameters.get("cols"));
 						}
 						catch (Exception ex) {}
+
 						if (rows != null || cols != null || "textarea".equals(parameters.get("style"))) {
 							valueWidget = new TextFieldWidget(rows, cols);
 						} else {
@@ -557,7 +559,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							valueWidget = new TextFieldWidget(textFieldSize);
 						}
                         ((TextFieldWidget) valueWidget).setPlaceholder(parameters.get("placeholder"));
-                    } else {
+
+						try {
+							Integer maxlength = Integer.valueOf(parameters.get("maxlength"));
+							((TextFieldWidget) valueWidget).setTextFieldMaxLength(maxlength);
+						}
+						catch (Exception ex) {}
+                    }
+					else {
 						if ("radio".equals(parameters.get("style"))) {
 							valueWidget = new RadioButtonsWidget();
 							if (answerSeparator != null) {
