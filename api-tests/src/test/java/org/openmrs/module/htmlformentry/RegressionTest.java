@@ -459,7 +459,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect1</span><span class=\"value\">Option1</span>", html);
-				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Effect2</span><span class=\"emptyValue\">_______________</span>", html);
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Effect2</span><span class=\"emptyValue\">____________</span>", html);
 				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Effect3</span><span class=\"value\">Option3</span>", html);
 			}
 
