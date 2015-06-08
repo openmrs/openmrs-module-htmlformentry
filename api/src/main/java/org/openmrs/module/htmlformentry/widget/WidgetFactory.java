@@ -131,7 +131,7 @@ public class WidgetFactory {
     }
 
     public static String displayDefaultEmptyValue() {
-        return displayEmptyValue("_______________");
+        return displayEmptyValue("____________");
     }
     
     /**
