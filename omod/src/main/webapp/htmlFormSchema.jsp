@@ -108,7 +108,7 @@
 			<span style="color:red;">${message}</span>
 		</c:if>
 
-		<h3>Form Schema Preview</h3>
+		<h3>htmlformentry.formSchemaPreview</h3>
 		<b>${schema.name}</b>
 		<br>
 
@@ -126,6 +126,6 @@
 
 		<br>
 		<br>
-		<INPUT type="button" value="Close Schema" onClick="window.close()">
+		<INPUT type="button" value='<spring:message code="htmlformentry.closeSchema"/>' onClick="window.close()">
 	</body>
 </html>
