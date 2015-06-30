@@ -1,4 +1,8 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%
+	pageContext.setAttribute("tagWarnings", session.getAttribute("tagWarnings"));
+	session.removeAttribute("tagWarnings");
+%>
 
 <openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
 
@@ -272,7 +276,12 @@
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
-				</spring:bind>
+				</spring:bind>								
+				<c:if test="${tagWarnings != null}">
+					<c:forEach items="${tagWarnings}" var="tagWarning">
+						<br/><span>${tagWarning}</span>
+					</c:forEach>
+				</c:if>
 			</td>
 		</tr>
 		<tr>
