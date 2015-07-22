@@ -39,22 +39,24 @@ public class WhenTagHandler extends SubstitutionTagHandler {
         ObsSubmissionElement obs = session.getContext().getHighestOnStack(ObsSubmissionElement.class);
 
         // for now we only implement the case where value is a concept id/uuid/code or a Boolean
-        Object condition = null;
+        
+        Object whenCondition = null;
+
 		if ( ! ("true".equalsIgnoreCase(value.toString()) || "false".equalsIgnoreCase(value.toString()))) {
-			condition = HtmlFormEntryUtil.getConcept(value);
+			whenCondition = HtmlFormEntryUtil.getConcept(value);
 		}
 		else {
-			condition = value.toString();
+			whenCondition = value.toString();
 		}
 
 		if (thenDisplay != null) {
-			obs.whenValueThenDisplaySection(condition, thenDisplay);
+			obs.whenValueThenDisplaySection(whenCondition, thenDisplay);
 		}
 		if (thenJavaScript != null) {
-			obs.whenValueThenJavaScript(condition, thenJavaScript);
+			obs.whenValueThenJavaScript(whenCondition, thenJavaScript);
 		}
 		if (elseJavaScript != null) {
-			obs.whenValueElseJavaScript(condition, elseJavaScript);
+			obs.whenValueElseJavaScript(whenCondition, elseJavaScript);
 		}
         return "";
     }
