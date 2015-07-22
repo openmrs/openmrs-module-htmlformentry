@@ -932,7 +932,9 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
             @Override
             public void testBlankFormHtml(String html) {
                 assertTrue(html.contains("htmlForm.setupWhenThen('allergy', {\"1001\":\"#penicillin-followup\",\"1002\":\"#cats-followup\"}, {\"1002\":\"window.alert('Cats!')\"}, {\"1002\":\"window.alert('Not Cats!')\"});"));
+                assertTrue(html.contains("htmlForm.setupWhenThen('previous-admission', {\"true\":\"#previous-admission-true\",\"false\":\"#previous-admission-false\"}, {\"true\":\"window.alert('Admited Before')\"}, {\"true\":\"window.alert('Not Admited Before')\"});"));
             }
+            
         }.run();
     }
 
