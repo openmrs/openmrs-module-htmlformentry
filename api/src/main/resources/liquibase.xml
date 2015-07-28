@@ -169,9 +169,12 @@
             Remove null values from uuid column
         </comment>
 
-        <sql>
-            UPDATE htmlformentry_html_form SET uuid = UUID() WHERE uuid is null;
-        </sql>
+        <customChange class="org.openmrs.module.htmlformentry.uuid.GenerateUuid">
+            <param name="tableNames">
+                htmlformentry_html_form
+            </param>
+            <param name="columnName" value="uuid"/>
+        </customChange>
 
         <modifyColumn tableName="htmlformentry_html_form">
             <column name="uuid" type="char(38)">
