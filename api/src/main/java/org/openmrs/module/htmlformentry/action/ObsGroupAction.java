@@ -10,7 +10,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.InvalidActionException;
-import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.module.htmlformentry.schema.ObsGroupField;
 
 /**
  * Defines the actions to take when submitting or validating an ObsGroup
@@ -24,7 +24,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 	 * @param existingGroup the parent Obs
 	 * @return a new ObsGroupAction
 	 */
-    public static ObsGroupAction start(Concept groupingConcept, Obs existingGroup, ObsGroup ogSchemaObj) {
+    public static ObsGroupAction start(Concept groupingConcept, Obs existingGroup, ObsGroupField ogSchemaObj) {
         return new ObsGroupAction(groupingConcept, existingGroup, ogSchemaObj, true);
     }
 
@@ -42,9 +42,9 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
     private Concept groupingConcept;
     private Obs existingGroup;
     private boolean start;
-    private ObsGroup obsGroupSchemaObject;
+    private ObsGroupField obsGroupSchemaObject;
     
-    private ObsGroupAction(Concept groupingConcept, Obs existingGroup, ObsGroup ogSchemaObj, boolean start) {
+    private ObsGroupAction(Concept groupingConcept, Obs existingGroup, ObsGroupField ogSchemaObj, boolean start) {
         this.groupingConcept = groupingConcept;
         this.existingGroup = existingGroup;
         this.start = start;
@@ -89,12 +89,12 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 	}
 
 	
-    public ObsGroup getObsGroupSchemaObject() {
+    public ObsGroupField getObsGroupSchemaObject() {
     	return obsGroupSchemaObject;
     }
 
 	
-    public void setObsGroupSchemaObject(ObsGroup obsGroupSchemaObject) {
+    public void setObsGroupSchemaObject(ObsGroupField obsGroupSchemaObject) {
     	this.obsGroupSchemaObject = obsGroupSchemaObject;
     }
     

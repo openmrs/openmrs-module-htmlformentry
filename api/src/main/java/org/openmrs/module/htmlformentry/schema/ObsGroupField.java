@@ -8,17 +8,17 @@ import org.openmrs.Concept;
 /**
  * Represents an ObsGroup in the HTML Form Schema
  */
-public class ObsGroup implements HtmlFormField {
+public class ObsGroupField implements HtmlFormField {
 
 	private Concept concept;
 	private List<HtmlFormField> children = new ArrayList<HtmlFormField>();
 	private String label;
     
-    public ObsGroup(Concept concept) {
+    public ObsGroupField(Concept concept) {
     	this.concept = concept;
     }
     
-    public ObsGroup(Concept concept, String label) {
+    public ObsGroupField(Concept concept, String label) {
     	this.concept = concept;
     	this.label = label;
     }
@@ -47,14 +47,14 @@ public class ObsGroup implements HtmlFormField {
     
     public void setChildren(List<HtmlFormField> children) {
         for (HtmlFormField hff : children){
-            if (hff instanceof ObsField == false && hff instanceof ObsGroup == false)
+            if (hff instanceof ObsField == false && hff instanceof ObsGroupField == false)
                 throw new RuntimeException("You can only add an ObsField or an ObsGroup to an ObsGroup");
         }
         this.children = children;
     }
     
     public void addChild(HtmlFormField hff){
-        if (hff instanceof ObsField || hff instanceof ObsGroup)
+        if (hff instanceof ObsField || hff instanceof ObsGroupField)
             this.children.add(hff);
         else 
             throw new RuntimeException("You can only add an ObsField or an ObsGroup to an ObsGroup");

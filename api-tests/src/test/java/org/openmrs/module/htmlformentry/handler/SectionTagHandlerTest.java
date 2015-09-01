@@ -21,12 +21,10 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.TestUtil;
-import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,16 +39,16 @@ public class SectionTagHandlerTest {
 
     private FormEntrySession formEntrySession;
     private FormEntryContext formEntryContext;
-    private HtmlFormSchema htmlFormSchema;
+    private HtmlFormSection section;
     private CapturingPrintWriter out;
     private SectionTagHandler handler;
 
     @Before
     public void before() throws Exception {
-        htmlFormSchema = new HtmlFormSchema();
+        section = new HtmlFormSection();
 
         formEntryContext = mock(FormEntryContext.class);
-        when(formEntryContext.getSchema()).thenReturn(htmlFormSchema);
+        when(formEntryContext.getActiveSection()).thenReturn(section);
 
         formEntrySession = mock(FormEntrySession.class);
         when(formEntrySession.getContext()).thenReturn(formEntryContext);
@@ -70,9 +68,6 @@ public class SectionTagHandlerTest {
         out.reset();
         handler.doEndTag(formEntrySession, out, sectionNode.getParentNode(), sectionNode);
         TestUtil.assertFuzzyEquals(out.getContent(), "</div>");
-
-        assertThat(formEntrySession.getContext().getSchema().getSections().size(), is(1));
-        assertThat(formEntrySession.getContext().getSchema().getSections().get(0).getName(), is(LABEL_TEXT));
     }
 
     @Test
@@ -85,9 +80,6 @@ public class SectionTagHandlerTest {
         out.reset();
         handler.doEndTag(formEntrySession, out, sectionNode.getParentNode(), sectionNode);
         TestUtil.assertFuzzyEquals(out.getContent(), "</section>");
-
-        assertThat(formEntrySession.getContext().getSchema().getSections().size(), is(1));
-        assertThat(formEntrySession.getContext().getSchema().getSections().get(0).getName(), is(LABEL_TEXT));
     }
 
     private Node getSectionNode(String xml) throws Exception {

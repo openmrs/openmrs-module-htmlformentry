@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +28,17 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Holds the widgets used to represent a specific drug order, and serves as both the HtmlGeneratorElement 
@@ -335,7 +334,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             context.registerWidget(orderDurationWidget);
             context.registerErrorWidget(orderDurationWidget, orderDurationErrorWidget);
         }
-        context.getSchema().addField(dof);
+        context.addFieldToActiveSection(dof);
 	}
 
 	protected void createAdditionalWidgets(FormEntryContext context) {

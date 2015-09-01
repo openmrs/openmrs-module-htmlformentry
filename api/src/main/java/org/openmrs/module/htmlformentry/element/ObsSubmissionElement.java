@@ -976,11 +976,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				field.getAnswers().add(ans);
 			}
 		}
-		//conceptSelects should be excluded from obsGroup matching, because there's nothing to match on.
+
+       field.setExistingObs(existingObs);
+
+        // add the field to active obsgroup if there is one, other to the active section
 		if (concept != null && context.getActiveObsGroup() != null) {
-			context.getActiveObsGroup().getChildren().add(field);
+			context.addFieldToActiveObsGroup(field);
 		} else {
-			context.getSchema().addField(field);
+			context.addFieldToActiveSection(field);
 		}
 	}
 

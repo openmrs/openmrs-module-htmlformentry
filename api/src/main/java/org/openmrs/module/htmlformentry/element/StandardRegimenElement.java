@@ -1,16 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -42,6 +31,16 @@ import org.openmrs.order.DrugOrderSupport;
 import org.openmrs.order.RegimenSuggestion;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -196,7 +195,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
                 throw new APIException(e);
             }
         }
-        context.getSchema().addField(srf);
+        context.addFieldToActiveSection(srf);
 	}
 
 	protected void createAdditionalWidgets(FormEntryContext context, Map<String, String> parameters) {

@@ -12,9 +12,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.module.htmlformentry.schema.ObsGroupField;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -25,6 +24,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static org.hamcrest.core.Is.is;
 
 public class RegressionTest extends BaseModuleContextSensitiveTest {
 
@@ -860,13 +862,6 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
-	/**
-	 * This test verifies that a) a root Section gets created, and b) that nested obsGroups are
-	 * working correctly in the schema. You know that 'a' is working if conceptId = 6 shows up in
-	 * section 0, even though it is the last obs tag in the form. you can inspect the results for
-	 * 'b': the 'ret' variable is a string representation of the schema where sections are enclosed
-	 * by parentheses (), and obsGroup members are enclosed by brackets [].
-	 */
 	@Test
 	public void shouldReturnObsGroupSchemaCorrectly() throws Exception {
 		Form form = new Form();
@@ -878,41 +873,56 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
         session.getHtmlToDisplay();
 		HtmlFormSchema hfs = session.getContext().getSchema();
-		String ret = "";
-		int count = 0;
-		for (HtmlFormSection fes : hfs.getSections()) {
-			ret += "section " + count + " (";
-			for (HtmlFormField hff : fes.getFields()) {
-				ret = shouldReturnObsGroupSchemaCorrectlyHelper(hff, count, ret);
-			}
-			ret += ") ";
-			count++;
-		}
-		Assert.assertEquals("section 0 ( concept 6 ) section 1 ( concept 3032 ) section 2 ( ObsGroup=1004 [ ObsGroup=7 [ concept 1000 ] concept 1005 ] concept null ) ", ret);
-	}
 
-	/**
-	 * This iterates through nested obsGroups and is used by shouldReturnObsGroupSchemaCorrectly()
-	 * 
-	 * @param hff
-	 * @param count
-	 * @param ret
-	 * @return
-	 */
-	private String shouldReturnObsGroupSchemaCorrectlyHelper(HtmlFormField hff, int count, String ret) {
-		if (hff instanceof ObsField) {
-			ObsField of = (ObsField) hff;
-			ret += " concept " + of.getQuestion() + " ";
+        // one top-level field
+        Assert.assertThat(hfs.getFields().size(), is(1));
+        Assert.assertThat( ((ObsField) hfs.getFields().get(0)).getQuestion().getId(), is(6));
 
-		} else if (hff instanceof ObsGroup) {
-			ObsGroup og = (ObsGroup) hff;
-			ret += " ObsGroup=" + og.getConcept() + " [";
-			for (HtmlFormField hffInner : og.getChildren())
-				ret = shouldReturnObsGroupSchemaCorrectlyHelper(hffInner, count, ret);
-					ret += "]";
-		}
-		return ret;
-	}
+        // one top-level section with one field
+        Assert.assertThat(hfs.getSections().size(), is(1));
+        Assert.assertThat(hfs.getSections().get(0).getName(), is("Section One"));
+        Assert.assertThat(hfs.getSections().get(0).getFields().size(), is(1));
+        Assert.assertThat(((ObsField) hfs.getSections().get(0).getFields().get(0)).getQuestion().getId(), is(3032));
+
+        // one nested section
+        Assert.assertThat(hfs.getSections().get(0).getSections().size(), is(1));
+        Assert.assertThat(hfs.getSections().get(0).getSections().get(0).getName(), is("Section One Inner One"));
+
+        // now handle the obs in the nested section
+        List<HtmlFormField> fields = hfs.getSections().get(0).getSections().get(0).getFields();
+        Assert.assertThat(fields.size(), is(3));
+        Assert.assertTrue(fields.get(0) instanceof ObsGroupField);
+        ObsGroupField obsGroupField = (ObsGroupField) fields.get(0);
+        Assert.assertThat(obsGroupField.getLabel(), is("obsgroup1004"));
+        Assert.assertTrue(fields.get(1) instanceof ObsField);
+        Assert.assertThat(((ObsField) fields.get(1)).getQuestions().size(), is(3));
+        Assert.assertThat(((ObsField) fields.get(1)).getAnswers().size(), is(1));
+        Assert.assertTrue(fields.get(2) instanceof ObsField);
+        Assert.assertThat(((ObsField) fields.get(2)).getQuestion().getId(), is(1000));
+        Assert.assertThat(((ObsField) fields.get(2)).getAnswers().size(), is(2));
+        Assert.assertThat(((ObsField) fields.get(2)).getAnswers().get(0).getConcept().getId(), is(2474));
+        Assert.assertThat(((ObsField) fields.get(2)).getAnswers().get(1).getConcept().getId(), is(3017));
+
+
+        // now the obs in the obsgroup
+        List<HtmlFormField> obsGroupFields = obsGroupField.getChildren();
+        Assert.assertThat(obsGroupFields.size(), is(2));
+        Assert.assertTrue(obsGroupFields.get(0) instanceof ObsGroupField);
+        ObsGroupField nestedObsGroup = (ObsGroupField) obsGroupFields.get(0);
+        Assert.assertThat(nestedObsGroup.getLabel(), is("obsgroup7"));
+        Assert.assertTrue(obsGroupFields.get(1) instanceof ObsField);
+        Assert.assertThat(((ObsField) obsGroupFields.get(1)).getQuestion().getId(), is(1005));
+
+        Assert.assertThat(nestedObsGroup.getChildren().size(), is(1));
+        Assert.assertTrue(nestedObsGroup.getChildren().get(0) instanceof ObsField);
+        Assert.assertThat(((ObsField) nestedObsGroup.getChildren().get(0)).getQuestion().getId(), is(1000));
+
+        // test the "flattened" results
+        Set<HtmlFormField> allFields = hfs.getAllFields();
+        Assert.assertThat(hfs.getAllFields().size(), is(8));
+        Assert.assertThat(hfs.getAllSections().size(), is(2));
+
+    }
 
 	@Test
 	public void testDatatypes() throws Exception {

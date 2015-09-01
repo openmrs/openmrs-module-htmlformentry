@@ -1,13 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -22,6 +14,16 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import static org.hamcrest.core.Is.is;
 
 public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest {
 
@@ -139,7 +141,9 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         PatientIdentifierType pit = Context.getPatientService().getPatientIdentifierType(2);
         String ret = HtmlFormEntryExportUtil.generateColumnHeadersFromHtmlForm(htmlform, extraCols, new StringBuffer(""), Collections.singletonList(pit));
         //System.out.println("TESTHEADER " + ret);
-        
+
+        Assert.assertThat(ret.split(",").length, is(54));
+
         Assert.assertTrue(ret.contains("\"ENCOUNTER_ID\""));
         Assert.assertTrue(ret.contains("\"ENCOUNTER_DATE\""));
         Assert.assertTrue(ret.contains("\"ENCOUNTER_LOCATION\""));
@@ -252,7 +256,10 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
         ArrayList<String> splitret = new ArrayList<String>();
         for (StringTokenizer st = new StringTokenizer(ret, ","); st.hasMoreTokens(); ) 
             splitret.add(st.nextToken().trim());
-        Assert.assertTrue(splitret.size() == splitheader.size());
+
+        Assert.assertThat(splitret.size(), is(48));
+        Assert.assertThat(splitheader.size(), is(48));
+
 //        for (int i = 0; i < splitheader.size(); i++){
 //            System.out.println(splitheader.get(i) + " = " + splitret.get(i));
 //        }

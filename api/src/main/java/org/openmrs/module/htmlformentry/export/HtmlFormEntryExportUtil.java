@@ -36,7 +36,7 @@ import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.module.htmlformentry.schema.ObsGroupField;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -256,9 +256,12 @@ public class HtmlFormEntryExportUtil {
                 sb.append(DEFAULT_COLUMN_SEPARATOR);
             index ++;
         }    
-        
-        for (HtmlFormField hfsec : hfs.getAllFields())
-                sb = generateColumnHeadersFromHtmlFormHelper(hfsec, extraCols, sb);
+
+        Set<HtmlFormField> fields = hfs.getAllFields();
+
+        for (HtmlFormField hfsec : fields) {
+            sb = generateColumnHeadersFromHtmlFormHelper(hfsec, extraCols, sb);
+        }
 
         session = null;
         sb.append(DEFAULT_LINE_SEPARATOR);
@@ -269,11 +272,6 @@ public class HtmlFormEntryExportUtil {
         if (hff instanceof ObsField){
             ObsField of = (ObsField) hff;      
             sb = buildHeadersForObsField(of, extraCols, sb);
-        } else if (hff instanceof ObsGroup){
-                ObsGroup og = (ObsGroup) hff;
-                for (HtmlFormField of : og.getChildren()){
-                    sb = generateColumnHeadersFromHtmlFormHelper(of, extraCols, sb);
-                }
         }
         return sb;
     }

@@ -43,8 +43,8 @@ public class SectionTagHandler extends AbstractTagHandler {
         	out.print("<" + headerTag + " class=\""+headerStyleClass+"\">"+headerLabel+"</" + headerTag + ">");
         }
         
-        session.getContext().getSchema().startNewSection();
-        session.getContext().getSchema().getCurrentSection().setName(headerLabel);
+        session.getContext().beginSection();
+        session.getContext().getActiveSection().setName(headerLabel);
         
         return true;
     }
@@ -53,7 +53,7 @@ public class SectionTagHandler extends AbstractTagHandler {
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
         String sectionTag = getAttribute(node, "sectionTag", "div");
     	out.print("</" + sectionTag + ">");
-    	session.getContext().getSchema().endSection();
+    	session.getContext().endSection();
     }
 
 }
