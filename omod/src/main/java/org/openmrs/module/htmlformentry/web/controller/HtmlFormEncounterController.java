@@ -54,7 +54,9 @@ public class HtmlFormEncounterController {
 
     // is public to make it easier to test
     public JsonNode buildSchemaAsJsonNode(HtmlFormSchema schema, ObjectMapper jackson) {
-        JsonNode schemaAsJson = addSections(schema.getSections(), jackson);
+        ObjectNode schemaAsJson = jackson.createObjectNode();
+        schemaAsJson.put("sections", addSections(schema.getSections(), jackson));
+        schemaAsJson.put("fields", addFields(schema.getFields(), jackson));
         return schemaAsJson;
     }
 

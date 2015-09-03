@@ -39,8 +39,27 @@ public class HtmlFormEncounterControllerTest {
         schema.getSections().add(section2);
 
         JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
-        assertThat(schemaAsJson.get(0).get("name").getValueAsText(), is("Section 1"));
-        assertThat(schemaAsJson.get(1).get("name").getValueAsText(), is("Section 2"));
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("sections").get(1).get("name").getValueAsText(), is("Section 2"));
+
+    }
+
+    @Test
+    public void shouldBuildSchemaWithSectionAndSeparateField() {
+
+        HtmlFormSchema schema = new HtmlFormSchema();
+
+        HtmlFormSection section1 = new HtmlFormSection();
+        section1.setName("Section 1");
+        schema.getSections().add(section1);
+
+        ObsField field1 = new ObsField();
+        field1.setName("Field 1");
+        schema.getFields().add(field1);
+
+        JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
 
     }
 
@@ -67,10 +86,10 @@ public class HtmlFormEncounterControllerTest {
         schema.getSections().add(section2);
 
         JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
-        assertThat(schemaAsJson.get(0).get("name").getValueAsText(), is("Section 1"));
-        assertThat(schemaAsJson.get(0).get("sections").get(0).get("name").getValueAsText(), is("Section 1a"));
-        assertThat(schemaAsJson.get(0).get("sections").get(1).get("name").getValueAsText(), is("Section 1b"));
-        assertThat(schemaAsJson.get(1).get("name").getValueAsText(), is("Section 2"));
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("sections").get(0).get("name").getValueAsText(), is("Section 1a"));
+        assertThat(schemaAsJson.get("sections").get(0).get("sections").get(1).get("name").getValueAsText(), is("Section 1b"));
+        assertThat(schemaAsJson.get("sections").get(1).get("name").getValueAsText(), is("Section 2"));
 
     }
 
@@ -111,12 +130,12 @@ public class HtmlFormEncounterControllerTest {
         schema.getSections().add(section2);
 
         JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
-        assertThat(schemaAsJson.get(0).get("name").getValueAsText(), is("Section 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
-        assertThat(schemaAsJson.get(0).get("fields").get(1).get("name").getValueAsText(), is("Field 2"));
-        assertThat(schemaAsJson.get(0).get("fields").get(1).get("datatype").getValueAsText(), is("datetime"));
-        assertThat(schemaAsJson.get(1).get("name").getValueAsText(), is("Section 2"));
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(1).get("name").getValueAsText(), is("Field 2"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(1).get("datatype").getValueAsText(), is("datetime"));
+        assertThat(schemaAsJson.get("sections").get(1).get("name").getValueAsText(), is("Section 2"));
 
     }
 
@@ -159,12 +178,12 @@ public class HtmlFormEncounterControllerTest {
         obsGroup.addChild(field2);
 
         JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
-        assertThat(schemaAsJson.get(0).get("name").getValueAsText(), is("Section 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("name").getValueAsText(), is("ObsGroup"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(1).get("name").getValueAsText(), is("Field 2"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(1).get("datatype").getValueAsText(), is("datetime"));
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("name").getValueAsText(), is("ObsGroup"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(1).get("name").getValueAsText(), is("Field 2"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(1).get("datatype").getValueAsText(), is("datetime"));
 
     }
 
@@ -204,11 +223,11 @@ public class HtmlFormEncounterControllerTest {
         nestedGroup.addChild(field1);
 
         JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
-        assertThat(schemaAsJson.get(0).get("name").getValueAsText(), is("Section 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("name").getValueAsText(), is("ObsGroup"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(0).get("name").getValueAsText(), is("Nested ObsGroup"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("fields").get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("name").getValueAsText(), is("ObsGroup"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(0).get("name").getValueAsText(), is("Nested ObsGroup"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("fields").get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
 
     }
 
@@ -323,37 +342,37 @@ public class HtmlFormEncounterControllerTest {
         schema.getSections().add(section2);
 
         JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
-        assertThat(schemaAsJson.get(0).get("name").getValueAsText(), is("Section 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
-        assertThat(schemaAsJson.get(0).get("fields").get(0).get("value").getValueAsText(), is("123.0"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("datatype").getValueAsText(), is("numeric"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("value").getValueAsText(), is("123.0"));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(1).get("name").getValueAsText(), is("Field 2"));
-        assertThat(schemaAsJson.get(0).get("fields").get(1).get("datatype").getValueAsText(), is("datetime"));
-        assertThat(schemaAsJson.get(0).get("fields").get(1).get("value").getValueAsText(), is(datetimeFormat.format(obsDateValue)));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(1).get("name").getValueAsText(), is("Field 2"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(1).get("datatype").getValueAsText(), is("datetime"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(1).get("value").getValueAsText(), is(datetimeFormat.format(obsDateValue)));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(2).get("name").getValueAsText(), is("Field 3"));
-        assertThat(schemaAsJson.get(0).get("fields").get(2).get("datatype").getValueAsText(), is("time"));
-        assertThat(schemaAsJson.get(0).get("fields").get(2).get("value").getValueAsText(), is(timeFormat.format(obsDateValue)));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(2).get("name").getValueAsText(), is("Field 3"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(2).get("datatype").getValueAsText(), is("time"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(2).get("value").getValueAsText(), is(timeFormat.format(obsDateValue)));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(3).get("name").getValueAsText(), is("Field 4"));
-        assertThat(schemaAsJson.get(0).get("fields").get(3).get("datatype").getValueAsText(), is("date"));
-        assertThat(schemaAsJson.get(0).get("fields").get(3).get("value").getValueAsText(), is(dateFormat.format(obsDateValue)));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(3).get("name").getValueAsText(), is("Field 4"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(3).get("datatype").getValueAsText(), is("date"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(3).get("value").getValueAsText(), is(dateFormat.format(obsDateValue)));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(4).get("name").getValueAsText(), is("Field 5"));
-        assertThat(schemaAsJson.get(0).get("fields").get(4).get("datatype").getValueAsText(), is("boolean"));
-        assertThat(schemaAsJson.get(0).get("fields").get(4).get("value").getValueAsText(), is("false"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(4).get("name").getValueAsText(), is("Field 5"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(4).get("datatype").getValueAsText(), is("boolean"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(4).get("value").getValueAsText(), is("false"));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(5).get("name").getValueAsText(), is("Field 6"));
-        assertThat(schemaAsJson.get(0).get("fields").get(5).get("datatype").getValueAsText(), is("text"));
-        assertThat(schemaAsJson.get(0).get("fields").get(5).get("value").getValueAsText(), is("test test"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(5).get("name").getValueAsText(), is("Field 6"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(5).get("datatype").getValueAsText(), is("text"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(5).get("value").getValueAsText(), is("test test"));
 
-        assertThat(schemaAsJson.get(0).get("fields").get(6).get("name").getValueAsText(), is("Field 7"));
-        assertThat(schemaAsJson.get(0).get("fields").get(6).get("datatype").getValueAsText(), is("coded"));
-        assertThat(schemaAsJson.get(0).get("fields").get(6).get("value").getValueAsText(), is("TB"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(6).get("name").getValueAsText(), is("Field 7"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(6).get("datatype").getValueAsText(), is("coded"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(6).get("value").getValueAsText(), is("TB"));
 
-        assertThat(schemaAsJson.get(1).get("name").getValueAsText(), is("Section 2"));
+        assertThat(schemaAsJson.get("sections").get(1).get("name").getValueAsText(), is("Section 2"));
 
     }
 
