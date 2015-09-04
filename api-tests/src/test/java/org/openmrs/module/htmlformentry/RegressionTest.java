@@ -13,7 +13,7 @@ import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroupField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -891,8 +891,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
         // now handle the obs in the nested section
         List<HtmlFormField> fields = hfs.getSections().get(0).getSections().get(0).getFields();
         Assert.assertThat(fields.size(), is(3));
-        Assert.assertTrue(fields.get(0) instanceof ObsGroupField);
-        ObsGroupField obsGroupField = (ObsGroupField) fields.get(0);
+        Assert.assertTrue(fields.get(0) instanceof ObsGroup);
+        ObsGroup obsGroupField = (ObsGroup) fields.get(0);
         Assert.assertThat(obsGroupField.getLabel(), is("obsgroup1004"));
         Assert.assertTrue(fields.get(1) instanceof ObsField);
         Assert.assertThat(((ObsField) fields.get(1)).getQuestions().size(), is(3));
@@ -907,8 +907,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
         // now the obs in the obsgroup
         List<HtmlFormField> obsGroupFields = obsGroupField.getChildren();
         Assert.assertThat(obsGroupFields.size(), is(2));
-        Assert.assertTrue(obsGroupFields.get(0) instanceof ObsGroupField);
-        ObsGroupField nestedObsGroup = (ObsGroupField) obsGroupFields.get(0);
+        Assert.assertTrue(obsGroupFields.get(0) instanceof ObsGroup);
+        ObsGroup nestedObsGroup = (ObsGroup) obsGroupFields.get(0);
         Assert.assertThat(nestedObsGroup.getLabel(), is("obsgroup7"));
         Assert.assertTrue(obsGroupFields.get(1) instanceof ObsField);
         Assert.assertThat(((ObsField) obsGroupFields.get(1)).getQuestion().getId(), is(1005));

@@ -15,7 +15,7 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroupField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -97,11 +97,11 @@ public class HtmlFormEncounterController {
                 fieldNode.put("value", (getValue((ObsField) field)));
                 node.add(fieldNode);
             }
-            else if (field instanceof ObsGroupField) {
+            else if (field instanceof ObsGroup) {
                 ObjectNode fieldNode = jackson.createObjectNode();
-                fieldNode.put("name", (getName((ObsGroupField) field)));
-                if (((ObsGroupField) field).getChildren() != null && ((ObsGroupField) field).getChildren().size() > 0) {
-                    fieldNode.put("fields", addFields(((ObsGroupField) field).getChildren(), jackson));
+                fieldNode.put("name", (getName((ObsGroup) field)));
+                if (((ObsGroup) field).getChildren() != null && ((ObsGroup) field).getChildren().size() > 0) {
+                    fieldNode.put("fields", addFields(((ObsGroup) field).getChildren(), jackson));
                 }
                 node.add(fieldNode);
             }
@@ -119,7 +119,7 @@ public class HtmlFormEncounterController {
         return name;
     }
 
-    private String getName(ObsGroupField obsGroup) {
+    private String getName(ObsGroup obsGroup) {
         String name = obsGroup.getLabel();
         if (!StringUtils.hasText(name)) {
             if (obsGroup.getConcept() != null && obsGroup.getConcept().getName() != null) {

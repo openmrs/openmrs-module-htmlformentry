@@ -10,7 +10,7 @@ import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroupField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.module.htmlformentry.web.controller.HtmlFormEncounterController;
 
 import java.text.SimpleDateFormat;
@@ -151,7 +151,7 @@ public class HtmlFormEncounterControllerTest {
         groupConceptName.setName("ObsGroup");
         Concept groupConcept = mock(Concept.class);
         when(groupConcept.getName()).thenReturn(groupConceptName);
-        ObsGroupField obsGroup = new ObsGroupField(groupConcept);
+        ObsGroup obsGroup = new ObsGroup(groupConcept);
         section1.getFields().add(obsGroup);
 
         ObsField field1 = new ObsField();
@@ -200,14 +200,14 @@ public class HtmlFormEncounterControllerTest {
         groupConceptName.setName("ObsGroup");
         Concept groupConcept = mock(Concept.class);
         when(groupConcept.getName()).thenReturn(groupConceptName);
-        ObsGroupField obsGroup = new ObsGroupField(groupConcept);
+        ObsGroup obsGroup = new ObsGroup(groupConcept);
         section1.getFields().add(obsGroup);
 
         ConceptName nestedGroupName = new ConceptName();
         nestedGroupName.setName("Nested ObsGroup");
         Concept nestedGroupConcept = mock(Concept.class);
         when(nestedGroupConcept.getName()).thenReturn(nestedGroupName);
-        ObsGroupField nestedGroup = new ObsGroupField(nestedGroupConcept);
+        ObsGroup nestedGroup = new ObsGroup(nestedGroupConcept);
         obsGroup.addChild(nestedGroup);
 
         ObsField field1 = new ObsField();

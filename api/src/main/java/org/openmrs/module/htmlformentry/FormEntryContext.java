@@ -30,7 +30,7 @@ import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
-import org.openmrs.module.htmlformentry.schema.ObsGroupField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.LocaleUtility;
@@ -68,8 +68,8 @@ public class FormEntryContext {
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
     private Stack<HtmlFormSection> sectionsStack = new Stack<HtmlFormSection>();
-    private Stack<Map<ObsGroupField, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroupField, List<Obs>>>();
-    private ObsGroupField activeObsGroup;
+    private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
+    private ObsGroup activeObsGroup;
     
     private Patient existingPatient;
     private Encounter existingEncounter;
@@ -263,11 +263,11 @@ public class FormEntryContext {
     /**
      * Marks the start of a new {@see ObsGroup} within current Context
      */
-    public void beginObsGroup(Concept conceptSet, Obs thisGroup, ObsGroupField obsGroupSchemaObj) {
+    public void beginObsGroup(Concept conceptSet, Obs thisGroup, ObsGroup obsGroupSchemaObj) {
         setObsGroup(thisGroup);
         currentObsGroupConcepts.push(conceptSet);
         activeObsGroup = obsGroupSchemaObj;
-        Map<ObsGroupField, List<Obs>> map = new HashMap<ObsGroupField, List<Obs>>();
+        Map<ObsGroup, List<Obs>> map = new HashMap<ObsGroup, List<Obs>>();
         map.put(this.getActiveObsGroup(), currentObsGroupMembers);
         obsGroupStack.push(map);
     }
@@ -277,7 +277,7 @@ public class FormEntryContext {
      * 
      * @return the currently active {@see ObsGroup}
      */
-    public ObsGroupField getActiveObsGroup() {
+    public ObsGroup getActiveObsGroup() {
     	return activeObsGroup;
     }
 
@@ -313,8 +313,8 @@ public class FormEntryContext {
 
         //set the activeObsGroup back to parent, if there is one.
         if (!obsGroupStack.isEmpty()){
-            Map<ObsGroupField, List<Obs>> map = obsGroupStack.peek();
-            for (Map.Entry<ObsGroupField, List<Obs>> e : map.entrySet()){
+            Map<ObsGroup, List<Obs>> map = obsGroupStack.peek();
+            for (Map.Entry<ObsGroup, List<Obs>> e : map.entrySet()){
                 e.getKey().addChild(activeObsGroup);
                 currentObsGroupMembers = e.getValue();
                 activeObsGroup = e.getKey();

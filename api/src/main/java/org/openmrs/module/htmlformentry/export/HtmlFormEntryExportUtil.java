@@ -36,7 +36,6 @@ import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroupField;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;

@@ -9,7 +9,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ObsGroupComponent;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
-import org.openmrs.module.htmlformentry.schema.ObsGroupField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.w3c.dom.Node;
 
 import java.io.PrintWriter;
@@ -81,7 +81,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         }
 
         // sets up the obs group stack, sets current obs group to this one
-        ObsGroupField ogSchemaObj = new ObsGroupField(groupingConcept, name);
+        ObsGroup ogSchemaObj = new ObsGroup(groupingConcept, name);
         session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
         //adds the obsgroup action to the controller stack
         session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));

@@ -48,6 +48,8 @@ public class HtmlFormSchema {
     }
 
 
+    // TODO fix getAllFields and getAllSections so that they return Lists, and the Lists are in the order the elements appear on the form?
+
     /**
      * Returns the entire flattened set of fields
      */
@@ -67,8 +69,8 @@ public class HtmlFormSchema {
         if (fieldsToAdd != null) {
             for (HtmlFormField f : fieldsToAdd) {
                 fields.add(f);
-                if (f instanceof ObsGroupField) {
-                    getAllFieldsRecursiveFieldHelper(fields, ((ObsGroupField) f).getChildren());
+                if (f instanceof ObsGroup) {
+                    getAllFieldsRecursiveFieldHelper(fields, ((ObsGroup) f).getChildren());
                 }
             }
         }
