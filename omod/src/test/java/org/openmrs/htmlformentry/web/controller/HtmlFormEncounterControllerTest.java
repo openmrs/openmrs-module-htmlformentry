@@ -6,7 +6,9 @@ import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.Location;
 import org.openmrs.Obs;
+import org.openmrs.api.LocationService;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
@@ -341,7 +343,29 @@ public class HtmlFormEncounterControllerTest {
         section2.setName("Section 2");
         schema.getSections().add(section2);
 
-        JsonNode schemaAsJson = new HtmlFormEncounterController().buildSchemaAsJsonNode(schema, new ObjectMapper());
+        ObsField field8 = new ObsField();
+        field8.setName("Field 8");
+        Concept concept8 = mock(Concept.class);
+        ConceptDatatype datatype8 = mock(ConceptDatatype.class);
+        when(datatype8.getName()).thenReturn("text");
+        when(datatype8.isText()).thenReturn(true);
+        when(concept8.getDatatype()).thenReturn(datatype8);
+        field8.setQuestion(concept8);
+        Obs obs8 = new Obs();
+        obs8.setValueText("34");
+        obs8.setComment("org.openmrs.Location");
+        field8.setExistingObs(obs8);
+        section1.addField(field8);
+
+        Location location = new Location();
+        location.setName("Boston");
+        LocationService locationService = mock(LocationService.class);
+        when(locationService.getLocation(34)).thenReturn(location);
+
+        HtmlFormEncounterController controller = new HtmlFormEncounterController();
+        controller.setLocationService(locationService);
+
+        JsonNode schemaAsJson = controller.buildSchemaAsJsonNode(schema, new ObjectMapper());
         assertThat(schemaAsJson.get("sections").get(0).get("name").getValueAsText(), is("Section 1"));
 
         assertThat(schemaAsJson.get("sections").get(0).get("fields").get(0).get("name").getValueAsText(), is("Field 1"));
@@ -371,6 +395,11 @@ public class HtmlFormEncounterControllerTest {
         assertThat(schemaAsJson.get("sections").get(0).get("fields").get(6).get("name").getValueAsText(), is("Field 7"));
         assertThat(schemaAsJson.get("sections").get(0).get("fields").get(6).get("datatype").getValueAsText(), is("coded"));
         assertThat(schemaAsJson.get("sections").get(0).get("fields").get(6).get("value").getValueAsText(), is("TB"));
+
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(7).get("name").getValueAsText(), is("Field 8"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(7).get("datatype").getValueAsText(), is("text"));
+        assertThat(schemaAsJson.get("sections").get(0).get("fields").get(7).get("value").getValueAsText(), is("Boston"));
+
 
         assertThat(schemaAsJson.get("sections").get(1).get("name").getValueAsText(), is("Section 2"));
 

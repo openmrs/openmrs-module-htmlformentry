@@ -6,6 +6,7 @@ import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.ObjectNode;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.Encounter;
+import org.openmrs.api.LocationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -16,6 +17,7 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +34,9 @@ import javax.servlet.http.HttpSession;
  */
 @Controller
 public class HtmlFormEncounterController {
+
+    @Autowired
+    private LocationService locationService;
 
     // ISO standard date formats
     public static final SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -156,7 +161,13 @@ public class HtmlFormEncounterController {
                 value = field.getExistingObs().getValueBoolean() != null ?
                         field.getExistingObs().getValueBoolean().toString() : "";
             } else if (datatype.isText()) {
-                value = field.getExistingObs().getValueText();
+                // handle the special-case location obs
+                if ("org.openmrs.Location".equals(field.getExistingObs().getComment())) {
+                    value = locationService.getLocation(new Integer(field.getExistingObs().getValueText())).getName();
+                }
+                else {
+                    value = field.getExistingObs().getValueText();
+                }
             } else if (datatype.isCoded()) {
                 value = field.getExistingObs().getValueCodedName() != null ?
                         field.getExistingObs().getValueCodedName().getName() :
@@ -173,5 +184,10 @@ public class HtmlFormEncounterController {
         FormEntrySession fes = new FormEntrySession(encounter.getPatient(), encounter, FormEntryContext.Mode.VIEW, fakeForm, httpSession);
         fes.getHtmlToDisplay();
         return fes.getContext().getSchema();
+    }
+
+    // used for mocking
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
     }
 }
