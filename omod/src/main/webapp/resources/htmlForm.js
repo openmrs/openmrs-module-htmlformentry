@@ -3,8 +3,13 @@
 
     var onObsChangedCheck = function() {
         var whenValueThenDisplaySection = $(this).data('whenValueThenDisplaySection');
+         // handle differently autocomplete fields since the obs value is located on the hidden element
+         var val = $(this).val();
+
+         if ($(this).hasClass("ui-autocomplete-input")) {
+                val = $("#"+$(this).attr("id")+"_hid").val();
+            }
         if (whenValueThenDisplaySection) {
-            var val = $(this).val();
             $.each(whenValueThenDisplaySection, function(ifValue, thenSection) {
                 if (val == ifValue) {
                     $(thenSection).show();
@@ -17,7 +22,6 @@
         }
         var whenValueThenJs = $(this).data('whenValueThenJs');
         if (whenValueThenJs) {
-            var val = $(this).val();
             $.each(whenValueThenJs, function(ifValue, thenJs) {
                 if (val == ifValue) {
                     eval(thenJs);
@@ -26,9 +30,8 @@
         }
         var whenValueElseJs = $(this).data('whenValueElseJs');
         if (whenValueElseJs) {
-            var val = $(this).val();
             $.each(whenValueElseJs, function(ifValue, elseJs) {
-                if (val != ifValue) {
+                if (val != ifValue) {           
                     eval(elseJs);
                 }
             });
@@ -47,4 +50,4 @@
         return Handlebars.compile(source);
     };
 
-}( window.htmlForm = window.htmlForm || {}, jQuery ));
+}( window.htmlForm = window.htmlForm || {}, jQuery )); 
