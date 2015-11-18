@@ -15,34 +15,23 @@ package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.openmrs.module.Activator;
+import org.openmrs.module.BaseModuleActivator;
 
 /**
  * Contains the logic that is run every time HTML Form Entry module
  * is either started or shutdown
  */
-public class HtmlFormEntryActivator implements Activator {
+public class HtmlFormEntryActivator extends BaseModuleActivator {
 
 	private Log log = LogFactory.getLog(this.getClass());
 
-	/**
-	 * Logs that module has been started
-	 * 
-	 * @see org.openmrs.module.Activator#startup()
-	 */
 	@Override
-    public void startup() {
-		log.info("Starting HTML Form Entry Module");
+	public void started() {
+		log.info("Started HTML Form Entry Module");
 	}
-	
-	/**
-	 * Logs that module has been stopped
-	 * 
-	 *  @see org.openmrs.module.Activator#shutdown()
-	 */
+
 	@Override
-    public void shutdown() {
-		log.info("Shutting down HTML Form Entry Module");
+	public void stopped() {
+		log.info("Stopped HTML Form Entry Module");
 	}
-	
 }
