@@ -1,9 +1,10 @@
 package org.openmrs.module.htmlformentry.schema;
 
+import org.openmrs.Concept;
+import org.openmrs.Obs;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.openmrs.Concept;
 
 /**
  * Represents an Obs field in an HTML Form schema
@@ -14,6 +15,7 @@ public class ObsField implements HtmlFormField {
 	private Concept question;
 	private List<ObsFieldAnswer> answers = new ArrayList<ObsFieldAnswer>();
 	private List<ObsFieldAnswer> questions = new ArrayList<ObsFieldAnswer>(); //for concept selects
+    private Obs existingObs; // any obs currently associated with this field
     
     public ObsField() { }
 
@@ -90,6 +92,18 @@ public class ObsField implements HtmlFormField {
 	public void setQuestions(List<ObsFieldAnswer> questions) {
 		this.questions = questions;
 	}
-	
-	
+
+    /**
+     * If used with the context of an existing form/encounter, any existing obs associated with this field is stored here
+     */
+    public Obs getExistingObs() {
+        return existingObs;
+    }
+
+    /**
+     * If used with the context of an existing form/encounter, any existing obs associated with this field is stored here
+     */
+    public void setExistingObs(Obs existingObs) {
+        this.existingObs = existingObs;
+    }
 }

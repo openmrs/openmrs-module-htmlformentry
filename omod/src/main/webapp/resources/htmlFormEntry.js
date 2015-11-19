@@ -190,6 +190,7 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 		    close: function(event, ui) {
 				if(select) {//user has selected item from the list
 					textField.css('color', 'green');
+					textField.trigger("change");
 
             }
 				else {
@@ -246,6 +247,7 @@ function setupOptionAutocomplete(element, optionnames, optionvalues){
        close: function(event, ui) {
 		    if(select) {//user has selected item from the list
 				textField.css('color', 'green');
+				textField.trigger("change");
             }
 			else {
                 textField.css('color', 'red');

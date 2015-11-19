@@ -5,13 +5,14 @@
 	Provider: <encounterProvider role="Provider"/>
 	<section headerLabel="Section One">
 			<section headerLabel="Section One Inner One">
-					<obsgroup groupingConceptId="1004" label="obsgroup1004">
-						<obsgroup groupingConceptId="7" label="obsgroup7">
-							ALLERGY CODED 2: <obs conceptId="1000"/>
-						</obsgroup>
-						Hyper-Allergy 1: <obs conceptId="1005"/>
-				    </obsgroup>			
+                <obsgroup groupingConceptId="1004" label="obsgroup1004">
+                    <obsgroup groupingConceptId="7" label="obsgroup7">
+                        <obs conceptId="1000"/>
+                    </obsgroup>
+                    <obs conceptId="1005"/>
+                </obsgroup>
 				<obs conceptIds="2474,3017,1441" answerConceptId="656"/> ISONIAZID
+                <obs conceptId="1000" answerConceptIds="2474,3017"/> ISONIAZID
 			</section>
 			<obs conceptId="3032" labelText="DST Result Date"/> DST START DATE
 	</section>

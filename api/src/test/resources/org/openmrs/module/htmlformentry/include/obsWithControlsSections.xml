@@ -11,9 +11,20 @@
             <when value="1002" elseJavaScript="window.alert('Not Cats!')"/>
         </controls>
     </obs>
+    <obs conceptId="1001" id="previous-admission">
+        <controls>
+            <when value="true" thenDisplay="#previous-admission-true"/>
+            <when value="false" thenDisplay="#previous-admission-false"/>
+            <when value="true" thenJavaScript="window.alert('Admited Before')"/>
+            <when value="true" elseJavaScript="window.alert('Not Admited Before')"/>
+        </controls>
+    </obs>
 
     <div id="penicillin-followup">blah</div>
     <div id="cats-followup">meow</div>
+    <div id="previous-admission-true">when</div>
+    <div id="previous-admission-false">ok</div>
+    
 
     <submit/>
 </htmlform>

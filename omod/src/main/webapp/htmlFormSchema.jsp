@@ -112,6 +112,7 @@
 		<b>${schema.name}</b>
 		<br>
 
+        <!-- todo: handle nested sections -->
 		<c:forEach items="${schema.sections}" var="section">
 			<div class="box">
 				<div class="boxHeader" style="background-color:yellow; color:black; font-weight:bold;">${section.name}</div>
@@ -123,6 +124,16 @@
 				</c:forEach>
 			</div>
 		</c:forEach>
+
+        <div class="box">
+            <div class="boxHeader" style="background-color:yellow; color:black; font-weight:bold;">${section.name}</div>
+            <c:forEach items="${schema.fields}" var="field">
+                <div>
+                    <htmlformentryTag:viewSchemaField field="${field}"/>
+                </div>
+                <br/>
+            </c:forEach>
+        </div>
 
 		<br>
 		<br>

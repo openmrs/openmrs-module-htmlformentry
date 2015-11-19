@@ -1,9 +1,25 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
-import org.openmrs.ConceptWord;
+import org.openmrs.ConceptSearchResult;
 import org.openmrs.Drug;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
@@ -18,21 +34,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 @Controller
 public class HtmlFormSearchController {
@@ -85,11 +86,11 @@ public class HtmlFormSearchController {
 			throw new Exception(
 					"answerconceptids set and answerclasses are both empty.");
 		}
-		List<ConceptWord> words = conceptService.getConceptWords(
+		List<ConceptSearchResult> results = conceptService.getConcepts(
                 query, l, false, cptClassList, null, null, null, null, null,
                 null);
 		if (!set.isEmpty()) {
-			for (Iterator<ConceptWord> it = words.iterator(); it.hasNext();) {
+			for (Iterator<ConceptSearchResult> it = results.iterator(); it.hasNext();) {
 				if (!set.contains(it.next().getConcept().getConceptId())) {
 					it.remove();
 				}
@@ -99,18 +100,18 @@ public class HtmlFormSearchController {
 		// return in JSON object list format
 		//[ { "id": "Dromas ardeola", "label": "Crab-Plover", "value":"Crab-Plover" },
 		out.print("[");
-		for (Iterator<ConceptWord> i = words.iterator(); i.hasNext();) {
-			ConceptWord w = i.next();
-			String ds = w.getConcept().getDisplayString();
+		for (Iterator<ConceptSearchResult> i = results.iterator(); i.hasNext();) {
+			ConceptSearchResult res = i.next();
+			String ds = res.getConcept().getDisplayString();
 			out.print("{ \"value\":\"");
-			if (w.getConceptName().isPreferred()
-					|| w.getConceptName().getName().equalsIgnoreCase(ds)) {
-				out.print(WebUtil.escapeQuotes(w.getConceptName().getName()));
+			if (res.getConceptName().isPreferred()
+					|| res.getConceptName().getName().equalsIgnoreCase(ds)) {
+				out.print(WebUtil.escapeQuotes(res.getConceptName().getName()));
 			} else {
-				out.print(WebUtil.escapeQuotes(w.getConcept().getDisplayString()));
+				out.print(WebUtil.escapeQuotes(res.getConcept().getDisplayString()));
 			}
 			out.print("\",\"id\"");
-			out.print(":\"" + w.getConcept().getId());
+			out.print(":\"" + res.getConcept().getId());
 			out.print("\"}");
 			if (i.hasNext())
 				out.print(",");

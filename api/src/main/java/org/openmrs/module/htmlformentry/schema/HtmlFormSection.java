@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Represents a section in the HTML Form schema
  */
-public class HtmlFormSection implements HtmlFormField {
+public class HtmlFormSection {
 
 	private String name;
 	private List<HtmlFormField> fields = new ArrayList<HtmlFormField>();
@@ -53,7 +53,7 @@ public class HtmlFormSection implements HtmlFormField {
 	/**
 	 * Sets the fields in the section
 	 * 
-	 * @param fieldss the fields to set
+	 * @param fields the fields to set
 	 */
 	public void setFields(List<HtmlFormField> fields) {
 		this.fields = fields;

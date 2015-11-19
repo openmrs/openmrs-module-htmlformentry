@@ -27,6 +27,7 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
@@ -66,6 +67,7 @@ public class FormEntryContext {
     private Map<String, String> javascriptFieldAccessorInfo = new LinkedHashMap<String, String>();
     private Translator translator = new Translator();
     private HtmlFormSchema schema = new HtmlFormSchema();
+    private Stack<HtmlFormSection> sectionsStack = new Stack<HtmlFormSection>();
     private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
     private ObsGroup activeObsGroup;
     
@@ -100,7 +102,6 @@ public class FormEntryContext {
     public FormEntryContext(Mode mode) {
         this.mode = mode;
         setupExistingData((Encounter) null);
-        schema.addSection(new HtmlFormSection());
         translator.setDefaultLocaleStr(LocaleUtility.getDefaultLocale().toString());
     }
     
@@ -211,6 +212,53 @@ public class FormEntryContext {
             ret.add(getFieldName(e));
         return ret;
     }
+
+    /**
+     * Adds a new section
+     */
+    public void beginSection(HtmlFormSection section) {
+
+        // is this a top-level section or it is a child of the existing section
+        if (sectionsStack.size() > 0) {
+            sectionsStack.peek().addChildSection(section);
+        }
+        else {
+            schema.getSections().add(section);
+        }
+
+        sectionsStack.push(section);
+    }
+
+    public void beginSection() {
+        beginSection(new HtmlFormSection());
+    }
+
+    public HtmlFormSection getActiveSection() {
+        if (sectionsStack.size() > 0) {
+            return sectionsStack.peek();
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Adds an HTML Form Field to the schema
+     *
+     * @param field the field to add
+     */
+    public void addFieldToActiveSection(HtmlFormField field) {
+        if (sectionsStack.size() > 0) {
+            sectionsStack.peek().addField(field);
+        }
+        else {
+            schema.getFields().add(field);
+        }
+    }
+
+    public void endSection(){
+        sectionsStack.pop();
+    }
        
     /**
      * Marks the start of a new {@see ObsGroup} within current Context
@@ -232,12 +280,16 @@ public class FormEntryContext {
     public ObsGroup getActiveObsGroup() {
     	return activeObsGroup;
     }
-    
-    /**
-     * Sets the active Obs group members to the Obs that are associated with the Obs passed as a parameter
-     * 
-     * @param group an Obs that should have group members
-     */
+
+    public void addFieldToActiveObsGroup(HtmlFormField field) {
+        getActiveObsGroup().getChildren().add(field);
+    }
+
+        /**
+         * Sets the active Obs group members to the Obs that are associated with the Obs passed as a parameter
+         *
+         * @param group an Obs that should have group members
+         */
     public void setObsGroup(Obs group) {
         if (group == null) {
             currentObsGroupMembers = null;
@@ -270,7 +322,7 @@ public class FormEntryContext {
             }
         } else {
             currentObsGroupMembers = null;
-            getSchema().addField(activeObsGroup);
+            addFieldToActiveSection(activeObsGroup);
             activeObsGroup = null;
         }
     }
