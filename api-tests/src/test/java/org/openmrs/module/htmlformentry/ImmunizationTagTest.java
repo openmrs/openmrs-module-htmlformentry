@@ -87,7 +87,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 						dates.add(dateAsString(obs.getValueDate()));
 					}
 				}
-				assertThat(immunizations, contains(hasId(783), hasId(886)));
+				assertThat(immunizations, contains(hasId(886), hasId(783)));
 				assertThat(dates, contains(dateAsString(date)));
 			}
 			
@@ -118,7 +118,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 						dates.add(dateAsString(obs.getValueDate()));
 					}
 				}
-				assertThat(immunizations, contains(hasId(783), hasId(886)));
+				assertThat(immunizations, contains(hasId(886), hasId(783)));
 				assertThat(dates, contains(dateAsString(editedDate)));
 			}
 		}.run();
