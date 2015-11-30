@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.openmrs.test.OpenmrsMatchers.hasId;
@@ -87,7 +88,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 						dates.add(dateAsString(obs.getValueDate()));
 					}
 				}
-				assertThat(immunizations, contains(hasId(886), hasId(783)));
+				assertThat(immunizations, containsInAnyOrder(hasId(886), hasId(783)));
 				assertThat(dates, contains(dateAsString(date)));
 			}
 			
@@ -118,7 +119,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 						dates.add(dateAsString(obs.getValueDate()));
 					}
 				}
-				assertThat(immunizations, contains(hasId(886), hasId(783)));
+				assertThat(immunizations, containsInAnyOrder(hasId(886), hasId(783)));
 				assertThat(dates, contains(dateAsString(editedDate)));
 			}
 		}.run();
