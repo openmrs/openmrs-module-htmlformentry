@@ -1,5 +1,38 @@
 package org.openmrs.module.htmlformentry;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,6 +68,7 @@ import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.obs.ComplexData;
@@ -53,26 +87,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * HTML Form Entry utility methods
@@ -860,6 +874,17 @@ public class HtmlFormEntryUtil {
 		return identifierType;
 	}
 	
+	public static ProgramWorkflow getWorkflow(Integer id) {
+		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
+			for (ProgramWorkflow w : p.getAllWorkflows()) {
+				if (w.getProgramWorkflowId().equals(id)) {
+					return w;
+				}
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Looks up a {@link ProgramWorkflow} by id, uuid or by concept map of the underlying concept
 	 */
@@ -874,7 +899,7 @@ public class HtmlFormEntryUtil {
 			// first try to fetch by id
 			try {
 				Integer id = Integer.valueOf(identifier);
-				workflow = Context.getProgramWorkflowService().getWorkflow(id);
+				workflow = getWorkflow(id);
 				
 				if (workflow != null) {
 					return workflow;
@@ -1061,6 +1086,29 @@ public class HtmlFormEntryUtil {
 
         return null;
     }
+    
+    private static List<ProgramWorkflowState> getStates(boolean includeRetired) {
+		List<ProgramWorkflowState> ret = new ArrayList<ProgramWorkflowState>();
+		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
+			for (ProgramWorkflow w : p.getAllWorkflows()) {
+				for (ProgramWorkflowState s : w.getStates()) {
+					if (includeRetired || !s.isRetired()) {
+						ret.add(s);
+					}
+				}
+			}
+		}
+		return ret;
+	}
+    
+    private static ProgramWorkflowState getState(Integer id) {
+		for (ProgramWorkflowState s : getStates(true)) {
+			if (s.getProgramWorkflowStateId().equals(id)) {
+				return s;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by
@@ -1082,7 +1130,7 @@ public class HtmlFormEntryUtil {
 				identifier = identifier.trim();
 
 				Integer id = Integer.valueOf(identifier);
-				state = Context.getProgramWorkflowService().getState(id);
+				state = getState(id);
 				
 				if (state != null) {
 					return state;
@@ -1584,7 +1632,7 @@ public class HtmlFormEntryUtil {
 			return providersByRoles != null && providersByRoles.size() > 0;
 		}
 		catch (Exception ex) {
-			return e.getProvider() != null;
+			return EncounterCompatibility.getProvider(e) != null;
 		}
 	}
 	

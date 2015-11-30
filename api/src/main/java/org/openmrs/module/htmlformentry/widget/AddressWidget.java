@@ -9,11 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
-import org.openmrs.layout.web.address.AddressSupport;
-import org.openmrs.layout.web.address.AddressTemplate;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.compatibility.AddressSupportCompatibility;
 
 /**
  * A widget that allows the input of a Person address. Implemented using text fields
@@ -49,7 +48,8 @@ public class AddressWidget extends Gadget {
 	@Override
     public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
-		AddressTemplate defaultLayoutTemplate = AddressSupport.getInstance().getDefaultLayoutTemplate();
+		AddressSupportCompatibility addressSupport = Context.getRegisteredComponent("htmlformentry.AddressSupportCompatibility", AddressSupportCompatibility.class);
+		
 		TextFieldWidget textFieldWidget;
 		Map<String, String> fieldMap;
 		
@@ -63,7 +63,7 @@ public class AddressWidget extends Gadget {
 		
 		sb.append("<table>");
 		
-		List<List<Map<String, String>>> fieldLines = defaultLayoutTemplate.getLines();
+		List<List<Map<String, String>>> fieldLines = addressSupport.getLines();
 		
 		for (List<Map<String, String>> line : fieldLines) {
 			sb.append("<tr>");
@@ -72,14 +72,14 @@ public class AddressWidget extends Gadget {
 				
 				fieldMap = iterator.next();				
 				
-				if (fieldMap.get("isToken").equals(defaultLayoutTemplate.getLayoutToken())) {
+				if (fieldMap.get("isToken").equals(addressSupport.getLayoutToken())) {
 					
 					String label = messageSourceService.getMessage(fieldMap.get("displayText"));
 					textFieldWidget = widgetMap.get(fieldMap.get("codeName"));
 					textFieldWidget.setTextFieldSize(Integer.parseInt(fieldMap.get("displaySize")));
 					sb.append("<td>").append(label).append("</td>");
-					if(!iterator.hasNext() && colIndex < defaultLayoutTemplate.getMaxTokens()){
-						sb.append("<td colspan='").append(defaultLayoutTemplate.getMaxTokens()-colIndex).append("'>");
+					if(!iterator.hasNext() && colIndex < addressSupport.getMaxTokens()){
+						sb.append("<td colspan='").append(addressSupport.getMaxTokens()-colIndex).append("'>");
 					}else{
 						sb.append("<td>");	
 					}
@@ -106,10 +106,10 @@ public class AddressWidget extends Gadget {
 		returnPersonAddress.setLatitude(getWidgetValue("latitude", context, request));
 		returnPersonAddress.setLongitude(getWidgetValue("longitude", context, request));
 		returnPersonAddress.setCountyDistrict(getWidgetValue("countyDistrict", context, request));
-		returnPersonAddress.setNeighborhoodCell(getWidgetValue("neighborhoodCell", context, request));
-		returnPersonAddress.setTownshipDivision(getWidgetValue("townshipDivision", context, request));
-		returnPersonAddress.setSubregion(getWidgetValue("subregion", context, request));
-		returnPersonAddress.setRegion(getWidgetValue("region", context, request));
+		returnPersonAddress.setAddress3(getWidgetValue("neighborhoodCell", context, request));
+		returnPersonAddress.setAddress4(getWidgetValue("townshipDivision", context, request));
+		returnPersonAddress.setAddress5(getWidgetValue("subregion", context, request));
+		returnPersonAddress.setAddress6(getWidgetValue("region", context, request));
 
 		if (context.getMode() == Mode.EDIT) {
 			PersonAddress preferedAddress = context.getExistingPatient().getPersonAddress();
@@ -143,10 +143,10 @@ public class AddressWidget extends Gadget {
 			setWidgetValue("latitude", initialValue.getLatitude());
 			setWidgetValue("longitude", initialValue.getLongitude());
 			setWidgetValue("countyDistrict", initialValue.getCountyDistrict());
-			setWidgetValue("neighborhoodCell", initialValue.getNeighborhoodCell());
-			setWidgetValue("townshipDivision", initialValue.getTownshipDivision());
-			setWidgetValue("subregion", initialValue.getSubregion());
-			setWidgetValue("region", initialValue.getRegion());
+			setWidgetValue("neighborhoodCell", initialValue.getAddress3());
+			setWidgetValue("townshipDivision", initialValue.getAddress4());
+			setWidgetValue("subregion", initialValue.getAddress5());
+			setWidgetValue("region", initialValue.getAddress6());
 		}
 	}
 

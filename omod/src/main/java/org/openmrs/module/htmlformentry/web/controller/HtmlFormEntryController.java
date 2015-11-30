@@ -1,19 +1,33 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Patient;
+import org.openmrs.User;
+import org.openmrs.api.APIAuthenticationException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.compatibility.EncounterServiceCompatibility;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
 import org.openmrs.util.OpenmrsUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -24,12 +38,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * The controller for entering/viewing a form.
@@ -47,6 +55,13 @@ public class HtmlFormEntryController {
     public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
     public final static String FORM_PATH = "/module/htmlformentry/htmlFormEntry";
    
+    // A place to store data that will persist longer than a session, but won't
+ 	// persist beyond application restart
+    private static Map<User, Map<String, Object>> volatileUserData = new WeakHashMap<User, Map<String, Object>>();
+    
+    @Autowired
+    private EncounterServiceCompatibility encounterServiceCompatibility;
+    
     @RequestMapping(method=RequestMethod.GET, value=FORM_PATH)
     public void showForm() {
     	// Intentionally blank. All work is done in the getFormEntrySession method 
@@ -138,7 +153,7 @@ public class HtmlFormEntryController {
 			if (StringUtils.hasText(which)) {
 	    		if (patient == null)
 	    			throw new IllegalArgumentException("Cannot specify 'which' without specifying a person/patient");
-	    		List<Encounter> encs = Context.getEncounterService().getEncounters(patient, null, null, null, Collections.singleton(form), null, null, false);
+	    		List<Encounter> encs = encounterServiceCompatibility.getEncounters(patient, null, null, null, Collections.singleton(form), null, null, null, null, false);
 	    		if (which.equals("first")) {
 	    			encounter = encs.get(0);
 	    		} else if (which.equals("last")) {
@@ -186,12 +201,55 @@ public class HtmlFormEntryController {
         // ensure we've generated the form's HTML (and thus set up the submission actions, etc) before we do anything
         session.getHtmlToDisplay();
 
-        Context.setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
+        setVolatileUserData(FORM_IN_PROGRESS_KEY, session);
        
         log.info("Took " + (System.currentTimeMillis() - ts) + " ms");
         
         return session;
     }
+    
+    /**
+	 * Get a piece of information for the currently authenticated user. This information is stored
+	 * only temporarily. When a new module is loaded or the server is restarted, this information
+	 * will disappear. If there is not information by this key, null is returned TODO: This needs to
+	 * be refactored/removed
+	 * 
+	 * @param key identifying string for the information
+	 * @return the information stored
+	 */
+    public static Object getVolatileUserData(String key) {
+		User u = Context.getAuthenticatedUser();
+		if (u == null) {
+			throw new APIAuthenticationException();
+		}
+		Map<String, Object> myData = volatileUserData.get(u);
+		if (myData == null) {
+			return null;
+		} else {
+			return myData.get(key);
+		}
+	}
+    
+    /**
+	 * Set a piece of information for the currently authenticated user. This information is stored
+	 * only temporarily. When a new module is loaded or the server is restarted, this information
+	 * will disappear
+	 * 
+	 * @param key identifying string for this information
+	 * @param value information to be stored
+	 */
+    public static void setVolatileUserData(String key, Object value) {
+		User u = Context.getAuthenticatedUser();
+		if (u == null) {
+			throw new APIAuthenticationException();
+		}
+		Map<String, Object> myData = volatileUserData.get(u);
+		if (myData == null) {
+			myData = new HashMap<String, Object>();
+			volatileUserData.put(u, myData);
+		}
+		myData.put(key, value);
+	}
     
     /*
      * I'm using a return type of ModelAndView so I can use RedirectView rather than "redirect:" and preserve the fact that

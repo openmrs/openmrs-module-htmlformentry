@@ -1,5 +1,20 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -21,6 +36,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
+import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
@@ -43,23 +59,9 @@ import org.openmrs.module.htmlformentry.widget.UploadWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.util.LocaleUtility;
-import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.util.RoleConstants;
 import org.openmrs.web.WebConstants;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -265,9 +267,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (parameters.containsKey("labelNameTag")) {
 			if (parameters.get("labelNameTag").equals("default"))
 				if (concepts != null)
-					valueLabel = answerConcept.getBestName(locale).getName();
+					valueLabel = answerConcept.getName(locale, false).getName();
 				else
-					valueLabel = concept.getBestName(locale).getName();
+					valueLabel = concept.getName(locale, false).getName();
 			else
 				throw new IllegalArgumentException("Name tags other than 'default' not yet implemented");
 		} else if (parameters.containsKey("labelText")) {
@@ -276,7 +278,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			valueLabel = context.getTranslator().translate(userLocaleStr, parameters.get("labelCode"));
 		} else {
 			if (concepts != null)
-				valueLabel = answerConcept.getBestName(locale).getName();
+				valueLabel = answerConcept.getName(locale, false).getName();
 			else
 				valueLabel = "";
 		}
@@ -311,7 +313,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (conceptLabels != null && i < conceptLabels.size()) {
 					label = conceptLabels.get(i);
 				} else {
-					label = c.getBestName(locale).getName();
+					label = c.getName(locale, false).getName();
 				}
 				((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(), false));
 			}
@@ -344,7 +346,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                     cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
                 }
 
-                boolean isPrecise = cn != null ? cn.isPrecise() : true;
+                ConceptCompatibility conceptCompatibility = Context.getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class);
+                boolean isPrecise = cn != null ? conceptCompatibility.isAllowDecimal(cn) : true;
 
 				if (parameters.get("answers") != null) {
 					try {
@@ -518,7 +521,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
 						// Otherwise, limit to users with the default OpenMRS PROVIDER role, 
 						else {
-							String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
+							String defaultRole = RoleConstants.PROVIDER;
 							Role role = Context.getUserService().getRole(defaultRole);
 							if (role != null) {
 								users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
@@ -656,7 +659,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						if (answerCode != null) {
 							answerLabel = context.getTranslator().translate(userLocaleStr, answerCode);
 						} else {
-							answerLabel = answerConcept.getBestName(locale).getName();
+							answerLabel = answerConcept.getName(locale, false).getName();
 						}
 					}
 					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
@@ -746,7 +749,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							if (answerLabels != null && i < answerLabels.size()) {
 								label = answerLabels.get(i);
 							} else {
-								label = c.getBestName(locale).getName();
+								label = c.getName(locale, false).getName();
 							}
 							((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(),
 							        false));
@@ -1287,8 +1290,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		@Override
 		public int compare(Concept c1, Concept c2) {
-			String n1 = c1.getBestName(locale).getName();
-			String n2 = c2.getBestName(locale).getName();
+			String n1 = c1.getName(locale, false).getName();
+			String n2 = c2.getName(locale, false).getName();
 			return n1.compareTo(n2);
 		}
 	};

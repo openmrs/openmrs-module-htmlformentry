@@ -1,7 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -12,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
-import org.openmrs.Drug;
 import org.openmrs.Form;
 import org.openmrs.Location;
 import org.openmrs.OpenmrsMetadata;
@@ -24,14 +22,11 @@ import org.openmrs.ProgramWorkflow;
 import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
-import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.compatibility.RegimenSuggestionCompatibility;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
-import org.openmrs.order.DrugOrderSupport;
-import org.openmrs.order.DrugSuggestion;
-import org.openmrs.order.RegimenSuggestion;
 
 /**
  * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
@@ -192,24 +187,9 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								//RegimenSuggestion -- see global property 'dashboard.regimen.standardRegimens'
-								if (RegimenSuggestion.class.equals(attributeDescriptor.getClazz())){
-									List<RegimenSuggestion> stRegimens = DrugOrderSupport.getInstance().getStandardRegimens();
-									if (stRegimens != null){
-										ConceptService cs = Context.getConceptService();
-										for (RegimenSuggestion rs : stRegimens){
-											if (rs.getCodeName().equals(id) && rs.getDrugComponents() != null){
-												for (DrugSuggestion ds : rs.getDrugComponents()){
-													Drug drug = cs.getDrugByNameOrId(ds.getDrugId());
-													if (drug == null)
-														 drug = cs.getDrugByUuid(ds.getDrugId());
-													if (drug != null)
-														dependencies.add(drug);
-												}
-											}
-										}
-									}
-								}
+								
+								RegimenSuggestionCompatibility regimen = Context.getRegisteredComponent("htmlformentry.RegimenSuggestionCompatibility", RegimenSuggestionCompatibility.class);
+								regimen.AddDrugDependencies(id, attributeDescriptor, dependencies);
 							}
 						}
 					}
