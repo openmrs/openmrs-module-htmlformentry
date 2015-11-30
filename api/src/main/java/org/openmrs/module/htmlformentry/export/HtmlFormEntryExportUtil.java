@@ -32,6 +32,7 @@ import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -184,7 +185,7 @@ public class HtmlFormEntryExportUtil {
         Encounter ret = new Encounter();
         ret.setCreator(e.getCreator());
         ret.setEncounterDatetime(e.getEncounterDatetime());
-        ret.setProvider(e.getProvider());
+        EncounterCompatibility.setProvider(ret, EncounterCompatibility.getProvider(e));
         ret.setLocation(e.getLocation());
         ret.setDateCreated(e.getDateCreated());
         ret.setPatient(e.getPatient());
@@ -287,9 +288,9 @@ public class HtmlFormEntryExportUtil {
         Locale loc = Context.getLocale();
         if (of.getQuestion() != null){
             //TODO: add fieldId, fieldPart, Page???
-            sb.append(of.getQuestion().getBestShortName(loc));
+            sb.append(of.getQuestion().getShortestName(loc, false));
         } else if (of.getAnswers().size() == 1){
-            sb.append(of.getAnswers().get(0).getConcept().getBestShortName(loc));
+            sb.append(of.getAnswers().get(0).getConcept().getShortestName(loc, false));
         } else {
             throw new RuntimeException("Obs Field has no conceptId, and multiple answers -- this isn't yet supported.");
         }
@@ -364,7 +365,7 @@ public class HtmlFormEntryExportUtil {
             sb.append(DEFAULT_QUOTE).append(e.getEncounterId()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);         
             sb.append(DEFAULT_QUOTE).append(DATE_FORMATTER.format(e.getEncounterDatetime())).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
             sb.append(DEFAULT_QUOTE).append(e.getLocation().getName()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
-            sb.append(DEFAULT_QUOTE).append(e.getProvider().getGivenName()+ " " + e.getProvider().getFamilyName()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
+            sb.append(DEFAULT_QUOTE).append(EncounterCompatibility.getProvider(e).getGivenName()+ " " + EncounterCompatibility.getProvider(e).getFamilyName()).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);
             sb.append(DEFAULT_QUOTE).append((e.getPatient() != null ? e.getPatient().getPatientId() : EMPTY)).append(DEFAULT_QUOTE).append(DEFAULT_COLUMN_SEPARATOR);       
             int index = 1;
             for (PatientIdentifierType pit :  pitList){
@@ -411,7 +412,7 @@ public class HtmlFormEntryExportUtil {
             if (ose.getConcept() != null)
                 sb.append((o != null) ? getObsValueAsString(Context.getLocale(), o):EMPTY);
             else 
-                sb.append((o != null) ? o.getConcept().getBestName(locale):EMPTY);
+                sb.append((o != null) ? o.getConcept().getName(locale, false):EMPTY);
             sb.append(DEFAULT_QUOTE);
             
             sb.append(DEFAULT_COLUMN_SEPARATOR);

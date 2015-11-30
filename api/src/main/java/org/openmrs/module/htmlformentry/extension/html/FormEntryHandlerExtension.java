@@ -13,7 +13,7 @@ import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.web.FormEntryContext;
 import org.openmrs.module.web.extension.FormEntryHandler;
-import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.util.PrivilegeConstants;
 
 /**
  * Defines the extension point that allows HTML Forms to appear in 
@@ -73,7 +73,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
     }
 
     private <C extends Collection<Form>> C addAllHtmlForms(C collection) {
-    	boolean showUnpublished = Context.getAuthenticatedUser().hasPrivilege(OpenmrsConstants.PRIV_VIEW_UNPUBLISHED_FORMS);
+    	boolean showUnpublished = Context.getAuthenticatedUser().hasPrivilege(PrivilegeConstants.VIEW_UNPUBLISHED_FORMS);
     	Set<Form> ret = new LinkedHashSet<Form>();
 	    for (HtmlForm form : HtmlFormEntryUtil.getService().getAllHtmlForms()) {
 	    	if (showUnpublished || form.getForm().getPublished())
