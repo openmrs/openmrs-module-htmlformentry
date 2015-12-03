@@ -50,7 +50,7 @@ public abstract class LogicConditionalIncludeTagHandler extends SimpleConditiona
                 return false;
             else {
                 try {
-                    return ls.eval(session.getPatient().getPatientId(), logicCriteria).toBoolean();
+                    return ls.eval(session.getPatient(), logicCriteria).toBoolean();
                 } catch (Exception ex) {
                     throw new BadFormDesignException(ex.getMessage());
                 }

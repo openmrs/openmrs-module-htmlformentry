@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -22,7 +23,6 @@ import org.openmrs.ConceptSearchResult;
 import org.openmrs.Drug;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.compatibility.DrugCompatibility;
 import org.openmrs.propertyeditor.ConceptClassEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.util.OpenmrsConstants;
@@ -40,9 +40,6 @@ public class HtmlFormSearchController {
 
     @Autowired
     private ConceptService conceptService;
-    
-    @Autowired
-    private DrugCompatibility drugCompatibility;
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -146,7 +143,7 @@ public class HtmlFormSearchController {
             }
         }
 
-        List<Map<String, Object>> simplified = drugCompatibility.simplify(drugs);
+        List<Map<String, Object>> simplified = simplify(drugs);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -154,4 +151,29 @@ public class HtmlFormSearchController {
 
         new ObjectMapper().writeValue(out, simplified);
     }
+
+    private List<Map<String, Object>> simplify(List<Drug> drugs) {
+        List<Map<String, Object>> simplified = new ArrayList<Map<String, Object>>();
+        Locale locale = Context.getLocale();
+        for (Drug drug : drugs) {
+            Map<String, Object> item = new LinkedHashMap<String, Object>();
+            item.put("id", drug.getId());
+            item.put("name", drug.getName());
+            if (drug.getDosageForm() != null) {
+                item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
+            }
+            if (drug.getRoute() != null) {
+                item.put("route", drug.getRoute().getName(locale).getName());
+            }
+            item.put("doseStrength", drug.getDoseStrength());
+            item.put("units", drug.getUnits());
+            item.put("combination", drug.getCombination());
+            if (drug.getConcept() != null) {
+                item.put("concept", drug.getConcept().getName(locale).getName());
+            }
+            simplified.add(item);
+        }
+        return simplified;
+    }
+
 }

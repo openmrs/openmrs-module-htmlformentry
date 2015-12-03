@@ -1,10 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -17,7 +12,6 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
-import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ObsService;
@@ -27,8 +21,12 @@ import org.openmrs.logic.LogicCriteria;
 import org.openmrs.logic.LogicService;
 import org.openmrs.logic.result.EmptyResult;
 import org.openmrs.logic.result.Result;
-import org.openmrs.module.htmlformentry.compatibility.EncounterServiceCompatibility;
 import org.openmrs.util.LocaleUtility;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 
 public class VelocityFunctions {
@@ -164,9 +162,7 @@ public class VelocityFunctions {
 			else {
 				List<EncounterType> typeList = new ArrayList<EncounterType>();
 				typeList.add(type);
-				
-				EncounterServiceCompatibility esc = Context.getRegisteredComponent("htmlformentry.EncounterServiceCompatibility", EncounterServiceCompatibility.class);
-				return esc.getEncounters(p, null, null, null, null, typeList, null, null, null, false);
+				return Context.getEncounterService().getEncounters(p, null, null, null, null, typeList, null, false);
 			}
 		}
 	}
@@ -208,18 +204,7 @@ public class VelocityFunctions {
 			return new EmptyResult();
 		cannotBePreviewed();
 		LogicCriteria lc = getLogicService().parse(expression);
-		return getLogicService().eval(session.getPatient().getPatientId(), lc);
-	}
-	
-	public ProgramWorkflow getWorkflow(Integer id) {
-		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
-			for (ProgramWorkflow w : p.getAllWorkflows()) {
-				if (w.getProgramWorkflowId().equals(id)) {
-					return w;
-				}
-			}
-		}
-		return null;
+		return getLogicService().eval(session.getPatient(), lc);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -229,7 +214,7 @@ public class VelocityFunctions {
 			return null;
 		}
 		cannotBePreviewed();
-		ProgramWorkflow workflow = getWorkflow(programWorkflowId); // not sure if and how I want to reference the UUID
+		ProgramWorkflow workflow = getProgramWorkflowService().getWorkflow(programWorkflowId); // not sure if and how I want to reference the UUID
 		List<PatientProgram> pps = getProgramWorkflowService().getPatientPrograms(p, workflow.getProgram(), null, null,
 		    null, null, false);
 		PatientProgram mostRecentPatientProgram = null;

@@ -32,7 +32,7 @@ public class DeleteEncounterController {
                                       @RequestParam(value="returnUrl", required=false) String returnUrl,
                                       HttpServletRequest request) throws Exception {
         Encounter enc = Context.getEncounterService().getEncounter(encounterId);
-        Integer ptId = enc.getPatient().getPatientId();
+        Integer ptId = enc.getPatientId();
         HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
         HtmlForm form = hfes.getHtmlForm(htmlFormId);
         HtmlFormEntryUtil.voidEncounter(enc, form, reason);

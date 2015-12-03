@@ -81,7 +81,7 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
         //next, just setup all variables:
         if (parameters.containsKey("labelNameTag")) {
             if (parameters.get("labelNameTag").equals("default"))
-                valueLabel = answerConcept.getName(Context.getLocale(), false).getName();
+                valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
             else
                 throw new IllegalArgumentException(
                         "Name tags other than 'default' not yet implemented");
@@ -91,7 +91,7 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
             valueLabel = context.getTranslator().translate(userLocaleStr,
                     parameters.get("labelCode"));
         } else {
-            valueLabel = answerConcept.getName(Context.getLocale(), false).getName();
+            valueLabel = answerConcept.getBestName(Context.getLocale()).getName();
         }
         if (parameters.get("conceptLabels") != null) {
             conceptLabels = Arrays.asList(parameters.get("conceptLabels").split(","));
@@ -108,7 +108,7 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
             if (conceptLabels != null && i < conceptLabels.size()) {
                 label = conceptLabels.get(i);
             } else {
-                label = c.getName(Context.getLocale(), false).getName();
+                label = c.getBestName(Context.getLocale()).getName();
             }
             ((SingleOptionWidget) valueWidget).addOption(new Option(
                 label, c.getConceptId().toString(), false));

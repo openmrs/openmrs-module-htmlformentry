@@ -28,24 +28,20 @@
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
-			<version>${openMRSBuildVersion}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
 			<classifier>tests</classifier>
-			<version>${openMRSBuildVersion}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.test</groupId>
 			<artifactId>openmrs-test</artifactId>
 			<type>pom</type>
-			<version>${openMRSBuildVersion}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.web</groupId>
 			<artifactId>openmrs-web</artifactId>
-			<version>${openMRSBuildVersion}</version>
 		</dependency>
 
 		<!-- jars we need to provide for compile but that will be provided at runtime 

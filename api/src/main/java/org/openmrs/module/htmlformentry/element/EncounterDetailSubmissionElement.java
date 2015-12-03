@@ -1,18 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -29,7 +16,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
-import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
@@ -43,8 +29,19 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
-import org.openmrs.util.RoleConstants;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -174,7 +171,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 else {
                     if (openmrsVersionDoesNotSupportProviders()) {
                         // limit to users with the default OpenMRS PROVIDER role,
-                        String defaultRole = RoleConstants.PROVIDER;
+                        String defaultRole = OpenmrsConstants.PROVIDER_ROLE;
                         Role role = Context.getUserService().getRole(defaultRole);
                         if (role != null) {
                             users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
@@ -202,7 +199,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             Person defaultProvider = null;
             Option defProviderOption;
             if (context.getExistingEncounter() != null) {
-                defaultProvider = EncounterCompatibility.getProvider(context.getExistingEncounter());
+                defaultProvider = context.getExistingEncounter().getProvider();
                 // this is done to avoid default provider being added twice due to that it can be added from the
                 // users = getAllProvidersThatArePersonsAsPersonStubs(); section with selected="false", therefore this can't be caught when
                 // searching whether the options list contains the 'defaultProvider'
@@ -738,7 +735,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         if (providerWidget != null) {
             Object value = providerWidget.getValue(session.getContext(), submission);
             Person person = (Person) convertValueToProvider(value);
-            EncounterCompatibility.setProvider(session.getSubmissionActions().getCurrentEncounter(), person);
+            session.getSubmissionActions().getCurrentEncounter().setProvider(person);
         }
         if (locationWidget != null) {
             Object value = locationWidget.getValue(session.getContext(), submission);

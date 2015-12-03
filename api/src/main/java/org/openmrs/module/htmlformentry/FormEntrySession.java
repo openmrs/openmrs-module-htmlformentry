@@ -1,15 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -31,7 +21,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.compatibility.PatientServiceCompatibility;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
@@ -40,6 +29,15 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -498,7 +496,7 @@ public class FormEntrySession {
                     o.setObsDatetime(o.getEncounter().getEncounterDatetime());
                     if (log.isDebugEnabled())
                         log.debug("Set obsDatetime to " + o.getObsDatetime() + " for "
-                                + o.getConcept().getName(Context.getLocale()));
+                                + o.getConcept().getBestName(Context.getLocale()));
                 }
                 if (o.getLocation() == null && o.getEncounter() != null) {
                     o.setLocation(o.getEncounter().getLocation());
@@ -697,8 +695,7 @@ public class FormEntrySession {
                 Context.getPatientService().processDeath(this.getPatient(), exitFromCareProperty.getDateOfExit(),
                         exitFromCareProperty.getCauseOfDeathConcept(), exitFromCareProperty.getOtherReason());
             } else {
-            	PatientServiceCompatibility patientService = Context.getRegisteredComponent("htmlformentry.PatientServiceCompatibility", PatientServiceCompatibility.class);
-            	patientService.exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
+                Context.getPatientService().exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(), exitFromCareProperty.getReasonExitConcept());
             }
 
         }

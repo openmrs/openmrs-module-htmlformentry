@@ -11,9 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
+import org.openmrs.layout.web.name.NameSupport;
+import org.openmrs.layout.web.name.NameTemplate;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.compatibility.NameSupportCompatibility;
 
 /**
  * A widget that allows the input of a Person name. Implemented using text fields
@@ -43,8 +44,7 @@ public class NameWidget extends Gadget {
 	@Override
     public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
-		NameSupportCompatibility nameSupport = Context.getRegisteredComponent("htmlformentry.NameSupportCompatibility", NameSupportCompatibility.class);
-
+		NameTemplate defaultLayoutTemplate = NameSupport.getInstance().getDefaultLayoutTemplate();
 		TextFieldWidget textFieldWidget;
 		Map<String, String> fieldMap;
 
@@ -58,7 +58,7 @@ public class NameWidget extends Gadget {
 
 		sb.append("<table>");
 
-		List<List<Map<String, String>>> fieldLines = nameSupport.getLines();
+		List<List<Map<String, String>>> fieldLines = defaultLayoutTemplate.getLines();
 
 		for (List<Map<String, String>> line : fieldLines) {
 			sb.append("<tr>");
@@ -67,14 +67,14 @@ public class NameWidget extends Gadget {
 
 				fieldMap = iterator.next();
 
-				if (fieldMap.get("isToken").equals(nameSupport.getLayoutToken())) {
+				if (fieldMap.get("isToken").equals(defaultLayoutTemplate.getLayoutToken())) {
 
 					String label = messageSourceService.getMessage(fieldMap.get("displayText"));
 					textFieldWidget = widgetMap.get(fieldMap.get("codeName"));
 					textFieldWidget.setTextFieldSize(Integer.parseInt(fieldMap.get("displaySize")));
 					sb.append("<td>").append(label).append("</td>");
-					if (!iterator.hasNext() && colIndex < nameSupport.getMaxTokens()) {
-						sb.append("<td colspan='").append(nameSupport.getMaxTokens() - colIndex).append("'>");
+					if (!iterator.hasNext() && colIndex < defaultLayoutTemplate.getMaxTokens()) {
+						sb.append("<td colspan='").append(defaultLayoutTemplate.getMaxTokens() - colIndex).append("'>");
 					}
 					else {
 						sb.append("<td>");
