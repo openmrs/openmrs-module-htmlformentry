@@ -22,8 +22,8 @@ public class ExitFromCareTagHandler extends SubstitutionTagHandler{
                                 Map<String, String> parameters) throws BadFormDesignException {
 
         ExitFromCareSubmissionElement element = new ExitFromCareSubmissionElement(session.getContext(), parameters);
-		session.getSubmissionController().addAction(element);
+			session.getSubmissionController().addAction(element);
 
-		return element.generateHtml(session.getContext());
+			return element.generateHtml(session.getContext());
     }
 }

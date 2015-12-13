@@ -56,7 +56,7 @@ public abstract class LogicConditionalIncludeTagHandler extends SimpleConditiona
                 }
             }
         } else {
-            throw new BadFormDesignException("The " + testStr + "is not a valid logic expression");//throw a bad form desigm
+            throw new BadFormDesignException("The " + testStr + "is not a valid logic expression");//throw a bad form design
         }
     }
 

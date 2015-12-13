@@ -24,29 +24,30 @@ import org.openmrs.order.RegimenSuggestion;
 import org.openmrs.util.OpenmrsUtil;
 
 public class StandardRegimenElement1_10 extends StandardRegimenElement {
-	
+
 	private DropdownWidget careSettingWidget;
-	
+
 	public StandardRegimenElement1_10(FormEntryContext context, Map<String, String> parameters) {
 		super(context, parameters);
 	}
-	
+
 	@Override
 	protected void createAdditionalWidgets(FormEntryContext context, Map<String, String> parameters) {
 		//We support inpatient care settings only since numberOfRefills and quantity cannot
 		//be specified for DrugSuggestion
 		careSettingWidget = DrugOrderSubmissionElement1_10.createCareSettingWidget(context, true);
 	}
-	
+
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		MessageSourceService mss = Context.getMessageSourceService();
 		String html = super.generateHtml(context);
-		html += DrugOrderSubmissionElement.generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.careSetting") + " ",
-		    careSettingWidget, null);
+		html += DrugOrderSubmissionElement.generateHtmlForWidget(context,
+																								mss.getMessage("htmlformentry.drugOrder.careSetting") + " ",
+		    																				careSettingWidget, null);
 		return html;
 	}
-	
+
 	@Override
 	protected void matchStandardRegimenInExistingOrders(FormEntryContext context) {
 		Map<RegimenSuggestion, List<DrugOrder>> map = RegimenUtil1_10.findStrongestStandardRegimenInDrugOrders(
@@ -64,7 +65,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 				discontinuedReasonWidget.setInitialValue(discontinuationOrder.getOrderReason().getConceptId());
 		}
 	}
-	
+
 	@Override
 	protected Date getCommonDiscontinueDate(List<DrugOrder> orders) {
 		Date candidate = null;
@@ -76,7 +77,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 		}
 		return candidate;
 	}
-	
+
 	@Override
 	protected void enterStandardRegimen(FormEntrySession session, HttpServletRequest submission, String regCode,
 	        Date startDate, Date discontinuedDate, String discontinuedReasonStr) {
@@ -107,13 +108,13 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 			}
 		}
 	}
-	
+
 	private CareSetting getCareSetting(FormEntrySession session, HttpServletRequest submission) {
 		Integer careSettingId = Integer.valueOf((String) careSettingWidget.getValue(session.getContext(), submission));
 		CareSetting careSetting = Context.getOrderService().getCareSetting(careSettingId);
 		return careSetting;
 	}
-	
+
 	private void setOrderer(Order o, FormEntrySession session) {
 		Set<EncounterProvider> encounterProviders = session.getSubmissionActions().getCurrentEncounter()
 		        .getEncounterProviders();
@@ -124,7 +125,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void editStandardRegimen(FormEntrySession session, HttpServletRequest submission, String regCode,
 	        Date startDate, Date discontinuedDate, String discontinuedReasonStr) {
@@ -134,12 +135,18 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 		RegimenSuggestion rs = RegimenUtil1_10.getStandardRegimenByCode(possibleRegimens, regCode);
 		Set<Order> ords = RegimenUtil1_10.standardRegimenToDrugOrders(rs, startDate, session.getPatient());
 		for (Order o : ords) {
-			if (o.getDateCreated() == null)
+			if (o.getDateCreated() == null) {
 				o.setDateCreated(new Date());
-			if (o.getCreator() == null)
+			}
+
+			if (o.getCreator() == null) {
 				o.setCreator(Context.getAuthenticatedUser());
-			if (o.getUuid() == null)
+			}
+
+			if (o.getUuid() == null) {
 				o.setUuid(UUID.randomUUID().toString());
+			}
+
 			if (o.getOrderer() == null) {
 				setOrderer(o, session);
 			}
@@ -147,7 +154,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 				CareSetting careSetting = getCareSetting(session, submission);
 				o.setCareSetting(careSetting);
 			}
-			
+
 			Order discontinuationOrder = null;
 			if (discontinuedDate != null) {
 				discontinuationOrder = newDiscontinuationOrder(discontinuedDate, discontinuedReasonStr, o);
@@ -158,7 +165,7 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 			}
 		}
 	}
-	
+
 	private Order newDiscontinuationOrder(Date discontinuedDate, String discontinuedReasonStr, Order o) {
 		Order discontinuationOrder;
 		discontinuationOrder = o.cloneForDiscontinuing();

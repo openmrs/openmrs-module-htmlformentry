@@ -24,9 +24,9 @@ import org.openmrs.util.OpenmrsConstants;
 /**
  * This class defines the links that will appear on the administration page
  * under the "basicmodule.title" heading.
- * 
- * This extension is enabled by defining (uncommenting) it in the 
- * /metadata/config.xml file. 
+ *
+ * This extension is enabled by defining (uncommenting) it in the
+ * /metadata/config.xml file.
  */
 public class AdminList extends AdministrationSectionExt {
 
@@ -37,7 +37,7 @@ public class AdminList extends AdministrationSectionExt {
     public Extension.MEDIA_TYPE getMediaType() {
 		return Extension.MEDIA_TYPE.html;
 	}
-	
+
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getTitle()
 	 */
@@ -45,21 +45,21 @@ public class AdminList extends AdministrationSectionExt {
     public String getTitle() {
 		return "htmlformentry.title";
 	}
-	
+
 	/**
 	 * @see org.openmrs.module.web.extension.AdministrationSectionExt#getLinks()
 	 */
 	@Override
     public Map<String, String> getLinks() {
-		
+
 		Map<String, String> map = new LinkedHashMap<String, String>();
-		
-			map.put("module/htmlformentry/htmlForms.list", "htmlformentry.manage");
-			map.put("module/htmlformentry/htmlFormFromFile.form", "htmlformentry.preview");
-			if (HtmlFormEntryUtil.getService().needsNameAndDescriptionMigration()) {
-				map.put("module/htmlformentry/migrateNamesAndDescriptions.form", "htmlformentry.migrateNamesAndDescriptions");
-			}
-			
+
+		map.put("module/htmlformentry/htmlForms.list", "htmlformentry.manage");
+		map.put("module/htmlformentry/htmlFormFromFile.form", "htmlformentry.preview");
+		if (HtmlFormEntryUtil.getService().needsNameAndDescriptionMigration()) {
+			map.put("module/htmlformentry/migrateNamesAndDescriptions.form", "htmlformentry.migrateNamesAndDescriptions");
+		}
+
 		return map;
 	}
 
@@ -70,5 +70,5 @@ public class AdminList extends AdministrationSectionExt {
     public String getRequiredPrivilege() {
 	    return OpenmrsConstants.PRIV_MANAGE_FORMS;
     }
-	
+
 }

@@ -36,8 +36,11 @@ public class ConceptSeachAutocompleteWidgetTest {
         ConceptSearchAutocompleteWidget conceptSearchAutocompleteWidget = new ConceptSearchAutocompleteWidget(generateConceptList(), null);
         String html = conceptSearchAutocompleteWidget.generateHtml(context);
 
-        TestUtil.assertFuzzyContains("<input type=\"text\" id=\"w2\" name=\"w2\" onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','1,2,3','null'\\); \"class=\"autoCompleteText\" onchange=\"setValWhenAutocompleteFieldBlanked\\(this\\)\" onblur=\"onBlurAutocomplete\\(this\\)\"/>" +
-                        "<input name=\"w2_hid\" id=\"w2_hid\" type=\"hidden\" class=\"autoCompleteHidden\" />",
+        TestUtil.assertFuzzyContains("<input type=\"text\" id=\"w2\" name=\"w2\" "
+															+ " onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','1,2,3','null'\\); "
+															+ " \"class=\"autoCompleteText\" onchange=\"setValWhenAutocompleteFieldBlanked\\(this\\)\" "
+															+ " onblur=\"onBlurAutocomplete\\(this\\)\"/>"
+															+ "<input name=\"w2_hid\" id=\"w2_hid\" type=\"hidden\" class=\"autoCompleteHidden\" />",
                 html);
     }
 

@@ -27,25 +27,25 @@ import org.springframework.mock.web.MockHttpServletRequest;
 
 
 public class StandardRegimenTagTest extends BaseModuleContextSensitiveTest {
-	
-protected final Log log = LogFactory.getLog(getClass());
-	
+
+	protected final Log log = LogFactory.getLog(getClass());
+
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	protected static final String XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET = "RegimenUtilsTest.xml";
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElementDataSet";
 
 	@Before
-    public void setupDatabase() throws Exception {
+  public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
-		
-		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);	
+
+		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
 		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS);
 		gp.setPropertyValue(xml);
 		Context.getAdministrationService().saveGlobalProperty(gp);
-    }
-	
+  }
+
 	@Test
 	public void testStandardRegimenTag_shouldCreateStandardRegimen() throws Exception {
 		new RegressionTestHelper() {
@@ -54,18 +54,18 @@ protected final Log log = LogFactory.getLog(getClass());
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:"};
-				
+
 			}
-			
+
 			@Override
 			public void testBlankFormHtml(String html){
 				//System.out.println(html);
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -76,7 +76,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.addParameter("w9", dateAsString(date));
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -84,13 +84,13 @@ protected final Log log = LogFactory.getLog(getClass());
 				Encounter e = results.getEncounterCreated();
 				Assert.assertTrue(e != null);
 				Assert.assertTrue(e.getOrders() != null);
-				
+
 				// build the list of drugs that should be in the order in the order
 				Set<Integer> drugsInOrder = new HashSet<Integer>();
 				drugsInOrder.add(2);
 				drugsInOrder.add(3);
 				drugsInOrder.add(11);
-				
+
 				Assert.assertTrue(e.getOrders().size() == 3);
 				for (Order o : e.getOrders()){
 					if (o instanceof DrugOrder == false) {
@@ -104,7 +104,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 		}.run();
 	}
-	
+
 	@Test
 	public void testStandardRegimenTag_shouldCreateEncounterWithNoRegimenCodeSelectedWithNoOrders() throws Exception {
 		new RegressionTestHelper() {
@@ -113,18 +113,18 @@ protected final Log log = LogFactory.getLog(getClass());
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:"};
-				
+
 			}
-			
+
 			@Override
 			public void testBlankFormHtml(String html){
 				//System.out.println(html);
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -135,7 +135,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				request.addParameter("w9", dateAsString(date));
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -144,7 +144,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 		}.run();
 	}
-	
+
 	@Test
 	public void testStandardRegimenTag_shouldNotValidateWithoutStartDateIfRegimenCodeSelected() throws Exception {
 		new RegressionTestHelper() {
@@ -153,18 +153,18 @@ protected final Log log = LogFactory.getLog(getClass());
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:"};
-				
+
 			}
-			
+
 			@Override
 			public void testBlankFormHtml(String html){
 				//System.out.println(html);
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -175,15 +175,15 @@ protected final Log log = LogFactory.getLog(getClass());
 				//start date
 				//request.addParameter("w9", dateAsString(date));
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertErrors();
 			}
 		}.run();
 	}
-	
-	
+
+
 	@Test
 	public void testStandardRegimenTag_shouldCreateStandardRegimenUsingAllAttributes() throws Exception {
 		new RegressionTestHelper() {
@@ -192,18 +192,18 @@ protected final Log log = LogFactory.getLog(getClass());
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:"};
-				
+
 			}
-			
+
 			@Override
 			public void testBlankFormHtml(String html){
 				//System.out.println(html);
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -218,7 +218,7 @@ protected final Log log = LogFactory.getLog(getClass());
 				//discontinue reason
 				request.addParameter("w13", "102");
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -237,21 +237,21 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 		}.run();
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testStandardRegimenTag_shouldThrowIllegalArgException() throws Exception {
-		new RegressionTestHelper() {		
-			
+		new RegressionTestHelper() {
+
 			@Override
 			public String getFormName() {
 				//this form contains a standardRegimenCode not found in RegimenUtilsTest.xml helper file
 				return "standardRegimenTestFormBad";
 			}
-			
+
 		}.run();
 	}
-	
-	
+
+
 	@Test
 	public void testStandardRegimenTag_shouldRecognizeStandardRegimenInEditMode_AllFields() throws Exception {
 		new RegressionTestHelper() {
@@ -260,7 +260,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public Encounter getEncounterToView(){
 				Encounter e = new Encounter();
@@ -282,11 +282,11 @@ protected final Log log = LogFactory.getLog(getClass());
 					o.setDiscontinued(true);
 					o.setDiscontinuedReasonNonCoded("non-coded reason");
 					e.addOrder(o);
-				}	
+				}
 				//save so interceptor sets missing mandatory values
 				return Context.getEncounterService().saveEncounter(e);
 			}
-			
+
 			@Override
 			public void testViewingEncounter(Encounter e, String html){
 				//System.out.println(html);
@@ -296,7 +296,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 		}.run();
 	}
-	
+
 	@Test
 	public void testStandardRegimenTag_shouldRecognizeAllFields_StartDateAndRegimenOnly() throws Exception {
 		new RegressionTestHelper() {
@@ -305,7 +305,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-			
+
 			@Override
 			public Encounter getEncounterToView(){
 				Encounter e = new Encounter();
@@ -322,11 +322,11 @@ protected final Log log = LogFactory.getLog(getClass());
 				Set<Order> dors = RegimenUtil.standardRegimenToDrugOrders(rsug, date, p);
 				for (Order o : dors){
 					e.addOrder(o);
-				}	
+				}
 				//save so interceptor sets missing mandatory values
 				return Context.getEncounterService().saveEncounter(e);
 			}
-			
+
 			@Override
 			public void testViewingEncounter(Encounter e, String html){
 				//System.out.println(html);

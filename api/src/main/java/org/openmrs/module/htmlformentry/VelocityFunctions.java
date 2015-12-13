@@ -30,68 +30,73 @@ import java.util.Locale;
 
 
 public class VelocityFunctions {
-	
+
 	private FormEntrySession session;
 	private ObsService obsService;
 	private LogicService logicService;
 	private ProgramWorkflowService programWorkflowService;
 	private AdministrationService administrationService;
-	
+
 	public VelocityFunctions(FormEntrySession session) {
 		this.session = session;
 	}
-	
+
 	private ObsService getObsService() {
-		if (obsService == null)
+		if (obsService == null) {
 			obsService = Context.getObsService();
+		}
 		return obsService;
 	}
-	
+
 	private LogicService getLogicService() {
-		if (logicService == null)
+		if (logicService == null) {
 			logicService = Context.getLogicService();
+		}
 		return logicService;
 	}
-	
+
 	private ProgramWorkflowService getProgramWorkflowService() {
-		if (programWorkflowService == null)
+		if (programWorkflowService == null) {
 			programWorkflowService = Context.getProgramWorkflowService();
+		}
 		return programWorkflowService;
 	}
 
 	private AdministrationService getAdministrationService() {
-		if (administrationService == null)
+		if (administrationService == null) {
 			administrationService = Context.getAdministrationService();
+		}
 		return administrationService;
 	}
-	
+
 	private void cannotBePreviewed() {
-		if ("testing-html-form-entry".equals(session.getPatient().getUuid()))
+		if ("testing-html-form-entry".equals(session.getPatient().getUuid())) {
 			throw new CannotBePreviewedException();
-    }
+		}
+  }
 
 	public List<Obs> allObs(String conceptId) {
 
-        if (session.getPatient() == null) {
+    if (session.getPatient() == null) {
 			return new ArrayList<Obs>();
-        }
+    }
 
-        cannotBePreviewed();
+    cannotBePreviewed();
 
-        Patient p = session.getPatient();
+    Patient p = session.getPatient();
 		Concept concept = HtmlFormEntryUtil.getConcept(conceptId);
 
-        if (p == null || concept == null) {
+    if (p == null || concept == null) {
 			return new ArrayList<Obs>();
-        }
-        else {
+    }
+    else {
 			return getObsService().getObservationsByPersonAndConcept(p, concept);
-        }
+    }
 	}
 
-    public List<Obs> allObs(Integer conceptId) {
-        return allObs(conceptId.toString());
-    }
+  public List<Obs> allObs(Integer conceptId) {
+      return allObs(conceptId.toString());
+  }
 
 
     /**
@@ -100,20 +105,19 @@ public class VelocityFunctions {
 	 */
 	public Obs latestObs(String conceptId) {
 
-        List<Obs> obs = allObs(conceptId);
+    List<Obs> obs = allObs(conceptId);
 
-        if (obs == null || obs.isEmpty()) {
+    if (obs == null || obs.isEmpty()) {
 			return null;
-        }
-		else {
+    } else {
 			return obs.get(0);
-        }
+    }
 
 	}
 
-    public Obs latestObs(Integer conceptId) {
-        return latestObs(conceptId.toString());
-    }
+  public Obs latestObs(Integer conceptId) {
+      return latestObs(conceptId.toString());
+  }
 
 	/**
 	 * @return the first obs given the passed conceptId
@@ -121,31 +125,30 @@ public class VelocityFunctions {
 	 */
 	public Obs earliestObs(String conceptId) {
 
-        List<Obs> obs = allObs(conceptId);
+    List<Obs> obs = allObs(conceptId);
 
-        if (obs == null || obs.isEmpty()) {
-				return null;
-        }
-		else {
+    if (obs == null || obs.isEmpty()) {
+			return null;
+    } else {
 			return obs.get(obs.size() - 1);
-        }
+    }
 
 	}
 
-    public Obs earliestObs(Integer conceptId) {
-        return earliestObs(conceptId.toString());
-    }
+  public Obs earliestObs(Integer conceptId) {
+      return earliestObs(conceptId.toString());
+  }
 
 	/**
 	 * @return the all the encounters of the specified type
 	 * @should return all the encounters of the specified type
 	 * @should return all encounters if no type specified
 	 */
-    public List<Encounter> allEncounters(String encounterTypeId){
+  public List<Encounter> allEncounters(String encounterTypeId){
 		EncounterType encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
 		return getAllEncounters(encounterType);
-    }
-    
+  }
+
 	private List<Encounter> getAllEncounters(EncounterType type) {
 		if (session.getPatient() == null) {
 			return new ArrayList<Encounter>();
@@ -166,7 +169,7 @@ public class VelocityFunctions {
 			}
 		}
 	}
-	
+
 	/**
 	 * @return the most recent encounter of the specified type
 	 * @should return the most recent encounter of the specified type
@@ -175,12 +178,12 @@ public class VelocityFunctions {
 	public Encounter latestEncounter(String encounterTypeId){
 		EncounterType encounterType = null;
 		if (StringUtils.isNotEmpty(encounterTypeId)) {
-			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);			
+			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
 		}
-		
+
 		return getLatestEncounter(encounterType);
 	}
-	
+
 	private Encounter getLatestEncounter(EncounterType type) {
 		List<Encounter> encounters = getAllEncounters(type);
 		if (encounters == null || encounters.isEmpty()) {
@@ -190,7 +193,7 @@ public class VelocityFunctions {
 			return encounters.get(encounters.size() - 1);
 		}
 	}
-	
+
 	/**
 	 * @return the most recent encounter
 	 * @should return the most recent encounter
@@ -198,17 +201,18 @@ public class VelocityFunctions {
 	public Encounter latestEncounter() {
 		return latestEncounter(null);
 	}
-	
+
 	public Result logic(String expression) {
-		if (session.getPatient() == null)
+		if (session.getPatient() == null) {
 			return new EmptyResult();
+		}
 		cannotBePreviewed();
 		LogicCriteria lc = getLogicService().parse(expression);
 		return getLogicService().eval(session.getPatient(), lc);
 	}
 
 	@SuppressWarnings("deprecation")
-    public PatientState currentProgramWorkflowStatus(Integer programWorkflowId) {
+  public PatientState currentProgramWorkflowStatus(Integer programWorkflowId) {
 		Patient p = session.getPatient();
 		if (p == null || p.getId() == null) {
 			return null;
@@ -262,66 +266,66 @@ public class VelocityFunctions {
 		return null;
 	}
 
- /**
+	 /**
      *
      * @return   patient's age given in months
      * @should  return the ageInMonths accurately to the nearest month
      */
 
-    public Integer patientAgeInMonths() {
+  public Integer patientAgeInMonths() {
 
-        Patient patient = session.getPatient();
-        if(patient == null || patient.getBirthdate() == null){
-          return null;     // if there is error in patient's data return age as null
-        }
-        Date birthdate = patient.getBirthdate();
-        DateTime today = new DateTime();
-        DateTime dob = new DateTime(birthdate.getTime());
-        return Months.monthsBetween(dob.toDateMidnight(), today.toDateMidnight()).getMonths();
-    }
+      Patient patient = session.getPatient();
+      if(patient == null || patient.getBirthdate() == null){
+        return null;     // if there is error in patient's data return age as null
+      }
+      Date birthdate = patient.getBirthdate();
+      DateTime today = new DateTime();
+      DateTime dob = new DateTime(birthdate.getTime());
+      return Months.monthsBetween(dob.toDateMidnight(), today.toDateMidnight()).getMonths();
+  }
 
  /**
      *
      * @return   patient's age in days
      * @should  return the ageInDays accurately to the nearest date
      */
-    public Integer patientAgeInDays(){
+  public Integer patientAgeInDays(){
 
-        Patient patient = session.getPatient();
-        if(patient == null  || patient.getBirthdate() == null){
-          return null;   // if there is error in patient's data return age as null
-        }
-        Date birthdate = patient.getBirthdate();
-        DateTime today = new DateTime();
-        DateTime dob = new DateTime(birthdate.getTime());
-        return Days.daysBetween(dob.toDateMidnight(), today.toDateMidnight()).getDays();
-    }
+      Patient patient = session.getPatient();
+      if(patient == null  || patient.getBirthdate() == null){
+        return null;   // if there is error in patient's data return age as null
+      }
+      Date birthdate = patient.getBirthdate();
+      DateTime today = new DateTime();
+      DateTime dob = new DateTime(birthdate.getTime());
+      return Days.daysBetween(dob.toDateMidnight(), today.toDateMidnight()).getDays();
+  }
 
     /**
-    * 
+    *
     * @return	concept of given id
     * @should	return Concept object against given concept code (id, uuid or mapping)
     */
-    public Concept getConcept(String conceptCode) {
-        return HtmlFormEntryUtil.getConcept(conceptCode);
-    }
+  public Concept getConcept(String conceptCode) {
+      return HtmlFormEntryUtil.getConcept(conceptCode);
+  }
 
     /**
      * @param specification
      * @return a java Locale object for the given String specification
      */
-    public Locale locale(String specification) {
-        return LocaleUtility.fromSpecification(specification);
-    }
+  public Locale locale(String specification) {
+      return LocaleUtility.fromSpecification(specification);
+  }
 
     /**
      * @param date
      * @return date with any time component smaller than day set to zero
      */
-    public Date startOfDay(Date date) {
-        LocalDate day = new LocalDate(date.getTime());
-        return day.toDate();
-    }
+	public Date startOfDay(Date date) {
+	    LocalDate day = new LocalDate(date.getTime());
+	    return day.toDate();
+	}
 
     /**
      * Translates a message code based on current locale
@@ -329,9 +333,9 @@ public class VelocityFunctions {
      * @param code
      * @return localzied message for the code
      */
-    public String message(String code) {
-        return session.getContext().getTranslator().translate(Context.getLocale().toString(), code);
-    }
+  public String message(String code) {
+      return session.getContext().getTranslator().translate(Context.getLocale().toString(), code);
+  }
 
 	/**
 	 * Retrieves a global property value by name
@@ -358,41 +362,41 @@ public class VelocityFunctions {
      * @param conceptCode
      * @return an obs in encounter for the given concept, or null if none exists
      */
-    public Obs getObs(Encounter encounter, String conceptCode) {
-        if (encounter == null) {
-            return null;
-        }
-        Concept concept = HtmlFormEntryUtil.getConcept(conceptCode);
-        if (concept == null) {
-            throw new IllegalArgumentException("No concept found for: " + conceptCode);
-        }
-        for (Obs candidate : encounter.getAllObs()) {
-            if (candidate.getConcept().equals(concept)) {
-                return candidate;
-            }
-        }
-        return null;
-    }
+  public Obs getObs(Encounter encounter, String conceptCode) {
+      if (encounter == null) {
+          return null;
+      }
+      Concept concept = HtmlFormEntryUtil.getConcept(conceptCode);
+      if (concept == null) {
+          throw new IllegalArgumentException("No concept found for: " + conceptCode);
+      }
+      for (Obs candidate : encounter.getAllObs()) {
+          if (candidate.getConcept().equals(concept)) {
+              return candidate;
+          }
+      }
+      return null;
+  }
 
     /**
      * @param encounter
      * @param conceptCode
      * @return all obs in the encounter with the given concept
      */
-    public List<Obs> allObs(Encounter encounter, String conceptCode) {
-        if (encounter == null) {
-            return null;
-        }
-        Concept concept = HtmlFormEntryUtil.getConcept(conceptCode);
-        if (concept == null) {
-            throw new IllegalArgumentException("No concept found for: " + conceptCode);
-        }
-        List<Obs> matches = new ArrayList<Obs>();
-        for (Obs candidate : encounter.getAllObs()) {
-            if (candidate.getConcept().equals(concept)) {
-                matches.add(candidate);
-            }
-        }
-        return matches;
-    }
+  public List<Obs> allObs(Encounter encounter, String conceptCode) {
+      if (encounter == null) {
+          return null;
+      }
+      Concept concept = HtmlFormEntryUtil.getConcept(conceptCode);
+      if (concept == null) {
+          throw new IllegalArgumentException("No concept found for: " + conceptCode);
+      }
+      List<Obs> matches = new ArrayList<Obs>();
+      for (Obs candidate : encounter.getAllObs()) {
+          if (candidate.getConcept().equals(concept)) {
+              matches.add(candidate);
+          }
+      }
+      return matches;
+  }
 }
