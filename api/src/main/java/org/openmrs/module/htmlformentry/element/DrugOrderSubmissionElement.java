@@ -166,8 +166,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 			}
 
 			// if we didn't find by id, find by uuid or name
-			if (drug == null) {
-				drug = conceptService.getDrugByNameOrId(drugName.trim());
+			if (drug == null){
+				drug = conceptService.getDrug(drugName.trim());
 			}
 
 			if (drug != null) {
@@ -289,15 +289,15 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		        } else {
 		            // use the listed discontinueReasons, and use their ConceptNames.
     		        for (Concept c: discReasons){
-    		            discOptions.add(new Option( c.getBestName(Context.getLocale()).getName(), c.getConceptId().toString(),false));
-    		            dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(c.getBestName(Context.getLocale()).getName(), c));
+    		            discOptions.add(new Option( c.getName(Context.getLocale(), false).getName(), c.getConceptId().toString(),false));
+    		            dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(c.getName(Context.getLocale()).getName(), c));
     		        }
 		        }
 		    } else {
 		        //just use the conceptAnswers
     		    for (ConceptAnswer ca : discontineReasonConcept.getAnswers()){
-    		        discOptions.add(new Option( ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept().getConceptId().toString(),false));
-    		        dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept()));
+    		        discOptions.add(new Option( ca.getAnswerConcept().getName(Context.getLocale()).getName(), ca.getAnswerConcept().getConceptId().toString(),false));
+    		        dof.addDiscontinuedReasonAnswer(new ObsFieldAnswer(ca.getAnswerConcept().getName(Context.getLocale()).getName(), ca.getAnswerConcept()));
     		    }
 		    }
 				if (discOptions.size() == 1) {
