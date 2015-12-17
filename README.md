@@ -4,7 +4,7 @@ HTML Form Entry
 Overview
 --------
 
-The HTML Form Entry allows anyone with basic HTML programming skills and a knowledge of the
+The HTML Form Entry allows anyone with basic HTML programming skills and knowledge of the
 OpenMRS system to create forms. It is an alternative to the Infopath
 FormEntry module in many (but not all) cases.
 
