@@ -14,7 +14,7 @@ public class HiddenFieldWidget implements Widget {
 	private String initialValue;
 	/**
 	 * Gets the initial value associated with this widget
-	 *
+	 * 
 	 * @return the initialValue
 	 */
 	public String getInitialValue() {
@@ -35,9 +35,8 @@ public class HiddenFieldWidget implements Widget {
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode() != Mode.VIEW) {
 			sb.append("<input type=\"hidden\" name=\"" + context.getFieldName(this) + "\" id=\"" + context.getFieldName(this) + "\"");
-			if (initialValue != null) {
+			if (initialValue != null)
 				sb.append(" value=\"" + initialValue + "\"");
-			}
 			sb.append("/>");
 		}
 		return sb.toString();

@@ -20,41 +20,39 @@ import java.util.List;
  * list.
  */
 public class LocationWidget implements Widget {
-
+	
 	private Location location;
-
+	
 	private List<Location> options;
-
+	
 	private String type;
-
+	
 	public LocationWidget() {
 	}
-
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-			if (location != null){
+			if (location != null)
 				return WidgetFactory.displayValue(location.getName());
-			}
-			else {
+			else
 				return "";
-			}
 		}
-
+		
 		List<Location> useLocations;
 		if (options != null) {
 			useLocations = options;
 		} else {
 			useLocations = Context.getLocationService().getAllLocations();
 			Collections.sort(useLocations, new Comparator<Location>() {
-
+				
 				@Override
 				public int compare(Location left, Location right) {
 					return left.getName().compareTo(right.getName());
 				}
 			});
 		}
-
+		
 		StringBuilder sb = new StringBuilder();
 		if ("autocomplete".equalsIgnoreCase(type)) {
 			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
@@ -88,7 +86,7 @@ public class LocationWidget implements Widget {
 			sb.append("\n			}");
 			sb.append("\n});");
 			sb.append("</script>");
-
+			
 		} else {
 			sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
 			sb.append("\n<option value=\"\">");
@@ -96,45 +94,43 @@ public class LocationWidget implements Widget {
 			sb.append("</option>");
 			for (Location l : useLocations) {
 				sb.append("\n<option");
-				if (location != null && location.equals(l)) {
+				if (location != null && location.equals(l))
 					sb.append(" selected=\"true\"");
-				}
 				sb.append(" value=\"" + l.getLocationId() + "\">").append(HtmlFormEntryUtil.format(l)).append("</option>");
 			}
 			sb.append("</select>");
 		}
-
+		
 		return sb.toString();
 	}
-
+	
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		String val = request.getParameter(context.getFieldName(this));
-		if (StringUtils.hasText(val)) {
+		if (StringUtils.hasText(val))
 			return HtmlFormEntryUtil.convertToType(val, Location.class);
-		}
 		return null;
 	}
-
+	
 	@Override
 	public void setInitialValue(Object initialValue) {
 		location = (Location) initialValue;
 	}
-
+	
 	/**
 	 * Sets the Locations to use as options for this widget
 	 */
 	public void setOptions(List<Location> options) {
 		this.options = options;
 	}
-
+	
 	/**
 	 * Sets the type of input element to generate
-	 *
+	 * 
 	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
 	}
-
+	
 }

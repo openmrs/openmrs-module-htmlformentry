@@ -19,7 +19,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 
 	/**
 	 * Creates an ObsGroupAction that should be applied at the start of an ObsGroup
-	 *
+	 * 
 	 * @param groupingConcept the concept of the parent Obs
 	 * @param existingGroup the parent Obs
 	 * @return a new ObsGroupAction
@@ -30,29 +30,28 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 
     /**
      * Creates an ObsGroupAction that should be applied at the end of an ObsGroup
-     *
+     * 
      * @return
      */
     public static ObsGroupAction end() {
         return new ObsGroupAction(null, null, null, false);
     }
-
+    
     //------------------------------------
-
+    
     private Concept groupingConcept;
     private Obs existingGroup;
     private boolean start;
     private ObsGroup obsGroupSchemaObject;
-
+    
     private ObsGroupAction(Concept groupingConcept, Obs existingGroup, ObsGroup ogSchemaObj, boolean start) {
         this.groupingConcept = groupingConcept;
         this.existingGroup = existingGroup;
         this.start = start;
         this.obsGroupSchemaObject = ogSchemaObj;
 
-        if (this.groupingConcept != null) {
-					this.groupingConcept.getDatatype();
-				}
+        if (this.groupingConcept != null)
+            this.groupingConcept.getDatatype();
     }
 
     @Override
@@ -80,25 +79,25 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
             throw new RuntimeException(ex);
         }
     }
-
+    
     public Concept getGroupingConcept() {
         return groupingConcept;
     }
 
-		public Obs getExistingGroup() {
-			return existingGroup;
-		}
+	public Obs getExistingGroup() {
+		return existingGroup;
+	}
 
-
-		public ObsGroup getObsGroupSchemaObject() {
+	
+    public ObsGroup getObsGroupSchemaObject() {
     	return obsGroupSchemaObject;
     }
 
-
+	
     public void setObsGroupSchemaObject(ObsGroup obsGroupSchemaObject) {
     	this.obsGroupSchemaObject = obsGroupSchemaObject;
     }
-
-
+    
+    
 
 }

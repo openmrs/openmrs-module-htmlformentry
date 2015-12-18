@@ -29,35 +29,33 @@ import org.springframework.util.StringUtils;
  * selection list.
  */
 public class EncounterTypeWidget implements Widget {
-
+	
 	private EncounterType encounterType;
-
+	
 	private List<EncounterType> options;
-
+	
 	public EncounterTypeWidget() {
 	}
-
+	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-			if (encounterType != null){
+			if (encounterType != null)
 				return WidgetFactory.displayValue(encounterType.getName());
-			}
-			else{
+			else
 				return "";
-			}
 		}
-
+		
 		List<EncounterType> encounterTypes;
 		if (options != null) {
 			encounterTypes = options;
 		} else {
 			encounterTypes = Context.getEncounterService().getAllEncounterTypes();
 		}
-
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("<select id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this) + "\">");
 		sb.append("\n<option value=\"\">");
@@ -65,16 +63,15 @@ public class EncounterTypeWidget implements Widget {
 		sb.append("</option>");
 		for (EncounterType type : encounterTypes) {
 			sb.append("\n<option");
-			if (encounterType != null && encounterType.equals(type)) {
+			if (encounterType != null && encounterType.equals(type))
 				sb.append(" selected=\"true\"");
-			}
 			sb.append(" value=\"" + type.getEncounterTypeId() + "\">").append(type.getName()).append("</option>");
 		}
 		sb.append("</select>");
-
+		
 		return sb.toString();
 	}
-
+	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
 	 */
@@ -82,7 +79,7 @@ public class EncounterTypeWidget implements Widget {
 	public void setInitialValue(Object initialValue) {
 		encounterType = (EncounterType) initialValue;
 	}
-
+	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext,
 	 *      javax.servlet.http.HttpServletRequest)
@@ -90,12 +87,11 @@ public class EncounterTypeWidget implements Widget {
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		String val = request.getParameter(context.getFieldName(this));
-		if (StringUtils.hasText(val)) {
+		if (StringUtils.hasText(val))
 			return HtmlFormEntryUtil.convertToType(val, EncounterType.class);
-		}
 		return null;
 	}
-
+	
 	/**
 	 * @param options the options to set
 	 */

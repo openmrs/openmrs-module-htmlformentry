@@ -69,7 +69,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     private SingleOptionWidget locationWidget;
 
     private ErrorWidget locationErrorWidget;
-
+    
     private ToggleWidget toggleWidget;
 
     private CheckboxWidget voidWidget;
@@ -410,17 +410,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
 
         if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
-						if (parameters.get("toggle") != null) {
-							ToggleWidget toggleWidget = new ToggleWidget((String) parameters.get("toggle"));
-							voidWidget = new CheckboxWidget(" " + Context.getMessageSourceService().getMessage("general.voided"), (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true)) ? "true" : "false", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
-						} else {
-							voidWidget = new CheckboxWidget();
-						}
+			if (parameters.get("toggle") != null) {
+				ToggleWidget toggleWidget = new ToggleWidget((String) parameters.get("toggle"));
+				voidWidget = new CheckboxWidget(" " + Context.getMessageSourceService().getMessage("general.voided"), (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true)) ? "true" : "false", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+			} else {
+				voidWidget = new CheckboxWidget();
+			}
             voidWidget.setLabel(" " + Context.getMessageSourceService().getMessage("general.voided"));
             voidErrorWidget = new ErrorWidget();
-            if (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true)) {
-	                voidWidget.setInitialValue("true");
-						}
+            if (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true))
+                voidWidget.setInitialValue("true");
             context.registerWidget(voidWidget);
             context.registerErrorWidget(voidWidget, voidErrorWidget);
         }
@@ -617,14 +616,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
      * @return
      */
     private String getGetterFunction(Widget widget) {
-			if (widget == null) {
-	            return null;
-	    }
-			if (widget instanceof AutocompleteWidget) {
-				return "autocompleteGetterFunction";
-	    }
-			return null;
-		}
+		if (widget == null) {
+            return null;
+        }
+		if (widget instanceof AutocompleteWidget) {
+			return "autocompleteGetterFunction";
+        }
+		return null;
+	}
 
     /**
      * selects the correct getter function for provider/location widgets according to its type
@@ -632,14 +631,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
      * @return
      */
     private String getSetterFunction(Widget widget) {
-				if (widget == null) {
-					return null;
+		if (widget == null) {
+			return null;
         }
-				if (widget instanceof AutocompleteWidget) {
-					return "autocompleteSetterFunction";
+		if (widget instanceof AutocompleteWidget) {
+			return "autocompleteSetterFunction";
         }
-				return null;
-		}
+		return null;
+	}
 
     /**
      * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
@@ -655,10 +654,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                     Date time = (Date) timeWidget.getValue(context, submission);
                     date = HtmlFormEntryUtil.combineDateAndTime(date, time);
                 }
-                if (date == null) {
+                if (date == null)
                     throw new Exception("htmlformentry.error.required");
-								}
-
                 if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
                     throw new Exception("htmlformentry.error.cannotBeInFuture");
             }

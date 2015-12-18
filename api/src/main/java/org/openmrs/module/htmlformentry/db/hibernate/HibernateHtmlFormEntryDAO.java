@@ -24,31 +24,31 @@ import org.openmrs.module.htmlformentry.element.PersonStub;
  */
 public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 
-		private static Log log = LogFactory.getLog(HibernateHtmlFormEntryDAO.class);
-
+	private static Log log = LogFactory.getLog(HibernateHtmlFormEntryDAO.class);
+	
     private DbSessionFactory sessionFactory;
-
+    
     public void setSessionFactory(DbSessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
-
+    
     @Override
     public HtmlForm getHtmlForm(Integer id) {
         return (HtmlForm) sessionFactory.getCurrentSession().get(HtmlForm.class, id);
     }
-
+    
     @Override
     public HtmlForm getHtmlFormByUuid(String uuid)  {
         Query q = sessionFactory.getCurrentSession().createQuery("from HtmlForm f where f.uuid = :uuid");
         return (HtmlForm) q.setString("uuid", uuid).uniqueResult();
     }
-
+    
     @Override
     public HtmlForm saveHtmlForm(HtmlForm htmlForm) {
         sessionFactory.getCurrentSession().saveOrUpdate(htmlForm);
         return htmlForm;
     }
-
+    
     @Override
     public void deleteHtmlForm(HtmlForm htmlForm) {
         sessionFactory.getCurrentSession().delete(htmlForm);
@@ -79,14 +79,11 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 		Query query = sessionFactory.getCurrentSession().createQuery("select count(*) from HtmlForm where deprecatedName is not null or deprecatedDescription is not null");
 		return ((Number) query.uniqueResult()).intValue() > 0;
     }
-
+	
 	@Override
     @SuppressWarnings("unchecked")
 	public List<PersonStub> getUsersAsPersonStubs(String roleName){
-	    String query = " select  u.person_id as id, pn.given_name as givenName, "
-									 + " pn.family_name as familyName, pn.middle_name as middleName, "
-									 + " pn.family_name2 as familyName2 from users u, person_name pn, "
-									 + " user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
+	    String query = " select  u.person_id as id, pn.given_name as givenName, pn.family_name as familyName, pn.middle_name as middleName, pn.family_name2 as familyName2 from users u, person_name pn, user_role ur where u.retired = 0 and u.person_id = pn.person_id and pn.voided = 0 and u.user_id = ur.user_id  ";
 	    if (roleName != null)
 	        query += " and ur.role = '" + roleName + "' ";
 	     query += " order by familyName ";
@@ -113,7 +110,7 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     	}
 	 }
 
-
+	
 	 @Override
     public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
     	 try {
@@ -143,7 +140,7 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
     		return null;
     	}
     }
-
+    
     @Override
     @SuppressWarnings("unchecked")
 	public List<Integer> getPersonIdHavingAttributes(String attribute, String attributeValue) {

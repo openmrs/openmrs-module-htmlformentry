@@ -22,23 +22,23 @@ import org.openmrs.order.RegimenSuggestion;
 
 /**
  * Helper for standardRegimen tag.
- *
+ * 
  * NOTE:  matching regimens to existing DrugOrders does NOT take dose or frequency into account.  All matching is by drug, start date, discontinued date.
- *
+ * 
  * @author dthomas
  *
  */
 public class RegimenUtil1_10 {
 
-
+	
 	/**
 	 * Finds 'strongest' RegimenSuggestion match, and returns map with size 0 or 1.  If 1, map contains the RegimenSuggestion and the list of DrugOrders.
-	 *
+	 * 
 	 * 'strongest' = if you have standard regimen A containing 1 drug, and you have standard regimen B containing the same drug plus one other drug,
 	 * 		then if both standard regimens pass the 'match' test, this method will return standard regimen B because of the greater number of matches.
-	 *
+	 * 
 	 * In the event of a tie, the first match with the greatest 'strength' gets returned.
-	 *
+	 * 
 	 * NOTE:  supports drugId in standard regimen XML being a uuid (matches on drug.uuid).
 	 * @param regimenCandidates
 	 * @param drugOrders
@@ -64,7 +64,7 @@ public class RegimenUtil1_10 {
 							allFound = false;
 							break;
 						}
-
+						
 					} else {
 						allFound = false;
 						break;
@@ -79,26 +79,23 @@ public class RegimenUtil1_10 {
 		}
 		return ret;
 	}
-
+	
 	/**
 	 * Finds a drug in a set of drugs by id or uuid; excludes voided DrugOrders from consideration
-	 *
-	 *
+	 * 
+	 * 
 	 */
 	private static DrugOrder drugIdFoundInDrugSet(DrugSuggestion ds, List<Order> dors){
 		for (Order or : dors){
 			if (or instanceof DrugOrder){
 				DrugOrder dor = (DrugOrder) or;
-				if (dor.getDrug() != null
-							&& !dor.isVoided()
-							&& (dor.getDrug().getDrugId().toString().equals(ds.getDrugId())
-							|| dor.getDrug().getUuid().toString().equals(ds.getDrugId())))
+				if (dor.getDrug() != null && !dor.isVoided() && (dor.getDrug().getDrugId().toString().equals(ds.getDrugId()) || dor.getDrug().getUuid().toString().equals(ds.getDrugId())))
 					return dor;
 			}
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Creates DrugOrders from a given RegimenSuggestion
 	 * @param rs  the Regimen Suggestion
@@ -114,16 +111,12 @@ public class RegimenUtil1_10 {
 			for (DrugSuggestion ds : rs.getDrugComponents()){
 				DrugOrder dor = new DrugOrder();
 				Drug drug = Context.getConceptService().getDrugByNameOrId(ds.getDrugId());
-				if (drug == null) {
+				if (drug == null)
 					drug = Context.getConceptService().getDrugByUuid(ds.getDrugId());
-				}
-
-				if (drug == null) {
+				if (drug == null)
 					throw new RuntimeException("Your standard regimen xml file constains a drugId that can't be found, for regimen " + rs.getCodeName() + ", DrugComponent.id = " + ds.getDrugId());
-				}
-
 				dor.setDrug(drug);
-
+				
 				OrderFrequency frequency = findFrequency(orderService, ds.getFrequency());
 				dor.setFrequency(frequency);
 				dor.setInstructions(ds.getInstructions());
@@ -137,7 +130,7 @@ public class RegimenUtil1_10 {
 				dor.setOrderType(Context.getOrderService().getOrderTypeByUuid(DrugOrderSubmissionElement1_10.DRUG_ORDER_TYPE_UUID));
 				ret.add(dor);
 			}
-		}
+		}	
 		return ret;
 	}
 
@@ -149,15 +142,14 @@ public class RegimenUtil1_10 {
 	    }
 	    return orderFrequency;
     }
-
+	
 	/**
 	 * finds the RegimenSuggestion by its code.
 	 */
 	public static RegimenSuggestion getStandardRegimenByCode(List<RegimenSuggestion> regimens, String code){
 		for (RegimenSuggestion rs : regimens){
-			if (rs.getCodeName().equals(code)){
+			if (rs.getCodeName().equals(code))
 				return rs;
-			}
 		}
 		return null;
 	}

@@ -29,14 +29,14 @@ public class VelocityHandler extends SubstitutionTagHandler {
             value = session.evaluateVelocityExpression("$!{" + expression + "}");
         else
             value = session.evaluateVelocityExpression(complexExpression);
-
-        // Enable date formatting
-	    	DateFormat fromFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
-	    	DateFormat fromFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-	    	Date d = null;
-	    	try {
-	        	d = fromFormat.parse(value);
-	    	}
+        
+        // Enable date formatting 
+    	DateFormat fromFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+    	DateFormat fromFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+    	Date d = null;
+    	try {
+        	d = fromFormat.parse(value);
+    	}
         catch (Exception e) {
         	try {
         		d = fromFormat2.parse(value);
@@ -50,7 +50,7 @@ public class VelocityHandler extends SubstitutionTagHandler {
         	DateFormat toFormat = new SimpleDateFormat(newFormat == null ? "dd/MMM/yyyy" : newFormat, Context.getLocale());
         	value = toFormat.format(d);
         }
-
+        
         // Enable translation via existing message sources
         String codePrefix = parameters.get("codePrefix");
         if (codePrefix != null) {
@@ -60,7 +60,7 @@ public class VelocityHandler extends SubstitutionTagHandler {
         		value = translatedValue;
         	}
         }
-
+        
         if (className != null) {
             return "<span class=\"" + className + "\">" + value + "</span>";
         } else {
