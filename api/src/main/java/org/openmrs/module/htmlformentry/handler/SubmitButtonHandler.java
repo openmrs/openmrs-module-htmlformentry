@@ -26,25 +26,25 @@ public class SubmitButtonHandler extends SubstitutionTagHandler {
         }
     	else if (session.getContext().getMode() == Mode.EDIT) {
     		submitLabel = Context.getMessageSourceService().getMessage("htmlformentry.saveChangesButton");
-        } else {
-        	submitLabel = Context.getMessageSourceService().getMessage("htmlformentry.enterFormButton");
-        }
+      } else {
+      	submitLabel = Context.getMessageSourceService().getMessage("htmlformentry.enterFormButton");
+      }
 
-    	//check for custom label & style
-        if (parameters.containsKey("submitLabel")) {
-        	submitLabel =  parameters.get("submitLabel");
-        }
-        if (parameters.containsKey("submitCode")) {
-	    	Translator trans = session.getContext().getTranslator();
-	    	submitLabel = trans.translate(Context.getLocale().toString(), parameters.get("submitCode"));
-        }
-        if (parameters.containsKey("submitClass")) {
-	    	submitClass = submitClass + " " + parameters.get("submitClass");  //append any other classes specified
-        }
-        if (parameters.containsKey("class")) {
-            submitClass = submitClass + " " + parameters.get("class");  // append any other classes specified
-        }
-	
+  		//check for custom label & style
+      if (parameters.containsKey("submitLabel")) {
+      	submitLabel =  parameters.get("submitLabel");
+      }
+      if (parameters.containsKey("submitCode")) {
+    	Translator trans = session.getContext().getTranslator();
+    	submitLabel = trans.translate(Context.getLocale().toString(), parameters.get("submitCode"));
+      }
+      if (parameters.containsKey("submitClass")) {
+    	submitClass = submitClass + " " + parameters.get("submitClass");  //append any other classes specified
+      }
+      if (parameters.containsKey("class")) {
+          submitClass = submitClass + " " + parameters.get("class");  // append any other classes specified
+      }
+
         //render it
     	return "<input type=\"button\" class=\"" + submitClass + "\" value=\"" + submitLabel + "\" onClick=\"submitHtmlForm()\"/>";
     }

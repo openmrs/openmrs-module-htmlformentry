@@ -14,30 +14,30 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
- * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person 
+ * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person
  * search.
  */
 public class RelationshipWidget implements Widget {
-	
+
 	private List<RelationshipType> relationshipsToCreate = new ArrayList<RelationshipType>();
 	private List<String> roleInRelationship = new ArrayList<String>();
 	private boolean allRelationshipsFullfilled = true;
-    private String parentId;
+  private String parentId;
 
 	public RelationshipWidget() { }
 
 	@Override
-    public void setInitialValue(Object initialValue) {
-	 
-    }
-	
-	
+  public void setInitialValue(Object initialValue) {
+
+  }
+
+
 	@Override
-    public String generateHtml(FormEntryContext context) {
-     
-        StringBuilder sb = new StringBuilder();
-        
-        //this check is needed or else the code falls over when generating preview for editing form
+  public String generateHtml(FormEntryContext context) {
+
+  	StringBuilder sb = new StringBuilder();
+
+    //this check is needed or else the code falls over when generating preview for editing form
 		//TODO: probably need a new mode for previewing to better deal with this sort of stuff.
 		if(context.getExistingPatient() != null && context.getExistingPatient().getId() != null)
 		{
@@ -54,7 +54,7 @@ public class RelationshipWidget implements Widget {
 				{
 					sb.append("<br />");
 				}
-				
+
 				RelationshipType rt = relationshipsToCreate.get(i);
 				String side = roleInRelationship.get(i);
 				sb.append("<tr><td>" +" " );
@@ -73,7 +73,7 @@ public class RelationshipWidget implements Widget {
 				sb.append("</td>");
 				sb.append("<td>" + " ");
 				boolean addComma = false;
-				
+
 				for(Relationship r: existingRelationships)
 				{
 					if(r.getRelationshipType().getId().equals(rt.getId()))
@@ -91,8 +91,8 @@ public class RelationshipWidget implements Widget {
 	    						{
 	    							addComma = true;
 	    						}
-	    						String s = r.getPersonB().getGivenName()+" "+r.getPersonB().getFamilyName();	    						
-	    						sb.append(s);	    	
+	    						String s = r.getPersonB().getGivenName()+" "+r.getPersonB().getFamilyName();
+	    						sb.append(s);
 	    						val.append(s);
 	    						if (context.getMode() == Mode.VIEW) {
 	    							sb.append(" ");
@@ -100,7 +100,7 @@ public class RelationshipWidget implements Widget {
 	    							sb.append(" - ");
 	    							sb.append(new SimpleDateFormat("yyyy-MM-dd").format(r.getDateCreated()));
 	    						}
-	    						
+
 	    					}
 	    				}
 	    				if(side.equals("B"))
@@ -130,19 +130,19 @@ public class RelationshipWidget implements Widget {
 					}
 				}
 
-                // store the current relationships in hidden fields and register them as property accessors
-                // these hidden fields *are not* used at all during form submittal; they are just used to provide
-                // access to existing relationships for javascript validation (for instance, to validate on submittal
-                // that a patient as at least one relationship of type x)
+        // store the current relationships in hidden fields and register them as property accessors
+        // these hidden fields *are not* used at all during form submittal; they are just used to provide
+        // access to existing relationships for javascript validation (for instance, to validate on submittal
+        // that a patient as at least one relationship of type x)
 
 				sb.append("<input name='");
-		    	sb.append(context.getFieldName(this));
-		    	sb.append("' id='");
-		    	sb.append(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl));
-		    	sb.append("' value='");
-		    	sb.append(val);
-		    	sb.append("' type='hidden'>");
-		    	context.registerPropertyAccessorInfo(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl) + ".value", context.getFieldNameIfRegistered(this), null,null, null);
+	    	sb.append(context.getFieldName(this));
+	    	sb.append("' id='");
+	    	sb.append(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl));
+	    	sb.append("' value='");
+	    	sb.append(val);
+	    	sb.append("' type='hidden'>");
+	    	context.registerPropertyAccessorInfo(parentId+"."+HtmlFormEntryUtil.toCamelCase(rl) + ".value", context.getFieldNameIfRegistered(this), null,null, null);
 				sb.append("</td>");
 				sb.append("</tr>");
 				if(!addComma)
@@ -152,17 +152,16 @@ public class RelationshipWidget implements Widget {
 			}
 			sb.append("</table>");
 		}
-    	
+
         return sb.toString();
     }
 
 	@Override
     public Object getValue(FormEntryContext context, HttpServletRequest request) {
-		
-        return null;
+  		return null;
     }
 
-	
+
     /**
      * @return the relationshipsToCreate
      */
@@ -170,7 +169,7 @@ public class RelationshipWidget implements Widget {
     	return relationshipsToCreate;
     }
 
-	
+
     /**
      * @param relationshipsToCreate the relationshipsToCreate to set
      */
@@ -178,7 +177,7 @@ public class RelationshipWidget implements Widget {
     	this.relationshipsToCreate = relationshipsToCreate;
     }
 
-	
+
     /**
      * @return the roleInRelationship
      */
@@ -186,7 +185,7 @@ public class RelationshipWidget implements Widget {
     	return roleInRelationship;
     }
 
-	
+
     /**
      * @param roleInRelationship the roleInRelationship to set
      */
@@ -194,7 +193,7 @@ public class RelationshipWidget implements Widget {
     	this.roleInRelationship = roleInRelationship;
     }
 
-	
+
     /**
      * @return the allRelationshipsFullfilled
      */
@@ -202,7 +201,7 @@ public class RelationshipWidget implements Widget {
     	return allRelationshipsFullfilled;
     }
 
-	
+
     /**
      * @param allRelationshipsFullfilled the allRelationshipsFullfilled to set
      */
@@ -210,11 +209,11 @@ public class RelationshipWidget implements Widget {
     	this.allRelationshipsFullfilled = allRelationshipsFullfilled;
     }
 
-	public String getParentId() {
-		return parentId;
-	}
+		public String getParentId() {
+			return parentId;
+		}
 
-	public void setParentId(String parentId) {
-		this.parentId = parentId;
-	}
+		public void setParentId(String parentId) {
+			this.parentId = parentId;
+		}
 }

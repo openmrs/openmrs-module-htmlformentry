@@ -44,27 +44,27 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * 
+ *
  * @author dthomas
- * 
+ *
  * NOTE:  the routines here WON'T change regimens if you change the definitions of a regimen in the XML automatically.
  *
  */
 public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmissionControllerAction{
 
 	protected final Log log = LogFactory.getLog(StandardRegimenElement.class);
-	
+
 	public static final String STANDARD_REGIMEN_CODES = "regimenCodes";
-	
+
 	public static final String FIELD_DISCONTINUED_REASON="discontinuedReasonConceptId";
-	
+
 	public static final String FIELD_DISCONTINUED_REASON_ANSWERS="discontinueReasonAnswers";
-	
+
 	public static final String FIELD_DISCONTINUED_REASON_ANSWER_LABELS="discontinueReasonAnswerLabels";
-	
+
 	public static final String STANDARD_REGIMEN_GLOBAL_PROPERTY="dashboard.regimen.standardRegimens";
 
-	
+
 	protected Widget regWidget;
 	private ErrorWidget regErrorWidget;
 	private DateWidget startDateWidget;
@@ -72,24 +72,24 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	protected DateWidget discontinuedDateWidget;
 	private ErrorWidget discontinuedDateErrorWidget;
 	protected DropdownWidget discontinuedReasonWidget;
-    private ErrorWidget discontinuedReasonErrorWidget;
-    
-    protected List<DrugOrder> regDrugOrders = new ArrayList<DrugOrder>();
-    protected RegimenSuggestion existingStandardRegimen;
-	
+  private ErrorWidget discontinuedReasonErrorWidget;
+
+  protected List<DrugOrder> regDrugOrders = new ArrayList<DrugOrder>();
+  protected RegimenSuggestion existingStandardRegimen;
+
 	//helpers:
-    private List<RegimenSuggestion> allSystemStandardRegimens = new ArrayList<RegimenSuggestion>();
+  private List<RegimenSuggestion> allSystemStandardRegimens = new ArrayList<RegimenSuggestion>();
 	protected List<RegimenSuggestion> possibleRegimens = new ArrayList<RegimenSuggestion>();
-    
+
 	public StandardRegimenElement(FormEntryContext context, Map<String, String> parameters) {
-		
-		String regimenCodes = parameters.get(STANDARD_REGIMEN_CODES);		
+
+		String regimenCodes = parameters.get(STANDARD_REGIMEN_CODES);
 		if (regimenCodes == null || regimenCodes.length() < 1)
 			throw new IllegalArgumentException("You must provide a valid regimenCode from your standard regimen XML (see global property " + STANDARD_REGIMEN_GLOBAL_PROPERTY + " for these codes) " + parameters);
-		
+
 		List<Option> options = new ArrayList<Option>();
 		options.add(new Option("", "", false));
-		
+
 		StringTokenizer tokenizer = new StringTokenizer(regimenCodes, ",");
 		allSystemStandardRegimens = DrugOrderSupport.getInstance().getStandardRegimens();
 		StandardRegimenField srf = new StandardRegimenField();
@@ -103,40 +103,41 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 			} else {
 				throw new IllegalArgumentException("standardRegimen tag can't find regimen code " + regCode + " found in regimenCodes attribute in global property " + STANDARD_REGIMEN_GLOBAL_PROPERTY);
 			}
-		}	
+		}
 		DropdownWidget dw = new DropdownWidget();
-        dw.setOptions(options);
-        regWidget = dw;
-        context.registerWidget(regWidget);
-        regErrorWidget = new ErrorWidget();
-        context.registerErrorWidget(regWidget, regErrorWidget);
-        
-        //start date
-        startDateWidget = new DateWidget();
-        startDateErrorWidget = new ErrorWidget();
-        context.registerWidget(startDateWidget);
-        context.registerErrorWidget(startDateWidget, startDateErrorWidget);
-        
-        //end date
-        discontinuedDateWidget = new DateWidget();
+    dw.setOptions(options);
+    regWidget = dw;
+    context.registerWidget(regWidget);
+    regErrorWidget = new ErrorWidget();
+    context.registerErrorWidget(regWidget, regErrorWidget);
+
+    //start date
+    startDateWidget = new DateWidget();
+    startDateErrorWidget = new ErrorWidget();
+    context.registerWidget(startDateWidget);
+    context.registerErrorWidget(startDateWidget, startDateErrorWidget);
+
+    //end date
+    discontinuedDateWidget = new DateWidget();
 		discontinuedDateErrorWidget = new ErrorWidget();
 		context.registerWidget(discontinuedDateWidget);
 		context.registerErrorWidget(discontinuedDateWidget, discontinuedDateErrorWidget);
-		
+
 		//discontinue reasons
 		if (parameters.get(FIELD_DISCONTINUED_REASON) != null){
 		    String discReasonConceptStr = (String) parameters.get(FIELD_DISCONTINUED_REASON);
 		    Concept discontineReasonConcept = HtmlFormEntryUtil.getConcept(discReasonConceptStr);
-		    if (discontineReasonConcept == null)
+		    if (discontineReasonConcept == null){
 		        throw new IllegalArgumentException("discontinuedReasonConceptId is not set to a valid conceptId or concept UUID");
-		    srf.setDiscontinuedReasonQuestion(discontineReasonConcept);
-		    
+				}
+				srf.setDiscontinuedReasonQuestion(discontineReasonConcept);
+
 		    discontinuedReasonWidget = new DropdownWidget();
 		    discontinuedReasonErrorWidget = new ErrorWidget();
-		    
+
 		    List<Option> discOptions = new ArrayList<Option>();
 		    discOptions.add(new Option("", "", false));
-		    
+
 		    if (parameters.get(FIELD_DISCONTINUED_REASON_ANSWERS) != null){
 		        //setup a list of the reason concepts
 		        List<Concept> discReasons = new ArrayList<Concept>();
@@ -147,7 +148,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		            Concept answer = HtmlFormEntryUtil.getConcept(thisAnswer, "discontinueReasonAnswers includes a value that is not a valid conceptId or concept UUID");
 	                discReasons.add(answer);
 		        }
-		       
+
 		        if (parameters.get(FIELD_DISCONTINUED_REASON_ANSWER_LABELS) != null){
 		            // use the listed discontinueReasons, and use labels:
 		            String discLabelsString = parameters.get(FIELD_DISCONTINUED_REASON_ANSWER_LABELS);
@@ -156,7 +157,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		            if (strDiscAnswerLabels.length != discReasons.size())
 		                throw new RuntimeException("discontinueReasonAnswers and discontinueReasonAnswerLabels must contain the same number of members.");
 		            for (int i = 0; i < strDiscAnswerLabels.length; i ++ ){
-		                discOptions.add(new Option( strDiscAnswerLabels[i], discReasons.get(i).getConceptId().toString(),false));  
+		                discOptions.add(new Option( strDiscAnswerLabels[i], discReasons.get(i).getConceptId().toString(),false));
 		                srf.addDiscontinuedReasonAnswer(new ObsFieldAnswer(strDiscAnswerLabels[i].trim(), discReasons.get(i)));
 		            }
 		        } else {
@@ -173,17 +174,18 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
     		        srf.addDiscontinuedReasonAnswer(new ObsFieldAnswer(ca.getAnswerConcept().getBestName(Context.getLocale()).getName(), ca.getAnswerConcept()));
     		    }
 		    }
-		    if (discOptions.size() == 1)
+		    if (discOptions.size() == 1) {
 		        throw new IllegalArgumentException("discontinue reason Concept doesn't have any ConceptAnswers");
-		    
+				}
+
 		    discontinuedReasonWidget.setOptions(discOptions);
 		    context.registerWidget(discontinuedReasonWidget);
-	        context.registerErrorWidget(discontinuedReasonWidget, discontinuedReasonErrorWidget);
+	      context.registerErrorWidget(discontinuedReasonWidget, discontinuedReasonErrorWidget);
 		}
-		
+
 		createAdditionalWidgets(context, parameters);
-		
-		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {	
+
+		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {
 			matchStandardRegimenInExistingOrders(context);
 		}
 		if (regDrugOrders != null && regDrugOrders.size() > 0){
@@ -203,19 +205,19 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 
 
 	protected void matchStandardRegimenInExistingOrders(FormEntryContext context) {
-	    Map<RegimenSuggestion, List<DrugOrder>> map =  RegimenUtil.findStrongestStandardRegimenInDrugOrders(possibleRegimens, context.getRemainingExistingOrders());
-	    if (map.size() == 1){
-	    	existingStandardRegimen = map.keySet().iterator().next();
-	    	for (DrugOrder dor : map.get(existingStandardRegimen)){
-	    		regDrugOrders.add(context.removeExistingDrugOrder(dor.getDrug()));
-	    		regWidget.setInitialValue(existingStandardRegimen.getCodeName());
-	    	}
-	    	 discontinuedDateWidget.setInitialValue(getCommonDiscontinueDate(regDrugOrders));
-	    	    if (discontinuedReasonWidget != null && regDrugOrders.get(0).getDiscontinuedReason() != null)
-	    	        discontinuedReasonWidget.setInitialValue(regDrugOrders.get(0).getDiscontinuedReason().getConceptId());
-	    }
+    Map<RegimenSuggestion, List<DrugOrder>> map =  RegimenUtil.findStrongestStandardRegimenInDrugOrders(possibleRegimens, context.getRemainingExistingOrders());
+    if (map.size() == 1){
+    	existingStandardRegimen = map.keySet().iterator().next();
+    	for (DrugOrder dor : map.get(existingStandardRegimen)){
+    		regDrugOrders.add(context.removeExistingDrugOrder(dor.getDrug()));
+    		regWidget.setInitialValue(existingStandardRegimen.getCodeName());
+    	}
+    	discontinuedDateWidget.setInitialValue(getCommonDiscontinueDate(regDrugOrders));
+	    if (discontinuedReasonWidget != null && regDrugOrders.get(0).getDiscontinuedReason() != null)
+	        discontinuedReasonWidget.setInitialValue(regDrugOrders.get(0).getDiscontinuedReason().getConceptId());
     }
-	
+  }
+
 	protected Date getCommonDiscontinueDate(List<DrugOrder> orders){
 		Date candidate = null;
 		if (orders != null & orders.size() > 0)
@@ -228,7 +230,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	}
 
 	@Override
-    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+  public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		//if no drug specified, then don't do anything.
@@ -249,7 +251,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
                 if (startDateWidget != null && discontinuedDateWidget != null) {
                     Date startDate = startDateWidget.getValue(context, submission);
                     Date endDate = discontinuedDateWidget.getValue(context, submission);
-                    if (startDate != null && endDate != null 
+                    if (startDate != null && endDate != null
                             && startDate.getTime() > endDate.getTime())
                         throw new Exception("htmlformentry.error.discontinuedDateBeforeStartDate");
                 }
@@ -271,91 +273,97 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
                         .getMessageSourceService().getMessage(ex.getMessage())));
             }
 		}
-		
+
 		return ret;
-	    }
-	
-	
-    public String generateHtml(FormEntryContext context) {
-    	StringBuilder ret = new StringBuilder();
+	}
+
+
+  public String generateHtml(FormEntryContext context) {
+  	StringBuilder ret = new StringBuilder();
 		MessageSourceService mss = Context.getMessageSourceService();
-		
+
 		if (regWidget != null) {
-		    ret.append(mss.getMessage("htmlformentry.standardRegimen") + " ");
+		  ret.append(mss.getMessage("htmlformentry.standardRegimen") + " ");
 			ret.append(regWidget.generateHtml(context) + " ");
-			if (context.getMode() != Mode.VIEW)
+			if (context.getMode() != Mode.VIEW) {
 				ret.append(regErrorWidget.generateHtml(context));
+			}
 		}
 
 		if (startDateWidget != null) {
 			ret.append(" | ");
 			ret.append(mss.getMessage("general.dateStart") + " ");
 			ret.append(startDateWidget.generateHtml(context) + " ");
-			if (context.getMode() != Mode.VIEW)
+			if (context.getMode() != Mode.VIEW) {
 				ret.append(startDateErrorWidget.generateHtml(context));
+			}
+
 		}
 		//duration and discontinuedDate are now mutually exclusive
 		if (discontinuedDateWidget != null) {
 			ret.append(mss.getMessage("general.dateDiscontinued") + " ");
 			ret.append(discontinuedDateWidget.generateHtml(context) + " ");
-			if (context.getMode() != Mode.VIEW)
+			if (context.getMode() != Mode.VIEW) {
 				ret.append(discontinuedDateErrorWidget.generateHtml(context));
+			}
 		}
 		if (discontinuedReasonWidget != null){
 		    ret.append(" | " + mss.getMessage("general.discontinuedReason") + " ");
-            ret.append(discontinuedReasonWidget.generateHtml(context) + " ");
-            if (context.getMode() != Mode.VIEW)
-                ret.append(discontinuedReasonErrorWidget.generateHtml(context));
-        }
-		
-		return ret.toString();
+        ret.append(discontinuedReasonWidget.generateHtml(context) + " ");
+        if (context.getMode() != Mode.VIEW) {
+            ret.append(discontinuedReasonErrorWidget.generateHtml(context));
+				}
     }
-    
-    @Override
-    public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-	    String regCode = null;
-	    if (regWidget.getValue(session.getContext(), submission) != null)
-	            regCode = ((String) regWidget.getValue(session.getContext(), submission));
-    	Date startDate =  startDateWidget.getValue(session.getContext(), submission);
-    	Date discontinuedDate = null;
-    	if (discontinuedDateWidget != null){
-    	    discontinuedDate = discontinuedDateWidget.getValue(session.getContext(), submission);
-    	}    
-    	String discontinuedReasonStr = null;
-    	if (discontinuedReasonWidget != null){
-    	    discontinuedReasonStr = (String) discontinuedReasonWidget.getValue(session.getContext(), submission);
-    	}
-    	if (!StringUtils.isEmpty(regCode)){
-    		if (session.getContext().getMode() == Mode.ENTER || (session.getContext().getMode() == Mode.EDIT && regDrugOrders == null)) {
-    			enterStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);	
-    		} else if (session.getContext().getMode() == Mode.EDIT) {
-    			editStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);
-    		}	
-    	} else if (regDrugOrders != null){
-	   	     //void all existing orders in standard regimen -- this is if you un-select an existing standardRegimen
-    		 //these are already part of the encounter, so will be updated when encounter is saved.
-	    		 voidDrugOrders(regDrugOrders, session);
-    	}
 
-    }
+		return ret.toString();
+  }
+
+  @Override
+  public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+    String regCode = null;
+    if (regWidget.getValue(session.getContext(), submission) != null)
+            regCode = ((String) regWidget.getValue(session.getContext(), submission));
+  	Date startDate =  startDateWidget.getValue(session.getContext(), submission);
+  	Date discontinuedDate = null;
+  	if (discontinuedDateWidget != null){
+  	    discontinuedDate = discontinuedDateWidget.getValue(session.getContext(), submission);
+  	}
+  	String discontinuedReasonStr = null;
+  	if (discontinuedReasonWidget != null){
+  	    discontinuedReasonStr = (String) discontinuedReasonWidget.getValue(session.getContext(), submission);
+  	}
+  	if (!StringUtils.isEmpty(regCode)){
+  		if (session.getContext().getMode() == Mode.ENTER || (session.getContext().getMode() == Mode.EDIT && regDrugOrders == null)) {
+  			enterStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);
+  		} else if (session.getContext().getMode() == Mode.EDIT) {
+  			editStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);
+  		}
+  	} else if (regDrugOrders != null){
+   	     //void all existing orders in standard regimen -- this is if you un-select an existing standardRegimen
+  		 //these are already part of the encounter, so will be updated when encounter is saved.
+    		 voidDrugOrders(regDrugOrders, session);
+  	}
+
+  }
 
 	protected void editStandardRegimen(FormEntrySession session, HttpServletRequest submission, String regCode, Date startDate, Date discontinuedDate,
             String discontinuedReasonStr) {
 	    if (existingStandardRegimen != null && regCode.equals(existingStandardRegimen.getCodeName())){
 	    	//the drug orders are already there and attached to the encounter.
 	    	for (Order o : regDrugOrders){
-	        	if (!StringUtils.isEmpty(discontinuedReasonStr))
-	        	    o.setDiscontinuedReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
+        	if (!StringUtils.isEmpty(discontinuedReasonStr)) {
+        	    o.setDiscontinuedReason(HtmlFormEntryUtil.getConcept(discontinuedReasonStr));
+					}
 	    		if (discontinuedDate != null){
 	        	    o.setDiscontinuedDate(discontinuedDate);
-	        	    o.setDiscontinued(true); 
-	    		}    
+	        	    o.setDiscontinued(true);
+	    		}
 	    		o.setStartDate(startDate);
 	    	}
 	    } else {
 	    	//standard regimen changed in the drop-down...  I'm going to have this void the old DrugOrders, and create new ones.
 	    	 voidDrugOrders(regDrugOrders, session);
-	    	 enterStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);	
+	    	 enterStandardRegimen(session, submission, regCode, startDate, discontinuedDate, discontinuedReasonStr);
 	    }
     }
 
@@ -363,7 +371,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
             Date discontinuedDate, String discontinuedReasonStr) {
 	    RegimenSuggestion rs = RegimenUtil.getStandardRegimenByCode(possibleRegimens, regCode);
 	    //create new drugOrders
-	    Set<Order> ords = RegimenUtil.standardRegimenToDrugOrders(rs, startDate, session.getPatient());	
+	    Set<Order> ords = RegimenUtil.standardRegimenToDrugOrders(rs, startDate, session.getPatient());
 	    for (Order o: ords){
 	    	if (o.getDateCreated() == null)
 	    	    o.setDateCreated(new Date());
@@ -377,12 +385,12 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 	    	    o.setDiscontinuedDate(discontinuedDate);
 	    	    o.setDiscontinued(true);
 	    	    o.setDiscontinuedBy(Context.getAuthenticatedUser());
-	    	}    
+	    	}
 	    	session.getSubmissionActions().getCurrentEncounter().addOrder(o);
 	    }
     }
-    
-    
+
+
 	private RegimenSuggestion getRegimenSuggestionByCode(String code, List<RegimenSuggestion> rs){
 		for (RegimenSuggestion r : rs){
 			if (r.getCodeName() != null && r.getCodeName().equals(code))
@@ -390,7 +398,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		}
 		return null;
 	}
-	
+
 	protected void voidDrugOrders(List<DrugOrder> dos, FormEntrySession session){
 		for (DrugOrder dor: dos){
 			 dor.setVoided(true);
@@ -399,4 +407,3 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		}
 	}
 }
-

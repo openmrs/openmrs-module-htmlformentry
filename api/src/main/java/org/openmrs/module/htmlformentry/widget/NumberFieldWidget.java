@@ -26,7 +26,7 @@ public class NumberFieldWidget implements Widget {
 
     /**
      * Creates a widget with certain absolute maximum and minimum values. Floating point numbers are allowed if floatingPoint=true.
-     * 
+     *
      * @param absoluteMinimum
      * @param absoluteMaximum
      * @param floatingPoint
@@ -36,10 +36,10 @@ public class NumberFieldWidget implements Widget {
     	this.absoluteMaximum = absoluteMaximum;
     	this.floatingPoint = floatingPoint;
     }
-    
+
     /**
      * Creates a widget with certain absolute maximum and minimum values as defined by a specific numeric Concept
-     * 
+     *
      * @param concept
      * @param size, the size of the text field to render
      */
@@ -60,10 +60,10 @@ public class NumberFieldWidget implements Widget {
             }
         }
     }
-    
+
     /**
      * Returns whether or not this widget accepts floating point values
-     * 
+     *
      * @return true/false
      */
     public boolean isFloatingPoint() {
@@ -72,7 +72,7 @@ public class NumberFieldWidget implements Widget {
 
     /**
      * Sets whether or not this widget accepts floating point values
-     * 
+     *
      * @param floatingPoint
      */
     public void setFloatingPoint(boolean floatingPoint) {
@@ -81,7 +81,7 @@ public class NumberFieldWidget implements Widget {
 
     /**
      * Gets the absolute minimum value allowed for this widget
-     * 
+     *
      * @return absoluteMinimum
      */
     public Double getAbsoluteMinimum() {
@@ -90,16 +90,16 @@ public class NumberFieldWidget implements Widget {
 
     /**
      * Sets the absolute minimum value allowed for this widget
-     * 
+     *
      * @param minimum
      */
     public void setAbsoluteMinimum(Double minimum) {
         this.absoluteMinimum = minimum;
     }
-    
+
     /**
-     * Gets the absolute maximum value allowed for this widget 
-     * 
+     * Gets the absolute maximum value allowed for this widget
+     *
      * @return absoluteMaximum
      */
     public Double getAbsoluteMaximum() {
@@ -108,7 +108,7 @@ public class NumberFieldWidget implements Widget {
 
     /**
      * Sets the absolute maximum value allows for this widget
-     * 
+     *
      * @param maximum
      */
     public void setAbsoluteMaximum(Double maximum) {
@@ -179,10 +179,12 @@ public class NumberFieldWidget implements Widget {
     public Double getValue(FormEntryContext context, HttpServletRequest request) {
         try {
             Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
-            if (d != null && absoluteMinimum != null && d < absoluteMinimum)
+            if (d != null && absoluteMinimum != null && d < absoluteMinimum) {
                 throw new IllegalArgumentException("Must be at least " + absoluteMinimum);
-            if (d != null && absoluteMaximum != null && d > absoluteMaximum)
+						}
+            if (d != null && absoluteMaximum != null && d > absoluteMaximum) {
                 throw new IllegalArgumentException("Cannot be greater than " + absoluteMaximum);
+						}
             return d;
         } catch (NumberFormatException ex) {
             throw new IllegalArgumentException("Not a number");
@@ -192,6 +194,6 @@ public class NumberFieldWidget implements Widget {
     public void setNumberFieldSize(Integer numberFieldSize) {
         this.numberFieldSize = numberFieldSize;
     }
-    
+
 
 }

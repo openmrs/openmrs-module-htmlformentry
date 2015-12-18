@@ -19,12 +19,13 @@
 
 <script>
 	$j = jQuery.noConflict();
-	
+
 	function updateRetiredReasonDisplay(b) {
-		if (b)
+		if (b) {
 			$j('#retiredReasonRow').show();
-		else
+		} else {
 			$j('#retiredReasonRow').hide();
+		}
 	}
 
 	// boolean to track whether or not jquery document ready function fired
@@ -46,7 +47,7 @@
 				});
 			</c:otherwise>
 		</c:choose>
-		
+
 		// triggered whenever any input with toggleDim attribute is changed.  Currently, only supports
 		// checkbox style inputs.
 		$j('input[toggleDim]').change(function () {
@@ -82,7 +83,7 @@
 
 	});
 
-	
+
 	// clear toggle container's inputs but saves the input values until form is submitted/validated in case the user
 	// re-clicks the trigger checkbox.  Note: These "saved" input values will be lost if the form fails validation on submission.
 	function clearContainerInputs($container) {
@@ -101,7 +102,7 @@
 		    });
 		}
 	}
-	
+
 	// restores toggle container's inputs from the last time the trigger checkbox was unchecked
 	function restoreContainerInputs($container) {
 	    $container.find('input:text, input:password, input:file, select, textarea').each( function() {
@@ -115,8 +116,8 @@
 	    	}
 	    });
 	}
-	
-	
+
+
 </script>
 
 <h2>
@@ -222,9 +223,9 @@
 			<td>
 				<spring:bind path="htmlForm.form.published">
 					<input type="hidden" name="_${status.expression}">
-					<input type="checkbox" name="${status.expression}" 
-						   id="${status.expression}" 
-						   <c:if test="${status.value == true}">checked</c:if> 
+					<input type="checkbox" name="${status.expression}"
+						   id="${status.expression}"
+						   <c:if test="${status.value == true}">checked</c:if>
 					/>
 				</spring:bind>
 			</td>
@@ -234,8 +235,8 @@
 			<td>
 				<spring:bind path="htmlForm.form.retired">
 					<input type="hidden" name="_${status.expression}">
-					<input type="checkbox" name="${status.expression}" 
-						   id="retired" 
+					<input type="checkbox" name="${status.expression}"
+						   id="retired"
 						   <c:if test="${status.value == true}">checked</c:if>
 						   onchange="updateRetiredReasonDisplay(this.checked)"
 					/>
@@ -276,7 +277,7 @@
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
-				</spring:bind>								
+				</spring:bind>
 				<c:if test="${tagWarnings != null}">
 					<c:forEach items="${tagWarnings}" var="tagWarning">
 						<br/><span>${tagWarning}</span>
@@ -300,7 +301,7 @@
 		var beforeValidation = new Array();     // a list of functions that will be executed before the validation of a form
 		var beforeSubmit = new Array(); 		// a list of functions that will be executed before the submission of a form
 	</script>
-	
+
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
     <openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlForm.js" />
