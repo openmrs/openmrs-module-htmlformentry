@@ -26,21 +26,21 @@ public abstract class AbstractTagHandler implements TagHandler, TagValidator {
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		return null;
 	}
-
+	
 	@Override
-  public List<AttributeDescriptor> getAttributeDescriptors() {
+    public List<AttributeDescriptor> getAttributeDescriptors() {
 		if (attributeDescriptors == null) {
 			attributeDescriptors = createAttributeDescriptors();
 		}
 		return attributeDescriptors;
 	}
-
+	
     @Override
     abstract public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException;
 
     @Override
     abstract public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException;
-
+    
     @Override
     public TagAnalysis validate(Node node) {
         return new TagAnalysis();
