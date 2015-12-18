@@ -15,6 +15,13 @@ clicks the submit button.
 
 Currently a form submission creates one encounter for one patient.
 
+Requirements
+----------
+
++ OpenMRS 1.6.3+, OpenMRS 1.7.2+, OpenMRS 1.8+, OpenMRS 1.9+
++ Note that although the module technically supports OpenMRS 1.7.2+, if you are running OpenMRS 1.7.x we strongly recommend upgrading to OpenMRS 1.8 as there may be some instability
++ If you are using OpenMRS 1.9+ you should also install the [htmlformentry19ext] (https://modules.openmrs.org/#/show/htmlformentry19ext/) module.
+
 
 Download
 ----------
