@@ -16,6 +16,11 @@ clicks the submit button.
 Currently a form submission creates one encounter for one patient.
 
 
+Requirements
+----------
++ OpenMRS 1.9.9+, OpenMRS 1.10.2+, OpenMRS 1.11.3+ 
+
+
 Download
 ----------
 
