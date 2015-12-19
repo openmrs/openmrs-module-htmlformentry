@@ -35,7 +35,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
     /**
      * @see #applyMacros(FormEntrySession, String)
-     * This method simply delegates to the applyMacros(FormEntrySession, String) method with a null formentry session.
+     * This method simply delegates to the applyMacros(FormEntrySession, String) method with a null FormEntry session.
      * This is retained for backwards-compatibility, with the limitation that it does not support velocity expressions
      * as macro values
      */
@@ -51,12 +51,12 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * <p/>
      * <pre>
      * {@code
-     * <htmlform>
-     *     <macros>
-     *          count=1, 2, 3
-     *     </macros>
-     *     You can count like $count
-     * </htmlform>
+     *  <htmlform>
+     *       <macros>
+     *            count=1, 2, 3
+     *      </macros>
+     *      You can count like $count
+     *  </htmlform>
      * }
      * </pre>
      * <p/>
@@ -64,9 +64,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * <p/>
      * <pre>
      * {@code
-     * <htmlform>
-     *     You can count like 1, 2, 3
-     * </htmlform>
+     *  <htmlform>
+     *       You can count like 1, 2, 3
+     *  </htmlform>
      * }
      * </pre>
      *
@@ -139,14 +139,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * <p/>
      * <pre>
      * {@code
-     * <htmlform>
-     *     <translations defaultLocale="en">
-     *       <code name="night_sweats">
-     *         <variant locale="en" value="night sweats"/>
-     *         <variant locale="fr" value="sueurs nocturnes"/>
-     * 		  </code>
-     *     </translations>
-     * </htmlform>
+     *  <htmlform>
+     *       <translations defaultLocale="en">
+     *         <code name="night_sweats">
+     *           <variant locale="en" value="night sweats"/>
+     *          <variant locale="fr" value="sueurs nocturnes"/>
+     * 		   </code>
+     *      </translations>
+     *  </htmlform>
      * }
      * </pre>
      *
@@ -198,7 +198,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
 
     /**
-     * Takes an xml string, searches for 'comments'   in the string using RegEx and filters out
+     * Takes an xml string, searches for 'comments' in the string using RegEx and filters out
      * the comments from the input string
      *
      * @param xml input string
@@ -279,24 +279,24 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Takes an XML string, finds each {@code <repeat></repeat>} section in it, and applies those
      * substitutions
      * {@code
-     * <htmlform>
-     *   <repeat>
-     *     <template>
-     *       <obsgroup groupingConceptId="1608">
-     *         <tr>
-     *           <td><obs conceptId="1611" answerConceptId="{conceptId}" answerLabel="{answerLabel}" /></td>
-     *           <td><obs conceptId="1499"/></td>
-     *           <td><obs conceptId="1500"/></td>
-     *           <td><obs conceptId="1568" answerConceptIds="1746,843,1743" answerLabels="gueri,echec,abandonne"/></td>
-     *         </tr>
-     *       </obsgroup>
-     *     </template>
-     *     <render conceptId="2125" answerLabel="Traitement initial: 2 HRZE/4 HR"/>
-     *     <render conceptId="2125" answerLabel="Traitement initial: 2 HRE/6HE (MSPP)"/>
-     *     <render conceptId="2126" answerLabel="Retraitement: 2 SHREZ + 1 HREX + 5 HRE"/>
-     *     <render conceptId="2124" answerLabel="Traitement des enfants de &lt; ans: 2 HRZ/4 HR"/>
-     *   </repeat>
-     * </htmlform>
+     *  <htmlform>
+     *     <repeat>
+     *       <template>
+     *         <obsgroup groupingConceptId="1608">
+     *           <tr>
+     *             <td><obs conceptId="1611" answerConceptId="{conceptId}" answerLabel="{answerLabel}" /></td>
+     *             <td><obs conceptId="1499"/></td>
+     *             <td><obs conceptId="1500"/></td>
+     *             <td><obs conceptId="1568" answerConceptIds="1746,843,1743" answerLabels="gueri,echec,abandonne"/></td>
+     *           </tr>
+     *        </obsgroup>
+     *       </template>
+     *       <render conceptId="2125" answerLabel="Traitement initial: 2 HRZE/4 HR"/>
+     *       <render conceptId="2125" answerLabel="Traitement initial: 2 HRE/6HE (MSPP)"/>
+     *       <render conceptId="2126" answerLabel="Retraitement: 2 SHREZ + 1 HREX + 5 HRE"/>
+     *       <render conceptId="2124" answerLabel="Traitement des enfants de &lt; ans: 2 HRZ/4 HR"/>
+     *    </repeat>
+     *  </htmlform>
      * }
      **/
     private String applyRepeatTemplateTags(String xml) throws Exception {
@@ -369,15 +369,15 @@ public class HtmlFormEntryGenerator implements TagHandler {
     * Takes an XML string, finds each {@code <repeat with=""></repeat>} sections in it, and applies those
     * substitutions
     * <pre>
-    * { @code}
-    * <repeat with="['664','No Complaints'], ['832','Weight Loss']">
-    *    <obs conceptId="1069" answerConceptId="{0}" answerLabel="{1}" style="checkbox" /><br/>
-    * </repeat>
+    * { @code
+    *   <repeat with="['664','No Complaints'], ['832','Weight Loss']">
+    *      <obs conceptId="1069" answerConceptId="{0}" answerLabel="{1}" style="checkbox" /><br/>
+    *   </repeat>
     * }
     * this will be replaced with,
     * { @code
-    * <obs conceptId="1069" answerConceptId="644" answerLabel="No Complaints" style="checkbox" /><br/>
-    * <obs conceptId="1069" answerConceptId="832" answerLabel="Weight Loss" style="checkbox" /><br/>
+    *   <obs conceptId="1069" answerConceptId="644" answerLabel="No Complaints" style="checkbox" /><br/>
+    *   <obs conceptId="1069" answerConceptId="832" answerLabel="Weight Loss" style="checkbox" /><br/>
     * }
     *
     * </pre>
@@ -429,7 +429,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Gets a string like [664,'No Complaints'], [832,'Weight Loss'] and splits it into separate string entries
      * to be used in the repeated html elements
      * @param val = the string to process and get the entires
-     * @return
+     * @return List of separate entries
      */
     private List<List<String>> getSubstitutionSets(String val) {
 

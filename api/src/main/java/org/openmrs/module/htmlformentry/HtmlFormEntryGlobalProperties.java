@@ -4,9 +4,9 @@ import org.openmrs.api.context.Context;
 
 
 public class HtmlFormEntryGlobalProperties {
-	
+
 	/**
-	 * @return global property that specifies whether or not to void encounter by html form schema
+	 * @return global property boolean that specifies whether or not to void encounter by html form schema
 	 * returns null if property is null or is set to neither true or false
 	 */
 	public static final Boolean VOID_ENCOUNTER_BY_HTML_FORM_SCHEMA () {
@@ -21,10 +21,10 @@ public class HtmlFormEntryGlobalProperties {
 			return null;
 		}
 	}
-	
+
 
 	/**
-	 * @return whether or not the html form flowsheet module has been started 
+	 * @return boolean describing whether or not the html form flowsheet module has been started
 	 */
 	public static final Boolean HTML_FORM_FLOWSHEET_STARTED () {
 		String propertyValue = Context.getAdministrationService().getGlobalProperty("htmlformflowsheet.started");
@@ -34,5 +34,5 @@ public class HtmlFormEntryGlobalProperties {
 		else {
 			return false;
 		}
-	} 	
+	}
 }

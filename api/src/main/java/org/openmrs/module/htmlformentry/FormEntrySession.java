@@ -56,15 +56,15 @@ import org.springframework.web.util.JavaScriptUtils;
  * <p/>
  * <pre>
  *  session.getHtmlToDisplay();
- * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
- * 	    request);
+ * 	List&lt;FormSubmissionError&gt;
+ *  validationErrors = session.getSubmissionController().validateSubmission(session.getContext(), request);
  * 	if (validationErrors.size() == 0) {
  * 		session.prepareForSubmit();
  * 		session.getSubmissionController().handleFormSubmission(session, request);
  * 		session.applyActions();
  *     } else {
  * 		// display errors
- * 		// redisplay form,
+ * 		// redisplay form
  *     }
  * }
  * </pre>
@@ -112,7 +112,7 @@ public class FormEntrySession {
     private VelocityContext velocityContext;
 
     private boolean voidEncounter = false;
-    
+
     private String hasChangedInd = "false";
 
     private HttpSession httpSession;
@@ -386,12 +386,12 @@ public class FormEntrySession {
     }
 
     /**
-     * Creates the HTML for a HTML Form given the xml for the form This method uses the
+     * Creates the HTML for a HTML Form given the xml for the form. This method uses the
      * HtmlFormGenerator to process any HTML Form Entry-specific tags and returns pure HTML that can
      * be rendered by a browser
      *
      * @param xml the xml string representing the form we wish to create
-     * @return
+     * @return browser-renderable html
      * @throws Exception
      * @should return correct xml with a greater than character in an excludeIf tag
      * @should return correct xml with a greater than character in an includeIf tag
@@ -486,7 +486,7 @@ public class FormEntrySession {
         }
 
         // remove any obs groups that don't contain children
-		HtmlFormEntryUtil.removeEmptyObs(submissionActions.getObsToCreate());
+        HtmlFormEntryUtil.removeEmptyObs(submissionActions.getObsToCreate());
 
         // propagate encounterDatetime to Obs where necessary
         if (submissionActions.getObsToCreate() != null) {
@@ -630,13 +630,13 @@ public class FormEntrySession {
         }
 
         ObsService obsService = Context.getObsService();
-        
+
         if (submissionActions.getObsToVoid() != null) {
             for (Obs o : submissionActions.getObsToVoid()) {
                 if (log.isDebugEnabled())
                     log.debug("voiding obs: " + o.getObsId());
                 obsService.voidObs(o, "htmlformentry");
-                // if o was in a group and it has no obs left, void the group
+                // if o was in a group and that group has no obs left, void the group
 				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
             }
         }
