@@ -13,7 +13,7 @@ to write HTML (with some special tags for things in the OpenMRS model)
 and the module will automatically "just know" what to do when the user
 clicks the submit button.
 
-Currently a form submission creates one encounter for one patient.
+Currently, a form submission creates one encounter for one patient.
 
 
 Requirements
@@ -29,7 +29,7 @@ If you are using OpenMRS 1.9+ you should also install the [htmlformentry19ext mo
 
 + [Download the Htmlformentry module][]
 + If you're using OpenMRS 1.9+, ALSO get the [htmlformentry19ext module][].
-+ Source code: [View/download source code for htmlformentry19ext][] from github, [View/download source code for htmlformentry][] from github
++ Source code: [View/download source code for htmlformentry19ext][] from Github, [View/download source code for htmlformentry][] from Github
 
 
 Instructions
@@ -52,7 +52,7 @@ Global Properties
 Project Resources
 ---------
 
-[Wiki page][]: You can find screenshots, example HTML code and flowsheets on this page
+[Wiki page][]: You can find screenshots, example HTML code, and flowsheets on this page
 
 [HTML Form Entry Module]: https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module
 [htmlformentry19ext]: https://github.com/OpenMRS/openmrs-module-htmlformentry19ext
