@@ -32,29 +32,29 @@ import org.openmrs.util.LocaleUtility;
 
 
 public class VelocityFunctions {
-	
+
 	private FormEntrySession session;
 	private ObsService obsService;
 	private LogicService logicService;
 	private ProgramWorkflowService programWorkflowService;
 	private AdministrationService administrationService;
-	
+
 	public VelocityFunctions(FormEntrySession session) {
 		this.session = session;
 	}
-	
+
 	private ObsService getObsService() {
 		if (obsService == null)
 			obsService = Context.getObsService();
 		return obsService;
 	}
-	
+
 	private LogicService getLogicService() {
 		if (logicService == null)
 			logicService = Context.getLogicService();
 		return logicService;
 	}
-	
+
 	private ProgramWorkflowService getProgramWorkflowService() {
 		if (programWorkflowService == null)
 			programWorkflowService = Context.getProgramWorkflowService();
@@ -66,7 +66,7 @@ public class VelocityFunctions {
 			administrationService = Context.getAdministrationService();
 		return administrationService;
 	}
-	
+
 	private void cannotBePreviewed() {
 		if ("testing-html-form-entry".equals(session.getPatient().getUuid()))
 			throw new CannotBePreviewedException();
@@ -147,7 +147,7 @@ public class VelocityFunctions {
 		EncounterType encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
 		return getAllEncounters(encounterType);
     }
-    
+
 	private List<Encounter> getAllEncounters(EncounterType type) {
 		if (session.getPatient() == null) {
 			return new ArrayList<Encounter>();
@@ -164,13 +164,13 @@ public class VelocityFunctions {
 			else {
 				List<EncounterType> typeList = new ArrayList<EncounterType>();
 				typeList.add(type);
-				
+
 				EncounterServiceCompatibility esc = Context.getRegisteredComponent("htmlformentry.EncounterServiceCompatibility", EncounterServiceCompatibility.class);
 				return esc.getEncounters(p, null, null, null, null, typeList, null, null, null, false);
 			}
 		}
 	}
-	
+
 	/**
 	 * @return the most recent encounter of the specified type
 	 * @should return the most recent encounter of the specified type
@@ -179,12 +179,12 @@ public class VelocityFunctions {
 	public Encounter latestEncounter(String encounterTypeId){
 		EncounterType encounterType = null;
 		if (StringUtils.isNotEmpty(encounterTypeId)) {
-			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);			
+			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
 		}
-		
+
 		return getLatestEncounter(encounterType);
 	}
-	
+
 	private Encounter getLatestEncounter(EncounterType type) {
 		List<Encounter> encounters = getAllEncounters(type);
 		if (encounters == null || encounters.isEmpty()) {
@@ -194,7 +194,7 @@ public class VelocityFunctions {
 			return encounters.get(encounters.size() - 1);
 		}
 	}
-	
+
 	/**
 	 * @return the most recent encounter
 	 * @should return the most recent encounter
@@ -202,7 +202,7 @@ public class VelocityFunctions {
 	public Encounter latestEncounter() {
 		return latestEncounter(null);
 	}
-	
+
 	public Result logic(String expression) {
 		if (session.getPatient() == null)
 			return new EmptyResult();
@@ -210,7 +210,7 @@ public class VelocityFunctions {
 		LogicCriteria lc = getLogicService().parse(expression);
 		return getLogicService().eval(session.getPatient().getPatientId(), lc);
 	}
-	
+
 	public ProgramWorkflow getWorkflow(Integer id) {
 		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
 			for (ProgramWorkflow w : p.getAllWorkflows()) {
@@ -235,8 +235,8 @@ public class VelocityFunctions {
 		PatientProgram mostRecentPatientProgram = null;
 		for (PatientProgram pp : pps) {
 			// try to figure out which program enrollment is active or the most
-			// recent one; guess this would better fit somewhere in the
-			// ProgramWorkflowServive
+			// recent one;
+			// guess this would better fit somewhere in the ProgramWorkflowService
 			if (!pp.isVoided()) {
 				if (mostRecentPatientProgram == null) {
 					mostRecentPatientProgram = pp;
@@ -251,10 +251,9 @@ public class VelocityFunctions {
 						mostRecentPatientProgram = pp;
 					} else {
 						// let the states decide for uncompleted programs
-						// (_should_ not be necessary, but that's life,
-						// partially due
+						// (_should_ not be necessary, but partially due
 						// to ProgramLocation module, or Reopening of old
-						// programs, or patient merge)
+						// programs, or patient merge, is)
 						PatientState mostRecentState = mostRecentPatientProgram.getCurrentState(workflow);
 						PatientState ps = pp.getCurrentState(workflow);
 						if (mostRecentState == null || ps == null) {
@@ -277,7 +276,7 @@ public class VelocityFunctions {
 		return null;
 	}
 
- /**
+ 		/**
      *
      * @return   patient's age given in months
      * @should  return the ageInMonths accurately to the nearest month
@@ -295,7 +294,7 @@ public class VelocityFunctions {
         return Months.monthsBetween(dob.toDateMidnight(), today.toDateMidnight()).getMonths();
     }
 
- /**
+ 		/**
      *
      * @return   patient's age in days
      * @should  return the ageInDays accurately to the nearest date
@@ -313,7 +312,7 @@ public class VelocityFunctions {
     }
 
     /**
-    * 
+    *
     * @return	concept of given id
     * @should	return Concept object against given concept code (id, uuid or mapping)
     */

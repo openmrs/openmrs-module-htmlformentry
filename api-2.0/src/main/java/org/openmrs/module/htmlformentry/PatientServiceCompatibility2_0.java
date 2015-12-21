@@ -28,6 +28,6 @@ public class PatientServiceCompatibility2_0 implements PatientServiceCompatibili
 
 	@Override
 	public void exitFromCare(Patient patient, Date dateExited, Concept reasonForExit) throws APIException {
-		//do nothing because this was moved to the exit from care module
+		//do nothing because this was moved to the exit from care module (remove?)
 	}
 }

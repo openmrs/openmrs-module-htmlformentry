@@ -34,25 +34,25 @@ import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
  * other Openmrs objects it needs to package up with the form.
  */
 public class HtmlFormExporter {
-	
+
 	private static Log log = LogFactory.getLog(HtmlFormExporter.class);
-	
+
 	private final HtmlForm form;
-	
+
 	private Boolean includeLocations;
-	
+
 	private Boolean includePersons;
-	
+
 	private Boolean includeRoles;
-	
+
 	private Boolean includePatientIdentifierTypes;
-	
+
 	private HtmlForm formToExport;
-	
+
 	public HtmlFormExporter(HtmlForm form) {
 		this.form = form;
 	}
-	
+
 	private HtmlForm copyOf(HtmlForm form) {
 		HtmlForm copy = new HtmlForm();
 		copy.setChangedBy(form.getChangedBy());
@@ -69,20 +69,20 @@ public class HtmlFormExporter {
 		copy.setXmlData(form.getXmlData());
 		return copy;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void calculateDependencies() {
 		Set<OpenmrsObject> dependencies = new HashSet<OpenmrsObject>();
-		
+
 		Set<Class<?>> classesNotToExport = getClassesNotToExport();
 
 		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to
 		// be applied to the form we are exporting so we copy the xml into a new string first
 		// (calculate Uuid dependencies should operate properly even with out this, but will be do this just to be safe)
-		
+
 		String xml = new String(formToExport.getXmlData());
 		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
-		
+
 		try {
 			xml = generator.applyMacros(xml);
 			xml = generator.applyRepeats(xml);
@@ -90,11 +90,11 @@ public class HtmlFormExporter {
 		catch (Exception e) {
 			throw new APIException("Unable to process macros and templates when processing form to make it shareable", e);
 		}
-		
+
 		// now we need to loop through the attributes to find what dependencies we need to look for
 		// fetch the tag handlers so we can gain access to the attribute descriptors
 		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
-		
+
 		// loop through all the attribute descriptors for the registered handlers
 		for (String tagName : tagHandlers.keySet()) {
 			log.debug("Handling dependencies for tag " + tagName);
@@ -110,13 +110,13 @@ public class HtmlFormExporter {
 						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
 						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName() + "=\"(.*?)\"";
 						log.debug("dependency substitution pattern: " + pattern);
-						
+
 						// now search through and find all matches
 						Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(xml);
 						while (matcher.find()) {
 							// split the matched result group into the various ids
 							String[] ids = matcher.group(1).split(",");
-							
+
 							for (String id : ids) {
 								// if this id matches a uuid pattern, try to fetch the object by uuid
 								if (HtmlFormEntryUtil.isValidUuidFormat(id) && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
@@ -136,7 +136,7 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								
+
 								// if we haven't found anything by uuid, try by name
 								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByName(
@@ -187,7 +187,7 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								
+
 								RegimenSuggestionCompatibility regimen = Context.getRegisteredComponent("htmlformentry.RegimenSuggestionCompatibility", RegimenSuggestionCompatibility.class);
 								regimen.AddDrugDependencies(id, attributeDescriptor, dependencies);
 							}
@@ -198,7 +198,7 @@ public class HtmlFormExporter {
 		}
 		formToExport.setDependencies(dependencies);
 	}
-	
+
 	/**
      * @return results of parsing the {@link HtmlFormEntryConstants#GP_CLASSES_NOT_TO_EXPORT_WITH_MDS} global property
      */
@@ -221,20 +221,20 @@ public class HtmlFormExporter {
 	private void stripLocalAttributesFromXml() {
 		// get the tag handlers so we can gain access to the attribute descriptors
 		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
-		
+
 		// loop through all the attribute descriptors for this
 		for (String tagName : tagHandlers.keySet()) {
 			log.debug("Handling dependencies for tag " + tagName);
-			
+
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to attribute="[anything]"
-						// see above mehtod for more detail
+						// see above method for more detail
 						String stripPattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)(" + attributeDescriptor.getName() + "=\".*?\")";
 						log.debug("stripping substitution pattern: " + stripPattern);
-						
+
 						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {
 							stripLocalAttributesFromXmlHelper(Pattern.compile(stripPattern, Pattern.CASE_INSENSITIVE));
 						} else if (!this.includePersons && attributeDescriptor.getClazz().equals(Person.class)) {
@@ -250,44 +250,44 @@ public class HtmlFormExporter {
 			}
 		}
 	}
-	
+
 	private void stripLocalAttributesFromXmlHelper(Pattern pattern) {
-		
+
 		Matcher matcher = pattern.matcher(formToExport.getXmlData());
 		StringBuffer buffer = new StringBuffer();
-		
+
 		// search through the xml data for the Pattern specified in the pattern parameter, and remove group(1)
 		while (matcher.find()) {
 			matcher.appendReplacement(buffer, matcher.group().substring(0, matcher.start(1) - matcher.start()));
 		}
-		
+
 		matcher.appendTail(buffer);
-		
+
 		formToExport.setXmlData(buffer.toString());
 	}
-	
+
 	public HtmlForm export(Boolean includeLocations, Boolean includePersons, Boolean includeRoles,
 	                       Boolean includePatientIdentifierTypes) {
 		this.includeLocations = includeLocations;
 		this.includePersons = includePersons;
 		this.includeRoles = includeRoles;
 		this.includePatientIdentifierTypes = includePatientIdentifierTypes;
-		
+
 		formToExport = copyOf(form);
-		
+
 		// first, strip out any local attributes we don't want to pass on
-		// default (set in HtmlForm.java) is to include locations, roles, and patient identitfier types, but not persons
+		// default (set in HtmlForm.java) is to include locations, roles, and patient identifier types, but not persons
 		stripLocalAttributesFromXml();
-		
+
 		// within the form, replace any Ids with Uuids
 		HtmlFormSubstitutionUtils.replaceIdsWithUuids(formToExport);
 		// replace any programs referenced by name with uuids (since programs referenced by name are really referenced by the underlying concept which can cause issues during metadata sharing)
 		HtmlFormSubstitutionUtils.replaceProgramNamesWithUuids(formToExport);
-		
+
 		// make sure all dependent OpenmrsObjects are loaded and explicitly referenced
 		calculateDependencies();
 		// TODO: update the calculate dependencies method to handle persons specified by name...
-		
+
 		return formToExport;
 	}
 }

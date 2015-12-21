@@ -38,34 +38,34 @@ import org.openmrs.util.OpenmrsUtil;
  * responsible for applying its own actions. That is done elsewhere in the framework.
  */
 public class FormSubmissionActions {
-	
+
 	/** Logger to use with this class */
 	protected final Log log = LogFactory.getLog(getClass());
 
     private Boolean patientUpdateRequired = false;
 
 	private List<Person> personsToCreate = new Vector<Person>();
-	
+
 	private List<Encounter> encountersToCreate = new Vector<Encounter>();
-	
+
 	private List<Encounter> encountersToEdit = new Vector<Encounter>();
-	
+
 	private List<Obs> obsToCreate = new Vector<Obs>();
-	
+
 	private List<Obs> obsToVoid = new Vector<Obs>();
-	
+
 	private List<Order> ordersToCreate = new Vector<Order>();
-	
+
 	private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
-	
+
 	private List<PatientProgram> patientProgramsToComplete = new Vector<PatientProgram>();
-	
+
 	private List<PatientProgram> patientProgramsToUpdate = new Vector<PatientProgram>();
-	
+
 	private List<Relationship> relationshipsToCreate = new Vector<Relationship>();
-	
+
 	private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
-	
+
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
 
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
@@ -76,14 +76,14 @@ public class FormSubmissionActions {
 
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
-	
+
 	public FormSubmissionActions() {
 	}
-	
+
 	/**
 	 * Add a Person to the submission stack. A Person must be the first object added to the
 	 * submission stack.
-	 * 
+	 *
 	 * @param Person person to add
 	 * @throws InvalidActionException
 	 */
@@ -95,13 +95,13 @@ public class FormSubmissionActions {
 			personsToCreate.add(person);
 		stack.push(person);
 	}
-	
+
 	/**
 	 * Removes the most recently added Person from the submission stack. All other objects added
 	 * after that Person are removed as well.
 	 * <p/>
 	 * (So, in the current one-person-per-form model, this would empty the entire submission stack)
-	 * 
+	 *
 	 * @throws InvalidActionException
 	 */
 	public void endPerson() throws InvalidActionException {
@@ -113,10 +113,10 @@ public class FormSubmissionActions {
 				break;
 		}
 	}
-	
+
 	/**
 	 * Adds an Encounter to the submission stack
-	 * 
+	 *
 	 * @param encounter the Encounter to add
 	 * @throws InvalidActionException
 	 */
@@ -129,11 +129,11 @@ public class FormSubmissionActions {
 		encounter.setPatient(highestOnStack(Patient.class));
 		stack.push(encounter);
 	}
-	
+
 	/**
 	 * Removes the most recently added Encounter from the submission stack. All objects added after
 	 * that Encounter are removed as well.
-	 * 
+	 *
 	 * @throws InvalidActionException
 	 */
 	public void endEncounter() throws InvalidActionException {
@@ -145,10 +145,10 @@ public class FormSubmissionActions {
 				break;
 		}
 	}
-	
+
 	/**
 	 * Adds an Obs Group to the submission stack
-	 * 
+	 *
 	 * @param group the Obs Group to add
 	 * @throws InvalidActionException
 	 */
@@ -172,13 +172,13 @@ public class FormSubmissionActions {
 			oParent.addGroupMember(group);
 		}
 		stack.push(group);
-		
+
 	}
-	
+
 	/**
 	 * Utility function that adds a set of Obs to an Encounter, skipping Obs that are already part
 	 * of the Encounter
-	 * 
+	 *
 	 * @param encounter
 	 * @param group
 	 */
@@ -189,11 +189,11 @@ public class FormSubmissionActions {
 		}
 		encounter.addObs(group);
 	}
-	
+
 	/**
 	 * Removes the most recently added ObsGroup from the submission stack. All objects added after
 	 * that ObsGroup are removed as well.
-	 * 
+	 *
 	 * @throws InvalidActionException
 	 */
 	public void endObsGroup() throws InvalidActionException {
@@ -206,25 +206,25 @@ public class FormSubmissionActions {
 				break;
 		}
 	}
-	
+
 	/**
 	 * Returns the Person that was most recently added to the stack
-	 * 
+	 *
 	 * @return the Person most recently added to the stack
 	 */
 	public Person getCurrentPerson() {
 		return highestOnStack(Person.class);
 	}
-	
+
 	/**
 	 * Returns the Encounter that was most recently added to the stack
-	 * 
+	 *
 	 * @return the Encounter most recently added to the stack
 	 */
 	public Encounter getCurrentEncounter() {
 		return highestOnStack(Encounter.class);
 	}
-	
+
 	/**
 	 * Utility method that returns the object of a specified class that was most recently added to
 	 * the stack
@@ -238,7 +238,7 @@ public class FormSubmissionActions {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Utility method that tests whether there is an object of the specified type on the stack
 	 */
@@ -249,14 +249,14 @@ public class FormSubmissionActions {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Creates an new Obs and associates with the most recently added Person, Encounter, and
 	 * ObsGroup (if applicable) on the stack.
 	 * <p/>
 	 * Note that this method does not actually commit the Obs to the database, but instead adds the
 	 * Obs to a list of Obs to be added. The changes are applied elsewhere in the framework.
-	 * 
+	 *
 	 * @param concept concept associated with the Obs
 	 * @param value value for the Obs
 	 * @param datetime date information for the Obs
@@ -268,16 +268,16 @@ public class FormSubmissionActions {
 		if (value == null || "".equals(value))
 			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
 		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
-		
+
 		Person person = highestOnStack(Person.class);
 		if (person == null)
 			throw new IllegalArgumentException("Cannot create an Obs outside of a Person.");
 		Encounter encounter = highestOnStack(Encounter.class);
 		Obs obsGroup = highestOnStack(Obs.class);
-		
+
 		if (person != null)
 			obs.setPerson(person);
-		
+
 		if(StringUtils.isNotBlank(comment))
 			obs.setComment(comment);
 
@@ -305,7 +305,7 @@ public class FormSubmissionActions {
 	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new
 	 * Obs to a list of Obs to create. Note that this method does not commit the changes to the
 	 * database--the changes are applied elsewhere in the framework.
-	 * 
+	 *
 	 * @param existingObs the Obs to modify
 	 * @param concept concept associated with the Obs
 	 * @param newValue the new value of the Obs
@@ -372,21 +372,21 @@ public class FormSubmissionActions {
 	 * <p/>
 	 * Note that this method does not commit the program enrollment to the database but instead adds
 	 * the Program to a list of programs to add. The changes are applied elsewhere in the framework
-	 * 
+	 *
 	 * @param program Program to enroll the patient in
 	 * @see #enrollInProgram(Program, Date, List)
 	 */
 	public void enrollInProgram(Program program) {
 		enrollInProgram(program, null, null);
 	}
-	
+
 	/**
 	 * Enrolls the Patient most recently added to the stack in the specified Program setting the
 	 * enrollment date as the date specified and setting initial states from the specified state
 	 * <p/>
 	 * Note that this method does not commit the program enrollment to the database but instead adds
 	 * the Program to a list of programs to add. The changes are applied elsewhere in the framework
-	 * 
+	 *
 	 * @param program Program to enroll the patient in
 	 * @param enrollmentDate the date to enroll the patient in the program
 	 * @param states list of states to set as initial in their workflows
@@ -394,35 +394,35 @@ public class FormSubmissionActions {
     public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
 		if (program == null)
 			throw new IllegalArgumentException("Cannot enroll in a blank program");
-		
+
 		Patient patient = highestOnStack(Patient.class);
 		if (patient == null)
 			throw new IllegalArgumentException("Cannot enroll in a program outside of a Patient");
 		Encounter encounter = highestOnStack(Encounter.class);
-		
+
 		// if an enrollment date has not been specified, enrollment date is the encounter date
 		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : (encounter  != null) ? encounter.getEncounterDatetime() : null;
-		
+
 		if (enrollmentDate == null)
 			throw new IllegalArgumentException("Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
-		
+
 		// only need to do some if the patient is not enrolled in the specified program on the specified date
 		if (!HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, enrollmentDate)) {
- 			
+
 			// see if the patient is enrolled in this program in the future
 			PatientProgram pp = HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, enrollmentDate);
-			
-			if (pp != null) {	
+
+			if (pp != null) {
 				//set the start dates of all states with a start date equal to the enrollment date to the selected date
 				for (PatientState patientState : pp.getStates()) {
 					if (OpenmrsUtil.nullSafeEquals(patientState.getStartDate(), pp.getDateEnrolled())) {
 						patientState.setStartDate(enrollmentDate);
 					}
 				}
-				
+
 				// set the program enrollment date to the newly selected date
 				pp.setDateEnrolled(enrollmentDate);
-				
+
 				patientProgramsToUpdate.add(pp);
 			}
 			// otherwise, create the new program
@@ -432,7 +432,7 @@ public class FormSubmissionActions {
 				pp.setProgram(program);
 				if (enrollmentDate != null)
 					pp.setDateEnrolled(enrollmentDate);
-				
+
 				if (states != null) {
 					for (ProgramWorkflowState programWorkflowState : states) {
 						pp.transitionToState(programWorkflowState, enrollmentDate);
@@ -440,40 +440,40 @@ public class FormSubmissionActions {
 				}
 				patientProgramsToCreate.add(pp);
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * Ends a Patient program.
 	 * <p/>
 	 * Note that this method does not commit the program enrollment change to the database but
 	 * instead adds the Program to a list of programs to remove. The changes are applied elsewhere
 	 * in the framework
-	 * 
+	 *
 	 * @param program Program to end the enrollment for the patient in
 	 */
 	public void completeProgram(Program program) {
 		if (program == null)
 			throw new IllegalArgumentException("Cannot end a blank program");
-		
+
 		Patient patient = highestOnStack(Patient.class);
 		if (patient == null)
 			throw new IllegalArgumentException("Cannot find program without a patient");
 		Encounter encounter = highestOnStack(Encounter.class);
 		if (encounter == null)
 			throw new IllegalArgumentException("Cannot end enrollment in a program outside of an Encounter");
-		
+
 		List<PatientProgram> pp = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null,
 		    encounter.getEncounterDatetime(), new Date(), null, false);
-		
+
 		patientProgramsToComplete.addAll(pp);
 	}
-	
+
 	public void transitionToState(ProgramWorkflowState state) {
 		if (state == null)
 			throw new IllegalArgumentException("Cannot change to a blank state");
-		
+
 		Patient patient = highestOnStack(Patient.class);
 		if (patient == null)
 			throw new IllegalArgumentException("Cannot change state without a patient");
@@ -504,9 +504,9 @@ public class FormSubmissionActions {
 			patientProgram.setDateCreated(new Date());
 			patientProgram.setCreator(Context.getAuthenticatedUser());
 			patientProgram.setUuid(UUID.randomUUID().toString());
-			
+
 		}
-		
+
 		for (PatientState patientState : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
 			if (patientState.getActive(encounter.getEncounterDatetime())) {
 				if (patientState.getState().equals(state)) {
@@ -514,7 +514,7 @@ public class FormSubmissionActions {
 				}
 			}
 		}
-		
+
 		PatientState previousState = null;
 		PatientState nextState = null;
 		PatientState newState = new PatientState();
@@ -526,9 +526,9 @@ public class FormSubmissionActions {
 		newState.setDateCreated(new Date());
 		newState.setCreator(Context.getAuthenticatedUser());
 		newState.setUuid(UUID.randomUUID().toString());
-		
+
 		Collection<PatientState> sortedStates = new TreeSet<PatientState>(new Comparator<PatientState>() {
-			
+
 			@Override
 			public int compare(PatientState o1, PatientState o2) {
 				int result = OpenmrsUtil.compareWithNullAsEarliest(o1.getStartDate(), o2.getStartDate());
@@ -537,15 +537,15 @@ public class FormSubmissionActions {
 				}
 				return result;
 			}
-			
+
 		});
 		sortedStates.addAll(patientProgram.statesInWorkflow(state.getProgramWorkflow(), false));
 		for (PatientState currentState : sortedStates) {
-			
+
 			Date newStartDate = newState.getStartDate();
 			Date currentStartDate = currentState.getStartDate();
 			Date currentEndDate = currentState.getEndDate();
-			
+
 			if (currentEndDate != null) {
 				if (currentEndDate.after(newStartDate)) {
 					if (currentStartDate.after(newStartDate)) {
@@ -566,7 +566,7 @@ public class FormSubmissionActions {
 				break;
 			}
 		}
-		
+
 		if (nextState == null) {
 			if (previousState != null) {
 				previousState.setEndDate(newState.getStartDate());
@@ -577,9 +577,9 @@ public class FormSubmissionActions {
 			}
 			newState.setEndDate(nextState.getStartDate());
 		}
-		
+
 		patientProgram.getStates().add(newState);
-		
+
 		patientProgramsToUpdate.add(patientProgram);
 	}
 
@@ -616,11 +616,11 @@ public class FormSubmissionActions {
 		else
 			return oldVal.getTime() != newVal.getTime();
 	}
-	
+
 	private boolean accessionNumberChangedHelper(String oldVal, String newVal) {
 		return !OpenmrsUtil.nullSafeEquals(oldVal, newVal);
 	}
-	
+
 	private String printObsHelper(Obs obs) {
 		return obs.getConcept().getName(Context.getLocale()) + " = " + obs.getValueAsString(Context.getLocale());
 	}
@@ -644,209 +644,209 @@ public class FormSubmissionActions {
 
     /**
 	 * Returns a list of all the Persons that need to be created to process form submission
-	 * 
+	 *
 	 * @return a list of all Persons to create
 	 */
 	public List<Person> getPersonsToCreate() {
 		return personsToCreate;
 	}
-	
+
 	/**
 	 * Sets the list of Persons that need to be created to process form submission
-	 * 
+	 *
 	 * @param personsToCreate the list of Persons to create
 	 */
 	public void setPersonsToCreate(List<Person> personsToCreate) {
 		this.personsToCreate = personsToCreate;
 	}
-	
+
 	/**
 	 * Returns a list of all the Encounters that need to be created to process form submissions
-	 * 
+	 *
 	 * @return a list of Encounters to create
 	 */
 	public List<Encounter> getEncountersToCreate() {
 		return encountersToCreate;
 	}
-	
+
 	/**
 	 * Sets the list of Encounters that need to be created to process form submission
-	 * 
+	 *
 	 * @param encountersToCreate the list of Encounters to create
 	 */
 	public void setEncountersToCreate(List<Encounter> encountersToCreate) {
 		this.encountersToCreate = encountersToCreate;
 	}
-	
+
 	/**
 	 * Returns the list of Encounters that need to be edited to process form submission
-	 * 
+	 *
 	 * @return the list of Encounters to edit
 	 */
 	public List<Encounter> getEncountersToEdit() {
 		return encountersToEdit;
 	}
-	
+
 	/**
 	 * Sets the list of Encounters that need to be editing to process form submission
-	 * 
+	 *
 	 * @param encountersToEdit the list of Encounters to edit
 	 */
 	public void setEncountersToEdit(List<Encounter> encountersToEdit) {
 		this.encountersToEdit = encountersToEdit;
 	}
-	
+
 	/**
 	 * Returns the list of Obs that need to be created to process form submission
-	 * 
+	 *
 	 * @return the list of Obs to create
 	 */
 	public List<Obs> getObsToCreate() {
 		return obsToCreate;
 	}
-	
+
 	/**
 	 * Sets the list of Obs that need to be created to process form submission
-	 * 
+	 *
 	 * @param obsToCreate the list of Obs to create
 	 */
 	public void setObsToCreate(List<Obs> obsToCreate) {
 		this.obsToCreate = obsToCreate;
 	}
-	
+
 	/**
 	 * Returns the list of Os that need to be voided to process form submission
-	 * 
+	 *
 	 * @return the list of Obs to void
 	 */
 	public List<Obs> getObsToVoid() {
 		return obsToVoid;
 	}
-	
+
 	/**
 	 * Sets the list Obs that need to be voided to process form submission
-	 * 
+	 *
 	 * @param obsToVoid the list of Obs to void
 	 */
 	public void setObsToVoid(List<Obs> obsToVoid) {
 		this.obsToVoid = obsToVoid;
 	}
-	
+
 	/**
 	 * Returns the list of Orders that need to be created to process form submission
-	 * 
+	 *
 	 * @return the list of Orders to create
 	 */
 	public List<Order> getOrdersToCreate() {
 		return ordersToCreate;
 	}
-	
+
 	/**
 	 * Sets the list of Orders that need to be created to process form submission
-	 * 
+	 *
 	 * @param ordersToCreate the list of Orders to create
 	 */
 	public void setOrdersToCreate(List<Order> ordersToCreate) {
 		this.ordersToCreate = ordersToCreate;
 	}
-	
+
 	/**
 	 * Returns the list of Patient Programs that need to be created to process form submission
-	 * 
+	 *
 	 * @return the patientProgramsToCreate the list of Programs to create
 	 */
 	public List<PatientProgram> getPatientProgramsToCreate() {
 		return patientProgramsToCreate;
 	}
-	
+
 	/**
 	 * Sets the list of Patient Programs that need to be created to process form submission
-	 * 
+	 *
 	 * @param patientProgramsToCreate the list of Programs to create
 	 */
 	public void setPatientProgramsToCreate(List<PatientProgram> patientProgramsToCreate) {
 		this.patientProgramsToCreate = patientProgramsToCreate;
 	}
-	
+
 	/**
 	 * Returns the list of Patient Programs that need to be completed to process form submission
-	 * 
+	 *
 	 * @return the patientProgramsToComplete the list of Programs to completed
 	 */
 	public List<PatientProgram> getPatientProgramsToComplete() {
 		return patientProgramsToComplete;
 	}
-	
+
 	/**
 	 * Sets the list of Patient Programs that need to be completed to process form submission
-	 * 
+	 *
 	 * @param patientProgramsToComplete the list of Programs to completed
 	 */
 	public void setPatientProgramsToComplete(List<PatientProgram> patientProgramsToComplete) {
 		this.patientProgramsToComplete = patientProgramsToComplete;
 	}
-	
+
 	/**
 	 * Returns the list of Relationships that need to be created to process form submission
-	 * 
+	 *
 	 * @return the relationshipsToCreate
 	 */
 	public List<Relationship> getRelationshipsToCreate() {
 		return relationshipsToCreate;
 	}
-	
+
 	/**
-	 * Sets the list of Relationships that need to be creatd to process form submission
-	 * 
+	 * Sets the list of Relationships that need to be created to process form submission
+	 *
 	 * @param relationshipsToCreate the relationshipsToCreate to set
 	 */
 	public void setRelationshipsToCreate(List<Relationship> relationshipsToCreate) {
 		this.relationshipsToCreate = relationshipsToCreate;
 	}
-	
+
 	/**
 	 * Returns the list of Relationships that need to be voided to process form submission
-	 * 
+	 *
 	 * @return the relationshipsToVoid
 	 */
 	public List<Relationship> getRelationshipsToVoid() {
 		return relationshipsToVoid;
 	}
-	
+
 	/**
 	 * Sets the list of Relationships that need to be voided to process form submission
-	 * 
+	 *
 	 * @param relationshipsToVoid the relationshipsToVoid to set
 	 */
 	public void setRelationshipsToVoid(List<Relationship> relationshipsToVoid) {
 		this.relationshipsToVoid = relationshipsToVoid;
 	}
-	
+
 	/**
 	 * Returns the list of Relationships that need to be edited to process form submission
-	 * 
+	 *
 	 * @return the relationshipsToEdit
 	 */
 	public List<Relationship> getRelationshipsToEdit() {
 		return relationshipsToEdit;
 	}
-	
+
 	/**
 	 * Sets the list of Relationships that need to be edited to process form submission
-	 * 
+	 *
 	 * @param relationshipsToEdit the relationshipsToEdit to set
 	 */
 	public void setRelationshipsToEdit(List<Relationship> relationshipsToEdit) {
 		this.relationshipsToEdit = relationshipsToEdit;
 	}
-	
+
 	/**
 	 * @return the patientProgramsToUpdate
 	 */
 	public List<PatientProgram> getPatientProgramsToUpdate() {
 		return patientProgramsToUpdate;
 	}
-	
+
 	/**
 	 * @param patientProgramsToUpdate the patientProgramsToUpdate to set
 	 */
