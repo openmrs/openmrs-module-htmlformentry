@@ -88,7 +88,7 @@ public class FormSubmissionController {
     /**
      * Processes a form submission, given a Form Entry Session.
      * <p/>
-     * This method cycles through all the FormSubmissionControllerActions and calls their handleSubmission method,
+     * This method cycles through all the FormSubmissionControllerActions and calls all their handleSubmission methods.
      * 
      * @param session the Form Entry Session
      * @param submission
@@ -188,7 +188,7 @@ public class FormSubmissionController {
             }
         }
 
-        //Things are fine at this point
+        //All exceptions have been accounted for
         submittedData.serializeToXml(path);
     }
 }

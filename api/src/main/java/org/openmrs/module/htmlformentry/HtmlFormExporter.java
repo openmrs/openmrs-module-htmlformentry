@@ -231,7 +231,7 @@ public class HtmlFormExporter {
 					if (attributeDescriptor.getClazz() != null) {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to attribute="[anything]"
-						// see above mehtod for more detail
+						// see above method for more detail
 						String stripPattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)(" + attributeDescriptor.getName() + "=\".*?\")";
 						log.debug("stripping substitution pattern: " + stripPattern);
 						
@@ -276,7 +276,7 @@ public class HtmlFormExporter {
 		formToExport = copyOf(form);
 		
 		// first, strip out any local attributes we don't want to pass on
-		// default (set in HtmlForm.java) is to include locations, roles, and patient identitfier types, but not persons
+		// default (set in HtmlForm.java) is to include locations, roles, and patient identifier types, but not persons
 		stripLocalAttributesFromXml();
 		
 		// within the form, replace any Ids with Uuids
