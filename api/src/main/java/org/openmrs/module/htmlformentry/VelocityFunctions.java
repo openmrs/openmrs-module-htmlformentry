@@ -251,10 +251,9 @@ public class VelocityFunctions {
 						mostRecentPatientProgram = pp;
 					} else {
 						// let the states decide for uncompleted programs
-						// (_should_ not be necessary, but that's life,
-						// partially due
-						// to ProgramLocation module, or Reopening of old
-						// programs, or patient merge)
+						// (_should_ not be necessary, but partially due
+						// to the ProgramLocation module, and Reopening of old
+						// programs, and patient merges, it is here)
 						PatientState mostRecentState = mostRecentPatientProgram.getCurrentState(workflow);
 						PatientState ps = pp.getCurrentState(workflow);
 						if (mostRecentState == null || ps == null) {

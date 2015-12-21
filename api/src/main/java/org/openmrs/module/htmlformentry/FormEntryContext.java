@@ -40,7 +40,7 @@ import org.openmrs.util.OpenmrsUtil;
  * This class holds the context data around generating html widgets from tags in an HtmlForm.
  * <p/>
  * It allows you to register widgets, which assigns them an id/name in the generated html, and allows you to
- * look up those id/names later. It allows you specify which error widget goes for which widget, so that error
+ * look up those id/names later. It allows you specify which error widget goes to which widget, so that error
  * messages get displayed in the right place.
  * <p/>
  * It also holds existing data for an encounter in View mode, so that widgets can be set with
@@ -96,7 +96,7 @@ public class FormEntryContext {
 
     // TODO once Html Form Entry no longer supports older core versions that don't have visits, we should:
     // TODO 1) change the type of this variable to visit
-    // TODO 2) change HtmlFormEntryController so that it correctly populates the context with the relevent visit (if available)
+    // TODO 2) change HtmlFormEntryController so that it correctly populates the context with the relevant visit (if available)
     private Object visit;
 
     public FormEntryContext(Mode mode) {
@@ -107,7 +107,7 @@ public class FormEntryContext {
     
     /**
      * Gets the {@see Mode} associated with this Context
-     * @return the {@see Mode} associatd with this Context
+     * @return the {@see Mode} associated with this Context
      */
     public Mode getMode() {
         return mode;
@@ -139,8 +139,8 @@ public class FormEntryContext {
     /**
      * Registers an error widget within the Context
      * 
-     * @param widget the widget to associate this error widget with
-     * @param errorWidget the error widget to register
+     * @param widget: the widget to associate this error widget with
+     * @param errorWidget: the error widget to register
      * @return the field id used to identify this widget in the HTML Form
      */
     public String registerErrorWidget(Widget widget, ErrorWidget errorWidget) {
@@ -406,10 +406,10 @@ public class FormEntryContext {
 	}
     
     /**
-     * 
+     *
      * Sets obs associated with an obs groups in existing obs groups.
      * 
-     * @param oSet the obsGroup to add to existingObsInGroups
+     * @param Set the obsGroup to add to existingObsInGroups
      */     
     public void setupExistingObsInGroups(Set<Obs> oSet){
         for (Obs parent : oSet)       
@@ -574,6 +574,7 @@ public class FormEntryContext {
     
     /**
      * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
+     * TODO: Fix the bug where Concept.equals(Concept) doesn't always work
      */
     private boolean equalDrug(Drug c1, Drug c2) {
         return OpenmrsUtil.nullSafeEquals(c1 == null ? null : c1.getDrugId(), c2 == null ? null : c2.getDrugId());
@@ -591,7 +592,7 @@ public class FormEntryContext {
      * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
      * 
      * @param question - the concept associated with the Obs to remove
-     * @param answer - the boolean value of the obs
+     * @param answer - the boolean value of the Obs
      * @return
      */
     public Obs removeExistingObs(Concept question, Boolean answer) {
@@ -683,7 +684,7 @@ public class FormEntryContext {
             } 
             
             if (rankTable.size() == 0 || rankTable.size() > 1) {
-                /* No unique mathcing obsGroup found; returning null obsGroup.  This will
+                /* No unique matching obsGroup found; returning null obsGroup.  This will
                  * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
                  * a subsequent form scan.
                  */

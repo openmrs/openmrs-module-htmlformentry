@@ -56,7 +56,8 @@ import org.springframework.web.util.JavaScriptUtils;
  * <p/>
  * <pre>
  *  session.getHtmlToDisplay();
- * 	List&lt;FormSubmissionError&gt; validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
+ * 	List&lt;FormSubmissionError&gt; 
+ * 	validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
  * 		session.prepareForSubmit();
@@ -64,7 +65,7 @@ import org.springframework.web.util.JavaScriptUtils;
  * 		session.applyActions();
  *     } else {
  * 		// display errors
- * 		// redisplay form,
+ * 		// redisplay form
  *     }
  * }
  * </pre>
@@ -386,12 +387,12 @@ public class FormEntrySession {
     }
 
     /**
-     * Creates the HTML for a HTML Form given the xml for the form This method uses the
+     * Creates the HTML for a HTML Form given the xml for the form. This method uses the
      * HtmlFormGenerator to process any HTML Form Entry-specific tags and returns pure HTML that can
      * be rendered by a browser
      *
      * @param xml the xml string representing the form we wish to create
-     * @return
+     * @return broswer-renderable html
      * @throws Exception
      * @should return correct xml with a greater than character in an excludeIf tag
      * @should return correct xml with a greater than character in an includeIf tag
@@ -636,7 +637,7 @@ public class FormEntrySession {
                 if (log.isDebugEnabled())
                     log.debug("voiding obs: " + o.getObsId());
                 obsService.voidObs(o, "htmlformentry");
-                // if o was in a group and it has no obs left, void the group
+                // if o was in a group and that group has no obs left, void the group
 				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
             }
         }

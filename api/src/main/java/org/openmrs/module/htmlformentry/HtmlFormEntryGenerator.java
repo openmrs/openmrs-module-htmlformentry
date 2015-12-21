@@ -35,7 +35,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
     /**
      * @see #applyMacros(FormEntrySession, String)
-     * This method simply delegates to the applyMacros(FormEntrySession, String) method with a null formentry session.
+     * This method simply delegates to the applyMacros(FormEntrySession, String) method with a null FormEntry session.
      * This is retained for backwards-compatibility, with the limitation that it does not support velocity expressions
      * as macro values
      */
@@ -369,7 +369,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
     * Takes an XML string, finds each {@code <repeat with=""></repeat>} sections in it, and applies those
     * substitutions
     * <pre>
-    * { @code}
+    * { @code
     * <repeat with="['664','No Complaints'], ['832','Weight Loss']">
     *    <obs conceptId="1069" answerConceptId="{0}" answerLabel="{1}" style="checkbox" /><br/>
     * </repeat>
@@ -429,7 +429,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Gets a string like [664,'No Complaints'], [832,'Weight Loss'] and splits it into separate string entries
      * to be used in the repeated html elements
      * @param val = the string to process and get the entires
-     * @return
+     * @return List of entries
      */
     private List<List<String>> getSubstitutionSets(String val) {
 
