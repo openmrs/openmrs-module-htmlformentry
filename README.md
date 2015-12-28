@@ -18,7 +18,7 @@ Currently, a form submission creates one encounter for one patient.
 
 Requirements
 ----------
-+ OpenMRS 1.9.9+, OpenMRS 1.10.2+, OpenMRS 1.11.3+ 
++ OpenMRS 1.9.9+, OpenMRS 1.10.2+ or OpenMRS 1.11.3+ 
 
 
 Download
@@ -36,18 +36,18 @@ Instructions
 ---------
 
 + Download the module from the repository and install it.
-+ Go to Manage HTML Forms under the administration page.
++ Go to "Manage HTML Forms" under the administration page.
 + Create a new form there (click "New HTML Form").
 + Fill out the necessary information; including the Name, Description, Version, and select the Encounter Type from the list.  (When an HTML form is submitted, it will create this type of encounter.)
 + Save the form.  Then it will open the page for editing the HTML Form.
-+ Customize the HTML form to your specifications. Recent versions of the HTML Form Entry Module include a basic form that can be customized. For additional documentation on the HTML tags that are available, see the [HTML Reference][].
++ Customize the HTML form to your specifications. Recent versions of the HTML Form Entry Module include a basic form that can be customized. For additional documentation on the avaliable HTML tags see the [HTML Reference][].
 
 
 Global Properties
 ----------------
 
-+ *htmlformentry.dateFormat*: (added in HFE 1.9) lets you specify a date format (as defined in [Java's SimpleDateFormat][]) that will be used to display all dates in HTML Forms. This will hold for entering new forms, and viewing/editing existing ones. (For example set the global property to "dd-MMM-yyyy" for an unambiguous date format like 31-Jan-2012.)
-+ *htmlformentry.showDateFormat*: (added in HFE 1.9) set to true if you want static text for the date format to be displayed, else set to false. This text is displayed next to the date widgets as something like (dd/mm/yyyy)
++ *htmlformentry.dateFormat*: (added in HFE 1.9) lets you specify a date format (as defined in [Java's SimpleDateFormat][]) that will be used to display all dates in HTML Forms. This will hold for entering new forms and viewing/editing existing ones. (For example set the global property to "dd-MMM-yyyy" for an unambiguous date format like 31-Jan-2012.)
++ *htmlformentry.showDateFormat*: (added in HFE 1.9) set to true if you want static text for the date format to be displayed, otherwise set to false. This text is displayed next to the date widgets as something like (dd/mm/yyyy)
 
 Project Resources
 ---------
