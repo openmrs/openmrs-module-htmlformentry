@@ -6,9 +6,9 @@ Overview
 
 The HTML Form Entry allows anyone with basic HTML programming skills and knowledge of the
 OpenMRS system to create forms. It is an alternative to the Infopath
-FormEntry module in many (but not all) cases.
+FormEntry module in many, (but not all) cases.
 
-The key point about writing forms with this module is that you only have
+The key focus of writing forms with this module is that you only have
 to write HTML (with some special tags for things in the OpenMRS model)
 and the module will automatically "just know" what to do when the user
 clicks the submit button.
@@ -25,10 +25,10 @@ Download
 ----------
 
 Make sure that you have installed OpenMRS 1.6.3+, OpenMRS 1.7.2+, OpenMRS 1.8+, or OpenMRS 1.9+<br>
-If you are using OpenMRS 1.9+ you should also install the [htmlformentry19ext module][].
+If you are using OpenMRS 1.9+, you should also install the [htmlformentry19ext module][].
 
 + [Download the Htmlformentry module][]
-+ If you're using OpenMRS 1.9+, ALSO get the [htmlformentry19ext module][].
++ If you are using OpenMRS 1.9+, ALSO get the [htmlformentry19ext module][].
 + Source code: [View/download source code for htmlformentry19ext][] from Github, [View/download source code for htmlformentry][] from Github
 
 
