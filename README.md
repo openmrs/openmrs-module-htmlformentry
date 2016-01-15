@@ -4,16 +4,16 @@ HTML Form Entry
 Overview
 --------
 
-The HTML Form Entry allows anyone with basic HTML programming skills and knowledge of the
+The HTML Form Entry allows anyone with basic HTML Programming skills and knowledge of the
 OpenMRS system to create forms. It is an alternative to the Infopath
 FormEntry module in many, (but not all) cases.
 
-The key focus of writing forms with this module is that you only have
-to write HTML (with some special tags for things in the OpenMRS model)
+The key focus of writing forms with this module is that you have
+to only write HTML (with some special tags for things in the OpenMRS model)
 and the module will automatically "just know" what to do when the user
 clicks the submit button.
 
-Currently, a form submission creates one encounter for one patient.
+Currently, we have a form submission which creates one encounter for one patient.
 
 
 Requirements
@@ -39,8 +39,8 @@ Instructions
 + Go to "Manage HTML Forms" under the administration page.
 + Create a new form there (click "New HTML Form").
 + Fill out the necessary information; including the Name, Description, Version, and select the Encounter Type from the list.  (When an HTML form is submitted, it will create this type of encounter.)
-+ Save the form.  Then it will open the page for editing the HTML Form.
-+ Customize the HTML form to your specifications. Recent versions of the HTML Form Entry Module include a basic form that can be customized. For additional documentation on the avaliable HTML tags see the [HTML Reference][].
++ Save the form.  Then it will automqtically open the page for editing the HTML Form.
++ Customize the HTML form to your specifications or style. Recent versions of the HTML Form Entry Module include a basic form that can be also customized. For additional documentation on the avaliable HTML tags, please see the [HTML Reference][].
 
 
 Global Properties
