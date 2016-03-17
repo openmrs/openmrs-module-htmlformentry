@@ -3,12 +3,12 @@
  * Version 1.0 (the "License"); you may not use this file except in
  * compliance with the License. You may obtain a copy of the License at
  * http://license.openmrs.org
- *
+ * <p/>
  * Software distributed under the License is distributed on an "AS IS"
  * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
  * License for the specific language governing rights and limitations
  * under the License.
- *
+ * <p/>
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 package org.openmrs.module.htmlformentry.element;
@@ -63,133 +63,126 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class PatientDetailSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
-	public static final String FIELD_PERSON_NAME = "name";
+    public static final String FIELD_PERSON_NAME = "name";
 
-	public static final String FIELD_BIRTH_DATE_OR_AGE = "birthDateOrAge";
+    public static final String FIELD_BIRTH_DATE_OR_AGE = "birthDateOrAge";
 
-	public static final String FIELD_BIRTH_DATE = "birthDate";
+    public static final String FIELD_BIRTH_DATE = "birthDate";
 
-	public static final String FIELD_AGE = "age";
+    public static final String FIELD_AGE = "age";
 
-	public static final String FIELD_GENDER = "gender";
+    public static final String FIELD_GENDER = "gender";
 
-	public static final String FIELD_IDENTIFIER = "identifier";
+    public static final String FIELD_IDENTIFIER = "identifier";
 
-	public static final String FIELD_IDENTIFIER_LOCATION = "identifierLocation";
+    public static final String FIELD_IDENTIFIER_LOCATION = "identifierLocation";
 
-	public static final String FIELD_ADDRESS = "address";
+    public static final String FIELD_ADDRESS = "address";
 
-	private NameWidget nameWidget;
-	private ErrorWidget nameErrorWidget;
-	private DropdownWidget genderWidget;
-	private ErrorWidget genderErrorWidget;
-	private Widget ageWidget;
-	private ErrorWidget ageErrorWidget;
-	private Widget birthDateWidget;
-	private ErrorWidget birthDateErrorWidget;
-	private Widget identifierTypeWidget;
-	private Widget identifierTypeValueWidget;
-	private ErrorWidget identifierTypeValueErrorWidget;
-	private Widget identifierLocationWidget;
-	private ErrorWidget identifierLocationErrorWidget;
-	private AddressWidget addressWidget;
+    private NameWidget nameWidget;
+    private ErrorWidget nameErrorWidget;
+    private DropdownWidget genderWidget;
+    private ErrorWidget genderErrorWidget;
+    private Widget ageWidget;
+    private ErrorWidget ageErrorWidget;
+    private Widget birthDateWidget;
+    private ErrorWidget birthDateErrorWidget;
+    private Widget identifierTypeWidget;
+    private Widget identifierTypeValueWidget;
+    private ErrorWidget identifierTypeValueErrorWidget;
+    private Widget identifierLocationWidget;
+    private ErrorWidget identifierLocationErrorWidget;
+    private AddressWidget addressWidget;
 
-	private boolean required;
+    private boolean required;
 
-	public PatientDetailSubmissionElement(FormEntryContext context, Map<String, String> attributes) {
-		createElement(context, attributes);
-	}
+    public PatientDetailSubmissionElement(FormEntryContext context, Map<String, String> attributes) {
+        createElement(context, attributes);
+    }
 
-	public void createElement(FormEntryContext context, Map<String, String> attributes) {
-		String field = attributes.get("field");
-		Patient existingPatient = context.getExistingPatient();
+    public void createElement(FormEntryContext context, Map<String, String> attributes) {
+        String field = attributes.get("field");
+        Patient existingPatient = context.getExistingPatient();
 
-		// Required attribute defaults to true if not specified
-		required = ! "false".equalsIgnoreCase(attributes.get("required"));
+        // Required attribute defaults to true if not specified
+        required = !"false".equalsIgnoreCase(attributes.get("required"));
 
-		if (FIELD_PERSON_NAME.equalsIgnoreCase(field)) {
-			nameWidget = new NameWidget();
-			nameErrorWidget = new ErrorWidget();
-			createWidgets(context, nameWidget, nameErrorWidget,
-					existingPatient != null && existingPatient.getPersonName() != null ? existingPatient.getPersonName() : null);
-		}
-		else if (FIELD_GENDER.equalsIgnoreCase(field)) {
-			MessageSourceService msg = Context.getMessageSourceService();
-			genderWidget = new DropdownWidget();
-			genderErrorWidget = new ErrorWidget();
-			genderWidget.addOption(new Option(msg.getMessage("Patient.gender.male"), "M", false));
-			genderWidget.addOption(new Option(msg.getMessage("Patient.gender.female"), "F", false));
-			createWidgets(context, genderWidget, genderErrorWidget, existingPatient != null ? existingPatient.getGender() : null);
-		}
-		else if (FIELD_AGE.equalsIgnoreCase(field)) {
-			ageWidget = new NumberFieldWidget(0d, 200d, false);
-			ageErrorWidget = new ErrorWidget();
-			createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
-		}
-		else if (FIELD_BIRTH_DATE.equalsIgnoreCase(field)) {
-			birthDateWidget = new DateWidget();
-			birthDateErrorWidget = new ErrorWidget();
-			createWidgets(context, birthDateWidget, birthDateErrorWidget, existingPatient != null ? existingPatient.getBirthdate() : null);
-		}
-		else if (FIELD_BIRTH_DATE_OR_AGE.equalsIgnoreCase(field)) {
-			ageWidget = new NumberFieldWidget(0d, 200d, false);
-			ageErrorWidget = new ErrorWidget();
-			createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
+        if (FIELD_PERSON_NAME.equalsIgnoreCase(field)) {
+            nameWidget = new NameWidget();
+            nameErrorWidget = new ErrorWidget();
+            createWidgets(context, nameWidget, nameErrorWidget,
+                    existingPatient != null && existingPatient.getPersonName() != null ? existingPatient.getPersonName() : null);
+        } else if (FIELD_GENDER.equalsIgnoreCase(field)) {
+            MessageSourceService msg = Context.getMessageSourceService();
+            genderWidget = new DropdownWidget();
+            genderErrorWidget = new ErrorWidget();
+            genderWidget.addOption(new Option(msg.getMessage("Patient.gender.male"), "M", false));
+            genderWidget.addOption(new Option(msg.getMessage("Patient.gender.female"), "F", false));
+            createWidgets(context, genderWidget, genderErrorWidget, existingPatient != null ? existingPatient.getGender() : null);
+        } else if (FIELD_AGE.equalsIgnoreCase(field)) {
+            ageWidget = new NumberFieldWidget(0d, 200d, false);
+            ageErrorWidget = new ErrorWidget();
+            createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
+        } else if (FIELD_BIRTH_DATE.equalsIgnoreCase(field)) {
+            birthDateWidget = new DateWidget();
+            birthDateErrorWidget = new ErrorWidget();
+            createWidgets(context, birthDateWidget, birthDateErrorWidget, existingPatient != null ? existingPatient.getBirthdate() : null);
+        } else if (FIELD_BIRTH_DATE_OR_AGE.equalsIgnoreCase(field)) {
+            ageWidget = new NumberFieldWidget(0d, 200d, false);
+            ageErrorWidget = new ErrorWidget();
+            createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
 
-			birthDateWidget = new DateWidget();
-			birthDateErrorWidget = new ErrorWidget();
-			createWidgets(context, birthDateWidget, birthDateErrorWidget, existingPatient != null ? existingPatient.getBirthdate() : null);
+            birthDateWidget = new DateWidget();
+            birthDateErrorWidget = new ErrorWidget();
+            createWidgets(context, birthDateWidget, birthDateErrorWidget, existingPatient != null ? existingPatient.getBirthdate() : null);
 
-		}
-		else if (FIELD_IDENTIFIER.equalsIgnoreCase(field)) {
+        } else if (FIELD_IDENTIFIER.equalsIgnoreCase(field)) {
 
-			PatientIdentifierType idType = HtmlFormEntryUtil.getPatientIdentifierType(attributes.get("identifierTypeId"));
-			
-			identifierTypeValueWidget = new TextFieldWidget();
-			identifierTypeValueErrorWidget = new ErrorWidget();
-			String initialValue = null;
-			if (existingPatient != null) {
-				if (idType == null) {
-					if (existingPatient.getPatientIdentifier() != null) {
-						initialValue = existingPatient.getPatientIdentifier().getIdentifier();
-					}
-				} else {
-					if (existingPatient.getPatientIdentifier(idType) != null) {
-						initialValue = existingPatient.getPatientIdentifier(idType).getIdentifier();
-					}
-				}
-			}
-			createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
+            PatientIdentifierType idType = HtmlFormEntryUtil.getPatientIdentifierType(attributes.get("identifierTypeId"));
 
-			if (idType != null) {
-				identifierTypeWidget = new HiddenFieldWidget();
-				createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
-			}
-			else {
-				identifierTypeWidget = new DropdownWidget();
-				List<PatientIdentifierType> patientIdentifierTypes = HtmlFormEntryUtil.getPatientIdentifierTypes();
+            identifierTypeValueWidget = new TextFieldWidget();
+            identifierTypeValueErrorWidget = new ErrorWidget();
+            String initialValue = null;
+            if (existingPatient != null) {
+                if (idType == null) {
+                    if (existingPatient.getPatientIdentifier() != null) {
+                        initialValue = existingPatient.getPatientIdentifier().getIdentifier();
+                    }
+                } else {
+                    if (existingPatient.getPatientIdentifier(idType) != null) {
+                        initialValue = existingPatient.getPatientIdentifier(idType).getIdentifier();
+                    }
+                }
+            }
+            createWidgets(context, identifierTypeValueWidget, identifierTypeValueErrorWidget, initialValue);
 
-				for (PatientIdentifierType patientIdentifierType : patientIdentifierTypes) {
-					((DropdownWidget) identifierTypeWidget).addOption(new Option(patientIdentifierType.getName(), patientIdentifierType
-							.getPatientIdentifierTypeId().toString(), false));
-				}
+            if (idType != null) {
+                identifierTypeWidget = new HiddenFieldWidget();
+                createWidgets(context, identifierTypeWidget, null, idType.getId().toString());
+            } else {
+                identifierTypeWidget = new DropdownWidget();
+                List<PatientIdentifierType> patientIdentifierTypes = HtmlFormEntryUtil.getPatientIdentifierTypes();
 
-				createWidgets(context, identifierTypeWidget, null,
-						existingPatient != null && existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier()
-								.getIdentifierType().getId() : null);
-			}
-		}
-		else if (FIELD_IDENTIFIER_LOCATION.equalsIgnoreCase(field)) {
-			identifierLocationWidget = new DropdownWidget();
-			identifierLocationErrorWidget = new ErrorWidget();
+                for (PatientIdentifierType patientIdentifierType : patientIdentifierTypes) {
+                    ((DropdownWidget) identifierTypeWidget).addOption(new Option(patientIdentifierType.getName(), patientIdentifierType
+                            .getPatientIdentifierTypeId().toString(), false));
+                }
+
+                createWidgets(context, identifierTypeWidget, null,
+                        existingPatient != null && existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier()
+                                .getIdentifierType().getId() : null);
+            }
+        } else if (FIELD_IDENTIFIER_LOCATION.equalsIgnoreCase(field)) {
+            identifierLocationWidget = new DropdownWidget();
+            identifierLocationErrorWidget = new ErrorWidget();
 
             Location defaultLocation = existingPatient != null
-					&& existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getLocation() : null;
-			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+                    && existingPatient.getPatientIdentifier() != null ? existingPatient.getPatientIdentifier().getLocation() : null;
+            defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
             identifierLocationWidget.setInitialValue(defaultLocation);
 
             List<Option> locationOptions = new ArrayList<Option>();
-            for(Location location:Context.getLocationService().getAllLocations()) {
+            for (Location location : Context.getLocationService().getAllLocations()) {
                 Option option = new Option(location.getName(), location.getId().toString(), location.equals(defaultLocation));
                 locationOptions.add(option);
             }
@@ -199,385 +192,376 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
             boolean initialValueIsSet = !(defaultLocation == null);
             ((DropdownWidget) identifierLocationWidget).addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "", !initialValueIsSet));
             if (!locationOptions.isEmpty()) {
-                    for(Option option: locationOptions){
+                for (Option option : locationOptions) {
                     ((DropdownWidget) identifierLocationWidget).addOption(option);
-                    }
+                }
             }
-			createWidgets(context, identifierLocationWidget, identifierLocationErrorWidget, defaultLocation);
-		}
+            createWidgets(context, identifierLocationWidget, identifierLocationErrorWidget, defaultLocation);
+        } else if (FIELD_ADDRESS.equalsIgnoreCase(field)) {
+            addressWidget = new AddressWidget();
+            createWidgets(context, addressWidget, null, existingPatient != null ? existingPatient.getPersonAddress() : null);
+        }
+    }
 
-		else if (FIELD_ADDRESS.equalsIgnoreCase(field)) {
-			addressWidget = new AddressWidget();
-			createWidgets(context, addressWidget, null, existingPatient != null ? existingPatient.getPersonAddress() : null);
-		}
-	}
+    private void createWidgets(FormEntryContext context, Widget fieldWidget, ErrorWidget errorWidget, Object initialValue) {
+        context.registerWidget(fieldWidget);
+        if (errorWidget != null) {
+            context.registerErrorWidget(fieldWidget, errorWidget);
+        }
+        if (initialValue != null && StringUtils.hasText(initialValue.toString())) {
+            fieldWidget.setInitialValue(initialValue);
+        }
+    }
 
-	private void createWidgets(FormEntryContext context, Widget fieldWidget, ErrorWidget errorWidget, Object initialValue) {
-		context.registerWidget(fieldWidget);
-		if (errorWidget != null) {
-			context.registerErrorWidget(fieldWidget, errorWidget);
-		}
-		if (initialValue != null && StringUtils.hasText(initialValue.toString())) {
-			fieldWidget.setInitialValue(initialValue);
-		}
-	}
+    @Override
+    public String generateHtml(FormEntryContext context) {
+        StringBuilder sb = new StringBuilder();
+        MessageSourceService mss = Context.getMessageSourceService();
 
-	@Override
-	public String generateHtml(FormEntryContext context) {
-		StringBuilder sb = new StringBuilder();
-		MessageSourceService mss = Context.getMessageSourceService();
+        if (nameWidget != null) {
+            sb.append(nameWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+                sb.append(nameErrorWidget.generateHtml(context));
+        }
 
-		if (nameWidget != null) {
-			sb.append(nameWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				sb.append(nameErrorWidget.generateHtml(context));
-		}
+        if (genderWidget != null) {
+            sb.append(genderWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+                sb.append(genderErrorWidget.generateHtml(context));
+        }
 
-		if (genderWidget != null) {
-			sb.append(genderWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				sb.append(genderErrorWidget.generateHtml(context));
-		}
+        if (birthDateWidget != null) {
+            if (ageWidget != null) {
+                sb.append(mss.getMessage("Person.birthdate")).append(" ");
+            }
+            sb.append(birthDateWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+                sb.append(birthDateErrorWidget.generateHtml(context));
+        }
 
-		if (birthDateWidget != null) {
-			if (ageWidget != null) {
-				sb.append(mss.getMessage("Person.birthdate")).append(" ");
-			}
-			sb.append(birthDateWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				sb.append(birthDateErrorWidget.generateHtml(context));
-		}
+        if (ageWidget != null) {
+            if (birthDateWidget != null) {
+                sb.append(" ").append(mss.getMessage("Person.age.or")).append(" ");
+            }
+            sb.append(ageWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+                sb.append(ageErrorWidget.generateHtml(context));
+        }
 
-		if (ageWidget != null) {
-			if (birthDateWidget != null) {
-				sb.append(" ").append(mss.getMessage("Person.age.or")).append(" ");
-			}			
-			sb.append(ageWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				sb.append(ageErrorWidget.generateHtml(context));
-		}
 
-		
+        if (identifierTypeValueWidget != null) {
+            sb.append(identifierTypeValueWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW) {
+                // if value is required
+                if (required) {
+                    sb.append("<span class='required'>*</span>");
+                }
 
-		if (identifierTypeValueWidget != null) {
-			sb.append(identifierTypeValueWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW) {
-				// if value is required
-				if (required) {
-					sb.append("<span class='required'>*</span>");
-				}
+                sb.append(" ");
+                sb.append(identifierTypeValueErrorWidget.generateHtml(context));
+            }
+        }
 
-				sb.append(" ");
-				sb.append(identifierTypeValueErrorWidget.generateHtml(context));
-			}
-		}
-		
-		if (identifierTypeWidget != null) {
-			if (identifierTypeValueWidget instanceof DropdownWidget){				
-				sb.append(" ").append(mss.getMessage("PatientIdentifier.identifierType")).append(" ");
-			}
-			sb.append(identifierTypeWidget.generateHtml(context)).append(" ");
-		}
+        if (identifierTypeWidget != null) {
+            if (identifierTypeValueWidget instanceof DropdownWidget) {
+                sb.append(" ").append(mss.getMessage("PatientIdentifier.identifierType")).append(" ");
+            }
+            sb.append(identifierTypeWidget.generateHtml(context)).append(" ");
+        }
 
-		if (identifierLocationWidget != null) {
-			sb.append(identifierLocationWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				sb.append(identifierLocationErrorWidget.generateHtml(context));
-		}
+        if (identifierLocationWidget != null) {
+            sb.append(identifierLocationWidget.generateHtml(context));
+            if (context.getMode() != Mode.VIEW)
+                sb.append(identifierLocationErrorWidget.generateHtml(context));
+        }
 
-		if (addressWidget != null) {
-			sb.append(addressWidget.generateHtml(context));
-		}
+        if (addressWidget != null) {
+            sb.append(addressWidget.generateHtml(context));
+        }
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 
-	@Override
-	public void handleSubmission(FormEntrySession session, HttpServletRequest request) {
+    @Override
+    public void handleSubmission(FormEntrySession session, HttpServletRequest request) {
 
-		Patient patient = (Patient) session.getSubmissionActions().getCurrentPerson();
+        Patient patient = (Patient) session.getSubmissionActions().getCurrentPerson();
 
-		if (patient == null) {
-			throw new RuntimeException("Programming exception: person shouldn't be null");
-		}
+        if (patient == null) {
+            throw new RuntimeException("Programming exception: person shouldn't be null");
+        }
 
-		FormEntryContext context = session.getContext();
+        FormEntryContext context = session.getContext();
 
-		if (nameWidget != null) {
-			PersonName name = (PersonName) nameWidget.getValue(context, request);
+        if (nameWidget != null) {
+            PersonName name = (PersonName) nameWidget.getValue(context, request);
 
-			if (patient != null) {
-				if (!name.isPreferred()) {
-					PersonName currentPreferredName = context.getExistingPatient().getPersonName();
-					if (currentPreferredName != null){
-						currentPreferredName.setPreferred(false);
-						currentPreferredName.setVoided(true);
-					}
-				}
-			}
-			
-			// HACK: we need to set the date created and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
-			if (name.getDateCreated() == null) {
-				name.setDateCreated(new Date());
-			}
-			if (name.getUuid() == null) {
-				name.setUuid(UUID.randomUUID().toString());
-			}
-			
-			
-			name.setPreferred(true);
-			patient.addName(name);
-		}
+            if (patient != null) {
+                if (!name.isPreferred()) {
+                    PersonName currentPreferredName = context.getExistingPatient().getPersonName();
+                    if (currentPreferredName != null) {
+                        currentPreferredName.setPreferred(false);
+                        currentPreferredName.setVoided(true);
+                    }
+                }
+            }
 
-		if (genderWidget != null) {
-			String value = (String) genderWidget.getValue(context, request);
-			patient.setGender(value);
-		}
+            // HACK: we need to set the date created and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
+            if (name.getDateCreated() == null) {
+                name.setDateCreated(new Date());
+            }
+            if (name.getUuid() == null) {
+                name.setUuid(UUID.randomUUID().toString());
+            }
 
-		if (ageWidget != null) {
-			Double value = (Double) ageWidget.getValue(context, request);
-			if (value != null)
-				calculateBirthDate(patient, null, value);
-		}
 
-		if (birthDateWidget != null) {
-			Date value = (Date) birthDateWidget.getValue(context, request);
-			if (value != null) {
-				calculateBirthDate(patient, value, null);
-			}
-		}
- 
-		if (identifierTypeValueWidget != null && identifierTypeWidget != null) {
-			String identifier = (String) identifierTypeValueWidget.getValue(context, request);
-			PatientIdentifierType identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
+            name.setPreferred(true);
+            patient.addName(name);
+        }
 
-			// Look for an existing identifier of this type
-			PatientIdentifier patientIdentifier = patient.getPatientIdentifier(identifierType);
+        if (genderWidget != null) {
+            String value = (String) genderWidget.getValue(context, request);
+            patient.setGender(value);
+        }
 
-			if (StringUtils.hasText(identifier)) {
-				// No existing identifier of this type, so create new
-				if (patientIdentifier == null) {
-					patientIdentifier = new PatientIdentifier();
-					patientIdentifier.setIdentifierType(identifierType);
+        if (ageWidget != null) {
+            Double value = (Double) ageWidget.getValue(context, request);
+            if (value != null)
+                calculateBirthDate(patient, null, value);
+        }
 
-					// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
-					patientIdentifier.setDateChanged(new Date());
-					patientIdentifier.setUuid(UUID.randomUUID().toString());
+        if (birthDateWidget != null) {
+            Date value = (Date) birthDateWidget.getValue(context, request);
+            if (value != null) {
+                calculateBirthDate(patient, value, null);
+            }
+        }
 
-					// For 1.9+ onwards patients require a preferred identifier
-					if (patient.getPatientId() == null) {
-						patientIdentifier.setPreferred(true);
-					}
+        if (identifierTypeValueWidget != null && identifierTypeWidget != null) {
+            String identifier = (String) identifierTypeValueWidget.getValue(context, request);
+            PatientIdentifierType identifierType = null;
+            PatientIdentifier patientIdentifier = null;
+            if (StringUtils.hasText(identifier)) {
+                identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
+                // Look for an existing identifier of this type
+                patientIdentifier = patient.getPatientIdentifier(identifierType);
+            }
 
-					patient.addIdentifier(patientIdentifier);
-				}
+            if (StringUtils.hasText(identifier)) {
+                // No existing identifier of this type, so create new
+                if (patientIdentifier == null) {
+                    patientIdentifier = new PatientIdentifier();
+                    patientIdentifier.setIdentifierType(identifierType);
 
-				if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
-					validateIdentifier(identifierType.getId(), identifier);
-				}
+                    // HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
+                    patientIdentifier.setDateChanged(new Date());
+                    patientIdentifier.setUuid(UUID.randomUUID().toString());
 
-				patientIdentifier.setIdentifier(identifier);
-			}
-			else if (patientIdentifier != null) {
-				// If this field is not required, then we interpret a blank value as a request to avoid any existing identifier
-				session.getSubmissionActions().getIdentifiersToVoid().add(patientIdentifier);
-			}
-		}
+                    // For 1.9+ onwards patients require a preferred identifier
+                    if (patient.getPatientId() == null) {
+                        patientIdentifier.setPreferred(true);
+                    }
 
-		//
-		// TODO current behavior always updates location of the preferred identifier rather than
-		// a specific identifier type being edited by the identifier widget. But identifier location
-		// widget isn't aware of the identifier type widget
-		//
-		if (identifierLocationWidget != null) {
-			PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
-			if (patientIdentifier == null) {
-				patientIdentifier = new PatientIdentifier();
-				patient.addIdentifier(patientIdentifier);
-			}
+                    patient.addIdentifier(patientIdentifier);
+                }
 
-			Object locationString = identifierLocationWidget.getValue(context, request);
-			Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
-			patientIdentifier.setLocation(location);
-			patientIdentifier.setPreferred(true);
+                if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
+                    validateIdentifier(identifierType.getId(), identifier);
+                }
 
-		}
+                patientIdentifier.setIdentifier(identifier);
+            } else if (patientIdentifier != null) {
+                // If this field is not required, then we interpret a blank value as a request to avoid any existing identifier
+                session.getSubmissionActions().getIdentifiersToVoid().add(patientIdentifier);
+            }
+        }
 
-		if (addressWidget != null) {
-			PersonAddress personAddress = (PersonAddress) addressWidget.getValue(context, request);
-			if (context.getMode() == Mode.EDIT) {
-				if (!personAddress.isPreferred()) {
-					PersonAddress currentPreferredAddress = context.getExistingPatient().getPersonAddress();
-					currentPreferredAddress.setPreferred(false);
-					currentPreferredAddress.setVoided(true);
-				}
-			}
-			personAddress.setPreferred(true);
-			patient.addAddress(personAddress);
-		}
+        //
+        // TODO current behavior always updates location of the preferred identifier rather than
+        // a specific identifier type being edited by the identifier widget. But identifier location
+        // widget isn't aware of the identifier type widget
+        //
+        if (identifierLocationWidget != null) {
+            PatientIdentifier patientIdentifier = patient.getPatientIdentifier();
+            if (patientIdentifier == null) {
+                patientIdentifier = new PatientIdentifier();
+                patient.addIdentifier(patientIdentifier);
+            }
+
+            Object locationString = identifierLocationWidget.getValue(context, request);
+            Location location = (Location) HtmlFormEntryUtil.convertToType(locationString.toString().trim(), Location.class);
+            patientIdentifier.setLocation(location);
+            patientIdentifier.setPreferred(true);
+
+        }
+
+        if (addressWidget != null) {
+            PersonAddress personAddress = (PersonAddress) addressWidget.getValue(context, request);
+            if (context.getMode() == Mode.EDIT) {
+                if (!personAddress.isPreferred()) {
+                    PersonAddress currentPreferredAddress = context.getExistingPatient().getPersonAddress();
+                    currentPreferredAddress.setPreferred(false);
+                    currentPreferredAddress.setVoided(true);
+                }
+            }
+            personAddress.setPreferred(true);
+            patient.addAddress(personAddress);
+        }
 
         session.getSubmissionActions().setPatientUpdateRequired(true);
-	}
+    }
 
-	private void validateIdentifier(Integer identifierType, String identifier) {
-		if (identifierType != null && identifier != null) {
-			try {
-				PatientIdentifier pi = new PatientIdentifier();
+    private void validateIdentifier(Integer identifierType, String identifier) {
+        if (identifierType != null && identifier != null) {
+            try {
+                PatientIdentifier pi = new PatientIdentifier();
 
-				pi.setIdentifier(identifier);
-				pi.setIdentifierType(getIdentifierType(identifierType.toString()));
+                pi.setIdentifier(identifier);
+                pi.setIdentifierType(getIdentifierType(identifierType.toString()));
 
-				// note that this is a bit of a hack; we can't call the PatientIdentifierValidator.validateIdentifier(identifier) method
-				// because it (as of 1.8) also tests to make sure that an identifier has a location associated with it; when validating an
-				// individual identifier widget, there will be no location because the location is collected in another widget
-				PatientIdentifierValidator.validateIdentifier(pi.getIdentifier(), pi.getIdentifierType());
-				
-				if (Context.getPatientService().isIdentifierInUseByAnotherPatient(pi)) {
-					throw new IdentifierNotUniqueException(Context.getMessageSourceService().getMessage(
-					    "PatientIdentifier.error.notUniqueWithParameter", new Object[] { pi.getIdentifier() },
-					    Context.getLocale()));
-				}
-			}
-			catch (Exception e) {
-				throw new ValidationException(e.getMessage());
-			}
-		}
-	}
+                // note that this is a bit of a hack; we can't call the PatientIdentifierValidator.validateIdentifier(identifier) method
+                // because it (as of 1.8) also tests to make sure that an identifier has a location associated with it; when validating an
+                // individual identifier widget, there will be no location because the location is collected in another widget
+                PatientIdentifierValidator.validateIdentifier(pi.getIdentifier(), pi.getIdentifierType());
 
-	private PatientIdentifierType getIdentifierType(String id) {
-		PatientIdentifierType patientIdentifierType = Context.getPatientService().getPatientIdentifierType(new Integer(id));
-		if (patientIdentifierType == null) {
-			throw new RuntimeException("Invalid identifierTypeId given " + id);
-		}
-		return patientIdentifierType;
-	}
+                if (Context.getPatientService().isIdentifierInUseByAnotherPatient(pi)) {
+                    throw new IdentifierNotUniqueException(Context.getMessageSourceService().getMessage(
+                            "PatientIdentifier.error.notUniqueWithParameter", new Object[]{pi.getIdentifier()},
+                            Context.getLocale()));
+                }
+            } catch (Exception e) {
+                throw new ValidationException(e.getMessage());
+            }
+        }
+    }
 
-	@SuppressWarnings("unused")
+    private PatientIdentifierType getIdentifierType(String id) {
+        PatientIdentifierType patientIdentifierType = Context.getPatientService().getPatientIdentifierType(new Integer(id));
+        if (patientIdentifierType == null) {
+            throw new RuntimeException("Invalid identifierTypeId given " + id);
+        }
+        return patientIdentifierType;
+    }
+
+    @SuppressWarnings("unused")
     @Override
-	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest request) {
-		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+    public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest request) {
+        List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 
-		List<FormSubmissionError> ageOrBirthdDateErrorMessage = new ArrayList<FormSubmissionError>();
+        List<FormSubmissionError> ageOrBirthdDateErrorMessage = new ArrayList<FormSubmissionError>();
 
-		validateMandatoryField(context, request, genderWidget, genderErrorWidget, ret);
+        validateMandatoryField(context, request, genderWidget, genderErrorWidget, ret);
 
-		if (required) {
-			validateMandatoryField(context, request, identifierTypeValueWidget, identifierTypeValueErrorWidget, ret);
-		}
+        if (required) {
+            validateMandatoryField(context, request, identifierTypeValueWidget, identifierTypeValueErrorWidget, ret);
+        }
 
-		validateMandatoryField(context, request, identifierLocationWidget, identifierLocationErrorWidget, ret);
+        validateMandatoryField(context, request, identifierLocationWidget, identifierLocationErrorWidget, ret);
 
-		if(nameWidget != null){
-			PersonName personName = nameWidget.getValue(context, request);
-			if(!StringUtils.hasText(personName.getGivenName()) || !StringUtils.hasText(personName.getFamilyName())){
-				ret.add(new FormSubmissionError(context.getFieldName(nameErrorWidget), Context.getMessageSourceService().getMessage("htmlformentry.error.name.required")));
-			}
-		}
-		
-		if (ageWidget != null && validateMandatoryField(context, request, ageWidget, ageErrorWidget, ageOrBirthdDateErrorMessage)) {
-			try {
-				Number value = (Number) ageWidget.getValue(context, request);
-			}
-			catch (Exception e) {
-				ret.add(new FormSubmissionError(context.getFieldName(ageErrorWidget), e.getMessage()));
-			}
-		}
+        if (nameWidget != null) {
+            PersonName personName = nameWidget.getValue(context, request);
+            if (!StringUtils.hasText(personName.getGivenName()) || !StringUtils.hasText(personName.getFamilyName())) {
+                ret.add(new FormSubmissionError(context.getFieldName(nameErrorWidget), Context.getMessageSourceService().getMessage("htmlformentry.error.name.required")));
+            }
+        }
 
-		if (birthDateWidget != null
-				&& validateMandatoryField(context, request, birthDateWidget, birthDateErrorWidget, ageOrBirthdDateErrorMessage)) {
-			try {
-				if (birthDateWidget.getValue(context, request) != null
-						&& OpenmrsUtil.compare((Date) birthDateWidget.getValue(context, request), new Date()) > 0) {
-					ret.add(new FormSubmissionError(context.getFieldName(birthDateErrorWidget), Context.getMessageSourceService().getMessage(
-							"htmlformentry.error.cannotBeInFuture")));
-				}
-			}
-			catch (Exception e) {
-				ret.add(new FormSubmissionError(context.getFieldName(birthDateErrorWidget), e.getMessage()));
-			}
-		}
+        if (ageWidget != null && validateMandatoryField(context, request, ageWidget, ageErrorWidget, ageOrBirthdDateErrorMessage)) {
+            try {
+                Number value = (Number) ageWidget.getValue(context, request);
+            } catch (Exception e) {
+                ret.add(new FormSubmissionError(context.getFieldName(ageErrorWidget), e.getMessage()));
+            }
+        }
 
-		if (ageWidget != null && birthDateWidget != null) {
-			if (ageOrBirthdDateErrorMessage.size() > 1) {
-				ret.add(new FormSubmissionError(context.getFieldName(ageErrorWidget), Context.getMessageSourceService().getMessage(
-						"Person.birthdate.required")));
-			}
-		}
-		else {
-			ret.addAll(ageOrBirthdDateErrorMessage);
-		}
+        if (birthDateWidget != null
+                && validateMandatoryField(context, request, birthDateWidget, birthDateErrorWidget, ageOrBirthdDateErrorMessage)) {
+            try {
+                if (birthDateWidget.getValue(context, request) != null
+                        && OpenmrsUtil.compare((Date) birthDateWidget.getValue(context, request), new Date()) > 0) {
+                    ret.add(new FormSubmissionError(context.getFieldName(birthDateErrorWidget), Context.getMessageSourceService().getMessage(
+                            "htmlformentry.error.cannotBeInFuture")));
+                }
+            } catch (Exception e) {
+                ret.add(new FormSubmissionError(context.getFieldName(birthDateErrorWidget), e.getMessage()));
+            }
+        }
 
-		if (identifierTypeWidget != null && identifierTypeValueWidget != null) {
-			String identifierTypeId = (String) identifierTypeWidget.getValue(context, request);
-			String identifierValue = (String) identifierTypeValueWidget.getValue(context, request);
-			if(StringUtils.hasText(identifierValue)){
-				try {
-					validateIdentifier(Integer.getInteger(identifierTypeId), identifierValue);
-				}
-				catch (Exception e) {
-					ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
-				}
-			}
-		}
+        if (ageWidget != null && birthDateWidget != null) {
+            if (ageOrBirthdDateErrorMessage.size() > 1) {
+                ret.add(new FormSubmissionError(context.getFieldName(ageErrorWidget), Context.getMessageSourceService().getMessage(
+                        "Person.birthdate.required")));
+            }
+        } else {
+            ret.addAll(ageOrBirthdDateErrorMessage);
+        }
 
-		return ret;
-	}
+        if (identifierTypeWidget != null && identifierTypeValueWidget != null) {
+            String identifierTypeId = (String) identifierTypeWidget.getValue(context, request);
+            String identifierValue = (String) identifierTypeValueWidget.getValue(context, request);
+            if (StringUtils.hasText(identifierValue)) {
+                try {
+                    validateIdentifier(Integer.getInteger(identifierTypeId), identifierValue);
+                } catch (Exception e) {
+                    ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
+                }
+            }
+        }
 
-	private boolean validateMandatoryField(FormEntryContext context, HttpServletRequest request, Widget widget, ErrorWidget errorWidget,
-			List<FormSubmissionError> ret) {
+        return ret;
+    }
 
-		try {
-			if (widget != null) {
-				Object obj = widget.getValue(context, request);
-				if (obj == null || (obj instanceof String && !StringUtils.hasText((String) obj))) {
-					throw new Exception("htmlformentry.error.required");
-				}
-			}
-		}
-		catch (Exception ex) {
-			ret.add(new FormSubmissionError(context.getFieldName(errorWidget), Context.getMessageSourceService().getMessage(ex.getMessage())));
-			return false;
-		}
+    private boolean validateMandatoryField(FormEntryContext context, HttpServletRequest request, Widget widget, ErrorWidget errorWidget,
+                                           List<FormSubmissionError> ret) {
 
-		return true;
-	}
+        try {
+            if (widget != null) {
+                Object obj = widget.getValue(context, request);
+                if (obj == null || (obj instanceof String && !StringUtils.hasText((String) obj))) {
+                    throw new Exception("htmlformentry.error.required");
+                }
+            }
+        } catch (Exception ex) {
+            ret.add(new FormSubmissionError(context.getFieldName(errorWidget), Context.getMessageSourceService().getMessage(ex.getMessage())));
+            return false;
+        }
 
-	/**
-	 * If there's a birthdate specified
-	 */
-	private void calculateBirthDate(Person person, Date date, Double age) {
-		Date birthdate = null;
-		boolean birthdateEstimated = false;
-		if (date != null) {
-				birthdate = date;
-				//if you have a previous date that's marked as estimated and date does not change -->  keep it that way
-				//if you have a previous date that's marked as estimated but date changes --> not estimated
-				//if new --> not estimated
-				//if existing and not estimated --> not estimated
-				birthdateEstimated = person.getBirthdate() != null && person.getBirthdateEstimated() != null && person.getBirthdate().equals(date) ? person.getBirthdateEstimated() : false;
-		}
-		else if (age != null) {	
-			try {
-				Double ageRemainder  = BigDecimal.valueOf(age).subtract(BigDecimal.valueOf(Math.floor(age))).doubleValue();
-				if (ageRemainder.equals(Double.valueOf(0)))
-					person.setBirthdateFromAge(age.intValue(), new Date()); //default to usual behavior from core
-				else { //a decimal was entered
-					Calendar c = Calendar.getInstance();
-					c.setTime(new Date());
-					c.add(Calendar.DAY_OF_MONTH, - Double.valueOf((ageRemainder * 365)).intValue()); //if patient is 2.2 years old, patient was 2.0 years 2.2 - (.2*365) days ago
-					c.add(Calendar.YEAR, -1 * Double.valueOf(Math.floor(age)).intValue());
-					birthdate = c.getTime();
-				}
-				birthdateEstimated = true;
-			}
-			catch (NumberFormatException e) {
-				throw new RuntimeException("Error getting date from age", e);
-			}
-		} else {
-			throw new IllegalArgumentException("You must provide either an age or a birthdate for this patient.");
-		}
-		if (birthdate != null)
-			person.setBirthdate(birthdate);
-		person.setBirthdateEstimated(birthdateEstimated);
-	}
+        return true;
+    }
+
+    /**
+     * If there's a birthdate specified
+     */
+    private void calculateBirthDate(Person person, Date date, Double age) {
+        Date birthdate = null;
+        boolean birthdateEstimated = false;
+        if (date != null) {
+            birthdate = date;
+            //if you have a previous date that's marked as estimated and date does not change -->  keep it that way
+            //if you have a previous date that's marked as estimated but date changes --> not estimated
+            //if new --> not estimated
+            //if existing and not estimated --> not estimated
+            birthdateEstimated = person.getBirthdate() != null && person.getBirthdateEstimated() != null && person.getBirthdate().equals(date) ? person.getBirthdateEstimated() : false;
+        } else if (age != null) {
+            try {
+                Double ageRemainder = BigDecimal.valueOf(age).subtract(BigDecimal.valueOf(Math.floor(age))).doubleValue();
+                if (ageRemainder.equals(Double.valueOf(0)))
+                    person.setBirthdateFromAge(age.intValue(), new Date()); //default to usual behavior from core
+                else { //a decimal was entered
+                    Calendar c = Calendar.getInstance();
+                    c.setTime(new Date());
+                    c.add(Calendar.DAY_OF_MONTH, -Double.valueOf((ageRemainder * 365)).intValue()); //if patient is 2.2 years old, patient was 2.0 years 2.2 - (.2*365) days ago
+                    c.add(Calendar.YEAR, -1 * Double.valueOf(Math.floor(age)).intValue());
+                    birthdate = c.getTime();
+                }
+                birthdateEstimated = true;
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Error getting date from age", e);
+            }
+        } else {
+            throw new IllegalArgumentException("You must provide either an age or a birthdate for this patient.");
+        }
+        if (birthdate != null)
+            person.setBirthdate(birthdate);
+        person.setBirthdateEstimated(birthdateEstimated);
+    }
 }
