@@ -16,16 +16,21 @@ package org.openmrs.module.htmlformentry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.ObsField;
+import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -567,12 +572,33 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
     }
 
     @Test
-    public void shouldAddCustomIDAndClassToSpanAroundObs() throws Exception {
-        String htmlform = "<htmlform><obs id=\"obs-id\" class=\"custom-class\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+    public void shouldAddConceptAnswersDefinedInConceptSet() throws Exception {
+        String htmlform = "<htmlform><obs id=\"obs-id\" conceptId=\"1000\"  answerConceptSetIds=\"1004\" labelText=\"Allergy\"/></htmlform>";
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+
         String htmlToDisplay = session.getHtmlToDisplay();
-        assertTrue(htmlToDisplay.contains("<span id=\"obs-id\" class=\"obs-field custom-class\">"));
+		HtmlFormSchema schema = session.getContext().getSchema();
+		Assert.assertEquals(1, schema.getFields().size());
+		ObsField field = (ObsField) schema.getFields().get(0);
+
+		// Expected
+		Concept set = Context.getConceptService().getConcept(1004);
+		List<Concept> setMembers = Context.getConceptService().getConceptsByConceptSet(set);
+
+		Assert.assertEquals(setMembers.size(), field.getAnswers().size());
+
+		for (ObsFieldAnswer answer : field.getAnswers()) {
+			Assert.assertTrue(setMembers.contains(answer.getConcept()));
+		}
     }
+
+	@Test
+	public void shouldAddCustomIDAndClassToSpanAroundObs() throws Exception {
+		String htmlform = "<htmlform><obs id=\"obs-id\" class=\"custom-class\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		String htmlToDisplay = session.getHtmlToDisplay();
+		assertTrue(htmlToDisplay.contains("<span id=\"obs-id\" class=\"obs-field custom-class\">"));
+	}
 
     @Test
     public void shouldSubmitObsWithAutocomplete() throws Exception {
@@ -982,5 +1008,4 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
             }
         }.run();
     }
-
 }

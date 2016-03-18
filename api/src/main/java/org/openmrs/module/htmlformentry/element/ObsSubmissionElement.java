@@ -631,7 +631,20 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						throw new RuntimeException("Error in answer list for concept " + concept.getConceptId() + " ("
 						        + ex.toString() + "): " + conceptAnswers);
 					}
-				} else if (parameters.get("answerClasses") != null && !"autocomplete".equals(parameters.get("style"))) {
+				}
+                else if (parameters.get("answerConceptSetIds") != null) {
+                    String answerConceptSetIds = parameters.get("answerConceptSetIds");
+                    try {
+						for (StringTokenizer st = new StringTokenizer(answerConceptSetIds, ","); st.hasMoreTokens();) {
+							Concept answerConceptSet = HtmlFormEntryUtil.getConcept(st.nextToken());
+							conceptAnswers.addAll(Context.getConceptService().getConceptsByConceptSet(answerConceptSet));
+						}
+                    }
+                    catch (Exception ex) {
+                        throw new RuntimeException("Error loading answer concepts from answerConceptSet " + answerConceptSetIds, ex);
+                    }
+                }
+                else if (parameters.get("answerClasses") != null && !"autocomplete".equals(parameters.get("style"))) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answerClasses"), ","); st
 						        .hasMoreTokens();) {
@@ -687,7 +700,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// allow selecting one of multiple possible coded values
 					
 					// if no answers are specified explicitly (by conceptAnswers or conceptClasses), get them from concept.answers.
-					if (!parameters.containsKey("answerConceptIds") && !parameters.containsKey("answerClasses") && !parameters.containsKey("answerDrugs")) {
+					if (!parameters.containsKey("answerConceptIds") && !parameters.containsKey("answerClasses")
+							&& !parameters.containsKey("answerDrugs") && !parameters.containsKey("answerConceptSetIds")) {
 						conceptAnswers = new ArrayList<Concept>();
 						for (ConceptAnswer ca : concept.getAnswers(false)) {
 							conceptAnswers.add(ca.getAnswerConcept());
