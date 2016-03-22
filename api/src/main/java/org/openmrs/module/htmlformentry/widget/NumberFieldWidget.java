@@ -1,10 +1,5 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.ConceptNumeric;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -12,6 +7,10 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.util.OpenmrsUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -142,7 +141,8 @@ public class NumberFieldWidget implements Widget {
             if (context.isAutomaticClientSideValidation()) {
                 sb.append(" onBlur=\"checkNumber(this,'" + errorId + "'," + floatingPoint + ",");
                 sb.append(absoluteMinimum + ",");
-                sb.append(absoluteMaximum + ")\"");
+                sb.append(absoluteMaximum + ",");
+                sb.append(getLocalizedErrorMessages() + ")\"");
             }
             if (context.isClientSideValidationHints()) {
                 if (absoluteMinimum != null) {
@@ -175,6 +175,15 @@ public class NumberFieldWidget implements Widget {
         }
     }
 
+    private String getLocalizedErrorMessages() {
+        StringBuffer localizedErrorMessages = new StringBuffer();
+        localizedErrorMessages.append("{ notANumber: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber") +"',");
+        localizedErrorMessages.append("notAnInteger: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notAnInteger") +"',");
+        localizedErrorMessages.append("notLessThan: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notLessThan") +"',");
+        localizedErrorMessages.append("notGreaterThan: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") +"' } ");
+        return localizedErrorMessages.toString();
+    }
+
     @Override
     public Double getValue(FormEntryContext context, HttpServletRequest request) {
         try {
@@ -192,6 +201,7 @@ public class NumberFieldWidget implements Widget {
     public void setNumberFieldSize(Integer numberFieldSize) {
         this.numberFieldSize = numberFieldSize;
     }
-    
+
+
 
 }

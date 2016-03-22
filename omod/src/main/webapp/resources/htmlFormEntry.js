@@ -37,14 +37,14 @@ function clearError(errorDivId) {
 	}
 }
 
-function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax) {
+function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 	clearError(errorDivId);
 
 	if (el.value == '') {
 		el.className = null;
 	}
 
-	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax);
+	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages);
 	if (errorMessage == null) {
 		el.className = 'legalValue';
 		clearError(errorDivId);
@@ -62,30 +62,40 @@ function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax) {
  * @param absoluteMax the maximum acceptable value (may be null)
  * @return null or error message
  */
-function verifyNumber(el, floatOkay, absoluteMin, absoluteMax) {
+function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
+
+	if (!errorMessages) {
+		errorMessages = {
+			notANumber: 'Not a number',
+			notAnInteger: 'Not an integer',
+			notLessThan: 'Cannot be less than',
+			notGreaterThan: 'Cannot be greater than'
+		}
+	}
+
 	var val = el.value.trim();
 	if (val == '')
 		return null;
 
 	if (floatOkay) {
 		if (! /^[+-]?\d+(\.\d+)?$/.test(val)) {
-			return "Not a number";
+			return errorMessages.notANumber;
 		}
 		val = parseFloat(val);
 	} else {
 		if (! /^[+-]?\d+$/.test(val)) {
-			return "Not an integer";
+			return errorMessages.notAnInteger;
 		}
 		val = parseInt(val);
 	}
 
 	if (absoluteMin != null) {
 		if (val < absoluteMin)
-			return "Cannot be less than " + absoluteMin;
+			return errorMessages.notLessThan + " " + absoluteMin;
 	}
 	if (absoluteMax != null) {
 		if (val > absoluteMax)
-			return "Cannot be greater than " + absoluteMax;
+			return errorMessages.notGreaterThan + " " + absoluteMax;
 	}
 	return null;
 }
