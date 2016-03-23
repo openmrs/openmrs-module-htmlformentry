@@ -15,6 +15,7 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 
