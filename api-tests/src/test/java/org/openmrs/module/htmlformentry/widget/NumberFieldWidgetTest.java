@@ -15,29 +15,41 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.openmrs.api.context.Context;
+import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  *
  */
- @Ignore
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Context.class)
 public class NumberFieldWidgetTest {
 
     FormEntryContext context;
+
+    MessageSourceService messageSourceService;
 
     @Before
     public void setUp() throws Exception {
         context = mock(FormEntryContext.class);
         when(context.isAutomaticClientSideValidation()).thenReturn(true);
         when(context.isClientSideValidationHints()).thenReturn(true);
+
+        messageSourceService = mock(MessageSourceService.class);
+        mockStatic(Context.class);
+        when(Context.getMessageSourceService()).thenReturn(messageSourceService);
     }
 
     @Test
