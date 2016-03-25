@@ -373,7 +373,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				}
 
 				if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
-					validateIdentifier(identifierType.getId(), identifier);
+					validateIdentifier(identifierType.getId(), identifier, patient);
 				}
 
 				patientIdentifier.setIdentifier(identifier);
@@ -419,11 +419,12 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
         session.getSubmissionActions().setPatientUpdateRequired(true);
 	}
 
-	private void validateIdentifier(Integer identifierType, String identifier) {
+	private void validateIdentifier(Integer identifierType, String identifier, Patient patient) {
 		if (identifierType != null && identifier != null) {
 			try {
 				PatientIdentifier pi = new PatientIdentifier();
 
+				pi.setPatient(patient);
 				pi.setIdentifier(identifier);
 				pi.setIdentifierType(getIdentifierType(identifierType.toString()));
 
@@ -512,7 +513,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			String identifierValue = (String) identifierTypeValueWidget.getValue(context, request);
 			if(StringUtils.hasText(identifierValue)){
 				try {
-					validateIdentifier(Integer.valueOf(identifierTypeId), identifierValue);
+					validateIdentifier(Integer.valueOf(identifierTypeId), identifierValue, context.getExistingPatient());
 				}
 				catch (Exception e) {
 					ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
