@@ -144,7 +144,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		else if (FIELD_IDENTIFIER.equalsIgnoreCase(field)) {
 
 			PatientIdentifierType idType = HtmlFormEntryUtil.getPatientIdentifierType(attributes.get("identifierTypeId"));
-			
+
 			identifierTypeValueWidget = new TextFieldWidget();
 			identifierTypeValueErrorWidget = new ErrorWidget();
 			String initialValue = null;
@@ -251,13 +251,13 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 		if (ageWidget != null) {
 			if (birthDateWidget != null) {
 				sb.append(" ").append(mss.getMessage("Person.age.or")).append(" ");
-			}			
+			}
 			sb.append(ageWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW)
 				sb.append(ageErrorWidget.generateHtml(context));
 		}
 
-		
+
 
 		if (identifierTypeValueWidget != null) {
 			sb.append(identifierTypeValueWidget.generateHtml(context));
@@ -271,9 +271,9 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				sb.append(identifierTypeValueErrorWidget.generateHtml(context));
 			}
 		}
-		
+
 		if (identifierTypeWidget != null) {
-			if (identifierTypeValueWidget instanceof DropdownWidget){				
+			if (identifierTypeValueWidget instanceof DropdownWidget){
 				sb.append(" ").append(mss.getMessage("PatientIdentifier.identifierType")).append(" ");
 			}
 			sb.append(identifierTypeWidget.generateHtml(context)).append(" ");
@@ -315,7 +315,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 					}
 				}
 			}
-			
+
 			// HACK: we need to set the date created and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
 			if (name.getDateCreated() == null) {
 				name.setDateCreated(new Date());
@@ -323,8 +323,8 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			if (name.getUuid() == null) {
 				name.setUuid(UUID.randomUUID().toString());
 			}
-			
-			
+
+
 			name.setPreferred(true);
 			patient.addName(name);
 		}
@@ -346,13 +346,16 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				calculateBirthDate(patient, value, null);
 			}
 		}
- 
+
 		if (identifierTypeValueWidget != null && identifierTypeWidget != null) {
 			String identifier = (String) identifierTypeValueWidget.getValue(context, request);
-			PatientIdentifierType identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
-
-			// Look for an existing identifier of this type
-			PatientIdentifier patientIdentifier = patient.getPatientIdentifier(identifierType);
+			PatientIdentifierType identifierType =null;
+			PatientIdentifier patientIdentifier=null;
+			if (StringUtils.hasText(identifier)) {
+				identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
+				// Look for an existing identifier of this type
+				patientIdentifier = patient.getPatientIdentifier(identifierType);
+			}
 
 			if (StringUtils.hasText(identifier)) {
 				// No existing identifier of this type, so create new
@@ -432,7 +435,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				// because it (as of 1.8) also tests to make sure that an identifier has a location associated with it; when validating an
 				// individual identifier widget, there will be no location because the location is collected in another widget
 				PatientIdentifierValidator.validateIdentifier(pi.getIdentifier(), pi.getIdentifierType());
-				
+
 				if (Context.getPatientService().isIdentifierInUseByAnotherPatient(pi)) {
 					throw new IdentifierNotUniqueException(Context.getMessageSourceService().getMessage(
 					    "PatientIdentifier.error.notUniqueWithParameter", new Object[] { pi.getIdentifier() },
@@ -474,7 +477,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				ret.add(new FormSubmissionError(context.getFieldName(nameErrorWidget), Context.getMessageSourceService().getMessage("htmlformentry.error.name.required")));
 			}
 		}
-		
+
 		if (ageWidget != null && validateMandatoryField(context, request, ageWidget, ageErrorWidget, ageOrBirthdDateErrorMessage)) {
 			try {
 				Number value = (Number) ageWidget.getValue(context, request);
@@ -557,7 +560,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 				//if existing and not estimated --> not estimated
 				birthdateEstimated = person.getBirthdate() != null && person.getBirthdateEstimated() != null && person.getBirthdate().equals(date) ? person.getBirthdateEstimated() : false;
 		}
-		else if (age != null) {	
+		else if (age != null) {
 			try {
 				Double ageRemainder  = BigDecimal.valueOf(age).subtract(BigDecimal.valueOf(Math.floor(age))).doubleValue();
 				if (ageRemainder.equals(Double.valueOf(0)))
