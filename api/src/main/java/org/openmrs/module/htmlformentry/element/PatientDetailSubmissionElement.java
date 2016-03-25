@@ -349,41 +349,41 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 
 		if (identifierTypeValueWidget != null && identifierTypeWidget != null) {
 			String identifier = (String) identifierTypeValueWidget.getValue(context, request);
-			PatientIdentifierType identifierType =null;
-			PatientIdentifier patientIdentifier=null;
-			if (StringUtils.hasText(identifier)) {
-				identifierType = getIdentifierType((String) identifierTypeWidget.getValue(context, request));
+			String identifierTypeString = (String) identifierTypeWidget.getValue(context, request);
+
+			// if not required, no identifier type string may be specified, then do nothing
+			if (StringUtils.hasText(identifierTypeString)) {
+				PatientIdentifierType identifierType = getIdentifierType(identifierTypeString);
 				// Look for an existing identifier of this type
-				patientIdentifier = patient.getPatientIdentifier(identifierType);
-			}
+				PatientIdentifier patientIdentifier = patient.getPatientIdentifier(identifierType);
 
-			if (StringUtils.hasText(identifier)) {
-				// No existing identifier of this type, so create new
-				if (patientIdentifier == null) {
-					patientIdentifier = new PatientIdentifier();
-					patientIdentifier.setIdentifierType(identifierType);
+				if (StringUtils.hasText(identifier)) {
+					// No existing identifier of this type, so create new
+					if (patientIdentifier == null) {
+						patientIdentifier = new PatientIdentifier();
+						patientIdentifier.setIdentifierType(identifierType);
 
-					// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
-					patientIdentifier.setDateChanged(new Date());
-					patientIdentifier.setUuid(UUID.randomUUID().toString());
+						// HACK: we need to set the date created  and uuid here as a hack around a hibernate flushing issue (see saving the Patient in FormEntrySession applyActions())
+						patientIdentifier.setDateChanged(new Date());
+						patientIdentifier.setUuid(UUID.randomUUID().toString());
 
-					// For 1.9+ onwards patients require a preferred identifier
-					if (patient.getPatientId() == null) {
-						patientIdentifier.setPreferred(true);
+						// For 1.9+ onwards patients require a preferred identifier
+						if (patient.getPatientId() == null) {
+							patientIdentifier.setPreferred(true);
+						}
+
+						patient.addIdentifier(patientIdentifier);
 					}
 
-					patient.addIdentifier(patientIdentifier);
-				}
+					if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
+						validateIdentifier(identifierType.getId(), identifier, patient);
+					}
 
-				if (!identifier.equals(patientIdentifier.getIdentifier()) || !identifierType.equals(patientIdentifier.getIdentifierType())) {
-					validateIdentifier(identifierType.getId(), identifier, patient);
+					patientIdentifier.setIdentifier(identifier);
+				} else if (patientIdentifier != null) {
+					// If this field is not required, then we interpret a blank value as a request to avoid any existing identifier
+					session.getSubmissionActions().getIdentifiersToVoid().add(patientIdentifier);
 				}
-
-				patientIdentifier.setIdentifier(identifier);
-			}
-			else if (patientIdentifier != null) {
-				// If this field is not required, then we interpret a blank value as a request to avoid any existing identifier
-				session.getSubmissionActions().getIdentifiersToVoid().add(patientIdentifier);
 			}
 		}
 
