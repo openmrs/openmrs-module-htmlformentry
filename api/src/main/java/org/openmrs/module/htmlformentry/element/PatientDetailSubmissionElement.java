@@ -512,7 +512,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			String identifierValue = (String) identifierTypeValueWidget.getValue(context, request);
 			if(StringUtils.hasText(identifierValue)){
 				try {
-					validateIdentifier(Integer.getInteger(identifierTypeId), identifierValue);
+					validateIdentifier(Integer.valueOf(identifierTypeId), identifierValue);
 				}
 				catch (Exception e) {
 					ret.add(new FormSubmissionError(context.getFieldName(identifierTypeValueErrorWidget), e.getMessage()));
