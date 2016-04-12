@@ -78,10 +78,10 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 		return null;
 
 	if (floatOkay) {
-		if (isNaN(Number(val))) {
+		if (! /^[+-]?\d*(.\d+)?$/.test(val)) {
 			return errorMessages.notANumber;
 		}
-		val = Number(val);
+		val = parseFloat(val);
 	} else {
 		if (! /^[+-]?\d+$/.test(val)) {
 			return errorMessages.notAnInteger;
