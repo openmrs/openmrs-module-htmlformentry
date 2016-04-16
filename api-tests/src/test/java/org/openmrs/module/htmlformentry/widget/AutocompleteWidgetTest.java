@@ -81,4 +81,30 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
         }
 
     }
+
+    @Test
+    public void autocompleteWidget_shouldEscapeSpecialCharacters() throws Exception {
+
+        AutocompleteWidget autocompleteWidget = null;
+        String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
+        FormEntryContext enterContext = session.getContext();
+        Map<Widget, String> widgets = enterContext.getFieldNames();
+        Set<Map.Entry<Widget,String>> entries = widgets.entrySet();
+
+        for(Map.Entry<Widget,String> entry : entries){
+            if(entry.getKey().getClass().equals(AutocompleteWidget.class)){
+                autocompleteWidget = (AutocompleteWidget)entry.getKey();
+            }
+        }
+
+        String locationWithSpecCharacters = "<script>alert('xss');</script>";
+        Option optionDouble = new Option(locationWithSpecCharacters, "" ,false);
+        System.out.println(autocompleteWidget);
+        if (autocompleteWidget != null) {
+            autocompleteWidget.addOption(optionDouble);
+            String generatedHtml = autocompleteWidget.generateHtml(enterContext);
+            Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,&lt;script&gt;alert('xss');&lt;/script&gt;") > -1);
+        }
+    }
 }
