@@ -133,6 +133,33 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	}
 
 	@Test
+	public void testSingleObsFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "singleObsForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(3); // date, location, and provider, weight are required
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
+
+	@Test
 	public void testMultipleObsFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
@@ -172,6 +199,33 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	}
 
 	@Test
+	public void testMultipleObsFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "multipleObsForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(3); // Multiple obs form is needed
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
+
+	@Test
 	public void testSingleObsGroupFormSuccess() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
@@ -206,6 +260,33 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsLeafCreatedCount(3); // 2 in the obs group, 1 for weight
 				results.assertObsCreated(2, 70);
 				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date); // allergy construct
+			}
+		}.run();
+	}
+
+	@Test
+	public void testSingleObsGroupFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "singleObsGroupForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(3); // date, location, and provider, weight, allergy, allergy date are required
+				results.assertNoEncounterCreated();
 			}
 		}.run();
 	}
@@ -251,7 +332,34 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
-	
+	@Test
+	public void testMultipleObsGroupFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Allergy 1:", "Allergy Date 1:", "Allergy 3:",
+						"Allergy Date 3:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(3); // Multiple obs group form is needed
+				results.assertNoEncounterCreated();
+
+			}
+		}.run();
+	}
 
 	
 	@Test
