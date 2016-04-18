@@ -45,6 +45,28 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
         FormEntrySession session = new FormEntrySession(null, htmlform, null);
 
         String htmlToDisplay = session.getHtmlToDisplay();
+        assertContainsAllLocations(htmlToDisplay);
+    }
+
+    @Test
+    public void obsAnswerLocationTags0_shouldDisplayAllLocations() throws Exception {
+        String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\"\" /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+        String htmlToDisplay = session.getHtmlToDisplay();
+        assertContainsAllLocations(htmlToDisplay);
+    }
+
+    @Test
+    public void obsAnswerLocationTagsEmpty_shouldDisplayAllLocations() throws Exception {
+        String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\",,\" /></htmlform>";
+        FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+        String htmlToDisplay = session.getHtmlToDisplay();
+        assertContainsAllLocations(htmlToDisplay);
+    }
+
+    private void assertContainsAllLocations(String htmlToDisplay) {
         TestUtil.assertFuzzyContains("Kigali", htmlToDisplay);
         TestUtil.assertFuzzyContains("Mirebalais", htmlToDisplay);
         TestUtil.assertFuzzyContains("Indianapolis", htmlToDisplay);

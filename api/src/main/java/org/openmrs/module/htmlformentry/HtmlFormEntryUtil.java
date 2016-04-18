@@ -1036,11 +1036,13 @@ public class HtmlFormEntryUtil {
             List<LocationTag> tags = new ArrayList<LocationTag>();
             String[] temp = locationTags.split(",");
             for (String s : temp) {
-                LocationTag tag = getLocationTag(s);
-                if (tag == null) {
-                    throw new RuntimeException("Cannot find tag: " + tag);
-                }
-                tags.add(tag);
+				if (s != null && !s.isEmpty()) {
+					LocationTag tag = getLocationTag(s);
+					if (tag == null) {
+						throw new RuntimeException("Cannot find tag: " + tag);
+					}
+					tags.add(tag);
+				}
             }
             locations =  new ArrayList<Location>();
             locations.addAll(Context.getLocationService().getLocationsHavingAnyTag(tags));
