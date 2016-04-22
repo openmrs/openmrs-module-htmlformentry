@@ -78,7 +78,7 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 		return null;
 
 	if (floatOkay) {
-		if (! /^[+-]?\d+(\.\d+)?$/.test(val)) {
+		if (! /^[+-]?\d*(.\d+)?$/.test(val)) {
 			return errorMessages.notANumber;
 		}
 		val = parseFloat(val);
