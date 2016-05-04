@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 public class CheckboxWidgetTest {
 
     @Test
-    public void testHidden() throws Exception {
+    public void generateHtml_shouldGenerateProperHtml() throws Exception {
         CheckboxWidget cb = new CheckboxWidget();
         cb.setLabel("checkboxTextLabel");
         cb.setValue("checkboxValue");
