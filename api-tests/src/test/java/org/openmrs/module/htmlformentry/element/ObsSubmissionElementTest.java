@@ -14,16 +14,6 @@
 
 package org.openmrs.module.htmlformentry.element;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,6 +36,16 @@ import org.openmrs.util.LocaleUtility;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  *
@@ -210,4 +210,33 @@ public class ObsSubmissionElementTest {
         assertTrue(html.matches(".*<label.*>Kreyol 1</label>.*<label.*>Kreyol 2</label>.*"));
     }
 
+    @Test(expected = RuntimeException.class)
+    public void testNoConceptId_shouldThrowException() {
+        new ObsSubmissionElement(context, params);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testDuplicateConceptIds_shouldThrowException() {
+        params.put("conceptId", "1");
+        params.put("conceptIds", "2");
+        new ObsSubmissionElement(context, params);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testInvalidConceptIds_shouldThrowException() {
+        params.put("conceptIds", "adas,asda");
+        new ObsSubmissionElement(context, params);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testEmptyConceptIds_shouldThrowException() {
+        params.put("conceptIds", "");
+        new ObsSubmissionElement(context, params);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testInvalidAnswerConceptIds_shouldThrowException() {
+        params.put("answerConceptIds", "adas,asda");
+        new ObsSubmissionElement(context, params);
+    }
 }
