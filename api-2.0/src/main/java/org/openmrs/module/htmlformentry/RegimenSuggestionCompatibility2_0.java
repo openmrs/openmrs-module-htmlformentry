@@ -22,7 +22,7 @@ import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.springframework.stereotype.Component;
 
 @Component("htmlformentry.RegimenSuggestionCompatibility")
-@OpenmrsProfile(openmrsPlatformVersion = "2.0.*")
+@OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class RegimenSuggestionCompatibility2_0 implements RegimenSuggestionCompatibility {
 
 	@Override

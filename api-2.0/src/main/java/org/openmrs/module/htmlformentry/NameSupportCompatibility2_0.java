@@ -23,7 +23,7 @@ import org.openmrs.module.htmlformentry.compatibility.NameSupportCompatibility;
 import org.springframework.stereotype.Component;
 
 @Component("htmlformentry.NameSupportCompatibility")
-@OpenmrsProfile(openmrsPlatformVersion = "2.0.*")
+@OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class NameSupportCompatibility2_0 implements NameSupportCompatibility {
 
 	@Override

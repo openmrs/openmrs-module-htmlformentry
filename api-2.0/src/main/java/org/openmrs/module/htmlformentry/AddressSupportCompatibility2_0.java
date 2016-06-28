@@ -23,7 +23,7 @@ import org.openmrs.module.htmlformentry.compatibility.AddressSupportCompatibilit
 import org.springframework.stereotype.Component;
 
 @Component("htmlformentry.AddressSupportCompatibility")
-@OpenmrsProfile(openmrsPlatformVersion = "2.0.*")
+@OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class AddressSupportCompatibility2_0 implements AddressSupportCompatibility {
 
 	@Override

@@ -26,7 +26,7 @@ import org.openmrs.module.htmlformentry.compatibility.DrugCompatibility;
 import org.springframework.stereotype.Component;
 
 @Component("htmlformentry.DrugCompatibility")
-@OpenmrsProfile(openmrsPlatformVersion = "2.0.*")
+@OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class DrugCompatibility2_0 implements DrugCompatibility {
 
 	@Override

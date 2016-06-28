@@ -23,7 +23,7 @@ import org.openmrs.module.htmlformentry.compatibility.PatientServiceCompatibilit
 import org.springframework.stereotype.Component;
 
 @Component("htmlformentry.PatientServiceCompatibility")
-@OpenmrsProfile(openmrsPlatformVersion = "2.0.*")
+@OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class PatientServiceCompatibility2_0 implements PatientServiceCompatibility {
 
 	@Override
