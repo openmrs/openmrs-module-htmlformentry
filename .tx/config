@@ -8,5 +8,6 @@ trans.fr = api/src/main/resources/messages_fr.properties
 trans.ht = api/src/main/resources/messages_ht.properties
 trans.es = api/src/main/resources/messages_es.properties
 trans.de = api/src/main/resources/messages_de.properties
+trans.pt = api/src/main/resources/messages_pt.properties
 
 
