@@ -80,7 +80,7 @@ public class PersonSearchWidget implements Widget {
     	sb.append(context.getFieldName(this));
     	sb.append("('");
     	sb.append(Context.getMessageSourceService().getMessage("htmlformentry.personSearchPopup"));
-    	sb.append("', openmrsContextPath + '/module/htmlformentry/personSearch.form?inPopup=true&prefix=");
+    	sb.append("', (openmrsContextPath.startsWith('/') ? '' : '/') + openmrsContextPath + '/module/htmlformentry/personSearch.form?inPopup=true&prefix=");
     	sb.append(context.getFieldName(this));
     	if(searchAttribute != null)
     	{
