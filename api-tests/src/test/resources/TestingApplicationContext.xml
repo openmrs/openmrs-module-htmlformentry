@@ -20,6 +20,12 @@
 		</property>
 		<!--  default properties must be set in the hibernate.default.properties -->
 	</bean>
+
+    <bean parent="serviceContext">
+        <property name="useSystemClassLoader">
+            <value>true</value>
+        </property>
+    </bean>
 	
 	
 	<!--  we definite the name support beans here so that we can access them to test functions that use them -->

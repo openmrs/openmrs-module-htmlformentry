@@ -6,6 +6,18 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
+
+
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list>
+                <value>org.openmrs.module.htmlformentry.MetadataMappingServiceWrapper</value>
+                <bean class="org.openmrs.module.htmlformentry.MetadataMappingServiceWrapperImpl">
+                </bean>
+            </list>
+        </property>
+    </bean>
+
     <bean id="htmlFormEntryService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager"><ref bean="transactionManager"/></property>
         <property name="target">
