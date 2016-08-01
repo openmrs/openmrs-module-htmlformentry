@@ -95,7 +95,9 @@ public class HtmlFormEntryUtil {
 
 	public static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
 
-	private static MetadataMappingServiceWrapper getMetadataMappingService(){ return Context.getService(MetadataMappingServiceWrapper.class); }
+	private static MetadataMappingResolver getMetadaMappingResolver(){
+		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
+	}
 
 	/**
 	 * Returns the HTML Form Entry service from the Context
@@ -106,12 +108,10 @@ public class HtmlFormEntryUtil {
 		return Context.getService(HtmlFormEntryService.class);
 	}
 
-	private static <T extends OpenmrsMetadata> T getMetadata(String id, Class<T> type, int index){
-		String source = id.substring(0, index).trim();
-		String code = id.substring(index + 1, id.length()).trim();
-		MetadataMappingServiceWrapper metadataMappingService = getMetadataMappingService();
-		if(metadataMappingService != null){
-			return metadataMappingService.getMetadataItem(type, source, code);
+	private static <T extends OpenmrsMetadata> T getMetadataByMapping(Class<T> type, String identifier){
+		MetadataMappingResolver metadataMappingResolver = getMetadaMappingResolver();
+		if (metadataMappingResolver != null) {
+			return metadataMappingResolver.getMetadataItem(type, identifier);
 		}
 		return null;
 	}
@@ -691,9 +691,9 @@ public class HtmlFormEntryUtil {
 			}
 
 			//get by mapping "source:code"
-			int index = id.indexOf(":");
-			if(index != -1){
-				return getMetadata(id, Location.class, index);
+			location = getMetadataByMapping(Location.class, id);
+			if(location != null){
+				return location;
 			}
 
 			// if it's neither a uuid or id, try location name
@@ -757,9 +757,10 @@ public class HtmlFormEntryUtil {
 				//do nothing
 			}
 
-			int index = id.indexOf(":");
-			if (index != -1) {
-				return getMetadata(id, Program.class, index);
+			//get Program by mapping
+			program = getMetadataByMapping(Program.class, id);
+			if(program != null){
+				return program;
 			}
 
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
@@ -880,9 +881,10 @@ public class HtmlFormEntryUtil {
 				//do nothing 
 			}
 
-			int index = id.indexOf(":");
-			if(index != -1){
-				return getMetadata(id, PatientIdentifierType.class, index);
+			//get PatientIdentifierType by mapping
+			identifierType = getMetadataByMapping(PatientIdentifierType.class, id);
+			if(identifierType != null){
+				return identifierType;
 			}
 			
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
@@ -1168,11 +1170,12 @@ public class HtmlFormEntryUtil {
 			}
 			catch (NumberFormatException e) {}
 
-			int index = identifier.indexOf(":");
-			if(index != -1){
-				return getMetadata(identifier, ProgramWorkflowState.class, index);
+			//get ProgramWorkflowState by mapping
+			state = getMetadataByMapping(ProgramWorkflowState.class, identifier);
+			if (state != null) {
+				return state;
 			}
-			
+
 			if (isValidUuidFormat(identifier)) {
 				state = Context.getProgramWorkflowService().getStateByUuid(identifier);
 				
@@ -1798,9 +1801,10 @@ public class HtmlFormEntryUtil {
 				//do nothing
 			}
 
-			int index = id.indexOf(":");
-			if (index != -1) {
-				return getMetadata(id, EncounterType.class, index);
+			//get EncounterType by mapping
+			encounterType = getMetadataByMapping(EncounterType.class, id);
+			if (encounterType != null) {
+				return  encounterType;
 			}
 
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format

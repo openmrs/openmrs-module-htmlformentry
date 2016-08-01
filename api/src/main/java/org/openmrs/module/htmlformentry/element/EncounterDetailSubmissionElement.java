@@ -21,6 +21,7 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -76,6 +77,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     private EncounterTypeWidget encounterTypeWidget;
 
     private ErrorWidget encounterTypeErrorWidget;
+
+    private MetadataMappingResolver getMetadataMappingResolver(){
+        return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
+    }
 
     /**
      * Construct a new EncounterDetailSubmissionElement
@@ -161,15 +166,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 Object roleParam = parameters.get("role");
                 if (roleParam != null) {
                     Role role = null;
-                    MetadataMappingServiceWrapper metadataMappingServiceWrapper = Context.getService(MetadataMappingServiceWrapper.class);
-                    if(metadataMappingServiceWrapper != null){
-                        int index = roleParam.toString().indexOf(":");
-                        if(index != -1){
-                            String source = roleParam.toString().substring(0, index);
-                            String code = roleParam.toString().substring(index + 1, roleParam.toString().length());
-                            role = metadataMappingServiceWrapper.getMetadataItem(Role.class, source, code);
-                        }
-                    }
+                    MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
+                    role = metadataMappingResolver.getMetadataItem(Role.class, roleParam.toString());
                     if (role == null) {
                         role = Context.getUserService().getRole((String) roleParam);
                     }

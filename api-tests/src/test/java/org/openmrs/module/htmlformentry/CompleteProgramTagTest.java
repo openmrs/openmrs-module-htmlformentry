@@ -4,12 +4,18 @@ import java.util.Date;
 import java.util.Map;
 
 import junit.framework.Assert;
+import org.apache.xpath.operations.Mod;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.Module;
+import org.openmrs.module.ModuleFactory;
 import org.openmrs.module.metadatamapping.MetadataSource;
 import org.openmrs.module.metadatamapping.MetadataTermMapping;
 import org.openmrs.module.metadatamapping.api.MetadataMappingService;
@@ -20,14 +26,20 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * Tests of the various program-related tags
  */
 public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
-	
+
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
+
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
+
+	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc", "1.1.0-alpha1");
+
 	@Before
 	public void loadConcepts() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		loadTestMappings();
+	}
+
+	private void loadTestMappings() {
 		MetadataSource metadataSource = new MetadataSource();
 		metadataSource.setName("source");
 		metadataSource.setDateCreated(new Date());
@@ -44,7 +56,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 		metadataTermMapping2.setName("mapping2");
 		Context.getService(MetadataMappingService.class).saveMetadataTermMapping(metadataTermMapping2);
 	}
-	
+
 	@Test
 	public void testCompleteProgram_shouldCompleteProgram() throws Exception {
 		new RegressionTestHelper() {
@@ -232,7 +244,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				super.testBlankFormHtml(html);
-				Assert.assertTrue("Should check the htmml form", html.contains("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option><option value=\"502\">Hippocrates of Cos</option>"));
+				Assert.assertTrue("Should check the html form", html.contains("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option><option value=\"502\">Hippocrates of Cos</option>"));
 			}
 
 			@SuppressWarnings("deprecation")

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+    <!-- note that we use capitalize tag names to test that exporter is case-insensitive -->
+
+    Date: <encounterDate/>
+    Location: <encounterLocation default="2" order="1,source:Location,Never Never Land" tags="Some Tag"/>  <!-- having both a tags and order attribute in the same encounterLocation is illegal, but we are doing here just so we can test in one fell swoop -->
+    Provider: <EncounterProvider role="source:ROLE" default="9"/>
+    <obsgroup GROUPINGCONCEPTID="7">
+
+        <!-- <td> added below to test HTML-213 -->
+        Allergy 1: <td><obs conceptId="1000" answerConceptIds="1001,XYZ:HT,1002,32296060-03aa-102d-b0e3-001ec94a0cc7"/></td> Allergy Date 1: <obs conceptId="1119"/>
+        Hyperallergy: <obs conceptId="1005" answerConceptId="1001"/>
+
+    </obsgroup>
+    Program: <enrollInProgram programId="1" stateIds="1,e938129e-248a-482a-acea-f85127251472,5"/>  <!-- not a valid syntax (multiple states in same workflow) but using to test substitution -->
+    Program: <ENROLLINPROGRAM programId="source:MDR-TB PROGRAM"/>  <!-- this is not valid syntax for this tag, but using it to test picking up programs referenced by name -->
+
+    <workflowState workflowId="100" stateId="201"/>
+    <workflowState workflowId="SNOMED CT: Test Workflow Code" stateIds="207,SNOMED CT: Test Code"/>    <!-- not valid syntax (one state from wrong workflow) but using to test substitution -->
+
+    Drugs: <drugOrder drugNames="2,Aspirin,7e2323fa-0fa0-461f-9b59-6765997d849e" discontinuedReasonConceptId="555"/>
+
+    Patient: <patient field="identifier" identifierTypeId="source:1"/>
+    Patient: <patient field="identifier" identifierTypeId="Old Identification Number"/>
+
+    <!--  this is not valid syntax for this tag, but using to test picking up roles referenced by uuid -->
+    <encounterProvider role="92b70b00-58b1-11e0-80e3-0800200c9a66"/>
+    <encounterProvider role="source:DataClerk"/>
+
+    <submit/>
+</htmlform>
