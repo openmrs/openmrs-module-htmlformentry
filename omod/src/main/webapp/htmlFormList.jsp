@@ -11,7 +11,7 @@
 		<tr>
 		<!-- commenting these checkboxes out until we decide to use them -->
 		<!-- <td><input type="checkbox" name="id" value="${ htmlForm.id }"/></td> -->
-			<td><a href="htmlForm.form?id=${htmlForm.id}">${htmlForm.name}</a></td>
+			<td><a href="htmlForm.form?id=${htmlForm.id}"><c:out value="${htmlForm.name}"/></a></td>
 		</tr>
 	</c:forEach>
 	<c:if test="${ fn:length(command) == 0 }">

@@ -28,9 +28,9 @@
 		</tr>
 		<c:forEach var="form" items="${forms}" varStatus="status">
 			<tr class='${status.index % 2 == 0 ? "evenRow" : "oddRow"} ${form.form.retired ? "voided" : ""}'>
-				<td valign="top" style="white-space: nowrap"><a href="htmlForm.form?id=${form.id}">${form.form.name}</a></td>
-				<td valign="top">${form.form.version}</td>
-				<td valign="top">${form.form.description}</td>
+				<td valign="top" style="white-space: nowrap"><a href="htmlForm.form?id=${form.id}"><c:out value="${form.form.name}"/></a></td>
+				<td valign="top"><c:out value="${form.form.version}"/></td>
+				<td valign="top"><c:out value="${form.form.description}"/></td>
 				<td valign="top"><c:if test="${form.form.published == true}"><spring:message code="general.yes"/></c:if></td>
 			</tr>
 		</c:forEach>

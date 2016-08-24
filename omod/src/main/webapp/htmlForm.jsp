@@ -158,7 +158,7 @@
 			<td><spring:message code="general.name"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.name">
-					<input type="text" name="${status.expression}" value="${status.value}" size="35" />
+					<input type="text" name="${status.expression}" value="<c:out value="${status.value}"/>" size="35" />
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
@@ -169,7 +169,7 @@
 			<td valign="top"><spring:message code="general.description"/></td>
 			<td valign="top">
 				<spring:bind path="htmlForm.form.description">
-					<textarea name="${status.expression}" rows="3" cols="40" type="_moz">${status.value}</textarea>
+					<textarea name="${status.expression}" rows="3" cols="40" type="_moz"><c:out value="${status.value}"/></textarea>
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
@@ -180,7 +180,7 @@
 			<td><spring:message code="Form.version"/></td>
 			<td>
 				<spring:bind path="htmlForm.form.version">
-					<input type="text" name="${status.expression}" value="${status.value}" size="5" />
+					<input type="text" name="${status.expression}" value="<c:out value="${status.value}"/>" size="5" />
 					<c:if test="${status.errorMessage != ''}">
 						<span class="error">${status.errorMessage}</span>
 					</c:if>
@@ -194,7 +194,7 @@
 					<select name="${status.expression}">
 						<option value=""></option>
 						<c:forEach items="${encounterTypes}" var="type">
-							<option value="${type.encounterTypeId}" <c:if test="${type.encounterTypeId == status.value}">selected</c:if>>${type.name}</option>
+							<option value="${type.encounterTypeId}" <c:if test="${type.encounterTypeId == status.value}">selected</c:if>><c:out value="${type.name}"/></option>
 						</c:forEach>
 					</select>
 					<c:if test="${status.errorMessage != ''}">
@@ -206,14 +206,14 @@
 		<tr class="show-sometimes">
 			<td><spring:message code="general.createdBy"/></td>
 				<td>
-					${htmlForm.form.creator.personName} -
+					<c:out value="${htmlForm.form.creator.personName}"/> -
 					<openmrs:formatDate date="${htmlForm.form.dateCreated}" type="long" />
 				</td>
 		</tr>
 		<tr class="show-sometimes">
 			<td><spring:message code="general.changedBy"/></td>
 				<td>
-					${htmlForm.form.changedBy.personName} -
+					<c:out value="${htmlForm.form.changedBy.personName}"/> -
 					<openmrs:formatDate date="${htmlForm.form.dateChanged}" type="long" />
 				</td>
 		</tr>
@@ -243,7 +243,7 @@
 				<span id="retiredReasonRow">
 					<spring:message code="general.retiredReason"/>
 					<spring:bind path="htmlForm.form.retireReason">
-						<input type="text" name="${status.expression}" id="retiredReason" value="${status.value}" />
+						<input type="text" name="${status.expression}" id="retiredReason" value="<c:out value="${status.value}"/>" />
 						<c:if test="${status.errorMessage != ''}">
 							<span class="error">${status.errorMessage}</span>
 						</c:if>
@@ -255,7 +255,7 @@
 			<tr class="show-later">
 				<td><spring:message code="general.retiredBy"/></td>
 				<td>
-					${htmlForm.form.retiredBy.personName} -
+					<c:out value="${htmlForm.form.retiredBy.personName}"/> -
 					<openmrs:formatDate date="${htmlForm.form.dateRetired}" type="long" />
 				</td>
 			</tr>
