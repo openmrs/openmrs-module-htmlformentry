@@ -33,6 +33,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1834,7 +1835,7 @@ public class HtmlFormEntryUtil {
      */
     public static String format(OpenmrsMetadata md, Locale locale) {
         String override = getLocalization(locale, md.getClass().getSimpleName(), md.getUuid());
-        return override != null ? override : md.getName();
+        return override != null ? override : StringEscapeUtils.escapeHtml(md.getName());
     }
 
     /**
