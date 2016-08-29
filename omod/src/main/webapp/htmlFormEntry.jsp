@@ -378,21 +378,21 @@
 	</div>
 	<c:if test="${!inPopup}">
 		<b>
-			${command.patient.personName} |
+			${command.patientPersonName} |
 			<c:choose>
 				<c:when test="${not empty command.form}">
-					${command.form.name} (${command.form.encounterType.name})
+					${command.formName} (${command.formEncounterTypeName})
 				</c:when>
 				<c:otherwise>
 					<c:if test="${not empty command.encounter}">
-						${command.encounter.form.name} (${command.encounter.encounterType.name})
+						${command.encounterFormName} (${command.encounterEncounterTypeName})
 					</c:if>
 				</c:otherwise> 
 			</c:choose>
 			
 			|
 			<c:if test="${not empty command.encounter}">
-				<openmrs:formatDate date="${command.encounter.encounterDatetime}"/> | ${command.encounter.location.name} 
+				<openmrs:formatDate date="${command.encounter.encounterDatetime}"/> | ${command.encounterLocationName} 
 			</c:if>
 			<c:if test="${empty command.encounter}">
 				<spring:message code="htmlformentry.newForm"/>

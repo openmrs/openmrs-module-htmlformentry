@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -1105,5 +1106,29 @@ public class FormEntrySession {
     public void setHtmlForm(HtmlForm htmlForm) {
         this.htmlForm = htmlForm;
         if(form != null) this.htmlForm.setForm(form);
+    }
+    
+    public String getPatientPersonName() {
+    	return StringEscapeUtils.escapeHtml(patient.getPersonName().getFullName());
+    }
+    
+    public String getFormName() {
+    	return StringEscapeUtils.escapeHtml(form.getName());
+    }
+    
+    public String getEncounterFormName() {
+    	return StringEscapeUtils.escapeHtml(encounter.getForm().getName());
+    }
+    
+    public String getFormEncounterTypeName() {
+    	return StringEscapeUtils.escapeHtml(form.getEncounterType().getName());
+    }
+    
+    public String getEncounterEncounterTypeName() {
+    	return StringEscapeUtils.escapeHtml(encounter.getEncounterType().getName());
+    }
+    
+    public String getEncounterLocationName() {
+    	return StringEscapeUtils.escapeHtml(encounter.getLocation().getName());
     }
 }
