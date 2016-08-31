@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
@@ -148,7 +149,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                     if (p == null) {
                         throw new RuntimeException("Cannot find Person: " + s);
                     }
-                    String label = p.getPersonName().getFullName();
+                    String label = StringEscapeUtils.escapeHtml(p.getPersonName().getFullName());
                     providerOptions.add(new Option(label, p.getId().toString(), false));
                 }
                 removeNonProviders(providerOptions);
@@ -191,7 +192,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
                 for (PersonStub personStub : users) {
 
-                    Option option = new Option(personStub.toString(), personStub.getId().toString(), false);
+                    Option option = new Option(StringEscapeUtils.escapeHtml(personStub.toString()), personStub.getId().toString(), false);
                     providerUsers.add(option);
                 }
                 providerOptions.addAll(providerUsers);
@@ -218,7 +219,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
               }
               if(defaultOptionPresent)  {
                   defProviderOption
-                     = new Option(defaultProvider.getPersonName().getFullName(), defaultProvider.getId().toString(), true);
+                     = new Option(StringEscapeUtils.escapeHtml(defaultProvider.getPersonName().getFullName()), defaultProvider.getId().toString(), true);
                    providerOptions.add(defProviderOption);
               }
 
@@ -234,7 +235,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                         throw new IllegalArgumentException("Invalid default provider specified for encounter: " + defParam);
                     } else {
                         defProviderOption
-                                = new Option(defaultProvider.getPersonName().getFullName(), defaultProvider.getId().toString(), true);
+                                = new Option(StringEscapeUtils.escapeHtml(defaultProvider.getPersonName().getFullName()), defaultProvider.getId().toString(), true);
                         for (Option option : providerOptions) {
                             if (option.getValue().equals(defProviderOption.getValue())) {
                                 providerOptions.remove(option);
