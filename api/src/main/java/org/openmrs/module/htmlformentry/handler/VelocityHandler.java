@@ -62,8 +62,10 @@ public class VelocityHandler extends SubstitutionTagHandler {
         	}
         }
         
+        value = StringEscapeUtils.escapeHtml(value);
+        
         if (className != null) {
-            return "<span class=\"" + className + "\">" + StringEscapeUtils.escapeHtml(value) + "</span>";
+            return "<span class=\"" + className + "\">" + value + "</span>";
         } else {
             return value;
         }
