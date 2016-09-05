@@ -62,6 +62,11 @@ public class VelocityHandler extends SubstitutionTagHandler {
         	}
         }
         
+        //An attempt to prevent XSS attack - RA-452
+        if (value != null && value.toLowerCase().contains("script")) {
+        	value = StringEscapeUtils.escapeHtml(value);
+        }
+        
         if (className != null) {
             return "<span class=\"" + className + "\">" + value + "</span>";
         } else {
