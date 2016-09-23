@@ -243,7 +243,7 @@
   <concept_reference_term concept_reference_term_id="1000" concept_source_id="2" code="Test Code" name="Test Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
   <concept_reference_map concept_map_id="1000" concept_id="10009" concept_reference_term_id="1000" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f712-49d8-11e0-8fed-18a905e044dc"/>
   
-  <program program_id="10" concept_id="10000" creator="1" date_created="2008-08-15 16:07:11.0" changed_by="1" date_changed="2008-08-15 17:04:50.0" retired="false" name="Test Program" description="testing program" uuid="67bad8f4-5140-11e1-a3e3-00248140a5eb"/>
+  <program program_id="10" concept_id="10000" outcomes_concept_id="4200" creator="1" date_created="2008-08-15 16:07:11.0" changed_by="1" date_changed="2008-08-15 17:04:50.0" retired="false" name="Test Program" description="testing program" uuid="67bad8f4-5140-11e1-a3e3-00248140a5eb"/>
   <program_workflow program_workflow_id="100" program_id="10" concept_id="10001" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="72a90efc-5140-11e1-a3e3-00248140a5eb"/>
   <program_workflow program_workflow_id="107" program_id="10" concept_id="10006" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="7c3e071a-53a7-11e1-8cb6-00248140a5eb"/>
   <program_workflow program_workflow_id="108" program_id="10" concept_id="10007" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="8343cfae-53a7-11e1-8cb6-00248140a5eb"/>
@@ -256,8 +256,10 @@
   <program_workflow_state program_workflow_state_id="207" program_workflow_id="107" concept_id="10008" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11e1-8cb6-00248140a5eb"/>
   <program_workflow_state program_workflow_state_id="208" program_workflow_id="108" concept_id="10009" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="6de7ed10-53ad-11e1-8cb6-00248140a5eb"/>
 
+  <!-- Enroll a patient in a program with an outcome to test completeProgram tag -->
+  <patient_program patient_program_id="102" patient_id="8" program_id="10" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="31396060-03aa-102d-b0e3-001ec94a0cc5"/>
 
-  <!-- test data for exit from care functionality -->
+    <!-- test data for exit from care functionality -->
   <global_property property="concept.reasonExitedCare" property_value="4200" uuid="4f55827e-26fe-102b-80cb-0017b4ec71b3"/>
 
   <concept concept_id="4200" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-bb7e-001ec4ec0334"/>

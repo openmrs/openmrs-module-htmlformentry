@@ -520,8 +520,20 @@ public class FormEntrySession {
 
         if (submissionActions.getPatientProgramsToComplete() != null) {
             for (PatientProgram pp : submissionActions.getPatientProgramsToComplete()) {
-                if (pp.getDateCompleted() == null)
+                if (pp.getDateCompleted() == null) {
                     pp.setDateCompleted(encounter.getEncounterDatetime());
+                }
+                // If an appropriate outcome has been recorded, set this on the patient program
+                Concept outcomesConcept = pp.getProgram().getOutcomesConcept();
+                if (outcomesConcept != null) {
+                    List<Obs> outcomeObs = findObsForConcept(outcomesConcept, submissionActions.getObsToCreate());
+                    if (outcomeObs.size() == 1) {
+                        pp.setOutcome(outcomeObs.get(0).getValueCoded());
+                    }
+                    else if (outcomeObs.size() > 1) {
+                        throw new IllegalStateException("Unable to complete patient program as multiple outcome observations are recorded: " + outcomeObs);
+                    }
+                }
             }
         }
 
@@ -734,6 +746,21 @@ public class FormEntrySession {
 			}
 			voidObsGroupIfAllChildObsVoided(group.getObsGroup());
 		}
+    }
+
+    /**
+     * @return any obs from the passed list whose question is the passed concept
+     */
+    private List<Obs> findObsForConcept(Concept concept, List<Obs> obs) {
+        List<Obs> ret = new ArrayList<Obs>();
+        if (concept != null) {
+            for (Obs o : obs) {
+                if (o.getConcept().equals(concept)) {
+                    ret.add(o);
+                }
+            }
+        }
+        return ret;
     }
 
     /**
