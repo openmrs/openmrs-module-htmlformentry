@@ -30,6 +30,10 @@
                             <bean class="org.openmrs.module.htmlformentry.handler.WhenTagHandler"></bean>
                         </entry>
                         <entry>
+                            <key><value>encounterProviderAndRole</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.EncounterProviderAndRoleTagHandler"/>
+                        </entry>
+                        <entry>
                             <key><value>obsgroup</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ObsGroupTagHandler"/>
                         </entry>

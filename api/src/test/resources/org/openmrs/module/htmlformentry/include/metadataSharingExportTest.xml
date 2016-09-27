@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Doctor: <encounterProviderAndRole encounterRole="3" default="d2299800-cca9-11e0-9572-0800200c9a66"/>
+	Nurse: <encounterProviderAndRole encounterRole="e5c5cc92-5283-11e1-bb6a-d975bd577a5e" default="1"/>
+	<submit/>
+</htmlform>

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+	<provider provider_id="2" name="Doctor Bob, M.D." identifier="ABC123" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="d2299800-cca9-11e0-9572-0800200c9a66" />
+	<encounter_role encounter_role_id="2" name="Nurse" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="e5c5cc92-5283-11e1-bb6a-d975bd577a5e"/>
+	<encounter_role encounter_role_id="3" name="Doctor" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="eb75d754-5283-11e1-bb6a-d975bd577a5e"/>
+</dataset>

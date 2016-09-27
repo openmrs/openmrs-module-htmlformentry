@@ -1,0 +1,6 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Doctors: <encounterProviderAndRole encounterRole="3" count="2"/>
+    <submit/>
+</htmlform>
