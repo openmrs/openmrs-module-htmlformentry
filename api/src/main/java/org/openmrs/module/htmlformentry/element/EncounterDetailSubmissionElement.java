@@ -21,13 +21,10 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.*;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlFormEntryService;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
@@ -80,6 +77,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     private EncounterTypeWidget encounterTypeWidget;
 
     private ErrorWidget encounterTypeErrorWidget;
+
+    private MetadataMappingResolver getMetadataMappingResolver(){
+        return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
+    }
 
     /**
      * Construct a new EncounterDetailSubmissionElement
@@ -162,10 +163,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 List<Option> providerUsers = new ArrayList<Option>();
 
                 // If the "role" attribute is passed in, limit to users with this role
-                if (parameters.get("role") != null) {
-                    Role role = Context.getUserService().getRole((String) parameters.get("role"));
+                Object roleParam = parameters.get("role");
+                if (roleParam != null) {
+                    Role role = null;
+                    MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
+                    role = metadataMappingResolver.getMetadataItem(Role.class, roleParam.toString());
                     if (role == null) {
-                        throw new RuntimeException("Cannot find role: " + parameters.get("role"));
+                        role = Context.getUserService().getRole((String) roleParam);
+                    }
+
+                    if (role == null) {
+                        throw new RuntimeException("Cannot find role: " + roleParam);
                     } else {
                         users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
                     }

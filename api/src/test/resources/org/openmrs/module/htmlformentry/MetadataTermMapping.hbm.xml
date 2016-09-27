@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+<hibernate-mapping package="org.openmrs.module.metadatamapping">
+
+    <class name="MetadataTermMapping" table="metadata_term_mapping">
+        <id name="MetadataTermMappingId" type="int" column="metadata_term_mapping_id">
+            <generator class="native" />
+        </id>
+        <many-to-one name="metadataSource" class="org.openmrs.module.metadatamapping.MetadataTermMapping"/>
+        <property name="metadataUuid" type="java.lang.String"/>
+        <property name="metadataClass" type="java.lang.String"/>
+        <property name="code" type="java.lang.String"/>
+        <property name="name" type="string" not-null="true" length="30"/>
+        <property name="uuid" type="string" length="38" not-null="true" />
+        <property name="retired" type="boolean" not-null="true"/>
+        <many-to-one name="creator" class="org.openmrs.User" not-null="true" />
+        <property name="dateCreated" type="java.util.Date" column="date_created" not-null="true" length="19" />
+        <many-to-one name="changedBy" class="org.openmrs.User" column="changed_by" />
+        <property name="dateChanged" type="java.util.Date" column="date_changed" length="19" />
+    </class>
+
+</hibernate-mapping>

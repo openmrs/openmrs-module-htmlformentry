@@ -69,12 +69,18 @@ public class HtmlFormExporter {
 		copy.setXmlData(form.getXmlData());
 		return copy;
 	}
+
+	private MetadataMappingResolver getMetadataMappingResolver(){
+		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
+	}
 	
 	@SuppressWarnings("unchecked")
 	private void calculateDependencies() {
 		Set<OpenmrsObject> dependencies = new HashSet<OpenmrsObject>();
 		
 		Set<Class<?>> classesNotToExport = getClassesNotToExport();
+
+		MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
 
 		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to
 		// be applied to the form we are exporting so we copy the xml into a new string first
@@ -136,7 +142,16 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								
+
+								//if openmrs metadata, try to get it by metadataMapping service
+								if(OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())){
+									OpenmrsObject object = metadataMappingResolver.getMetadataItem((Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
+									if(object != null){
+										dependencies.add(object);
+										continue;
+									}
+								}
+
 								// if we haven't found anything by uuid, try by name
 								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByName(

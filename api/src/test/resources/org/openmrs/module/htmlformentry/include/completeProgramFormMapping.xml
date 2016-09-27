@@ -1,0 +1,9 @@
+
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="source:CODE2"/>
+
+    <completeProgram programId="source:CODE"/>
+    <submit/>
+</htmlform>
