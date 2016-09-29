@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <person person_id="13000" gender="M" voided="0" creator="1" date_created="2015-06-07" dead="false"
+            uuid="de8140e0-1691-11df-97a5-7038c432aabf" />
+    <person_name person_name_id="13001" person_id="13000" given_name="suranga" family_name="kasthurirathne" voided="false"
+            preferred="true" creator="1" date_created="2015-06-07" uuid="de814b7c-1691-11df-97a5-7038c432aabf"/>
+
+    <provider provider_id="13002" person_id="13000" identifier="5566-111" retired="false" creator="1"
+              date_created="2015-06-07"/>
+    <provider provider_id="13010" name="Thomas Kisanga Kilemule" identifier="34005-999" retired="false"  creator="1"
+              date_created="2015-06-07"/>
+</dataset>

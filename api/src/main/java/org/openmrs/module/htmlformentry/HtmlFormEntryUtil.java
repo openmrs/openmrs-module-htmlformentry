@@ -29,6 +29,7 @@ import org.openmrs.PersonName;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
+import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
@@ -39,6 +40,12 @@ import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
+import org.openmrs.module.htmlformentry.element.ProviderStub;
+import org.openmrs.module.htmlformentry.util.MatchMode;
+import org.openmrs.module.htmlformentry.util.Predicate;
+import org.openmrs.module.htmlformentry.util.ProviderTransformer;
+import org.openmrs.module.providermanagement.ProviderRole;
+import org.openmrs.module.providermanagement.api.ProviderManagementService;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.DrugEditor;
@@ -83,6 +90,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1967,4 +1975,222 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 
+	/**
+	 * Attempts to parse the passed string as an Integer and fetch the provider role with that id
+	 * If no match, or the string is unparseable as an Integer, try to fetch by uuid
+	 *
+	 * @param id
+	 * @return
+	 */
+	public static Object getProviderRole(String id)  {
+
+		Object providerRole = null;
+
+		if (StringUtils.isNotBlank(id)) {
+
+			// see if this is parseable int; if so, try looking up by id
+			Integer providerRoleId = null;
+
+			try {
+				providerRoleId = Integer.parseInt(id);
+				providerRole = getProviderRoleById(providerRoleId);
+
+				if (providerRole != null) {
+					return providerRole;
+				}
+
+			}
+			catch (Exception e) {
+				// ignore this, move to try by uuid
+			}
+
+			// if no match by id, look up by uuid
+			providerRole = getProviderRoleBUuid(id);
+
+		}
+
+		return providerRole;
+	}
+
+
+	private static Object getProviderRoleById(Integer providerRoleId) {
+
+		// we have to fetch the provider role by reflection, since the provider management module is not a required dependency
+
+		try {
+			Class<?> providerManagementServiceClass = Context.loadClass("org.openmrs.module.providermanagement.api.ProviderManagementService");
+			Object providerManagementService = Context.getService(providerManagementServiceClass);
+			Method getProviderRole = providerManagementServiceClass.getMethod("getProviderRole", Integer.class);
+			return getProviderRole.invoke(providerManagementService, providerRoleId);
+		}
+		catch(Exception e) {
+			throw new RuntimeException("Unable to get provider role by id; the Provider Management module needs to be installed if using the providerRoles attribute", e);
+		}
+
+	}
+
+	private static Object getProviderRoleBUuid(String providerRoleUuid) {
+
+		// we have to fetch the provider roles by reflection, since the provider management module is not a required dependency
+
+		try {
+			Class<?> providerManagementServiceClass = Context.loadClass("org.openmrs.module.providermanagement.api.ProviderManagementService");
+			Object providerManagementService = Context.getService(providerManagementServiceClass);
+			Method getProviderRoleByUuid = providerManagementServiceClass.getMethod("getProviderRoleByUuid", String.class);
+			return getProviderRoleByUuid.invoke(providerManagementService, providerRoleUuid);
+		}
+		catch(Exception e) {
+			throw new RuntimeException("Unable to get provider role by uuid; the Provider Management module needs to be installed if using the providerRoles attribute", e);
+		}
+
+	}
+
+	public static List<Provider> getProviders(List<ProviderRole> providerRoles) {
+
+		if (providerRoles == null || providerRoles.size() == 0) {
+			return new ArrayList<Provider>();
+		}
+
+		ProviderManagementService providerManagementService = Context.getService(ProviderManagementService.class);
+		//Service returns list of org.openmrs.module.providermanagement.Provider, not org.openmrs.Provider
+		return new ArrayList<Provider>(providerManagementService.getProvidersByRoles(providerRoles));
+	}
+
+	/**
+	 * Convenience method to get all the names of this PersonName and concatonating them together
+	 * with family name compoenents first, separated by a comma from given and middle names.
+	 * If any part of {@link #getPrefix()}, {@link #getGivenName()},
+	 * {@link #getMiddleName()}, etc are null, they are not included in the returned name
+	 *
+	 * @return all of the parts of this {@link PersonName} joined with spaces
+	 * @should not put spaces around an empty middle name
+	 */
+	public static String getFullNameWithFamilyNameFirst(PersonName personName) {
+
+		if (personName == null) {
+			return "[" + Context.getMessageSourceService().getMessage("htmlformentry.unknownProviderName") + "]";
+		}
+
+		StringBuffer nameString = new StringBuffer();
+
+		if (StringUtils.isNotBlank(personName.getFamilyNamePrefix())) {
+			nameString.append(personName.getFamilyNamePrefix() + " ");
+		}
+		if (StringUtils.isNotBlank(personName.getFamilyName())) {
+			nameString.append(personName.getFamilyName() + " ");
+		}
+		if (StringUtils.isNotBlank(personName.getFamilyName2())) {
+			nameString.append(personName.getFamilyName2() + " ");
+		}
+		if (StringUtils.isNotBlank(personName.getFamilyNameSuffix())) {
+			nameString.append(personName.getFamilyNameSuffix() + " ");
+		}
+
+		if (nameString.length() > 0) {
+			nameString.deleteCharAt(nameString.length() - 1); // delete trailing space
+			nameString.append(", ");
+		}
+
+		if (StringUtils.isNotBlank(personName.getPrefix())) {
+			nameString.append(personName.getPrefix() + " ");
+		}
+		if (StringUtils.isNotBlank(personName.getGivenName())) {
+			nameString.append(personName.getGivenName() + " ");
+		}
+		if (StringUtils.isNotBlank(personName.getMiddleName())) {
+			nameString.append(personName.getMiddleName() + " ");
+		}
+		if (StringUtils.isNotBlank(personName.getDegree())) {
+			nameString.append(personName.getDegree() + " ");
+		}
+
+		if (nameString.length() > 1) {
+			nameString.deleteCharAt(nameString.length() - 1); // delete trailing space
+		}
+
+		return nameString.toString();
+	}
+
+	/**
+	 * Converts a collection of providers domain object into simple stub representation
+	 * @param providers
+	 * @return
+	 */
+	public static List<ProviderStub> getProviderStubs(Collection<Provider> providers) {
+		List<ProviderStub> providerStubList = new LinkedList<ProviderStub>();
+		if(providers != null && !providers.isEmpty()) {
+			for (Provider p : providers) {
+				providerStubList.add(new ProviderStub(p));
+			}
+		}
+		return providerStubList;
+	}
+
+	public static List<ProviderStub> getProviderStubs(Collection<Provider> providers,String searchParam,
+													  MatchMode mode) {
+		if(mode != null) {
+			org.openmrs.module.htmlformentry.util.Transformer<Provider, ProviderStub> transformer = new ProviderTransformer();
+			switch (mode) {
+				case START:
+					return (List<ProviderStub>) transformer.transform(providers, startsWith(searchParam));
+				case END:
+					return (List<ProviderStub>) transformer.transform(providers, endsWith(searchParam));
+				default:
+					return getProviderStubs(providers);
+			}
+		}
+		return getProviderStubs(providers);
+	}
+
+	private static Predicate<Provider> startsWith(final String param) {
+		return new Predicate<Provider>() {
+			@Override
+			public boolean test(Provider provider) {
+				String identifier = provider.getIdentifier();
+				String lowerCaseParam = param.toLowerCase();
+				if(identifier.toLowerCase().startsWith(lowerCaseParam)) return true;
+				if(provider.getPerson() != null) {
+					PersonName name = provider.getPerson().getPersonName();
+					if (name != null) {
+						if (name.getGivenName().toLowerCase().startsWith(lowerCaseParam) ||
+								name.getFamilyName().toLowerCase().startsWith(lowerCaseParam) ||
+								name.getMiddleName().toLowerCase().startsWith(lowerCaseParam))
+							return true;
+					}
+				}
+				//Check the provider name (From provider table)
+				String[] names = provider.getName().split(" ");
+				for(String n:names) {
+					if (n.toLowerCase().startsWith(lowerCaseParam)) return true;
+				}
+				return false;
+			}
+		};
+	}
+
+	private static Predicate<Provider> endsWith(final String param) {
+		return new Predicate<Provider>() {
+			@Override
+			public boolean test(Provider provider) {
+				String lowerCaseParam = param.toLowerCase();
+				String identifier = provider.getIdentifier();
+				if(identifier.toLowerCase().endsWith(lowerCaseParam)) return true;
+				if(provider.getPerson() != null) {
+					PersonName name = provider.getPerson().getPersonName();
+					if (name != null) {
+						if (name.getGivenName().toLowerCase().endsWith(lowerCaseParam) ||
+								name.getFamilyName().toLowerCase().endsWith(lowerCaseParam) ||
+								name.getMiddleName().toLowerCase().endsWith(lowerCaseParam))
+							return true;
+					}
+				}
+				//Check the provider name (From provider table
+				String[] names = provider.getName().split(" ");
+				for(String n:names) {
+					if (n.toLowerCase().endsWith(lowerCaseParam)) return true;
+				}
+				return false;
+			}
+		};
+	}
 }
