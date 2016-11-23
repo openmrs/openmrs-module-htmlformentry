@@ -162,7 +162,7 @@
 		</conditionalResource>
 		<conditionalResource>
 			<path>/lib/htmlformentry-api-2.0.*</path>
-			<openmrsVersion>2.0</openmrsVersion>
+			<openmrsVersion>2.*</openmrsVersion>
 		</conditionalResource>
 	</conditionalResources>
 	
