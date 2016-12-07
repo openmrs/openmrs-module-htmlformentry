@@ -53,13 +53,13 @@
         </createTable>
 
         <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="creator"
-                                 constraintName="User who created htmlformentry_htmlform"
+                                 constraintName="user_who_created_htmlformentry_htmlform"
                                  referencedTableName="users" referencedColumnNames="user_id" />
         <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="form_id"
-                                 constraintName="Form with which this htmlform is related"
+                                 constraintName="form_with_which_this_htmlform_is_related"
                                  referencedTableName="form" referencedColumnNames="form_id" />
         <addForeignKeyConstraint baseTableName="htmlformentry_html_form" baseColumnNames="changed_by"
-                                 constraintName="User who changed htmlformentry_htmlform"
+                                 constraintName="user_who_changed_htmlformentry_htmlform"
                                  referencedTableName="users" referencedColumnNames="user_id" />
     </changeSet>
 
@@ -169,9 +169,12 @@
             Remove null values from uuid column
         </comment>
 
-        <sql>
-            UPDATE htmlformentry_html_form SET uuid = UUID() WHERE uuid is null;
-        </sql>
+        <customChange class="org.openmrs.module.htmlformentry.uuid.GenerateUuid">
+            <param name="tableNames">
+                htmlformentry_html_form
+            </param>
+            <param name="columnName" value="uuid"/>
+        </customChange>
 
         <modifyColumn tableName="htmlformentry_html_form">
             <column name="uuid" type="char(38)">
