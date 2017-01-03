@@ -77,11 +77,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     private EncounterTypeWidget encounterTypeWidget;
 
     private ErrorWidget encounterTypeErrorWidget;
-    
-    boolean locationRequired = true;
-    
-    boolean providerRequired = true;
-    
+
     private MetadataMappingResolver getMetadataMappingResolver(){
         return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
     }
@@ -283,11 +279,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
                 }
             }
-    
-    
-            if (parameters.containsKey("required")) {
-                providerRequired = Boolean.valueOf((String) parameters.get("required"));
-            }
             context.registerWidget(providerWidget);
             context.registerErrorWidget(providerWidget, providerErrorWidget);
         }
@@ -421,11 +412,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                     for (Option option : locationOptions)
                         locationWidget.addOption(option);
                 }
-            }
-    
-    
-            if (parameters.containsKey("required")) {
-                locationRequired = Boolean.valueOf((String) parameters.get("required"));
             }
             context.registerWidget(locationWidget);
             context.registerErrorWidget(locationWidget, locationErrorWidget);
@@ -678,7 +664,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                     date = HtmlFormEntryUtil.combineDateAndTime(date, time);
                 }
                 if (date == null)
-                        throw new Exception("htmlformentry.error.required");
+                    throw new Exception("htmlformentry.error.required");
                 if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
                     throw new Exception("htmlformentry.error.cannotBeInFuture");
             }
@@ -691,11 +677,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             if (providerWidget != null) {
                 Object value = providerWidget.getValue(context, submission);
                 Person provider = (Person) convertValueToProvider(value);
-                if (provider == null) {
-                    if (providerRequired) {
-                        throw new Exception("required");
-                    }
-                }
+                if (provider == null)
+                    throw new Exception("required");
             }
         } catch (Exception ex) {
             ret.add(new FormSubmissionError(context.getFieldName(providerErrorWidget), Context.getMessageSourceService()
@@ -706,11 +689,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             if (locationWidget != null) {
                 Object value = locationWidget.getValue(context, submission);
                 Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
-                if (location == null) {
-                    if (locationRequired) {
-                        throw new Exception("required");
-                    }
-                }
+                if (location == null)
+                    throw new Exception("required");
             }
         } catch (Exception ex) {
             ret.add(new FormSubmissionError(context.getFieldName(locationErrorWidget), Context.getMessageSourceService()
