@@ -1156,6 +1156,6 @@ public class FormEntrySession {
     }
     
     public String getEncounterLocationName() {
-    	return StringEscapeUtils.escapeHtml(encounter.getLocation().getName());
+    	return StringEscapeUtils.escapeHtml(encounter.getLocation() == null ? "" : encounter.getLocation().getName());
     }
 }
