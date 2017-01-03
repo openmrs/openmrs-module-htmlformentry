@@ -22,7 +22,6 @@ public class EncounterProviderHandler extends SubstitutionTagHandler {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("default", Person.class));
 		attributeDescriptors.add(new AttributeDescriptor("role", Role.class));
-		attributeDescriptors.add(new AttributeDescriptor("required", String.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
