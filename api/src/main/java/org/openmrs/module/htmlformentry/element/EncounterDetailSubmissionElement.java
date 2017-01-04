@@ -78,9 +78,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
     private ErrorWidget encounterTypeErrorWidget;
     
-    boolean locationRequired = true;
+    boolean locationRequired = false;
     
-    boolean providerRequired = true;
+    boolean providerRequired = false;
     
     private MetadataMappingResolver getMetadataMappingResolver(){
         return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
@@ -283,7 +283,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
                 }
             }
-    
     
             if (parameters.containsKey("required")) {
                 providerRequired = Boolean.valueOf((String) parameters.get("required"));
@@ -669,7 +668,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     @Override
     public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
         List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-
+        
+        System.out.println("HTML " + generateHtml(context));
         try {
             if (dateWidget != null) {
                 Date date = (Date) dateWidget.getValue(context, submission);
@@ -690,6 +690,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         try {
             if (providerWidget != null) {
                 Object value = providerWidget.getValue(context, submission);
+                System.out.println("the provider widget initial value " + providerWidget.getInitialValue() + " actual value " + value);
                 Person provider = (Person) convertValueToProvider(value);
                 if (provider == null) {
                     if (providerRequired) {
@@ -705,8 +706,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         try {
             if (locationWidget != null) {
                 Object value = locationWidget.getValue(context, submission);
+                System.out.println("the location widget initial value " + locationWidget.getInitialValue() + " actual value " + value);
+                if (value == null & locationRequired) {
+                    throw new Exception("required");
+                }
                 Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
                 if (location == null) {
+                    System.out.println("Location Required " + locationRequired);
                     if (locationRequired) {
                         throw new Exception("required");
                     }
@@ -719,6 +725,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         try {
             if (encounterTypeWidget != null) {
                 Object encounterType = encounterTypeWidget.getValue(context, submission);
+                System.out.println("the location widget initial value " + encounterTypeWidget.getClass() + " actual value " + encounterType);
                 if (encounterType == null)
                     throw new Exception("required");
             }

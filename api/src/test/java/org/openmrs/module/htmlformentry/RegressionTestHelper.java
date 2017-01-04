@@ -543,6 +543,7 @@ public abstract class RegressionTestHelper {
 		session.prepareForSubmit();
 		List<FormSubmissionError> validationErrors = session.getSubmissionController().validateSubmission(
 		    session.getContext(), request);
+		System.out.println("The submission controller class name is " + session.getSubmissionController().getClass());
 		if (validationErrors != null && validationErrors.size() > 0) {
 			results.setValidationErrors(validationErrors);
 			return results;
@@ -600,6 +601,12 @@ public abstract class RegressionTestHelper {
 		
 		public void assertEncounterCreated() {
 			Assert.assertNotNull(encounterCreated);
+		}
+		
+		public void assertNoLocationInEncounter() {
+			Assert.assertNull(encounterCreated.getLocation());
+		}
+		public void assertNoProviderInEncounter() { Assert.assertNull(encounterCreated.getEncounterProviders());
 		}
 		
 		public void assertEncounterEdited() {

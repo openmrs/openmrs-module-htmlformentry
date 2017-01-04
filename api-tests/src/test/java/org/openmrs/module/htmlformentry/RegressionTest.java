@@ -121,6 +121,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
+				results.assertNoLocationInEncounter();
+				results.assertNoProviderInEncounter();
 			}
 		}.run();
 	}
@@ -151,6 +153,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertLocation(2);
+				results.assertNoProviderInEncounter();
 			}
 		}.run();
 	}
@@ -181,6 +184,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertProvider(502);
+				results.assertNoLocationInEncounter();
 			}
 		}.run();
 	}
