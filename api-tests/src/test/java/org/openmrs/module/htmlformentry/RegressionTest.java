@@ -104,7 +104,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public String getFormName() {
-				return "simplestFormNoLocationNoProvider";
+				return "simplestFormLocationAndProviderNotRequiredByTagAttribute";
 			}
 			
 			@Override
@@ -128,13 +128,45 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void testSimplestFormSuccessWithNoProvider() throws Exception {
+	/**
+	 * No location or provider passed to the form, but the required value for the fields is true, so the encounter should
+	 * not be created
+	 */
+	public void testSimplestFormFailLocationAndProviderNotEnteredWhileRequired() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "simplestFormNoProvider";
+				return "simplestFormLocationAndProviderRequiredByTagAttribute";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(2);
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testSimplestFormSuccessWithNoProviderRequired() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "simplestFormProviderNotRequiredByTagAttribute";
 			}
 			
 			@Override
@@ -159,13 +191,45 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
+	/**
+	 * No provider passed to the form, with the required flag set to true so encounter should not be created
+	 */
+	public void testSimplestFormFailProviderNotEnteredWhileRequired() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "simplestFormProviderRequiredByTagAttribute";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(1);
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
+	
+	@Test
 	public void testSimplestFormSuccessWithNoLocation() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "simplestFormNoLocation";
+				return "simplestFormLocationNotRequiredByTagAttribute";
 			}
 			
 			@Override
@@ -185,6 +249,38 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertNoLocation();
+			}
+		}.run();
+	}
+	
+	@Test
+	/**
+	 * No location passed to the form, with the required flag set to true so encounter should not be created
+	 */
+	public void testSimplestFormFailWithLocationNotEnteredWhileRequired() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "simplestFormLocationRequiredByTagAttribute";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Provider:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Provider:"), "502");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(1);
+				results.assertNoEncounterCreated();
 			}
 		}.run();
 	}

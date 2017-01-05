@@ -669,7 +669,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
         List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
         
-        System.out.println("HTML " + generateHtml(context));
         try {
             if (dateWidget != null) {
                 Date date = (Date) dateWidget.getValue(context, submission);
@@ -690,11 +689,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         try {
             if (providerWidget != null) {
                 Object value = providerWidget.getValue(context, submission);
-                System.out.println("the provider widget initial value " + providerWidget.getInitialValue() + " actual value " + value);
-                Person provider = (Person) convertValueToProvider(value);
-                if (provider == null) {
+                if (value == null) {
                     if (providerRequired) {
                         throw new Exception("required");
+                    }
+                } else {
+                    Person provider = (Person) convertValueToProvider(value);
+                    if (provider == null) {
+                        if (providerRequired) {
+                            throw new Exception("required");
+                        }
                     }
                 }
             }
@@ -706,15 +710,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         try {
             if (locationWidget != null) {
                 Object value = locationWidget.getValue(context, submission);
-                System.out.println("the location widget initial value " + locationWidget.getInitialValue() + " actual value " + value);
-                if (value == null & locationRequired) {
-                    throw new Exception("required");
-                }
-                Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
-                if (location == null) {
-                    System.out.println("Location Required " + locationRequired);
+                if (value == null) {
                     if (locationRequired) {
                         throw new Exception("required");
+                    }
+                } else {
+                    Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
+                    if (location == null) {
+                        System.out.println("Location Required " + locationRequired);
+                        if (locationRequired) {
+                            throw new Exception("required");
+                        }
                     }
                 }
             }
@@ -773,13 +779,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         }
         if (providerWidget != null) {
             Object value = providerWidget.getValue(session.getContext(), submission);
-            Person person = (Person) convertValueToProvider(value);
-            EncounterCompatibility.setProvider(session.getSubmissionActions().getCurrentEncounter(), person);
+            if (value != null) {
+                Person person = (Person) convertValueToProvider(value);
+                EncounterCompatibility.setProvider(session.getSubmissionActions().getCurrentEncounter(), person);
+            }
         }
         if (locationWidget != null) {
             Object value = locationWidget.getValue(session.getContext(), submission);
-            Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
-            session.getSubmissionActions().getCurrentEncounter().setLocation(location);
+            if (value != null) {
+                Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
+                session.getSubmissionActions().getCurrentEncounter().setLocation(location);
+            }
         }
         if (encounterTypeWidget != null) {
             EncounterType encounterType = (EncounterType) encounterTypeWidget.getValue(session.getContext(), submission);

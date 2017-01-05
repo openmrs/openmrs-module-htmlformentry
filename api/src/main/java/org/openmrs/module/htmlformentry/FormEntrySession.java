@@ -469,12 +469,14 @@ public class FormEntrySession {
         // if any encounter to be created by this form is missing a required field, throw an error
         // (If there's a widget but it was left blank, that would have been caught earlier--this
         // is for when there was no widget in the first place.)
+        // the change here assumes that the encounterLocation and encounterProvider tags are validated elsewhere since they are
+        // not required
 
         {
             for (Encounter e : submissionActions.getEncountersToCreate()) {
-                if (!HtmlFormEntryUtil.hasProvider(e) || e.getEncounterDatetime() == null || e.getLocation() == null) {
+                if (e.getEncounterDatetime() == null) {
                     throw new BadFormDesignException(
-                            "Please check the design of your form to make sure it has all three tags: <b>&lt;encounterDate/&gt</b>;, <b>&lt;encounterLocation/&gt</b>;, and <b>&lt;encounterProvider/&gt;</b>");
+                            "Please check the design of your form to make sure it has the tag <b>&lt;encounterDate/&gt</b>");
                 }
             }
         }

@@ -27,7 +27,6 @@ public class PatientDetailSubmissionElementTest extends BaseModuleContextSensiti
 		PatientDetailSubmissionElement element = new PatientDetailSubmissionElement(context, attributes);
 
 		String html = element.generateHtml(context);
-		System.out.println(html);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter("w1", "invalid-identifier");

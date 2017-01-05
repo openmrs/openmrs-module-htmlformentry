@@ -80,7 +80,6 @@ public class FormSubmissionController {
             
             Collection<FormSubmissionError> errs = element.validateSubmission(context, submission);
             if (errs != null) {
-                System.out.println("The element is " + element.getClass() + " with " + errs);
                 lastSubmissionErrors.addAll(errs);
             }
         }
