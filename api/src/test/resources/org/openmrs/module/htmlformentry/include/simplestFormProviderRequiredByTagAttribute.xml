@@ -1,6 +1,6 @@
 <htmlform>
 	Date: <encounterDate/>
-	Provider: <encounterProvider role="Provider" required="true"/>
+	Provider: <encounterProvider role="Provider"/>
 	Location: <encounterLocation />
 	<submit/>
 </htmlform>

@@ -78,9 +78,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
     private ErrorWidget encounterTypeErrorWidget;
     
-    boolean locationRequired = false;
+    boolean locationRequired = true;
     
-    boolean providerRequired = false;
+    boolean providerRequired = true;
     
     private MetadataMappingResolver getMetadataMappingResolver(){
         return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
