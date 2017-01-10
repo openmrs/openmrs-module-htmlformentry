@@ -77,6 +77,7 @@ public class FormSubmissionController {
         lastSubmission = submission;
         lastSubmissionErrors = new ArrayList<FormSubmissionError>();
         for (FormSubmissionControllerAction element : actions) {
+            
             Collection<FormSubmissionError> errs = element.validateSubmission(context, submission);
             if (errs != null) {
                 lastSubmissionErrors.addAll(errs);

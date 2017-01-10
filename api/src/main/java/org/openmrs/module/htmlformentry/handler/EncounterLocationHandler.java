@@ -23,6 +23,7 @@ public class EncounterLocationHandler extends SubstitutionTagHandler {
 		attributeDescriptors.add(new AttributeDescriptor("order", Location.class));
 		attributeDescriptors.add(new AttributeDescriptor("default", Location.class));
         attributeDescriptors.add(new AttributeDescriptor("tags", LocationTag.class));
+		attributeDescriptors.add(new AttributeDescriptor("required", String.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
