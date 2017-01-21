@@ -245,4 +245,22 @@ public class VelocityFunctionsTest extends BaseModuleContextSensitiveTest {
         gp.setPropertyValue(value);
         Context.getAdministrationService().saveGlobalProperty(gp);
     }
+    
+    @Test
+	public void testLocation() throws Exception {
+	    VelocityFunctions functions = setupFunctionsForPatient(7);
+	    String locationIdIdentifier = new Integer(2).toString();
+	    Assert.assertNotNull(functions.location(locationIdIdentifier));
+	    Assert.assertEquals(locationIdIdentifier, functions.location(locationIdIdentifier).getId().toString());
+	    
+	    String locationUuidIdentifier = "8d6c993e-c2cc-11de-8d13-0010c6dffd0f";
+	    Assert.assertNotNull(functions.location(locationUuidIdentifier));
+	    Assert.assertEquals(locationUuidIdentifier, functions.location(locationUuidIdentifier).getUuid());
+	    
+	    String locationNameIdentifier = "Xanadu";
+	    Assert.assertNotNull(functions.location(locationNameIdentifier));
+	    Assert.assertEquals(locationNameIdentifier, functions.location(locationNameIdentifier).getName());
+	    
+	
+    }
 }
