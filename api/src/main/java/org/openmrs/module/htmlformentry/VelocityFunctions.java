@@ -87,14 +87,7 @@ public class VelocityFunctions {
 	 * @return the location with the specified locationId, uuid or name.
 	 */
 	public Location location(String locationIdentifier) {
-		if (StringUtils.isNumeric(locationIdentifier)) {
-			return getLocationService().getLocation(new Integer(locationIdentifier));
-		}
-		Location location = getLocationService().getLocationByUuid(locationIdentifier);
-		if (location == null) {
-			return getLocationService().getLocation(locationIdentifier);
-		}
-		return location;
+		return HtmlFormEntryUtil.getLocation(locationIdentifier);
     }
 
 	public List<Obs> allObs(String conceptId) {
