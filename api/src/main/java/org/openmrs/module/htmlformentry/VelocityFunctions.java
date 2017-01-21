@@ -13,6 +13,7 @@ import org.joda.time.Months;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
@@ -20,6 +21,7 @@ import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
+import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
@@ -38,6 +40,7 @@ public class VelocityFunctions {
 	private LogicService logicService;
 	private ProgramWorkflowService programWorkflowService;
 	private AdministrationService administrationService;
+	private LocationService locationService;
 	
 	public VelocityFunctions(FormEntrySession session) {
 		this.session = session;
@@ -67,9 +70,31 @@ public class VelocityFunctions {
 		return administrationService;
 	}
 	
+	private LocationService getLocationService() {
+		if (locationService == null)
+			locationService = Context.getLocationService();
+		return locationService;
+	}
+	
 	private void cannotBePreviewed() {
 		if ("testing-html-form-entry".equals(session.getPatient().getUuid()))
 			throw new CannotBePreviewedException();
+    }
+	
+	/**
+	 *
+	 * @param locationIdentifier
+	 * @return the location with the specified locationId, uuid or name.
+	 */
+	public Location location(String locationIdentifier) {
+		if (StringUtils.isNumeric(locationIdentifier)) {
+			return getLocationService().getLocation(new Integer(locationIdentifier));
+		}
+		Location location = getLocationService().getLocationByUuid(locationIdentifier);
+		if (location == null) {
+			return getLocationService().getLocation(locationIdentifier);
+		}
+		return location;
     }
 
 	public List<Obs> allObs(String conceptId) {
