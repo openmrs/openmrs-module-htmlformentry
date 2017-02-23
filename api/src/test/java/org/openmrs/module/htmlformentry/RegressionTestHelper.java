@@ -602,6 +602,8 @@ public abstract class RegressionTestHelper {
 			Assert.assertNotNull(encounterCreated);
 		}
 		
+		
+		
 		public void assertEncounterEdited() {
 			Assert.assertNotNull("No encounter found", encounterCreated);
 			Assert.assertNotNull("Encounter date changed not set on edit", encounterCreated.getDateChanged());
@@ -711,6 +713,11 @@ public abstract class RegressionTestHelper {
 			Assert.assertNotNull(getEncounterCreated().getProvider().getPersonId());
 		}
 		
+		public void assertNoProvider() {
+			assertEncounterCreated();
+			Assert.assertNull(getEncounterCreated().getProvider());
+		}
+		
 		/**
 		 * Fails if there is no provider or if the provider id does not match the expected id
 		 */
@@ -726,6 +733,11 @@ public abstract class RegressionTestHelper {
 			assertEncounterCreated();
 			Assert.assertNotNull(getEncounterCreated().getLocation());
 			Assert.assertNotNull(getEncounterCreated().getLocation().getLocationId());
+		}
+		
+		public void assertNoLocation() {
+			assertEncounterCreated();
+			Assert.assertNull(getEncounterCreated().getLocation());
 		}
 		
 		/**
