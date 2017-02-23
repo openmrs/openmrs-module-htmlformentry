@@ -86,6 +86,7 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         sb.append("    },\n");
         sb.append("    change: function(event, ui) {\n");
         sb.append("      if (!ui.item) {\n");
+        sb.append("         $j('#" + formFieldName + "-value').val('');\n");
         sb.append("      }\n");
         sb.append("    },\n");
         sb.append("    response: function(event, ui) {\n");
