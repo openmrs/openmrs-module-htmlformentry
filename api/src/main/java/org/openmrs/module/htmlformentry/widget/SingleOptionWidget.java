@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.openmrs.OpenmrsObject;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 
 /**
@@ -28,8 +29,14 @@ public abstract class SingleOptionWidget implements Widget {
     public void setInitialValue(Object initialValue) {
         if (initialValue == null)
             this.initialValue = null;
-        else
-            this.initialValue = initialValue.toString();
+		else {
+			if (initialValue instanceof OpenmrsObject) {
+				this.initialValue = ((OpenmrsObject) initialValue).getId().toString();
+			}
+			else {
+				this.initialValue = initialValue.toString();
+			}
+		}
     }
     
     /**
