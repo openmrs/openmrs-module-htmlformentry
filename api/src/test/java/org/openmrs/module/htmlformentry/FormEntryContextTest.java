@@ -1,7 +1,9 @@
 package org.openmrs.module.htmlformentry;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
@@ -45,5 +47,14 @@ public class FormEntryContextTest {
         assertNotNull(context.getErrorDivIds());
     }
 
+    @Test
+    public void testWidgetSequenceVal_shouldAssignValidSequenceForWidgets() {
+        DateWidget w1 = new DateWidget();
+        CheckboxWidget w2 = new CheckboxWidget();
+        context.registerWidget(w1);
+        context.registerWidget(w2);
 
+        Assert.assertEquals("w1", context.getFieldName(w1));
+        Assert.assertEquals("w2", context.getFieldName(w2));
+    }
 }

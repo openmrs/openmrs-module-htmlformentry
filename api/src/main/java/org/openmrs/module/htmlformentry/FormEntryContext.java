@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,7 +114,7 @@ public class FormEntryContext {
         return mode;
     }
     
-    private Integer sequenceNextVal = 1;
+    private final AtomicInteger sequenceNextVal = new AtomicInteger(1);
     
     /**
      * Registers a widget within the Context
@@ -124,11 +125,8 @@ public class FormEntryContext {
     public String registerWidget(Widget widget) {
         if (fieldNames.containsKey(widget))
             throw new IllegalArgumentException("This widget is already registered");
-        int thisVal = 0;
-        synchronized (sequenceNextVal) {
-            thisVal = sequenceNextVal;
-            sequenceNextVal = sequenceNextVal + 1;            
-        }
+        int thisVal = sequenceNextVal.getAndIncrement();
+
         String fieldName = "w" + thisVal;
         fieldNames.put(widget, fieldName);
         if (log.isTraceEnabled())
