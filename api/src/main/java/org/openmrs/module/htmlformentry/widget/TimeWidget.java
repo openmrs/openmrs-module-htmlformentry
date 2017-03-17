@@ -168,4 +168,8 @@ public class TimeWidget implements Widget {
     public void setTimeFormat(String timeFormat) {
         this.timeFormat = timeFormat;
     }
+
+    public String getTimeFormat() { return this.timeFormat; }
+
+    public Date getInitialValue() { return initialValue; }
 }
