@@ -59,12 +59,12 @@
         $('input[toggleDim]').change(function () {
             var target = $(this).attr("toggleDim");
             if ($(this).is(":checked")) {
-                $("#" + target + " :input").removeAttr('disabled');
-                $("#" + target).animate({opacity:1.0}, 0);
+                $("#" + target + " :input, ." + target + " :input").removeAttr('disabled');
+                $("#" + target + ", ." + target).animate({opacity:1.0}, 0);
             } else {
-                $("#" + target + " :input").attr('disabled', true);
-                $("#" + target).animate({opacity:0.5}, 100);
-                clearContainerInputs($("#" + target));
+                $("#" + target + " :input, ." + target + " :input").attr('disabled', true);
+                $("#" + target + ", ." + target).animate({opacity:0.5}, 100);
+                clearContainerInputs($("#" + target + ", ." + target));
             }
         })
             .change()  // immediately trigger a change to initialize
@@ -74,10 +74,10 @@
         $('input[toggleHide]').change(function () {
             var target = $(this).attr("toggleHide");
             if ($(this).is(":checked")) {
-                $("#" + target).fadeIn();
+                $("#" + target + ", ." + target).fadeIn();
             } else {
-                $("#" + target).hide();
-                clearContainerInputs($("#" + target));
+                $("#" + target + ", ." + target).hide();
+                clearContainerInputs($("#" + target + ", ." + target));
             }
         })
             .change()  // immediately trigger a change to initialize
