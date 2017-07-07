@@ -38,6 +38,12 @@
         }
     };
 
+    // clears all inputs within the specified contain
+    var  clearContainerInputs = function (container) {
+        container.find('input:hidden, input:text, input:password, input:file, select, textarea').val('');
+        container.find('input:checkbox, input:radio').removeAttr('checked').removeAttr('selected');
+    }
+
     htmlForm.setupWhenThen = function(obsId, valueToSection, valueToThenJs, valueToElseJs) {
         var field = getField(obsId + '.value');
         field.data('whenValueThenDisplaySection', valueToSection);
@@ -46,8 +52,46 @@
         field.change(onObsChangedCheck).change();
     };
 
+    htmlForm.setupObsToggleHandlers = function() {
+
+        // triggered whenever any input with toggleDim attribute is changed.  Currently, only supports
+        // checkbox style inputs.
+        $('input[toggleDim]').change(function () {
+            var target = $(this).attr("toggleDim");
+            if ($(this).is(":checked")) {
+                $("#" + target + " :input").removeAttr('disabled');
+                $("#" + target).animate({opacity:1.0}, 0);
+            } else {
+                $("#" + target + " :input").attr('disabled', true);
+                $("#" + target).animate({opacity:0.5}, 100);
+                clearContainerInputs($("#" + target));
+            }
+        })
+            .change()  // immediately trigger a change to initialize
+
+        // triggered whenever any input with toggleHide attribute is changed.  Currently, only supports
+        // checkbox style inputs.
+        $('input[toggleHide]').change(function () {
+            var target = $(this).attr("toggleHide");
+            if ($(this).is(":checked")) {
+                $("#" + target).fadeIn();
+            } else {
+                $("#" + target).hide();
+                clearContainerInputs($("#" + target));
+            }
+        })
+            .change()  // immediately trigger a change to initialize
+
+    }
+
     htmlForm.compileMustacheTemplate = function(source) {
         return Handlebars.compile(source);
     };
+
+    // any users of this library should call this function during page load to make sure that all elements are properly initialized
+    // if new functionality is added that requires setup, the setup function should be called from here
+    htmlForm.initialize = function() {
+        htmlForm.setupObsToggleHandlers();
+    }
 
 }( window.htmlForm = window.htmlForm || {}, jQuery )); 

@@ -15,7 +15,9 @@
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-1.8.3.min.js" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.9.2.custom.min.js" />
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/handlebars.min.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlForm.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
+
 
 <script>
 	$j = jQuery.noConflict();
@@ -26,9 +28,6 @@
 		else
 			$j('#retiredReasonRow').hide();
 	}
-
-	// boolean to track whether or not jquery document ready function fired
-	var initInd = true;
 
 	$j(document).ready(function() {
 		updateRetiredReasonDisplay($j('#retired').checked);
@@ -46,40 +45,9 @@
 				});
 			</c:otherwise>
 		</c:choose>
-		
-		// triggered whenever any input with toggleDim attribute is changed.  Currently, only supports
-		// checkbox style inputs.
-		$j('input[toggleDim]').change(function () {
-				var target = $j(this).attr("toggleDim");
-				if ($j(this).is(":checked")) {
-					$j("#" + target + " :input").removeAttr('disabled');
-					$j("#" + target).animate({opacity:1.0}, 0);
-					restoreContainerInputs($j("#" + target));
-				} else {
-					$j("#" + target + " :input").attr('disabled', true);
-					$j("#" + target).animate({opacity:0.5}, 100);
-					clearContainerInputs($j("#" + target));
-				}
-      })
-      .change();
 
-		// triggered whenever any input with toggleHide attribute is changed.  Currently, only supports
-		// checkbox style inputs.
-		$j('input[toggleHide]').change(function () {
-			var target = $j(this).attr("toggleHide");
-			if ($j(this).is(":checked")) {
-				$j("#" + target).fadeIn();
-				restoreContainerInputs($j("#" + target));
-			} else {
-				$j("#" + target).hide();
-				clearContainerInputs($j("#" + target));
-			}
-      })
-      .change();
 
-		// indicates this function has completed
-		initInd = false;
-
+        htmlForm.initialize();
 	});
 
 	
