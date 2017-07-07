@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -62,6 +47,20 @@ import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.openmrs.web.WebConstants;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -375,7 +374,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                                 numericAnswers.add(number);
                                 answerLabel = parameters.get("answerLabel");
                                 if (number != null) {
-                                    valueWidget = new CheckboxWidget(answerLabel, isPrecise ? number.toString() : Integer.valueOf(number.intValue()).toString());
+                                    valueWidget = createCheckboxWidget(answerLabel, isPrecise ? number.toString() : Integer.valueOf(number.intValue()).toString(), parameters.get("toggle"));
                                 }
 
                             } catch (Exception ex) {
@@ -675,7 +674,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							answerLabel = answerConcept.getName(locale, false).getName();
 						}
 					}
-					valueWidget = new CheckboxWidget(answerLabel, answerConcept.getConceptId().toString());
+					valueWidget = createCheckboxWidget(answerLabel, answerConcept.getConceptId().toString(), parameters.get("toggle"));
 					if (existingObsList != null && !existingObsList.isEmpty()) {
 						for (int i = 0; i < existingObsList.size(); i++) {
 							((DynamicAutocompleteWidget)valueWidget).addInitialValue(existingObsList.get(i).getValueCoded());
@@ -809,12 +808,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				}
 				
 				if ("checkbox".equals(parameters.get("style"))) {
-					if (parameters.get("toggle") != null) {
-						ToggleWidget toggleWidget = new ToggleWidget(parameters.get("toggle"));
-						valueWidget = new CheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value") : "true", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
-					} else {
-						valueWidget = new CheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value") : "true", parameters.get("toggle"));
-					}
+					valueWidget = createCheckboxWidget(valueLabel, parameters.get("value") != null ? parameters.get("value") : "true", parameters.get("toggle"));
 					valueLabel = "";
 				} else if ("no_yes".equals(parameters.get("style"))) {
 					valueWidget = new RadioButtonsWidget();
@@ -1309,7 +1303,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			return n1.compareTo(n2);
 		}
 	};
-	
+
+	private CheckboxWidget createCheckboxWidget(String label, String value, String toggleParameter) {
+		if (toggleParameter != null) {
+			ToggleWidget toggleWidget = new ToggleWidget(toggleParameter);
+			return new CheckboxWidget(label, value, toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+		} else {
+			return new CheckboxWidget(label, value, null);
+		}
+	}
+
 	/**
 	 * Returns the concept associated with this Observation
 	 */
