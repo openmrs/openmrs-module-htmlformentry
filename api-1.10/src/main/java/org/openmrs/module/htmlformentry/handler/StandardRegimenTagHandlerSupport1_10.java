@@ -12,7 +12,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.StandardRegimenElement1_10;
 import org.openmrs.order.RegimenSuggestion;
 
-@OpenmrsProfile(openmrsVersion = "1.10")
+@OpenmrsProfile(openmrsPlatformVersion = "1.10.* - 1.12.*")
 public class StandardRegimenTagHandlerSupport1_10 implements StandardRegimenTagHandlerSupport {
 	
 	@Override
