@@ -555,6 +555,14 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 
 	}
 
+	@Test
+	public void shouldDisplayDefaultOrUserDefinedCommentFieldCodeIfRequested() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldCode=\"some.message.code\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		String html = session.getHtmlToDisplay();
+		assertTrue(session.getHtmlToDisplay().contains("some.message.code <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+	}
+
     @Test
     public void shouldAddCustomIdToSpanAroundObs() throws Exception {
         String htmlform = "<htmlform><obs id=\"obs-id\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";

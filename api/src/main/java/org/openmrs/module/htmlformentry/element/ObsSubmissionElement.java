@@ -950,6 +950,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			if(parameters.containsKey("commentFieldLabel")){
                 commentFieldLabel = parameters.get("commentFieldLabel");
             }
+			else if (parameters.containsKey("commentFieldCode")) {
+				commentFieldLabel = context.getTranslator().translate(userLocaleStr, parameters.get("commentFieldCode"));
+			}
             commentFieldWidget = new TextFieldWidget();
 			context.registerWidget(commentFieldWidget);
 			context.registerErrorWidget(commentFieldWidget, errorWidget);
