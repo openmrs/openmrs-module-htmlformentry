@@ -946,7 +946,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		}
 		
 		// if a comment is requested, do that too
-		if ("true".equals(parameters.get("showCommentField"))  || parameters.containsKey("commentFieldLabel")) {
+		if ("true".equals(parameters.get("showCommentField"))  || parameters.containsKey("commentFieldLabel") || parameters.containsKey("commentFieldCode")) {
 			if(parameters.containsKey("commentFieldLabel")){
                 commentFieldLabel = parameters.get("commentFieldLabel");
             }

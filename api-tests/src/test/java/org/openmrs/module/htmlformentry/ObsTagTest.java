@@ -557,10 +557,17 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 
 	@Test
 	public void shouldDisplayDefaultOrUserDefinedCommentFieldCodeIfRequested() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldCode=\"some.message.code\"/></htmlform>";
-		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+
+		String htmlform1 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" commentFieldCode=\"some.message.code\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform1, null);
 		String html = session.getHtmlToDisplay();
 		assertTrue(session.getHtmlToDisplay().contains("some.message.code <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+
+    	String htmlform2 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldCode=\"some.message.code\"/></htmlform>";
+		FormEntrySession session2 = new FormEntrySession(patient, htmlform2, null);
+		String html2 = session2.getHtmlToDisplay();
+		assertTrue(session2.getHtmlToDisplay().contains("some.message.code <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+
 	}
 
     @Test
