@@ -1,30 +1,23 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
-import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.*;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.MetadataMappingResolver;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
@@ -44,11 +37,25 @@ import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
  * HtmlGeneratorElement and the FormSubmissionControllerAction for Encounter details.
  */
 public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
+
+    protected final Log log = LogFactory.getLog(getClass());
 
     private String id;
 
@@ -717,8 +724,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 } else {
                     Location location = (Location) HtmlFormEntryUtil.convertToType(value.toString().trim(), Location.class);
                     if (location == null) {
-                        System.out.println("Location Required " + locationRequired);
+                        log.debug("Location Required " + locationRequired);
                         if (locationRequired) {
+
                             throw new Exception("required");
                         }
                     }
