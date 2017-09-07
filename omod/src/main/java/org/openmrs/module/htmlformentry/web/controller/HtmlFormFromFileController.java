@@ -44,6 +44,8 @@ public class HtmlFormFromFileController {
 	                          @RequestParam(value = "patientId", required = false) Integer pId,
 	                          @RequestParam(value = "isFileUpload", required = false) boolean isFileUpload,
 	                          HttpServletRequest request) throws Exception {
+
+        Context.requirePrivilege("Manage Forms");
 		
 		if (log.isDebugEnabled())
 			log.debug("In reference data...");
