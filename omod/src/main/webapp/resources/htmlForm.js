@@ -15,7 +15,7 @@
                     $(thenSection).show();
                 } else {
                     $(thenSection).hide();
-                    $(thenSection).find('input:hidden, input:text, input:password, input:file, select, textarea').val('');
+                    $(thenSection).find('input[type="hidden"], input:text, input:password, input:file, select, textarea').val('');
                     $(thenSection).find('input:checkbox, input:radio').removeAttr('checked').removeAttr('selected');
                 }
             });
@@ -40,7 +40,7 @@
 
     // clears all inputs within the specified contain
     var  clearContainerInputs = function (container) {
-        container.find('input:hidden, input:text, input:password, input:file, select, textarea').val('');
+        container.find('input[type="hidden"], input:text, input:password, input:file, select, textarea').val('');
         container.find('input:checkbox, input:radio').removeAttr('checked').removeAttr('selected');
     }
 
