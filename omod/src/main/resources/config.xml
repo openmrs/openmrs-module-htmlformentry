@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module configVersion="1.1">
-	
+
 	<!-- Base Module Properties -->
 	<id>htmlformentry</id>
 	<name>HTML Form Entry</name>
@@ -12,12 +12,12 @@
 	</description>
 
 	<activator>org.openmrs.module.htmlformentry.HtmlFormEntryActivator</activator>
-	
+
 	<updateURL>https://modules.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL>
 	<!-- /Base Module Properties -->
-	
+
 	<require_version>1.11.3, 1.10.2 - 1.10.*, 1.9.9 - 1.9.*</require_version>
-	
+
 	<aware_of_modules>
 	    <aware_of_module>org.openmrs.module.legacyui</aware_of_module>
 		<aware_of_module>org.openmrs.module.metadatamapping</aware_of_module>
@@ -33,16 +33,16 @@
 		<point>org.openmrs.module.web.extension.FormEntryHandler</point>
 		<class>org.openmrs.module.htmlformentry.extension.html.FormEntryHandlerExtension</class>
 	</extension>
-	
+
 	<!-- AOP
 	<advice>
 		<point>org.openmrs.api.FormService</point>
 		<class>@MODULE_PACKAGE@.advice.DuplicateFormAdvisor</class>
 	</advice>
 	 /AOP -->
-	
-	
-	<!-- Required Privileges 
+
+
+	<!-- Required Privileges
 	<privilege>
 		<name>Form Entry</name>
 		<description>Allows user to access Form Entry pages/functions</description>
@@ -50,12 +50,12 @@
 	 /Required Privileges -->
 
 
-	<!-- Required Global Properties --> 
+	<!-- Required Global Properties -->
 	<globalProperty>
 		<property>htmlformentry.dateFormat</property>
 		<defaultValue></defaultValue>
 		<description>
-			Always display dates in HTML Forms in this (Java) date format. E.g. "dd/MMM/yyyy" for 31/Jan/2012. 
+			Always display dates in HTML Forms in this (Java) date format. E.g. "dd/MMM/yyyy" for 31/Jan/2012.
 		</description>
 	</globalProperty>
 	<globalProperty>
@@ -69,7 +69,7 @@
 		<property>htmlformentry.showDateFormat</property>
 		<defaultValue>true</defaultValue>
 		<description>
-			Set to true if you want static text for the date format to be displayed next to date widgets, else set to false. 
+			Set to true if you want static text for the date format to be displayed next to date widgets, else set to false.
 		</description>
 	</globalProperty>
 	<globalProperty>
@@ -94,7 +94,7 @@
 		<description>Set to True if you want to archive the submitted html forms and False otherwise</description>
 	</globalProperty>
 	<!-- /Required Global Properties -->
-	
+
 	<dwr>
 		<allow>
 			<create creator="new" javascript="DWRHtmlFormEntryService">
@@ -112,45 +112,105 @@
 			]]>
 		</signatures>
 	</dwr>
-	
+
 	<!-- Servlets -->
-	<!-- Accessed through the url /pageContext()/moduleServlet/<moduleId>/<servlet-name> 
+	<!-- Accessed through the url /pageContext()/moduleServlet/<moduleId>/<servlet-name>
 	<servlet>
 		<servlet-name>formDownload</servlet-name>
 		<servlet-class>@MODULE_PACKAGE@.web.FormDownloadServlet</servlet-class>
 	</servlet>
 	-->
 	<!-- /Servlets -->
-	
-	
+
+
 	<!-- Internationalization -->
 	<!-- All message codes should start with @MODULE_ID@.* -->
 	<messages>
-		<lang>en</lang>
-		<file>messages.properties</file>
+			<lang>en</lang>
+			<file>messages.properties</file>
 	</messages>
 	<messages>
-		<lang>fr</lang>
-		<file>messages_fr.properties</file>
+			<lang>fr</lang>
+			<file>messages_fr.properties</file>
 	</messages>
 	<messages>
-		<lang>es</lang>
-		<file>messages_es.properties</file>
-	</messages>
-    <messages>
-        <lang>ht</lang>
-        <file>messages_ht.properties</file>
-    </messages>
-	<messages>
-		<lang>pt</lang>
-		<file>messages_pt.properties</file>
+			<lang>es</lang>
+			<file>messages_es.properties</file>
 	</messages>
 	<messages>
-		<lang>de</lang>
-		<file>messages_de.properties</file>
+			<lang>ht</lang>
+			<file>messages_ht.properties</file>
+	</messages>
+	<messages>
+			<lang>pt</lang>
+			<file>messages_pt.properties</file>
+	</messages>
+	<messages>
+			<lang>de</lang>
+			<file>messages_de.properties</file>
+	</messages>
+	<messages>
+			<lang>de</lang>
+			<file>messages_de.properties</file>
+	</messages>
+	<messages>
+			<lang>fa</lang>
+			<file>messages_fa.properties</file>
+	</messages>
+	<messages>
+			<lang>si</lang>
+			<file>messages_si.properties</file>
+	</messages>
+	<messages>
+			<lang>hi</lang>
+			<file>messages_hi.properties</file>
+	</messages>
+	<messages>
+			<lang>ar</lang>
+			<file>messages_ar.properties</file>
+	</messages>
+	<messages>
+			<lang>pl</lang>
+			<file>messages_pl.properties</file>
+	</messages>
+	<messages>
+			<lang>it</lang>
+			<file>messages_it.properties</file>
+	</messages>
+	<messages>
+			<lang>el</lang>
+			<file>messages_el.properties</file>
+	</messages>
+	<messages>
+			<lang>ru</lang>
+			<file>messages_ru.properties</file>
+	</messages>
+	<messages>
+			<lang>lt</lang>
+			<file>messages_lt.properties</file>
+	</messages>
+	<messages>
+			<lang>hy</lang>
+			<file>messages_hy.properties</file>
+	</messages>
+	<messages>
+			<lang>te</lang>
+			<file>messages_te.properties</file>
+	</messages>
+	<messages>
+			<lang>sw</lang>
+			<file>messages_sw.properties</file>
+	</messages>
+	<messages>
+			<lang>ku</lang>
+			<file>messages_ku.properties</file>
+	</messages>
+	<messages>
+			<lang>id_ID</lang>
+			<file>messages_id_ID.properties</file>
 	</messages>
 	<!-- /Internationalization -->
-	
+
 	<mappingFiles>
 		HtmlFormEntryHtmlForm.hbm.xml
 	</mappingFiles>
@@ -165,5 +225,5 @@
 			<openmrsVersion>2.*</openmrsVersion>
 		</conditionalResource>
 	</conditionalResources>
-	
+
 </module>
