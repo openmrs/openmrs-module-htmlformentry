@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import org.junit.Assert;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
@@ -437,6 +438,7 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
+		fakeForm.getForm().setEncounterType(new EncounterType(1));
 		FormEntrySession session = new FormEntrySession(patient, null, FormEntryContext.Mode.ENTER, fakeForm, new MockHttpSession());
         session.setAttributes(getFormEntrySessionAttributes());
         session.getHtmlToDisplay();
@@ -449,6 +451,7 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
+		fakeForm.getForm().setEncounterType(new EncounterType(1));
 		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.VIEW, fakeForm, new MockHttpSession());
         session.setAttributes(getFormEntrySessionAttributes());
         session.getHtmlToDisplay();
@@ -461,6 +464,7 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
+		fakeForm.getForm().setEncounterType(new EncounterType(1));
 		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, fakeForm, new MockHttpSession());
         session.setAttributes(getFormEntrySessionAttributes());
         session.getHtmlToDisplay();
