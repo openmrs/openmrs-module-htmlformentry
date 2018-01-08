@@ -392,7 +392,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				results.assertObsGroupCreatedCount(1);
 				results.assertObsLeafCreatedCount(3); // 2 in the obs group, 1 for weight
-				results.assertObsCreated(2, 70);
+				results.assertObsCreated(2, new Double(70));
 				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date); // allergy construct
 			}
 		}.run();

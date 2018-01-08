@@ -1,11 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +13,12 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -591,7 +591,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 75);
+				results.assertObsCreated(2, new Double(75));
 				results.assertObsCreated(8, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
@@ -728,7 +728,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 75);
+				results.assertObsCreated(2, new Double(75));
 				results.assertObsCreated(8, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
@@ -818,7 +818,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 75);
+				results.assertObsCreated(2,new Double(75));
 				results.assertObsCreated(8, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
