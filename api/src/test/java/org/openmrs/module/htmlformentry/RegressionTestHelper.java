@@ -2,10 +2,12 @@ package org.openmrs.module.htmlformentry;
 
 import org.junit.Assert;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.Person;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -655,7 +657,7 @@ public abstract class RegressionTestHelper {
 				System.out.println("Created: " + encounterCreated.getDateCreated() + "  Edited: " + encounterCreated.getDateChanged());
 				System.out.println("Date: " + encounterCreated.getEncounterDatetime());
 				System.out.println("Location: " + encounterCreated.getLocation().getName());
-				System.out.println("Provider: " + encounterCreated.getProvider().getPersonName());
+				System.out.println("Provider: " + getProvider(encounterCreated).getPersonName());
 				System.out.println("    (obs)");
 				Collection<Obs> obs = encounterCreated.getAllObs(false);
 				if (obs == null) {
@@ -713,13 +715,13 @@ public abstract class RegressionTestHelper {
 		 */
 		public void assertProvider() {
 			assertEncounterCreated();
-			Assert.assertNotNull(getEncounterCreated().getProvider());
-			Assert.assertNotNull(getEncounterCreated().getProvider().getPersonId());
+			Assert.assertNotNull(getProvider(getEncounterCreated()));
+			Assert.assertNotNull(getProvider(getEncounterCreated()).getPersonId());
 		}
 		
 		public void assertNoProvider() {
 			assertEncounterCreated();
-			Assert.assertNull(getEncounterCreated().getProvider());
+			Assert.assertNull(getProvider(getEncounterCreated()));
 		}
 		
 		/**
@@ -727,7 +729,7 @@ public abstract class RegressionTestHelper {
 		 */
 		public void assertProvider(Integer expectedProviderId) {
 			assertProvider();
-			Assert.assertEquals(expectedProviderId, getEncounterCreated().getProvider().getPersonId());
+			Assert.assertEquals(expectedProviderId, getProvider(getEncounterCreated()).getPersonId());
 		}
 		
 		/**
@@ -958,5 +960,20 @@ public abstract class RegressionTestHelper {
             }
 			return OpenmrsUtil.nullSafeEquals(valueAsString, obs.getValueAsString(Context.getLocale()));
 		}
+	}
+
+	// helper workaround method now that as of platform 2.x, Encounter does not have a getProvider method
+	private Person getProvider(Encounter enc) {
+		if (enc.getEncounterProviders() == null || enc.getEncounterProviders().isEmpty()) {
+			return null;
+		} else {
+			for (EncounterProvider encounterProvider : enc.getEncounterProviders()) {
+				// Return the first non-voided provider associated with a person in the list
+				if (!encounterProvider.isVoided() && encounterProvider.getProvider().getPerson() != null) {
+					return encounterProvider.getProvider().getPerson();
+				}
+			}
+		}
+		return null;
 	}
 }

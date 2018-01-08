@@ -316,7 +316,7 @@
 			<id>openmrs-1.10</id>
 
 			<properties>
-				<openMRSVersion>1.10.2</openMRSVersion>
+				<openMRSVersion>1.10.5</openMRSVersion>
 				<openMRSMinorVersion>1.10</openMRSMinorVersion>
 			</properties>
 		</profile>
