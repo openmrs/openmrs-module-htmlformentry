@@ -12,9 +12,9 @@
 		</id>
 	
 		<many-to-one name="form" class="org.openmrs.Form" not-null="false" column="form_id" />
-		
-		<property name="xmlData" type="java.lang.String" column="xml_data" length="65535" not-null="true"/>
 
+		<!-- for how I came up with length, see https://issues.openmrs.org/browse/HTML-668 -->
+		<property name="xmlData" type="java.lang.String" column="xml_data" length="4194303" not-null="true"/>
 
 		<!--  Standard Openmrs MetaData -->
 		<many-to-one name="creator" class="org.openmrs.User" not-null="true" />
