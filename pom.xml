@@ -71,6 +71,13 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.openmrs.web</groupId>
+				<artifactId>openmrs-web</artifactId>
+				<version>${openMRSBuildVersion}</version>
+				<type>test-jar</type>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.openmrs.module</groupId>
 				<artifactId>logic</artifactId>
 				<version>0.5</version>
@@ -175,7 +182,7 @@
             </dependency>
             <dependency>
 				<groupId>org.openmrs.module</groupId>
-				<artifactId>legacyui-omod</artifactId>
+				<artifactId>legacyui-api</artifactId>
 				<version>0.1</version>
 				<scope>provided</scope>
 			</dependency>
