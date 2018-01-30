@@ -107,9 +107,14 @@ public class HtmlFormEntryController {
     	HtmlForm htmlForm = null;
 
     	if (StringUtils.hasText(request.getParameter("encounterId"))) {
-    		
-    		Integer encounterId = Integer.valueOf(request.getParameter("encounterId"));
-    		encounter = Context.getEncounterService().getEncounter(encounterId);
+
+    		String encounterId = request.getParameter("encounterId");
+    		try {
+    			encounter = Context.getEncounterService().getEncounter(Integer.valueOf(encounterId));
+			} catch (NumberFormatException ex) {
+    			encounter = Context.getEncounterService().getEncounterByUuid(encounterId);
+			}
+
     		if (encounter == null)
     			throw new IllegalArgumentException("No encounter with id=" + encounterId);
     		patient = encounter.getPatient();
