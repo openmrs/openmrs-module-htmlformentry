@@ -61,8 +61,14 @@
         </dependency>
         <dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>legacyui-omod</artifactId>
+			<artifactId>legacyui-api</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openmrs.web</groupId>
+			<artifactId>openmrs-web</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

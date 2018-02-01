@@ -481,40 +481,40 @@ function existingEncounterOnDate(item, instruction){
 	    if (!(instruction == 'block' || instruction == 'warn'))
 	    	return;
 
-		var date = $j(item).val();
-		var formId = $j('[name=htmlFormId]').val();
-		var patientId = $j('[name=personId]').val();
+		var date = jq(item).val();
+		var formId = jq('[name=htmlFormId]').val();
+		var patientId = jq('[name=personId]').val();
 
-		if ($j('[name=encounterId]').val() == null)
+		if (jq('[name=encounterId]').val() == null)
 		{
-			$j.get(
-	            "lastEnteredForm.form",
-	            {formId: formId, patientId: patientId, date: date},
+			jq.get(
+                getContextPath() + '/module/htmlformentry/lastEnteredForm.form',
+	            {formId: formId, patientId: patientId, date: date, dateFormat: 'yyyy-MM-dd'},
 	            function(responseText){
 
 	                if(responseText == "true") {
 	                	if (instruction == "warn") {
 
                 			// get the localized warning message and display it
-	                		$j.get("localizedMessage.form",
+	                		jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
 	                				{messageCode: "htmlformentry.error.warnMultipleEncounterOnDate"},
 	                				function(responseText) {
-	                					alert(responseText);
+                                        jq().toastmessage('showWarningToast',responseText);
 	                				}
 	                		);
 
 	                	} else if (instruction == "block") {
 
 	                		// get the localized blocking message and display it
-	                		$j.get("localizedMessage.form",
+	                		jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
 	                				{messageCode: "htmlformentry.error.blockMultipleEncounterOnDate"},
 	                				function(responseText) {
-	                					alert(responseText);
+                                        jq().toastmessage('showErrorToast',responseText);
 	                				}
 	                		);
 
 		                	//clear the date and continue entering the form
-		                	$j(item).val('');
+		                	jq(item).val('');
 	                	}
 	                } else {
 	                	//make sure everything is enabled
@@ -542,7 +542,11 @@ function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, val
 		changeYear: true,
 		showOtherMonths: true,
 		selectOtherMonths: true,
-        yearRange: '-'+range[0]+':+'+range[1]
+        yearRange: '-'+range[0]+':+'+range[1],
+		onSelect: function () {
+            jQuery(valueSelector).change();
+
+        }
 	});
 	if (jsLocale && jQuery.datepicker.regional[jsLocale])
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
@@ -671,26 +675,26 @@ openmrs.htmlformentry.refresh = function(v) {
 	var string = ((v).split("span", 1)) + "_hid";
 	var divId = ((v).split("span", 1)) + "_div";
 	var temp = ((v).split("span", 1)) + "span_";
-	$j('#' + divId + ' span').each(
+	jq('#' + divId + ' span').each(
 			function(index) {
-				$j('#' + divId).data("count", index + 1);
-				$j('#' + string).attr('value', $j('#' + divId).data("count"));
+				jq('#' + divId).data("count", index + 1);
+				jq('#' + string).attr('value', jq('#' + divId).data("count"));
 				flag = false;
 				var spanId = this.id;
 				var newSpanId = spanId.split('_', 1) + '_' + index;
 				this.id = newSpanId;
-				$j('#' + spanId + '_hid').attr('id', newSpanId + '_hid');
-				$j('#' + spanId + '_button').removeAttr('onclick', null)
+				jq('#' + spanId + '_hid').attr('id', newSpanId + '_hid');
+				jq('#' + spanId + '_button').removeAttr('onclick', null)
 						.unbind('click').attr('id', newSpanId + '_button')
 						.click(
 								function() {
-									$j('#' + newSpanId).remove();
+									jq('#' + newSpanId).remove();
 									openmrs.htmlformentry.refresh(newSpanId
 											+ "_button");
 								});
-				$j('#' + newSpanId + '_hid').attr('name', newSpanId + '_hid');
+				jq('#' + newSpanId + '_hid').attr('name', newSpanId + '_hid');
 			});
 	if (flag)
-		$j('#' + divId).data("count", 0);
-	$j('#' + string).attr('value', $j('#' + divId).data("count"));
+		jq('#' + divId).data("count", 0);
+	jq('#' + string).attr('value', jq('#' + divId).data("count"));
 }
