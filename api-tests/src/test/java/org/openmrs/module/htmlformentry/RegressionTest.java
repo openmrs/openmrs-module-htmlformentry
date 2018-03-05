@@ -358,6 +358,39 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
+	
+	@Test
+	public void testMultipleObsFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsForm";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "70");
+				request.addParameter(widgets.get("Allergy:"), "Bee stings");
+				request.addParameter(widgets.get("Allergy Date:"), "date");//wrong input
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
 
 	@Test
 	public void testSingleObsGroupFormSuccess() throws Exception {
@@ -394,6 +427,39 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertObsLeafCreatedCount(3); // 2 in the obs group, 1 for weight
 				results.assertObsCreated(2, new Double(70));
 				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date); // allergy construct
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testSingleObsGroupFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsGroupForm";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Weight:", "Allergy:", "Allergy Date:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Weight:"), "70");
+				request.addParameter(widgets.get("Allergy:"), "Bee stings");
+				request.addParameter(widgets.get("Allergy Date:"), "date");//wrong input
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				results.assertNoEncounterCreated();
 			}
 		}.run();
 	}
@@ -438,9 +504,41 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-
 	
-
+	@Test
+	public void testMultipleObsGroupFormFailure() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupForm";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Allergy 1:", "Allergy Date 1:", "Allergy 3:",
+						"Allergy Date 3:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				// for fun let's fill out part of allergy 1 and allergy 3, but leave allergy 2 blank.
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Allergy 1:"), "Bee stings");
+				request.addParameter(widgets.get("Allergy Date 1:"), "date");//wrong input
+				request.addParameter(widgets.get("Allergy 3:"), "Penicillin");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				results.assertNoEncounterCreated();
+			}
+		}.run();
+	}
 	
 	@Test
 	public void viewEmptyEncounterSuccess() throws Exception {
