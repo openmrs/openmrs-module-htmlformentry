@@ -189,12 +189,12 @@ public class NumberFieldWidget implements Widget {
         try {
             Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
             if (d != null && absoluteMinimum != null && d < absoluteMinimum)
-                throw new IllegalArgumentException("Must be at least " + absoluteMinimum);
+                throw new IllegalArgumentException(Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " " + absoluteMinimum);
             if (d != null && absoluteMaximum != null && d > absoluteMaximum)
-                throw new IllegalArgumentException("Cannot be greater than " + absoluteMaximum);
+                throw new IllegalArgumentException(Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " " + absoluteMaximum);
             return d;
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("Not a number");
+            throw new IllegalArgumentException(Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber"));
         }
     }
 
