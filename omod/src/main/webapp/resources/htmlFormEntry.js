@@ -66,10 +66,30 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 
 	if (!errorMessages) {
 		errorMessages = {
-			notANumber: 'Not a number',
-			notAnInteger: 'Not an integer',
-			notLessThan: 'Cannot be less than',
-			notGreaterThan: 'Cannot be greater than'
+			notANumber: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
+                {messageCode: "htmlformentry.error.notANumber"},
+                function(responseText) {
+                    return responseText;
+                }
+            ),
+			notAnInteger: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
+                {messageCode: "htmlformentry.error.notAnInteger"},
+                function(responseText) {
+                    return responseText;
+                }
+            ),
+			notLessThan: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
+                {messageCode: "htmlformentry.error.notLessThan"},
+                function(responseText) {
+                    return responseText;
+                }
+            ),
+			notGreaterThan: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
+                {messageCode: "htmlformentry.error.notGreaterThan"},
+                function(responseText) {
+                    return responseText;
+                }
+            )
 		}
 	}
 
