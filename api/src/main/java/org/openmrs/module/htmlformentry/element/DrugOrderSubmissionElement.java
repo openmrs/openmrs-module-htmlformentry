@@ -68,6 +68,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	public static final String FIELD_INSTRUCTIONS_LABEL = "instructionsLabel";
 
 	public static final String FIELD_DRUG_LABELS = "drugLabels";
+	
+	public static final String CONFIG_SHOW_DOSE = "hideDose";
 
 	public static final String CONFIG_SHOW_DOSE_AND_FREQ = "hideDoseAndFrequency";
 
@@ -101,6 +103,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	private ErrorWidget instructionsErrorWidget;
 	private String instructionsLabel;
 	private List<String> drugLabels;
+	protected Boolean hideDose = false;
 	protected Boolean hideDoseAndFrequency = false;
 	private Boolean checkbox = false;
 	protected DropdownWidget discontinuedReasonWidget;
@@ -121,9 +124,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 		String orderDurationStr = parameters.get(FIELD_SHOW_ORDER_DURATION);
 		if (!StringUtils.isEmpty(orderDurationStr) && orderDurationStr.equals("true"))
 		    usingDurationField = true;
+		
+		String hideDoseStr = parameters.get(CONFIG_SHOW_DOSE);
+			
 		String hideDoseAndFreqStr = parameters.get(CONFIG_SHOW_DOSE_AND_FREQ);
 		if (!StringUtils.isEmpty(hideDoseAndFreqStr) && hideDoseAndFreqStr.equals("true"))
 		    hideDoseAndFrequency = true;
+		else if (!StringUtils.isEmpty(hideDoseStr) && hideDoseStr.equals("true"))
+			hideDose = true;
 
 		String checkboxStr = parameters.get(FIELD_CHECKBOX);
         if (checkboxStr != null && checkboxStr.equals("true"))
@@ -214,28 +222,33 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         context.registerWidget(startDateWidget);
         context.registerErrorWidget(startDateWidget, startDateErrorWidget);
 
-        if (!hideDoseAndFrequency){
-    		// dose validation by drug is done in validateSubmission()
-    		doseWidget = new NumberFieldWidget(0d, 9999999d, true);
-    		//set default value (maybe temporarily)
-    		String defaultDoseStr = parameters.get(CONFIG_DEFAULT_DOSE);
-    		if (!StringUtils.isEmpty(defaultDoseStr)){
-    		    try {
-    		        defaultDose = Double.valueOf(defaultDoseStr);
-    		        doseWidget.setInitialValue(defaultDose);
-    		    } catch (Exception ex){
-    		            throw new RuntimeException("optional attribute 'defaultDose' must be numeric or empty.");
-    		    }
-    		}
-
-    		doseErrorWidget = new ErrorWidget();
-    		context.registerWidget(doseWidget);
-    		context.registerErrorWidget(doseWidget, doseErrorWidget);
-
-    		createFrequencyWidget(context, mss);
-
-    		createFrequencyWeekWidget(context, mss);
-        }
+        if (!hideDoseAndFrequency && hideDose){
+		        createFrequencyWidget(context, mss);
+		
+		        createFrequencyWeekWidget(context, mss);
+	        }
+        else if(!hideDoseAndFrequency) {
+		        // dose validation by drug is done in validateSubmission()
+		        doseWidget = new NumberFieldWidget(0d, 9999999d, true);
+		        //set default value (maybe temporarily)
+		        String defaultDoseStr = parameters.get(CONFIG_DEFAULT_DOSE);
+		        if (!StringUtils.isEmpty(defaultDoseStr)){
+			        try {
+				        defaultDose = Double.valueOf(defaultDoseStr);
+				        doseWidget.setInitialValue(defaultDose);
+			        } catch (Exception ex){
+				        throw new RuntimeException("optional attribute 'defaultDose' must be numeric or empty.");
+			        }
+		        }
+		
+		        doseErrorWidget = new ErrorWidget();
+		        context.registerWidget(doseWidget);
+		        context.registerErrorWidget(doseWidget, doseErrorWidget);
+		
+		        createFrequencyWidget(context, mss);
+		
+		        createFrequencyWeekWidget(context, mss);
+	        }
 
         if (!usingDurationField){
     		discontinuedDateWidget = new DateWidget();
@@ -361,11 +374,15 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    				        ((CheckboxWidget) drugWidget).setInitialValue("CHECKED");
 	    				}
 	    				startDateWidget.setInitialValue(drugOrder.getStartDate());
-	    				if (!hideDoseAndFrequency){
-	    				    doseWidget.setInitialValue(drugOrder.getDose());
-	    				    frequencyWidget.setInitialValue(parseFrequencyDays(drugOrder.getFrequency()));
-	    				    frequencyWeekWidget.setInitialValue(parseFrequencyWeek(drugOrder.getFrequency()));
-	    				}
+	    				if (!hideDoseAndFrequency && hideDose){
+							    frequencyWidget.setInitialValue(parseFrequencyDays(drugOrder.getFrequency()));
+							    frequencyWeekWidget.setInitialValue(parseFrequencyWeek(drugOrder.getFrequency()));
+						    }
+					    else if(!hideDoseAndFrequency) {
+						    doseWidget.setInitialValue(drugOrder.getDose());
+						    frequencyWidget.setInitialValue(parseFrequencyDays(drugOrder.getFrequency()));
+						    frequencyWeekWidget.setInitialValue(parseFrequencyWeek(drugOrder.getFrequency()));
+					    }
 	    				if (!usingDurationField){
 	    				    discontinuedDateWidget.setInitialValue(drugOrder.getDiscontinuedDate());
 	    				    if (discontinuedReasonWidget != null && drugOrder.getDiscontinuedReason() != null)
@@ -564,13 +581,19 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
         	else
         	    orderTag.dose = defaultDose;
         	
-        	if (!hideDoseAndFrequency){
-                orderTag.dose = (Double) doseWidget.getValue(session.getContext(), submission);
-                orderTag.frequency = (String) frequencyWidget.getValue(session.getContext(), submission);
-                if (frequencyWeekWidget != null) {
-                	orderTag.frequency += "/d " + frequencyWeekWidget.getValue(session.getContext(), submission) + "d/w";
-                }
-            }
+        	if (!hideDoseAndFrequency && hideDose) {
+		        orderTag.frequency = (String) frequencyWidget.getValue(session.getContext(), submission);
+		        if (frequencyWeekWidget != null) {
+			        orderTag.frequency += "/d " + frequencyWeekWidget.getValue(session.getContext(), submission) + "d/w";
+		        }
+	        }
+	        else if (!hideDoseAndFrequency){
+		        orderTag.dose = (Double) doseWidget.getValue(session.getContext(), submission);
+		        orderTag.frequency = (String) frequencyWidget.getValue(session.getContext(), submission);
+		        if (frequencyWeekWidget != null) {
+			        orderTag.frequency += "/d " + frequencyWeekWidget.getValue(session.getContext(), submission) + "d/w";
+		        }
+	        }
         	
         	populateOrderTag(orderTag, session, submission);
         	
