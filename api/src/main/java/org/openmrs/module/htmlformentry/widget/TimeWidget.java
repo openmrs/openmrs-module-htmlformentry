@@ -22,6 +22,7 @@ public class TimeWidget implements Widget {
 
 	private Date initialValue;
     private boolean hidden;
+	private boolean hideSeconds = false;
     private String timeFormat;
 
 	public TimeWidget() {
@@ -47,7 +48,13 @@ public class TimeWidget implements Widget {
 				toPrint = timeFormat().format(initialValue);
 				return WidgetFactory.displayValue(toPrint);
 			} else {
-				toPrint = "___:___:___";
+				if(hideSeconds){
+					toPrint = "___:___";
+				}
+				else{
+					toPrint = "___:___:___";
+					
+				}
 				return WidgetFactory.displayEmptyValue(toPrint);
 			}
 		} else {
@@ -63,8 +70,10 @@ public class TimeWidget implements Widget {
                         .append("hours").append("\" value=\"" + new SimpleDateFormat("HH").format(initialValue) + "\"/>");
                 sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(context.getFieldName(this))
                         .append("minutes").append("\" value=\"" + new SimpleDateFormat("mm").format(initialValue) + "\"/>");
-                sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
-                        .append("seconds").append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
+                if(!hideSeconds){
+	                sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
+			                .append("seconds").append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
+                }
             }
             else {
                 sb.append("<select class=\"hfe-hours\" name=\"").append(context.getFieldName(this))
@@ -96,20 +105,22 @@ public class TimeWidget implements Widget {
                     sb.append(">" + label + "</option>");
                 }
                 sb.append("</select>");
-                sb.append("<select class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
-                        .append("seconds").append("\">");
-                for (int i = 0; i <= 59; ++i) {
-                    String label = "" + i;
-                    if (label.length() == 1)
-                        label = "0" + label;
-                    sb.append("<option value=\"" + i + "\"");
-                    if (valAsCal != null) {
-                        if (valAsCal.get(Calendar.SECOND) == i)
-                            sb.append(" selected=\"true\"");
-                    }
-                    sb.append(">" + label + "</option>");
+                if(!hideSeconds){
+	                sb.append("<select class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
+			                .append("seconds").append("\">");
+	                for (int i = 0; i <= 59; ++i) {
+		                String label = "" + i;
+		                if (label.length() == 1)
+			                label = "0" + label;
+		                sb.append("<option value=\"" + i + "\"");
+		                if (valAsCal != null) {
+			                if (valAsCal.get(Calendar.SECOND) == i)
+				                sb.append(" selected=\"true\"");
+		                }
+		                sb.append(">" + label + "</option>");
+	                }
+	                sb.append("</select>");
                 }
-                sb.append("</select>");
             }
 
 			return sb.toString();
@@ -165,6 +176,10 @@ public class TimeWidget implements Widget {
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
     }
+	
+	public void setHideSeconds(boolean hideSeconds) {
+		this.hideSeconds = hideSeconds;
+	}
 
     public boolean isHidden() {
         return hidden;

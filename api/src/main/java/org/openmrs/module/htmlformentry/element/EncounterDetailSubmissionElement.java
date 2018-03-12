@@ -128,6 +128,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 } else if (parameters.get("defaultDate") != null) {
                     timeWidget.setInitialValue(parameters.get("defaultDate"));
                 }
+                if("true".equals((parameters.get("hideSeconds")))){
+                	timeWidget.setHideSeconds(true);
+                }
                 context.registerWidget(timeWidget);
                 context.registerErrorWidget(timeWidget, timeErrorWidget);
             }
