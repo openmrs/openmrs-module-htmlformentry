@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
 import org.openmrs.LocationTag;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -19,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Collection;
 
 /**
  * Handles the {@code <obs>} tag
@@ -92,6 +94,9 @@ public class ObsTagHandler extends AbstractTagHandler {
         List<Concept> concepts = new ArrayList<Concept>();
         String conceptId = HtmlFormEntryUtil.getNodeAttribute(node, "conceptId", null);
         String conceptIds = HtmlFormEntryUtil.getNodeAttribute(node, "conceptIds", null);
+        String answerConceptId = HtmlFormEntryUtil.getNodeAttribute(node, "answerConceptId", null);
+        String answerConceptIds = HtmlFormEntryUtil.getNodeAttribute(node, "answerConceptIds", null);
+	    
         if (conceptId == null && conceptIds == null) {
             analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConceptIdsAttribute",
                 new Object[] { "[concept id]", "[concept ids]" }, null));
@@ -99,11 +104,35 @@ public class ObsTagHandler extends AbstractTagHandler {
             analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConceptIdsAttribute",
                 new Object[] { conceptId, conceptIds }, null));
         }
+
         if (analysis.getErrors().size() == 0 && conceptId != null) {
             concept = HtmlFormEntryUtil.getConcept(conceptId);
             if (concept == null) {
                 analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
                     new Object[] { conceptId }, null));
+            } else if(answerConceptId != null || answerConceptIds != null) {
+	    	    ArrayList<Integer> validAnswerConceptIDs = new ArrayList<Integer>();
+                Collection<ConceptAnswer> conceptAnswers = concept.getAnswers();
+                if(conceptAnswers != null) {
+                    for (ConceptAnswer ca : conceptAnswers) {
+                        validAnswerConceptIDs.add(ca.getAnswerConcept().getConceptId());
+                    }
+                }
+                //assuming only one of answerConceptIds and answerConceptId will be present at a time
+                if(answerConceptIds != null) {
+                    for (StringTokenizer st = new StringTokenizer(answerConceptIds, ","); st.hasMoreTokens();) {
+                        String answerCId = st.nextToken();
+                        if(!validAnswerConceptIDs.contains(HtmlFormEntryUtil.getConcept(answerCId).getConceptId())) {
+                            analysis.addWarning(Context.getMessageSourceService().getMessage(
+                                    "htmlformentry.warning.invalidAnswerConcept",
+                                    new Object[] { String.valueOf(answerCId) }, null));
+                        }
+                    }
+                } else if(answerConceptId != null && !validAnswerConceptIDs.contains(HtmlFormEntryUtil.getConcept(answerConceptId).getConceptId())) {
+                    analysis.addWarning(Context.getMessageSourceService().getMessage(
+                            "htmlformentry.warning.invalidAnswerConcept",
+                            new Object[] { String.valueOf(answerConceptId) }, null));
+                }
             }
         } else if (analysis.getErrors().size() == 0 && conceptIds != null) {
             for (StringTokenizer st = new StringTokenizer(conceptIds, ","); st.hasMoreTokens();) {
@@ -112,10 +141,25 @@ public class ObsTagHandler extends AbstractTagHandler {
                 if (c == null) {
                     analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
                         new Object[] { conceptIdString }, null));
+                } else if(answerConceptId != null) {
+                    Integer answerConceptIdInteger = HtmlFormEntryUtil.getConcept(answerConceptId).getConceptId();
+                    Collection<ConceptAnswer> cas = c.getAnswers();
+                    ArrayList<Integer> answerIds = new ArrayList<Integer>();
+                    if(cas != null) {
+                        for (ConceptAnswer ca : cas) {
+                            answerIds.add(ca.getAnswerConcept().getConceptId());
+                        }
+                    }
+                    if(!answerIds.contains(answerConceptIdInteger)) {
+                        analysis.addWarning(Context.getMessageSourceService().getMessage(
+                                "htmlformentry.warning.invalidAnswerConcept",
+                                new Object[] { String.valueOf(conceptIdString) }, null));
+                    }
                 }
                 concepts.add(c);
             }
         }
+
         Node parentNode = node.getParentNode();
         List<Concept> setMembers = concept == null ? concepts : Arrays.asList(concept);
         while (parentNode.getParentNode() != null) {
