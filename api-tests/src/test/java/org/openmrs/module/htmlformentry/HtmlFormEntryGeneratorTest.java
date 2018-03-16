@@ -227,6 +227,19 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         Assert.assertEquals("<div class=\"htmlform\"><div class=\"section\"></div></div>", session.getHtmlToDisplay());
     }
 
+    /**
+     * @see {@link HtmlFormEntryGenerator#substituteCharacterCodesWithAsciiCodes(String)}
+     * @verifies  replaces all hardcoded special characters with ascii codes in the input string
+     */
+    @Test
+    public void substituteCharacterCodesWithAsciiCodes_shouldSubstituteSpecialCharacters() throws Exception {
+        LogicUtil.registerDefaultRules();
+        String htmlform = "<htmlform><h1>Testing&nbsp;Replacement</h1></htmlform>";
+        HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+        String returnedXml = htmlFormEntryGenerator.substituteCharacterCodesWithAsciiCodes(htmlform);
+        Assert.assertEquals("<htmlform><h1>Testing&#160;Replacement</h1></htmlform>", returnedXml);
+    }
+
     @Test
     @Verifies(value = "should close br tags", method = "doStartTag(FormEntrySession,PrintWriter,Node,Node)")
     public void doStartTag_shouldCloseBrTags() throws Exception {

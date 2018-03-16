@@ -219,6 +219,26 @@ public class HtmlFormEntryGenerator implements TagHandler {
     }
 
     /**
+     * Takes an xml string, searches for special characters in the string and replaces them
+     * with the appropriate ascii value https://issues.openmrs.org/browse/HTML-325
+     *
+     * @param xml input string
+     * @return the xml after replacing special characters with their ascii code
+     * @throws Exception
+     * @should return correct xml after replacing special characters with their ascii code
+     */
+    public String substituteCharacterCodesWithAsciiCodes(String xml) throws Exception {
+        HashMap<String, String> encodings = new HashMap<String, String>();
+        encodings.put("&nbsp;", "&#160;");
+        for (String key : encodings.keySet()) {
+            Pattern pattern = Pattern.compile(key);
+            Matcher matcher = pattern.matcher(xml);
+            xml = matcher.replaceAll(encodings.get(key));
+        }
+        return xml;
+    }
+
+    /**
      * Replaces &&, < and > within form with their encoded values within velocity and logic expressions
      * (provides backwards compatibility after refactoring includeIf and excludeIf)
      *
