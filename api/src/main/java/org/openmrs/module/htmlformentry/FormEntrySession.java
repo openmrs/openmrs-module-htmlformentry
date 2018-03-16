@@ -405,6 +405,7 @@ public class FormEntrySession {
             context.getSchema().setName(htmlForm.getName());
             context.setUnmatchedMode(false);
         }
+        xml = htmlGenerator.substituteCharacterCodesWithAsciiCodes(xml);
         xml = htmlGenerator.stripComments(xml);
         xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
         xml = htmlGenerator.applyRoleRestrictions(xml);
