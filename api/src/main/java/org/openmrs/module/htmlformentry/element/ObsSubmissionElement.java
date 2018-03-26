@@ -865,11 +865,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (ConceptDatatype.DATE.equals(concept.getDatatype().getHl7Abbreviation()) || (ConceptDatatype.DATETIME.equals(concept.getDatatype().getHl7Abbreviation()) && disableTime)) {
 					valueWidget = new DateWidget();
 				} else if (ConceptDatatype.TIME.equals(concept.getDatatype().getHl7Abbreviation())) {
-					TimeWidget timeWidget1 = new TimeWidget();
+					valueWidget = new TimeWidget();
 					if(hideSeconds){
-						timeWidget1.setHideSeconds(true);
+						((TimeWidget) valueWidget).setHideSeconds(true);
 					}
-					 valueWidget = timeWidget1;
 				} else if (ConceptDatatype.DATETIME.equals(concept.getDatatype().getHl7Abbreviation())) {
 					dateWidget = new DateWidget();
 					timeWidget = new TimeWidget();
