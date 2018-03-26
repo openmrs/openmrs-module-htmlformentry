@@ -215,15 +215,6 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
-	 * Override this if you want to test out editing
-	 * 
-	 * @param encounter
-	 * @param html
-	 */
-	public void testEditEncounter(Encounter encounter, String html) {
-	}
-	
-	/**
 	 * (Override this if you want to test the submission of editing a form.)
 	 * 
 	 * @param results the results of having submitted the request you set up in setupEditRequest. This
