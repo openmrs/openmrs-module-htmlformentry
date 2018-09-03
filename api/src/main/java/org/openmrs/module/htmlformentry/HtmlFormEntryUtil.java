@@ -64,6 +64,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -309,6 +310,14 @@ public class HtmlFormEntryUtil {
 	public static Document stringToDocument(String xml) throws Exception {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+			// Disable XXE: security measure to prevent DOS, arbitrary-file-read, and possibly RCE
+			dbf.setExpandEntityReferences(false);
+			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
+			dbf.setFeature("http://xml.org/sax/features/external-general-entities",false);
+			dbf.setFeature("http://xml.org/sax/features/external-parameter-entities",false);
+
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document document = db.parse(new InputSource(new StringReader(xml)));
 			return document;
