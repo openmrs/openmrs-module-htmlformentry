@@ -27,7 +27,12 @@ import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -989,6 +994,49 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
+	}
+
+	@Test
+	@Verifies(value = "stringToDocument should not access filesystem resources", method = "stringToDocument(String xml)")
+	public void stringToDocument_shouldNotAccessFilesystemResources() throws java.io.IOException{
+
+		File tempFile = File.createTempFile("htmlformentry-shouldNotAcccessFilesystemResources", ".tmp");
+
+		String evil_xml = "<!DOCTYPE foo [\n" +
+				"  <!ELEMENT foo ANY>\n" +
+				"  <!ENTITY bar SYSTEM\n" +
+				"  \"file:" + tempFile.getAbsolutePath() + "\">\n" +
+				"]>\n" +
+				"<htmlform>\n" +
+				"    <foo>\n" +
+				"        &bar;\n" +
+				"    </foo>\n" +
+				"   <h1>test</h1>\n" +
+				"\n" +
+				"</htmlform>";
+
+		String mock_sensitive_info = "68c98358dc3b14bb3e787afbc8662fad";
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+		bw.write(mock_sensitive_info);
+		bw.close();
+
+		try {
+			Document doc = HtmlFormEntryUtil.stringToDocument(evil_xml);
+			NodeList foo_nodes = doc.getElementsByTagName("foo");
+
+			for (int i = 0; i < foo_nodes.getLength(); i++){
+				Node curr_node = foo_nodes.item(i);
+				String contents = curr_node.getFirstChild().getNodeValue();
+				Assert.assertTrue(!contents.contains(mock_sensitive_info));
+			}
+
+
+		} catch (Exception ex){
+			System.out.println(ex);
+			Assert.assertTrue(false);
+		}
+
 	}
 	
 	@Test
