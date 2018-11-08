@@ -231,6 +231,7 @@
 					<configuration>
 						<failIfNoTests>false</failIfNoTests>
 						<forkMode>never</forkMode>
+						<argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
 					</configuration>
 				</plugin>
 				<plugin>
