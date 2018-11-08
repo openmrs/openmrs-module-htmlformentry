@@ -1108,7 +1108,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public String getFormName() {
-				return "encounterDateAndLocationForm";
+				return "simplestFormWithoutProvider";
 			}
 
 
@@ -1171,7 +1171,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public String getFormName() {
-				return "encounterDateAndLocationForm";
+				return "simplestFormWithoutProvider";
 			}
 
 
