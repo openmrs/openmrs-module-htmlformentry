@@ -1100,6 +1100,133 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 
+	// see https://issues.openmrs.org/browse/HTML-678
+	@Test
+	public void testEditShouldNotClearTimeComponentForm() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "encounterDateAndLocationForm";
+			}
+
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+
+
+			}
+
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+
+			// instead of editing the existing encounter, create an encounter with an encounter datetime with a time component
+			@Override
+			public Encounter getEncounterToEdit() {
+				Encounter encounter = new Encounter();
+				encounter.setEncounterDatetime(date);
+				encounter.setLocation(Context.getLocationService().getLocation(2));
+				encounter.setDateCreated(date);
+				encounter.setPatient(Context.getPatientService().getPatient(2));
+				return encounter;
+			}
+
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:"};
+			};
+
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+
+			};
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterDatetime(date);
+			};
+
+		}.run();
+	}
+
+	// to make sure https://issues.openmrs.org/browse/HTML-678 doesn't break date editing
+	@Test
+	public void testEditShouldEditDate() throws Exception {
+
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "encounterDateAndLocationForm";
+			}
+
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), "2015-07-08");
+				request.addParameter(widgets.get("Location:"), "2");
+
+
+			}
+
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+
+			// instead of editing the existing encounter, create an encounter with an encounter datetime with a time component
+			@Override
+			public Encounter getEncounterToEdit() {
+				Encounter encounter = new Encounter();
+				encounter.setEncounterDatetime(date);
+				encounter.setLocation(Context.getLocationService().getLocation(2));
+				encounter.setDateCreated(date);
+				encounter.setPatient(Context.getPatientService().getPatient(2));
+				return encounter;
+			}
+
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:"};
+			};
+
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), "2015-08-08");
+				request.addParameter(widgets.get("Location:"), "2");
+
+			};
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterDatetime(date);
+			};
+
+		}.run();
+	}
+
+	/**
+
 	/**
 	 * This is supposed to be a regression test for HTML-135, but I couldn't get it to successfully
 	 * fail. There must be a difference between editing a form in production, versus in this unit

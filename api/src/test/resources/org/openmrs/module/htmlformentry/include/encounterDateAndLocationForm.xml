@@ -1,0 +1,5 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    <submit/>
+</htmlform>

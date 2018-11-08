@@ -4,6 +4,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateMidnight;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
@@ -775,12 +776,21 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
     public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
         if (dateWidget != null) {
             Date date = (Date) dateWidget.getValue(session.getContext(), submission);
-            if (session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime() != null
-                    && !session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().equals(date)) {
-                session.getContext().setPreviousEncounterDate(
-                        new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
+            Date previousDate = session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime();
+
+            if (previousDate == null) {
+                session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
             }
-            session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
+
+            else {
+                // we don't want to lose any time information just because we edited it with a form that only collects date,
+                // so we only update the date if the date has a time component or the actual date has changed
+                if (hasTimeComponent(date) || !stripTimeComponent(date).equals(stripTimeComponent(previousDate))) {
+                    session.getContext().setPreviousEncounterDate(
+                            new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
+                    session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
+                }
+            }
         }
         if (timeWidget != null) {
             Date time = (Date) timeWidget.getValue(session.getContext(), submission);
@@ -814,6 +824,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 //otherwise, nothing will happen.  99% of the time the encounter won't be voided to begin with.
             }
         }
+    }
+
+    private boolean hasTimeComponent(Date date) {
+        return !(new DateMidnight(date).toDate().equals(date));
+    }
+
+    private DateMidnight stripTimeComponent(Date date) {
+        return new DateMidnight(date);
     }
 
 }
