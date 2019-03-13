@@ -25,6 +25,7 @@ import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
@@ -94,10 +95,7 @@ public class FormEntryContext {
 
     private Stack<Object> stack = new Stack<Object>();
 
-    // TODO once Html Form Entry no longer supports older core versions that don't have visits, we should:
-    // TODO 1) change the type of this variable to visit
-    // TODO 2) change HtmlFormEntryController so that it correctly populates the context with the relevant visit (if available)
-    private Object visit;
+    private Visit visit;
 
     public FormEntryContext(Mode mode) {
         this.mode = mode;
@@ -375,6 +373,7 @@ public class FormEntryContext {
      */
 	public void setupExistingData(Encounter encounter) {
 		existingEncounter = encounter;
+		visit = (encounter == null ? null : encounter.getVisit());
 		existingObs = new HashMap<Concept, List<Obs>>();
 		existingOrders = new HashMap<Concept, List<Order>>();
 		if (encounter != null) {
@@ -409,7 +408,7 @@ public class FormEntryContext {
      *
      * Sets obs associated with an obs groups in existing obs groups.
      * 
-     * @param Set the obsGroup to add to existingObsInGroups
+     * @param oSet the obsGroup to add to existingObsInGroups
      */     
     public void setupExistingObsInGroups(Set<Obs> oSet){
         for (Obs parent : oSet)       
@@ -645,9 +644,9 @@ public class FormEntryContext {
      * Finds the best matching obsGroup at the right obsGroup hierarchy level
      *  <p/>
      * 
-     * @param groupConcept the grouping concept associated with the {@see ObsGroups}
-     * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
-     * @param obsGroupDepth  the depth level of the obsGroup in the xml
+     * @param xmlObsGroupConcept the grouping concept associated with the {@see ObsGroups}
+     * @param questionsAndAnswers the questions and answered associate with the {@see ObsGroup}
+     * @param path  the depth level of the obsGroup in the xml
      * @return the first matching {@see ObsGroup}
      */
    public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept, String path) {
@@ -919,11 +918,11 @@ public class FormEntryContext {
         this.clientSideValidationHints = clientSideValidationHints;
     }
 
-    public Object getVisit() {
+    public Visit getVisit() {
         return visit;
     }
 
-    public void setVisit(Object visit) {
+    public void setVisit(Visit visit) {
         this.visit = visit;
     }
 
