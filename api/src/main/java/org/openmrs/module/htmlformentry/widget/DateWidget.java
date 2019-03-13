@@ -16,7 +16,7 @@ import java.util.Locale;
  * A widget that allows the selection of a specific day, month, and year. To handle both
  * a date and time, see {@see DateTimeWidget}.
  */
-public class DateWidget implements Widget {
+public class DateWidget extends EditableWidget {
     
     private Date initialValue;
     private String onChangeFunction;
@@ -65,7 +65,7 @@ public class DateWidget implements Widget {
     
     @Override
     public String generateHtml(FormEntryContext context) {
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (initialValue != null) {
                 toPrint = dateFormat().format(initialValue);

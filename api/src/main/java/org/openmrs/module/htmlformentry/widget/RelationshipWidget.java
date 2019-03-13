@@ -17,7 +17,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
  * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person 
  * search.
  */
-public class RelationshipWidget implements Widget {
+public class RelationshipWidget extends EditableWidget {
 	
 	private List<RelationshipType> relationshipsToCreate = new ArrayList<RelationshipType>();
 	private List<String> roleInRelationship = new ArrayList<String>();
@@ -94,7 +94,7 @@ public class RelationshipWidget implements Widget {
 	    						String s = r.getPersonB().getGivenName()+" "+r.getPersonB().getFamilyName();	    						
 	    						sb.append(s);	    	
 	    						val.append(s);
-	    						if (context.getMode() == Mode.VIEW) {
+                                if (renderInViewMode(context)) {
 	    							sb.append(" ");
 	    							sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsAdded"));
 	    							sb.append(" - ");
@@ -119,7 +119,7 @@ public class RelationshipWidget implements Widget {
 	    						String s =r.getPersonA().getGivenName()+" "+r.getPersonA().getFamilyName();
 	    						sb.append(s);
 	    						val.append(s);
-	    						if (context.getMode() == Mode.VIEW) {
+                                if (renderInViewMode(context)) {
 	    							sb.append(" ");
 	    							sb.append(Context.getMessageSourceService().getMessage("htmlformentry.existingRelationshipsAdded"));
 	    							sb.append(" - ");

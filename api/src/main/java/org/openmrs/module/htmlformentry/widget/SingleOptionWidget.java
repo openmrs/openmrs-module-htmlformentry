@@ -12,7 +12,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
  * This represents a single widget on a form which presents several coded options, of which only one 
  * may be selected, such as a dropdown, or a group of radio buttons. 
  */
-public abstract class SingleOptionWidget implements Widget {
+public abstract class SingleOptionWidget extends EditableWidget {
 	
 	private String initialValue;
 	private List<Option> options;

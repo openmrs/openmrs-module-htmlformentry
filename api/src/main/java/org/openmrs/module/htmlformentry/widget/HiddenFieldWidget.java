@@ -9,7 +9,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
  * A widget that implements a hidden input field like {@code <input
  * type="hidden"/>},
  */
-public class HiddenFieldWidget implements Widget {
+public class HiddenFieldWidget extends EditableWidget {
 
 	private String initialValue;
 	/**
@@ -33,7 +33,7 @@ public class HiddenFieldWidget implements Widget {
 	@Override
     public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
-		if (context.getMode() != Mode.VIEW) {
+		if (!renderInViewMode(context)) {
 			sb.append("<input type=\"hidden\" name=\"" + context.getFieldName(this) + "\" id=\"" + context.getFieldName(this) + "\"");
 			if (initialValue != null)
 				sb.append(" value=\"" + initialValue + "\"");

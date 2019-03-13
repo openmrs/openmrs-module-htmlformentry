@@ -13,7 +13,7 @@ import java.util.List;
  * A double parameter autocomplete widget to do the <obs><obs/> auto completion
  */
 
-public class ConceptSearchAutocompleteWidget implements Widget {
+public class ConceptSearchAutocompleteWidget extends EditableWidget {
 
 	private Concept initialValue;
 	private String allowedConceptIds;
@@ -57,7 +57,7 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 		// hardcoded for concept search
 
 		StringBuilder sb = new StringBuilder();
-		if (context.getMode().equals(Mode.VIEW)) {
+		if (renderInViewMode(context)) {
 			String toPrint = "";
 			if (initialValue != null) {
 				toPrint = initialValue.getDisplayString();

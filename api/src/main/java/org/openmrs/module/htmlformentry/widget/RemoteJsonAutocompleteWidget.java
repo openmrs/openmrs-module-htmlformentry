@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Uses jQuery-ui, and uses handlebars for custom display and value templates
  */
-public class RemoteJsonAutocompleteWidget implements Widget {
+public class RemoteJsonAutocompleteWidget extends EditableWidget {
 
     private Option initialValue;
     private String remoteUrl;
@@ -45,7 +45,7 @@ public class RemoteJsonAutocompleteWidget implements Widget {
 
     @Override
     public String generateHtml(FormEntryContext context) {
-        if (FormEntryContext.Mode.VIEW == context.getMode()) {
+        if (renderInViewMode(context)) {
             return initialValue == null ? "" : initialValue.getLabel();
         }
         String formFieldName = context.getFieldName(this);

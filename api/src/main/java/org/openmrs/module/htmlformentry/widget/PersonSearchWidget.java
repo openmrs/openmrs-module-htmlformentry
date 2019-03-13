@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
  * A widget that allows for the selection of a Person.  Implemented uses a pop-up to display person 
  * search.
  */
-public class PersonSearchWidget implements Widget {
+public class PersonSearchWidget extends EditableWidget {
 	
 	private Person person;
 	
@@ -31,8 +31,8 @@ public class PersonSearchWidget implements Widget {
 	
 	@Override
     public String generateHtml(FormEntryContext context) {
-		
-		if (context.getMode() == Mode.VIEW) {
+
+		if (renderInViewMode(context)) {
             if (person != null)
                 return WidgetFactory.displayValue(person.getPersonName().toString());
             else

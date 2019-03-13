@@ -9,7 +9,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
  * A widget that implements a text input field, either as a simple input field, like {@code <input type="text"/>},
  * or as a {@code <textarea>}.
  */
-public class TextFieldWidget implements Widget {
+public class TextFieldWidget extends EditableWidget {
     
     private Boolean textArea = false;
     private Integer textFieldSize;
@@ -76,7 +76,7 @@ public class TextFieldWidget implements Widget {
     @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
-        if (context.getMode().equals(Mode.VIEW)) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (initialValue != null) {
                 toPrint = initialValue.toString();

@@ -25,7 +25,7 @@ public class DropdownWidget extends SingleOptionWidget {
     @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (getInitialValue() != null) {
                 // lookup the label for the selected value

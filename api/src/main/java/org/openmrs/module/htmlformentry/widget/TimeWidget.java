@@ -16,7 +16,7 @@ import java.util.Date;
  * A widget that allows the selection of a certain time-of-day.  To handle both
  * a date and time, see {@see DateTimeWidget}.
  */
-public class TimeWidget implements Widget {
+public class TimeWidget extends EditableWidget {
 
     public static final String DEFAULT_TIME_FORMAT = "HH:mm";
 
@@ -42,7 +42,7 @@ public class TimeWidget implements Widget {
 	 */
 	@Override
     public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
+		if (renderInViewMode(context)) {
 			String toPrint = "";
 			if (initialValue != null) {
 				toPrint = timeFormat().format(initialValue);

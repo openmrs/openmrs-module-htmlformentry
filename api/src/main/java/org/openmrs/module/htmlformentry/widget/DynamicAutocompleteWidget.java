@@ -16,7 +16,7 @@ import java.util.Vector;
  * A dynamic autocomplete widget, a new dynamic version of ConceptSearchAutocompleteWidget
  */
 
-public class DynamicAutocompleteWidget implements Widget {
+public class DynamicAutocompleteWidget extends EditableWidget {
 
 	private List<Concept> initialValues;
 
@@ -60,7 +60,7 @@ public class DynamicAutocompleteWidget implements Widget {
 		// hardcoded for concept search
 
 		StringBuilder sb = new StringBuilder();
-		if (context.getMode().equals(Mode.VIEW)) {
+		if (renderInViewMode(context)) {
 			String toPrint = "";
 			if (!initialValues.isEmpty()) {
 				for (int i = 0; i < initialValues.size(); i++) {

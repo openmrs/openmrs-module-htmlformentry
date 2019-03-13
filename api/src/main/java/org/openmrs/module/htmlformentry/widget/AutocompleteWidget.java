@@ -35,7 +35,7 @@ public class AutocompleteWidget extends  SingleOptionWidget{
          String optionNames = null;
          String optionValues = null;
 
-         if (context.getMode() == FormEntryContext.Mode.VIEW) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (getInitialValue() != null) {
                 // lookup the label for the selected value

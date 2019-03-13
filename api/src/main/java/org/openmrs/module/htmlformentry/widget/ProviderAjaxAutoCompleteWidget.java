@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class ProviderAjaxAutoCompleteWidget implements Widget {
+public class ProviderAjaxAutoCompleteWidget extends EditableWidget {
 
     private MatchMode matchMode = MatchMode.START;
 
@@ -34,7 +34,7 @@ public class ProviderAjaxAutoCompleteWidget implements Widget {
     public String generateHtml(FormEntryContext context) {
 
         StringBuilder sb = new StringBuilder();
-        if (context.getMode().equals(FormEntryContext.Mode.VIEW)) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (initialValue != null) {
                 toPrint = initialValue.getName();

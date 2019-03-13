@@ -15,7 +15,7 @@ import org.openmrs.obs.ComplexData;
  * 
  * @author Jibesh
  */
-public class UploadWidget implements Widget {
+public class UploadWidget extends EditableWidget {
 	
 	private Obs initialValue;
 	
@@ -26,7 +26,7 @@ public class UploadWidget implements Widget {
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == FormEntryContext.Mode.VIEW) {
+        if (renderInViewMode(context)) {
 			if (initialValue != null) {
 				return WidgetFactory.displayComplexValue(initialValue);
 			} else {

@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * A checkbox widget, like {@code <input type="checkbox"/>}
  */
-public class CheckboxWidget implements Widget {
+public class CheckboxWidget extends EditableWidget {
 
     private Object initialValue;
     private String value = "true";
@@ -81,7 +81,7 @@ public class CheckboxWidget implements Widget {
     @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             String labelString = "";
             if  (label != null)
                 labelString = "&#160;" + label;

@@ -19,7 +19,7 @@ import java.util.List;
  * A widget that allows for the selection of a Location. Implemented using a drop-down selection
  * list.
  */
-public class LocationWidget implements Widget {
+public class LocationWidget extends EditableWidget {
 	
 	private Location location;
 	
@@ -32,7 +32,7 @@ public class LocationWidget implements Widget {
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
+		if (renderInViewMode(context)) {
 			if (location != null)
 				return WidgetFactory.displayValue(location.getName());
 			else

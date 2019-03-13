@@ -28,7 +28,7 @@ import org.springframework.util.StringUtils;
  * A widget that allows for the selection of an {@link EncounterType}. Implemented using a drop-down
  * selection list.
  */
-public class EncounterTypeWidget implements Widget {
+public class EncounterTypeWidget extends EditableWidget {
 	
 	private EncounterType encounterType;
 	
@@ -42,7 +42,7 @@ public class EncounterTypeWidget implements Widget {
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
+		if (renderInViewMode(context)) {
 			if (encounterType != null)
 				return WidgetFactory.displayValue(encounterType.getName());
 			else

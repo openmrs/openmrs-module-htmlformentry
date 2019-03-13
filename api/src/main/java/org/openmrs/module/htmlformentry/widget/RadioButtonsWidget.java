@@ -24,7 +24,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	public String generateHtml(FormEntryContext context) {
 		String id = context.getFieldName(this);
 		StringBuilder sb = new StringBuilder();
-		if (context.getMode() == Mode.VIEW) {
+		if (renderInViewMode(context)) {
             for (int i = 0; i < getOptions().size(); ++i) {
                 Option opt = getOptions().get(i);
 				boolean selected = getInitialValue() == null ? "".equals(opt.getValue()) : getInitialValue().equals(

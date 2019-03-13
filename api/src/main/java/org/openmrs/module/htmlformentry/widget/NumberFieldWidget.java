@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * A widget that implements an input field that takes a numeric answer.
  */
-public class NumberFieldWidget implements Widget {
+public class NumberFieldWidget extends EditableWidget {
 
     private Number initialValue;
     private boolean floatingPoint = true;
@@ -122,7 +122,7 @@ public class NumberFieldWidget implements Widget {
     @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (initialValue != null) {
                 toPrint = userFriendlyDisplay(initialValue);

@@ -13,7 +13,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.springframework.util.StringUtils;
 
-public class PersonStubWidget implements Widget {
+public class PersonStubWidget extends EditableWidget {
     
     private PersonStub person;
     private List<PersonStub> options;
@@ -31,7 +31,7 @@ public class PersonStubWidget implements Widget {
     
     @Override
     public String generateHtml(FormEntryContext context) {
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             if (person != null)
                 return WidgetFactory.displayValue(person.getDisplayValue());
             else

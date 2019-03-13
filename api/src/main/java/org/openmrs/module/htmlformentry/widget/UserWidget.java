@@ -14,7 +14,7 @@ import org.springframework.util.StringUtils;
 /**
  * A widget that allows for the selection of a User.  Implemented using a drop-down selection list.
  */
-public class UserWidget implements Widget {
+public class UserWidget extends EditableWidget {
 
     private User user;
     private List<User> options;
@@ -23,7 +23,7 @@ public class UserWidget implements Widget {
 
     @Override
     public String generateHtml(FormEntryContext context) {
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             if (user != null)
                 return WidgetFactory.displayValue(user.getPersonName().toString());
             else

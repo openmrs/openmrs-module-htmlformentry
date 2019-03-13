@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
  * A widget that allows the input of a Person name. Implemented using text fields
  * that accept a Family Name and a Given Name.
  */
-public class PersonNameWidget implements Widget {
+public class PersonNameWidget extends EditableWidget {
 	
 	private PersonName initialValue;
 	
@@ -22,7 +22,7 @@ public class PersonNameWidget implements Widget {
 	@Override
     public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
-        if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             String toPrint = "";
             if (initialValue != null) {
                 toPrint = initialValue.toString();

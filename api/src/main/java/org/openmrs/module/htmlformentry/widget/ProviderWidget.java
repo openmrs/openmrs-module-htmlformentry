@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Widget that lets you choose a {@link Provider} from a dropdown
  */
-public class ProviderWidget implements Widget {
+public class ProviderWidget extends EditableWidget {
 	
 	private Provider initialValue;
 
@@ -53,7 +53,7 @@ public class ProviderWidget implements Widget {
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
+        if (renderInViewMode(context)) {
             if (initialValue != null)
                 return WidgetFactory.displayValue(initialValue.getName());
             else

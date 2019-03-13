@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Widget that lets you choose an {@link EncounterRole} from a dropdown.
  */
-public class EncounterRoleWidget implements Widget {
+public class EncounterRoleWidget extends EditableWidget {
 	
 	private EncounterRole initialValue;
 	
@@ -45,7 +45,7 @@ public class EncounterRoleWidget implements Widget {
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
+		if (renderInViewMode(context)) {
             if (initialValue != null)
                 return WidgetFactory.displayValue(initialValue.getName());
             else
