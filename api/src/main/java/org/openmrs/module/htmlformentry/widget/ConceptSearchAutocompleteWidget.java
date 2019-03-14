@@ -24,7 +24,8 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 	public ConceptSearchAutocompleteWidget(List<Concept> conceptList,
                                            List<ConceptClass> allowedconceptclasses, String src) {
 		this.src = src;
-		
+
+		// temp change to test line endings
 		//only 1 of them is used to specify the filter
 		if (allowedconceptclasses == null || allowedconceptclasses.size() == 0) {
 			StringBuilder sb = new StringBuilder();
