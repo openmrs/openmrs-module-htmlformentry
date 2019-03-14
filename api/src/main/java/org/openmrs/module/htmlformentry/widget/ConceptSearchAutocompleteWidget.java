@@ -19,7 +19,7 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 	private String allowedConceptIds;
 	private String allowedConceptClassNames;
 	private String src;
-	private static String defaultSrc = "conceptSearch.form";
+	private static String defaultSrctemp = "conceptSearch.form";
 
 	public ConceptSearchAutocompleteWidget(List<Concept> conceptList,
                                            List<ConceptClass> allowedconceptclasses, String src) {
@@ -47,9 +47,12 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 		}
 	}
 
+
+
+
 	public ConceptSearchAutocompleteWidget(List<Concept> conceptList,
                                            List<ConceptClass> allowedconceptclasses) {
-		this(conceptList, allowedconceptclasses, defaultSrc);
+		this(conceptList, allowedconceptclasses, defaultSrctemp);
 	}
 
 
