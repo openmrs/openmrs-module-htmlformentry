@@ -24,13 +24,13 @@ public class FormEntryContextTest {
         DropdownWidget widget = new DropdownWidget();
         context.registerWidget(widget);
         String fieldName = context .getFieldName(widget);
-        Widget w = context.getWidgetByFieldName(fieldName);
+        Widget w = context.getWidgetRegister().getWidgetByFieldName(fieldName);
         assertNotNull(w);
     }
 
     @Test
     public void testNullGetWidgetByFieldName() {
-        Widget w = context.getWidgetByFieldName("test");
+        Widget w = context.getWidgetRegister().getWidgetByFieldName("test");
         assertNull(w);
     }
 
@@ -42,7 +42,7 @@ public class FormEntryContextTest {
         startDateErrorWidget = new ErrorWidget();
         context.registerWidget(startDateWidget);
         context.registerErrorWidget(startDateWidget, startDateErrorWidget);
-        assertNotNull(context.getErrorDivIds());
+        assertNotNull(context.getWidgetRegister().getErrorDivIds());
     }
 
 

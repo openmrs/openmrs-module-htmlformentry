@@ -146,8 +146,8 @@ public class ProviderAndRoleElement implements HtmlGeneratorElement, FormSubmiss
             providerWidgets.add(providerWidget);
             providerErrorWidgets.add(providerErrorWidget);
 
-                if (context.getExistingEncounter() != null) {
-                    Map<EncounterRole, Set<Provider>> byRoles = context.getExistingEncounter().getProvidersByRoles();
+                if (context.getCurrentEncounterData().getEncounter() != null) {
+                    Map<EncounterRole, Set<Provider>> byRoles = context.getCurrentEncounterData().getEncounter().getProvidersByRoles();
                     if (byRoles.size() > 0) {
                         // currently we only support a single provider in this mode
                         if (byRoles.size() > 1 || byRoles.values().iterator().next().size() > 1) {
@@ -168,8 +168,8 @@ public class ProviderAndRoleElement implements HtmlGeneratorElement, FormSubmiss
 
             // get any existing providers for the specified role
             List<Provider> byRole = null;
-            if (context.getExistingEncounter() != null) {
-                byRole = new ArrayList<Provider>(context.getExistingEncounter().getProvidersByRole(encounterRole));
+            if (context.getCurrentEncounterData().getEncounter() != null) {
+                byRole = new ArrayList<Provider>(context.getCurrentEncounterData().getEncounter().getProvidersByRole(encounterRole));
             }
 
             // register the provider widgets, setting any existing provider values

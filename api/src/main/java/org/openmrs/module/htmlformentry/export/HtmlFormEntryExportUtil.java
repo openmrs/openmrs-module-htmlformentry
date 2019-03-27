@@ -165,7 +165,7 @@ public class HtmlFormEntryExportUtil {
         session.getHtmlToDisplay();
         
         if (log.isDebugEnabled()){
-            Map<Concept, List<Obs>>  map = session.getContext().getExistingObs();
+            Map<Concept, List<Obs>>  map = session.getContext().getCurrentEncounterData().getObsByConcept();
             if (map != null){
                 for (Map.Entry<Concept, List<Obs>> existingObs : map.entrySet()){
                     List<Obs> oList = existingObs.getValue();
@@ -173,7 +173,7 @@ public class HtmlFormEntryExportUtil {
                         log.debug("Obs in existingObs " + existingObs.getKey() + " " + oInner.getConcept());
                 }
             }
-            Map<Obs, Set<Obs>> map2 = session.getContext().getExistingObsInGroups();
+            Map<Obs, Set<Obs>> map2 = session.getContext().getCurrentEncounterData().getObsInGroups();
             if (map2 != null){
                 for (Map.Entry<Obs, Set<Obs>> existingObsInGroups : map2.entrySet()){
                     Set<Obs> oList = existingObsInGroups.getValue();
@@ -194,8 +194,8 @@ public class HtmlFormEntryExportUtil {
         
         for (Obs oTest : e.getAllObs()){
             boolean found = false;
-            if (session.getContext().getExistingObs() != null && !oTest.isObsGrouping()){
-                List<Obs> obsList = session.getContext().getExistingObs().get(oTest.getConcept());
+            if (session.getContext().getCurrentEncounterData().getObsByConcept() != null && !oTest.isObsGrouping()){
+                List<Obs> obsList = session.getContext().getCurrentEncounterData().getObsByConcept().get(oTest.getConcept());
                 if (obsList != null && obsList.size() > 0){
                     for (Obs o : obsList){
                         if (o.getObsId().equals(oTest.getObsId())){
@@ -205,8 +205,8 @@ public class HtmlFormEntryExportUtil {
                     }   
                 }
             } 
-            if (!found && session.getContext().getExistingObsInGroups() != null){
-                for (Map.Entry<Obs, Set<Obs>> mapEntry : session.getContext().getExistingObsInGroups().entrySet()){
+            if (!found && session.getContext().getCurrentEncounterData().getObsInGroups() != null){
+                for (Map.Entry<Obs, Set<Obs>> mapEntry : session.getContext().getCurrentEncounterData().getObsInGroups().entrySet()){
                     if (mapEntry.getKey().equals(oTest)){
                         found = true;
                         continue;

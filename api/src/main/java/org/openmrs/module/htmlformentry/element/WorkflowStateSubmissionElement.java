@@ -106,8 +106,8 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		}
 		
 		Date encounterDatetime = new Date();
-		if (context.getExistingEncounter() != null) {
-			encounterDatetime = context.getExistingEncounter().getEncounterDatetime();
+		if (context.getCurrentEncounterData().getEncounter() != null) {
+			encounterDatetime = context.getCurrentEncounterData().getEncounter().getEncounterDatetime();
 		}
 		
 		ProgramWorkflowState currentState = null;
@@ -217,7 +217,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 				
 				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
 				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
-				        .getContext().getPreviousEncounterDate(), workflow);
+				        .getContext().getCurrentEncounterData().getPreviousEncounterDate(), workflow);
 				
 				// if no old state, simply transition to this new state
 				if (oldPatientState == null) {
@@ -235,7 +235,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 				}
 				else {
 					PatientProgram patientProgram = oldPatientState.getPatientProgram();
-					Date previousEncounterDate = session.getContext().getPreviousEncounterDate();
+					Date previousEncounterDate = session.getContext().getCurrentEncounterData().getPreviousEncounterDate();
 					Date newEncounterDate = session.getEncounter().getEncounterDatetime();
 					
 					// if the encounter date has been moved earlier

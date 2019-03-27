@@ -222,7 +222,6 @@ public class SerializableFormObject implements Serializable{
         //Get the FormEntrySession & HttpServletRequest
         if(session==null)createSession();
         HttpServletRequest request = createHttpServletRequest();
-        Map<Widget,String> fields = session.getContext().getFieldNames();
 
         //handle submission & save data
         session.getSubmissionController().handleFormSubmission(session, request);

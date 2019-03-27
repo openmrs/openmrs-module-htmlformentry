@@ -19,7 +19,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.htmlformentry.EncounterDataHolder;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.WidgetRegister;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -46,6 +48,8 @@ public class NumberFieldWidgetTest {
         context = mock(FormEntryContext.class);
         when(context.isAutomaticClientSideValidation()).thenReturn(true);
         when(context.isClientSideValidationHints()).thenReturn(true);
+        when(context.getCurrentEncounterData()).thenReturn(mock(EncounterDataHolder.class));
+        when(context.getWidgetRegister()).thenReturn(mock(WidgetRegister.class));
 
         messageSourceService = mock(MessageSourceService.class);
         mockStatic(Context.class);

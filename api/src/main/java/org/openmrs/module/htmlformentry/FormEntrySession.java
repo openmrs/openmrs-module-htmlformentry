@@ -415,8 +415,9 @@ public class FormEntrySession {
         xml = htmlGenerator.applyTags(this, xml);
 
         if (context.hasUnmatchedObsGroupEntities() && (context.getMode() == Mode.EDIT || context.getMode() == Mode.VIEW)) {
-            if (context.getUnmatchedObsGroupEntities().size() > 1 && context.getExistingObsInGroupsCount() > 0)
-                context.setGuessingInd(true);
+            if (context.getUnmatchedObsGroupEntities().size() > 1 && context.getCurrentEncounterData().getExistingObsInGroupsCount() > 0) {
+                context.getCurrentEncounterData().setGuessingInd(true);
+            }
             context.setUnmatchedMode(true);
             xml = htmlGenerator.applyUnmatchedTags(this, xml);
         }
@@ -815,7 +816,7 @@ public class FormEntrySession {
 
             // iterate through all the widgets and set their values based on the values in the last submission
             // if there is no value in the last submission, explicitly set the value as empty to override any default values
-            for (Map.Entry<Widget, String> entry : context.getFieldNames().entrySet()) {
+            for (Map.Entry<Widget, String> entry : context.getWidgetRegister().getFieldNames().entrySet()) {
                 Widget widgetType = entry.getKey();
                 String widgetFieldName = entry.getValue();
                 String val = lastSubmission.getParameter(widgetFieldName);
@@ -927,7 +928,7 @@ public class FormEntrySession {
         if (errs != null && errs.size() > 0) {
             for (FormSubmissionError error : errs) {
                 if (error.getSourceWidget() != null)
-                    sb.append("showError('" + context.getErrorFieldId(error.getSourceWidget()) + "', '" + error.getError()
+                    sb.append("showError('" + context.getWidgetRegister().getErrorFieldId(error.getSourceWidget()) + "', '" + error.getError()
                             + "');\n");
                 else
                     sb.append("showError('" + error.getId() + "', '" + error.getError() + "');\n");

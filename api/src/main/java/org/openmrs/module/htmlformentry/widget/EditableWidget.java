@@ -8,11 +8,20 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
  */
 public abstract class EditableWidget implements Widget {
 
+    private boolean viewOnly = false;
+
     /**
      * @return true if the widget should be rendered in VIEW mode
      */
     public boolean renderInViewMode(FormEntryContext context) {
-        return context.getMode() == Mode.VIEW;
+        return viewOnly || context.getMode() == Mode.VIEW;
     }
 
+    public boolean isViewOnly() {
+        return viewOnly;
+    }
+
+    public void setViewOnly(boolean viewOnly) {
+        this.viewOnly = viewOnly;
+    }
 }

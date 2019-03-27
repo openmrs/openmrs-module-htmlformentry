@@ -133,7 +133,7 @@ public class NumberFieldWidget extends EditableWidget {
             }
         } else {
             String id = context.getFieldName(this);
-            String errorId = context.getErrorFieldId(this);
+            String errorId = context.getWidgetRegister().getErrorFieldId(this);
             sb.append("<input type=\"text\" size=\"" + numberFieldSize + "\" id=\"" + id + "\" name=\"" + id + "\"");
             if (initialValue != null) {
                 sb.append(" value=\"" + userFriendlyDisplay(initialValue) + "\"");

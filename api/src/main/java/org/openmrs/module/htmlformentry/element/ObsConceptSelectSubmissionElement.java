@@ -74,7 +74,7 @@ public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, 
         if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
             existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
         } else {
-            existingObs = context.removeExistingObs(concepts, answerConcept);
+            existingObs = context.getCurrentEncounterData().removeExistingObs(concepts, answerConcept);
         }
         errorWidget = new ErrorWidget();
         context.registerWidget(errorWidget);

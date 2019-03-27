@@ -32,7 +32,7 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
         FormEntryContext enterContext = session.getContext();
-        Map<Widget, String> widgets = enterContext.getFieldNames();
+        Map<Widget, String> widgets = enterContext.getWidgetRegister().getFieldNames();
         Set<Map.Entry<Widget,String>> entries = widgets.entrySet();
 
         for(Map.Entry<Widget,String> entry : entries){
@@ -62,7 +62,7 @@ public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
         String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
         FormEntryContext enterContext = session.getContext();
-        Map<Widget, String> widgets = enterContext.getFieldNames();
+        Map<Widget, String> widgets = enterContext.getWidgetRegister().getFieldNames();
         Set<Map.Entry<Widget,String>> entries = widgets.entrySet();
 
         for(Map.Entry<Widget,String> entry : entries){

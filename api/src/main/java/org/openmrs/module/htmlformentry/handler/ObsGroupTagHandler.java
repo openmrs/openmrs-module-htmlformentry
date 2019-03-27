@@ -92,10 +92,10 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
         String path = ObsGroupComponent.getObsGroupPath(node);
     	
         if (session.getContext().isUnmatchedMode()) {
-            return session.getContext().getNextUnmatchedObsGroup(path);
+            return session.getContext().getCurrentEncounterData().getNextUnmatchedObsGroup(path);
         } else {
             List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
-            return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
+            return session.getContext().getCurrentEncounterData().removeBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
         }
 
     }

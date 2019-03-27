@@ -25,10 +25,12 @@ import org.openmrs.ConceptName;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.EncounterDataHolder;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.Translator;
+import org.openmrs.module.htmlformentry.WidgetRegister;
 import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility1_9;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -66,12 +68,16 @@ public class ObsSubmissionElementTest {
                 return key;
             }
         };
+        EncounterDataHolder edh = mock(EncounterDataHolder.class);
+        WidgetRegister widgetRegister = mock(WidgetRegister.class);
 
         params = new HashMap<String, String>();
 
         context = mock(FormEntryContext.class);
         when(context.getSchema()).thenReturn(schema);
         when(context.getTranslator()).thenReturn(translator);
+        when(context.getCurrentEncounterData()).thenReturn(edh);
+        when(context.getWidgetRegister()).thenReturn(widgetRegister);
     }
 
     @Test

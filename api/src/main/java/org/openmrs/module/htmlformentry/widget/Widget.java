@@ -13,14 +13,14 @@ public interface Widget {
     /**
      * If we are doing a VIEW or EDIT, then the framework will call this to prepopulate the widget
      */
-    public void setInitialValue(Object initialValue);
+    void setInitialValue(Object initialValue);
 
     /**
      * Called by the framework to draw this widget on a page
      * 
      * @return
      */
-    public String generateHtml(FormEntryContext context);
+    String generateHtml(FormEntryContext context);
 
     
     /**
@@ -29,6 +29,6 @@ public interface Widget {
      * 
      * @return
      */
-    public Object getValue(FormEntryContext context, HttpServletRequest request);
+    Object getValue(FormEntryContext context, HttpServletRequest request);
     
 }

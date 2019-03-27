@@ -248,7 +248,7 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 	 * @return the obs or null
 	 */
 	protected Obs matchExistingObsGroup(FormEntryContext context) {
-		for (Map.Entry<Obs, Set<Obs>> entry : context.getExistingObsInGroups().entrySet()) {
+		for (Map.Entry<Obs, Set<Obs>> entry : context.getCurrentEncounterData().getObsInGroups().entrySet()) {
 			Obs group = entry.getKey();
 			
 			// Skip if obs group isn't an immunization obs grouping
@@ -271,7 +271,7 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 			// Remove and return and group if both vaccine and sequence number match
 			if (OpenmrsUtil.nullSafeEquals(vaccineAnswer, vaccineConcept)
 			        && OpenmrsUtil.nullSafeEquals(sequenceNumberAnswer, sequenceNumber)) {
-				context.getExistingObsInGroups().remove(group);
+				context.getCurrentEncounterData().getObsInGroups().remove(group);
 				return group;
 			}
 		}

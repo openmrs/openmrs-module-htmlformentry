@@ -22,6 +22,10 @@
                             <bean class="org.openmrs.module.htmlformentry.handler.ObsTagHandler"/>
                         </entry>
                         <entry>
+                            <key><value>visitObs</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.VisitObsTagHandler"/>
+                        </entry>
+                        <entry>
                             <key><value>controls</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ControlsTagHandler"/>
                         </entry>

@@ -25,7 +25,7 @@ import org.openmrs.api.context.Context;
 public class EncounterCompatibility {
 
 	public static Person getProvider(Encounter encounter) {
-		if (encounter.getEncounterProviders() == null || encounter.getEncounterProviders().isEmpty()) {
+		if (encounter == null || encounter.getEncounterProviders() == null || encounter.getEncounterProviders().isEmpty()) {
 			return null;
 		} else {
 			for (EncounterProvider encounterProvider : encounter.getEncounterProviders()) {

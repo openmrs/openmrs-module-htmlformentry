@@ -109,8 +109,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             dateWidget = new DateWidget();
             dateErrorWidget = new ErrorWidget();
 
-            if (context.getExistingEncounter() != null) {
-                dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+            if (context.getCurrentEncounterData().getEncounter() != null) {
+                dateWidget.setInitialValue(context.getCurrentEncounterData().getEncounter().getEncounterDatetime());
             } else if (parameters.get("defaultDate") != null) {
                 dateWidget.setInitialValue(parameters.get("defaultDate"));
             }
@@ -124,8 +124,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             if ("true".equals(parameters.get("showTime"))) {
                 timeWidget = new TimeWidget();
                 timeErrorWidget = new ErrorWidget();
-                if (context.getExistingEncounter() != null) {
-                    timeWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+                if (context.getCurrentEncounterData().getEncounter() != null) {
+                    timeWidget.setInitialValue(context.getCurrentEncounterData().getEncounter().getEncounterDatetime());
                 } else if (parameters.get("defaultDate") != null) {
                     timeWidget.setInitialValue(parameters.get("defaultDate"));
                 }
@@ -225,8 +225,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             // Set default values as appropriate
             Person defaultProvider = null;
             Option defProviderOption;
-            if (context.getExistingEncounter() != null) {
-                defaultProvider = EncounterCompatibility.getProvider(context.getExistingEncounter());
+            if (context.getCurrentEncounterData().getEncounter() != null) {
+                defaultProvider = EncounterCompatibility.getProvider(context.getCurrentEncounterData().getEncounter());
                 // this is done to avoid default provider being added twice due to that it can be added from the
                 // users = getAllProvidersThatArePersonsAsPersonStubs(); section with selected="false", therefore this can't be caught when
                 // searching whether the options list contains the 'defaultProvider'
@@ -321,8 +321,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             // Set default values
 
             EncounterType defaultEncounterType = null;
-            if (context.getExistingEncounter() != null) {
-                defaultEncounterType = context.getExistingEncounter().getEncounterType();
+            if (context.getCurrentEncounterData().getEncounter() != null) {
+                defaultEncounterType = context.getCurrentEncounterData().getEncounter().getEncounterType();
             } else {
                 String defaultTypeId = (String) parameters.get("default");
                 if (StringUtils.hasText(defaultTypeId)) {
@@ -388,8 +388,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             // Set default values
             Location defaultLocation = null;
-            if (context.getExistingEncounter() != null) {
-                defaultLocation = context.getExistingEncounter().getLocation();
+            if (context.getCurrentEncounterData().getEncounter() != null) {
+                defaultLocation = context.getCurrentEncounterData().getEncounter().getLocation();
             } else {
                 String defaultLocId = (String) parameters.get("default");
                 if (StringUtils.hasText(defaultLocId)) {
@@ -445,13 +445,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
         if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
 			if (parameters.get("toggle") != null) {
 				ToggleWidget toggleWidget = new ToggleWidget((String) parameters.get("toggle"));
-				voidWidget = new CheckboxWidget(" " + Context.getMessageSourceService().getMessage("general.voided"), (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true)) ? "true" : "false", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
+				voidWidget = new CheckboxWidget(" " + Context.getMessageSourceService().getMessage("general.voided"), (context.getCurrentEncounterData().getEncounter() != null && context.getCurrentEncounterData().getEncounter().isVoided().equals(true)) ? "true" : "false", toggleWidget.getTargetId(), toggleWidget.isToggleDim());
 			} else {
 				voidWidget = new CheckboxWidget();
 			}
             voidWidget.setLabel(" " + Context.getMessageSourceService().getMessage("general.voided"));
             voidErrorWidget = new ErrorWidget();
-            if (context.getExistingEncounter() != null && context.getExistingEncounter().isVoided().equals(true))
+            if (context.getCurrentEncounterData().getEncounter() != null && context.getCurrentEncounterData().getEncounter().isVoided().equals(true))
                 voidWidget.setInitialValue("true");
             context.registerWidget(voidWidget);
             context.registerErrorWidget(voidWidget, voidErrorWidget);
@@ -786,7 +786,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
                 // we don't want to lose any time information just because we edited it with a form that only collects date,
                 // so we only update the date if the date has a time component or the actual date has changed
                 if (hasTimeComponent(date) || !stripTimeComponent(date).equals(stripTimeComponent(previousDate))) {
-                    session.getContext().setPreviousEncounterDate(
+                    session.getContext().getCurrentEncounterData().setPreviousEncounterDate(
                             new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
                     session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
                 }

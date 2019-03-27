@@ -15,6 +15,7 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -2148,6 +2149,14 @@ public class HtmlFormEntryUtil {
 			}
 		}
 		return getProviderStubs(providers);
+	}
+
+	/**
+	 * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
+	 * TODO: Fix the bug where Concept.equals(Concept) doesn't always work
+	 */
+	public static boolean areEqual(OpenmrsObject o1, OpenmrsObject o2) {
+		return OpenmrsUtil.nullSafeEquals(o1 == null ? null : o1.getId(), o2 == null ? null : o2.getId());
 	}
 
 	private static Predicate<Provider> startsWith(final String param) {

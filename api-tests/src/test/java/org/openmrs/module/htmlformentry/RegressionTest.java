@@ -1675,7 +1675,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -1725,7 +1725,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -1775,7 +1775,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -1825,7 +1825,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -1875,7 +1875,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -1925,7 +1925,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+				Assert.assertTrue(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -1975,7 +1975,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+				Assert.assertTrue(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -2018,7 +2018,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -2065,7 +2065,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+				Assert.assertTrue(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -2119,7 +2119,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+				Assert.assertTrue(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();
@@ -2173,7 +2173,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
-				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
+				Assert.assertFalse(formEntrySession.getContext().getCurrentEncounterData().isGuessingInd());
 			}
 
 		}.run();

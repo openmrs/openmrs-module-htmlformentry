@@ -100,7 +100,7 @@ public class Translator {
 	/**
 	 * Gets the translation map associated with a particular locale
 	 * 
-	 * @param locale the name of the locale
+	 * @param localeStr the name of the locale
 	 * @return the translation map for that locale
 	 */
 	public Map<String, String> getTranslations(String localeStr) {
@@ -135,6 +135,21 @@ public class Translator {
 	 */
 	public Map<String, String> getTranslations(Locale locale) {
 		return getTranslations(locale == null ? null : locale.toString());
+	}
+
+	/**
+	 * @return the translation for the specific code and locale
+	 */
+	public String translate(Locale locale, String key) {
+		return translate(locale.toString(), key);
+	}
+
+	/**
+	 * Gets the translation for a specific code and locale, returning the
+	 * translation in a specified format
+	 */
+	public String translate(Locale locale, String key, Format format) {
+		return translate(locale.toString(), key, format);
 	}
 	
 	/**

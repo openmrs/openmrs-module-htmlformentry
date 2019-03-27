@@ -258,11 +258,11 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 	@Override
 	protected void populateDrugOrderValuesFromDB(FormEntryContext context, Boolean usingDurationField) {
 		// populate values drug order from database (VIEW, EDIT)
-		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {
+		if (context.getMode() != Mode.ENTER && context.getCurrentEncounterData().getOrdersByConcept() != null) {
 			for (Drug drug : drugsUsedAsKey) {
-				if (context.getExistingOrders().containsKey(drug.getConcept())) {
+				if (context.getCurrentEncounterData().getOrdersByConcept().containsKey(drug.getConcept())) {
 					//this will return null if Order is not a DrugOrder even if matched by Concept
-					DrugOrder drugOrder = (DrugOrder) context.removeExistingDrugOrder(drug);
+					DrugOrder drugOrder = (DrugOrder) context.getCurrentEncounterData().removeExistingDrugOrder(drug);
 					
 					if (drugOrder != null) {
 						//start from the first order for that drug

@@ -183,7 +183,7 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 		
 		createAdditionalWidgets(context, parameters);
 		
-		if (context.getMode() != Mode.ENTER && context.getExistingOrders() != null) {	
+		if (context.getMode() != Mode.ENTER && context.getCurrentEncounterData().getOrdersByConcept() != null) {
 			matchStandardRegimenInExistingOrders(context);
 		}
 		if (regDrugOrders != null && regDrugOrders.size() > 0){
@@ -203,11 +203,11 @@ public class StandardRegimenElement implements HtmlGeneratorElement, FormSubmiss
 
 
 	protected void matchStandardRegimenInExistingOrders(FormEntryContext context) {
-	    Map<RegimenSuggestion, List<DrugOrder>> map =  RegimenUtil.findStrongestStandardRegimenInDrugOrders(possibleRegimens, context.getRemainingExistingOrders());
+	    Map<RegimenSuggestion, List<DrugOrder>> map =  RegimenUtil.findStrongestStandardRegimenInDrugOrders(possibleRegimens, context.getCurrentEncounterData().getRemainingExistingOrders());
 	    if (map.size() == 1){
 	    	existingStandardRegimen = map.keySet().iterator().next();
 	    	for (DrugOrder dor : map.get(existingStandardRegimen)){
-	    		regDrugOrders.add(context.removeExistingDrugOrder(dor.getDrug()));
+	    		regDrugOrders.add(context.getCurrentEncounterData().removeExistingDrugOrder(dor.getDrug()));
 	    		regWidget.setInitialValue(existingStandardRegimen.getCodeName());
 	    	}
 	    	 discontinuedDateWidget.setInitialValue(getCommonDiscontinueDate(regDrugOrders));

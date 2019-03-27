@@ -50,11 +50,11 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 	@Override
 	protected void matchStandardRegimenInExistingOrders(FormEntryContext context) {
 		Map<RegimenSuggestion, List<DrugOrder>> map = RegimenUtil1_10.findStrongestStandardRegimenInDrugOrders(
-		    possibleRegimens, context.getRemainingExistingOrders());
+		    possibleRegimens, context.getCurrentEncounterData().getRemainingExistingOrders());
 		if (map.size() == 1) {
 			existingStandardRegimen = map.keySet().iterator().next();
 			for (DrugOrder dor : map.get(existingStandardRegimen)) {
-				regDrugOrders.add(context.removeExistingDrugOrder(dor.getDrug()));
+				regDrugOrders.add(context.getCurrentEncounterData().removeExistingDrugOrder(dor.getDrug()));
 				regWidget.setInitialValue(existingStandardRegimen.getCodeName());
 				careSettingWidget.setInitialValue(dor.getCareSetting());
 			}
