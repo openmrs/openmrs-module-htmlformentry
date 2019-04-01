@@ -39,6 +39,12 @@ function clearError(errorDivId) {
 
 function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 	clearError(errorDivId);
+
+	if (el.value == "") {
+	    el.classList.remove("illegalValue");
+	    el.classList.remove("legalValue");
+	    return;
+	}
 	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages);
 	if (errorMessage == null) {
 		el.classList.remove("illegalValue");
