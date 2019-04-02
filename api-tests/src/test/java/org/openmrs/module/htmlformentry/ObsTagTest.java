@@ -1016,7 +1016,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 results.assertLocation(2);
                 results.assertObsCreatedCount(3);
                 results.assertObsCreated(1000, Context.getConceptService().getDrug(3));
-				results.assertObsCreated(19, Context.getConceptService().getDrug(11));
+				results.assertObsCreated(8119, Context.getConceptService().getDrug(11));
             }
 
             @Override

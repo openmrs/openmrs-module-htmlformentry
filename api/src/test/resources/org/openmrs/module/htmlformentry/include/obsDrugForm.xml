@@ -4,7 +4,7 @@
     Provider: <encounterProvider role="Provider"/>
     Allergic to drug: <obs conceptId="1000" answerDrugs="true"/>
     <obsgroup groupingConceptId="3101">
-        Drug as checkbox: <obs id="medication" conceptId="19" answerDrugId="7e2323fa-0fa0-461f-9b59-6765997d849e" style="checkbox"/>
+        Drug as checkbox: <obs id="medication" conceptId="8119" answerDrugId="7e2323fa-0fa0-461f-9b59-6765997d849e" style="checkbox"/>
     </obsgroup>
     <submit/>
 </htmlform>
