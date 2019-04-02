@@ -166,6 +166,11 @@
   <concept_set concept_set_id="1441" concept_id="1441" concept_set="3025" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
   <concept_set concept_set_id="3016" concept_id="3016" concept_set="3025" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
 
+ <!-- Prescription construct-->
+ <concept concept_id="3101" creator="1" date_created="2016-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="9ab17798-1486-4d56-9218-e3578646a772"/>
+ <concept concept_id="8119" creator="1" date_created="2016-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="3cd9491e-26fe-102b-80cb-0017a47871b2"/>
+
+
   <!-- Concepts for testing datatypes -->
   <concept concept_id="1007" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="8" uuid="32296060-03aa-102d-b0e3-001ec94a0dd3"/>
   <concept_name voided="false" concept_name_id="1007" concept_id="1007" name="Timestamp Test" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>

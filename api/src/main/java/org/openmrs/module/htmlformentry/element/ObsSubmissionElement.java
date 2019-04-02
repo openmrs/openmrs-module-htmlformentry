@@ -744,7 +744,17 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                         }
                         valueWidget = widget;
 
-                    } else {
+                    }  else if (parameters.get("answerDrugId") != null) {
+						String answerDrugId = parameters.get("answerDrugId");
+						if (StringUtils.isNotBlank(answerDrugId)) {
+							Drug drug = HtmlFormEntryUtil.getDrug(answerDrugId);
+							if (drug == null) {
+								throw new IllegalArgumentException("Cannot find Drug for answerDrugId: " + answerDrugId
+										+ " in answerDrugId attribute value. Parameters: " + parameters);
+							}
+							valueWidget = createCheckboxWidget(drug.getName(), "Drug:" + drug.getId().toString(), null);
+						}
+					}else {
 			            // Show Radio Buttons if specified, otherwise default to Drop
 						// Down 
 						boolean isRadio = "radio".equals(parameters.get("style"));

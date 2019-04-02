@@ -996,7 +996,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String[] widgetLabels() {
-                return new String[] { "Date:", "Location:", "Provider:", "Allergic to drug:" };
+                return new String[] { "Date:", "Location:", "Provider:", "Allergic to drug:", "Drug as checkbox:" };
             }
 
             @Override
@@ -1005,6 +1005,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 request.addParameter(widgets.get("Location:"), "2");
                 request.addParameter(widgets.get("Provider:"), "502");
                 request.addParameter(widgets.get("Allergic to drug:"), "Drug:3");
+				request.addParameter(widgets.get("Drug as checkbox:"), "Drug:11");
             }
 
             @Override
@@ -1013,8 +1014,9 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
                 results.assertEncounterCreated();
                 results.assertProvider(502);
                 results.assertLocation(2);
-                results.assertObsCreatedCount(1);
+                results.assertObsCreatedCount(3);
                 results.assertObsCreated(1000, Context.getConceptService().getDrug(3));
+				results.assertObsCreated(8119, Context.getConceptService().getDrug(11));
             }
 
             @Override

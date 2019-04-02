@@ -515,6 +515,23 @@ public class HtmlFormEntryUtil {
 	}
 
 	/**
+	 * Find Drug by UUID
+	 * @param uuid
+	 * @return
+	 */
+	public static Drug getDrug(String uuid) {
+		Drug drug = null;
+		if (StringUtils.isNotBlank(uuid)) {
+			try {
+				drug = Context.getConceptService().getDrugByUuid(uuid);
+			} catch (Exception e) {
+				log.error("Failed to find drug: ", e);
+			}
+		}
+		return drug;
+	}
+
+	/**
 	 * Get the concept by id where the id can either be:
 	 *   1) an integer id like 5090
 	 *   2) a mapping type id like "XYZ:HT"
