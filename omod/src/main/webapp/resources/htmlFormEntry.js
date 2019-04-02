@@ -40,16 +40,19 @@ function clearError(errorDivId) {
 function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 	clearError(errorDivId);
 
-	if (el.value == '') {
-		el.className = null;
+	if (el.value == "") {
+	    el.classList.remove("illegalValue");
+	    el.classList.remove("legalValue");
+	    return;
 	}
-
 	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages);
 	if (errorMessage == null) {
-		el.className = 'legalValue';
+		el.classList.remove("illegalValue");
+    		el.classList.add("legalValue");
 		clearError(errorDivId);
 	} else {
-		el.className = 'illegalValue';
+		el.classList.add("illegalValue");
+		el.classList.remove("legalValue");
 		showError(errorDivId, errorMessage);
 	}
 }
