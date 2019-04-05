@@ -129,6 +129,10 @@
                             <key><value>immunization</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ImmunizationTagHandler"/>
                         </entry>
+                        <entry>
+                            <key><value>obsreference</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.ObsReferenceTagHandler"/>
+                        </entry>
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">

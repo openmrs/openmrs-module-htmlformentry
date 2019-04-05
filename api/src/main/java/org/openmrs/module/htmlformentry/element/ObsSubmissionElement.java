@@ -78,7 +78,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private String valueLabel;
 	
-	private Widget valueWidget;
+	protected Widget valueWidget;
 	
 	private String defaultValue;
 	
