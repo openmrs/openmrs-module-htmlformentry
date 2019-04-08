@@ -11,6 +11,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.Obs;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -23,6 +24,7 @@ public class ObsGroupComponent {
 
 	private Concept question;
 	private Concept answer;
+	private Drug answerDrug;
 	private int remainingInSet = 0;
 
 	/** Logger for this class and subclasses */
@@ -34,6 +36,12 @@ public class ObsGroupComponent {
 	public ObsGroupComponent(Concept question, Concept answer) {
 		this.question = question;
 		this.answer = answer;
+	}
+
+	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug) {
+		this.question = question;
+		this.answer = answer;
+		this.answerDrug = answerDrug;
 	}
 
 	public ObsGroupComponent(Concept question, Concept answer, int remainingInSet) {
@@ -61,6 +69,14 @@ public class ObsGroupComponent {
 	/** Sets the concept that represents the component's answer */
 	public void setAnswer(Concept answer) {
 		this.answer = answer;
+	}
+
+	public Drug getAnswerDrug() {
+		return answerDrug;
+	}
+
+	public void setAnswerDrug(Drug answerDrug) {
+		this.answerDrug = answerDrug;
 	}
 
 	@Deprecated
@@ -95,11 +111,22 @@ public class ObsGroupComponent {
 
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
 				boolean questionMatches = obsGroupComponent.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
-				boolean answerMatches = obsGroupComponent.getAnswer() == null ||(obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
+				boolean answerMatches = false;
+
+				if (obsGroupComponent.getAnswerDrug() == null ) {
+					answerMatches = (obsGroupComponent.getAnswer() == null ||
+							(obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId())));
+				} else {
+					answerMatches = (obs.getValueDrug() !=null && obsGroupComponent.getAnswerDrug().getDrugId().equals(obs.getValueDrug().getDrugId()));
+				}
+
 
 				if (questionMatches && !answerMatches) {					
 					if (!obsGroupComponentMatchLog.contains(obsGroupComponent.getQuestion().getConceptId())) {
-						if (obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null) {
+						if ( ((obsGroupComponent.getAnswer() != null) &&
+								(obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null)) ||
+								((obsGroupComponent.getAnswerDrug() != null) &&
+										(obs.getValueDrug() == null || obs.getValueDrug().getDrugId() == null)) ) {
 							return 0;
 						} else {
 							if (obsGroupComponent.isPartOfSet()) {
@@ -113,7 +140,7 @@ public class ObsGroupComponent {
 						}
 					}
 				} else if (questionMatches && answerMatches) {
-					if (obsGroupComponent.getAnswer() != null) {
+					if (( obsGroupComponent.getAnswer() != null ) || (obsGroupComponent.getAnswerDrug() != null)) {
 						// add extra weight to this matching...
 						rank++;
 					}
@@ -138,6 +165,7 @@ public class ObsGroupComponent {
 			Concept question = null;
 			List<Concept> questions = null;
 			Concept answer = null;
+			Drug answerDrug = null;
 			List<Concept> answersList = null;
 			NamedNodeMap attrs = node.getAttributes();
 			try {
@@ -163,6 +191,14 @@ public class ObsGroupComponent {
 			} catch (Exception ex) {
 				// this is fine
 			}
+			try {
+				Node answerDrugId = attrs.getNamedItem("answerDrugId");
+				if ( answerDrugId != null ) {
+					answerDrug = HtmlFormEntryUtil.getDrug(answerDrugId.getNodeValue());
+				}
+			} catch (Exception ex) {
+				// this is fine
+			}
 			//check for answerConceptIds (plural)
 			if (answer == null){
 				Node n = attrs.getNamedItem("answerConceptIds");
@@ -182,7 +218,7 @@ public class ObsGroupComponent {
 				}
 			}
 
-			//deterimine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
+			//determine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
 			boolean thisObsInThisGroup = false;
 			Node pTmp = node.getParentNode();
 
@@ -215,7 +251,7 @@ public class ObsGroupComponent {
 						obsGroupComponents.add(new ObsGroupComponent(c, answer, questions.size() - (setCounter++)));
 					}
 				} else {
-					obsGroupComponents.add(new ObsGroupComponent(question, answer));
+					obsGroupComponents.add(new ObsGroupComponent(question, answer, answerDrug));
 				}	     
 			} 
 		} else if ("obsgroup".equals(node.getNodeName())){

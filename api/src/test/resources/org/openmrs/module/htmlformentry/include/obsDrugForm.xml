@@ -2,9 +2,13 @@
     Date: <encounterDate/>
     Location: <encounterLocation/>
     Provider: <encounterProvider role="Provider"/>
+
     Allergic to drug: <obs conceptId="1000" answerDrugs="true"/>
     <obsgroup groupingConceptId="3101">
-        Drug as checkbox: <obs id="medication" conceptId="8119" answerDrugId="7e2323fa-0fa0-461f-9b59-6765997d849e" style="checkbox"/>
+        Paracetamol as checkbox: <obs id="medication-1" conceptId="8119" answerDrugId="4d6fb6e0-4950-426c-9a9b-1f97e6037893" style="checkbox"/>
+    </obsgroup>
+    <obsgroup groupingConceptId="3101">
+        NYQUIL as checkbox: <obs id="medication-2" conceptId="8119" answerDrugId="7e2323fa-0fa0-461f-9b59-6765997d849e" style="checkbox"/>
     </obsgroup>
     <submit/>
 </htmlform>
