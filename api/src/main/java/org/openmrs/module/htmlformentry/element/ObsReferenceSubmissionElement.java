@@ -10,6 +10,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
+import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +54,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
         // TODO handle edit mode--the following logic should only be in view mode
         // TODO how do we handle new encounters
+        // TODO add "setInitialValue" to Widget?
 
         if (this.valueWidget instanceof NumberFieldWidget) {
             if (((NumberFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
@@ -60,10 +62,15 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
             }
         }
 
-        // TODO could/should this be single option widget?
         if (this.valueWidget instanceof SingleOptionWidget) {
             if (((SingleOptionWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
                 (this.valueWidget).setInitialValue(referenceObs.getValueCoded());
+            }
+        }
+
+        if (this.valueWidget instanceof TextFieldWidget) {
+            if (((TextFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
+                (this.valueWidget).setInitialValue(referenceObs.getValueText());
             }
         }
 

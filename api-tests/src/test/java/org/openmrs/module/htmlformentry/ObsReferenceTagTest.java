@@ -15,6 +15,7 @@ import java.util.Date;
 // TODO: is same day okay?
 // TODO: do we need to handle more than just Single Option and Numeric?  Free Text?
 // TODO: can encounter date be set on session somehow?  what if encounter date is changed?
+// TODO: failing tests
 
 public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
@@ -41,7 +42,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String getFormName() {
-                return "singleObsReferenceForm";
+                return "singleObsReferenceFormWithNumericValue";
             }
 
             @Override
@@ -74,7 +75,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String getFormName() {
-                return "singleObsReferenceForm";
+                return "singleObsReferenceFormWithNumericValue";
             }
 
             @Override
@@ -131,7 +132,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testViewingEncounter(Encounter encounter, String html) {
-                TestUtil.assertFuzzyContains("Coded: PENICILLIN", html);  // TODO why isn't it including decimal point
+                TestUtil.assertFuzzyContains("Coded: PENICILLIN", html);
             }
         }.run();
     }
@@ -166,10 +167,79 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testViewingEncounter(Encounter encounter, String html) {
-                TestUtil.assertFuzzyContains("Coded: CATS", html);  // TODO why isn't it including decimal point
+                TestUtil.assertFuzzyContains("Coded: CATS", html);
             }
         }.run();
     }
+
+    @Test
+    public void viewSingleReferenceObsShouldShowValueTextOFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithTextValue";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyContains("Text: Penicillin", html);
+            }
+        }.run();
+    }
+
+
+    @Test
+    public void viewSingleReferenceObsShouldPreferTextObsFromEncounter() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithTextValue";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                TestUtil.addObs(e, 8, "Cats", null);
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyContains("Text: Cats", html);
+            }
+        }.run();
+    }
+
 
 }
 
