@@ -8,6 +8,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
+import java.text.ParseException;
 import java.util.Date;
 
 // TODO: enter mode, how do we handle not showing encounter date
@@ -15,7 +16,7 @@ import java.util.Date;
 // TODO: is same day okay?
 // TODO: do we need to handle more than just Single Option and Numeric?  Free Text?
 // TODO: can encounter date be set on session somehow?  what if encounter date is changed?
-// TODO: failing tests
+// TODO: Make sure we test that the reference message is *not* displayed in view mode
 
 public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
@@ -240,6 +241,97 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
         }.run();
     }
 
+    @Test
+    public void editSingleReferenceObsShouldShowReferenceNumericObsFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Previously entered value of 70.0", html);
+            }
+        }.run();
+    }
+
+
+   /* @Test
+    public void editSingleReferenceObsShouldNotShowReferenceNumericObsFromSameDateOutsideOfEncounterIfExistingEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                TestUtil.addObs(e, 2, 12.3, null); // weight has conceptId 2
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyDoesNotContain("Previously entered value of 70.0", html);
+            }
+        }.run();
+    }*/
 
 }
 

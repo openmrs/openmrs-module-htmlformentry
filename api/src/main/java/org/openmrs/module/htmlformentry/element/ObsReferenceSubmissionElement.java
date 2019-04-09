@@ -20,9 +20,15 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
     Obs referenceObs = null;
 
+    String message = null;
+
     public ObsReferenceSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 
         super(context, parameters);
+
+        if (StringUtils.isNotEmpty(parameters.get("referenceMessage"))) {
+            message = parameters.get("referenceMessage");
+        }
 
         String conceptId = parameters.get("conceptId");
         Concept concept = null;
@@ -52,29 +58,41 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
     @Override
     public String generateHtml(FormEntryContext context) {
 
-        // TODO handle edit mode--the following logic should only be in view mode
+        // TODO support rendering of contextual encounter date and type
+        // TODO handle edit mode--write tests for the other types
         // TODO how do we handle new encounters
         // TODO add "setInitialValue" to Widget?
 
-        if (this.valueWidget instanceof NumberFieldWidget) {
-            if (((NumberFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                (this.valueWidget).setInitialValue(referenceObs.getValueNumeric());
+        if (context.getMode().equals(FormEntryContext.Mode.VIEW)) {
+            if (this.valueWidget instanceof NumberFieldWidget) {
+                if (((NumberFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
+                    (this.valueWidget).setInitialValue(referenceObs.getValueNumeric());
+                }
             }
-        }
 
-        if (this.valueWidget instanceof SingleOptionWidget) {
-            if (((SingleOptionWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                (this.valueWidget).setInitialValue(referenceObs.getValueCoded());
+            if (this.valueWidget instanceof SingleOptionWidget) {
+                if (((SingleOptionWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
+                    (this.valueWidget).setInitialValue(referenceObs.getValueCoded());
+                }
             }
-        }
 
-        if (this.valueWidget instanceof TextFieldWidget) {
-            if (((TextFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                (this.valueWidget).setInitialValue(referenceObs.getValueText());
+            if (this.valueWidget instanceof TextFieldWidget) {
+                if (((TextFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
+                    (this.valueWidget).setInitialValue(referenceObs.getValueText());
+                }
             }
         }
 
         String html = super.generateHtml(context);
+
+        // if we are in enter or edit mode and have a reference obs and message, display the message
+        if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
+            && referenceObs != null && StringUtils.isNotBlank(message)) {
+            // TODO this is pretty quick-and-dirty, add better templating in the future?
+            message = StringUtils.replace(message, "{{value}}", referenceObs.getValueAsString(Context.getLocale()));
+            html = html + "<span>" + message + "</span>";
+        }
+
         return html;
     }
 }
