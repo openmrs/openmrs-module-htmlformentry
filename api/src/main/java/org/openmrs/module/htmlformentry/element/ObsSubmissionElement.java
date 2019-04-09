@@ -105,6 +105,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private boolean allowFutureDates = false;
 	
 	private Concept answerConcept;
+
+	private Drug answerDrug;
 	
 	private List<Concept> conceptAnswers = new ArrayList<Concept>();
 	
@@ -230,12 +232,23 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				answerConcept = HtmlFormEntryUtil.getConcept(parameters.get("answerConceptId"));
 		}
 		catch (Exception ex) {}
+
+		try {
+			if (answerDrug == null)
+				answerDrug = HtmlFormEntryUtil.getDrug(parameters.get("answerDrugId"));
+		}
+		catch (Exception ex) {}
+
         Integer size = 1;
         try {
             size = Integer.valueOf(parameters.get("size"));
         }catch (Exception ex) {}
 		if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
-			existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
+        	if (answerDrug == null) {
+				existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
+			} else {
+				existingObs = context.getObsFromCurrentGroup(concept, answerDrug);
+			}
 		} else if (concept != null) {
 			if (concept.getDatatype().isBoolean() && "checkbox".equals(parameters.get("style"))) {
 				// since a checkbox has one value we need to look for an exact
@@ -255,6 +268,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				existingObsList = context.removeExistingObs(concept);
 			} else {
 				existingObs = context.removeExistingObs(concept, answerConcept);
+				if (answerDrug != null) {
+					existingObs = context.removeExistingObs(concept, answerDrug);
+				}
 			}
 		} else {
 			existingObs = context.removeExistingObs(concepts, answerConcept);
@@ -700,7 +716,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					
 					// if no answers are specified explicitly (by conceptAnswers or conceptClasses), get them from concept.answers.
 					if (!parameters.containsKey("answerConceptIds") && !parameters.containsKey("answerClasses")
-							&& !parameters.containsKey("answerDrugs") && !parameters.containsKey("answerConceptSetIds")) {
+							&& !parameters.containsKey("answerDrugs") && !parameters.containsKey("answerDrugId") && !parameters.containsKey("answerConceptSetIds")) {
 						conceptAnswers = new ArrayList<Concept>();
 						for (ConceptAnswer ca : concept.getAnswers(false)) {
 							conceptAnswers.add(ca.getAnswerConcept());
@@ -753,6 +769,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 										+ " in answerDrugId attribute value. Parameters: " + parameters);
 							}
 							valueWidget = createCheckboxWidget(drug.getName(), "Drug:" + drug.getId().toString(), null);
+							if (existingObs != null && existingObs.getValueDrug() != null) {
+								valueWidget.setInitialValue(true);
+							}
 						}
 					}else {
 			            // Show Radio Buttons if specified, otherwise default to Drop

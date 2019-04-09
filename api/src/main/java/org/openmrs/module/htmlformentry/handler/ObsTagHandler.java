@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.handler;
 
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
+import org.openmrs.Drug;
 import org.openmrs.LocationTag;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -33,6 +34,7 @@ public class ObsTagHandler extends AbstractTagHandler {
 		attributeDescriptors.add(new AttributeDescriptor("conceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("conceptIds", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("answerConceptId", Concept.class));
+        attributeDescriptors.add(new AttributeDescriptor("answerDrugId", Drug.class));
 		attributeDescriptors.add(new AttributeDescriptor("answerConceptIds", Concept.class));
         attributeDescriptors.add(new AttributeDescriptor(HtmlFormEntryConstants.ANSWER_LOCATION_TAGS, LocationTag.class));
 		return Collections.unmodifiableList(attributeDescriptors);

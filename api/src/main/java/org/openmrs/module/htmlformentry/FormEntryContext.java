@@ -356,6 +356,27 @@ public class FormEntryContext {
         }
         return null;
     }
+
+    /**
+     * Returns (and removes) the Obs from the current {@see ObsGroup} with the specified concept and answer Drug
+     *
+     * @param concept the concept associated with the Obs we are looking for
+     * @param answerDrug the Drug associated with the coded value of the Obs we are looking for (may be null)
+     * @return the Obs from the current {@see ObsGroup} with the specified concept and answer concept
+     */
+    public Obs getObsFromCurrentGroup(Concept concept, Drug answerDrug) {
+        if (currentObsGroupMembers == null)
+            return null;
+        for (Iterator<Obs> iter = currentObsGroupMembers.iterator(); iter.hasNext(); ) {
+            Obs obs = iter.next();
+            if (!obs.isVoided() && (concept == null || concept.getConceptId().equals(obs.getConcept().getConceptId())) &&
+                    (answerDrug == null || equalDrug(answerDrug, obs.getValueDrug()))) {
+                iter.remove();
+                return obs;
+            }
+        }
+        return null;
+    }
     
     /**
      * Sets the Patient to associate with the context
@@ -418,7 +439,28 @@ public class FormEntryContext {
                 setupExistingObsInGroups(parent.getGroupMembers());
             }    
     }
-            
+
+    /**
+     * Removes an Obs or ObsGroup of the relevant Drug from existing Obs, and returns it.
+     * @param question the Concept associated with the Obs to remove
+     * @param answer the Drug that serves as the answer for Obs to remove
+     * @return
+     */
+    public Obs removeExistingObs(Concept question, Drug answer) {
+        List<Obs> list = existingObs.get(question);
+        if (list != null) {
+            for (Iterator<Obs> iter = list.iterator(); iter.hasNext(); ) {
+                Obs test = iter.next();
+                if (answer == null || equalDrug(answer, test.getValueDrug())) {
+                    iter.remove();
+                    if (list.size() == 0)
+                        existingObs.remove(question);
+                    return test;
+                }
+            }
+        }
+        return null;
+    }
      /**
       * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this version
       * for obs whose concept's datatype is not boolean.
