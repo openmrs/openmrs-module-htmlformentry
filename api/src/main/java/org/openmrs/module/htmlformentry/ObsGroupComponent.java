@@ -1,13 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -16,6 +8,14 @@ import org.openmrs.Obs;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /** 
  * Data object that represents a single component of an ObsGroup
@@ -114,13 +114,14 @@ public class ObsGroupComponent {
 				boolean answerMatches = false;
 
 				if (obsGroupComponent.getAnswerDrug() == null ) {
-					answerMatches = (obsGroupComponent.getAnswer() == null ||
+					answerMatches = (obsGroupComponent.getAnswer() == null ||  // TODO: why do we consider a match if answer is null?
 							(obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId())));
 				} else {
 					answerMatches = (obs.getValueDrug() !=null && obsGroupComponent.getAnswerDrug().getDrugId().equals(obs.getValueDrug().getDrugId()));
 				}
 
 
+				// TODO: what does this logic actually do????
 				if (questionMatches && !answerMatches) {					
 					if (!obsGroupComponentMatchLog.contains(obsGroupComponent.getQuestion().getConceptId())) {
 						if ( ((obsGroupComponent.getAnswer() != null) &&
@@ -128,7 +129,8 @@ public class ObsGroupComponent {
 								((obsGroupComponent.getAnswerDrug() != null) &&
 										(obs.getValueDrug() == null || obs.getValueDrug().getDrugId() == null)) ) {
 							return 0;
-						} else {
+						}
+						else {
 							if (obsGroupComponent.isPartOfSet()) {
 								if (obsGroupComponent.getRemainingInSet() == 1) {
 									return -1000;
