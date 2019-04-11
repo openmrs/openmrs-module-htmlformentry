@@ -11,12 +11,7 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import java.text.ParseException;
 import java.util.Date;
 
-// TODO: can encounter date be set on session somehow?  what if encounter date is changed?
-// TODO: enter/edit mode, how do we handle not allowing encounter date editing
-// TODO: tests for Single Option and Text Field in edit mode
 // TODO: review if we need to support any more widget types: Checkbox, DateTime,
-// TODO: Make sure we test that the reference message is *not* displayed in view mode
-// TODO add "setInitialValue" to Widget?
 
 public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
@@ -69,6 +64,40 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
             }
         }.run();
     }
+
+    @Test
+    public void viewSingleReferenceObsReferenceMessageShouldNotBeDisplayedInViewMode() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValue";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 recorded as part of Emergency on 01/02/2003", html);
+            }
+        }.run();
+    }
+
 
     @Test
     public void viewSingleReferenceObsShouldPreferNumericObsFromEncounter() throws Exception {
@@ -247,7 +276,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String getFormName() {
-                return "singleObsReferenceFormWithDatetimeValue";
+                return "singleObsReferenceFormWithDateValue";
             }
 
             @Override
@@ -314,7 +343,52 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Value of 70.0 recorded as part of Emergency", html);
+                TestUtil.assertFuzzyContains("Value of 70.0 recorded as part of Emergency on 01/02/2003", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldNotShowReferenceNumericObsFromSameDateOutsideOfEncounterIfShowReferenceMessageFalse() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndShowReferenceMessageFalse";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 recorded as part of Emergency on 01/02/2003", html);
             }
         }.run();
     }
@@ -364,9 +438,53 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
         }.run();
     }
 
+    @Test
+    public void editSingleReferenceObsShouldPrepopulateWidgetWithReferenceNumericObsFromSameDateOutsideOfEncounterIfNoEncounterValueAndPrepopulateTrue() throws Exception {
+        new RegressionTestHelper() {
 
-   /* @Test
-    public void editSingleReferenceObsShouldNotShowReferenceNumericObsFromSameDateOutsideOfEncounterIfExistingEncounterValue() throws Exception {
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndPrepopulateTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("value=\"70\"", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldNotPrepopulateWidgetWithReferenceNumericObsFromSameDateOutsideOfEncounterIfNoEncounterValueAndPrepopulateFalse() throws Exception {
         new RegressionTestHelper() {
 
             @Override
@@ -394,7 +512,6 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
                 e.setLocation(Context.getLocationService().getLocation(2));
                 e.setProvider(Context.getPersonService().getPerson(502));
-                TestUtil.addObs(e, 2, 12.3, null); // weight has conceptId 2
                 return e;
             }
 
@@ -406,11 +523,283 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyDoesNotContain("Previously entered value of 70.0", html);
+                TestUtil.assertFuzzyDoesNotContain("value=\"70\"", html);
             }
         }.run();
-    }*/
+    }
 
+
+    @Test
+    public void editSingleReferenceObsShouldShowReferenceCodedObsFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithCodedValue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Value of PENICILLIN recorded as part of Emergency on 01/02/2003", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldPrepopulateWidgetWithReferenceCodedObsFromSameDateOutsideOfEncounterIfNoEncounterValueAndPrepopulateTrue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithCodedValueAndPrepopulateTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("value=\"1001\" selected=\"true\"", html);
+            }
+        }.run();
+    }
+
+
+    @Test
+    public void editSingleReferenceObsShouldShowReferenceTextObsFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithTextValue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Value of Penicillin recorded as part of Emergency on 01/02/2003", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldPrepopulateWidgetWithReferenceTextObsFromSameDateOutsideOfEncounterIfNoEncounterValueAndPrepopulateTrue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithTextValueAndPrepopulateTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("value=\"Penicillin\"", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldShowReferenceDateObsFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithDateValue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Value of 2003-02-01 recorded as part of Emergency on 01/02/2003", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldPrepopulateWidgetWithReferenceDateObsFromSameDateOutsideOfEncounterIfNoEncounterValueAndPrepopulateTrue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithDateValueAndPrepopulateTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                // TODO: hacky, based on exact format of datepicker, but fine for now... we can remove in the future if this breaks anything
+                TestUtil.assertFuzzyContains("'2003-02-01'", html);
+            }
+        }.run();
+    }
 }
 
 

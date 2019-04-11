@@ -1,18 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
-    <!-- Weight for our patient, as part of an encounter -->
+
+    <!-- encounter for our reference data -->
     <encounter encounter_id="3001" encounter_type="2" patient_id="2" location_id="1" form_id="1" encounter_datetime="2003-02-01 00:00:00.0" creator="1" date_created="2003-02-01 14:09:05.0" voided="false" uuid="356c9eb4-ff7f-40ff-9ebb-eae5a2b54335"/>
+
+    <!-- Weight for our patient, as part of an encounter -->
     <obs obs_id="2001" person_id="2" concept_id="2" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2003-02-01 00:00:00.0" voided="false" uuid="04d2c021-b83a-4e02-884f-70e5c12c0dc3" />
 
     <!-- Allergy for our patient -->
-    <obs obs_id="2002" person_id="2" concept_id="1000" obs_datetime="2003-02-01 00:00:00.0" value_coded="1001" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="77308c89-68de-4a78-82cb-8f1f4ccb30ad" />
+    <obs obs_id="2002" person_id="2" concept_id="1000" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="1001" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="77308c89-68de-4a78-82cb-8f1f4ccb30ad" />
 
     <!-- Non-Coded Allergy for our patient -->
-    <obs obs_id="2003" person_id="2" concept_id="8" obs_datetime="2003-02-01 00:00:00.0" value_text="Penicillin" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="f90678a6-db11-4730-8801-3249dca43b95" />
+    <obs obs_id="2003" person_id="2" concept_id="8" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_text="Penicillin" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="f90678a6-db11-4730-8801-3249dca43b95" />
 
     <!-- Date obs for out patient -->
     <concept concept_id="2001" retired="false" datatype_id="6" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="f4cd95b6-9497-48c2-8933-2c43f3233ea0 "/>
-    <obs obs_id="2004" person_id="2" concept_id="2001" obs_datetime="2003-02-01 00:00:00.0" value_datetime="2003-02-01 00:00:00.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="b4350dee-91dd-4ee5-8849-86c8ee96008a" />
+    <obs obs_id="2004" person_id="2" concept_id="2001" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_datetime="2003-02-01 00:00:00.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="b4350dee-91dd-4ee5-8849-86c8ee96008a" />
 
 
 </dataset>
