@@ -11,12 +11,14 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import java.text.ParseException;
 import java.util.Date;
 
-// TODO: enter mode, how do we handle not showing encounter date
-// TODO: enter/edit mode, how to we display values? append stand-alone HTML, and wrap the widget in a hidden div that can be triggered by a button>
-// TODO: is same day okay?
-// TODO: do we need to handle more than just Single Option and Numeric?  Free Text?
+// TODO: add ability to specify encounter type as part of template
+// TODO: add a default template?
 // TODO: can encounter date be set on session somehow?  what if encounter date is changed?
+// TODO: enter/edit mode, how do we handle not allowing encounter date editing
+// TODO: tests for Single Option and Text Field in edit mode
+// TODO: review if we need to support any more widget types
 // TODO: Make sure we test that the reference message is *not* displayed in view mode
+// TODO add "setInitialValue" to Widget?
 
 public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
@@ -281,7 +283,52 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Previously entered value of 70.0", html);
+                TestUtil.assertFuzzyContains("Value of 70.0 recorded as part of Emergency", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldShowReferenceNumericObsWithCustomMessageFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndCustomMessage";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Some custom message with value 70.0 for encounter Emergency", html);
             }
         }.run();
     }

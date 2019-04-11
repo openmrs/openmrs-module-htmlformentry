@@ -20,7 +20,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
     Obs referenceObs = null;
 
-    String message = null;
+    String message = "Value of {{value}} recorded as part of {{encounterType}}";
 
     public ObsReferenceSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 
@@ -32,7 +32,6 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
         String conceptId = parameters.get("conceptId");
         Concept concept = null;
-
 
         // TODO handle error cases
         if (StringUtils.isNotBlank(conceptId)) {
@@ -57,11 +56,6 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
     @Override
     public String generateHtml(FormEntryContext context) {
-
-        // TODO support rendering of contextual encounter date and type
-        // TODO handle edit mode--write tests for the other types
-        // TODO how do we handle new encounters
-        // TODO add "setInitialValue" to Widget?
 
         if (context.getMode().equals(FormEntryContext.Mode.VIEW)) {
             if (this.valueWidget instanceof NumberFieldWidget) {
@@ -88,8 +82,13 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
         // if we are in enter or edit mode and have a reference obs and message, display the message
         if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
             && referenceObs != null && StringUtils.isNotBlank(message)) {
-            // TODO this is pretty quick-and-dirty, add better templating in the future?
+
+            // TODO this is pretty quick-and-dirty, and not localized; add better templating in the future?
             message = StringUtils.replace(message, "{{value}}", referenceObs.getValueAsString(Context.getLocale()));
+            if (referenceObs.getEncounter() != null) {
+                message = StringUtils.replace(message, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
+            }
+
             html = html + "<span>" + message + "</span>";
         }
 
