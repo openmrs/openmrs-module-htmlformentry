@@ -267,8 +267,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			} else if ("autocomplete".equals(parameters.get("style")) && "true".equals(parameters.get("selectMulti"))) {
 				existingObsList = context.removeExistingObs(concept);
 			} else {
-				existingObs = context.removeExistingObs(concept, answerConcept);
-				if (answerDrug != null) {
+				if (answerDrug == null) {
+					existingObs = context.removeExistingObs(concept, answerConcept);
+				} else {
 					existingObs = context.removeExistingObs(concept, answerDrug);
 				}
 			}
