@@ -11,12 +11,10 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import java.text.ParseException;
 import java.util.Date;
 
-// TODO: add ability to specify encounter type as part of template
-// TODO: add a default template?
 // TODO: can encounter date be set on session somehow?  what if encounter date is changed?
 // TODO: enter/edit mode, how do we handle not allowing encounter date editing
 // TODO: tests for Single Option and Text Field in edit mode
-// TODO: review if we need to support any more widget types
+// TODO: review if we need to support any more widget types: Checkbox, DateTime,
 // TODO: Make sure we test that the reference message is *not* displayed in view mode
 // TODO add "setInitialValue" to Widget?
 
@@ -239,6 +237,39 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
             @Override
             public void testViewingEncounter(Encounter encounter, String html) {
                 TestUtil.assertFuzzyContains("Text: Cats", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void viewSingleReferenceObsShouldShowValueDatetimeOFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithDatetimeValue";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyContains("Last Food Assistance: 01/02/2003", html);
             }
         }.run();
     }

@@ -8,6 +8,7 @@ import org.openmrs.Person;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
@@ -73,6 +74,13 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
             if (this.valueWidget instanceof TextFieldWidget) {
                 if (((TextFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
                     (this.valueWidget).setInitialValue(referenceObs.getValueText());
+                }
+            }
+
+            // TODO also handle DateTime and Time widgets
+            if (this.valueWidget instanceof DateWidget) {
+                if (((DateWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
+                    (this.valueWidget).setInitialValue(referenceObs.getValueDatetime());
                 }
             }
         }

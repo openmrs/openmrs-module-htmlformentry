@@ -10,5 +10,9 @@
     <!-- Non-Coded Allergy for our patient -->
     <obs obs_id="2003" person_id="2" concept_id="8" obs_datetime="2003-02-01 00:00:00.0" value_text="Penicillin" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="f90678a6-db11-4730-8801-3249dca43b95" />
 
+    <!-- Date obs for out patient -->
+    <concept concept_id="2001" retired="false" datatype_id="6" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="f4cd95b6-9497-48c2-8933-2c43f3233ea0 "/>
+    <obs obs_id="2004" person_id="2" concept_id="2001" obs_datetime="2003-02-01 00:00:00.0" value_datetime="2003-02-01 00:00:00.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="b4350dee-91dd-4ee5-8849-86c8ee96008a" />
+
 
 </dataset>

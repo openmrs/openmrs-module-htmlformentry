@@ -119,6 +119,10 @@ public class DateWidget implements Widget {
         initialValue = (Date) value;
     }
 
+    public Object getInitialValue() {
+        return this.initialValue;
+    }
+
 	public void setOnChangeFunction(String onChangeFunction) {
 		this.onChangeFunction = onChangeFunction;
 	}
