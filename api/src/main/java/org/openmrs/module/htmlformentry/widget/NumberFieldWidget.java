@@ -8,9 +8,9 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.util.OpenmrsUtil;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -117,6 +117,10 @@ public class NumberFieldWidget implements Widget {
     @Override
     public void setInitialValue(Object initialValue) {
         this.initialValue = (Number) initialValue;
+    }
+
+    public Object getInitialValue() {
+        return this.initialValue;
     }
 
     @Override

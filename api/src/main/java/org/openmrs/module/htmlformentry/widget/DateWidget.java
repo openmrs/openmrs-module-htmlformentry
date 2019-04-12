@@ -33,6 +33,7 @@ public class DateWidget implements Widget {
     		return Context.getDateFormat();
     	}
     }
+
     public String getYearsRange()
     {
     	 return Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE, "110,20");
@@ -117,6 +118,10 @@ public class DateWidget implements Widget {
     @Override
     public void setInitialValue(Object value) {
         initialValue = (Date) value;
+    }
+
+    public Object getInitialValue() {
+        return this.initialValue;
     }
 
 	public void setOnChangeFunction(String onChangeFunction) {

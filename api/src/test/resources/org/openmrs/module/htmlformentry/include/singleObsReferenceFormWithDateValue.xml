@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Last Food Assistance: <obsreference conceptId="2001"/>
+    <submit/>
+</htmlform>

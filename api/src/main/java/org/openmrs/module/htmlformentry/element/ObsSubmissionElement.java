@@ -78,11 +78,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private String valueLabel;
 	
-	private Widget valueWidget;
+	protected Widget valueWidget;
 	
 	private String defaultValue;
 	
-	private boolean showUnits = false;
+	protected boolean showUnits = false;
 
     private String unitsCode;
 
@@ -1061,25 +1061,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.append(" ");
 		ret.append(valueWidget.generateHtml(context));
 		if (showUnits) {
-			if (concept == null || !concept.getDatatype().isNumeric()) {
-				throw new IllegalArgumentException("Can only show units when the concept is numeric");
-			}
-			String units;
-			if (concept instanceof ConceptNumeric) {
-				units = ((ConceptNumeric) concept).getUnits();
-			} else {
-				ConceptNumeric asConceptNumeric = Context.getConceptService().getConceptNumeric(concept.getConceptId());
-				if (asConceptNumeric == null) {
-					throw new IllegalStateException("Concept " + concept + " (" + concept.getName().getName() + ") has datatype = Numeric, but no row in concept_numeric");
-				}
-				units = asConceptNumeric.getUnits();
-			}
 			ret.append("<span class=\"" + unitsCssClass + "\">");
-            if (unitsCode != null) {
-                ret.append(context.getTranslator().translate(locale.toString(), unitsCode));
-            } else if (units != null) {
-                ret.append(units);
-            }
+			ret.append(getUnits(context));
             ret.append("</span>");
 		}
 		if (dateWidget != null) {
@@ -1120,7 +1103,34 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
         }
 		return ret.toString();
 	}
-	
+
+	protected String getUnits(FormEntryContext context) {
+
+		if (concept == null || !concept.getDatatype().isNumeric()) {
+			throw new IllegalArgumentException("Can only show units when the concept is numeric");
+		}
+
+		String units;
+		if (concept instanceof ConceptNumeric) {
+			units = ((ConceptNumeric) concept).getUnits();
+		} else {
+			ConceptNumeric asConceptNumeric = Context.getConceptService().getConceptNumeric(concept.getConceptId());
+			if (asConceptNumeric == null) {
+				throw new IllegalStateException("Concept " + concept + " (" + concept.getName().getName() + ") has datatype = Numeric, but no row in concept_numeric");
+			}
+			units = asConceptNumeric.getUnits();
+		}
+
+		if (unitsCode != null) {
+			return context.getTranslator().translate(locale.toString(), unitsCode);
+		} else if (units != null) {
+			return units;
+		}
+		else {
+			return null;
+		}
+	}
+
 	/**
 	 * TODO implement for all non-standard widgets
 	 * 
