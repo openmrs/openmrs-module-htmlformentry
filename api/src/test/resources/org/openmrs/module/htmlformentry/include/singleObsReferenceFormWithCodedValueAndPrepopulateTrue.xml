@@ -2,6 +2,6 @@
     Date: <encounterDate/>
     Location: <encounterLocation/>
     Provider: <encounterProvider role="Provider"/>
-    Coded: <obsreference conceptId="1000" prepopulateWidget="true"/>
+    Coded: <obsreference conceptId="1000" prepopulateDataEntryWidget="true"/>
     <submit/>
 </htmlform>

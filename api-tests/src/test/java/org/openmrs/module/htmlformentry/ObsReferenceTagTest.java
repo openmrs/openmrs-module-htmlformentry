@@ -11,8 +11,6 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import java.text.ParseException;
 import java.util.Date;
 
-// TODO: review if we need to support any more widget types: Checkbox, DateTime,
-
 public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
     private Patient patient;
@@ -93,7 +91,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testViewingEncounter(Encounter encounter, String html) {
-                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 kg recorded as part of Emergency on 01/02/2003", html);
             }
         }.run();
     }
@@ -122,7 +120,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
                 e.setEncounterDatetime(date);
                 e.setLocation(Context.getLocationService().getLocation(2));
                 e.setProvider(Context.getPersonService().getPerson(502));
-                TestUtil.addObs(e, 2, 12.3, null); // weight has conceptId 2
+                TestUtil.addObs(e, 5089, 12.3, null); // weight has conceptId 2
                 return e;
             }
 
@@ -343,7 +341,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Value of 70.0 recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyContains("Value of 70.0 kg recorded as part of Emergency on 01/02/2003", html);
             }
         }.run();
     }
@@ -388,7 +386,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 kg recorded as part of Emergency on 01/02/2003", html);
             }
         }.run();
     }
@@ -433,7 +431,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Some custom message with value 70.0 for encounter Emergency", html);
+                TestUtil.assertFuzzyContains("Some custom message with value 70.0 kg for encounter Emergency", html);
             }
         }.run();
     }
@@ -800,6 +798,190 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
             }
         }.run();
     }
+
+    @Test
+    public void editSingleReferenceObsShouldNotHideDataEntryWidgetIfRestrictDataEntryIfReferenceObsPresentNotSet() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("Weight: <input type=\"text\"", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldHideDataEntryWidgetIfRestrictDataEntryIfReferenceObsPresentIsTrue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndRestrictDataEntryTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                // this should be wrapped in a span so it can be hidden
+                TestUtil.assertFuzzyDoesNotContain("Weight: <input type=\"text\"", html);
+                TestUtil.assertFuzzyContains("Weight: <span", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldNotAllowOverrideIfOverrideNotSetToTrue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndRestrictDataEntryTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyDoesNotContain("<button type=\"button\" onclick=\"jQuery\\(\'#\\w+-restrict\'\\).show\\(\\)\">", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void editSingleReferenceObsShouldAllowOverrideIfOverrideSetToTrue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndAllowOverrideTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("<button type=\"button\" onclick=\"jQuery\\(\'#\\w+-restrict\'\\).show\\(\\)\">", html);
+            }
+        }.run();
+    }
+
+
 }
 
 

@@ -23,9 +23,15 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
     private Obs referenceObs = null;
 
-    private Boolean prepopulateWidget = false;
+    private Boolean prepopulateDataEntryWidget = false;
 
     private Boolean showReferenceMessage = true;
+
+    private Boolean restrictDataEntry = false;
+
+    private Boolean allowDataEntryOverride = false;
+
+    private String overrideLabel = "Override";
 
     private String message = "(Value of {{value}} recorded as part of {{encounterType}} on {{encounterDate}})";
 
@@ -37,12 +43,24 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
             message = parameters.get("referenceMessage");
         }
 
-        if (StringUtils.isNotEmpty(parameters.get("prepopulateWidget"))) {
-            prepopulateWidget = StringUtils.equalsIgnoreCase(parameters.get("prepopulateWidget"), "true");
+        if (StringUtils.isNotEmpty(parameters.get("prepopulateDataEntryWidget"))) {
+            prepopulateDataEntryWidget = StringUtils.equalsIgnoreCase(parameters.get("prepopulateDataEntryWidget"), "true");
         }
 
         if (StringUtils.isNotEmpty(parameters.get("showReferenceMessage"))) {
             showReferenceMessage = StringUtils.equalsIgnoreCase(parameters.get("showReferenceMessage"), "true");
+        }
+
+        if (StringUtils.isNotEmpty(parameters.get("restrictDataEntry"))) {
+            restrictDataEntry = StringUtils.equalsIgnoreCase(parameters.get("restrictDataEntry"), "true");
+        }
+
+        if (StringUtils.isNotEmpty(parameters.get("allowDataEntryOverride"))) {
+            allowDataEntryOverride = StringUtils.equalsIgnoreCase(parameters.get("allowDataEntryOverride"), "true");
+        }
+
+        if (StringUtils.isNotEmpty(parameters.get("overrideLabel"))) {
+            overrideLabel = parameters.get("overrideLabel");
         }
 
         String conceptId = parameters.get("conceptId");
@@ -72,7 +90,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
     @Override
     public String generateHtml(FormEntryContext context) {
 
-        if (context.getMode().equals(FormEntryContext.Mode.VIEW) || prepopulateWidget) {
+        if (context.getMode().equals(FormEntryContext.Mode.VIEW) || prepopulateDataEntryWidget) {
             if (this.valueWidget instanceof NumberFieldWidget) {
                 if (((NumberFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
                     (this.valueWidget).setInitialValue(referenceObs.getValueNumeric());
@@ -102,17 +120,34 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
         String html = super.generateHtml(context);
 
         // if we are in enter or edit mode and have a reference obs, display reference message
-        if (showReferenceMessage && (context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
+        if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
             && referenceObs != null && referenceObs != this.getExistingObs()) {
 
-            // TODO this is pretty quick-and-dirty, and not localized; add better templating in the future?
-            message = StringUtils.replace(message, "{{value}}", referenceObs.getValueAsString(Context.getLocale()));
-            if (referenceObs.getEncounter() != null) {
-                message = StringUtils.replace(message, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
-                message = StringUtils.replace(message, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
+            String fieldName = context.getFieldName(this.valueWidget) + "-restrict";
+
+            if (restrictDataEntry) {
+                html = "<span id=\"" + fieldName + "\" style=\"display:none\">" + html + "</span>";
             }
 
-            html = html + "<span>" + message + "</span>";
+            if (showReferenceMessage) {
+                // TODO this is pretty quick-and-dirty, and not fully localized; add better templating in the future?
+                String value = referenceObs.getValueAsString(Context.getLocale());
+                if (showUnits) {
+                    value = value + " " + this.getUnits(context);
+                }
+
+                message = StringUtils.replace(message, "{{value}}", value);
+                if (referenceObs.getEncounter() != null) {
+                    message = StringUtils.replace(message, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
+                    message = StringUtils.replace(message, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
+                }
+
+                html = html + "<span>" + message + "</span>";
+            }
+
+            if (restrictDataEntry && allowDataEntryOverride) {
+                html = html + " <button type=\"button\" onclick=\"jQuery('#" + fieldName + "').show()\">" + overrideLabel +"</button>";
+            }
         }
 
         return html;

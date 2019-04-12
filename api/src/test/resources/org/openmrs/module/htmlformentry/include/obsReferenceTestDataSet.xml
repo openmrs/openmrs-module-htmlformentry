@@ -5,7 +5,7 @@
     <encounter encounter_id="3001" encounter_type="2" patient_id="2" location_id="1" form_id="1" encounter_datetime="2003-02-01 00:00:00.0" creator="1" date_created="2003-02-01 14:09:05.0" voided="false" uuid="356c9eb4-ff7f-40ff-9ebb-eae5a2b54335"/>
 
     <!-- Weight for our patient, as part of an encounter -->
-    <obs obs_id="2001" person_id="2" concept_id="2" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2003-02-01 00:00:00.0" voided="false" uuid="04d2c021-b83a-4e02-884f-70e5c12c0dc3" />
+    <obs obs_id="2001" person_id="2" concept_id="5089" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2003-02-01 00:00:00.0" voided="false" uuid="04d2c021-b83a-4e02-884f-70e5c12c0dc3" />
 
     <!-- Allergy for our patient -->
     <obs obs_id="2002" person_id="2" concept_id="1000" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="1001" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="77308c89-68de-4a78-82cb-8f1f4ccb30ad" />
