@@ -119,9 +119,9 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
         String html = super.generateHtml(context);
 
-        // if we are in enter or edit mode and have a reference obs, display reference message
+        // if we are in enter or edit mode and have a reference obs but no existing obs, display reference message
         if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
-            && referenceObs != null && referenceObs != this.getExistingObs()) {
+            && referenceObs != null && this.getExistingObs() == null) {
 
             String fieldName = context.getFieldName(this.valueWidget) + "-restrict";
 

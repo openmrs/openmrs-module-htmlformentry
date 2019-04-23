@@ -892,6 +892,56 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
     }
 
     @Test
+    public void editSingleReferenceObsShouldNotHideDataEntryWidgetIfRestrictDataEntryIsTrueButExistingObsIsPresent() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithNumericValueAndRestrictDataEntryTrue";
+            }
+
+            @Override
+            public Patient getPatientToEdit() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToEdit() {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                try {
+                    Date date = Context.getDateFormat().parse("01/02/2003");
+                    e.setDateCreated(new Date());
+                    e.setEncounterDatetime(date);
+                    e.setLocation(Context.getLocationService().getLocation(2));
+                    e.setProvider(Context.getPersonService().getPerson(502));
+                    TestUtil.addObs(e, 5089, 12.3, null); // weight has conceptId 2
+                }
+                catch (ParseException ex) {
+                    throw new RuntimeException();
+                }
+
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+
+            @Override
+            public boolean doEditEncounter() {
+                return true;
+            }
+
+            @Override
+            public void testEditFormHtml(String html) {
+                // this should be wrapped in a span so it can be hidden
+                TestUtil.assertFuzzyContains("Weight: <input type=\"text\"", html);
+                TestUtil.assertFuzzyDoesNotContain("Weight: <span", html);
+            }
+        }.run();
+    }
+
+    @Test
     public void editSingleReferenceObsShouldNotAllowOverrideIfOverrideNotSetToTrue() throws Exception {
         new RegressionTestHelper() {
 
