@@ -442,9 +442,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("-reference-view\"><span class=\"value\">70</span>", html);
+                TestUtil.assertFuzzyContains("-reference-view\" title=\"(.*)\"><span class=\"value\">70</span>", html);
                 TestUtil.assertFuzzyContains("-reference-edit\" style=\"display:none\"><input type=\"text\" size=\"5\" i", html);
-                TestUtil.assertFuzzyContains("(Emergency on 01/02/2003)", html);
             }
         }.run();
     }
