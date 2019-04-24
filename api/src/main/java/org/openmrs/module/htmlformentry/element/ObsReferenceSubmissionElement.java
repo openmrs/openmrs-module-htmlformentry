@@ -22,39 +22,27 @@ import java.util.Map;
 
 public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
-    private Widget referenceDisplayWidget;
+    private Widget referenceDisplayWidget = null;
 
     private Obs referenceObs = null;
 
     private Boolean showReferenceMessage = true;
 
-    private Boolean restrictDataEntry = false;
-
-    private Boolean allowDataEntryOverride = false;
-
     private String overrideLabel = "Override";
 
     // TODO tweak
-    private String message = "(Value of {{value}} recorded as part of {{encounterType}} on {{encounterDate}})";
+    private String messageTemplate = "(Value of {{value}} recorded as part of {{encounterType}} on {{encounterDate}})";
 
     public ObsReferenceSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 
         super(context, parameters);
 
         if (StringUtils.isNotEmpty(parameters.get("referenceMessage"))) {
-            message = parameters.get("referenceMessage");
+            messageTemplate = parameters.get("referenceMessage");
         }
 
         if (StringUtils.isNotEmpty(parameters.get("showReferenceMessage"))) {
             showReferenceMessage = StringUtils.equalsIgnoreCase(parameters.get("showReferenceMessage"), "true");
-        }
-
-        if (StringUtils.isNotEmpty(parameters.get("restrictDataEntry"))) {
-            restrictDataEntry = StringUtils.equalsIgnoreCase(parameters.get("restrictDataEntry"), "true");
-        }
-
-        if (StringUtils.isNotEmpty(parameters.get("allowDataEntryOverride"))) {
-            allowDataEntryOverride = StringUtils.equalsIgnoreCase(parameters.get("allowDataEntryOverride"), "true");
         }
 
         if (StringUtils.isNotEmpty(parameters.get("overrideLabel"))) {
@@ -110,13 +98,12 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     this.valueWidget.setInitialValue(referenceObs.getValueDatetime());
                 }
             }
-            // in enter/edit mode a little different... create a cloned obs just for display purposes (so we can keep the existing for editing)
-            // TODO do we need to register this
+            // in enter/edit mode a little different... create a cloned obs just for display purposes (so we can keep the existing widget for editing)
+            // TODO do we need to register this?
             else if (context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT))){
 
                 if (this.valueWidget instanceof NumberFieldWidget) {
-                    NumberFieldWidget existing = (NumberFieldWidget) this.valueWidget;
-                    this.referenceDisplayWidget = new NumberFieldWidget(existing.getAbsoluteMinimum(), existing.getAbsoluteMaximum(), existing.isFloatingPoint());
+                    this.referenceDisplayWidget = ((NumberFieldWidget) this.valueWidget).clone();
                     this.referenceDisplayWidget.setInitialValue(referenceObs.getValueNumeric());
                 }
 
@@ -129,11 +116,13 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
         if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
             && referenceObs != null && this.getExistingObs() == null) {
 
-            String fieldName = context.getFieldName(this.valueWidget) + "-restrict";
+            String viewWidgetHtml = "";
+            String referenceMessageHtml = "";
+            String editWidgetHtml = "";
+            String overrideButtonHtml = "";
 
-            if (restrictDataEntry) {
-                html = "<span id=\"" + fieldName + "\" style=\"display:none\">" + html + "</span>";
-            }
+            String fieldName = context.getFieldName(this.valueWidget) + "-restrict";
+            editWidgetHtml = "<span id=\"" + fieldName + "\" style=\"display:none\">" + html + "</span>";
 
             if (showReferenceMessage) {
                 // TODO this is pretty quick-and-dirty, and not fully localized; add better templating in the future?
@@ -142,18 +131,18 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     value = value + " " + this.getUnits(context);
                 }
 
-                message = StringUtils.replace(message, "{{value}}", value);
+                referenceMessageHtml= StringUtils.replace(messageTemplate, "{{value}}", value);
                 if (referenceObs.getEncounter() != null) {
-                    message = StringUtils.replace(message, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
-                    message = StringUtils.replace(message, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
+                    referenceMessageHtml = StringUtils.replace(referenceMessageHtml, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
+                    referenceMessageHtml = StringUtils.replace(referenceMessageHtml, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
                 }
 
-                html = html + "<span>" + message + "</span>";
+                referenceMessageHtml = "<span>" + referenceMessageHtml + "</span>";
             }
 
-            if (restrictDataEntry && allowDataEntryOverride) {
-                html = html + " <button type=\"button\" onclick=\"jQuery('#" + fieldName + "').show()\">" + overrideLabel +"</button>";
-            }
+            overrideButtonHtml = "<button type=\"button\" onclick=\"jQuery('#" + fieldName + "').show()\">" + overrideLabel +"</button>";
+
+            html = viewWidgetHtml + " " + referenceMessageHtml + " " + editWidgetHtml + " " + overrideButtonHtml;
         }
 
         return html;
