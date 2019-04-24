@@ -1,9 +1,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * A widget that implements a text input field, either as a simple input field, like {@code <input type="text"/>},
@@ -143,6 +143,58 @@ public class TextFieldWidget implements Widget {
 
     public void setPlaceholder(String placeholder) {
         this.placeholder = placeholder;
+    }
+
+    public void setTextArea(Boolean textArea) {
+        this.textArea = textArea;
+    }
+
+    public void setTextAreaRows(Integer textAreaRows) {
+        this.textAreaRows = textAreaRows;
+    }
+
+    public void setTextAreaColumns(Integer textAreaColumns) {
+        this.textAreaColumns = textAreaColumns;
+    }
+
+    public void setInitialValue(String initialValue) {
+        this.initialValue = initialValue;
+    }
+
+    public Boolean getTextArea() {
+        return textArea;
+    }
+
+    public Integer getTextFieldSize() {
+        return textFieldSize;
+    }
+
+    public Integer getTextAreaRows() {
+        return textAreaRows;
+    }
+
+    public Integer getTextAreaColumns() {
+        return textAreaColumns;
+    }
+
+    public Integer getTextFieldMaxLength() {
+        return textFieldMaxLength;
+    }
+
+    public String getPlaceholder() {
+        return placeholder;
+    }
+
+    public TextFieldWidget clone() {
+        TextFieldWidget clone = new TextFieldWidget();
+        clone.setInitialValue(this.getInitialValue());
+        clone.setTextFieldSize(this.getTextFieldSize());
+        clone.setTextFieldMaxLength(this.getTextFieldMaxLength());
+        clone.setPlaceholder(this.getPlaceholder());
+        clone.setTextArea(this.getTextArea());
+        clone.setTextAreaRows(this.getTextAreaColumns());
+        clone.setTextAreaRows(this.getTextAreaRows());
+        return clone;
     }
 
 }

@@ -10,7 +10,9 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
+import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
@@ -139,6 +141,23 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                 this.referenceDisplayWidget = ((NumberFieldWidget) this.valueWidget).clone();
                 this.referenceDisplayWidget.setInitialValue(referenceObs.getValueNumeric());
             }
+            else if (this.valueWidget instanceof DropdownWidget) {
+                this.referenceDisplayWidget = ((DropdownWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueCoded());
+            }
+            else if (this.valueWidget instanceof RadioButtonsWidget) {
+                this.referenceDisplayWidget = ((RadioButtonsWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueCoded());
+            }
+            else if (this.valueWidget instanceof TextFieldWidget) {
+                this.referenceDisplayWidget = ((TextFieldWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueText());
+            }
+            else if (this.valueWidget instanceof DateWidget) {
+                this.referenceDisplayWidget = ((DateWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueDatetime());
+            }
+
 
             if (showReferenceMessage) {
                 // TODO this is pretty quick-and-dirty, and not fully localized; add better templating in the future?

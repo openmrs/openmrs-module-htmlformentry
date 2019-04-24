@@ -22,7 +22,6 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		String id = context.getFieldName(this);
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode() == Mode.VIEW) {
             for (int i = 0; i < getOptions().size(); ++i) {
@@ -39,6 +38,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
                 }
 			}
 		} else {
+			String id = context.getFieldName(this);
 			for (int i = 0; i < getOptions().size(); ++i) {
 				Option option = getOptions().get(i);
 				boolean selected = option.isSelected();
@@ -74,5 +74,13 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	 */
 	public void setAnswerSeparator(String answerSeparator) {
 		this.answerSeparator = answerSeparator;
+	}
+
+	public RadioButtonsWidget clone() {
+		RadioButtonsWidget clone = new RadioButtonsWidget();
+		clone.setAnswerSeparator(this.getAnswerSeparator());
+		clone.setInitialValue(this.getInitialValue());
+		clone.setOptions(this.getOptions());
+		return clone;
 	}
 }

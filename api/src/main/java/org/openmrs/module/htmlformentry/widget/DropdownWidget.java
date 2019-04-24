@@ -69,4 +69,11 @@ public class DropdownWidget extends SingleOptionWidget {
             return sb.toString();
         }
     }
+
+    public DropdownWidget clone() {
+        DropdownWidget clone = new DropdownWidget(this.size);
+        clone.setInitialValue(this.getInitialValue());
+        clone.setOptions(this.getOptions());
+        return clone;
+    }
 }
