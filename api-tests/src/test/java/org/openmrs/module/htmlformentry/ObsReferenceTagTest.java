@@ -341,7 +341,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Value of 70.0 kg recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyContains("(Emergency on 01/02/2003)", html);
             }
         }.run();
     }
@@ -432,7 +432,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Value of PENICILLIN recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyContains("(Emergency on 01/02/2003)", html);
             }
         }.run();
     }
@@ -477,7 +477,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Value of Penicillin recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyContains("(Emergency on 01/02/2003)", html);
             }
         }.run();
     }
@@ -522,7 +522,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Value of 2003-02-01 recorded as part of Emergency on 01/02/2003", html);
+                TestUtil.assertFuzzyContains("(Emergency on 01/02/2003)", html);
             }
         }.run();
     }

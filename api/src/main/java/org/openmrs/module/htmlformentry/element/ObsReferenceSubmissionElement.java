@@ -31,7 +31,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
     private String overrideLabel = "Override";
 
     // TODO tweak
-    private String messageTemplate = "(Value of {{value}} recorded as part of {{encounterType}} on {{encounterDate}})";
+    private String messageTemplate = "({{encounterType}} on {{encounterDate}})";
 
     public ObsReferenceSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 
@@ -77,7 +77,22 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
     @Override
     public String generateHtml(FormEntryContext context) {
 
-        // see if we have a reference value but no existing obs
+        // break these out in separate methods for VIEW and ENTER/EDIT for clarify
+        if (context.getMode().equals(FormEntryContext.Mode.VIEW)) {
+            return generateHtmlViewMode(context);
+        }
+        else if (context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT))) {
+            return  generateHtmlEnterAndEditMode(context);
+        }
+        else {
+            // should never get here, but just in case a mode besides VIEW, ENTER, and EDIT is added in the future
+            return super.generateHtml(context);
+        }
+    }
+
+    private String generateHtmlViewMode(FormEntryContext context) {
+
+        // if we have a reference value but no existing obs, set the value widget to the value of the existing obs
         if (getInitialValue(valueWidget) == null && referenceObs != null) {
 
             // in view mode we just set the initial value of the actual widget to the value
@@ -98,30 +113,32 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     this.valueWidget.setInitialValue(referenceObs.getValueDatetime());
                 }
             }
-            // in enter/edit mode a little different... create a cloned obs just for display purposes (so we can keep the existing widget for editing)
-            // TODO do we need to register this?
-            else if (context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT))){
-
-                if (this.valueWidget instanceof NumberFieldWidget) {
-                    this.referenceDisplayWidget = ((NumberFieldWidget) this.valueWidget).clone();
-                    this.referenceDisplayWidget.setInitialValue(referenceObs.getValueNumeric());
-                }
-
-            }
         }
 
+        // have ObsSubmissionElement generate it's HTML
+        return super.generateHtml(context);
+    }
+
+    private String generateHtmlEnterAndEditMode(FormEntryContext context) {
+
+        // have ObsSubmissionElement generate it's HTML
         String html = super.generateHtml(context);
 
-        // if we are in enter or edit mode and have a reference obs but no existing obs, display reference message
-        if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
-            && referenceObs != null && this.getExistingObs() == null) {
+        // we are only modifying if there's no value for the obs and there is a reference value
+        if (getInitialValue(valueWidget) == null && referenceObs != null) {
 
             String viewWidgetHtml = "";
             String referenceMessageHtml = "";
             String editWidgetHtml = "";
             String overrideButtonHtml = "";
 
-            String fieldName = context.getFieldName(this.valueWidget) + "-restrict";
+            // create a new reference widget to display the reference value
+            if (this.valueWidget instanceof NumberFieldWidget) {
+                this.referenceDisplayWidget = ((NumberFieldWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueNumeric());
+            }
+
+            String fieldName = context.getFieldName(this.valueWidget) + "-reference-edit";
             editWidgetHtml = "<span id=\"" + fieldName + "\" style=\"display:none\">" + html + "</span>";
 
             if (showReferenceMessage) {
@@ -131,7 +148,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     value = value + " " + this.getUnits(context);
                 }
 
-                referenceMessageHtml= StringUtils.replace(messageTemplate, "{{value}}", value);
+                referenceMessageHtml = StringUtils.replace(messageTemplate, "{{value}}", value);
                 if (referenceObs.getEncounter() != null) {
                     referenceMessageHtml = StringUtils.replace(referenceMessageHtml, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
                     referenceMessageHtml = StringUtils.replace(referenceMessageHtml, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
@@ -140,7 +157,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                 referenceMessageHtml = "<span>" + referenceMessageHtml + "</span>";
             }
 
-            overrideButtonHtml = "<button type=\"button\" onclick=\"jQuery('#" + fieldName + "').show()\">" + overrideLabel +"</button>";
+            overrideButtonHtml = "<button type=\"button\" onclick=\"jQuery('#" + fieldName + "').show()\">" + overrideLabel + "</button>";
 
             html = viewWidgetHtml + " " + referenceMessageHtml + " " + editWidgetHtml + " " + overrideButtonHtml;
         }
