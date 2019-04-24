@@ -37,7 +37,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
         super(context, parameters);
 
-        if (StringUtils.isNotEmpty(parameters.get("tooltipTempate"))) {
+        if (StringUtils.isNotEmpty(parameters.get("tooltipTemplate"))) {
             tooltipTemplate = parameters.get("tooltipTemplate");
         }
 
