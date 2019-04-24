@@ -269,7 +269,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
     }
 
     @Test
-    public void viewSingleReferenceObsShouldShowValueDatetimeOFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+    public void viewSingleReferenceObsShouldShowValueDatetimeFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
         new RegressionTestHelper() {
 
             @Override
@@ -300,6 +300,107 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
             }
         }.run();
     }
+
+    @Test
+    public void viewSingleReferenceObsShouldSetBooleanCheckboxTrueFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithCheckboxSetTrueInTestData";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyContains("Boolean:(.*)[X]", html);
+            }
+        }.run();
+    }
+
+
+    @Test
+    public void viewSingleReferenceObsShouldShowCodedCheckboxFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithCodedCheckboxValue";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyContains("Coded Checkbox:(.*)[X]", html);
+            }
+        }.run();
+    }
+
+    @Test
+    public void viewSingleReferenceObsShouldNotShowCodedCheckboxIfNoAnswerMatch() throws Exception {
+        new RegressionTestHelper() {
+
+            @Override
+            public String getFormName() {
+                return "singleObsReferenceFormWithUnmatchedCodedCheckboxValue";
+            }
+
+            @Override
+            public Patient getPatientToView() {
+                return patient;
+            }
+
+            @Override
+            public Encounter getEncounterToView() throws Exception {
+                Encounter e = new Encounter();
+                e.setPatient(getPatient());
+                Date date = Context.getDateFormat().parse("01/02/2003");
+                e.setDateCreated(new Date());
+                e.setEncounterDatetime(date);
+                e.setLocation(Context.getLocationService().getLocation(2));
+                e.setProvider(Context.getPersonService().getPerson(502));
+                return e;
+            }
+
+            @Override
+            public void testViewingEncounter(Encounter encounter, String html) {
+                TestUtil.assertFuzzyDoesNotContain("Coded Checkbox:(.*)[X]", html);
+            }
+        }.run();
+    }
+
 
     @Test
     public void editSingleReferenceObsShouldShowReferenceNumericObsFromSameDateOutsideOfEncounterIfNoEncounterValue() throws Exception {

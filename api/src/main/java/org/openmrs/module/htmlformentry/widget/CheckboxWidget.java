@@ -121,6 +121,10 @@ public class CheckboxWidget implements Widget {
         this.initialValue = initialValue;
     }
 
+    public Object getInitialValue() {
+        return initialValue;
+    }
+
 	public String getToggleTarget() {
 		return toggleTarget;
 	}
@@ -136,5 +140,11 @@ public class CheckboxWidget implements Widget {
 	public void setToggleDimInd(boolean toggleDimInd) {
 		this.toggleDimInd = toggleDimInd;
 	}
+
+	public CheckboxWidget clone() {
+        CheckboxWidget clone = new CheckboxWidget(this.getLabel(), this.getValue(), this.getToggleTarget(), this.isToggleDimInd());
+        clone.setInitialValue(this.getInitialValue());
+        return clone;
+    }
 
 }

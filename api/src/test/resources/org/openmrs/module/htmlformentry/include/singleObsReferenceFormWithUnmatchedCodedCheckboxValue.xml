@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Coded Checkbox: <obsreference conceptId="1000" style="checkbox" answerConceptId="1002"/>
+    <submit/>
+</htmlform>

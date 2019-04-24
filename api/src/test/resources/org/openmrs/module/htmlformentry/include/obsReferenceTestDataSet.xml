@@ -13,9 +13,17 @@
     <!-- Non-Coded Allergy for our patient -->
     <obs obs_id="2003" person_id="2" concept_id="8" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_text="Penicillin" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="f90678a6-db11-4730-8801-3249dca43b95" />
 
-    <!-- Date obs for out patient -->
-    <concept concept_id="2001" retired="false" datatype_id="6" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="f4cd95b6-9497-48c2-8933-2c43f3233ea0 "/>
+    <!-- Date obs for our patient -->
+    <concept concept_id="2001" retired="false" datatype_id="6" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="f4cd95b6-9497-48c2-8933-2c43f3233ea0"/>
     <obs obs_id="2004" person_id="2" concept_id="2001" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_datetime="2003-02-01 00:00:00.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="b4350dee-91dd-4ee5-8849-86c8ee96008a" />
+
+    <!-- True/false obs for our patient (value_coded=7 is "Yes" from our test dataset) -->
+    <concept concept_id="2002" retired="false" datatype_id="10" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="eb8542a0-76d6-42ef-ada9-13783fc83f21"/>
+    <obs obs_id="2005" person_id="2" concept_id="2002" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="7" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="97990d94-f9b2-4d01-985c-03ac48010d0e" />
+
+    <!-- True/false obs for our patient (value_coded=8 is "No" from our test dataset) -->
+    <concept concept_id="2003" retired="false" datatype_id="10" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="59f7fd81-6d1c-482e-8417-c9c3cbebfe1f"/>
+    <obs obs_id="2006" person_id="2" concept_id="2003" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="8" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="c9c2e8e7-9b42-418b-9ce2-c8ed6d88dc2de" />
 
 
 </dataset>
