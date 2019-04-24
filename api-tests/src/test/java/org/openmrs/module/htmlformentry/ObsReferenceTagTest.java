@@ -535,7 +535,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public String getFormName() {
-                return "singleObsReferenceFormWithNumericValueAndRestrictDataEntryTrue";
+                return "singleObsReferenceFormWithNumericValue";
             }
 
             @Override
