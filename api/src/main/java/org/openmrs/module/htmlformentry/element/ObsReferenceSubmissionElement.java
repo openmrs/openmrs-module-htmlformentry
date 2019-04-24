@@ -10,9 +10,12 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
+import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -21,42 +24,27 @@ import java.util.Map;
 
 public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
-    private Obs referenceObs = null;
+    private Widget referenceDisplayWidget = null;
 
-    private Boolean prepopulateDataEntryWidget = false;
+    private Obs referenceObs = null;
 
     private Boolean showReferenceMessage = true;
 
-    private Boolean restrictDataEntry = false;
-
-    private Boolean allowDataEntryOverride = false;
-
     private String overrideLabel = "Override";
 
-    private String message = "(Value of {{value}} recorded as part of {{encounterType}} on {{encounterDate}})";
+    // TODO tweak
+    private String messageTemplate = "({{encounterType}} on {{encounterDate}})";
 
     public ObsReferenceSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 
         super(context, parameters);
 
         if (StringUtils.isNotEmpty(parameters.get("referenceMessage"))) {
-            message = parameters.get("referenceMessage");
-        }
-
-        if (StringUtils.isNotEmpty(parameters.get("prepopulateDataEntryWidget"))) {
-            prepopulateDataEntryWidget = StringUtils.equalsIgnoreCase(parameters.get("prepopulateDataEntryWidget"), "true");
+            messageTemplate = parameters.get("referenceMessage");
         }
 
         if (StringUtils.isNotEmpty(parameters.get("showReferenceMessage"))) {
             showReferenceMessage = StringUtils.equalsIgnoreCase(parameters.get("showReferenceMessage"), "true");
-        }
-
-        if (StringUtils.isNotEmpty(parameters.get("restrictDataEntry"))) {
-            restrictDataEntry = StringUtils.equalsIgnoreCase(parameters.get("restrictDataEntry"), "true");
-        }
-
-        if (StringUtils.isNotEmpty(parameters.get("allowDataEntryOverride"))) {
-            allowDataEntryOverride = StringUtils.equalsIgnoreCase(parameters.get("allowDataEntryOverride"), "true");
         }
 
         if (StringUtils.isNotEmpty(parameters.get("overrideLabel"))) {
@@ -82,6 +70,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     false);
 
             if (!obsList.isEmpty()) {
+                // TODO match on answers if need be
                 referenceObs = obsList.get(0);
             }
         }
@@ -90,44 +79,85 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
     @Override
     public String generateHtml(FormEntryContext context) {
 
-        if (context.getMode().equals(FormEntryContext.Mode.VIEW) || prepopulateDataEntryWidget) {
-            if (this.valueWidget instanceof NumberFieldWidget) {
-                if (((NumberFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                    (this.valueWidget).setInitialValue(referenceObs.getValueNumeric());
-                }
-            }
+        // break these out in separate methods for VIEW and ENTER/EDIT for clarify
+        if (context.getMode().equals(FormEntryContext.Mode.VIEW)) {
+            return generateHtmlViewMode(context);
+        }
+        else if (context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT))) {
+            return  generateHtmlEnterAndEditMode(context);
+        }
+        else {
+            // should never get here, but just in case a mode besides VIEW, ENTER, and EDIT is added in the future
+            return super.generateHtml(context);
+        }
+    }
 
-            if (this.valueWidget instanceof SingleOptionWidget) {
-                if (((SingleOptionWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                    (this.valueWidget).setInitialValue(referenceObs.getValueCoded());
-                }
-            }
+    private String generateHtmlViewMode(FormEntryContext context) {
 
-            if (this.valueWidget instanceof TextFieldWidget) {
-                if (((TextFieldWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                    (this.valueWidget).setInitialValue(referenceObs.getValueText());
-                }
-            }
+        // if we have a reference value but no existing obs, set the value widget to the value of the existing obs
+        if (getInitialValue(valueWidget) == null && referenceObs != null) {
 
-            // TODO also handle DateTime and Time widgets
-            if (this.valueWidget instanceof DateWidget) {
-                if (((DateWidget) this.valueWidget).getInitialValue() == null && referenceObs != null) {
-                    (this.valueWidget).setInitialValue(referenceObs.getValueDatetime());
+            // in view mode we just set the initial value of the actual widget to the value
+            if (context.getMode().equals(FormEntryContext.Mode.VIEW)) {
+                if (this.valueWidget instanceof NumberFieldWidget) {
+                    this.valueWidget.setInitialValue(referenceObs.getValueNumeric());
+                }
+
+                if (this.valueWidget instanceof SingleOptionWidget) {
+                    this.valueWidget.setInitialValue(referenceObs.getValueCoded());
+                }
+
+                if (this.valueWidget instanceof TextFieldWidget) {
+                    this.valueWidget.setInitialValue(referenceObs.getValueText());
+                }
+
+                if (this.valueWidget instanceof DateWidget) {
+                    this.valueWidget.setInitialValue(referenceObs.getValueDatetime());
                 }
             }
         }
 
+        // have ObsSubmissionElement generate it's HTML
+        return super.generateHtml(context);
+    }
+
+    private String generateHtmlEnterAndEditMode(FormEntryContext context) {
+
+        // have ObsSubmissionElement generate it's HTML
         String html = super.generateHtml(context);
 
-        // if we are in enter or edit mode and have a reference obs but no existing obs, display reference message
-        if ((context.getMode().equals(FormEntryContext.Mode.ENTER) || (context.getMode().equals(FormEntryContext.Mode.EDIT)))
-            && referenceObs != null && this.getExistingObs() == null) {
+        // we are only modifying if there's no value for the obs and there is a reference value
+        if (getInitialValue(valueWidget) == null && referenceObs != null) {
 
-            String fieldName = context.getFieldName(this.valueWidget) + "-restrict";
+            String fieldName = context.getFieldName(this.valueWidget);
 
-            if (restrictDataEntry) {
-                html = "<span id=\"" + fieldName + "\" style=\"display:none\">" + html + "</span>";
+            String viewWidgetHtml = "";
+            String referenceMessageHtml = "";
+            String editWidgetHtml = "";
+            String overrideButtonHtml = "";
+
+            // create a new reference widget to display the reference value
+            if (this.valueWidget instanceof NumberFieldWidget) {
+                this.referenceDisplayWidget = ((NumberFieldWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueNumeric());
             }
+            else if (this.valueWidget instanceof DropdownWidget) {
+                this.referenceDisplayWidget = ((DropdownWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueCoded());
+            }
+            else if (this.valueWidget instanceof RadioButtonsWidget) {
+                this.referenceDisplayWidget = ((RadioButtonsWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueCoded());
+            }
+            else if (this.valueWidget instanceof TextFieldWidget) {
+                this.referenceDisplayWidget = ((TextFieldWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueText());
+            }
+            else if (this.valueWidget instanceof DateWidget) {
+                this.referenceDisplayWidget = ((DateWidget) this.valueWidget).clone();
+                this.referenceDisplayWidget.setInitialValue(referenceObs.getValueDatetime());
+            }
+
 
             if (showReferenceMessage) {
                 // TODO this is pretty quick-and-dirty, and not fully localized; add better templating in the future?
@@ -136,21 +166,52 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     value = value + " " + this.getUnits(context);
                 }
 
-                message = StringUtils.replace(message, "{{value}}", value);
+                referenceMessageHtml = StringUtils.replace(messageTemplate, "{{value}}", value);
                 if (referenceObs.getEncounter() != null) {
-                    message = StringUtils.replace(message, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
-                    message = StringUtils.replace(message, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
+                    referenceMessageHtml = StringUtils.replace(referenceMessageHtml, "{{encounterType}}", referenceObs.getEncounter().getEncounterType().getName());
+                    referenceMessageHtml = StringUtils.replace(referenceMessageHtml, "{{encounterDate}}", dateFormat().format(referenceObs.getEncounter().getEncounterDatetime()));
                 }
 
-                html = html + "<span>" + message + "</span>";
+                referenceMessageHtml = "<span>" + referenceMessageHtml + "</span>";
             }
 
-            if (restrictDataEntry && allowDataEntryOverride) {
-                html = html + " <button type=\"button\" onclick=\"jQuery('#" + fieldName + "').show()\">" + overrideLabel +"</button>";
-            }
+            // create a new viewWidget from the reference display widget
+            FormEntryContext mockViewContext = new FormEntryContext(FormEntryContext.Mode.VIEW); // bit of a hack, to force the widget to render in View mode
+            viewWidgetHtml = "<span id=\"" + fieldName + "-reference-view\">"
+                    + (referenceDisplayWidget != null ? referenceDisplayWidget.generateHtml(mockViewContext) : "")
+                    + " " + referenceMessageHtml +"</span>";
+
+            // wrap the existing html generated by the ObsSubmissionElement in a span so we can show/hide it
+            editWidgetHtml = "<span id=\"" + fieldName + "-reference-edit\" style=\"display:none\">" + html + "</span>";
+
+            overrideButtonHtml = "<button id=\"" + fieldName + "-toggle-button\" type=\"button\" onclick=\"jQuery('#" + fieldName + "-reference-view').hide();jQuery('#" + fieldName + "-reference-edit').show();jQuery('#" + fieldName + "-toggle-button').hide();\">" + overrideLabel + "</button>";
+
+            html = viewWidgetHtml + " "  + editWidgetHtml + " " + overrideButtonHtml;
         }
 
         return html;
+    }
+
+    // utility method since getInitialValue not on Widget interface
+    private Object getInitialValue(Widget widget) {
+        if (widget instanceof NumberFieldWidget) {
+            return ((NumberFieldWidget) this.valueWidget).getInitialValue();
+        }
+
+        if (widget instanceof SingleOptionWidget) {
+            return ((SingleOptionWidget) this.valueWidget).getInitialValue();
+        }
+
+        if (widget instanceof TextFieldWidget) {
+            return ((TextFieldWidget) this.valueWidget).getInitialValue();
+        }
+
+        if (widget instanceof DateWidget) {
+            return ((DateWidget) this.valueWidget).getInitialValue();
+        }
+
+        // TODO also handle DateTime and Time widgets
+        return null;
     }
 
     private SimpleDateFormat dateFormat() {

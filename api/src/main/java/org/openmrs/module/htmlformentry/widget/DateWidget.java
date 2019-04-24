@@ -142,4 +142,21 @@ public class DateWidget implements Widget {
     public boolean isHidden() {
         return hidden;
     }
+
+    public String getOnChangeFunction() {
+        return onChangeFunction;
+    }
+
+    public String getDateFormat() {
+        return dateFormat;
+    }
+
+    public DateWidget clone() {
+	    DateWidget clone = new DateWidget();
+	    clone.setInitialValue(this.getInitialValue());
+	    clone.setOnChangeFunction(this.getOnChangeFunction());
+	    clone.setHidden(this.isHidden());
+	    clone.setDateFormat(this.getDateFormat());
+	    return clone;
+    }
 }

@@ -206,6 +206,15 @@ public class NumberFieldWidget implements Widget {
         this.numberFieldSize = numberFieldSize;
     }
 
+    public Integer getNumberFieldSize() {
+        return numberFieldSize;
+    }
 
+    public NumberFieldWidget clone() {
+        NumberFieldWidget clone = new NumberFieldWidget(this.getAbsoluteMinimum(), this.getAbsoluteMaximum(), this.isFloatingPoint());
+        clone.setNumberFieldSize(this.getNumberFieldSize());
+        clone.setInitialValue(this.getInitialValue());
+        return clone;
+    }
 
 }
