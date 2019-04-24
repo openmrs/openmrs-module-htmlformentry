@@ -126,7 +126,7 @@ public class NumberFieldWidget implements Widget {
     @Override
     public String generateHtml(FormEntryContext context) {
         StringBuilder sb = new StringBuilder();
-        if (context.getMode() == Mode.VIEW) {
+        if (context == null || context.getMode() == Mode.VIEW) {
             String toPrint = "";
             if (initialValue != null) {
                 toPrint = userFriendlyDisplay(initialValue);

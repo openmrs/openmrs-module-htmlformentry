@@ -341,6 +341,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
+                TestUtil.assertFuzzyContains("-reference-view\"><span class=\"value\">70</span>", html);
+                TestUtil.assertFuzzyContains("-reference-edit\" style=\"display:none\"><input type=\"text\" size=\"5\" i", html);
                 TestUtil.assertFuzzyContains("(Emergency on 01/02/2003)", html);
             }
         }.run();
@@ -528,7 +530,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
     }
 
     @Test
-    public void editSingleReferenceObsShouldNotHideDataEntryWidgetIfExistingObsIsPresent() throws Exception {
+    public void editSingleReferenceObsShouldNotShowReferenceObsIfExistingObsIsPresent() throws Exception {
         new RegressionTestHelper() {
 
             @Override
@@ -572,7 +574,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
             public void testEditFormHtml(String html) {
                 // this should be wrapped in a span so it can be hidden
                 TestUtil.assertFuzzyContains("Weight: <input type=\"text\"", html);
-                TestUtil.assertFuzzyDoesNotContain("Weight: <span", html);
+                TestUtil.assertFuzzyDoesNotContain("reference-view", html);
+                TestUtil.assertFuzzyDoesNotContain("reference-edit", html);
             }
         }.run();
     }
