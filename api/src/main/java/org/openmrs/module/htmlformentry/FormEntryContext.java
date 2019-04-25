@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -35,6 +20,21 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * This class holds the context data around generating html widgets from tags in an HtmlForm.
@@ -79,10 +79,12 @@ public class FormEntryContext {
 
     private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
     private List<Obs> currentObsGroupMembers;
-    private Location defaultLocation;
     
     private Date previousEncounterDate;  // if the encounter has been edited on a form, this stores the prior encounter date
-    
+
+    private Location defaultLocation;
+    private Date defaultEncounterDate;
+
     private List<ObsGroupEntity> unmatchedObsGroupEntities = null;
     private boolean unmatchedMode = false;
     
@@ -969,4 +971,11 @@ public class FormEntryContext {
         this.visit = visit;
     }
 
+    public Date getDefaultEncounterDate() {
+        return defaultEncounterDate;
+    }
+
+    public void setDefaultEncounterDate(Date defaultEncounterDate) {
+        this.defaultEncounterDate = defaultEncounterDate;
+    }
 }

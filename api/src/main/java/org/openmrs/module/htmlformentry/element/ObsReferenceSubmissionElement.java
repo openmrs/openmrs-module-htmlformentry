@@ -20,6 +20,7 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,8 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
     public ObsReferenceSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
 
         super(context, parameters);
+
+        Date encounterDate = context.getExistingEncounter() != null ? context.getExistingEncounter().getEncounterDatetime() : context.getDefaultEncounterDate();
 
         if (StringUtils.isNotEmpty(parameters.get("tooltipTemplate"))) {
             tooltipTemplate = parameters.get("tooltipTemplate");
@@ -54,7 +57,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
         }
 
         // TODO handle error cases
-        if (concept != null && context.getExistingEncounter()  != null) {
+        if (concept != null && encounterDate != null) {
 
             // note that this may match obs from the existing encounter, but we don't worry about that, because if there's an existing match, we won't be using this functionality (because getInitialValue(valueWidget) should be null)
             // also note that if an answer concept is present (ie it's a checkbox) we match on that as well
@@ -62,8 +65,8 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                     Collections.singletonList((Person) context.getExistingPatient()),
                     null, Collections.singletonList(concept),
                     getAnswerConcept() != null ? Collections.singletonList(getAnswerConcept()): null, null, null, null, 1, null,
-                    new DateTime(context.getExistingEncounter().getEncounterDatetime()).withTime(0, 0, 0, 0).toDate(),
-                    new DateTime(context.getExistingEncounter().getEncounterDatetime()).withTime(23,59,59,999).toDate(),
+                    new DateTime(encounterDate).withTime(0, 0, 0, 0).toDate(),
+                    new DateTime(encounterDate).withTime(23,59,59,999).toDate(),
                     false);
 
             if (!obsList.isEmpty()) {

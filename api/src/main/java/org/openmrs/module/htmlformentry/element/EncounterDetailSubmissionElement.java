@@ -111,6 +111,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
             if (context.getExistingEncounter() != null) {
                 dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+            } else if (context.getDefaultEncounterDate() != null) {
+                dateWidget.setInitialValue(context.getDefaultEncounterDate());
             } else if (parameters.get("defaultDate") != null) {
                 dateWidget.setInitialValue(parameters.get("defaultDate"));
             }
