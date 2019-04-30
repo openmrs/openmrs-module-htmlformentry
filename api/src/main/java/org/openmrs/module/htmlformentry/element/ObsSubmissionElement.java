@@ -77,7 +77,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private Concept concept;
 	
 	private String valueLabel;
-	
+
+	// i've changed some of these to be protected so they can be used by the sub-class "ObsReferenceSubmissionElement"
+	// (we could probably change most of these properties to protected)
+
 	protected Widget valueWidget;
 	
 	private String defaultValue;
@@ -86,7 +89,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
     private String unitsCode;
 
-    private String unitsCssClass = "units";
+    protected String unitsCssClass = "units";
 	
 	private String dateLabel;
 	
