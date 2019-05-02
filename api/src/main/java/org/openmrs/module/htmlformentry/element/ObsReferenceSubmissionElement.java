@@ -80,6 +80,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
                 referenceObs = obsList.get(0);
             }
         }
+        // TODO: the getObservations service method appears to sort by obsDatetime by default, so the oldest obs would be returned; do we want invert to return most recent?
     }
 
     @Override
