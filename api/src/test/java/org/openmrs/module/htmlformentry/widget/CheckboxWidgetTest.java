@@ -29,6 +29,22 @@ public class CheckboxWidgetTest {
     }
 
     @Test
+    public void testDisabled() throws Exception {
+        CheckboxWidget cb = new CheckboxWidget();
+        cb.setLabel("checkboxTextLabel");
+        cb.setValue("checkboxValue");
+        cb.setDisabled(true);
+
+        cb.setInitialValue(cb);
+
+        FormEntryContext formEntryContext = mock(FormEntryContext.class);
+        when(formEntryContext.getFieldName(cb)).thenReturn("w1");
+
+        String html = cb.generateHtml(formEntryContext);
+        assertThat(html, is("<input type=\"checkbox\" id=\"w1\" name=\"w1\" value=\"checkboxValue\" checked=\"true\" disabled=\"disabled\"/><label for=\"w1\">checkboxTextLabel</label><input type=\"hidden\" name=\"_w1\"/>"));
+    }
+
+    @Test
     public void testConstructorValue() throws Exception {
         CheckboxWidget cb = new CheckboxWidget("33");
         cb.setLabel("checkboxTextLabel");
@@ -69,5 +85,16 @@ public class CheckboxWidgetTest {
         assertThat(cb.getLabel(), is("labelText"));
         assertThat(cb.getToggleTarget(), is("toggleText"));
         assertThat(cb.isToggleDimInd(), is(true));
+    }
+
+    @Test
+    public void testConstructorLabelValueToggleDimDisabled() throws Exception {
+        CheckboxWidget cb = new CheckboxWidget("labelText", "valueText", "toggleText", true, true);
+
+        assertThat(cb.getValue(), is("valueText"));
+        assertThat(cb.getLabel(), is("labelText"));
+        assertThat(cb.getToggleTarget(), is("toggleText"));
+        assertThat(cb.isToggleDimInd(), is(true));
+        assertThat(cb.isDisabled(), is(true));
     }
 }
