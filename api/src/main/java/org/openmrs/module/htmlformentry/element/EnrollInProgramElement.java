@@ -11,9 +11,14 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openmrs.Encounter;
+import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntryException;
@@ -21,6 +26,7 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 
@@ -33,11 +39,15 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	private Program program;
 	
 	private List<ProgramWorkflowState> states;
+
+	private CheckboxWidget checkToEnrollWidget;
+
+	private ErrorWidget checkToEnrollErrorWidget;
 	
 	private DateWidget dateWidget;
 	
 	private ErrorWidget dateErrorWidget;
-	
+
 	public EnrollInProgramElement(FormEntryContext context, Map<String, String> parameters) {
 		try {
 			program = HtmlFormEntryUtil.getProgram(parameters.get("programId"));
@@ -53,6 +63,23 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			dateErrorWidget = new ErrorWidget();
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, dateErrorWidget);
+		}
+
+		if ("true".equalsIgnoreCase(parameters.get("showCheckbox"))) {
+            checkToEnrollWidget = new CheckboxWidget();
+			{   // If patient is already enrolled, check and disable the checkbox
+				Patient patient = context.getExistingPatient();
+				Date encounterDate = (Date) ObjectUtils.defaultIfNull(
+						context.getPreviousEncounterDate(),
+						ObjectUtils.defaultIfNull(context.getDefaultEncounterDate(), new Date()));
+				if (HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, encounterDate)) {
+					checkToEnrollWidget.setInitialValue("true");
+					checkToEnrollWidget.setDisabled(true);
+				}
+			}
+			context.registerWidget(checkToEnrollWidget);
+			checkToEnrollErrorWidget = new ErrorWidget();
+			context.registerErrorWidget(checkToEnrollWidget, checkToEnrollErrorWidget);
 		}
 		
 		String stateIdsStr = parameters.get("stateIds");
@@ -94,6 +121,9 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			if (context.getMode() != Mode.VIEW)
 				sb.append(dateErrorWidget.generateHtml(context));
 		}
+		if (checkToEnrollWidget != null && context.getMode() != Mode.VIEW) {
+			sb.append(checkToEnrollWidget.generateHtml(context));
+		}
 		return sb.toString();
 	}
 	
@@ -103,11 +133,14 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-		if (session.getContext().getMode() != Mode.VIEW) {
+		// Only enroll if we are not in view mode and either the checkbox is checked or it doesn't exist
+		if (session.getContext().getMode() != Mode.VIEW && (
+				checkToEnrollWidget == null ||
+		        "true".equals(checkToEnrollWidget.getValue(session.getContext(), submission)))) {
 			Date selectedDate = null;
 			if (dateWidget != null) {
 				selectedDate = (Date) dateWidget.getValue(session.getContext(), submission);
-			}	
+			}
 			session.getSubmissionActions().enrollInProgram(program, selectedDate, states);
 		}
 	}
