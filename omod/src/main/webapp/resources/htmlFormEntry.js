@@ -16,15 +16,15 @@ function radioClicked(radioButton) {
 	}
 }
 
-function showError(errorDivId, errorMessage) {
+function showError(errorDivId, message) {
 	var errorDiv = document.getElementById(errorDivId);
 	if (errorDiv == null) {
-		window.alert("Error: " + errorMessage + "\n\n(Cannot find div: " + errorDivId + ")");
+		window.alert("Error: " + message + "\n\n(Cannot find div: " + errorDivId + ")");
 	} else {
 		if (errorDiv.innerHTML != '')
-			errorDiv.innerHTML += ', ' + errorMessage;
+			errorDiv.innerHTML += ', ' + message;
 		else
-			errorDiv.innerHTML = errorMessage;
+			errorDiv.innerHTML = message;
 		showDiv(errorDivId);
 	}
 }
@@ -37,7 +37,7 @@ function clearError(errorDivId) {
 	}
 }
 
-function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax, errorMessages) {
+function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax,  normalMin, normalMax, errorMessages) {
 	clearError(errorDivId);
 
 	if (el.value == "") {
@@ -45,15 +45,15 @@ function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax, errorM
 	    el.classList.remove("legalValue");
 	    return;
 	}
-	var errorMessage = verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages);
-	if (errorMessage == null) {
+	var validation = verifyNumber(el, floatOkay, absoluteMin, absoluteMax,  normalMin, normalMax, errorMessages);
+	if (validation == null) {
 		el.classList.remove("illegalValue");
     		el.classList.add("legalValue");
 		clearError(errorDivId);
 	} else {
 		el.classList.add("illegalValue");
 		el.classList.remove("legalValue");
-		showError(errorDivId, errorMessage);
+		showError(errorDivId, validation.message);
 	}
 }
 
@@ -65,10 +65,10 @@ function checkNumber(el, errorDivId, floatOkay, absoluteMin, absoluteMax, errorM
  * @param absoluteMax the maximum acceptable value (may be null)
  * @return null or error message
  */
-function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
+function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, normalMin, normalMax, messages) {
 
-	if (!errorMessages) {
-		errorMessages = {
+	if (!messages) {
+		messages = {
 			notANumber: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
                 {messageCode: "htmlformentry.error.notANumber"},
                 function(responseText) {
@@ -92,7 +92,21 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
                 function(responseText) {
                     return responseText;
                 }
-            )
+            ),
+			abnormallyHigh: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
+					{messageCode: "htmlformentry.error.abnormallyHigh"},
+				function(responseText) {
+					return responseText;
+				}
+			),
+			abnormallyLow: jq.get(getContextPath() + "/module/htmlformentry/localizedMessage.form",
+				{messageCode: "htmlformentry.error.abnormallyLow"},
+				function(responseText) {
+					return responseText;
+				}
+			)
+
+
 		}
 	}
 
@@ -102,24 +116,38 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 
 	if (floatOkay) {
 		if (! /^[+-]?\d*(.\d+)?$/.test(val)) {
-			return errorMessages.notANumber;
+			return messages.notANumber;
 		}
 		val = parseFloat(val);
 	} else {
 		if (! /^[+-]?\d+$/.test(val)) {
-			return errorMessages.notAnInteger;
+			return messages.notAnInteger;
 		}
 		val = parseInt(val);
 	}
 
+	// TODO support returning multiple errors/warning
 	if (absoluteMin != null) {
-		if (val < absoluteMin)
-			return errorMessages.notLessThan + " " + absoluteMin;
+		if (val < absoluteMin) {
+			return  { type: "error", message: messages.notLessThan + " " + absoluteMin };
+		}
 	}
 	if (absoluteMax != null) {
-		if (val > absoluteMax)
-			return errorMessages.notGreaterThan + " " + absoluteMax;
+		if (val > absoluteMax) {
+			return { type: "error", message: messages.notGreaterThan + " " + absoluteMax };
+		}
 	}
+	if (normalMin != null) {
+		if (val < normalMin) {
+			return { type: "warning", message: messages.abnormallyLow };
+		}
+	}
+	if (normalMax != null) {
+		if (val > normalMax) {
+			return { type: "warning", message: messages.abnormallyHigh };
+		}
+	}
+
 	return null;
 }
 

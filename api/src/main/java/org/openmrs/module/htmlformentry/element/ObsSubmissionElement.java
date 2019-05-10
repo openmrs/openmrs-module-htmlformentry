@@ -150,6 +150,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
 	private Double absoluteMinimum;
 
+	private Double normalMaximum;
+
+	private Double normalMinimum;
+
+
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
         if (parameters.get("locale") != null) {
             this.locale = LocaleUtility.fromSpecification(parameters.get("locale"));
@@ -226,6 +231,14 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
 		if (StringUtils.isNotEmpty(parameters.get("absoluteMinimum"))) {
 			absoluteMinimum = Double.parseDouble(parameters.get("absoluteMinimum"));
+		}
+
+		if (StringUtils.isNotEmpty(parameters.get("normalMaximum"))) {
+			normalMaximum = Double.parseDouble(parameters.get("normalMaximum"));
+		}
+
+		if (StringUtils.isNotEmpty(parameters.get("normalMinimum"))) {
+			normalMinimum = Double.parseDouble(parameters.get("normalMinimum"));
 		}
 
 		prepareWidgets(context, parameters);
@@ -396,7 +409,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				// added to avoid creating this widget when a checkbox is needed
                 if (numericAnswers.size() == 0) {
                     if (!"checkbox".equals(parameters.get("style"))) {
-                        valueWidget = new NumberFieldWidget(cn, parameters.get("size"), absoluteMinimum, absoluteMaximum);
+                        valueWidget = new NumberFieldWidget(cn, parameters.get("size"), absoluteMinimum, absoluteMaximum, normalMinimum, normalMaximum);
                     } else {
                         // render CheckboxWidgets for <obs> tag with numeric datatype;
                         // i.e. <obs conceptId="1234" answer="8" answerLabel="Eight" style="checkbox"/>

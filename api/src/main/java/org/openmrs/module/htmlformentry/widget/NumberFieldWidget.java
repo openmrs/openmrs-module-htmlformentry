@@ -21,6 +21,8 @@ public class NumberFieldWidget implements Widget {
     private boolean floatingPoint = true;
     private Double absoluteMinimum;
     private Double absoluteMaximum;
+    private Double normalMinimum;
+    private Double normalMaximum;
     private Integer numberFieldSize = 5;
 
     /**
@@ -43,7 +45,7 @@ public class NumberFieldWidget implements Widget {
      * @param size, the size of the text field to render
      */
     public NumberFieldWidget(ConceptNumeric concept, String size) {
-        this(concept, size, null, null);
+        this(concept, size, null, null, null, null);
     }
 
     /**
@@ -53,13 +55,15 @@ public class NumberFieldWidget implements Widget {
      * @param concept
      * @param size, the size of the text field to render
      */
-    public NumberFieldWidget(ConceptNumeric concept, String size, Double absoluteMinimum, Double absoluteMaximum) {
+    public NumberFieldWidget(ConceptNumeric concept, String size, Double absoluteMinimum, Double absoluteMaximum, Double normalMinimum, Double normalMaximum) {
         if (concept != null) {
 
             ConceptCompatibility conceptCompatibility = Context.getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class);
 
             setAbsoluteMaximum(absoluteMaximum != null ? absoluteMaximum : concept.getHiAbsolute());
             setAbsoluteMinimum(absoluteMinimum != null ? absoluteMinimum : concept.getLowAbsolute());
+            setNormalMaximum(normalMaximum != null ? normalMaximum : concept.getHiNormal());
+            setNormalMinimum(normalMinimum != null ? normalMinimum : concept.getLowNormal());
 
             setFloatingPoint(conceptCompatibility.isAllowDecimal(concept));
             if (size != null && !size.equals("")){
@@ -126,6 +130,22 @@ public class NumberFieldWidget implements Widget {
         this.absoluteMaximum = maximum;
     }
 
+    public Double getNormalMinimum() {
+        return normalMinimum;
+    }
+
+    public void setNormalMinimum(Double normalMinimum) {
+        this.normalMinimum = normalMinimum;
+    }
+
+    public Double getNormalMaximum() {
+        return normalMaximum;
+    }
+
+    public void setNormalMaximum(Double normalMaximum) {
+        this.normalMaximum = normalMaximum;
+    }
+
     @Override
     public void setInitialValue(Object initialValue) {
         this.initialValue = (Number) initialValue;
@@ -158,7 +178,9 @@ public class NumberFieldWidget implements Widget {
                 sb.append(" onBlur=\"checkNumber(this,'" + errorId + "'," + floatingPoint + ",");
                 sb.append(absoluteMinimum + ",");
                 sb.append(absoluteMaximum + ",");
-                sb.append(getLocalizedErrorMessages() + ")\"");
+                sb.append(normalMinimum + ",");
+                sb.append(normalMaximum + ",");
+                sb.append(getLocalizedMessages() + ")\"");
             }
             if (context.isClientSideValidationHints()) {
                 if (absoluteMinimum != null) {
@@ -191,12 +213,14 @@ public class NumberFieldWidget implements Widget {
         }
     }
 
-    private String getLocalizedErrorMessages() {
+    private String getLocalizedMessages() {
         StringBuffer localizedErrorMessages = new StringBuffer();
         localizedErrorMessages.append("{ notANumber: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber") +"',");
         localizedErrorMessages.append("notAnInteger: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notAnInteger") +"',");
         localizedErrorMessages.append("notLessThan: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notLessThan") +"',");
-        localizedErrorMessages.append("notGreaterThan: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") +"' } ");
+        localizedErrorMessages.append("notGreaterThan: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") +"',");
+        localizedErrorMessages.append("abnormallyHigh: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.abnormallyHigh") +"',");
+        localizedErrorMessages.append("abnormallyLow: '" + Context.getMessageSourceService().getMessage("htmlformentry.error.abnormallyLow") +"' } ");
         return localizedErrorMessages.toString();
     }
 
