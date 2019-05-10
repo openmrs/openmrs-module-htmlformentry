@@ -43,12 +43,24 @@ public class NumberFieldWidget implements Widget {
      * @param size, the size of the text field to render
      */
     public NumberFieldWidget(ConceptNumeric concept, String size) {
+        this(concept, size, null, null);
+    }
+
+    /**
+     * Creates a widget with certain absolute maximum and minimum values as defined by a specific numeric Concept,
+     * but allowing overriding
+     *
+     * @param concept
+     * @param size, the size of the text field to render
+     */
+    public NumberFieldWidget(ConceptNumeric concept, String size, Double absoluteMinimum, Double absoluteMaximum) {
         if (concept != null) {
-        	
-        	ConceptCompatibility conceptCompatibility = Context.getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class);
-           
-        	setAbsoluteMaximum(concept.getHiAbsolute());
-            setAbsoluteMinimum(concept.getLowAbsolute());
+
+            ConceptCompatibility conceptCompatibility = Context.getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class);
+
+            setAbsoluteMaximum(absoluteMaximum != null ? absoluteMaximum : concept.getHiAbsolute());
+            setAbsoluteMinimum(absoluteMinimum != null ? absoluteMinimum : concept.getLowAbsolute());
+
             setFloatingPoint(conceptCompatibility.isAllowDecimal(concept));
             if (size != null && !size.equals("")){
                 try {
@@ -59,7 +71,7 @@ public class NumberFieldWidget implements Widget {
             }
         }
     }
-    
+
     /**
      * Returns whether or not this widget accepts floating point values
      * 
