@@ -29,6 +29,7 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 
 /**
  * Serves as both the HtmlGeneratorElement and the FormSubmissionControllerAction for a Program
@@ -80,6 +81,16 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			context.registerWidget(checkToEnrollWidget);
 			checkToEnrollErrorWidget = new ErrorWidget();
 			context.registerErrorWidget(checkToEnrollWidget, checkToEnrollErrorWidget);
+		}
+
+		String toggleParameter = parameters.get("toggle");
+		if (toggleParameter != null) {
+		    if (checkToEnrollWidget == null) {
+				throw new RuntimeException("<enrollInProgram> 'toggle' parameter requires 'showCheckbox=\"true\"'");
+			}
+			ToggleWidget toggleWidget = new ToggleWidget(toggleParameter);
+			checkToEnrollWidget.setToggleTarget(toggleWidget.getTargetId());
+			checkToEnrollWidget.setToggleDimInd(toggleWidget.isToggleDim());
 		}
 		
 		String stateIdsStr = parameters.get("stateIds");
@@ -153,5 +164,5 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		return Collections.emptySet();
 	}
-	
+
 }
