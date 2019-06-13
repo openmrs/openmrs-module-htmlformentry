@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry;
 import java.util.List;
 import java.util.Map;
 
+import org.openmrs.Concept;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
@@ -184,4 +185,19 @@ public interface HtmlFormEntryService extends OpenmrsService {
     public void reprocessArchivedForm(String argument,boolean isPath) throws Exception;
 
     public void reprocessArchivedForm(String path) throws Exception;
+
+	/**
+	 * This returns a single Concept represented by the mapping String sourceNameOrHl7Code:referenceTerm
+	 * If multiple Concepts match the given mapping, then:
+	 *  - if only one of these is non-retired, return that concept
+	 *  - otherwise, throw an ApiException
+	 */
+	@Transactional(readOnly=true)
+	public Concept getConceptByMapping(String sourceNameOrHl7CodeAndTerm);
+
+	/**
+	 * Clears the concept mapping cache if needed to ensure no stale mappings exist
+	 */
+	@Transactional(readOnly=true)
+	public void clearConceptMappingCache();
 }
