@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.impl;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,14 +17,21 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Cohort;
+import org.openmrs.Concept;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Person;
 import org.openmrs.Program;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.module.htmlformentry.*;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
+import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.SerializableFormObject;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -38,6 +46,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     private HtmlFormEntryDAO dao;
     private static Map<String, TagHandler> handlers = new LinkedHashMap<String, TagHandler>();
     private String basicFormXmlTemplate;
+    private Map<String, Integer> conceptMappingCache = new HashMap<String, Integer>();
 
 	/*
 	 * Optimization to minimize database hits for the needs-name-and-description-migration check.
@@ -147,7 +156,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     }
 
 	/**
-	 * @see HtmlFormEntryService#getStartingFormXml()
+	 * @see HtmlFormEntryService#getStartingFormXml(HtmlForm)
 	 */
 	@Override
     public String getStartingFormXml(HtmlForm form) {
@@ -325,4 +334,44 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
     public void reprocessArchivedForm(String path) throws Exception {
         reprocessArchivedForm(path,true);
     }
+
+	@Override
+	public Concept getConceptByMapping(String sourceNameOrHl7CodeAndTerm) {
+		Concept ret = null;
+		if (sourceNameOrHl7CodeAndTerm != null) {
+			Integer cId = conceptMappingCache.get(sourceNameOrHl7CodeAndTerm);
+			if (cId != null) {
+				ret = Context.getConceptService().getConcept(cId);
+			}
+			else {
+				String[] sourceCodeSplit = sourceNameOrHl7CodeAndTerm.split(":", 2);
+				if (sourceCodeSplit.length != 2) {
+					log.debug("Invalid concept mapping specified: " + sourceNameOrHl7CodeAndTerm);
+				}
+				else {
+					String source = sourceCodeSplit[0].trim();
+					String term = sourceCodeSplit[1].trim();
+					List<Concept> concepts = Context.getConceptService().getConceptsByMapping(term, source, true);
+					if (concepts != null && concepts.size() > 0) {
+						Concept firstMatch = concepts.get(0);
+						if (concepts.size() > 1) {
+							Concept secondMatch = concepts.get(1);
+							if (secondMatch.getRetired() == null || secondMatch.getRetired() == Boolean.FALSE) {
+								throw new APIException(
+										"Multiple concepts found with mapping: " + sourceNameOrHl7CodeAndTerm);
+							}
+						}
+						conceptMappingCache.put(sourceNameOrHl7CodeAndTerm, firstMatch.getConceptId());
+						ret = firstMatch;
+					}
+				}
+			}
+		}
+		return ret;
+	}
+
+	@Override
+	public void clearConceptMappingCache() {
+		conceptMappingCache = new HashMap<String, Integer>();
+	}
 }

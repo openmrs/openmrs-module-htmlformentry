@@ -571,10 +571,7 @@ public class HtmlFormEntryUtil {
 			// handle  mapping id: xyz:ht
 			int index = id.indexOf(":");
 			if (index != -1) {
-				String mappingCode = id.substring(0, index).trim();
-				String conceptCode = id.substring(index + 1, id.length()).trim();
-				cpt = Context.getConceptService().getConceptByMapping(conceptCode, mappingCode);
-
+				cpt = Context.getService(HtmlFormEntryService.class).getConceptByMapping(id);
 				if (cpt != null) {
 					return cpt;
 				}

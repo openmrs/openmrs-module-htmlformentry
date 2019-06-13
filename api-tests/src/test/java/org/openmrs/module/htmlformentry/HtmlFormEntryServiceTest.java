@@ -1,12 +1,9 @@
 package org.openmrs.module.htmlformentry;
 
-
-import java.io.File;
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Concept;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.User;
@@ -16,20 +13,22 @@ import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsClassLoader;
-import org.openmrs.util.OpenmrsUtil;
+
+import java.util.Date;
 
 public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
 	protected static final String XML_HTML_FORM_ENTRY_SERVICE_DATASET = "htmlFormEntryServiceDataSet";
-	
+
 	private HtmlFormEntryService service;
 	
 	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_SERVICE_DATASET));
 		service = Context.getService(HtmlFormEntryService.class);
+        service.clearConceptMappingCache();
 	}
 	
 	/**
@@ -42,7 +41,7 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryService#getHtmlFormByUuid()}
+	 * @see {@link HtmlFormEntryService#getHtmlFormByUuid(String)}
 	 */
 	@Test
 	@Verifies(value = "should return the HtmlForm with the given uuid", method = "getHtmlFormByUuid()")
@@ -51,7 +50,7 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-     * @see {@link HtmlFormEntryService#getProviderStub()}
+     * @see {@link HtmlFormEntryService#getUsersAsPersonStubs(String)}
      */
     @Test
     @Verifies(value = "should return all ProviderStubs", method = "getProviderStub()")
@@ -108,5 +107,18 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 
         Assert.assertEquals(noEnc+1,newNoEnc);
     }
-	
+
+	@Test
+	public void getConceptByMapping_shouldRetrieveConceptByMapping() throws Exception {
+    	Concept concept = service.getConceptByMapping("XYZ:HT");
+    	Assert.assertEquals(3, concept.getConceptId().intValue());
+	}
+
+	@Test
+	public void getConceptByMapping_shouldReturnNullIfInvalidMappingSpecified() throws Exception {
+		Concept concept = service.getConceptByMapping("XYZ-HT");
+		Assert.assertNull(concept);
+		concept = service.getConceptByMapping("XYZ123:HT");
+		Assert.assertNull(concept);
+	}
 }
