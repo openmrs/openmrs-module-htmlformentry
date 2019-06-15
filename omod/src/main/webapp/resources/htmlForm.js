@@ -82,16 +82,21 @@
         })
             .change()  // immediately trigger a change to initialize
 
-    }
+    };
 
     htmlForm.compileMustacheTemplate = function(source) {
         return Handlebars.compile(source);
+    };
+
+    htmlForm.preventAutofill = function() {
+        $('input').attr("autocomplete", "new-password")
     };
 
     // any users of this library should call this function during page load to make sure that all elements are properly initialized
     // if new functionality is added that requires setup, the setup function should be called from here
     htmlForm.initialize = function() {
         htmlForm.setupObsToggleHandlers();
+        htmlForm.preventAutofill();
     }
 
 }( window.htmlForm = window.htmlForm || {}, jQuery )); 

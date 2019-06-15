@@ -347,7 +347,7 @@
 </c:if>
 
 <c:if test="${command.context.mode != 'VIEW'}">
-	<form autocomplete="off" id="htmlform" method="post" onSubmit="submitHtmlForm(); return false;" enctype="multipart/form-data">
+	<form id="htmlform" method="post" onSubmit="submitHtmlForm(); return false;" enctype="multipart/form-data">
 		<input type="hidden" name="personId" value="${ command.patient.personId }"/>
 		<input type="hidden" name="htmlFormId" value="${ command.htmlFormId }"/>
 		<input type="hidden" name="formModifiedTimestamp" value="${ command.formModifiedTimestamp }"/>
