@@ -18,6 +18,7 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 	private Concept initialValue;
 	private String allowedConceptIds;
 	private String allowedConceptClassNames;
+	private String allowedConceptSetIds;
 	private String src;
 	private static String defaultSrc = "conceptSearch.form";
 
@@ -28,12 +29,14 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 		//only 1 of them is used to specify the filter
 		if (allowedconceptclasses == null || allowedconceptclasses.size() == 0) {
 			StringBuilder sb = new StringBuilder();
-			for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
-				sb.append(it.next().getConceptId());
-				if (it.hasNext())
-					sb.append(",");
+			if (conceptList != null) {
+				for (Iterator<Concept> it = conceptList.iterator(); it.hasNext(); ) {
+					sb.append(it.next().getConceptId());
+					if (it.hasNext())
+						sb.append(",");
+				}
+				this.allowedConceptIds = sb.toString();
 			}
-			this.allowedConceptIds = sb.toString();
 		} else {
 			StringBuilder sb = new StringBuilder();
 			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it
@@ -71,7 +74,8 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 					+ context.getFieldName(this) + "\" "
 					+ " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
 					+ this.allowedConceptIds + "','"
-					+ this.allowedConceptClassNames + "');\""
+					+ this.allowedConceptClassNames + "','"
+					+ this.allowedConceptSetIds + "');\""
 					+ "class=\"autoCompleteText\""
                     + "onchange=\"setValWhenAutocompleteFieldBlanked(this)\""
 					+ " onblur=\"onBlurAutocomplete(this)\"");
@@ -102,5 +106,9 @@ public class ConceptSearchAutocompleteWidget implements Widget {
     public void setInitialValue(Object initialValue) {
 		// TODO Auto-generated method stub
 		this.initialValue = (Concept) initialValue;
+	}
+
+	public void setAllowedConceptSetIds(String allowedConceptSetIds) {
+		this.allowedConceptSetIds = allowedConceptSetIds;
 	}
 }

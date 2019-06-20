@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -9,11 +11,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
@@ -22,6 +22,7 @@ import org.openmrs.ConceptSearchResult;
 import org.openmrs.Drug;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.compatibility.DrugCompatibility;
 import org.openmrs.propertyeditor.ConceptClassEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
@@ -61,7 +62,8 @@ public class HtmlFormSearchController {
 			HttpServletResponse response,
 			@RequestParam(required = true, value = "term") String query,
 			@RequestParam(required = false, value = "answerids") String allowedconceptids,
-			@RequestParam(required = false, value = "answerclasses") String answerclasses)
+			@RequestParam(required = false, value = "answerclasses") String answerclasses,
+			@RequestParam(required = false, value = "answerSetIds") String answerSetIds)
 			throws Exception {
 
 		response.setContentType("application/json");
@@ -72,29 +74,36 @@ public class HtmlFormSearchController {
 		l.add(Context.getLocale());
 
 		List<ConceptClass> cptClassList = new ArrayList<ConceptClass>();
-		HashSet<Integer> set = new HashSet<Integer>();
+		Set<Integer> allowedConceptsIdSet = new HashSet<Integer>();
 		if ( !"null".equals(allowedconceptids) && !"".equals(allowedconceptids)) {
 			// we filter this by conceptids
-			for (StringTokenizer st = new StringTokenizer(allowedconceptids,
-					","); st.hasMoreTokens();) {
-				set.add(Integer.parseInt(st.nextToken()));
+			for (StringTokenizer st = new StringTokenizer(allowedconceptids, ","); st.hasMoreTokens();) {
+				allowedConceptsIdSet.add(Integer.parseInt(st.nextToken()));
 			}
-		} else if (!"null".equals(answerclasses)&& !"".equals(answerclasses)) {
-			for (StringTokenizer st = new StringTokenizer(answerclasses, ","); st
-					.hasMoreTokens();) {
-				cptClassList.add(conceptService
-						.getConceptClassByName(st.nextToken()));
-			}
-		} else {
-			throw new Exception(
-					"answerconceptids set and answerclasses are both empty.");
 		}
-		List<ConceptSearchResult> results = conceptService.getConcepts(
-                query, l, false, cptClassList, null, null, null, null, null,
-                null);
-		if (!set.isEmpty()) {
+		else if (!"null".equals(answerclasses) && !"".equals(answerclasses)) {
+			for (StringTokenizer st = new StringTokenizer(answerclasses, ","); st.hasMoreTokens();) {
+				cptClassList.add(conceptService.getConceptClassByName(st.nextToken()));
+			}
+		}
+		else if (!"null".equals(answerSetIds) && !"".equals(answerSetIds)) {
+			for (StringTokenizer st = new StringTokenizer(answerSetIds, ","); st.hasMoreTokens();) {
+				Concept answerConceptSet = HtmlFormEntryUtil.getConcept(st.nextToken());
+				List<Concept> answerConcepts = conceptService.getConceptsByConceptSet(answerConceptSet);
+				for (Concept conceptInSet : answerConcepts) {
+					allowedConceptsIdSet.add(conceptInSet.getConceptId());
+				}
+			}
+		}
+		else {
+			throw new Exception("You must specify either answerconceptids, answerclasses, or answerSetIds");
+		}
+
+		List<ConceptSearchResult> results = conceptService.getConcepts(query, l, false, cptClassList, null,
+				null, null, null, null, null);
+		if (!allowedConceptsIdSet.isEmpty()) {
 			for (Iterator<ConceptSearchResult> it = results.iterator(); it.hasNext();) {
-				if (!set.contains(it.next().getConcept().getConceptId())) {
+				if (!allowedConceptsIdSet.contains(it.next().getConcept().getConceptId())) {
 					it.remove();
 				}
 			}

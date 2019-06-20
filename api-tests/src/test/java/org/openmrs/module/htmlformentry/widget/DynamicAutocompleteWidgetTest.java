@@ -48,7 +48,7 @@ public class DynamicAutocompleteWidgetTest {
 
         TestUtil.assertFuzzyContains("<div id=\"w2_div\" class=\"dynamicAutocomplete\">" +
             "<input name=\"w2_hid\" id=\"w2_hid\" type=\"hidden\" class=\"autoCompleteHidden\" />" +
-            "<input type=\"text\"  id=\"w2\" name=\"w2\" onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','1,2,3','null'\\); \"class=\"autoCompleteText\" onBlur=\"onBlurAutocomplete\\(this\\)\"/>" +
+            "<input type=\"text\"  id=\"w2\" name=\"w2\" onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','1,2,3','null', 'null'\\); \"class=\"autoCompleteText\" onBlur=\"onBlurAutocomplete\\(this\\)\"/>" +
             "<input id=\"w2_button\" type=\"button\" class=\"addConceptButton\" value=\"Add\" /></div>",
                 html);
 
@@ -64,8 +64,25 @@ public class DynamicAutocompleteWidgetTest {
 
         TestUtil.assertFuzzyContains("<div id=\"w2_div\" class=\"dynamicAutocomplete\">" +
                 "<input name=\"w2_hid\" id=\"w2_hid\" type=\"hidden\" class=\"autoCompleteHidden\" />" +
-                "<input type=\"text\"  id=\"w2\" name=\"w2\" onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','null','someClass,anotherClass'\\); \"class=\"autoCompleteText\" onBlur=\"onBlurAutocomplete\\(this\\)\"/>" +
+                "<input type=\"text\"  id=\"w2\" name=\"w2\" onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','null','someClass,anotherClass', 'null'\\); \"class=\"autoCompleteText\" onBlur=\"onBlurAutocomplete\\(this\\)\"/>" +
                 "<input id=\"w2_button\" type=\"button\" class=\"addConceptButton\" value=\"Add\" /></div>",
+                html);
+
+    }
+
+    @Test
+    public void generateHtml_shouldRenderProperHtmlWithConceptSetIds() {
+
+        when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+
+        DynamicAutocompleteWidget dynamicAutocompleteWidget = new DynamicAutocompleteWidget(null, null);
+        dynamicAutocompleteWidget.setAllowedConceptSetIds("1,2,3");
+        String html = dynamicAutocompleteWidget.generateHtml(context);
+
+        TestUtil.assertFuzzyContains("<div id=\"w2_div\" class=\"dynamicAutocomplete\">" +
+                        "<input name=\"w2_hid\" id=\"w2_hid\" type=\"hidden\" class=\"autoCompleteHidden\" />" +
+                        "<input type=\"text\"  id=\"w2\" name=\"w2\" onfocus=\"setupAutocomplete\\(this, 'conceptSearch.form','null','null', '1,2,3'\\); \"class=\"autoCompleteText\" onBlur=\"onBlurAutocomplete\\(this\\)\"/>" +
+                        "<input id=\"w2_button\" type=\"button\" class=\"addConceptButton\" value=\"Add\" /></div>",
                 html);
 
     }

@@ -258,6 +258,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
         try {
             size = Integer.valueOf(parameters.get("size"));
         }catch (Exception ex) {}
+
+		String answerConceptSetIds = parameters.get("answerConceptSetIds");
+        boolean isAutocomplete = "autocomplete".equals(parameters.get("style"));
+
 		if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
         	if (answerDrug == null) {
 				existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
@@ -279,7 +283,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                 String numericAns = parameters.get("answer");
                 existingObs = context.removeExistingObs(concept, numericAns);
                 //for dynamicAutocomplete if selectMulti is true
-			} else if ("autocomplete".equals(parameters.get("style")) && "true".equals(parameters.get("selectMulti"))) {
+			} else if (isAutocomplete && "true".equals(parameters.get("selectMulti"))) {
 				existingObsList = context.removeExistingObs(concept);
 			} else {
 				if (answerDrug == null) {
@@ -663,8 +667,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						        + ex.toString() + "): " + conceptAnswers);
 					}
 				}
-                else if (parameters.get("answerConceptSetIds") != null) {
-                    String answerConceptSetIds = parameters.get("answerConceptSetIds");
+                else if (answerConceptSetIds != null && !isAutocomplete) {
                     try {
 						for (StringTokenizer st = new StringTokenizer(answerConceptSetIds, ","); st.hasMoreTokens();) {
 							Concept answerConceptSet = HtmlFormEntryUtil.getConcept(st.nextToken());
@@ -675,7 +678,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
                         throw new RuntimeException("Error loading answer concepts from answerConceptSet " + answerConceptSetIds, ex);
                     }
                 }
-                else if (parameters.get("answerClasses") != null && !"autocomplete".equals(parameters.get("style"))) {
+                else if (parameters.get("answerClasses") != null && !isAutocomplete) {
 					try {
 						for (StringTokenizer st = new StringTokenizer(parameters.get("answerClasses"), ","); st
 						        .hasMoreTokens();) {
@@ -740,7 +743,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						Collections.sort(conceptAnswers, conceptNameComparator);
 					}
 					
-					if ("autocomplete".equals(parameters.get("style"))) {
+					if (isAutocomplete) {
 						List<ConceptClass> cptClasses = new ArrayList<ConceptClass>();
 						if (parameters.get("answerClasses") != null) {
 							for (StringTokenizer st = new StringTokenizer(parameters.get("answerClasses"), ","); st
@@ -751,16 +754,21 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							}
 						}
 						if ((conceptAnswers == null || conceptAnswers.isEmpty())
-						        && (cptClasses == null || cptClasses.isEmpty())) {
+						        && (cptClasses == null || cptClasses.isEmpty()) && answerConceptSetIds == null) {
 							throw new RuntimeException(
-							        "style \"autocomplete\" but there are no possible answers. Looked for answerConcepts and answerClasses attributes, and answers for concept "
+							        "style \"autocomplete\" but there are no possible answers. Looked for answerConcepts and "
+									        + "answerClasses attributes, answerConceptSetIds, and answers for concept "
 							                + concept.getConceptId());
 						}
 						if ("true".equals(parameters.get("selectMulti"))) {
-							valueWidget = new DynamicAutocompleteWidget(conceptAnswers, cptClasses);
+							DynamicAutocompleteWidget dacw = new DynamicAutocompleteWidget(conceptAnswers, cptClasses);
+							dacw.setAllowedConceptSetIds(answerConceptSetIds);
+							valueWidget = dacw;
                         }
                         else {
-						    valueWidget = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
+                        	ConceptSearchAutocompleteWidget csaw = new ConceptSearchAutocompleteWidget(conceptAnswers, cptClasses);
+                        	csaw.setAllowedConceptSetIds(answerConceptSetIds);
+						    valueWidget = csaw;
                         }
                     } else if (parameters.get("answerDrugs") != null) {
                         // we support searching through all drugs via AJAX

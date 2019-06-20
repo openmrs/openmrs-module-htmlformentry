@@ -24,6 +24,8 @@ public class DynamicAutocompleteWidget implements Widget {
 
 	private String allowedConceptClassNames;
 
+	private String allowedConceptSetIds;
+
 	private String src;
 
 	private static String defaultSrc = "conceptSearch.form";
@@ -34,13 +36,16 @@ public class DynamicAutocompleteWidget implements Widget {
 		//only 1 of them is used to specify the filter
 		if (allowedconceptclasses == null || allowedconceptclasses.size() == 0) {
 			StringBuilder sb = new StringBuilder();
-			for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
-				sb.append(it.next().getConceptId());
-				if (it.hasNext())
-					sb.append(",");
+			if (conceptList != null) {
+				for (Iterator<Concept> it = conceptList.iterator(); it.hasNext(); ) {
+					sb.append(it.next().getConceptId());
+					if (it.hasNext())
+						sb.append(",");
+				}
+				this.allowedConceptIds = sb.toString();
 			}
-			this.allowedConceptIds = sb.toString();
-		} else {
+		}
+		else {
 			StringBuilder sb = new StringBuilder();
 			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it.hasNext();) {
 				sb.append(it.next().getName());
@@ -80,7 +85,7 @@ public class DynamicAutocompleteWidget implements Widget {
 
 			sb.append("<input type=\"text\"  id=\"" + context.getFieldName(this) + "\"" + " name=\""
 			        + context.getFieldName(this) + "\" " + " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
-			        + this.allowedConceptIds + "','" + this.allowedConceptClassNames + "');\""
+			        + this.allowedConceptIds + "','" + this.allowedConceptClassNames + "','" + this.allowedConceptSetIds + "');\""
 			        + "class=\"autoCompleteText\"" + " onBlur=\"onBlurAutocomplete(this)\"");
 
 			sb.append("/>");
@@ -132,5 +137,9 @@ public class DynamicAutocompleteWidget implements Widget {
 
 	public List<Concept> getInitialValueList() {
 		return initialValues;
+	}
+
+	public void setAllowedConceptSetIds(String allowedConceptSetIds) {
+		this.allowedConceptSetIds = allowedConceptSetIds;
 	}
 }

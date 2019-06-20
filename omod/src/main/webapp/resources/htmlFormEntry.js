@@ -178,7 +178,7 @@ function getContextPath() {
 	return contextPath;
 }
 
-function setupAutocomplete(element,src, answerids, answerclasses) {
+function setupAutocomplete(element,src, answerids, answerclasses, answerSetIds) {
 	var hiddenField = jQuery("#"+element.id+"_hid");
 	var textField = jQuery(element);
 	var select = false;
@@ -197,21 +197,27 @@ function setupAutocomplete(element,src, answerids, answerclasses) {
 			 source: function(req, add){
 				//pass request to server
 
-			    jQuery.getJSON(location.protocol + '//' + location.host + getContextPath() + '/module/htmlformentry/' + src
-                    + '?answerids=' + answerids + '&answerclasses=' + answerclasses, req, function(data) {
+				 var srcUrl = location.protocol + '//' + location.host + getContextPath() + '/module/htmlformentry/' + src;
+				 srcUrl += '?answerids=' + answerids + '&answerclasses=' + answerclasses;
+				 if (answerSetIds && answerSetIds != '') {
+				 	srcUrl += '&answerSetIds=' + answerSetIds;
+				 }
+				 jQuery.getJSON(srcUrl, req, function(data) {
 
 					//create array for response objects
 					var suggestions = [];
 
 					jQuery.each(data, function(i, val){
-					suggestions.push(val);
-		        });
+						suggestions.push(val);
+		        	});
 
-                //this clears the error if it returns no result
-                //if the input field is not empty
-                //the error will be triggered in onblur below
-                if (suggestions.length==0) hiddenField.val("");
-        			add(suggestions);
+					//this clears the error if it returns no result
+					//if the input field is not empty
+					//the error will be triggered in onblur below
+					if (suggestions.length==0) {
+						hiddenField.val("");
+					}
+					add(suggestions);
 		        });
 		    }
 			,
