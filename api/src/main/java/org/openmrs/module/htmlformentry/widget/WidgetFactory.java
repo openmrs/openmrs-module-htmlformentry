@@ -169,10 +169,10 @@ public class WidgetFactory {
 	}
 	
 	private static String getViewHyperlink(Obs obs) {
-		return "/" + WebConstants.WEBAPP_NAME + "/complexObsServlet?obsId=" + obs.getObsId();
+		return "/" + WebConstants.WEBAPP_NAME + "/moduleServlet/legacyui/complexObsServlet?obsId=" + obs.getObsId()+"&view=RAW_VIEW";
 	}
 	
 	private static String getDownloadHyperlink(Obs obs) {
-		return getViewHyperlink(obs) + "&view=download&viewType=download";
+		return getViewHyperlink(obs) + "&view=RAW_VIEW&viewType=download";
 	}
 }
