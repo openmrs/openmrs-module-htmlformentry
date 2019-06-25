@@ -17,22 +17,9 @@ clicks the submit button.
 
 Currently, a form submission creates one encounter for one patient.
 
-
 Requirements
 ----------
 + OpenMRS 1.9.9+, OpenMRS 1.10.2+ or OpenMRS 1.11.3+ 
-
-
-Download
-----------
-
-Make sure that you have installed OpenMRS 1.6.3+, OpenMRS 1.7.2+, OpenMRS 1.8+, or OpenMRS 1.9+<br>
-If you are using OpenMRS 1.9+, you should also install the [htmlformentry19ext module][].
-
-+ [Download the Htmlformentry module][]
-+ If you are using OpenMRS 1.9+, ALSO get the [htmlformentry19ext module][].
-+ Source code: [View/download source code for htmlformentry19ext][] from Github, [View/download source code for htmlformentry][] from Github
-
 
 Instructions
 ---------
@@ -57,10 +44,7 @@ Project Resources
 [Wiki page][]: You can find screenshots, example HTML code, and flowsheets on this page
 
 [HTML Form Entry Module]: https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module
-[htmlformentry19ext]: https://github.com/OpenMRS/openmrs-module-htmlformentry19ext
-[View/download source code for htmlformentry19ext]: https://github.com/OpenMRS/openmrs-module-htmlformentry19ext
 [View/download source code for htmlformentry]: https://github.com/OpenMRS/openmrs-module-htmlformentry
-[htmlformentry19ext module]: https://modules.openmrs.org/#/show/htmlformentry19ext
 [Download the Htmlformentry module]: http://modules.openmrs.org/modules/view.jsp?module=htmlformentry
 [HTML Reference]: http://archive.openmrs.org/wiki/HTML_Form_Entry_Module_HTML_Reference
 [Wiki page]: https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module

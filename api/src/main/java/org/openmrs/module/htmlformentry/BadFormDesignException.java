@@ -15,5 +15,8 @@ public class BadFormDesignException extends Exception {
     public BadFormDesignException(String message) {
         super(message);
     }
-    
+
+    public BadFormDesignException(String message, Throwable t) {
+        super(message, t);
+    }
 }

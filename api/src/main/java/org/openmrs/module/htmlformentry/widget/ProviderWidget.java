@@ -13,6 +13,11 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -20,11 +25,6 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.ProviderByPersonNameComparator;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 
 /**
@@ -34,7 +34,11 @@ public class ProviderWidget implements Widget {
 	
 	private Provider initialValue;
 
-    private List<Provider> providers = new ArrayList<Provider>();
+    private List<Provider> providers;
+
+    public ProviderWidget(List<Provider> providers) {
+    	this.providers = providers;
+    }
 	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
