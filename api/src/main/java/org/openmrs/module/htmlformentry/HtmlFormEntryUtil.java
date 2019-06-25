@@ -1,5 +1,39 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -9,6 +43,7 @@ import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
 import org.openmrs.Drug;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
 import org.openmrs.Location;
@@ -62,40 +97,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * HTML Form Entry utility methods
@@ -1856,6 +1857,21 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 
+	public static EncounterRole getEncounterRole(String id) {
+		EncounterRole role = null;
+		if (StringUtils.isNotBlank(id)) {
+			id = id.trim();
+			try {
+				int encounterRoleId = Integer.parseInt(id);
+				role = Context.getEncounterService().getEncounterRole(encounterRoleId);
+			}
+			catch (Exception ex) {
+				role = Context.getEncounterService().getEncounterRoleByUuid(id);
+			}
+		}
+		return role;
+	}
+
 	/**
 	 * Removes any Obs that are empty or which have only empty children
 	 */
@@ -2027,13 +2043,36 @@ public class HtmlFormEntryUtil {
 			}
 
 			// if no match by id, look up by uuid
-			providerRole = getProviderRoleBUuid(id);
+			providerRole = getProviderRoleByUuid(id);
 
 		}
 
 		return providerRole;
 	}
 
+	public static List<Provider> getProviders(List<String> providerRoleIds, boolean returnAllIfNoRolesSpecified) {
+		if (providerRoleIds == null || providerRoleIds.isEmpty()) {
+			if (returnAllIfNoRolesSpecified) {
+				return getAllProviders();
+			}
+			return new ArrayList<Provider>();
+		}
+		else {
+			List providerRoles = new ArrayList();
+			for (String providerRoleId : providerRoleIds) {
+				Object providerRole = getProviderRole(providerRoleId);
+				if (providerRole == null) {
+					throw new IllegalArgumentException("Unable to find provider role: " + providerRoleId);
+				}
+				providerRoles.add(providerRole);
+			}
+			return getProviders(providerRoles);
+		}
+	}
+
+	public static List<Provider> getAllProviders() {
+		return Context.getProviderService().getAllProviders(false);
+	}
 
 	private static Object getProviderRoleById(Integer providerRoleId) {
 
@@ -2051,7 +2090,7 @@ public class HtmlFormEntryUtil {
 
 	}
 
-	private static Object getProviderRoleBUuid(String providerRoleUuid) {
+	private static Object getProviderRoleByUuid(String providerRoleUuid) {
 
 		// we have to fetch the provider roles by reflection, since the provider management module is not a required dependency
 
@@ -2079,10 +2118,37 @@ public class HtmlFormEntryUtil {
 	}
 
 	/**
+	 * @return the provider with the given id, where the id can be either the primary key id or uuid of the provider
+	 * If id passed in is "currentuser", then return the first provider record associated with the currently
+	 * authenticated user
+	 */
+	public static Provider getProvider(String id) {
+		Provider provider = null;
+		if ("currentUser".equals(id)) {
+			User currentUser = Context.getAuthenticatedUser();
+			if (currentUser != null) {
+				Collection<Provider> candidates = Context.getProviderService().getProvidersByPerson(currentUser.getPerson());
+				if (candidates.size() > 0) {
+					provider = candidates.iterator().next();
+				}
+			}
+		}
+		else {
+			try {
+				provider = Context.getProviderService().getProvider(Integer.valueOf(id));
+			}
+			catch (Exception ex) {
+				provider = Context.getProviderService().getProviderByUuid(id);
+			}
+		}
+		return provider;
+	}
+
+	/**
 	 * Convenience method to get all the names of this PersonName and concatonating them together
 	 * with family name compoenents first, separated by a comma from given and middle names.
-	 * If any part of {@link #getPrefix()}, {@link #getGivenName()},
-	 * {@link #getMiddleName()}, etc are null, they are not included in the returned name
+	 * If any part of {@link PersonName#getPrefix()}, {@link PersonName#getGivenName()},
+	 * {@link PersonName#getMiddleName()}, etc are null, they are not included in the returned name
 	 *
 	 * @return all of the parts of this {@link PersonName} joined with spaces
 	 * @should not put spaces around an empty middle name
@@ -2148,17 +2214,16 @@ public class HtmlFormEntryUtil {
 		return providerStubList;
 	}
 
-	public static List<ProviderStub> getProviderStubs(Collection<Provider> providers,String searchParam,
-													  MatchMode mode) {
-		if(mode != null) {
-			org.openmrs.module.htmlformentry.util.Transformer<Provider, ProviderStub> transformer = new ProviderTransformer();
+	public static List<ProviderStub> getProviderStubs(Collection<Provider> providers, String searchParam, MatchMode mode) {
+		if(mode != null && StringUtils.isNotBlank(searchParam)) {
+			ProviderTransformer transformer = new ProviderTransformer();
 			switch (mode) {
 				case START:
 					return (List<ProviderStub>) transformer.transform(providers, startsWith(searchParam));
 				case END:
 					return (List<ProviderStub>) transformer.transform(providers, endsWith(searchParam));
 				default:
-					return getProviderStubs(providers);
+					return (List<ProviderStub>) transformer.transform(providers, contains(searchParam));
 			}
 		}
 		return getProviderStubs(providers);
@@ -2168,22 +2233,11 @@ public class HtmlFormEntryUtil {
 		return new Predicate<Provider>() {
 			@Override
 			public boolean test(Provider provider) {
-				String identifier = provider.getIdentifier();
-				String lowerCaseParam = param.toLowerCase();
-				if(identifier.toLowerCase().startsWith(lowerCaseParam)) return true;
-				if(provider.getPerson() != null) {
-					PersonName name = provider.getPerson().getPersonName();
-					if (name != null) {
-						if (name.getGivenName().toLowerCase().startsWith(lowerCaseParam) ||
-								name.getFamilyName().toLowerCase().startsWith(lowerCaseParam) ||
-								name.getMiddleName().toLowerCase().startsWith(lowerCaseParam))
-							return true;
+				String searchParam = param.toLowerCase();
+				for (String f : getProviderFieldsToSearch(provider)) {
+					if (f.startsWith(searchParam)) {
+						return true;
 					}
-				}
-				//Check the provider name (From provider table)
-				String[] names = provider.getName().split(" ");
-				for(String n:names) {
-					if (n.toLowerCase().startsWith(lowerCaseParam)) return true;
 				}
 				return false;
 			}
@@ -2194,25 +2248,58 @@ public class HtmlFormEntryUtil {
 		return new Predicate<Provider>() {
 			@Override
 			public boolean test(Provider provider) {
-				String lowerCaseParam = param.toLowerCase();
-				String identifier = provider.getIdentifier();
-				if(identifier.toLowerCase().endsWith(lowerCaseParam)) return true;
-				if(provider.getPerson() != null) {
-					PersonName name = provider.getPerson().getPersonName();
-					if (name != null) {
-						if (name.getGivenName().toLowerCase().endsWith(lowerCaseParam) ||
-								name.getFamilyName().toLowerCase().endsWith(lowerCaseParam) ||
-								name.getMiddleName().toLowerCase().endsWith(lowerCaseParam))
-							return true;
+				String searchParam = param.toLowerCase();
+				for (String f : getProviderFieldsToSearch(provider)) {
+					if (f.endsWith(searchParam)) {
+						return true;
 					}
-				}
-				//Check the provider name (From provider table
-				String[] names = provider.getName().split(" ");
-				for(String n:names) {
-					if (n.toLowerCase().endsWith(lowerCaseParam)) return true;
 				}
 				return false;
 			}
 		};
+	}
+
+	private static Predicate<Provider> contains(final String param) {
+		return new Predicate<Provider>() {
+			@Override
+			public boolean test(Provider provider) {
+				String searchParam = param.toLowerCase();
+				for (String f : getProviderFieldsToSearch(provider)) {
+					if (f.contains(searchParam)) {
+						return true;
+					}
+				}
+				return false;
+			}
+		};
+	}
+
+	private static List<String> getProviderFieldsToSearch(Provider provider) {
+		List<String> ret = new ArrayList<String>();
+		String identifier = provider.getIdentifier();
+		if (StringUtils.isNotBlank(identifier)) {
+			ret.add(provider.getIdentifier().toLowerCase().trim());
+		}
+		Person person = provider.getPerson();
+		if (person != null) {
+			PersonName pn = person.getPersonName();
+			if (pn != null) {
+				if (StringUtils.isNotBlank(pn.getGivenName())) {
+					ret.add(pn.getGivenName().toLowerCase().trim());
+				}
+				if (StringUtils.isNotBlank(pn.getMiddleName())) {
+					ret.add(pn.getMiddleName().toLowerCase().trim());
+				}
+				if (StringUtils.isNotBlank(pn.getFamilyName())) {
+					ret.add(pn.getFamilyName().toLowerCase().trim());
+				}
+			}
+		}
+		if (StringUtils.isNotBlank(provider.getName())) {
+			for (String n : provider.getName().split(" ")) {
+				ret.add(n.toLowerCase().trim());
+			}
+		}
+		return ret;
 	}
 }

@@ -242,6 +242,58 @@ function setupAutocomplete(element,src, answerids, answerclasses, answerSetIds) 
 	}
 }
 
+function setupProviderAutocomplete(element) {
+    var hiddenField = jQuery("#"+element.id+"_hid");
+    var textField = jQuery(element);
+    var providerMatchMode = jQuery("#"+element.id+"_matchMode_hid");
+    var providerRoles = jQuery("#"+element.id+"_providerRoles_hid");
+    var select = false;
+
+    if (hiddenField.length > 0 && textField.length > 0) {
+    	textField.autocomplete( {
+			"source": function(req, add) { // pass request to server
+
+				var url = location.protocol + "//" + location.host + getContextPath() + "/module/htmlformentry/providers.form";
+				var urlParams = {
+					"searchParam": textField.val(),
+					"matchMode": providerMatchMode.val(),
+					"providerRoles": providerRoles.val()
+				};
+
+				jQuery.getJSON(url, urlParams, function(data) {
+
+					//create array for response objects
+					var suggestions = [];
+					jQuery.each(data, function(i,val) {
+						var item = {};
+						item.label = val.displayValue;
+						item.value = val.providerId;
+						suggestions.push(item);
+					});
+
+					if (suggestions.length == 0) {
+						hiddenField.val('');
+						textField.css('color','red');
+					}
+					add(suggestions);
+				});
+			},
+			"minLength": 2,
+			"focus": function(event, ui) {
+				 textField.val(ui.item.label);
+				 return false;
+			 },
+			"select": function(event, ui) {
+				hiddenField.val(ui.item.value);
+				textField.val(ui.item.label);
+				textField.css('color','black');
+				select = true;
+				return false;
+			}
+      });
+    }
+}
+
 function onBlurAutocomplete(element){
 	var hiddenField = jQuery("#"+element.id+"_hid");
 	var textField = jQuery(element);

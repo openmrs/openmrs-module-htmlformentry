@@ -9,5 +9,7 @@
 		<mapping resource="TokenRegistration.hbm.xml" />
 		<mapping resource="MetadataSource.hbm.xml"/>
 		<mapping resource="MetadataTermMapping.hbm.xml"/>
+		<mapping resource="Provider.hbm.xml"/>
+		<mapping resource="ProviderRole.hbm.xml"/>
 	</session-factory>
 </hibernate-configuration>
