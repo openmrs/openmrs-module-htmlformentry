@@ -76,6 +76,7 @@ import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.util.MatchMode;
 import org.openmrs.module.htmlformentry.util.Predicate;
 import org.openmrs.module.htmlformentry.util.ProviderTransformer;
@@ -488,6 +489,18 @@ public class HtmlFormEntryUtil {
 		addr.setCountry("Rwanda");
 		demo.addAddress(addr);
 		return demo;
+	}
+
+	public static HtmlFormSchema getHtmlFormSchema(HtmlForm htmlForm, FormEntryContext.Mode mode) {
+		try {
+			Patient patient = HtmlFormEntryUtil.getFakePerson();
+			FormEntrySession fes = new FormEntrySession(patient, null, mode, htmlForm, null);
+			fes.getHtmlToDisplay();
+			return fes.getContext().getSchema();
+		}
+		catch (Exception e) {
+			throw new IllegalStateException("Unable to load html form schema for htmlform: " + htmlForm, e);
+		}
 	}
 
 	/**
