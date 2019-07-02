@@ -1,7 +1,7 @@
 package org.openmrs.module.htmlformentry.schema;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,14 +47,11 @@ public class HtmlFormSchema {
         return fields;
     }
 
-
-    // TODO fix getAllFields and getAllSections so that they return Lists, and the Lists are in the order the elements appear on the form?
-
     /**
      * Returns the entire flattened set of fields
      */
     public Set<HtmlFormField> getAllFields() {
-        return getAllFieldsRecursiveSectionHelper(new HashSet<HtmlFormField>(), null);
+        return getAllFieldsRecursiveSectionHelper(new LinkedHashSet<HtmlFormField>(), null);
     }
 
     private Set<HtmlFormField> getAllFieldsRecursiveSectionHelper(Set<HtmlFormField> fields, HtmlFormSection section) {
@@ -81,7 +78,7 @@ public class HtmlFormSchema {
      * Returns the entire flattened set of sections
      */
     public Set<HtmlFormSection> getAllSections() {
-        return getAllSectionsRecursiveHelper(new HashSet<HtmlFormSection>(), null);
+        return getAllSectionsRecursiveHelper(new LinkedHashSet<HtmlFormSection>(), null);
     }
 
     public Set<HtmlFormSection> getAllSectionsRecursiveHelper(Set<HtmlFormSection> sections, HtmlFormSection section) {
