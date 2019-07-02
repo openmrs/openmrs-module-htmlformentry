@@ -9,6 +9,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
@@ -81,6 +82,13 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
             }
         }
         // TODO: the getObservations service method appears to sort by obsDatetime by default, so the oldest obs would be returned; do we want invert to return most recent?
+    }
+
+    @Override
+    protected ObsField instatiateObsField() {
+        ObsField field = super.instatiateObsField();
+        field.setObsReference(true);
+        return field;
     }
 
     @Override

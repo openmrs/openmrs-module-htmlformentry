@@ -16,6 +16,7 @@ public class ObsField implements HtmlFormField {
 	private List<ObsFieldAnswer> answers = new ArrayList<ObsFieldAnswer>();
 	private List<ObsFieldAnswer> questions = new ArrayList<ObsFieldAnswer>(); //for concept selects
     private Obs existingObs; // any obs currently associated with this field
+	private boolean obsReference = false;
     
     public ObsField() { }
 
@@ -106,4 +107,12 @@ public class ObsField implements HtmlFormField {
     public void setExistingObs(Obs existingObs) {
         this.existingObs = existingObs;
     }
+
+	public boolean isObsReference() {
+		return obsReference;
+	}
+
+	public void setObsReference(boolean obsReference) {
+		this.obsReference = obsReference;
+	}
 }

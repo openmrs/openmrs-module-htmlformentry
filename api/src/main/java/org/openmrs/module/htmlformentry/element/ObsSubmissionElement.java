@@ -1020,6 +1020,17 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 		}
 
+		ObsField field = instatiateObsField();
+
+        // add the field to active obsgroup if there is one, other to the active section
+		if (concept != null && context.getActiveObsGroup() != null) {
+			context.addFieldToActiveObsGroup(field);
+		} else {
+			context.addFieldToActiveSection(field);
+		}
+	}
+
+	protected ObsField instatiateObsField() {
 		ObsField field = new ObsField();
 		field.setName(valueLabel);
 		if (concept != null) {
@@ -1049,15 +1060,27 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				field.getAnswers().add(ans);
 			}
 		}
-
-       field.setExistingObs(existingObs);
-
-        // add the field to active obsgroup if there is one, other to the active section
-		if (concept != null && context.getActiveObsGroup() != null) {
-			context.addFieldToActiveObsGroup(field);
-		} else {
-			context.addFieldToActiveSection(field);
+		if (concept != null && concept.getDatatype().isBoolean() && valueWidget != null && valueWidget instanceof SingleOptionWidget) {
+			SingleOptionWidget w = (SingleOptionWidget)valueWidget;
+			for (Option o : w.getOptions()) {
+				ObsFieldAnswer ans = new ObsFieldAnswer();
+				Concept answerConcept = null;
+				if (StringUtils.isNotBlank(o.getValue())) {
+					if (Boolean.getBoolean(o.getValue())) {
+						answerConcept = Context.getConceptService().getTrueConcept();
+					}
+					else {
+						answerConcept = Context.getConceptService().getFalseConcept();
+					}
+				}
+				ans.setConcept(answerConcept);
+				ans.setDisplayName(o.getLabel());
+				field.getAnswers().add(ans);
+			}
 		}
+
+		field.setExistingObs(existingObs);
+		return field;
 	}
 
 	@Override
