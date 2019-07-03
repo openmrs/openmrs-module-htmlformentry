@@ -37,6 +37,10 @@ public class DrugCompatibility2_0 implements DrugCompatibility {
             Map<String, Object> item = new LinkedHashMap<String, Object>();
             item.put("id", drug.getId());
             item.put("name", drug.getName());
+	    item.put("expiryDate",drug.getExpiryDate());
+		if(drug.getExpiryDate()!=null){
+		item.show("The drug is not expired);	
+		}
             if (drug.getDosageForm() != null) {
                 item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
             }
