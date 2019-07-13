@@ -152,9 +152,10 @@ public class ProviderAndRoleElement implements HtmlGeneratorElement, FormSubmiss
     	}
         Iterator<ErrorWidget> errorWidgetIterator = providerErrorWidgets.iterator();
     	int providerWidgetNum = 0;
+    	String separator = (tag.getProviderWidgetSeparator() == null ? ", " : tag.getProviderWidgetSeparator());
         for (Widget providerWidget : providerWidgets) {
         	if (providerWidgetNum++ > 0) {
-        		ret.append(", ");
+        		ret.append(separator);
 	        }
 			ret.append(providerWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW) {
