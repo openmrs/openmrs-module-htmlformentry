@@ -32,6 +32,7 @@ public class EncounterProviderAndRoleTag {
 
 	private boolean required; // Whether or not this is required or not
 	private int count; // The number of provider widgets to render
+	private String providerWidgetSeparator; // If count > 1, the html that should separate the widgets
 	private EncounterRole encounterRole; // Whether this should be used specifically to set a specific Encounter Role
 	private boolean autocompleteProvider; // Whether autocomplete or dropdown (default is dropdown)
 	private List<String> providerRoles; // Comma-separated list of roles to limit providers to
@@ -45,6 +46,7 @@ public class EncounterProviderAndRoleTag {
 	public EncounterProviderAndRoleTag(Map<String, String> parameters) {
 		required = TagUtil.parseParameter(parameters, "required", Boolean.class, false);
 		count = TagUtil.parseParameter(parameters, "count", Integer.class, 1);
+		providerWidgetSeparator = TagUtil.parseParameter(parameters, "providerWidgetSeparator", String.class, ", ");
 		encounterRole = TagUtil.parseParameter(parameters, "encounterRole", EncounterRole.class);
 		autocompleteProvider = TagUtil.parseParameter(parameters, "autocompleteProvider", Boolean.class, false);
 		providerMatchMode = TagUtil.parseParameter(parameters, "providerMatchMode", MatchMode.class, MatchMode.ANYWHERE);
@@ -70,6 +72,10 @@ public class EncounterProviderAndRoleTag {
 
 	public int getCount() {
 		return count;
+	}
+
+	public String getProviderWidgetSeparator() {
+		return providerWidgetSeparator;
 	}
 
 	public EncounterRole getEncounterRole() {
