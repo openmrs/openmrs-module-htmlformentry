@@ -68,6 +68,7 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
             // note that this may match obs from the existing encounter, but we don't worry about that, because if there's an existing match, we won't be using this functionality (because getInitialValue(valueWidget) should be null)
             // also note that if an answer concept is present (ie it's a checkbox) we match on that as well
+            // note that we are passing in the value of "1" for
             List<Obs> obsList = Context.getObsService().getObservations(
                     Collections.singletonList((Person) context.getExistingPatient()),
                     null, Collections.singletonList(concept),
@@ -78,10 +79,10 @@ public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
 
             if (!obsList.isEmpty()) {
                 // we are restricting to a single answer, so we will only get one
+                // also note that by default it sorts by obsDatetime descending so it should return the most recent
                 referenceObs = obsList.get(0);
             }
         }
-        // TODO: the getObservations service method appears to sort by obsDatetime by default, so the oldest obs would be returned; do we want invert to return most recent?
     }
 
     @Override

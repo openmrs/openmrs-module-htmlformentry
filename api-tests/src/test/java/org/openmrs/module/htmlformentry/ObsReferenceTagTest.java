@@ -58,7 +58,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testViewingEncounter(Encounter encounter, String html) {
-                TestUtil.assertFuzzyContains("Weight:70", html);  // TODO why isn't it including decimal point
+                // note that there are two weight obs in our test data, we want to make sure it pulls the one with the latest time, which has a value of 75kg
+                TestUtil.assertFuzzyContains("Weight:75", html);  // TODO why isn't it including decimal point
             }
         }.run();
     }
@@ -91,7 +92,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testViewingEncounter(Encounter encounter, String html) {
-                TestUtil.assertFuzzyDoesNotContain("Value of 70.0 kg recorded as part of Emergency on 01/02/2003", html);
+                // note that there are two weight obs in our test data, we want to make sure it pulls the one with the latest time, which has a value of 75kg
+                TestUtil.assertFuzzyDoesNotContain("Value of 75.0 kg recorded as part of Emergency on 01/02/2003", html);
             }
         }.run();
     }
@@ -442,7 +444,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("-reference-view\" title=\"(.*)\"><span class=\"value\">70</span>", html);
+                // note that there are two weight obs in our test data, we want to make sure it pulls the one with the latest datetime, which has a value of 75kg
+                TestUtil.assertFuzzyContains("-reference-view\" title=\"(.*)\"><span class=\"value\">75</span>", html);
                 TestUtil.assertFuzzyContains("-reference-edit\" style=\"display:none\"><input type=\"text\" size=\"5\" i", html);
             }
         }.run();
@@ -488,7 +491,8 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 
             @Override
             public void testEditFormHtml(String html) {
-                TestUtil.assertFuzzyContains("Some custom message with value 70.0 kg for encounter Emergency", html);
+                // note that there are two weight obs in our test data, we want to make sure it pulls the one with the latest time, which has a value of 75kg
+                TestUtil.assertFuzzyContains("Some custom message with value 75.0 kg for encounter Emergency", html);
             }
         }.run();
     }

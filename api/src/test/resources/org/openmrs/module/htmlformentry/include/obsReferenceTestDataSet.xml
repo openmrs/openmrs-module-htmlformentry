@@ -25,5 +25,7 @@
     <concept concept_id="2003" retired="false" datatype_id="10" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="59f7fd81-6d1c-482e-8417-c9c3cbebfe1f"/>
     <obs obs_id="2006" person_id="2" concept_id="2003" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="8" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="c9c2e8e7-9b42-418b-9ce2-c8ed6d88dc2de" />
 
+    <!-- Another weight obs on the same day but with a later obs datetime -->
+    <obs obs_id="2007" person_id="2" concept_id="5089" encounter_id="3001" obs_datetime="2003-02-01 10:10:00.0" value_numeric="75.0" location_id="1" creator="1" date_created="2003-02-01 00:00:00.0" voided="false" uuid="d8ad488b-edb6-4c06-8889-c3bc0cd903f1" />
 
 </dataset>
