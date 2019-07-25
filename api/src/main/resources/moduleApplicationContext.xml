@@ -133,6 +133,11 @@
                             <key><value>obsreference</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ObsReferenceTagHandler"/>
                         </entry>
+                        <entry>
+                            <key><value>condition</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.ConditionTagHandler"/>
+                        </entry>
+                        
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">
