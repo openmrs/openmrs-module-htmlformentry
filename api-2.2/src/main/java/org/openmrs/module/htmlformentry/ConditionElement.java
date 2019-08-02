@@ -57,6 +57,10 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				
 			} catch(NumberFormatException e) {
 				String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
+				if (StringUtils.isBlank(nonCodedConcept) && !required) {
+					// ignore silently
+					return;
+				}
 				conditionConcept.setNonCoded(nonCodedConcept);
 			}
 			condition.setCondition(conditionConcept);
