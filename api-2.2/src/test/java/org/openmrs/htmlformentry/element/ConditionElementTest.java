@@ -65,10 +65,10 @@ public class ConditionElementTest {
 	private RadioButtonsWidget conditionStatusesWidget;
 	
 	@Mock
-	private DateWidget endDate;
+	private DateWidget endDateWidget;
 	
 	@Mock
-	private DateWidget onsetDate;
+	private DateWidget onsetDateWidget;
 
 	@Before
 	public void setup() {
@@ -83,14 +83,14 @@ public class ConditionElementTest {
 		when(session.getContext()).thenReturn(context);
 		when(session.getPatient()).thenReturn(new Patient(1));
 		
-		when(onsetDate.getValue(context, request)).thenReturn(new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime());
+		when(onsetDateWidget.getValue(context, request)).thenReturn(new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime());
 		
 		// setup condition element
 		element = spy(new ConditionElement());
 		element.setConditionSearchWidget(conditionSearchWidget);
 		element.setConditionStatusesWidget(conditionStatusesWidget);
-		element.setOnSetDateWidget(onsetDate);
-		element.setEndDateWidget(endDate);
+		element.setOnSetDateWidget(onsetDateWidget);
+		element.setEndDateWidget(endDateWidget);
 	}
 	
 	@Test
@@ -113,8 +113,9 @@ public class ConditionElementTest {
 	@Test
 	public void handleSubmission_shouldCreateInactiveCondition() {
 		// setup
-		when(conditionSearchWidget.getValue(context, request)).thenReturn("105");
-		when(endDate.getValue(context, request)).thenReturn(new GregorianCalendar(2018, Calendar.DECEMBER, 1).getTime());
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		GregorianCalendar endDate = new GregorianCalendar(2018, Calendar.DECEMBER, 1);
+		when(endDateWidget.getValue(context, request)).thenReturn(endDate.getTime());
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("inactive");
 		
 		// replay
@@ -125,6 +126,8 @@ public class ConditionElementTest {
 		verify(conditionService, times(1)).saveCondition(captor.capture());
 		Condition condition = captor.getValue();
 		Assert.assertEquals(ConditionClinicalStatus.INACTIVE, condition.getClinicalStatus());
+		Assert.assertEquals(endDate.getTime(), condition.getEndDate());
+		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 	}
 	
 	@Test
@@ -145,7 +148,7 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldNotAttemptSavingIfNoConditionWasGivenAndNotRequired() {
+	public void handleSubmission_shouldNotAttemptSavingWhenNoConditionWasGivenAndIsNotRequired() {
 		// setup
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("");
 		
@@ -170,7 +173,7 @@ public class ConditionElementTest {
 	}
 
 	@Test
-	public void validateSubmission_shouldFailValidationIfConditionIsNotGivenButRequired() {
+	public void validateSubmission_shouldFailValidationWhenConditionIsNotGivenAndIsRequired() {
 		// setup
 		element.setRequired(true);
 		when(conditionSearchWidget.getValue(context, request)).thenReturn(null);
@@ -184,9 +187,9 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void validateSubmission_shouldFailValidationIfOnsetDateIsGreaterThanEnddate() {
+	public void validateSubmission_shouldFailValidationWhenOnsetDateIsGreaterThanEnddate() {
 		// setup
-		when(endDate.getValue(context, request)).thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
+		when(endDateWidget.getValue(context, request)).thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
 		when(messageSourceService.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error")).thenReturn("The end date cannot be ealier than the onset date.");
 		
 		// replay
