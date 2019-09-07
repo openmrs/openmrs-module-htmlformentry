@@ -29,7 +29,7 @@ Instructions
 + Create a new form there (click "New HTML Form").
 + Fill out the necessary information; including the Name, Description, Version, and select the Encounter Type from the list.  (When an HTML form is submitted, it will create this type of encounter.)
 + Save the form.  Then it will open the page for editing the HTML Form.
-+ Customize the HTML form to your specifications. Recent versions of the HTML Form Entry Module include a basic form that can be customized. For additional documentation on the avaliable HTML tags see the [HTML Reference][].
++ Customize the HTML form to your specifications. Recent versions of the HTML Form Entry Module include a basic form that can be customized. For additional documentation on the available HTML tags see the [HTML Reference][].
 
 
 Global Properties
