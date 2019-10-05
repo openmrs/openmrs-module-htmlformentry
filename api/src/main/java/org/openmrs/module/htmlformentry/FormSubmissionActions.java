@@ -41,9 +41,9 @@ public class FormSubmissionActions {
 	
 	/** Logger to use with this class */
 	protected final Log log = LogFactory.getLog(getClass());
-
-    private Boolean patientUpdateRequired = false;
-
+	
+	private Boolean patientUpdateRequired = false;
+	
 	private List<Person> personsToCreate = new Vector<Person>();
 	
 	private List<Encounter> encountersToCreate = new Vector<Encounter>();
@@ -67,13 +67,13 @@ public class FormSubmissionActions {
 	private List<Relationship> relationshipsToVoid = new Vector<Relationship>();
 	
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
-
+	
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
-
-    private ExitFromCareProperty exitFromCareProperty;
-
-    private List<CustomFormSubmissionAction> customFormSubmissionActions;
-
+	
+	private ExitFromCareProperty exitFromCareProperty;
+	
+	private List<CustomFormSubmissionAction> customFormSubmissionActions;
+	
 	/** The stack where state is stored */
 	private Stack<Object> stack = new Stack<Object>(); // a snapshot might look something like { Patient, Encounter, ObsGroup }
 	
@@ -278,9 +278,9 @@ public class FormSubmissionActions {
 		if (person != null)
 			obs.setPerson(person);
 		
-		if(StringUtils.isNotBlank(comment))
+		if (StringUtils.isNotBlank(comment))
 			obs.setComment(comment);
-
+		
 		if (encounter != null)
 			encounter.addObs(obs);
 		if (obsGroup != null) {
@@ -290,15 +290,14 @@ public class FormSubmissionActions {
 		}
 		return obs;
 	}
-
-    /**
-     * Legacy createObs methods without the comment argument
-     */
-    public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
-        return createObs(concept, value, datetime, accessionNumber, null);
-    }
-
-
+	
+	/**
+	 * Legacy createObs methods without the comment argument
+	 */
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
+		return createObs(concept, value, datetime, accessionNumber, null);
+	}
+	
 	/**
 	 * Modifies an existing Obs.
 	 * <p/>
@@ -313,7 +312,8 @@ public class FormSubmissionActions {
 	 * @param accessionNumber new accession number for the Obs
 	 * @param comment comment for the obs
 	 */
-	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber, String comment) {
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber,
+	        String comment) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
 			if (log.isDebugEnabled())
@@ -349,24 +349,26 @@ public class FormSubmissionActions {
 			}
 			// TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
 			obsToVoid.add(existingObs);
-			createObs(concept, newValue, newDatetime, accessionNumber, comment);
+			
+			newObs = createObs(concept, newValue, newDatetime, accessionNumber, comment);
+			newObs.setPreviousVersion(existingObs);
 		} else {
-			if(existingObs != null && StringUtils.isNotBlank(comment))
+			if (existingObs != null && StringUtils.isNotBlank(comment))
 				existingObs.setComment(comment);
-
+			
 			if (log.isDebugEnabled()) {
 				log.debug("SAME: " + printObsHelper(existingObs));
 			}
 		}
 	}
-
-    /**
-     * Legacy modifyObs methods without the comment argument
-     */
-    public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
-        modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null);
-    }
-
+	
+	/**
+	 * Legacy modifyObs methods without the comment argument
+	 */
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+		modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null);
+	}
+	
 	/**
 	 * Enrolls the Patient most recently added to the stack in the specified Program.
 	 * <p/>
@@ -391,7 +393,7 @@ public class FormSubmissionActions {
 	 * @param enrollmentDate the date to enroll the patient in the program
 	 * @param states list of states to set as initial in their workflows
 	 */
-    public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
+	public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
 		if (program == null)
 			throw new IllegalArgumentException("Cannot enroll in a blank program");
 		
@@ -401,18 +403,20 @@ public class FormSubmissionActions {
 		Encounter encounter = highestOnStack(Encounter.class);
 		
 		// if an enrollment date has not been specified, enrollment date is the encounter date
-		enrollmentDate = (enrollmentDate != null) ? enrollmentDate : (encounter  != null) ? encounter.getEncounterDatetime() : null;
+		enrollmentDate = (enrollmentDate != null) ? enrollmentDate
+		        : (encounter != null) ? encounter.getEncounterDatetime() : null;
 		
 		if (enrollmentDate == null)
-			throw new IllegalArgumentException("Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
+			throw new IllegalArgumentException(
+			        "Cannot enroll in a program without specifying an Encounter Date or Enrollment Date");
 		
 		// only need to do some if the patient is not enrolled in the specified program on the specified date
 		if (!HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, enrollmentDate)) {
- 			
+			
 			// see if the patient is enrolled in this program in the future
 			PatientProgram pp = HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, enrollmentDate);
 			
-			if (pp != null) {	
+			if (pp != null) {
 				//set the start dates of all states with a start date equal to the enrollment date to the selected date
 				for (PatientState patientState : pp.getStates()) {
 					if (OpenmrsUtil.nullSafeEquals(patientState.getStartDate(), pp.getDateEnrolled())) {
@@ -480,20 +484,22 @@ public class FormSubmissionActions {
 		Encounter encounter = highestOnStack(Encounter.class);
 		if (encounter == null)
 			throw new IllegalArgumentException("Cannot change state without an Encounter");
-
-        // fetch any existing patient program with a state from this workflow
+		
+		// fetch any existing patient program with a state from this workflow
 		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, state.getProgramWorkflow());
-
-        // if no existing patient program, see if a patient program for this program is already set to be created at part of this submission (HTML-416)
-        if (patientProgram == null) {
-           patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToCreate, state.getProgramWorkflow().getProgram());
-        }
-
-        if (patientProgram == null) {
-            patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToUpdate, state.getProgramWorkflow().getProgram());
-        }
-
-        // if patient program is still null, we need to create a new program
+		
+		// if no existing patient program, see if a patient program for this program is already set to be created at part of this submission (HTML-416)
+		if (patientProgram == null) {
+			patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToCreate,
+			    state.getProgramWorkflow().getProgram());
+		}
+		
+		if (patientProgram == null) {
+			patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToUpdate,
+			    state.getProgramWorkflow().getProgram());
+		}
+		
+		// if patient program is still null, we need to create a new program
 		if (patientProgram == null) {
 			patientProgram = new PatientProgram();
 			patientProgram.setPatient(patient);
@@ -582,31 +588,32 @@ public class FormSubmissionActions {
 		
 		patientProgramsToUpdate.add(patientProgram);
 	}
-
-    /**
-     * Prepares data to be sent for exiting the given patient from care
-     * @param date - the date of exit
-     * @param exitReasonConcept - reason the patient is exited from care
-     * @param causeOfDeathConcept -the concept that corresponds with the reason the patient died
-     * @param otherReason - in case the causeOfDeath is 'other', a place to store more info
-     */
-    public void exitFromCare(Date date, Concept exitReasonConcept, Concept causeOfDeathConcept, String otherReason){
-
-        if (date != null && exitReasonConcept != null){
-            this.exitFromCareProperty = new ExitFromCareProperty(date,exitReasonConcept,causeOfDeathConcept,otherReason);
-        }else {
-            throw new IllegalArgumentException("Exit From Care: date and exitReasonConcept cannot be null");
-        }
-    }
-
-    public void addCustomFormSubmissionAction(CustomFormSubmissionAction action) {
-        if (customFormSubmissionActions == null) {
-            customFormSubmissionActions = new ArrayList<CustomFormSubmissionAction>();
-        }
-
-        customFormSubmissionActions.add(action);
-    }
-
+	
+	/**
+	 * Prepares data to be sent for exiting the given patient from care
+	 * 
+	 * @param date - the date of exit
+	 * @param exitReasonConcept - reason the patient is exited from care
+	 * @param causeOfDeathConcept -the concept that corresponds with the reason the patient died
+	 * @param otherReason - in case the causeOfDeath is 'other', a place to store more info
+	 */
+	public void exitFromCare(Date date, Concept exitReasonConcept, Concept causeOfDeathConcept, String otherReason) {
+		
+		if (date != null && exitReasonConcept != null) {
+			this.exitFromCareProperty = new ExitFromCareProperty(date, exitReasonConcept, causeOfDeathConcept, otherReason);
+		} else {
+			throw new IllegalArgumentException("Exit From Care: date and exitReasonConcept cannot be null");
+		}
+	}
+	
+	public void addCustomFormSubmissionAction(CustomFormSubmissionAction action) {
+		if (customFormSubmissionActions == null) {
+			customFormSubmissionActions = new ArrayList<CustomFormSubmissionAction>();
+		}
+		
+		customFormSubmissionActions.add(action);
+	}
+	
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
@@ -624,25 +631,26 @@ public class FormSubmissionActions {
 	private String printObsHelper(Obs obs) {
 		return obs.getConcept().getName(Context.getLocale()) + " = " + obs.getValueAsString(Context.getLocale());
 	}
-
-    /**
-     * Returns true/false if we need to save the patient record during form submissiosn
-     * @return
-     */
-    public Boolean getPatientUpdateRequired() {
-        return patientUpdateRequired;
-    }
-
-    /**
-     * Set whether we need to save the patient record during form submission
-     *
-     * @param patientUpdateRequired
-     */
-    public void setPatientUpdateRequired(Boolean patientUpdateRequired) {
-        this.patientUpdateRequired = patientUpdateRequired;
-    }
-
-    /**
+	
+	/**
+	 * Returns true/false if we need to save the patient record during form submissiosn
+	 * 
+	 * @return
+	 */
+	public Boolean getPatientUpdateRequired() {
+		return patientUpdateRequired;
+	}
+	
+	/**
+	 * Set whether we need to save the patient record during form submission
+	 *
+	 * @param patientUpdateRequired
+	 */
+	public void setPatientUpdateRequired(Boolean patientUpdateRequired) {
+		this.patientUpdateRequired = patientUpdateRequired;
+	}
+	
+	/**
 	 * Returns a list of all the Persons that need to be created to process form submission
 	 * 
 	 * @return a list of all Persons to create
@@ -853,38 +861,37 @@ public class FormSubmissionActions {
 	public void setPatientProgramsToUpdate(List<PatientProgram> patientProgramsToUpdate) {
 		this.patientProgramsToUpdate = patientProgramsToUpdate;
 	}
-
+	
 	/**
 	 * @return the identifiersToVoid
 	 */
 	public List<PatientIdentifier> getIdentifiersToVoid() {
 		return identifiersToVoid;
 	}
-
+	
 	/**
 	 * @param identifiersToVoid the identifiersToVoid to set
 	 */
 	public void setIdentifiersToVoid(List<PatientIdentifier> identifiersToVoid) {
 		this.identifiersToVoid = identifiersToVoid;
 	}
-
-    /**
-     *
-     * @return the exitFromCareProperty
-     */
-    public ExitFromCareProperty getExitFromCareProperty() {
-        return exitFromCareProperty;
-    }
-
-    public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
-        this.exitFromCareProperty = exitFromCareProperty;
-    }
-
-    public List<CustomFormSubmissionAction> getCustomFormSubmissionActions() {
-        return customFormSubmissionActions;
-    }
-
-    public void setCustomFormSubmissionActions(List<CustomFormSubmissionAction> customFormSubmissionActions) {
-        this.customFormSubmissionActions = customFormSubmissionActions;
-    }
+	
+	/**
+	 * @return the exitFromCareProperty
+	 */
+	public ExitFromCareProperty getExitFromCareProperty() {
+		return exitFromCareProperty;
+	}
+	
+	public void setExitFromCareProperty(ExitFromCareProperty exitFromCareProperty) {
+		this.exitFromCareProperty = exitFromCareProperty;
+	}
+	
+	public List<CustomFormSubmissionAction> getCustomFormSubmissionActions() {
+		return customFormSubmissionActions;
+	}
+	
+	public void setCustomFormSubmissionActions(List<CustomFormSubmissionAction> customFormSubmissionActions) {
+		this.customFormSubmissionActions = customFormSubmissionActions;
+	}
 }
