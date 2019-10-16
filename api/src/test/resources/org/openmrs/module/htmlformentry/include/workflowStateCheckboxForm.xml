@@ -3,6 +3,7 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 	
-	State: <workflowState workflowId="100" stateId="202"/>
+	State: <workflowState workflowId="100" stateId="202" statelabels="restaurant.pig, restauarant.sweetgreen"
+						style="dropdown" statelabel="restaurants.lunch"/>
 	<submit/>
 </htmlform>
