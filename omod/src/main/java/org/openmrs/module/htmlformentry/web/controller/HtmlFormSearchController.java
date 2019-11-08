@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
@@ -36,12 +21,27 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 @Controller
 public class HtmlFormSearchController {
 
     @Autowired
     private ConceptService conceptService;
-    
+
     @Autowired
     private DrugCompatibility drugCompatibility;
 
@@ -108,7 +108,7 @@ public class HtmlFormSearchController {
 				}
 			}
 		}
-		
+
 		// return in JSON object list format
 		//[ { "id": "Dromas ardeola", "label": "Crab-Plover", "value":"Crab-Plover" },
 		out.print("[");
@@ -132,8 +132,8 @@ public class HtmlFormSearchController {
 	}
 
     @RequestMapping("/module/htmlformentry/drugSearch")
-    public void localizedMessage(@RequestParam("term") String query,
-                                 HttpServletResponse response) throws IOException {
+    public void drugSearch(@RequestParam("term") String query,
+                           HttpServletResponse response) throws IOException {
 
         List<Drug> drugs;
 
