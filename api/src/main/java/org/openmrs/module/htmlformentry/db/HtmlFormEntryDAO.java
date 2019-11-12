@@ -2,6 +2,8 @@ package org.openmrs.module.htmlformentry.db;
 
 import java.util.List;
 
+import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
@@ -88,5 +90,10 @@ public interface HtmlFormEntryDAO {
      * @see HtmlFormEntryService#getPersonIdsHavingAttributes(String attributeId, String attributeValue)
      */      
 	public List<Integer> getPersonIdHavingAttributes(String attributeId, String attributeValue);
+	
+	/**
+	 * @see HtmlFormEntryService#getConceptsByClass(ConceptClass cc)
+	 */
+	public List<Concept> getConceptsByClass(ConceptClass cc);
 
 }

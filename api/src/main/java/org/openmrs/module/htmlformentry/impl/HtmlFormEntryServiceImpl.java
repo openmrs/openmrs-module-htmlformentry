@@ -18,6 +18,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Cohort;
 import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
@@ -373,5 +374,10 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	@Override
 	public void clearConceptMappingCache() {
 		conceptMappingCache = new HashMap<String, Integer>();
+	}
+
+	@Override
+	public List<Concept> getConceptsByClass(ConceptClass cc) {
+		return dao.getConceptsByClass(cc);
 	}
 }

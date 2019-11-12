@@ -11,6 +11,8 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.Transformers;
+import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
@@ -151,4 +153,10 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 		}
 	    return (List<Integer>)sessionFactory.getCurrentSession().createSQLQuery(query).list();
     }
+
+	@Override
+	public List<Concept> getConceptsByClass(ConceptClass cc) {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Concept.class);
+		return criteria.add(Restrictions.eq("conceptClass", cc)).list();
+	}
 }

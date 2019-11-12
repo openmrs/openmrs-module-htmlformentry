@@ -21,6 +21,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.element.HtmlGeneratorElement;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
@@ -120,7 +121,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			mss = Context.getMessageSourceService();		
 		}
 		ConceptClass conceptClass = Context.getConceptService().getConceptClassByName(CONDITION_LIST_CONCEPT_CLASS_NAME);
-		initialConcepts.addAll(Context.getConceptService().getConceptsByClass(conceptClass));
+		initialConcepts.addAll(Context.getService(HtmlFormEntryService.class).getConceptsByClass(conceptClass));
 		conditionSearchWidget = new ConceptSearchAutocompleteWidget(new ArrayList<Concept>(initialConcepts), Arrays.asList(conceptClass));
 		String conditionNameTextInputId = context.registerWidget(conditionSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
@@ -200,4 +201,10 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 */
 	@Transactional(readOnly=true)
 	public void clearConceptMappingCache();
+	
+	/**
+	 * @param cc ConceptClass
+	 * @return Returns all concepts in a given class
+	 */
+	public List<Concept> getConceptsByClass(ConceptClass cc);
 }

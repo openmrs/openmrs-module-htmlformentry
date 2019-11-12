@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.User;
@@ -15,6 +16,7 @@ import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsClassLoader;
 
 import java.util.Date;
+import java.util.List;
 
 public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 
@@ -93,7 +95,6 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
         EncounterService encService = Context.getEncounterService();
 
         String path = OpenmrsClassLoader.getInstance().getResource("archivedFormData.xml").getPath();
-        System.out.println("Path: "+path);
 
         //Get the SerializableFormObject
         SerializableFormObject formObject = SerializableFormObject.deserializeXml(path);
@@ -120,5 +121,29 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 		Assert.assertNull(concept);
 		concept = service.getConceptByMapping("XYZ123:HT");
 		Assert.assertNull(concept);
+	}
+	
+	@Test
+	public void getConceptsByClass_shouldGetConceptsByClass() {
+		// setup
+		ConceptClass cc = new ConceptClass(3);
+		
+		// replay
+		List<Concept> concepts = service.getConceptsByClass(cc);
+		
+		// verify
+		Assert.assertEquals(3, concepts.size());
+	}
+	
+	@Test
+	public void getConceptsByClass_shouldReturnAnEpmtyListIfNoneWasFound() {
+		// setup
+		ConceptClass cc = new ConceptClass(23);
+		
+		// replay
+		List<Concept> concepts = service.getConceptsByClass(cc);
+		
+		// verify
+		Assert.assertTrue(concepts.isEmpty());
 	}
 }
