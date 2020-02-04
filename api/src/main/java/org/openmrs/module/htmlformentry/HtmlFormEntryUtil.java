@@ -119,7 +119,7 @@ public class HtmlFormEntryUtil {
 		return Context.getService(HtmlFormEntryService.class);
 	}
 
-	private static <T extends OpenmrsMetadata> T getMetadataByMapping(Class<T> type, String identifier){
+	protected static <T extends OpenmrsMetadata> T getMetadataByMapping(Class<T> type, String identifier){
 		MetadataMappingResolver metadataMappingResolver = getMetadaMappingResolver();
 		if (metadataMappingResolver != null) {
 			return metadataMappingResolver.getMetadataItem(type, identifier);
@@ -823,6 +823,8 @@ public class HtmlFormEntryUtil {
 		}
 		return program;
 	}
+
+
 
 	/***
 	 * Get the person by: 1)an integer id like 5090 or 2) uuid like

@@ -1,0 +1,8 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+    Program Attribute: <programAttribute programId="1" programAttributeTypeId="1"/>
+    <submit/>
+</htmlform>
