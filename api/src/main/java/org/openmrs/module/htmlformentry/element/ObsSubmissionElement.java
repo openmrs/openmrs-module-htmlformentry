@@ -68,6 +68,9 @@ import java.util.Vector;
  */
 public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
+	//To enable access of attributes via Java Script
+	private boolean enableParamJS = false;
+	
     private Locale locale = Context.getLocale();
 
 	private String id;
@@ -1028,6 +1031,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		} else {
 			context.addFieldToActiveSection(field);
 		}
+		
+		//if enableParamJS is true 
+		enableParamJS = "true".equals(parameters.get("enableParamJS"));
+		
 	}
 
 	protected ObsField instatiateObsField() {
@@ -1117,6 +1124,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				ret.append(dateLabel);
 			}
 			ret.append(dateWidget.generateHtml(context));
+		} 
+		if (enableParamJS && dateWidget == null) {
+			dateWidget = new DateWidget();
+			dateWidget.setHidden(true);
+			context.registerWidget(dateWidget);
+			context.registerErrorWidget(dateWidget, errorWidget);
+			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget),
+				    "dateFieldGetterFunction", null, "dateSetterFunction");
+			ret.append(" ");
+			ret.append(dateWidget.generateHiddenHtml(context));
 		}
 		if (accessionNumberWidget != null) {
 			ret.append(" ");
@@ -1124,6 +1141,19 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				ret.append("<br/>" + accessionNumberLabel);
 			}
 			ret.append(accessionNumberWidget.generateHtml(context));
+		} 
+		if (enableParamJS && accessionNumberWidget == null) {
+			accessionNumberWidget = new TextFieldWidget();
+			context.registerWidget(accessionNumberWidget);
+			context.registerErrorWidget(accessionNumberWidget, errorWidget);
+			if (existingObs != null) {
+				accessionNumberWidget.setInitialValue(existingObs.getAccessionNumber());
+			}
+			context.registerPropertyAccessorInfo(id + ".accessionNumber",
+						context.getFieldNameIfRegistered(accessionNumberWidget), null, null, null);
+			ret.append(" ");
+			ret.append(accessionNumberWidget.generateHiddenHtml(context));
+
 		}
 		if (commentFieldWidget != null) {
 			ret.append(" ");
@@ -1134,6 +1164,18 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
             }
 			ret.append(" ");
 			ret.append(commentFieldWidget.generateHtml(context));
+		} 
+		if (enableParamJS && commentFieldWidget == null) {
+            commentFieldWidget = new TextFieldWidget();
+			context.registerWidget(commentFieldWidget);
+			context.registerErrorWidget(commentFieldWidget, errorWidget);
+			if (existingObs != null) {
+				commentFieldWidget.setInitialValue(existingObs.getComment());
+			}		
+			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(commentFieldWidget),
+			    null, null, null);
+			ret.append(" ");
+			ret.append(commentFieldWidget.generateHiddenHtml(context));
 		}
 
 		if (context.getMode() != Mode.VIEW) {
