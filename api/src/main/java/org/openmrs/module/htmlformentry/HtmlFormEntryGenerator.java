@@ -3,6 +3,8 @@ package org.openmrs.module.htmlformentry;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -130,6 +132,97 @@ public class HtmlFormEntryGenerator implements TagHandler {
             xml = xml.replace("$" + key, value);
         }
 
+        return xml;
+    }
+
+    public String processPages(FormEntrySession session, String xml) throws Exception {    
+        Document doc = HtmlFormEntryUtil.stringToDocument(xml);
+        Node content = HtmlFormEntryUtil.findChild(doc, "htmlform");
+        Node pageNode = HtmlFormEntryUtil.findChild(content, "page");
+        
+        if (pageNode == null) {
+            return xml;
+        }
+
+        NodeList contentnodes = content.getChildNodes();
+        for(int z=0; z < contentnodes.getLength(); z++){
+            Node n = contentnodes.item(z);
+            if(n.getNodeType() == Node.ELEMENT_NODE && !(n.getNodeName().equalsIgnoreCase("page") || n.getNodeName().equalsIgnoreCase("script"))){      
+                    throw new IllegalArgumentException("All tags must be inside the page tag if you decide to use it");             
+            }else if(n.getNodeType() == Node.TEXT_NODE){
+               if(n.getNodeValue().trim().length() > 0){
+                throw new IllegalArgumentException("All texts must be inside page tag if you decide to use it");
+               }
+            }
+        }
+
+        org.w3c.dom.Element style = doc.createElement("style");
+        String css = ".pageHeader {overflow: hidden;border: 1px solid #ccc;border-bottom: 5px solid #66a3ff;background-color: #f1f1f1;}.pageHeader button {border-radius: 15px 15px 0px 0px;background-color: lightblue;border-top: 5px solid #f1f1f1;float: left;outline: none;cursor: pointer;padding: 14px 16px;transition: 0.3s;}.pageHeader button.active {background-color: #66a3ff;}.pageHeader button:hover {background-color: #ddd;}.content {display: none;overflow: hidden;padding: 10px;}.next {float: right;}.previous {float: left;}";       
+		style.appendChild(doc.createTextNode(css));
+
+        org.w3c.dom.Element js1 = doc.createElement("script");
+        js1.setAttribute("src", "/openmrs/moduleResources/htmlformentry/jquery-3.4.1.min.js?v=2.3.0");
+        js1.setAttribute("type", "text/javascript");
+       
+        org.w3c.dom.Element js2 = doc.createElement("script");
+        js2.setAttribute("type", "text/javascript");
+		js2.appendChild(doc.createTextNode("$(document).ready(function (){var visibleContent = 0;function showItems() {$('.listItems:eq(' + visibleContent + ')').addClass('active');$('.content:eq(' + visibleContent + ')').show();};showItems();$('.pageHeader button').click(function (event) {index = $(this).index();$('.listItems').removeClass('active');$('.listItems:eq(' + index + ')').addClass('active');$('.content').hide();visibleContent = index;showItems();});next = function () {$('.listItems').removeClass('active');$('.content').hide();visibleContent = visibleContent + 1;showItems();};previous = function () {$('.listItems').removeClass('active');$('.content').hide();visibleContent = visibleContent - 1;showItems();}});"));
+
+        NodeList pageNodes = doc.getElementsByTagName("page");
+
+        org.w3c.dom.Element tabList = doc.createElement("div");
+        tabList.setAttribute("class", "pageHeader");
+        org.w3c.dom.Element listItem;
+        org.w3c.dom.Element buttonsDiv;
+        org.w3c.dom.Element nextButton ;
+        org.w3c.dom.Element previousButton ;
+        
+        for (int i=0;i < pageNodes.getLength();i++){
+            //This logic to set default value is implemented already in AbstractTagHandler..is it worth changing this class to implement this instead of taghandler??
+            String titleName;
+            Node item = pageNodes.item(i).getAttributes().getNamedItem("title");
+            if (item != null) {
+                titleName = item.getNodeValue();
+            }else { 
+                titleName = "Tab" + (i+1);
+            }
+           
+            listItem = doc.createElement("button");
+            listItem.setAttribute("class", "listItems");
+            listItem.appendChild(doc.createTextNode(titleName));
+            tabList.appendChild(listItem);
+            ((org.w3c.dom.Element) pageNodes.item(i)).setAttribute("class","content");
+            ((org.w3c.dom.Element) pageNodes.item(i)).removeAttribute("title");
+
+                buttonsDiv = doc.createElement("div");
+                nextButton = doc.createElement("button");
+                nextButton.setAttribute("class", "next");
+                nextButton.setAttribute("onclick", "next();");
+                nextButton.appendChild(doc.createTextNode("Next"));
+                previousButton = doc.createElement("button");             
+                previousButton.setAttribute("class", "previous");
+                previousButton.setAttribute("onclick", "previous();");
+                previousButton.appendChild(doc.createTextNode("Previous"));  
+                if( i > 0)  {
+                    buttonsDiv.appendChild(previousButton);
+                }
+                if(i< pageNodes.getLength()-1){
+                    buttonsDiv.appendChild(nextButton);
+                }           
+
+                ((org.w3c.dom.Element) pageNodes.item(i)).appendChild(buttonsDiv);           
+        }
+
+        pageNodes.item(0).getParentNode().insertBefore(style, pageNodes.item(0));
+        pageNodes.item(0).getParentNode().insertBefore(js1, pageNodes.item(0));
+        pageNodes.item(0).getParentNode().insertBefore(js2, pageNodes.item(0));
+        pageNodes.item(0).getParentNode().insertBefore(tabList, pageNodes.item(0));
+
+        for (int y=0;y < pageNodes.getLength();y++){
+            doc.renameNode(pageNodes.item(y), null, "div");
+        }
+
+        xml = HtmlFormEntryUtil.documentToString(doc);
         return xml;
     }
 
