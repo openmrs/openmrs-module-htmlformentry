@@ -7,9 +7,11 @@ import org.openmrs.ConceptDatatype;
 import org.openmrs.FormField;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.obs.handler.AbstractHandler;
 import org.openmrs.obs.handler.ImageHandler;
+import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.web.WebConstants;
 
 /**
@@ -169,7 +171,11 @@ public class WidgetFactory {
 	}
 	
 	private static String getViewHyperlink(Obs obs) {
-		return "/" + WebConstants.WEBAPP_NAME + "/complexObsServlet?obsId=" + obs.getObsId();
+		String prefix = "/moduleServlet/legacyui";
+		if (ModuleUtil.compareVersion(OpenmrsConstants.OPENMRS_VERSION_SHORT, "2.0") < 0) {
+			prefix = "";
+		}
+		return "/" + WebConstants.WEBAPP_NAME + prefix + "/complexObsServlet?obsId=" + obs.getObsId();
 	}
 	
 	private static String getDownloadHyperlink(Obs obs) {
