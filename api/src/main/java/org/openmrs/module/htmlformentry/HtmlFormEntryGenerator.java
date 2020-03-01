@@ -3,6 +3,8 @@ package org.openmrs.module.htmlformentry;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -145,7 +147,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
         NodeList contentnodes = content.getChildNodes();
         for(int z=0; z < contentnodes.getLength(); z++){
             Node n = contentnodes.item(z);
+
             if(n.getNodeType() == Node.ELEMENT_NODE && !(n.getNodeName().equalsIgnoreCase("page") || n.getNodeName().equalsIgnoreCase("script") || n.getNodeName().equalsIgnoreCase("style"))){      
+
                     throw new IllegalArgumentException("All tags must be inside the page tag if you decide to use it");             
             }else if(n.getNodeType() == Node.TEXT_NODE){
                if(n.getNodeValue().trim().length() > 0){
