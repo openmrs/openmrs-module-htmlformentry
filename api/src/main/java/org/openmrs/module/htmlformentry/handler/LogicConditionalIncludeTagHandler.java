@@ -33,7 +33,7 @@ public abstract class LogicConditionalIncludeTagHandler extends SimpleConditiona
      * @param testStr for ex. = "logicTest='GENDER = F' >"
      * @return a boolean value if this patient is a female
      * @throws org.openmrs.module.htmlformentry.BadFormDesignException
-     * @should return a correct boolean value for logic test string
+     * <strong>Should</strong> return a correct boolean value for logic test string
      */
     protected boolean processLogicIncludeLogic(FormEntrySession session, String testStr) throws BadFormDesignException {
 
@@ -67,7 +67,7 @@ public abstract class LogicConditionalIncludeTagHandler extends SimpleConditiona
      * @param testStr for ex. = "velocityTest='#if($patient.getPatientIdentifier(5))true #else false #end")' >"
      * @return a boolean value if this patient is a female
      * @throws org.openmrs.module.htmlformentry.BadFormDesignException
-     * @should return a correct boolean value for logic test string
+     * <strong>Should</strong> return a correct boolean value for logic test string
      */
     protected boolean processVelocityIncludeLogic(FormEntrySession session, String testStr) throws BadFormDesignException {
 

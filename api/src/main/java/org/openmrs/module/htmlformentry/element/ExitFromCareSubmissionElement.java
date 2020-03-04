@@ -125,8 +125,8 @@ public class ExitFromCareSubmissionElement implements HtmlGeneratorElement, Form
 
     @Override
     /**
-     * @should not allow to edit and submit if either date or reason is null
-     * @should allow to submit a form if exit from care section is initially not filled
+     * <strong>Should</strong> not allow to edit and submit if either date or reason is null
+     * <strong>Should</strong> allow to submit a form if exit from care section is initially not filled
      */
     public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
         List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();

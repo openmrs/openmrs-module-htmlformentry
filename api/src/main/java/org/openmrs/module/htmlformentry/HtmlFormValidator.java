@@ -43,8 +43,8 @@ public class HtmlFormValidator implements Validator {
     /**
      * Validates the specified HTML Form, placing any errors in the Errors object passed to it
      *
-     * @should reject xml containing encounter type tag for a form with an encounter type
-	 * @should allow xml containing encounter type tag for a form with no encounter type
+     * <strong>Should</strong> reject xml containing encounter type tag for a form with an encounter type
+	 * <strong>Should</strong> allow xml containing encounter type tag for a form with no encounter type
      */
     @Override
     public void validate(Object obj, Errors errors) {

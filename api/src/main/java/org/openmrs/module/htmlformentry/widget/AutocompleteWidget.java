@@ -25,9 +25,9 @@ public class AutocompleteWidget extends  SingleOptionWidget{
      *
      * @param  context
      * @return generated html as a string
-     * @should accept options with special characters é,ã,ê,ù etc.
-     * @should accept options with single or double quotes in middle
-     * @should correctly set previous value if initial option is present
+     * <strong>Should</strong> accept options with special characters é,ã,ê,ù etc.
+     * <strong>Should</strong> accept options with single or double quotes in middle
+     * <strong>Should</strong> correctly set previous value if initial option is present
      */
     @Override
     public String generateHtml(FormEntryContext context) {

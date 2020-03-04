@@ -116,7 +116,7 @@ public class VelocityFunctions {
 
     /**
 	 * @return the most recent obs given the passed conceptId
-	 * @should return the most recent obs given the passed conceptId
+	 * <strong>Should</strong> return the most recent obs given the passed conceptId
 	 */
 	public Obs latestObs(String conceptId) {
 
@@ -137,7 +137,7 @@ public class VelocityFunctions {
 
 	/**
 	 * @return the first obs given the passed conceptId
-	 * @should return the first obs given the passed conceptId
+	 * <strong>Should</strong> return the first obs given the passed conceptId
 	 */
 	public Obs earliestObs(String conceptId) {
 
@@ -158,8 +158,8 @@ public class VelocityFunctions {
 
 	/**
 	 * @return the all the encounters of the specified type
-	 * @should return all the encounters of the specified type
-	 * @should return all encounters if no type specified
+	 * <strong>Should</strong> return all the encounters of the specified type
+	 * <strong>Should</strong> return all encounters if no type specified
 	 */
     public List<Encounter> allEncounters(String encounterTypeId){
 		EncounterType encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
@@ -191,8 +191,8 @@ public class VelocityFunctions {
 	
 	/**
 	 * @return the most recent encounter of the specified type
-	 * @should return the most recent encounter of the specified type
-	 * @should return the most recent encounter of any type if no type specified
+	 * <strong>Should</strong> return the most recent encounter of the specified type
+	 * <strong>Should</strong> return the most recent encounter of any type if no type specified
 	 */
 	public Encounter latestEncounter(String encounterTypeId){
 		EncounterType encounterType = null;
@@ -215,7 +215,7 @@ public class VelocityFunctions {
 	
 	/**
 	 * @return the most recent encounter
-	 * @should return the most recent encounter
+	 * <strong>Should</strong> return the most recent encounter
 	 */
 	public Encounter latestEncounter() {
 		return latestEncounter(null);
@@ -297,7 +297,7 @@ public class VelocityFunctions {
  /**
      *
      * @return   patient's age given in months
-     * @should  return the ageInMonths accurately to the nearest month
+     * <strong>Should</strong>  return the ageInMonths accurately to the nearest month
      */
 
     public Integer patientAgeInMonths() {
@@ -315,7 +315,7 @@ public class VelocityFunctions {
  /**
      *
      * @return   patient's age in days
-     * @should  return the ageInDays accurately to the nearest date
+     * <strong>Should</strong>  return the ageInDays accurately to the nearest date
      */
     public Integer patientAgeInDays(){
 
@@ -332,7 +332,7 @@ public class VelocityFunctions {
     /**
     * 
     * @return	concept of given id
-    * @should	return Concept object against given concept code (id, uuid or mapping)
+    * <strong>Should</strong>	return Concept object against given concept code (id, uuid or mapping)
     */
     public Concept getConcept(String conceptCode) {
         return HtmlFormEntryUtil.getConcept(conceptCode);

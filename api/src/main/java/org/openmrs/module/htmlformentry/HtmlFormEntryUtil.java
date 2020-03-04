@@ -554,12 +554,12 @@ public class HtmlFormEntryUtil {
 	 *
 	 * @param id the concept identifier
 	 * @return the concept if exist, else null
-	 * @should find a concept by its conceptId
-	 * @should find a concept by its mapping
-	 * @should find a concept by its uuid
-	 * @should find a concept by static constant
-	 * @should return null otherwise
-	 * @should find a concept by its mapping with a space in between
+	 * <strong>Should</strong> find a concept by its conceptId
+	 * <strong>Should</strong> find a concept by its mapping
+	 * <strong>Should</strong> find a concept by its uuid
+	 * <strong>Should</strong> find a concept by static constant
+	 * <strong>Should</strong> return null otherwise
+	 * <strong>Should</strong> find a concept by its mapping with a space in between
 	 */
 	public static Concept getConcept(String id) {
 
@@ -651,14 +651,14 @@ public class HtmlFormEntryUtil {
      * @param id
      * @param context
      * @return the location if exist, else null
-     * @should find a location by its locationId
-     * @should find a location by name
-     * @should find a location by its uuid
-     * @should find a location by global property
-     * @should find a location by user property
-     * @should find a location by session attribute
-     * @should not fail if trying to find a location by session attribute and we have no session
-     * @should return null otherwise
+     * <strong>Should</strong> find a location by its locationId
+     * <strong>Should</strong> find a location by name
+     * <strong>Should</strong> find a location by its uuid
+     * <strong>Should</strong> find a location by global property
+     * <strong>Should</strong> find a location by user property
+     * <strong>Should</strong> find a location by session attribute
+     * <strong>Should</strong> not fail if trying to find a location by session attribute and we have no session
+     * <strong>Should</strong> return null otherwise
      */
 	public static Location getLocation(String id, FormEntryContext context) {
 
@@ -775,10 +775,10 @@ public class HtmlFormEntryUtil {
 	 *
 	 * @param id
 	 * @return the program if exist, else null
-	 * @should find a program by its id
-	 * @should find a program by name of associated concept
-	 * @should find a program by its uuid
-	 * @should return null otherwise
+	 * <strong>Should</strong> find a program by its id
+	 * <strong>Should</strong> find a program by name of associated concept
+	 * <strong>Should</strong> find a program by its uuid
+	 * <strong>Should</strong> return null otherwise
 	 */
 	public static Program getProgram(String id) {
 
@@ -832,10 +832,10 @@ public class HtmlFormEntryUtil {
 	 * 
 	 * @param id
 	 * @return the person if exist, else null
-	 * @should find a person by its id
-	 * @should find a person by its uuid
-	 * @should find a person by username of corresponding user
-	 * @should return null otherwise
+	 * <strong>Should</strong> find a person by its id
+	 * <strong>Should</strong> find a person by its uuid
+	 * <strong>Should</strong> find a person by username of corresponding user
+	 * <strong>Should</strong> return null otherwise
 	 */
 	public static Person getPerson(String id) {
 		
@@ -900,10 +900,10 @@ public class HtmlFormEntryUtil {
 	 * 
 	 * @param id
 	 * @return the identifier type if exist, else null
-	 * @should find an identifier type by its id
-	 * @should find an identifier type by its uuid
-	 * @should find an identifier type by its name
-	 * @should return null otherwise
+	 * <strong>Should</strong> find an identifier type by its id
+	 * <strong>Should</strong> find an identifier type by its uuid
+	 * <strong>Should</strong> find an identifier type by its name
+	 * <strong>Should</strong> return null otherwise
 	 */
 	public static PatientIdentifierType getPatientIdentifierType(String id) {
 		PatientIdentifierType identifierType = null;
@@ -1021,9 +1021,9 @@ public class HtmlFormEntryUtil {
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
 	 * @return
-	 * @should return the state with the matching id
-	 * @should return the state with the matching uuid
-	 * @should return the state associated with a concept that matches the passed concept map
+	 * <strong>Should</strong> return the state with the matching id
+	 * <strong>Should</strong> return the state with the matching uuid
+	 * <strong>Should</strong> return the state associated with a concept that matches the passed concept map
 	 */
 	public static ProgramWorkflowState getState(String identifier, Program program) {
 		if (identifier == null) {
@@ -1066,9 +1066,9 @@ public class HtmlFormEntryUtil {
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param workflow
 	 * @return
-	 * @should return the state with the matching id
-	 * @should return the state with the matching uuid
-	 * @should return the state associated with a concept that matches the passed concept map
+	 * <strong>Should</strong> return the state with the matching id
+	 * <strong>Should</strong> return the state with the matching uuid
+	 * <strong>Should</strong> return the state associated with a concept that matches the passed concept map
 	 */
 	public static ProgramWorkflowState getState(String identifier, ProgramWorkflow workflow) {
 		if (identifier == null) {
@@ -1193,8 +1193,8 @@ public class HtmlFormEntryUtil {
 	 * @param identifier the programWorkflowStateId or uuid to match against
 	 * @param
 	 * @return
-	 * @should return the state with the matching id
-	 * @should return the state with the matching uuid
+	 * <strong>Should</strong> return the state with the matching id
+	 * <strong>Should</strong> return the state with the matching uuid
 	 */
 	@SuppressWarnings("deprecation")
 	public static ProgramWorkflowState getState(String identifier) {
@@ -1587,12 +1587,12 @@ public class HtmlFormEntryUtil {
 	 * @throws IllegalArgumentException if a date string cannot be parsed with the format string you
 	 *             provided
 	 * @see java.text.SimpleDateFormat
-	 * @should return a Date object with current date and time for "now"
-	 * @shold return a Date with current date, but time of 00:00:00:00, for "today"
-	 * @should return a Date object matching the value param if a format is specified
-	 * @should return null for null value
-	 * @should return null if format is null and value not in [ null, "now", "today" ]
-	 * @should fail if date parsing fails
+	 * <strong>Should</strong> return a Date object with current date and time for "now"
+	 * <strong>Should</strong> return a Date with current date, but time of 00:00:00:00, for "today"
+	 * <strong>Should</strong> return a Date object matching the value param if a format is specified
+	 * <strong>Should</strong> return null for null value
+	 * <strong>Should</strong> return null if format is null and value not in [ null, "now", "today" ]
+	 * <strong>Should</strong> fail if date parsing fails
 	 */
 	public static Date translateDatetimeParam(String value, String format) {
 		if (value == null)
@@ -1725,10 +1725,10 @@ public class HtmlFormEntryUtil {
 	 * @param program the program the patient be enrolled in
 	 * @param date the date at which to check
 	 * @return
-	 * @should return true if the patient is enrolled in the program at the specified date
-	 * @should return false if the patient is not enrolled in the program
-	 * @should return false if the program was completed
-	 * @should return false if the date is before the existing patient program enrollment date
+	 * <strong>Should</strong> return true if the patient is enrolled in the program at the specified date
+	 * <strong>Should</strong> return false if the patient is not enrolled in the program
+	 * <strong>Should</strong> return false if the program was completed
+	 * <strong>Should</strong> return false if the date is before the existing patient program enrollment date
 	 */
 	public static boolean isEnrolledInProgramOnDate(Patient patient, Program program, Date date) {
 		if (patient == null)
@@ -1822,10 +1822,10 @@ public class HtmlFormEntryUtil {
 	 * 
 	 * @param id
 	 * @return the encounter type if exist, else null
-	 * @should find a encounter type by its encounterTypeId
-	 * @should find a encounter type by name
-	 * @should find a encounter type by its uuid
-	 * @should return null otherwise
+	 * <strong>Should</strong> find a encounter type by its encounterTypeId
+	 * <strong>Should</strong> find a encounter type by name
+	 * <strong>Should</strong> find a encounter type by its uuid
+	 * <strong>Should</strong> return null otherwise
 	 */
 	public static EncounterType getEncounterType(String id) {
 		
@@ -1970,7 +1970,7 @@ public class HtmlFormEntryUtil {
      * @param teststr
      * @return a substring of a test expression
      * @throws BadFormDesignException
-     * @should extract the correct expression from teststr
+     * <strong>Should</strong> extract the correct expression from teststr
      */
     public static String getTestStr(String teststr) throws BadFormDesignException {
         if (StringUtils.isBlank(teststr))
@@ -1989,10 +1989,10 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Read the global property htmlformentry.archiveDir and return the correct path
 	 * @return String representation of archive directory path
-	 * @should return null if htmlformentry.archiveDir is not defined
-	 * @should replace %Y with a four digit year value
-	 * @should replace %M with a 2 digit month value
-	 * @should prepend the application data if specified value is not absolute.
+	 * <strong>Should</strong> return null if htmlformentry.archiveDir is not defined
+	 * <strong>Should</strong> replace %Y with a four digit year value
+	 * <strong>Should</strong> replace %M with a 2 digit month value
+	 * <strong>Should</strong> prepend the application data if specified value is not absolute.
 	 */
 	public static String getArchiveDirPath() {
 		String value = Context.getAdministrationService().getGlobalProperty("htmlformentry.archiveDir");
@@ -2164,7 +2164,7 @@ public class HtmlFormEntryUtil {
 	 * {@link PersonName#getMiddleName()}, etc are null, they are not included in the returned name
 	 *
 	 * @return all of the parts of this {@link PersonName} joined with spaces
-	 * @should not put spaces around an empty middle name
+	 * <strong>Should</strong> not put spaces around an empty middle name
 	 */
 	public static String getFullNameWithFamilyNameFirst(PersonName personName) {
 
