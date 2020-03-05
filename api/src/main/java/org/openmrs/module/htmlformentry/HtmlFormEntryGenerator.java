@@ -3,8 +3,6 @@ package org.openmrs.module.htmlformentry;
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -147,7 +145,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
         NodeList contentnodes = content.getChildNodes();
         for(int z=0; z < contentnodes.getLength(); z++){
             Node n = contentnodes.item(z);
-            if(n.getNodeType() == Node.ELEMENT_NODE && !(n.getNodeName().equalsIgnoreCase("page") || n.getNodeName().equalsIgnoreCase("script"))){      
+            if(n.getNodeType() == Node.ELEMENT_NODE && !(n.getNodeName().equalsIgnoreCase("page") || n.getNodeName().equalsIgnoreCase("script") || n.getNodeName().equalsIgnoreCase("style"))){  
                     throw new IllegalArgumentException("All tags must be inside the page tag if you decide to use it");             
             }else if(n.getNodeType() == Node.TEXT_NODE){
                if(n.getNodeValue().trim().length() > 0){
@@ -164,9 +162,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
         js1.setAttribute("src", "/openmrs/moduleResources/htmlformentry/jquery-3.4.1.min.js?v=2.3.0");
         js1.setAttribute("type", "text/javascript");
        
+        org.w3c.dom.Element jsNoConflict = doc.createElement("script");
+        String jsBody = "var jQ3 = $.noConflict(true);";
+        jsNoConflict.setAttribute("type", "text/javascript");
+        jsNoConflict.appendChild(doc.createTextNode(jsBody));
+
         org.w3c.dom.Element js2 = doc.createElement("script");
         js2.setAttribute("type", "text/javascript");
-		js2.appendChild(doc.createTextNode("$(document).ready(function (){var visibleContent = 0;function showItems() {$('.listItems:eq(' + visibleContent + ')').addClass('active');$('.content:eq(' + visibleContent + ')').show();};showItems();$('.pageHeader button').click(function (event) {index = $(this).index();$('.listItems').removeClass('active');$('.listItems:eq(' + index + ')').addClass('active');$('.content').hide();visibleContent = index;showItems();});next = function () {$('.listItems').removeClass('active');$('.content').hide();visibleContent = visibleContent + 1;showItems();};previous = function () {$('.listItems').removeClass('active');$('.content').hide();visibleContent = visibleContent - 1;showItems();}});"));
+		js2.appendChild(doc.createTextNode("jQ3(document).ready(function (){var visibleContent = 0;function showItems() {jQ3('.listItems:eq(' + visibleContent + ')').addClass('active');jQ3('.content:eq(' + visibleContent + ')').show();};showItems();jQ3('.pageHeader button').click(function (event) {index = jQ3(this).index();jQ3('.listItems').removeClass('active');jQ3('.listItems:eq(' + index + ')').addClass('active');jQ3('.content').hide();visibleContent = index;showItems();});next = function () {jQ3('.listItems').removeClass('active');jQ3('.content').hide();visibleContent = visibleContent + 1;showItems();};previous = function () {jQ3('.listItems').removeClass('active');jQ3('.content').hide();visibleContent = visibleContent - 1;showItems();}});"));
 
         NodeList pageNodes = doc.getElementsByTagName("page");
 
@@ -215,6 +218,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 
         pageNodes.item(0).getParentNode().insertBefore(style, pageNodes.item(0));
         pageNodes.item(0).getParentNode().insertBefore(js1, pageNodes.item(0));
+        pageNodes.item(0).getParentNode().insertBefore(jsNoConflict, pageNodes.item(0));
         pageNodes.item(0).getParentNode().insertBefore(js2, pageNodes.item(0));
         pageNodes.item(0).getParentNode().insertBefore(tabList, pageNodes.item(0));
 
