@@ -23,7 +23,17 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
     protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	private Patient patient = null;
-	
+    
+    private String pageCss = "<style>.pageHeader {overflow: hidden;border: 1px solid #ccc;border-bottom: 5px solid #66a3ff;background-color: #f1f1f1;}.pageHeader button {border-radius: 15px 15px 0px 0px;background-color: lightblue;border-top: 5px solid #f1f1f1;float: left;outline: none;cursor: pointer;padding: 14px 16px;transition: 0.3s;}.pageHeader button.active {background-color: #66a3ff;}.pageHeader button:hover {background-color: #ddd;}.content {display: none;overflow: hidden;padding: 10px;}.next {float: right;}.previous {float: left;}</style>";       
+
+    private String pageJs1 ="<script src=\"/openmrs/moduleResources/htmlformentry/jquery-3.4.1.min.js?v=2.3.0\" type=\"text/javascript\"></script>";
+
+    private String  jsNoConflict ="<script type=\"text/javascript\">var jQ3 = $.noConflict(true);</script>";
+
+    private String pageJs2 = "<script type=\"text/javascript\">jQ3(document).ready(function (){var visibleContent = 0;function showItems() {jQ3(\'.listItems:eq(\' + visibleContent + \')\').addClass(\'active\');jQ3(\'.content:eq(\' + visibleContent + \')\').show();};showItems();jQ3(\'.pageHeader button\').click(function (event) {index = jQ3(this).index();jQ3(\'.listItems\').removeClass(\'active\');jQ3(\'.listItems:eq(\' + index + \')\').addClass(\'active\');jQ3(\'.content\').hide();visibleContent = index;showItems();});next = function () {jQ3(\'.listItems\').removeClass(\'active\');jQ3(\'.content\').hide();visibleContent = visibleContent + 1;showItems();};previous = function () {jQ3(\'.listItems\').removeClass(\'active\');jQ3(\'.content\').hide();visibleContent = visibleContent - 1;showItems();}});</script>";
+
+    private String pageBodyContent ="<div class=\"pageHeader\"><button class=\"listItems\">firstTab</button><button class=\"listItems\">secondTab</button></div><div class=\"content\">Nothing Here<div><button class=\"next\" onclick=\"next();\">Next</button></div></div><div class=\"content\">Something here<div><button class=\"previous\" onclick=\"previous();\">Previous</button></div></div>";
+
 	@Before
 	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
@@ -289,5 +299,47 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
         FormEntrySession session = new FormEntrySession(patient, htmlform, null);
         String html = session.getHtmlToDisplay();
         Assert.assertEquals("<div class=\"htmlform\">French (France)</div>", html);
+    }
+
+    @Test
+    public void processPages_shouldGenerateCorrectPagesIfPageTagIfUsed() throws Exception {
+        String pageHtmlform = "<htmlform><page title=\"firstTab\">Nothing Here</page><page title=\"secondTab\">Something here</page></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, pageHtmlform, null);
+        String html = session.getHtmlToDisplay();
+        Assert.assertEquals(removeWhiteSpaces("<div class=\"htmlform\">" + pageCss + pageJs1 + jsNoConflict + pageJs2 + pageBodyContent+"</div>"), removeWhiteSpaces(html));
+    }
+
+    @Test
+    public void processPages_shouldAllowScriptToBeRunBeforeAndAfterPageTagIfUsed() throws Exception {
+        String pageHtmlform = "<htmlform><script type=\"text/javascript\"></script><page title=\"firstTab\">Nothing Here</page><page title=\"secondTab\">Something here</page><script type=\"text/javascript\"></script></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, pageHtmlform, null);
+        String html = session.getHtmlToDisplay();
+        Assert.assertEquals(removeWhiteSpaces("<div class=\"htmlform\"><script type=\"text/javascript\"></script>" + pageCss + pageJs1 + jsNoConflict + pageJs2 + pageBodyContent+"<script type=\"text/javascript\"></script></div>"), removeWhiteSpaces(html));
+    }
+
+    @Test
+    public void processPages_shouldAllowStyleToBeRunBeforeAndAfterPageTagIfUsed() throws Exception {
+        String pageHtmlform = "<htmlform><style></style><page title=\"firstTab\">Nothing Here</page><page title=\"secondTab\">Something here</page><style ></style></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, pageHtmlform, null);
+        String html = session.getHtmlToDisplay();
+        Assert.assertEquals(removeWhiteSpaces("<div class=\"htmlform\"><style></style>" + pageCss + pageJs1 + jsNoConflict + pageJs2 + pageBodyContent+"<style ></style></div>"), removeWhiteSpaces(html));
+    } 
+
+    @Test(expected = IllegalArgumentException.class)
+    public void processPages_shouldThrowErrorIfTagIsIncludedOutsideThePageTagIfUsed() throws Exception {
+        String pageHtmlform = "<htmlform><section></section><page title=\"firstTab\">Nothing Here</page><page title=\"secondTab\">Something here</page><style ></style></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, pageHtmlform, null);
+        session.getHtmlToDisplay();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void processPages_shouldThrowErrorIfTextIsIncludedOutsideThePageTagIfUsed() throws Exception {
+        String pageHtmlform = "<htmlform><page title=\"firstTab\">Nothing Here</page>This is outside the Page Tag<page title=\"secondTab\">Something here</page><style ></style></htmlform>";
+        FormEntrySession session = new FormEntrySession(patient, pageHtmlform, null);
+        session.getHtmlToDisplay();
+    }
+
+    String removeWhiteSpaces(String input) {
+        return input.replaceAll("\\s+", "");
     }
 }
