@@ -82,6 +82,14 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         sb.append("      if (ui.item.name != 'No results') {\n");
         sb.append("         $j('#" + formFieldName + "-display').val(displayTemplate" + formFieldName + "(ui.item));\n");
         sb.append("         $j('#" + formFieldName + "-value').val(valueTemplate" + formFieldName + "(ui.item));\n");
+        sb.append("         if (ui.item.retired) {\n");
+        sb.append("             $j('#" + formFieldName + "-display').css('color', 'gray');\n");
+        sb.append("             $j('#" + formFieldName + "-display').css('font-style', 'italic');\n");
+        sb.append("             \n");
+        sb.append("         } else { \n");
+        sb.append("             $j('#" + formFieldName + "-display').css('color', '');\n");
+        sb.append("             $j('#" + formFieldName + "-display').css('font-style', '');\n");
+        sb.append("         }\n");
         sb.append("      } else {\n");
         sb.append("         $j('#" + formFieldName + "-value').val('');\n");
         sb.append("      }\n");
