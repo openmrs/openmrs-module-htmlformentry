@@ -37,6 +37,7 @@ public class DrugCompatibility2_0 implements DrugCompatibility {
             Map<String, Object> item = new LinkedHashMap<String, Object>();
             item.put("id", drug.getId());
             item.put("name", drug.getName());
+            item.put("retired", drug.getRetired().booleanValue());
             if (drug.getDosageForm() != null) {
                 item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
             }
