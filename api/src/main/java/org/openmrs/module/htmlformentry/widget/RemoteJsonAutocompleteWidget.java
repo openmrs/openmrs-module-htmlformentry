@@ -32,7 +32,7 @@ public class RemoteJsonAutocompleteWidget implements Widget {
     public void setInitialValue(Object initialValue) {
         if (initialValue instanceof Drug) {
             Drug asDrug = (Drug) initialValue;
-            this.initialValue = new Option(asDrug.getName(), "Drug:" + asDrug.getId(), true);
+            this.initialValue = new Option(asDrug.getName(), "Drug:" + asDrug.getId(), true, asDrug.getRetired());
         }
         else if (initialValue instanceof Concept) {
             Concept asConcept = (Concept) initialValue;
@@ -51,6 +51,9 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         String formFieldName = context.getFieldName(this);
         StringBuilder sb = new StringBuilder();
         sb.append("<input id=\"" + formFieldName + "-display\"");
+        if (initialValue != null && initialValue.isRetired()) {
+            sb.append(" style=\"color: gray; font-style: italic\"");
+        }
         if (initialValue != null) {
             sb.append(" value=\"" + initialValue.getLabel() + "\"");
         }
@@ -79,6 +82,14 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         sb.append("      if (ui.item.name != 'No results') {\n");
         sb.append("         $j('#" + formFieldName + "-display').val(displayTemplate" + formFieldName + "(ui.item));\n");
         sb.append("         $j('#" + formFieldName + "-value').val(valueTemplate" + formFieldName + "(ui.item));\n");
+        sb.append("         if (ui.item.retired) {\n");
+        sb.append("             $j('#" + formFieldName + "-display').css('color', 'gray');\n");
+        sb.append("             $j('#" + formFieldName + "-display').css('font-style', 'italic');\n");
+        sb.append("             \n");
+        sb.append("         } else { \n");
+        sb.append("             $j('#" + formFieldName + "-display').css('color', '');\n");
+        sb.append("             $j('#" + formFieldName + "-display').css('font-style', '');\n");
+        sb.append("         }\n");
         sb.append("      } else {\n");
         sb.append("         $j('#" + formFieldName + "-value').val('');\n");
         sb.append("      }\n");
@@ -97,7 +108,13 @@ public class RemoteJsonAutocompleteWidget implements Widget {
         sb.append("    }\n");
         sb.append("  })\n");
         sb.append("  .data('ui-autocomplete')._renderItem = function(ul, item) {\n");
-        sb.append("    return $j('<li>').data('autocomplete-item', item).append('<a>' + displayTemplate" + formFieldName + "(item) + '</a>').appendTo(ul);\n");
+        sb.append("    var anchorItem = $j('<a>' + displayTemplate" + formFieldName + "(item) + '</a>');\n");
+        sb.append("    if(item.retired) { ;\n");
+        sb.append("         anchorItem.css('color', 'gray');\n");
+        sb.append("         anchorItem.css('font-style', 'italic');\n");
+        sb.append("    }\n");
+        sb.append("    var listItem = $j('<li>').data('autocomplete-item', item).append(anchorItem).appendTo(ul);\n");
+        sb.append("    return listItem;\n");
         sb.append("  };\n");
         sb.append("});\n");
         sb.append("</script>\n");

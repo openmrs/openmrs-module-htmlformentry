@@ -148,7 +148,7 @@ public class HtmlFormSearchController {
                 Method getDrugsMethod = conceptService.getClass().getMethod("getDrugs", String.class, Concept.class,
                         boolean.class, boolean.class, boolean.class, Integer.class, Integer.class);
 
-                drugs = (List<Drug>) getDrugsMethod.invoke(conceptService, query, null, true, false, false, 0, 100);  // this method excludes retired drugs
+                drugs = (List<Drug>) getDrugsMethod.invoke(conceptService, query, null, true, false, true, 0, 100);  // this method excludes retired drugs
 
             } catch (Exception ex) {
                 throw new RuntimeException("Unable to access ConceptService getDrugs method via reflection", ex);

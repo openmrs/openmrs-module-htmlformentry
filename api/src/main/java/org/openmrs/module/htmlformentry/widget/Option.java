@@ -8,6 +8,7 @@ public class Option {
     private String label;
     private String value;
     private boolean selected = false;
+    private boolean retired = false;
     
     public Option() {
         value = "";
@@ -18,6 +19,13 @@ public class Option {
         this.label = label;
         this.value = value;
         this.selected = selected;
+    }
+
+    public Option(String label, String value, boolean selected, boolean retired) {
+        this.label = label;
+        this.value = value;
+        this.selected = selected;
+        this.retired = retired;
     }
 
     /**
@@ -72,6 +80,19 @@ public class Option {
      */
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    /**
+     * Returns true/false whether or not the underlying OpenMRS entity representing the item is retired
+     *
+     * @return true/false
+     */
+    public boolean isRetired() {
+        return retired;
+    }
+
+    public void setRetired(boolean retired) {
+        this.retired = retired;
     }
 
     /**
