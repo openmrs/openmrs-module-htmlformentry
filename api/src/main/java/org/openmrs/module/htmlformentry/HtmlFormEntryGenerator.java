@@ -301,7 +301,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @param xml input string
      * @return the xml string after filtering out comments
      * @throws Exception
-     * @should return correct xml after filtering out comments
+     * <strong>Should</strong> return correct xml after filtering out comments
      */
     public String stripComments(String xml) throws Exception {
 
@@ -322,7 +322,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @param xml input string
      * @return the xml after replacing special characters with their ascii code
      * @throws Exception
-     * @should return correct xml after replacing special characters with their ascii code
+     * <strong>Should</strong> return correct xml after replacing special characters with their ascii code
      */
     public String substituteCharacterCodesWithAsciiCodes(String xml) throws Exception {
         HashMap<String, String> encodings = new HashMap<String, String>();
@@ -675,7 +675,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML tags are
      * left as is.
      *
-     * @should close br tags
+     * <strong>Should</strong> close br tags
      */
     @Override
     public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
@@ -713,7 +713,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * Default behavior is simply to leave the tag unprocessed. That is, any basic HTML tags are
      * left as is.
      *
-     * @should skip br tags
+     * <strong>Should</strong> skip br tags
      */
     @Override
     public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
@@ -735,7 +735,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      *
      * @param xml
      * @return xml
-     * @should remove htmlform tag and wrap form in div
+     * <strong>Should</strong> remove htmlform tag and wrap form in div
      */
     public String wrapInDiv(String xml) {
         xml = xml.trim();
@@ -772,7 +772,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @param xml the xml string to process for restrictByRole tag
      * @return the xml after applied restrictByRole tag
      * @throws BadFormDesignException
-     * @should return correct xml after apply restrictByRole tag
+     * <strong>Should</strong> return correct xml after apply restrictByRole tag
      */
     public String applyRoleRestrictions(String xml) throws BadFormDesignException {
 
@@ -798,7 +798,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
      * @param includeStr for ex. = "include= "Provider">" or ex. = "exclude= "Provider">"
      * @return a boolean value if this user has the "Provider" role assigned
      * @throws BadFormDesignException
-     * @should return a correct boolean value for user role test string
+     * <strong>Should</strong> return a correct boolean value for user role test string
      */
     protected static boolean processRoleRestrictionLogic(String includeStr) throws BadFormDesignException {
 

@@ -154,7 +154,7 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
 
 
     /**
-     * @should return HTML snippet
+     * <strong>Should</strong> return HTML snippet
      * @see org.openmrs.module.htmlformentry.element.HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
      */
     @Override
@@ -360,7 +360,7 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement,
     }
 
     /**
-     * @should return validation errors if value is not filled in and required
+     * <strong>Should</strong> return validation errors if value is not filled in and required
      * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
      */
     @Override

@@ -157,7 +157,7 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	 * 
 	 * @param incomingToExisting map from items included in this form to items existing in the
 	 *            destination server
-	 * @should should replace uuids and names
+	 * <strong>Should</strong> should replace uuids and names
 	 */
 	protected void onSave(Map<OpenmrsObject, OpenmrsObject> incomingToExisting) {
 		HtmlFormSubstitutionUtils.replaceIncomingOpenmrsObjectsWithExistingOpenmrsObjects(this, incomingToExisting);

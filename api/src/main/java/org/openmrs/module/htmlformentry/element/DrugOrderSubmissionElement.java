@@ -440,7 +440,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	/**
 	 * Static helper method to parse frequency string
 	 *
-	 * @should return times per day which is part of frequency string
+	 * <strong>Should</strong> return times per day which is part of frequency string
 	 * @param frequency (format "x/d y d/w")
 	 * @return x
 	 */
@@ -452,7 +452,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	/**
 	 * Static helper method to parse frequency string
 	 *
-	 * @should return number of days per weeks which is part of frequency string
+	 * <strong>Should</strong> return number of days per weeks which is part of frequency string
 	 * @param frequency (format "x/d y d/w")
 	 * @return y
 	 */
@@ -463,7 +463,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	}
 
 	/**
-	 * @should return HTML snippet
+	 * <strong>Should</strong> return HTML snippet
 	 * @see HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
 	@Override
@@ -679,7 +679,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     }
 
 	/**
-	 * @should return validation errors if doseWidget, startDateWidget or discontinuedDateWidget is invalid
+	 * <strong>Should</strong> return validation errors if doseWidget, startDateWidget or discontinuedDateWidget is invalid
 	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
 	 */
 	@Override

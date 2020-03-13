@@ -51,7 +51,7 @@ public interface HtmlFormEntryService extends OpenmrsService {
      * Retrieves all HTML Forms in the system
     
      * @return a list of all HTML Forms in the system
-     * @should return all html forms
+     * <strong>Should</strong> return all html forms
      */
     @Transactional(readOnly=true)
     public List<HtmlForm> getAllHtmlForms();
