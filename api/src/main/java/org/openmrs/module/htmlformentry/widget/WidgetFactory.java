@@ -175,10 +175,10 @@ public class WidgetFactory {
 		if (ModuleUtil.compareVersion(OpenmrsConstants.OPENMRS_VERSION_SHORT, "2.0") < 0) {
 			prefix = "";
 		}
-		return "/" + WebConstants.WEBAPP_NAME + prefix + "/complexObsServlet?obsId=" + obs.getObsId();
+		return "/" + WebConstants.WEBAPP_NAME + prefix + "/complexObsServlet?obsId=" + obs.getObsId() + "&view=RAW_VIEW";
 	}
 	
 	private static String getDownloadHyperlink(Obs obs) {
-		return getViewHyperlink(obs) + "&view=download&viewType=download";
+		return getViewHyperlink(obs) + "&download=view";
 	}
 }
