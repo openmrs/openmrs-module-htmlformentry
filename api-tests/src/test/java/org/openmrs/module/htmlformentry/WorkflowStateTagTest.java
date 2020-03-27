@@ -431,6 +431,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
 				
 				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
 				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
 				
@@ -440,10 +441,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
 			}
@@ -581,6 +584,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
 				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
 				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
 				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
 				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
 				
@@ -631,18 +635,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testEditFormHtml(String html) {
 				Assert.assertTrue("Edit should contain current state: " + html,
 				    html.contains("selected=\"true\">START STATE"));
@@ -694,18 +702,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testEditFormHtml(String html) {
 				Assert.assertTrue("Edit should contain current state: " + html,
 				    html.contains("selected=\"true\">MIDDLE STATE"));
@@ -769,18 +781,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testEditFormHtml(String html) {
 				Assert.assertTrue("Edit should contain current state: " + html,
 				    html.contains("selected=\"true\">MIDDLE STATE"));
@@ -829,18 +845,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testEditFormHtml(String html) {
 				Assert.assertTrue("Edit should contain current state: " + html,
 				    html.contains("selected=\"true\">START STATE"));
@@ -885,22 +905,27 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -908,6 +933,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
+			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
@@ -963,22 +989,27 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -986,6 +1017,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
+			@Override
 			public void testEditedResults(SubmissionResults results) {
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
 				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
@@ -1043,22 +1075,27 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1066,6 +1103,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
+			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
@@ -1133,14 +1171,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(0, patientProgram.getStates().size());
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1148,6 +1189,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 			
+			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
@@ -1196,14 +1238,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("State:"), "");  // set no state
 			}
 		
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1211,6 +1256,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 			
+			@Override
 			@SuppressWarnings("deprecation")
             public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -1280,22 +1326,27 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1303,6 +1354,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
+			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
@@ -1358,18 +1410,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("State:"), END_STATE);   
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1377,6 +1433,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), END_STATE);
 			}
 			
+			@Override
 			@SuppressWarnings("deprecation")
             public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -1438,18 +1495,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("State:"), END_STATE);   
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("END STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1457,6 +1518,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(widgets.get("State:"), END_STATE);
 			}
 			
+			@Override
 			@SuppressWarnings("deprecation")
             public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -1514,18 +1576,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("State:"), "");   
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("START STATE"));
 			}
 			
+			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
 			
+			@Override
 			public String[] widgetLabelsForEdit() {
 				return new String[] { "Date:", "Location:", "Provider:", "State:" };
 			}
 			
+			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
@@ -1618,10 +1684,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&#160;MIDDLE STATE"));
 			}
@@ -1674,10 +1742,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
+			@Override
 			public boolean doViewEncounter() {
 				return true;
 			}
 			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("Checkbox should be checked: " + html, html.contains("[X]&#160;MIDDLE STATE"));
 			}
@@ -1892,22 +1962,26 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
                 Assert.assertNull(patientProgram);
             }
 
-            public boolean doEditEncounter() {
+            @Override
+			public boolean doEditEncounter() {
                 return true;
             }
 
-            public String[] widgetLabelsForEdit() {
+            @Override
+			public String[] widgetLabelsForEdit() {
                 return new String[] { "Date:", "Location:", "Provider:", "State:" };
             }
 
-            public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
+            @Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String,String> widgets) {
                 request.setParameter(widgets.get("Location:"), "2");
                 request.setParameter(widgets.get("Provider:"), "502");
                 request.setParameter(widgets.get("Date:"), dateAsString(DATE));
                 request.setParameter(widgets.get("State:"), START_STATE);
             }
 
-            public void testEditedResults(SubmissionResults results) {
+            @Override
+			public void testEditedResults(SubmissionResults results) {
                 results.assertNoErrors();
 
                 Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient, Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
