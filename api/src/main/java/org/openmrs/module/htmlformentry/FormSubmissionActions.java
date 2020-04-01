@@ -586,6 +586,10 @@ public class FormSubmissionActions {
 		
 		patientProgram.getStates().add(newState);
 		
+		if (encounter.getEncounterDatetime().before(patientProgram.getDateEnrolled())) {
+			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
+		}
+		
 		patientProgramsToUpdate.add(patientProgram);
 	}
 	
