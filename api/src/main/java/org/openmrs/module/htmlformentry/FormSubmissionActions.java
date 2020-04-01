@@ -586,6 +586,20 @@ public class FormSubmissionActions {
 		
 		patientProgram.getStates().add(newState);
 		
+		if (encounter.getEncounterDatetime().before(patientProgram.getDateEnrolled())) {
+			PatientProgram updatedProgram = patientProgram.copy();
+			
+			//voided now
+			patientProgram.setVoided(true);
+			patientProgram.setDateVoided(new Date());
+			patientProgram.setVoidReason("Retroactive entry update in encounter " + encounter.getUuid());
+			patientProgram.setVoidedBy(encounter.getCreator());
+			
+			patientProgram = updatedProgram;
+			
+			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
+		}
+		
 		patientProgramsToUpdate.add(patientProgram);
 	}
 	

@@ -643,23 +643,7 @@ public class FormEntrySession {
 
         if (submissionActions.getPatientProgramsToUpdate() != null) {
             for (PatientProgram patientProgram : submissionActions.getPatientProgramsToUpdate()) {
-				
-				if (encounter.getEncounterDatetime().before(patientProgram.getDateEnrolled())) {
-					PatientProgram updatedProgram = patientProgram.copy();
-					
-					//voided now
-					patientProgram.setVoided(true);
-					patientProgram.setDateVoided(new Date());
-					patientProgram.setVoidReason("Retroactive entry update in encounter " + encounter.getUuid());
-					patientProgram.setVoidedBy(encounter.getCreator());
-					
-					patientProgram = updatedProgram;
-					
-					patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
-            	}
-            	
-            	Context.getProgramWorkflowService().savePatientProgram(patientProgram);
-				
+                Context.getProgramWorkflowService().savePatientProgram(patientProgram);
             }
         }
 
