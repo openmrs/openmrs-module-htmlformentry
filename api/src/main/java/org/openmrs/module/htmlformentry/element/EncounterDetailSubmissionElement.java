@@ -11,6 +11,7 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -353,6 +354,24 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
             if (parameters.get("tags") != null && parameters.get("orders") != null) {
                 throw new RuntimeException("Using both \"order\" and \"tags\" attribute in an encounterLocation tag is not currently supported");
             }
+            if(parameters.get("restrictToSupportedVisitLocations")!=null) {
+            	Set<Location>allVisitLocations=new HashSet<Location>();
+            	Set<Location>allChildAndGrandVisitLocations=new HashSet<Location>();
+               if ("true".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+            	  LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
+              	  List<Location> visitLocations=Context.getLocationService().getLocationsByTag(visitLocationTag);
+              	  allVisitLocations.addAll(visitLocations);
+                  allChildAndGrandVisitLocations=getAllChildAndGrandLocations(allVisitLocations);
+              	  allVisitLocations.addAll(allChildAndGrandVisitLocations);
+              	  locations.addAll(allVisitLocations);
+                
+                  }
+                else if (!"false".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+            	
+            	    throw new RuntimeException("Invalid value for restrictToSupportedVisitLocations,use true or false");
+              }
+            
+           }
 
             // if the "tags" attribute has been specified, load all the locations referenced by tag
             if (parameters.get("tags") != null) {
@@ -834,6 +853,24 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 
     private DateMidnight stripTimeComponent(Date date) {
         return new DateMidnight(date);
+    }
+    
+    private Set<Location> getAllChildAndGrandLocations(Set<Location> visitLocations){
+    	
+    	Set<Location>allchildAndGrandVisitLocations=new HashSet<Location>();
+     	 for(Location visitLocation:visitLocations) {
+       		
+     		allchildAndGrandVisitLocations.addAll(visitLocation.getChildLocations());
+       		if(visitLocation.getChildLocations() !=null) {
+       			getAllChildAndGrandLocations(allchildAndGrandVisitLocations);
+       		   }
+       		else {
+       			break;
+       		   }
+       		   
+       	    }
+       	 
+    	 return allchildAndGrandVisitLocations;
     }
 
 }
