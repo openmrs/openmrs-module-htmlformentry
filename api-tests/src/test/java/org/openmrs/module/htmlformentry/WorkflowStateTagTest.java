@@ -1624,6 +1624,94 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
+	public void shouldNotOverwritePreviousStateOnEdit() throws Exception {
+		//Given: Patient has a workflow state of X starting in Jan 2012
+		transitionToState(START_STATE, PAST_DATE);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				
+				//When: Html form is being back entered with an encounter date of June 2011, in which the workflow state selected is Y
+				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				//request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				
+				ProgramWorkflowState firstState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
+				ProgramWorkflowState secondState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
+				
+				//verify existing behavior does match expectations for the second state
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), secondState, DATE);
+				PatientState currentPatientState = getPatientState(patientProgram, secondState, DATE);
+				Assert.assertNotNull(patientProgram);
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(currentPatientState.getStartDate()));
+				Assert.assertNull(patientProgram.getDateCompleted());
+				Assert.assertNull(currentPatientState.getEndDate());
+				
+				//illustrate that this second state has overwritten the existing state
+				Assert.assertEquals(2, patientProgram.getStates().size());
+
+				//after the fix for this is in place, the following should also pass
+				PatientState previousPatientState = getPatientState(patientProgram, firstState, PAST_DATE);
+				
+				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(previousPatientState.getStartDate()));
+				Assert.assertEquals(dateAsString(DATE), dateAsString(previousPatientState.getEndDate()));
+				
+				List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
+				    patientProgram.getProgram(), null, null, null, null, false);
+				
+				//only one program enrollment should exist
+				Assert.assertEquals(1, patientPrograms.size());
+			}
+		}.run();
+		
+	}
+	
+	@Test
 	public void checkboxShouldNotAppearCheckedIfNotCurrentlyInSpecifiedState() throws Exception {
 		 
 		transitionToState(START_STATE, PAST_DATE);
