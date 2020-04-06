@@ -14,7 +14,7 @@ import org.openmrs.order.RegimenSuggestion;
 import org.springframework.stereotype.Component;
 
 @Component
-@OpenmrsProfile(openmrsVersion = "[1.7.5 - 1.9.*]")
+@OpenmrsProfile(openmrsPlatformVersion = "[1.7.5 - 1.9.*]")
 public class StandardRegimenTagHandlerSupport1_6 implements StandardRegimenTagHandlerSupport {
 	
 	@Override

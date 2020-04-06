@@ -284,7 +284,7 @@ FREE TEXT OBSERVATION
 		<property name="moduleService">
 			<list>
 				<value>org.openmrs.module.htmlformentry.HtmlFormEntryService</value>
-				<ref local="htmlFormEntryService"/>
+				<ref bean="htmlFormEntryService"/>
 			</list>
 		</property>
 	</bean>
