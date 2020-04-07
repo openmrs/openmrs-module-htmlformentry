@@ -226,7 +226,9 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 
 				//since there is no direct connection between encounters and states
 				//the best that can be done, for now, is to check 
-				//if the encounterDatetime matches the startDate
+				//if the encounterDatetime exactly matches the startDate.
+				//If so, we presume the state was originally set via this form
+				//and therefore we need to modify it
 				if (oldPatientState != null && !oldPatientState.getStartDate().equals(prevDate)) {
 					oldPatientState = null;
 				}
