@@ -8,7 +8,7 @@ import org.openmrs.module.htmlformentry.ProgramAttributeElement;
 import java.util.Map;
 
 @OpenmrsProfile(openmrsPlatformVersion = "2.2.0")
-public class ProgramAttributeTagHandlerSupport2_2 implements ConditionTagHandlerSupport {
+public class ProgramAttributeTagHandlerSupport2_2 implements ProgramAttributeTagHandlerSupport {
 	
 	@Override
 	public String getSubstitution(FormEntrySession session, FormSubmissionController controller, Map<String, String> attributes) {

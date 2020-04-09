@@ -36,7 +36,7 @@ public class ProgramAttributeElementTest extends BaseModuleContextSensitiveTest 
 	}
 
 	@Test
-	public void testSimplestFormFailure() throws Exception {
+	public void testProgramAttributeWithProgramId() throws Exception {
 		final Date date = new Date();
 		final Integer patientId = 2;
 		final Integer programId = 10;
