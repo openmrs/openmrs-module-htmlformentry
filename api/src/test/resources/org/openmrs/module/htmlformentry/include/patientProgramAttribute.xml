@@ -1,6 +1,5 @@
 <htmlform>
-	Enrollment Date: <enrollInProgram programId="10" showDate="true" stateIds="200" />
-    <enrollInProgram programId="10" />
+	Program Attribute: <programAttribute programId="10" programAttributeId="1" />
 	Encounter Date: <encounterDate/>
     Encounter Location: <encounterLocation/>
     Encounter Provider: <encounterProvider role="Provider"/>
