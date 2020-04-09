@@ -21,13 +21,21 @@
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-api</artifactId>
             <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-api-tests</artifactId>
+            <version>${project.parent.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.openmrs.api</groupId>
             <artifactId>openmrs-api</artifactId>
             <version>${openMRSVersion}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -45,26 +53,19 @@
             <type>pom</type>
             <scope>test</scope>
         </dependency>
-		
+
         <dependency>
 			<groupId>org.openmrs.web</groupId>
 			<artifactId>openmrs-web</artifactId>
+            <version>${openMRSVersion}</version>
 		</dependency>
-		
+
 		<dependency>
 		    <groupId>javax.servlet</groupId>
 		    <artifactId>javax.servlet-api</artifactId>
 		    <version>3.0.1</version>
 		    <scope>test</scope>
 		</dependency>
-
-        <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>htmlformentry-api</artifactId>
-            <version>${project.parent.version}</version>
-            <classifier>tests</classifier>
-            <scope>test</scope>
-        </dependency>
 
     </dependencies>
 
