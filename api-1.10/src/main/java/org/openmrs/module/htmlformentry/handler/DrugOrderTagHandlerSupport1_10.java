@@ -15,7 +15,7 @@ import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement1_10;
 /**
  * Handles the {@code <drugOrder>} tag
  */
-@OpenmrsProfile(openmrsVersion = "1.10")
+@OpenmrsProfile(openmrsPlatformVersion = "1.10")
 public class DrugOrderTagHandlerSupport1_10 implements DrugOrderTagHandlerSupport {
 
 	@Override

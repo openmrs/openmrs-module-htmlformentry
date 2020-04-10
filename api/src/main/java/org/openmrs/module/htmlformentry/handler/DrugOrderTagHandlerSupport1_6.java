@@ -17,7 +17,7 @@ import org.openmrs.annotation.OpenmrsProfile;
  * Handles the {@code <drugOrder>} tag
  */
 @Component
-@OpenmrsProfile(openmrsVersion = "[1.7.5 - 1.9.*]")
+@OpenmrsProfile(openmrsPlatformVersion = "[1.7.5 - 1.9.*]")
 public class DrugOrderTagHandlerSupport1_6 implements DrugOrderTagHandlerSupport {
 
 	@Override
