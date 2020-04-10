@@ -22,6 +22,12 @@
             <artifactId>${project.parent.artifactId}-api</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openmrs.web</groupId>
+                    <artifactId>openmrs-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -30,12 +36,19 @@
             <version>${project.parent.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openmrs.web</groupId>
+                    <artifactId>openmrs-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
             <groupId>org.openmrs.api</groupId>
             <artifactId>openmrs-api</artifactId>
             <version>${openMRSVersion}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -58,6 +71,8 @@
 			<groupId>org.openmrs.web</groupId>
 			<artifactId>openmrs-web</artifactId>
             <version>${openMRSVersion}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
 		</dependency>
 
 		<dependency>
