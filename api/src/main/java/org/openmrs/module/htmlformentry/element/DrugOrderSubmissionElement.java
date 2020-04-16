@@ -336,7 +336,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
             if (existingOrder != null && existingOrder.getAutoExpireDate() != null){
                 //set duration from autoExpireDate in days
                 Long autoDateMilis = existingOrder.getAutoExpireDate().getTime();
-                Long startDateMilis = existingOrder.getStartDate().getTime();
+                Long startDateMilis = getDrugOrderStartDate(existingOrder).getTime();
                 Long diffInMSec = autoDateMilis - startDateMilis;
                 // Find date difference in days
                 // (24 hours 60 minutes 60 seconds 1000 millisecond)
@@ -373,7 +373,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	    				    if (((CheckboxWidget) drugWidget).getValue().equals(drugOrder.getDrug().getDrugId().toString()))
 	    				        ((CheckboxWidget) drugWidget).setInitialValue("CHECKED");
 	    				}
-	    				startDateWidget.setInitialValue(drugOrder.getStartDate());
+	    				startDateWidget.setInitialValue(getDrugOrderStartDate(drugOrder));
 	    				if (!hideDoseAndFrequency && hideDose){
 							    frequencyWidget.setInitialValue(parseFrequencyDays(drugOrder.getFrequency()));
 							    frequencyWeekWidget.setInitialValue(parseFrequencyWeek(drugOrder.getFrequency()));
@@ -577,7 +577,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
     	if (!StringUtils.isEmpty(orderTag.drugId) && !orderTag.drugId.equals("~")){
         	orderTag.drug = Context.getConceptService().getDrug(Integer.valueOf(orderTag.drugId));
         	if (defaultDose == null)
-        	    orderTag.dose = orderTag.drug.getDoseStrength();
+        		setOrderTagDose(orderTag);
         	else
         	    orderTag.dose = defaultDose;
         	
@@ -790,6 +790,25 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement,
 	        }    
 	    }
 	    return dor;
+	}
+	
+	/**
+	 * Convenient method to get effective start date of taking drug
+	 * 
+	 * @param dod drug order
+	 * @return start date
+	 */
+	protected Date getDrugOrderStartDate(DrugOrder dod) {
+		return dod.getStartDate();
+	}
+	
+	/**
+	 * Convenient method to set OrderTag dose, used for backwards compatibility on different platform versions.
+	 * 
+	 * @param orderTag
+	 */
+	protected void setOrderTagDose(OrderTag orderTag) {
+		orderTag.dose = orderTag.drug.getDoseStrength();
 	}
 
 	/* (non-Javadoc)

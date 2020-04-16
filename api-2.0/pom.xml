@@ -23,13 +23,23 @@
             <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
-
+		<dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>${project.parent.artifactId}-api-1.10</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.openmrs.api</groupId>
             <artifactId>openmrs-api</artifactId>
             <version>${openMRSVersion}</version>
             <scope>provided</scope>
         </dependency>
+        
+        <dependency>
+			<groupId>org.openmrs.web</groupId>
+			<artifactId>openmrs-web</artifactId>
+		</dependency>
 
         <dependency>
             <groupId>org.openmrs.api</groupId>

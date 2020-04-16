@@ -417,7 +417,7 @@ public class DrugOrderSubmissionElement1_10 extends DrugOrderSubmissionElement {
 		drugOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
 		OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
 		drugOrder.setFrequency(orderFrequency);
-		drugOrder.setDateActivated(orderTag.startDate);
+		drugOrder.setDateActivated(session.getEncounter().getEncounterDatetime());
         drugOrder.setNumRefills(orderTag.numRefills);
 		//order duration:
 		if (orderTag.orderDuration != null)
