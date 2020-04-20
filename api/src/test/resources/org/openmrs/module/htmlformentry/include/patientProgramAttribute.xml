@@ -1,5 +1,5 @@
 <htmlform>
-	Program Attribute: <programAttribute programId="10" programAttributeId="1" />
+	Program Attribute: <programAttribute programId="10" programAttributeId="2" />
 	Encounter Date: <encounterDate/>
     Encounter Location: <encounterLocation/>
     Encounter Provider: <encounterProvider role="Provider"/>

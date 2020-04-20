@@ -9,7 +9,6 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
-import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -32,7 +31,7 @@ public class ProgramAttributeElementTest extends BaseModuleContextSensitiveTest 
 	public void loadData() throws Exception {
 		ps = Context.getPatientService();
 		pws = Context.getProgramWorkflowService();
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(PROGRAM_ATTRIBUTE_TEST_DATASET));
+		executeDataSet(XML_DATASET_PATH + PROGRAM_ATTRIBUTE_TEST_DATASET);
 	}
 
 	@Test
@@ -63,7 +62,6 @@ public class ProgramAttributeElementTest extends BaseModuleContextSensitiveTest 
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				request.addParameter(widgets.get("Program Attribute:"), "ABC123");
-
 			}
 
 			@Override

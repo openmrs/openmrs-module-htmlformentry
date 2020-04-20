@@ -1,4 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
-    <program_attribute_type program_attribute_type_id="1" name="Program Attribute" description="Program Attribute Description" creator="1" date_created="2020-04-04 13:10:38" uuid="f8e4243c-4c47-46c1-8021-503feff77cfb" />
+    <program_attribute_type program_attribute_type_id="2" name="Program Attribute" description="Program Attribute Description" min_occurs="1" retired="false" datatype="org.openmrs.customdatatype.datatype.FreeTextDatatype" creator="1" date_created="2020-04-04 13:10:38" uuid="f8e4243c-4c47-46c1-8021-503feff77cfb" />
 </dataset>
