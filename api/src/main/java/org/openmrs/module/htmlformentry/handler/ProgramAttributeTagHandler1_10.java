@@ -7,7 +7,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionController;
 import java.util.Map;
 
 @OpenmrsProfile(openmrsPlatformVersion = "[1.10 - 2.1.*]")
-public class ProgramAttributeTagHandlerSupport1_10 implements ProgramAttributeTagHandlerSupport {
+public class ProgramAttributeTagHandler1_10 implements ProgramAttributeTagHandler {
 
 	@Override
 	public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
