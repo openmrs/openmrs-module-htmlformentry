@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @OpenmrsProfile(openmrsPlatformVersion = "2.2.0")
-public class ProgramAttributeTagHandlerSupport2_2 extends SubstitutionTagHandler implements TagHandler {
+public class ProgramAttributeTagHandlerSupport2_2 extends SubstitutionTagHandler implements ProgramAttributeTagHandlerSupport {
 
 	@Override
 	protected List<AttributeDescriptor> createAttributeDescriptors() {

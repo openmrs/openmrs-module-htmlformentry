@@ -137,7 +137,10 @@
                             <key><value>condition</value></key>
                             <bean class="org.openmrs.module.htmlformentry.handler.ConditionTagHandler"/>
                         </entry>
-                        
+                        <entry>
+                            <key><value>programAttribute</value></key>
+                            <bean class="org.openmrs.module.htmlformentry.handler.ProgramAttributeTagHandler"/>
+                        </entry>
                     </map>
                 </property>
                 <property name="basicFormXmlTemplate">
