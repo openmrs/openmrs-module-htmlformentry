@@ -38,6 +38,7 @@ import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
 public abstract class RegressionTestHelper {
 	
@@ -264,7 +265,7 @@ public abstract class RegressionTestHelper {
 		
 		// submit some initial data and test it
 		Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
-		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockMultipartHttpServletRequest();
 		request.setSession(session.getHttpSession());
 		setupRequest(request, labeledWidgets);
 		Patient patientToView = null;
