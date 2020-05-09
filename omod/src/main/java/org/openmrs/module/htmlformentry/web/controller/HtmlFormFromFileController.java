@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.StringWriter;
+import java.nio.file.Paths;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +18,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.ValidationException;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -71,7 +74,16 @@ public class HtmlFormFromFileController {
 				}
 			} else {
 				if (StringUtils.hasText(filePath)) {
-					f = new File(filePath);
+
+					// Test if path is safe
+					String filePathAbsolute = (new File(filePath)).getCanonicalPath();
+					String archivePath = OpenmrsUtil.getApplicationDataDirectory();
+					if(filePathAbsolute.startsWith(archivePath)){
+						f = new File(filePath);
+					} else {
+						throw new ValidationException("Given preview path must be in: " + archivePath);
+					}
+
 				} else {
 					message = "You must specify a file path to preview from file";
 				}
