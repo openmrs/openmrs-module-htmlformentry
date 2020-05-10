@@ -60,9 +60,11 @@ public class HtmlFormValidator implements Validator {
 			new FormValidator().validate(hf.getForm(), errors);
 			errors.popNestedPath();
 		}
+		
 		if (hf.getXmlData() != null) {
 			try {
-				@SuppressWarnings("unused")
+				HtmlFormEntryUtil.stringToDocument(hf.getXmlData());
+				
 				FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), hf.getXmlData(), null); // can't access an HttpSession here
 				if (hf.getForm() != null) {
 					if (hf.getForm().getEncounterType() != null && hasEncounterTypeTag(hf.getXmlData())) {

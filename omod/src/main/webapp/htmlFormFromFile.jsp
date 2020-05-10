@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 
-<openmrs:require privilege="Manage Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
+<openmrs:require privilege="Preview Forms" otherwise="/login.htm" redirect="/module/htmlformentry/htmlForm.list" />
 
 <c:set var="DO_NOT_INCLUDE_JQUERY" value="true"/>
 
