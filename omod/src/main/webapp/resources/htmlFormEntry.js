@@ -97,16 +97,17 @@ function verifyNumber(el, floatOkay, absoluteMin, absoluteMax, errorMessages) {
 	}
 
 	var val = el.value.trim();
-	if (val == '')
+	if (val === '')
 		return null;
 
+	val = Number(val);
 	if (floatOkay) {
-		if (! /^[+-]?\d*(.\d+)?$/.test(val)) {
+		if (isNaN(val)) {
 			return errorMessages.notANumber;
 		}
 		val = parseFloat(val);
 	} else {
-		if (! /^[+-]?\d+$/.test(val)) {
+		if (!Number.isInteger(val)) {
 			return errorMessages.notAnInteger;
 		}
 		val = parseInt(val);
