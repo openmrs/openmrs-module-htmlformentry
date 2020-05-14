@@ -159,4 +159,26 @@ public class DateWidget implements Widget {
 	    clone.setDateFormat(this.getDateFormat());
 	    return clone;
     }
+    
+    /**Generates hidden html so that it is accessible via javascript
+     * even if it is not displayed
+     */
+    public String generateHiddenHtml(FormEntryContext context) {
+        StringBuilder sb = new StringBuilder();
+        String fieldName = context.getFieldName(this);
+
+        sb.append("<input style=\"display:none\" type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
+
+        sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
+        if (onChangeFunction != null) {
+            sb.append(" onChange=\"" + onChangeFunction + "\" ");
+        }
+        sb.append(" />");
+
+        sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','" + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
+
+        sb.append(")</script>");
+        return sb.toString();
+    
+    }    
 }

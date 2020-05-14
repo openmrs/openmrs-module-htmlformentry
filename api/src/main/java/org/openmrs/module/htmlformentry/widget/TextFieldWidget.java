@@ -196,5 +196,47 @@ public class TextFieldWidget implements Widget {
         clone.setTextAreaRows(this.getTextAreaRows());
         return clone;
     }
+    
+    /**Generates hidden html so that it is accessible via javascript
+     * even if it is not displayed
+     */
+    public String generateHiddenHtml(FormEntryContext context) {
+        StringBuilder sb = new StringBuilder();
+            if (textArea) {
+                sb.append("<textarea name=\"" + context.getFieldName(this) + "\" id=\"" + context.getFieldName(this) + "\"");
+                if (textAreaRows != null)
+                    sb.append(" rows=\"" + textAreaRows + "\"");
+                if (textAreaColumns != null)
+                    sb.append(" cols=\"" + textAreaColumns + "\"");
+                if (textFieldMaxLength != null && textFieldMaxLength.intValue() > 0){
+                    sb.append(" maxlength=\"" + textFieldMaxLength.intValue() + "\"");
+                }
+                if (placeholder != null) {
+                    // TODO escape
+                    sb.append(" placeholder=\"").append(placeholder).append("\"");
+                }
+                sb.append(" style=\"display: none\"");
+                sb.append(">");
+                if (initialValue != null)
+                    sb.append(initialValue);
+                sb.append("</textarea>");
+            } else {
+                sb.append("<input type=\"text\" name=\"" + context.getFieldName(this) + "\" id=\"" + context.getFieldName(this) + "\"");
+                if (textFieldSize != null)
+                    sb.append(" size=\"" + textFieldSize + "\"");
+                if (initialValue != null)
+                    sb.append(" value=\"" + initialValue + "\"");
+                if (textFieldMaxLength != null && textFieldMaxLength.intValue() > 0){
+                	sb.append(" maxlength=\"" + textFieldMaxLength.intValue() + "\"");
+                }
+                if (placeholder != null) {
+                    // TODO escape
+                    sb.append(" placeholder=\"").append(placeholder).append("\"");
+                }
+                sb.append(" style=\"display: none\"");
+                sb.append("/>");
+            }
+        return sb.toString(); 
+    }
 
 }
