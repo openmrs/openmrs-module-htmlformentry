@@ -14,23 +14,27 @@ import java.util.List;
  */
 
 public class ConceptSearchAutocompleteWidget implements Widget {
-
+	
 	private Concept initialValue;
+	
 	private String allowedConceptIds;
+	
 	private String allowedConceptClassNames;
+	
 	private String allowedConceptSetIds;
+	
 	private String src;
+	
 	private static String defaultSrc = "conceptSearch.form";
-
-	public ConceptSearchAutocompleteWidget(List<Concept> conceptList,
-                                           List<ConceptClass> allowedconceptclasses, String src) {
+	
+	public ConceptSearchAutocompleteWidget(List<Concept> conceptList, List<ConceptClass> allowedconceptclasses, String src) {
 		this.src = src;
 		
 		//only 1 of them is used to specify the filter
 		if (allowedconceptclasses == null || allowedconceptclasses.size() == 0) {
 			StringBuilder sb = new StringBuilder();
 			if (conceptList != null) {
-				for (Iterator<Concept> it = conceptList.iterator(); it.hasNext(); ) {
+				for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
 					sb.append(it.next().getConceptId());
 					if (it.hasNext())
 						sb.append(",");
@@ -39,8 +43,7 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 			}
 		} else {
 			StringBuilder sb = new StringBuilder();
-			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it
-					.hasNext();) {
+			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it.hasNext();) {
 				sb.append(it.next().getName());
 				if (it.hasNext())
 					sb.append(",");
@@ -48,17 +51,15 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 			this.allowedConceptClassNames = sb.toString();
 		}
 	}
-
-	public ConceptSearchAutocompleteWidget(List<Concept> conceptList,
-                                           List<ConceptClass> allowedconceptclasses) {
+	
+	public ConceptSearchAutocompleteWidget(List<Concept> conceptList, List<ConceptClass> allowedconceptclasses) {
 		this(conceptList, allowedconceptclasses, defaultSrc);
 	}
-
-
+	
 	@Override
-    public String generateHtml(FormEntryContext context) {
+	public String generateHtml(FormEntryContext context) {
 		// hardcoded for concept search
-
+		
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode().equals(Mode.VIEW)) {
 			String toPrint = "";
@@ -69,45 +70,37 @@ public class ConceptSearchAutocompleteWidget implements Widget {
 				return WidgetFactory.displayDefaultEmptyValue();
 			}
 		} else {
-			sb.append("<input type=\"text\"  id=\""
-					+ context.getFieldName(this) + "\"" + " name=\""
-					+ context.getFieldName(this) + "\" "
-					+ " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
-					+ this.allowedConceptIds + "','"
-					+ this.allowedConceptClassNames + "','"
-					+ this.allowedConceptSetIds + "');\""
-					+ "class=\"autoCompleteText\""
-                    + "onchange=\"setValWhenAutocompleteFieldBlanked(this)\""
-					+ " onblur=\"onBlurAutocomplete(this)\"");
-
+			sb.append("<input type=\"text\"  id=\"" + context.getFieldName(this) + "\"" + " name=\""
+			        + context.getFieldName(this) + "\" " + " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
+			        + this.allowedConceptIds + "','" + this.allowedConceptClassNames + "','" + this.allowedConceptSetIds
+			        + "');\"" + "class=\"autoCompleteText\"" + "onchange=\"setValWhenAutocompleteFieldBlanked(this)\""
+			        + " onblur=\"onBlurAutocomplete(this)\"");
+			
 			if (initialValue != null)
 				sb.append(" value=\"" + initialValue.getDisplayString() + "\"");
 			sb.append("/>");
-
-            sb.append("<input name=\"" + context.getFieldName(this) + "_hid"
-                    + "\" id=\"" + context.getFieldName(this) + "_hid" + "\""
-                    + " type=\"hidden\" class=\"autoCompleteHidden\" ");
-            if (initialValue != null) {
-                sb.append(" value=\"" + initialValue.getConceptId() + "\"");
-            }
-            sb.append("/>");
-        }
+			
+			sb.append("<input name=\"" + context.getFieldName(this) + "_hid" + "\" id=\"" + context.getFieldName(this)
+			        + "_hid" + "\"" + " type=\"hidden\" class=\"autoCompleteHidden\" ");
+			if (initialValue != null) {
+				sb.append(" value=\"" + initialValue.getConceptId() + "\"");
+			}
+			sb.append("/>");
+		}
 		return sb.toString();
 	}
-
-
+	
 	@Override
-    public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		return request.getParameter(context.getFieldName(this) + "_hid");
 	}
-
-
+	
 	@Override
-    public void setInitialValue(Object initialValue) {
+	public void setInitialValue(Object initialValue) {
 		// TODO Auto-generated method stub
 		this.initialValue = (Concept) initialValue;
 	}
-
+	
 	public void setAllowedConceptSetIds(String allowedConceptSetIds) {
 		this.allowedConceptSetIds = allowedConceptSetIds;
 	}

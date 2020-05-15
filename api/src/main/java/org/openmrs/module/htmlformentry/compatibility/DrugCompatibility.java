@@ -19,6 +19,6 @@ import java.util.Map;
 import org.openmrs.Drug;
 
 public interface DrugCompatibility {
-
+	
 	List<Map<String, Object>> simplify(List<Drug> drugs);
 }

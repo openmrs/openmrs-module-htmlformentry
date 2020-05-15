@@ -11,7 +11,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-
 public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
@@ -57,12 +56,12 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertEncounterVoided();
 			};
-
+			
 		}.run();
 	}
 	
 	@Test
-	public void shouuldNotVoidEncounterIfVoidedSetToFalse () throws Exception {
+	public void shouuldNotVoidEncounterIfVoidedSetToFalse() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
@@ -95,18 +94,19 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertEncounterNotVoided();
 			};
-
+			
 		}.run();
 	}
 	
 	@Test
-	public void shouuldVoidByFormSchemaIfVoidEncounterByHtmlFormSchemaGlobalPropertySetToTrue () throws Exception {
+	public void shouuldVoidByFormSchemaIfVoidEncounterByHtmlFormSchemaGlobalPropertySetToTrue() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// set the appropriate global property to true
-				Context.getAdministrationService().saveGlobalProperty(new GlobalProperty("htmlformentry.voidEncounterByHtmlFormSchema", "true"));
+				Context.getAdministrationService()
+				        .saveGlobalProperty(new GlobalProperty("htmlformentry.voidEncounterByHtmlFormSchema", "true"));
 			}
 			
 			@Override
@@ -145,18 +145,19 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 				// we rely on the specific tests of the voidEncounterByHtmlFormSchema() method that are in 
 				// HtmlFormEntryUtil test to test more complex use cases
 			};
-
+			
 		}.run();
 	}
 	
 	@Test
-	public void shouuldVoidEntireEncounterIfVoidEncounterByHtmlFormSchemaGlobalPropertySetToFalse () throws Exception {
+	public void shouuldVoidEntireEncounterIfVoidEncounterByHtmlFormSchemaGlobalPropertySetToFalse() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// set the appropriate global property to true
-				Context.getAdministrationService().saveGlobalProperty(new GlobalProperty("htmlformentry.voidEncounterByHtmlFormSchema", "false"));
+				Context.getAdministrationService()
+				        .saveGlobalProperty(new GlobalProperty("htmlformentry.voidEncounterByHtmlFormSchema", "false"));
 			}
 			
 			@Override
@@ -189,9 +190,8 @@ public class EncounterVoidedTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertEncounterVoided();
 			};
-
+			
 		}.run();
 	}
-	
 	
 }

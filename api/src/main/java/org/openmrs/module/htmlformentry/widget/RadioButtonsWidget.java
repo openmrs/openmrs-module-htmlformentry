@@ -24,18 +24,18 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode() == Mode.VIEW) {
-            for (int i = 0; i < getOptions().size(); ++i) {
-                Option opt = getOptions().get(i);
-				boolean selected = getInitialValue() == null ? "".equals(opt.getValue()) : getInitialValue().equals(
-				    opt.getValue());
+			for (int i = 0; i < getOptions().size(); ++i) {
+				Option opt = getOptions().get(i);
+				boolean selected = getInitialValue() == null ? "".equals(opt.getValue())
+				        : getInitialValue().equals(opt.getValue());
 				if (selected) {
 					sb.append(WidgetFactory.displayValue("[X]&#160;" + opt.getLabel()));
 				} else {
 					sb.append(WidgetFactory.displayEmptyValue("[&#160;&#160;]&#160;" + opt.getLabel()));
 				}
-                if (i < getOptions().size() - 1) {
-                    sb.append(getAnswerSeparator());
-                }
+				if (i < getOptions().size() - 1) {
+					sb.append(getAnswerSeparator());
+				}
 			}
 		} else {
 			String id = context.getFieldName(this);
@@ -43,10 +43,10 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 				Option option = getOptions().get(i);
 				boolean selected = option.isSelected();
 				if (!selected)
-					selected = getInitialValue() == null ? option.getValue().equals("") : getInitialValue().equals(
-					    option.getValue());
-				sb.append("<input type=\"radio\" id=\"").append(id + "_" + i).append("\" name=\"")
-				        .append(id).append("\" value=\"").append(option.getValue()).append("\"");
+					selected = getInitialValue() == null ? option.getValue().equals("")
+					        : getInitialValue().equals(option.getValue());
+				sb.append("<input type=\"radio\" id=\"").append(id + "_" + i).append("\" name=\"").append(id)
+				        .append("\" value=\"").append(option.getValue()).append("\"");
 				if (selected)
 					sb.append(" checked=\"true\"");
 				sb.append(" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"");
@@ -54,7 +54,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 				sb.append("<label for=\"").append(id + "_" + i).append("\">").append(option.getLabel()).append("</label>");
 				if (i < getOptions().size() - 1) {
 					sb.append(getAnswerSeparator());
-                }
+				}
 			}
 		}
 		return sb.toString();
@@ -75,7 +75,7 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 	public void setAnswerSeparator(String answerSeparator) {
 		this.answerSeparator = answerSeparator;
 	}
-
+	
 	public RadioButtonsWidget clone() {
 		RadioButtonsWidget clone = new RadioButtonsWidget();
 		clone.setAnswerSeparator(this.getAnswerSeparator());

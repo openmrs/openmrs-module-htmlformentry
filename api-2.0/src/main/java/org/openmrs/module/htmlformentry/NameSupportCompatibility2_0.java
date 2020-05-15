@@ -25,17 +25,17 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.NameSupportCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class NameSupportCompatibility2_0 implements NameSupportCompatibility {
-
+	
 	@Override
 	public List<List<Map<String, String>>> getLines() {
 		return getDefaultLayoutTemplate().getLines();
 	}
-
+	
 	@Override
 	public String getLayoutToken() {
 		return getDefaultLayoutTemplate().getLayoutToken();
 	}
-
+	
 	@Override
 	public Map<String, String> getNameMappings() {
 		return getDefaultLayoutTemplate().getNameMappings();
@@ -44,7 +44,7 @@ public class NameSupportCompatibility2_0 implements NameSupportCompatibility {
 	private NameTemplate getDefaultLayoutTemplate() {
 		return NameSupport.getInstance().getDefaultLayoutTemplate();
 	}
-
+	
 	@Override
 	public int getMaxTokens() {
 		return getDefaultLayoutTemplate().getMaxTokens();

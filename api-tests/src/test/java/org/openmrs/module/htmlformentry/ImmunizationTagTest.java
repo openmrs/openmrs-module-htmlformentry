@@ -92,7 +92,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 				assertThat(dates, contains(dateAsString(date)));
 			}
 			
-			public void setupEditRequest(MockHttpServletRequest request, java.util.Map<String,String> widgets) {
+			public void setupEditRequest(MockHttpServletRequest request, java.util.Map<String, String> widgets) {
 				Calendar yesterday = Calendar.getInstance();
 				yesterday.add(Calendar.DATE, -1);
 				editedDate = yesterday.getTime();
@@ -130,7 +130,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 		new RegressionTestHelper() {
 			
 			final Date date = new Date();
-						
+			
 			@Override
 			public String getFormName() {
 				return "immunizationTestForm";

@@ -23,62 +23,61 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
-
-
-    @Test
+	
+	@Test
 	public void autocompleteWidget_shouldAcceptLocationOptionsWithSingleOrDoubleQuotesInMiddle() throws Exception {
-
-        AutocompleteWidget autocompleteWidget = null;
-        String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
+		
+		AutocompleteWidget autocompleteWidget = null;
+		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-        FormEntryContext enterContext = session.getContext();
-        Map<Widget, String> widgets = enterContext.getFieldNames();
-        Set<Map.Entry<Widget,String>> entries = widgets.entrySet();
-
-        for(Map.Entry<Widget,String> entry : entries){
-            if(entry.getKey().getClass().equals(AutocompleteWidget.class)){
-              autocompleteWidget = (AutocompleteWidget)entry.getKey();
-            }
-        }
-
-        String locationWithDoubleQuotes = "Te\"st LocationDou";
-        String locationWithSingleQuotes = "Te\'st LocationSin";
-        Option optionDouble = new Option(locationWithDoubleQuotes, "" ,false);
-        Option optionSingle = new Option(locationWithSingleQuotes, "", false);
-
-        if (autocompleteWidget != null) {
-            autocompleteWidget.addOption(optionDouble);
-            autocompleteWidget.addOption(optionSingle);
-            String generatedHtml = autocompleteWidget.generateHtml(enterContext);
-            Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Te\\'st LocationDou,Te\\'st LocationSin") > -1);
-        }
-
-    }
-
-    @Test
+		FormEntryContext enterContext = session.getContext();
+		Map<Widget, String> widgets = enterContext.getFieldNames();
+		Set<Map.Entry<Widget, String>> entries = widgets.entrySet();
+		
+		for (Map.Entry<Widget, String> entry : entries) {
+			if (entry.getKey().getClass().equals(AutocompleteWidget.class)) {
+				autocompleteWidget = (AutocompleteWidget) entry.getKey();
+			}
+		}
+		
+		String locationWithDoubleQuotes = "Te\"st LocationDou";
+		String locationWithSingleQuotes = "Te\'st LocationSin";
+		Option optionDouble = new Option(locationWithDoubleQuotes, "", false);
+		Option optionSingle = new Option(locationWithSingleQuotes, "", false);
+		
+		if (autocompleteWidget != null) {
+			autocompleteWidget.addOption(optionDouble);
+			autocompleteWidget.addOption(optionSingle);
+			String generatedHtml = autocompleteWidget.generateHtml(enterContext);
+			Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Te\\'st LocationDou,Te\\'st LocationSin") > -1);
+		}
+		
+	}
+	
+	@Test
 	public void autocompleteWidget_shouldAcceptLocationOptionsWithSpecialCharacters() throws Exception {
-
-        AutocompleteWidget autocompleteWidget = null;
-        String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
+		
+		AutocompleteWidget autocompleteWidget = null;
+		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-        FormEntryContext enterContext = session.getContext();
-        Map<Widget, String> widgets = enterContext.getFieldNames();
-        Set<Map.Entry<Widget,String>> entries = widgets.entrySet();
-
-        for(Map.Entry<Widget,String> entry : entries){
-            if(entry.getKey().getClass().equals(AutocompleteWidget.class)){
-              autocompleteWidget = (AutocompleteWidget)entry.getKey();
-            }
-        }
-
-        String locationWithSpecCharacters = "Tést Locãtion Doùblê";
-        Option optionDouble = new Option(locationWithSpecCharacters, "" ,false);
-
-        if (autocompleteWidget != null) {
-            autocompleteWidget.addOption(optionDouble);
-            String generatedHtml = autocompleteWidget.generateHtml(enterContext);
-            Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Tést Locãtion Doùblê") > -1);
-        }
-
-    }
+		FormEntryContext enterContext = session.getContext();
+		Map<Widget, String> widgets = enterContext.getFieldNames();
+		Set<Map.Entry<Widget, String>> entries = widgets.entrySet();
+		
+		for (Map.Entry<Widget, String> entry : entries) {
+			if (entry.getKey().getClass().equals(AutocompleteWidget.class)) {
+				autocompleteWidget = (AutocompleteWidget) entry.getKey();
+			}
+		}
+		
+		String locationWithSpecCharacters = "Tést Locãtion Doùblê";
+		Option optionDouble = new Option(locationWithSpecCharacters, "", false);
+		
+		if (autocompleteWidget != null) {
+			autocompleteWidget.addOption(optionDouble);
+			String generatedHtml = autocompleteWidget.generateHtml(enterContext);
+			Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Tést Locãtion Doùblê") > -1);
+		}
+		
+	}
 }

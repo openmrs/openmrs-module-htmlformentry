@@ -46,7 +46,7 @@ public class EncounterTypeTagHandler extends SubstitutionTagHandler implements T
 	 */
 	@Override
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-	                                 Map<String, String> parameters) {
+	        Map<String, String> parameters) {
 		Map<String, Object> temp = new HashMap<String, Object>();
 		temp.putAll(parameters);
 		temp.put("encounterType", true);

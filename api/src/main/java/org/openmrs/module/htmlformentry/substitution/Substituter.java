@@ -5,11 +5,11 @@ import java.util.Map;
 import org.openmrs.OpenmrsObject;
 
 /**
- * Defines a interface that is used by the HtmlFormSubstituionUtils.performSubstitutions
- * to perform different types of substitutions
+ * Defines a interface that is used by the HtmlFormSubstituionUtils.performSubstitutions to perform
+ * different types of substitutions
  */
 public interface Substituter {
-
-	public String substitute(String value, Class<?> clazz, Map<OpenmrsObject,OpenmrsObject> substitutionMap);
+	
+	public String substitute(String value, Class<?> clazz, Map<OpenmrsObject, OpenmrsObject> substitutionMap);
 	
 }

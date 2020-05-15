@@ -15,7 +15,7 @@ import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
+public class HtmlFormTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
@@ -98,7 +98,7 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 		
 		String incomingDrugName = "Aspirin";
 		String existingDrugName = "NyQuil";
-
+		
 		String incomingRoleName = "Data Clerk";
 		String existingRoleName = "System Administrator";
 		
@@ -114,13 +114,13 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest  {
 		Assert.assertTrue(formClone.getXmlData().contains(incomingRoleName));
 		Assert.assertFalse(formClone.getXmlData().contains(existingRoleName));
 		
-		PatientIdentifierType incoming1 = Context.getPatientService().getPatientIdentifierType(2);  // Old Identifier Type
+		PatientIdentifierType incoming1 = Context.getPatientService().getPatientIdentifierType(2); // Old Identifier Type
 		PatientIdentifierType existing1 = Context.getPatientService().getPatientIdentifierType(4); // Social Security Number
 		
-		Location incoming2 = Context.getLocationService().getLocation(3);  // Never Never Land
+		Location incoming2 = Context.getLocationService().getLocation(3); // Never Never Land
 		Location existing2 = Context.getLocationService().getLocation(2); // Xanadu
 		
-		Drug incoming3 = Context.getConceptService().getDrug(3);  // Aspirin
+		Drug incoming3 = Context.getConceptService().getDrug(3); // Aspirin
 		Drug existing3 = Context.getConceptService().getDrug(11); // NyQuil
 		
 		Role incoming4 = Context.getUserService().getRole(incomingRoleName);

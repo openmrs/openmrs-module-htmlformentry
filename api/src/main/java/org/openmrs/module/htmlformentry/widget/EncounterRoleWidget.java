@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 /**
  * Widget that lets you choose an {@link EncounterRole} from a dropdown.
  */
@@ -39,53 +38,55 @@ public class EncounterRoleWidget implements Widget {
 	public void setInitialValue(Object initialValue) {
 		this.initialValue = (EncounterRole) initialValue;
 	}
-
+	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-            if (initialValue != null)
-                return WidgetFactory.displayValue(initialValue.getName());
-            else
-                return "";
-        }
-
+			if (initialValue != null)
+				return WidgetFactory.displayValue(initialValue.getName());
+			else
+				return "";
+		}
+		
 		List<EncounterRole> roles = Context.getEncounterService().getAllEncounterRoles(true);
-        Collections.sort(roles, new Comparator<EncounterRole>() {
+		Collections.sort(roles, new Comparator<EncounterRole>() {
+			
 			@Override
-            public int compare(EncounterRole left, EncounterRole right) {
-	            return left.getName().compareTo(right.getName());
-            }
-        });
+			public int compare(EncounterRole left, EncounterRole right) {
+				return left.getName().compareTo(right.getName());
+			}
+		});
 		
 		StringBuilder sb = new StringBuilder();
-        sb.append("<select name=\"" + context.getFieldName(this) + "\">");
-        sb.append("\n<option value=\"\">");
-        sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseAnEncounterRole"));
-        sb.append("</option>");
-        
-        for (EncounterRole role : roles) {
-        	sb.append("\n<option ");
-        	if (initialValue != null && initialValue.equals(role))
-        		sb.append("selected=\"true\" ");
-        	sb.append("value=\"" + role.getId() + "\">").append(role.getName()).append("</option>");
-        }
-        sb.append("</select>");
+		sb.append("<select name=\"" + context.getFieldName(this) + "\">");
+		sb.append("\n<option value=\"\">");
+		sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseAnEncounterRole"));
+		sb.append("</option>");
+		
+		for (EncounterRole role : roles) {
+			sb.append("\n<option ");
+			if (initialValue != null && initialValue.equals(role))
+				sb.append("selected=\"true\" ");
+			sb.append("value=\"" + role.getId() + "\">").append(role.getName()).append("</option>");
+		}
+		sb.append("</select>");
 		return sb.toString();
 	}
 	
 	/**
-	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext, javax.servlet.http.HttpServletRequest)
+	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext,
+	 *      javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		String val = request.getParameter(context.getFieldName(this));
-        if (StringUtils.hasText(val)) {
-        	return Context.getEncounterService().getEncounterRole(Integer.valueOf(val));
-        }
-        return null;
+		if (StringUtils.hasText(val)) {
+			return Context.getEncounterService().getEncounterRole(Integer.valueOf(val));
+		}
+		return null;
 	}
 	
 }

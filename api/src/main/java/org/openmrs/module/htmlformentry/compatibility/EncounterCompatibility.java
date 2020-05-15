@@ -23,7 +23,7 @@ import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
 
 public class EncounterCompatibility {
-
+	
 	public static Person getProvider(Encounter encounter) {
 		if (encounter.getEncounterProviders() == null || encounter.getEncounterProviders().isEmpty()) {
 			return null;
@@ -39,11 +39,11 @@ public class EncounterCompatibility {
 	}
 	
 	public static void setProvider(Encounter encounter, Person provider) {
-		EncounterRole unknownRole = Context.getEncounterService().getEncounterRoleByUuid(
-		    EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID);
+		EncounterRole unknownRole = Context.getEncounterService()
+		        .getEncounterRoleByUuid(EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID);
 		if (unknownRole == null) {
-			throw new IllegalStateException("No 'Unknown' encounter role with uuid "
-			        + EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID + ".");
+			throw new IllegalStateException(
+			        "No 'Unknown' encounter role with uuid " + EncounterRole.UNKNOWN_ENCOUNTER_ROLE_UUID + ".");
 		}
 		Collection<Provider> providers = Context.getProviderService().getProvidersByPerson(provider);
 		if (providers == null || providers.isEmpty()) {

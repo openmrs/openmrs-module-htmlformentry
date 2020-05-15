@@ -81,8 +81,8 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Add a Person to the submission stack. A Person must be the first object added to the
-	 * submission stack.
+	 * Add a Person to the submission stack. A Person must be the first object added to the submission
+	 * stack.
 	 * 
 	 * @param Person person to add
 	 * @throws InvalidActionException
@@ -97,8 +97,8 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Removes the most recently added Person from the submission stack. All other objects added
-	 * after that Person are removed as well.
+	 * Removes the most recently added Person from the submission stack. All other objects added after
+	 * that Person are removed as well.
 	 * <p/>
 	 * (So, in the current one-person-per-form model, this would empty the entire submission stack)
 	 * 
@@ -131,8 +131,8 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Removes the most recently added Encounter from the submission stack. All objects added after
-	 * that Encounter are removed as well.
+	 * Removes the most recently added Encounter from the submission stack. All objects added after that
+	 * Encounter are removed as well.
 	 * 
 	 * @throws InvalidActionException
 	 */
@@ -176,8 +176,8 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Utility function that adds a set of Obs to an Encounter, skipping Obs that are already part
-	 * of the Encounter
+	 * Utility function that adds a set of Obs to an Encounter, skipping Obs that are already part of
+	 * the Encounter
 	 * 
 	 * @param encounter
 	 * @param group
@@ -191,8 +191,8 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Removes the most recently added ObsGroup from the submission stack. All objects added after
-	 * that ObsGroup are removed as well.
+	 * Removes the most recently added ObsGroup from the submission stack. All objects added after that
+	 * ObsGroup are removed as well.
 	 * 
 	 * @throws InvalidActionException
 	 */
@@ -226,8 +226,8 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Utility method that returns the object of a specified class that was most recently added to
-	 * the stack
+	 * Utility method that returns the object of a specified class that was most recently added to the
+	 * stack
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> T highestOnStack(Class<T> clazz) {
@@ -251,11 +251,11 @@ public class FormSubmissionActions {
 	}
 	
 	/**
-	 * Creates an new Obs and associates with the most recently added Person, Encounter, and
-	 * ObsGroup (if applicable) on the stack.
+	 * Creates an new Obs and associates with the most recently added Person, Encounter, and ObsGroup
+	 * (if applicable) on the stack.
 	 * <p/>
-	 * Note that this method does not actually commit the Obs to the database, but instead adds the
-	 * Obs to a list of Obs to be added. The changes are applied elsewhere in the framework.
+	 * Note that this method does not actually commit the Obs to the database, but instead adds the Obs
+	 * to a list of Obs to be added. The changes are applied elsewhere in the framework.
 	 * 
 	 * @param concept concept associated with the Obs
 	 * @param value value for the Obs
@@ -301,8 +301,8 @@ public class FormSubmissionActions {
 	/**
 	 * Modifies an existing Obs.
 	 * <p/>
-	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new
-	 * Obs to a list of Obs to create. Note that this method does not commit the changes to the
+	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs
+	 * to a list of Obs to create. Note that this method does not commit the changes to the
 	 * database--the changes are applied elsewhere in the framework.
 	 * 
 	 * @param existingObs the Obs to modify
@@ -372,8 +372,8 @@ public class FormSubmissionActions {
 	/**
 	 * Enrolls the Patient most recently added to the stack in the specified Program.
 	 * <p/>
-	 * Note that this method does not commit the program enrollment to the database but instead adds
-	 * the Program to a list of programs to add. The changes are applied elsewhere in the framework
+	 * Note that this method does not commit the program enrollment to the database but instead adds the
+	 * Program to a list of programs to add. The changes are applied elsewhere in the framework
 	 * 
 	 * @param program Program to enroll the patient in
 	 * @see #enrollInProgram(Program, Date, List)
@@ -386,8 +386,8 @@ public class FormSubmissionActions {
 	 * Enrolls the Patient most recently added to the stack in the specified Program setting the
 	 * enrollment date as the date specified and setting initial states from the specified state
 	 * <p/>
-	 * Note that this method does not commit the program enrollment to the database but instead adds
-	 * the Program to a list of programs to add. The changes are applied elsewhere in the framework
+	 * Note that this method does not commit the program enrollment to the database but instead adds the
+	 * Program to a list of programs to add. The changes are applied elsewhere in the framework
 	 * 
 	 * @param program Program to enroll the patient in
 	 * @param enrollmentDate the date to enroll the patient in the program
@@ -451,9 +451,9 @@ public class FormSubmissionActions {
 	/**
 	 * Ends a Patient program.
 	 * <p/>
-	 * Note that this method does not commit the program enrollment change to the database but
-	 * instead adds the Program to a list of programs to remove. The changes are applied elsewhere
-	 * in the framework
+	 * Note that this method does not commit the program enrollment change to the database but instead
+	 * adds the Program to a list of programs to remove. The changes are applied elsewhere in the
+	 * framework
 	 * 
 	 * @param program Program to end the enrollment for the patient in
 	 */

@@ -14,24 +14,22 @@ import org.openmrs.module.htmlformentry.element.RelationshipSubmissionElement;
  * Handles the {@code <relationship>} tag
  */
 public class RelationshipTagHandler extends SubstitutionTagHandler {
-
 	
 	@Override
-    protected List<AttributeDescriptor> createAttributeDescriptors() {
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("type", RelationshipType.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
-	
-    @Override
-    protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-            Map<String, String> parameters) {
-    	
+	@Override
+	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	        Map<String, String> parameters) {
+		
 		RelationshipSubmissionElement element = new RelationshipSubmissionElement(session.getContext(), parameters);
 		session.getSubmissionController().addAction(element);
 		
 		return element.generateHtml(session.getContext());
-    }
-
+	}
+	
 }

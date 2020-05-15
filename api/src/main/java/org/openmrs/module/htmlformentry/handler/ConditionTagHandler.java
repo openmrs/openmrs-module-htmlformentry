@@ -8,14 +8,14 @@ import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ConditionTagHandler extends SubstitutionTagHandler {
-
+	
 	@Autowired
 	private ConditionTagHandlerSupport handler;
 	
 	@Override
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-			Map<String, String> parameters) throws BadFormDesignException {
+	        Map<String, String> parameters) throws BadFormDesignException {
 		return handler.getSubstitution(session, controllerActions, parameters);
 	}
-
+	
 }

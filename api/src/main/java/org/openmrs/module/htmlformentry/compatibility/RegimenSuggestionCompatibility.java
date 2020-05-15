@@ -19,6 +19,6 @@ import org.openmrs.OpenmrsObject;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 
 public interface RegimenSuggestionCompatibility {
-
+	
 	void AddDrugDependencies(String id, AttributeDescriptor attributeDescriptor, Set<OpenmrsObject> dependencies);
 }

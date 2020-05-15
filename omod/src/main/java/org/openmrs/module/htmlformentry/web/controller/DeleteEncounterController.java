@@ -24,23 +24,22 @@ import org.springframework.web.servlet.view.RedirectView;
  */
 @Controller
 public class DeleteEncounterController {
-
-	@RequestMapping(method=RequestMethod.POST, value="/module/htmlformentry/deleteEncounter")
-    public ModelAndView handleRequest(@RequestParam("encounterId") Integer encounterId,
-    								  @RequestParam("htmlFormId") Integer htmlFormId,
-                                      @RequestParam(value="reason", required=false) String reason,
-                                      @RequestParam(value="returnUrl", required=false) String returnUrl,
-                                      HttpServletRequest request) throws Exception {
-        Encounter enc = Context.getEncounterService().getEncounter(encounterId);
-        Integer ptId = enc.getPatient().getPatientId();
-        HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
-        HtmlForm form = hfes.getHtmlForm(htmlFormId);
-        HtmlFormEntryUtil.voidEncounter(enc, form, reason);
-        Context.getEncounterService().saveEncounter(enc);
-        if (!StringUtils.hasText(returnUrl)) {
-        	returnUrl = request.getContextPath() + "/patientDashboard.form?patientId=" + ptId;
-        }
-        return new ModelAndView(new RedirectView(returnUrl));
-    }
-
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/module/htmlformentry/deleteEncounter")
+	public ModelAndView handleRequest(@RequestParam("encounterId") Integer encounterId,
+	        @RequestParam("htmlFormId") Integer htmlFormId, @RequestParam(value = "reason", required = false) String reason,
+	        @RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request)
+	        throws Exception {
+		Encounter enc = Context.getEncounterService().getEncounter(encounterId);
+		Integer ptId = enc.getPatient().getPatientId();
+		HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
+		HtmlForm form = hfes.getHtmlForm(htmlFormId);
+		HtmlFormEntryUtil.voidEncounter(enc, form, reason);
+		Context.getEncounterService().saveEncounter(enc);
+		if (!StringUtils.hasText(returnUrl)) {
+			returnUrl = request.getContextPath() + "/patientDashboard.form?patientId=" + ptId;
+		}
+		return new ModelAndView(new RedirectView(returnUrl));
+	}
+	
 }

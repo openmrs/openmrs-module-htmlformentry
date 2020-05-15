@@ -40,15 +40,15 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	private Program program;
 	
 	private List<ProgramWorkflowState> states;
-
+	
 	private CheckboxWidget checkToEnrollWidget;
-
+	
 	private ErrorWidget checkToEnrollErrorWidget;
 	
 	private DateWidget dateWidget;
 	
 	private ErrorWidget dateErrorWidget;
-
+	
 	public EnrollInProgramElement(FormEntryContext context, Map<String, String> parameters) {
 		try {
 			program = HtmlFormEntryUtil.getProgram(parameters.get("programId"));
@@ -65,14 +65,13 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, dateErrorWidget);
 		}
-
+		
 		if ("true".equalsIgnoreCase(parameters.get("showCheckbox"))) {
-            checkToEnrollWidget = new CheckboxWidget();
-			{   // If patient is already enrolled, check and disable the checkbox
+			checkToEnrollWidget = new CheckboxWidget();
+			{ // If patient is already enrolled, check and disable the checkbox
 				Patient patient = context.getExistingPatient();
-				Date encounterDate = (Date) ObjectUtils.defaultIfNull(
-						context.getPreviousEncounterDate(),
-						ObjectUtils.defaultIfNull(context.getDefaultEncounterDate(), new Date()));
+				Date encounterDate = (Date) ObjectUtils.defaultIfNull(context.getPreviousEncounterDate(),
+				    ObjectUtils.defaultIfNull(context.getDefaultEncounterDate(), new Date()));
 				if (HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, encounterDate)) {
 					checkToEnrollWidget.setInitialValue("true");
 					checkToEnrollWidget.setDisabled(true);
@@ -82,10 +81,10 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			checkToEnrollErrorWidget = new ErrorWidget();
 			context.registerErrorWidget(checkToEnrollWidget, checkToEnrollErrorWidget);
 		}
-
+		
 		String toggleParameter = parameters.get("toggle");
 		if (toggleParameter != null) {
-		    if (checkToEnrollWidget == null) {
+			if (checkToEnrollWidget == null) {
 				throw new RuntimeException("<enrollInProgram> 'toggle' parameter requires 'showCheckbox=\"true\"'");
 			}
 			ToggleWidget toggleWidget = new ToggleWidget(toggleParameter);
@@ -98,7 +97,7 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			states = new ArrayList<ProgramWorkflowState>();
 			String[] stateIdsUuidsOrPrefNames = stateIdsStr.split(",");
 			//set to store unique work flow state combinations so as to determine multiple states in same work flow
-			Set<String> workflowsAndStates = new HashSet<String>();	
+			Set<String> workflowsAndStates = new HashSet<String>();
 			for (String value : stateIdsUuidsOrPrefNames) {
 				value = value.trim();
 				ProgramWorkflowState state = HtmlFormEntryUtil.getState(value, program);
@@ -106,11 +105,11 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 					String errorMsgPart = "with an id or uuid";
 					if (value.indexOf(":") > -1)
 						errorMsgPart = "associated to a concept with a concept mapping";
-					throw new FormEntryException("Cannot find a program work flow state " + errorMsgPart + " that matches '"
-					        + value + "'");
+					throw new FormEntryException(
+					        "Cannot find a program work flow state " + errorMsgPart + " that matches '" + value + "'");
 				} else if (!state.getInitial()) {
-					throw new FormEntryException("The program work flow state that matches '" + value
-					        + "' is not marked as initial");
+					throw new FormEntryException(
+					        "The program work flow state that matches '" + value + "' is not marked as initial");
 				} else if (!workflowsAndStates.add(state.getProgramWorkflow().getUuid())) {
 					throw new FormEntryException("A patient cannot be in multiple states in the same workflow");
 				}
@@ -145,9 +144,8 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		// Only enroll if we are not in view mode and either the checkbox is checked or it doesn't exist
-		if (session.getContext().getMode() != Mode.VIEW && (
-				checkToEnrollWidget == null ||
-		        "true".equals(checkToEnrollWidget.getValue(session.getContext(), submission)))) {
+		if (session.getContext().getMode() != Mode.VIEW && (checkToEnrollWidget == null
+		        || "true".equals(checkToEnrollWidget.getValue(session.getContext(), submission)))) {
 			Date selectedDate = null;
 			if (dateWidget != null) {
 				selectedDate = (Date) dateWidget.getValue(session.getContext(), submission);
@@ -164,5 +162,5 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		return Collections.emptySet();
 	}
-
+	
 }

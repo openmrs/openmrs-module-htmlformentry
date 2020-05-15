@@ -8,10 +8,10 @@ import org.w3c.dom.Node;
  * This is the opposite of IncludeIfTagHandler
  */
 public class ExcludeIfTagHandler extends LogicConditionalIncludeTagHandler {
-
-    @Override
-    public boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) throws BadFormDesignException {
-        return !shouldIncludeContentHelper(session, parent, node);
-    }
-
+	
+	@Override
+	public boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) throws BadFormDesignException {
+		return !shouldIncludeContentHelper(session, parent, node);
+	}
+	
 }

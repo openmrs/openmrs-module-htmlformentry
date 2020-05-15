@@ -17,9 +17,9 @@ import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement1_10;
  */
 @OpenmrsProfile(openmrsPlatformVersion = "1.10")
 public class DrugOrderTagHandlerSupport1_10 implements DrugOrderTagHandlerSupport {
-
+	
 	@Override
-    public List<AttributeDescriptor> createAttributeDescriptors() {
+	public List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("drugNames", Drug.class));
 		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));
@@ -27,13 +27,13 @@ public class DrugOrderTagHandlerSupport1_10 implements DrugOrderTagHandlerSuppor
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
-    @Override
-    public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-            Map<String, String> parameters) {
-    	DrugOrderSubmissionElement1_10 element = new DrugOrderSubmissionElement1_10(session.getContext(), parameters);
+	@Override
+	public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	        Map<String, String> parameters) {
+		DrugOrderSubmissionElement1_10 element = new DrugOrderSubmissionElement1_10(session.getContext(), parameters);
 		session.getSubmissionController().addAction(element);
 		
 		return element.generateHtml(session.getContext());
-    }
-
+	}
+	
 }

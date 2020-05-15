@@ -25,17 +25,17 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.AddressSupportCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class AddressSupportCompatibility2_0 implements AddressSupportCompatibility {
-
+	
 	@Override
 	public List<List<Map<String, String>>> getLines() {
 		return getDefaultLayoutTemplate().getLines();
 	}
-
+	
 	@Override
 	public String getLayoutToken() {
 		return getDefaultLayoutTemplate().getLayoutToken();
 	}
-
+	
 	@Override
 	public int getMaxTokens() {
 		return getDefaultLayoutTemplate().getMaxTokens();
@@ -45,12 +45,12 @@ public class AddressSupportCompatibility2_0 implements AddressSupportCompatibili
 	public Map<String, String> getNameMappings() {
 		return getDefaultLayoutTemplate().getNameMappings();
 	}
-
+	
 	@Override
 	public List<String> getLineByLineFormat() {
 		return getDefaultLayoutTemplate().getLineByLineFormat();
 	}
-
+	
 	private AddressTemplate getDefaultLayoutTemplate() {
 		return AddressSupport.getInstance().getDefaultLayoutTemplate();
 	}

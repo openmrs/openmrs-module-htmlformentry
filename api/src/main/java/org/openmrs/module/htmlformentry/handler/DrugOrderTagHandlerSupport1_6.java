@@ -19,7 +19,7 @@ import org.openmrs.annotation.OpenmrsProfile;
 @Component
 @OpenmrsProfile(openmrsPlatformVersion = "[1.7.5 - 1.9.*]")
 public class DrugOrderTagHandlerSupport1_6 implements DrugOrderTagHandlerSupport {
-
+	
 	@Override
 	public List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
@@ -28,14 +28,14 @@ public class DrugOrderTagHandlerSupport1_6 implements DrugOrderTagHandlerSupport
 		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonAnswers", Concept.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
-
+	
 	@Override
 	public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-								  Map<String, String> parameters) {
+	        Map<String, String> parameters) {
 		DrugOrderSubmissionElement element = new DrugOrderSubmissionElement(session.getContext(), parameters);
 		session.getSubmissionController().addAction(element);
-
+		
 		return element.generateHtml(session.getContext());
 	}
-
+	
 }

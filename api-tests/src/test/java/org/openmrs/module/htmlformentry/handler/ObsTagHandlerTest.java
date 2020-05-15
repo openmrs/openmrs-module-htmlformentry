@@ -11,24 +11,20 @@ public class ObsTagHandlerTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void validate_shouldWarnWhenObsIsNotAMemberOfParentObsgroup() throws Exception {
-		String xml = "<htmlform>\n"
-				+ "<obsgroup groupingConceptId=\"23\">\n"
-				+ "<obs conceptId=\"4\" />\n"
-				+ "</obsgroup>\n </htmlform>";
+		String xml = "<htmlform>\n" + "<obsgroup groupingConceptId=\"23\">\n" + "<obs conceptId=\"4\" />\n"
+		        + "</obsgroup>\n </htmlform>";
 		Document document = HtmlFormEntryUtil.stringToDocument(xml);
 		Node parentObsGroupNode = HtmlFormEntryUtil.findDescendant(document, "obsgroup");
 		Assert.assertEquals("23", HtmlFormEntryUtil.getNodeAttribute(parentObsGroupNode, "groupingConceptId", null));
 		Node obsNode = HtmlFormEntryUtil.findChild(parentObsGroupNode, "obs");
 		TagAnalysis analysis = new ObsTagHandler().validate(obsNode);
-		Assert.assertEquals(1, analysis.getWarnings().size());	
+		Assert.assertEquals(1, analysis.getWarnings().size());
 	}
 	
 	@Test
 	public void validate_shouldPassWhenObsIsAMemberOfParentObsgroup() throws Exception {
-		String xml = "<htmlform>\n"
-				+ "<obsgroup groupingConceptId=\"23\">\n"
-				+ "<obs conceptId=\"18\" />\n"
-				+ "	</obsgroup>\n </htmlform>";
+		String xml = "<htmlform>\n" + "<obsgroup groupingConceptId=\"23\">\n" + "<obs conceptId=\"18\" />\n"
+		        + "	</obsgroup>\n </htmlform>";
 		
 		Document document = HtmlFormEntryUtil.stringToDocument(xml);
 		Node parentObsGroupNode = HtmlFormEntryUtil.findDescendant(document, "obsgroup");
@@ -80,49 +76,50 @@ public class ObsTagHandlerTest extends BaseModuleContextSensitiveTest {
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(0, analysis.getErrors().size());
 	}
-
+	
 	@Test
 	public void validate_shouldPassWhenObsHasValidConceptIdAndValidConceptAnswerId() throws Exception {
 		String xml = "<htmlform><obs conceptId=\"21\" answerConceptId=\"7\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(0, analysis.getWarnings().size());
 	}
-
+	
 	@Test
 	public void validate_shouldPassWhenObsHasValidConceptIdAndValidConceptAnswerIds() throws Exception {
 		String xml = "<htmlform><obs conceptId=\"21\" answerConceptIds=\"7,8\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(0, analysis.getWarnings().size());
 	}
-
+	
 	@Test
 	public void validate_shouldRejectWhenObsHasValidConceptIdAndInvalidConceptAnswerId() throws Exception {
 		String xml = "<htmlform><obs conceptId=\"21\" answerConceptId=\"5\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(1, analysis.getWarnings().size());
 	}
-
+	
 	@Test
 	public void validate_shouldRejectWhenObsHasValidConceptIdAndInvalidConceptAnswerIds() throws Exception {
 		String xml = "<htmlform><obs conceptId=\"21\" answerConceptIds=\"5,6\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(2, analysis.getWarnings().size());
 	}
-
+	
 	@Test
 	public void validate_shouldPassWhenObsHasValidConceptIdsAndValidConceptAnswerId() throws Exception {
 		String xml = "<htmlform><obs conceptIds=\"21,21\" answerConceptId=\"7\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(0, analysis.getWarnings().size());
 	}
-
+	
 	@Test
-	public void validate_shouldRejectWhenObsHasPartiallyValidConceptIdsAndPartiallyInvalidConceptAnswerId() throws Exception {
+	public void validate_shouldRejectWhenObsHasPartiallyValidConceptIdsAndPartiallyInvalidConceptAnswerId()
+	        throws Exception {
 		String xml = "<htmlform><obs conceptIds=\"21,4\" answerConceptId=\"5\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(1, analysis.getWarnings().size());
 	}
-
+	
 	private TagAnalysis validateObsTag(String xml) throws Exception {
 		Document document = HtmlFormEntryUtil.stringToDocument(xml);
 		Node obsNode = HtmlFormEntryUtil.findDescendant(document, "obs");

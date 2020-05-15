@@ -3,18 +3,20 @@
  **********************************************************************************************************/
 package org.openmrs.module.htmlformentry.widget;
 
-
 /**
  * Represents a toggle attribute
  */
 public class ToggleWidget {
-
+	
 	private String targetId;
+	
 	private String targetClass;
+	
 	private String style;
 	
-	public ToggleWidget(){}
-
+	public ToggleWidget() {
+	}
+	
 	public ToggleWidget(String targetId, String targetClass, String style) {
 		super();
 		this.targetId = targetId;
@@ -50,7 +52,7 @@ public class ToggleWidget {
 						targetClass = sanitizeStringForHtmlAttribute(value);
 					} else if (name.equalsIgnoreCase("style")) {
 						style = sanitizeStringForHtmlAttribute(value);
-					} 
+					}
 				}
 			}
 		}
@@ -71,20 +73,25 @@ public class ToggleWidget {
 	public String getTargetId() {
 		return targetId;
 	}
+	
 	public void setTargetId(String targetId) {
 		this.targetId = targetId;
 	}
+	
 	public String getTargetClass() {
 		return targetClass;
 	}
+	
 	public void setTargetClass(String targetClass) {
 		this.targetClass = targetClass;
 	}
+	
 	public String getStyle() {
 		return style;
 	}
+	
 	public void setStyle(String style) {
 		this.style = style;
 	}
-
+	
 }

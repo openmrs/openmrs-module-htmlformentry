@@ -21,25 +21,28 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-
 public class DrugOrderTagTest extends BaseModuleContextSensitiveTest {
 	
-protected final Log log = LogFactory.getLog(getClass());
+	protected final Log log = LogFactory.getLog(getClass());
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+	
 	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElementDataSet";
-
+	
 	@Before
-    public void setupDatabase() throws Exception {
+	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
-    }
+	}
 	
 	@Test
 	public void testDrugOrderTag_shouldCreateDrugOrder() throws Exception {
 		new RegressionTestHelper() {
+			
 			final Date date = new Date();
+			
 			@Override
 			public String getFormName() {
 				return "drugOrderTestForm";
@@ -52,7 +55,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				System.out.println(html);
 			}
 			
@@ -78,8 +81,8 @@ protected final Log log = LogFactory.getLog(getClass());
 				Set<Order> orders = e.getOrders();
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
+				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				    hasProperty("startDate", is(ymdToDate(dateAsString(date)))))));
 			}
 		}.run();
 	}

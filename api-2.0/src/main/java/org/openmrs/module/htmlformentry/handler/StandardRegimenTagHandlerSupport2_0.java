@@ -10,8 +10,8 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 
 /**
- * This is just a place holder to fix HTML-664 because according to TRUNK-14 RegimenSuggestion
- * was removed to be replaced with order sets
+ * This is just a place holder to fix HTML-664 because according to TRUNK-14 RegimenSuggestion was
+ * removed to be replaced with order sets
  */
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class StandardRegimenTagHandlerSupport2_0 implements StandardRegimenTagHandlerSupport {

@@ -21,24 +21,24 @@ import java.io.StringWriter;
  * A PrintWriter with added getContent() and reset() methods
  */
 public class CapturingPrintWriter extends PrintWriter {
-
-    private StringWriter sw;
-
-    public CapturingPrintWriter() {
-        this(new StringWriter());
-    }
-
-    public CapturingPrintWriter(StringWriter sw) {
-        super(sw);
-        this.sw = sw;
-    }
-
-    public String getContent() {
-        return sw.toString();
-    }
-
-    public void reset() {
-        sw.getBuffer().setLength(0);
-    }
-
+	
+	private StringWriter sw;
+	
+	public CapturingPrintWriter() {
+		this(new StringWriter());
+	}
+	
+	public CapturingPrintWriter(StringWriter sw) {
+		super(sw);
+		this.sw = sw;
+	}
+	
+	public String getContent() {
+		return sw.toString();
+	}
+	
+	public void reset() {
+		sw.getBuffer().setLength(0);
+	}
+	
 }

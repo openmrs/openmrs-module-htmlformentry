@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.ConceptCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class ConceptCompatibility2_0 implements ConceptCompatibility {
-
+	
 	@Override
 	public Boolean isAllowDecimal(ConceptNumeric cn) {
 		return cn.isAllowDecimal();

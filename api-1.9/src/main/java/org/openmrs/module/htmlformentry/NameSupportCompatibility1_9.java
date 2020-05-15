@@ -25,17 +25,17 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.NameSupportCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "1.9.9 - 1.12.*")
 public class NameSupportCompatibility1_9 implements NameSupportCompatibility {
-
+	
 	@Override
 	public List<List<Map<String, String>>> getLines() {
 		return getDefaultLayoutTemplate().getLines();
 	}
-
+	
 	@Override
 	public String getLayoutToken() {
 		return getDefaultLayoutTemplate().getLayoutToken();
 	}
-
+	
 	@Override
 	public Map<String, String> getNameMappings() {
 		return getDefaultLayoutTemplate().getNameMappings();

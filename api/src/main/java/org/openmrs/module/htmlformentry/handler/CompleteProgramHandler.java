@@ -16,7 +16,7 @@ import org.openmrs.module.htmlformentry.element.CompleteProgramElement;
 public class CompleteProgramHandler extends SubstitutionTagHandler implements TagHandler {
 	
 	@Override
-    protected List<AttributeDescriptor> createAttributeDescriptors() {
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("programId", Program.class));
 		return Collections.unmodifiableList(attributeDescriptors);
@@ -24,11 +24,11 @@ public class CompleteProgramHandler extends SubstitutionTagHandler implements Ta
 	
 	@Override
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-	                                 Map<String, String> parameters) {
+	        Map<String, String> parameters) {
 		CompleteProgramElement element = new CompleteProgramElement(session.getContext(), parameters);
-        session.getSubmissionController().addAction(element);
-        
-        return element.generateHtml(session.getContext());
+		session.getSubmissionController().addAction(element);
+		
+		return element.generateHtml(session.getContext());
 	}
 	
 }

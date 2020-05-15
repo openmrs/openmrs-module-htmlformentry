@@ -47,57 +47,58 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
 	}
-
-    private int orderNumberCounter = 1;
-
-    @Before
-    public void setUp() throws Exception {
-        String xml = (new TestUtil()).loadXmlFromFile(XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
-
-        // used to avoid lock timeout on GP#order.nextOrderNumberSeed
-        AdministrationService administrationService = mock(AdministrationService.class);
-
-        when(administrationService.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS))
-                .thenReturn(xml);
-
-        when(administrationService.getGlobalProperty("")).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return "" + orderNumberCounter++;
-            }
-        });
-
-        ServiceContext.getInstance().setAdministrationService(administrationService);
-    }
-
+	
+	private int orderNumberCounter = 1;
+	
+	@Before
+	public void setUp() throws Exception {
+		String xml = (new TestUtil()).loadXmlFromFile(XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
+		
+		// used to avoid lock timeout on GP#order.nextOrderNumberSeed
+		AdministrationService administrationService = mock(AdministrationService.class);
+		
+		when(administrationService.getGlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS))
+		        .thenReturn(xml);
+		
+		when(administrationService.getGlobalProperty("")).thenAnswer(new Answer<String>() {
+			
+			@Override
+			public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+				return "" + orderNumberCounter++;
+			}
+		});
+		
+		ServiceContext.getInstance().setAdministrationService(administrationService);
+	}
+	
 	@Test
 	public void testStandardRegimenTag_shouldCreateAndEditStandardRegimen() throws Exception {
 		new RegressionTestHelper() {
-
+			
 			final Date date = new Date();
-
+			
 			private Encounter encounter;
-
+			
 			@Override
 			public String getFormName() {
 				return "standardRegimenTestForm";
 			}
-
+			
 			@Override
 			public Patient getPatient() {
 				return Context.getPatientService().getPatient(6);
 			}
-
+			
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
-
+				
 			}
-
+			
 			@Override
 			public void testBlankFormHtml(String html) {
 			}
-
+			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
@@ -110,19 +111,18 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				//care setting
 				request.addParameter("w15", "2");
 			}
-
+			
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				encounter = results.getEncounterCreated();
-
+				
 				Drug drug2 = Context.getConceptService().getDrug(2);
 				Drug drug3 = Context.getConceptService().getDrug(3);
 				Drug drug11 = Context.getConceptService().getDrug(11);
-
-				assertThat(
-				    encounter.getOrders(),
+				
+				assertThat(encounter.getOrders(),
 				    containsInAnyOrder(
 				        allOf(hasProperty("drug", is(drug2)), hasProperty("dose", is(1.0)),
 				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
@@ -131,17 +131,17 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				        allOf(hasProperty("drug", is(drug11)), hasProperty("dose", is(1.0)),
 				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
-
+			
 			@Override
 			public Encounter getEncounterToEdit() {
 				return encounter;
 			}
-
+			
 			@Override
 			public void testEditFormHtml(String html) {
 				System.out.println(html);
 			}
-
+			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				//w7 is the standardRegimen tag
@@ -151,13 +151,13 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 				//care setting
 				request.setParameter("w15", "2");
 			}
-
+			
 			public void testEditedResults(SubmissionResults results) {
 				Encounter editedEncounter = results.getEncounterCreated();
-
+				
 				Drug drug2 = Context.getConceptService().getDrug(2);
 				Drug drug3 = Context.getConceptService().getDrug(3);
-
+				
 				Set<Order> orders = new HashSet<Order>(editedEncounter.getOrders());
 				for (Iterator<Order> it = orders.iterator(); it.hasNext();) {
 					Order order = it.next();
@@ -165,9 +165,8 @@ public class StandardRegimenElement1_10Test extends BaseModuleContextSensitiveTe
 						it.remove();
 					}
 				}
-
-				assertThat(
-				    orders,
+				
+				assertThat(orders,
 				    containsInAnyOrder(
 				        allOf(hasProperty("drug", is(drug2)), hasProperty("dose", is(1.0)),
 				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
