@@ -215,9 +215,23 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		if (!StringUtils.isBlank(stateUuid)) {
 			if (Mode.EDIT.equals(session.getContext().getMode())) {
 				
+				Date prevDate = session.getContext().getPreviousEncounterDate();
+				
+				if (prevDate == null) {
+					prevDate = session.getEncounter().getEncounterDatetime();
+				}
+						
 				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
-				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
-				        .getContext().getPreviousEncounterDate(), workflow);
+				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), prevDate, workflow);
+
+				//since there is no direct connection between encounters and states
+				//the best that can be done, for now, is to check 
+				//if the encounterDatetime exactly matches the startDate.
+				//If so, we presume the state was originally set via this form
+				//and therefore we need to modify it
+				if (oldPatientState != null && !oldPatientState.getStartDate().equals(prevDate)) {
+					oldPatientState = null;
+				}
 				
 				// if no old state, simply transition to this new state
 				if (oldPatientState == null) {
@@ -226,7 +240,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
                     // it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
                     PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
                             newState.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
-
+					
                     if (patientProgram != null) {
                         session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
                     }
