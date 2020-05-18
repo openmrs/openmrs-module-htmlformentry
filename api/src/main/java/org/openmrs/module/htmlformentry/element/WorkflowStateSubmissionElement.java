@@ -184,7 +184,23 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	 * @return
 	 */
 	private PatientState getActivePatientState(Patient patient, Date encounterDatetime, ProgramWorkflow workflow) {
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
+		//try getting the state based on the encounter datetime
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(patient, workflow.getProgram(),
+		    encounterDatetime);
+		
+		//if there was none
+		if (patientProgram == null) {
+			//fall back to old behavior for lookup
+			patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
+			
+			//but if this program was already completed, and this is not a retroactive entry,
+			//act like there was no program, so a new program enrollment will be created
+			if (patientProgram != null && patientProgram.getDateCompleted() != null
+			        && !patientProgram.getDateCompleted().after(encounterDatetime)) {
+				patientProgram = null;
+			}
+		}
+		
 		if (patientProgram != null) {
 			for (PatientState patientState : patientProgram.statesInWorkflow(workflow,false)) {
 				if (patientState.getActive(encounterDatetime)) {
@@ -215,9 +231,15 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 		if (!StringUtils.isBlank(stateUuid)) {
 			if (Mode.EDIT.equals(session.getContext().getMode())) {
 				
+				Date prevDate = session.getContext().getPreviousEncounterDate();
+				if (prevDate == null) {
+					prevDate = session.getEncounter().getEncounterDatetime();
+				}
+				
 				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
-				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
-				        .getContext().getPreviousEncounterDate(), workflow);
+				//find which state is "currently" active given the "current" encounter time
+				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(),
+				prevDate, workflow);
 				
 				// if no old state, simply transition to this new state
 				if (oldPatientState == null) {

@@ -486,7 +486,21 @@ public class FormSubmissionActions {
 			throw new IllegalArgumentException("Cannot change state without an Encounter");
 		
 		// fetch any existing patient program with a state from this workflow
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, state.getProgramWorkflow());
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(patient,
+		    state.getProgramWorkflow().getProgram(), encounter.getEncounterDatetime());
+		
+		//if there was none
+		if (patientProgram == null) {
+			//fall back to old behavior for lookup
+			patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, state.getProgramWorkflow());
+			
+			//but if this program was already completed, act like there was none
+			//so a new program enrollment will be created
+			if (patientProgram != null && patientProgram.getDateCompleted() != null
+			        && !patientProgram.getDateCompleted().after(encounter.getEncounterDatetime())) {
+				patientProgram = null;
+			}
+		}
 		
 		// if no existing patient program, see if a patient program for this program is already set to be created at part of this submission (HTML-416)
 		if (patientProgram == null) {
