@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 
-public class ProgramAttributeTagHandler extends SubstitutionTagHandler {
+public class ProgramAttributeTagHandler extends SubstitutionTagHandler implements TagHandler {
 
 	@Autowired
 	ProgramAttributeTagHandlerSupport handler;

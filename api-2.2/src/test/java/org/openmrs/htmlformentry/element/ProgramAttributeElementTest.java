@@ -9,9 +9,11 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
+import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -68,12 +70,18 @@ public class ProgramAttributeElementTest extends BaseModuleContextSensitiveTest 
 
 			@Override
 			public void testResults(SubmissionResults results) {
+				// patient enrolled in a program
 				results.assertNoErrors();
 				results.assertEncounterCreated();
-				results.assertProvider(1);
 				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
 						null, null, null, false);
-				Assert.assertEquals("Patient with id 2 is not enrolled in a program 3",0, pps.size());
+				Assert.assertEquals(1, pps.size());
+				PatientProgram pp = pps.get(0);
+				Assert.assertTrue(TestUtil.dateEquals(new Date(), pp.getDateEnrolled()));
+				Collection<PatientProgramAttribute> ppas = pp.getActiveAttributes();
+				Assert.assertEquals(1, ppas.size());
+				PatientProgramAttribute ppa = ppas.iterator().next();
+				Assert.assertEquals(patientAttributeValue, ppa.getValueReference());
 			}
 		}.run();
 	}
@@ -117,7 +125,7 @@ public class ProgramAttributeElementTest extends BaseModuleContextSensitiveTest 
 				results.assertProvider(1);
 				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
 						null, null, null, false);
-				Assert.assertEquals("Patient with id 2 is enrolled in a program 2",1, pps.size());
+				Assert.assertEquals(1, pps.size());
 				// check the patient attribute
 				Set<PatientProgramAttribute> patientProgramAttributes = pps.get(0).getAttributes();
 				Assert.assertTrue(patientProgramAttributes.size() > 0); // some patient program attributes exist
