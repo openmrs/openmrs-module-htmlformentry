@@ -9,8 +9,8 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
 
 /**
- * A widget that allows the input of a Person name. Implemented using text fields
- * that accept a Family Name and a Given Name.
+ * A widget that allows the input of a Person name. Implemented using text fields that accept a
+ * Family Name and a Given Name.
  */
 public class PersonNameWidget implements Widget {
 	
@@ -20,39 +20,41 @@ public class PersonNameWidget implements Widget {
 	}
 	
 	@Override
-    public String generateHtml(FormEntryContext context) {
+	public String generateHtml(FormEntryContext context) {
 		StringBuilder sb = new StringBuilder();
-        if (context.getMode() == Mode.VIEW) {
-            String toPrint = "";
-            if (initialValue != null) {
-                toPrint = initialValue.toString();
-                return WidgetFactory.displayValue(toPrint);
-            } else {
-                return WidgetFactory.displayDefaultEmptyValue();
-            }
-        } else {
-            String id = context.getFieldName(this);
-            sb.append("Family name: ");
-            sb.append("<input type=\"text\" id=\"" + id + "_family\" name=\"" + id + "_family\"");
-            // TODO escape value
-            if (initialValue != null)
-            	sb.append(" value=\"" + initialValue.getFamilyName() + "\"");
-            sb.append("/>");
-            
-            sb.append("Given name: ");
-            sb.append("<input type=\"text\" id=\"" + id + "_given\" name=\"" + id + "_given\"");
-            // TODO escape value
-            if (initialValue != null)
-            	sb.append(" value=\"" + initialValue.getGivenName() + "\"");
-            sb.append("/>");
-        }
-        return sb.toString();
+		if (context.getMode() == Mode.VIEW) {
+			String toPrint = "";
+			if (initialValue != null) {
+				toPrint = initialValue.toString();
+				return WidgetFactory.displayValue(toPrint);
+			} else {
+				return WidgetFactory.displayDefaultEmptyValue();
+			}
+		} else {
+			String id = context.getFieldName(this);
+			sb.append("Family name: ");
+			sb.append("<input type=\"text\" id=\"" + id + "_family\" name=\"" + id + "_family\"");
+			// TODO escape value
+			if (initialValue != null)
+				sb.append(" value=\"" + initialValue.getFamilyName() + "\"");
+			sb.append("/>");
+			
+			sb.append("Given name: ");
+			sb.append("<input type=\"text\" id=\"" + id + "_given\" name=\"" + id + "_given\"");
+			// TODO escape value
+			if (initialValue != null)
+				sb.append(" value=\"" + initialValue.getGivenName() + "\"");
+			sb.append("/>");
+		}
+		return sb.toString();
 	}
 	
 	@Override
-    public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
-		String family = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "_family", String.class);
-		String given = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "_give", String.class);
+	public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
+		String family = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "_family",
+		    String.class);
+		String given = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "_give",
+		    String.class);
 		if (StringUtils.hasText(family) || StringUtils.hasText(given)) {
 			return new PersonName(given, null, family);
 		} else {
@@ -61,7 +63,7 @@ public class PersonNameWidget implements Widget {
 	}
 	
 	@Override
-    public void setInitialValue(Object initialValue) {
+	public void setInitialValue(Object initialValue) {
 		this.initialValue = (PersonName) initialValue;
 	}
 	

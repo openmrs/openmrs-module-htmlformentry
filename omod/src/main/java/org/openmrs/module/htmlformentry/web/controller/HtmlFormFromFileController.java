@@ -41,11 +41,11 @@ public class HtmlFormFromFileController {
 	
 	@RequestMapping("/module/htmlformentry/htmlFormFromFile.form")
 	public void handleRequest(Model model, @RequestParam(value = "filePath", required = false) String filePath,
-	                          @RequestParam(value = "patientId", required = false) Integer pId,
-	                          @RequestParam(value = "isFileUpload", required = false) boolean isFileUpload,
-	                          HttpServletRequest request) throws Exception {
-
-        Context.requirePrivilege("Manage Forms");
+	        @RequestParam(value = "patientId", required = false) Integer pId,
+	        @RequestParam(value = "isFileUpload", required = false) boolean isFileUpload, HttpServletRequest request)
+	        throws Exception {
+		
+		Context.requirePrivilege("Manage Forms");
 		
 		if (log.isDebugEnabled())
 			log.debug("In reference data...");
@@ -59,8 +59,8 @@ public class HtmlFormFromFileController {
 				MultipartFile multipartFile = multipartRequest.getFile("htmlFormFile");
 				if (multipartFile != null) {
 					//use the same file for the logged in user
-					f = new File(SystemUtils.JAVA_IO_TMPDIR, TEMP_HTML_FORM_FILE_PREFIX
-					        + Context.getAuthenticatedUser().getSystemId());
+					f = new File(SystemUtils.JAVA_IO_TMPDIR,
+					        TEMP_HTML_FORM_FILE_PREFIX + Context.getAuthenticatedUser().getSystemId());
 					if (!f.exists())
 						f.createNewFile();
 					
@@ -95,8 +95,8 @@ public class HtmlFormFromFileController {
 				FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm, request.getSession());
 				String html = fes.getHtmlToDisplay();
 				if (fes.getFieldAccessorJavascript() != null) {
-                	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
-                }
+					html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
+				}
 				model.addAttribute("previewHtml", html);
 				//clear the error message
 				message = "";

@@ -24,34 +24,34 @@ import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.handler.EncounterProviderAndRoleTagHandler;
 
 /**
- * Contains the logic that is run every time HTML Form Entry module
- * is either started or shutdown
+ * Contains the logic that is run every time HTML Form Entry module is either started or shutdown
  */
 public class HtmlFormEntryActivator extends BaseModuleActivator {
-
+	
 	private static final String HTMLFORMENTRY_19_EXT_ID = "htmlformentry19ext";
-
+	
 	private Log log = LogFactory.getLog(this.getClass());
-
+	
 	@Override
 	public void started() {
 		Module htmlformentryExt = ModuleFactory.getModuleById(HTMLFORMENTRY_19_EXT_ID);
-		if(htmlformentryExt != null){
-			log.error("Functionality of htmlformentry19ext module has been moved to htmlformentry module since 3.3.1. Stopping htmlformentry1.9");
+		if (htmlformentryExt != null) {
+			log.error(
+			    "Functionality of htmlformentry19ext module has been moved to htmlformentry module since 3.3.1. Stopping htmlformentry1.9");
 			try {
 				ModuleFactory.stopModule(ModuleFactory.getModuleById(HTMLFORMENTRY_19_EXT_ID));
-			} catch( APIException e ){
+			}
+			catch (APIException e) {
 				/**
-				 * method {@link HTMLFormEntryExtensions19Activator#stopped()} throws API exception
-				 * because service HtmlFormEntryService is not loaded before context refresh.
-				 * There is no need to do anything about it, because 'started' hasn't been invoked yet
-				 * catching this error prevents logging stack trace.
+				 * method {@link HTMLFormEntryExtensions19Activator#stopped()} throws API exception because service
+				 * HtmlFormEntryService is not loaded before context refresh. There is no need to do anything about
+				 * it, because 'started' hasn't been invoked yet catching this error prevents logging stack trace.
 				 */
 			}
 		}
 		log.info("Started HTML Form Entry Module");
 	}
-
+	
 	@Override
 	public void stopped() {
 		log.info("Stopped HTML Form Entry Module");

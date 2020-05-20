@@ -16,14 +16,14 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.compatibility.NameSupportCompatibility;
 
 /**
- * A widget that allows the input of a Person name. Implemented using text fields
- * that accept all name properties. The fields will display based on the 
- * layout and templet defined in the global property.
+ * A widget that allows the input of a Person name. Implemented using text fields that accept all
+ * name properties. The fields will display based on the layout and templet defined in the global
+ * property.
  */
 public class NameWidget extends Gadget {
-
+	
 	private Map<String, TextFieldWidget> widgetMap = new HashMap<String, TextFieldWidget>();
-
+	
 	public NameWidget() {
 		widgetMap.put("prefix", new TextFieldWidget());
 		widgetMap.put("givenName", new TextFieldWidget());
@@ -34,49 +34,49 @@ public class NameWidget extends Gadget {
 		widgetMap.put("familyName2", new TextFieldWidget());
 		widgetMap.put("degree", new TextFieldWidget());
 	}
-
+	
 	public NameWidget(PersonName personName) {
 		this();
 		setInitialValue(personName);
 	}
-
+	
 	@Override
-    public String generateHtml(FormEntryContext context) {
+	public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
-		NameSupportCompatibility nameSupport = Context.getRegisteredComponent("htmlformentry.NameSupportCompatibility", NameSupportCompatibility.class);
-
+		NameSupportCompatibility nameSupport = Context.getRegisteredComponent("htmlformentry.NameSupportCompatibility",
+		    NameSupportCompatibility.class);
+		
 		TextFieldWidget textFieldWidget;
 		Map<String, String> fieldMap;
-
+		
 		if (!isRegistered) {
 			registerWidgets(context);
 			isRegistered = true;
 		}
-
+		
 		// have the date and time widgets generate their HTML
 		StringBuilder sb = new StringBuilder();
-
+		
 		sb.append("<table>");
-
+		
 		List<List<Map<String, String>>> fieldLines = nameSupport.getLines();
-
+		
 		for (List<Map<String, String>> line : fieldLines) {
 			sb.append("<tr>");
 			int colIndex = 0;
 			for (Iterator<Map<String, String>> iterator = line.iterator(); iterator.hasNext(); colIndex++) {
-
+				
 				fieldMap = iterator.next();
-
+				
 				if (fieldMap.get("isToken").equals(nameSupport.getLayoutToken())) {
-
+					
 					String label = messageSourceService.getMessage(fieldMap.get("displayText"));
 					textFieldWidget = widgetMap.get(fieldMap.get("codeName"));
 					textFieldWidget.setTextFieldSize(Integer.parseInt(fieldMap.get("displaySize")));
 					sb.append("<td>").append(label).append("</td>");
 					if (!iterator.hasNext() && colIndex < nameSupport.getMaxTokens()) {
 						sb.append("<td colspan='").append(nameSupport.getMaxTokens() - colIndex).append("'>");
-					}
-					else {
+					} else {
 						sb.append("<td>");
 					}
 					sb.append(textFieldWidget.generateHtml(context)).append("</td>");
@@ -87,9 +87,9 @@ public class NameWidget extends Gadget {
 		sb.append("</table> \n");
 		return sb.toString();
 	}
-
+	
 	@Override
-    public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
+	public PersonName getValue(FormEntryContext context, HttpServletRequest request) {
 		
 		PersonName returnPersonName = new PersonName();
 		returnPersonName.setPrefix(getWidgetValue("prefix", context, request));
@@ -147,9 +147,9 @@ public class NameWidget extends Gadget {
 		}
 		return returnValue;
 	}
-
+	
 	@Override
-    public void setInitialValue(Object value) {
+	public void setInitialValue(Object value) {
 		if (value != null) {
 			PersonName initialValue = (PersonName) value;
 			setWidgetValue("prefix", initialValue.getPrefix());
@@ -162,18 +162,18 @@ public class NameWidget extends Gadget {
 			setWidgetValue("degree", initialValue.getDegree());
 		}
 	}
-
+	
 	@Override
 	protected void registerWidgets(FormEntryContext context) {
 		for (TextFieldWidget textWidget : widgetMap.values()) {
 			context.registerWidget(textWidget);
 		}
 	}
-
+	
 	private String getWidgetValue(String fieldName, FormEntryContext context, HttpServletRequest request) {
 		return widgetMap.get(fieldName).getValue(context, request);
 	}
-
+	
 	private void setWidgetValue(String fieldName, String value) {
 		widgetMap.get(fieldName).setInitialValue(value);
 	}

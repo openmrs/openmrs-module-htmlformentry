@@ -23,57 +23,61 @@ import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
-
-    public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-
+	
+	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
 	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-
-    @Before
+	
+	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		LogicUtil.registerDefaultRules();
 	}
-
-    @Test
+	
+	@Test
 	public void encounterProviderTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterProvider/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay()
+		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
-
-    @Test
+	
+	@Test
 	public void encounterProviderTag_shouldDisplayEnterOptionIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterProvider type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") == -1);
+		Assert.assertTrue(session.getHtmlToDisplay()
+		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") == -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") > -1);
 	}
-
-    @Test
+	
+	@Test
 	public void encounterProviderTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterProvider type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay()
+		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") > -1);
 		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
 	}
-
-    @Test
-    public void encounterProviderTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
-        String htmlform = "<htmlform><encounterProvider type=\"autocomplete\" default=\"502\" /></htmlform>";
-        FormEntrySession session = new FormEntrySession(null, htmlform, null);
-        TestUtil.assertFuzzyContains("<input type=\"text\" id=\"w1\" value=\"Hippocrates of Cos\"",session.getHtmlToDisplay());
-
-    }
-
-    @Test
+	
+	@Test
+	public void encounterProviderTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
+		String htmlform = "<htmlform><encounterProvider type=\"autocomplete\" default=\"502\" /></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+		TestUtil.assertFuzzyContains("<input type=\"text\" id=\"w1\" value=\"Hippocrates of Cos\"",
+		    session.getHtmlToDisplay());
+		
+	}
+	
+	@Test
 	public void encounterProviderTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterProvider/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-
-		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>").matcher(session.getHtmlToDisplay());
+		
+		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>")
+		        .matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
 	}
-
+	
 }
-

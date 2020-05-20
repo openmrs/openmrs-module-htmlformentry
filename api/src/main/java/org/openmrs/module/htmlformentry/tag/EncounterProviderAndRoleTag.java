@@ -25,21 +25,29 @@ import org.openmrs.module.htmlformentry.widget.ProviderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 
 /**
- * Defines the configuration attributes available in the encounterProviderAndRole tag, and
- * provides parsing and validation
+ * Defines the configuration attributes available in the encounterProviderAndRole tag, and provides
+ * parsing and validation
  */
 public class EncounterProviderAndRoleTag {
-
+	
 	private boolean required; // Whether or not this is required or not
+	
 	private int count; // The number of provider widgets to render
+	
 	private String providerWidgetSeparator; // If count > 1, the html that should separate the widgets
+	
 	private EncounterRole encounterRole; // Whether this should be used specifically to set a specific Encounter Role
+	
 	private boolean autocompleteProvider; // Whether autocomplete or dropdown (default is dropdown)
+	
 	private List<String> providerRoles; // Comma-separated list of roles to limit providers to
+	
 	private MatchMode providerMatchMode; // For autocomplete, what match mode to use for searching
+	
 	private Provider defaultValue; // Can set to "currentuser" or a specific provider id/uuid
+	
 	private List<Provider> providers; // Enables population with list of allowed providers
-
+	
 	/**
 	 * @param parameters
 	 */
@@ -56,48 +64,47 @@ public class EncounterProviderAndRoleTag {
 			providers = HtmlFormEntryUtil.getProviders(providerRoles, true);
 		}
 	}
-
+	
 	public Widget instantiateProviderWidget() {
 		if (isAutocompleteProvider()) {
 			return new ProviderAjaxAutoCompleteWidget(getProviderMatchMode(), providerRoles);
-		}
-		else {
+		} else {
 			return new ProviderWidget(providers);
 		}
 	}
-
+	
 	public boolean isRequired() {
 		return required;
 	}
-
+	
 	public int getCount() {
 		return count;
 	}
-
+	
 	public String getProviderWidgetSeparator() {
 		return providerWidgetSeparator;
 	}
-
+	
 	public EncounterRole getEncounterRole() {
 		return encounterRole;
 	}
-
+	
 	public boolean isAutocompleteProvider() {
 		return autocompleteProvider;
 	}
-
+	
 	public MatchMode getProviderMatchMode() {
 		return providerMatchMode;
 	}
-
+	
 	public Provider getDefaultValue() {
 		return defaultValue;
 	}
-
+	
 	public List<String> getProviderRoles() {
 		return providerRoles;
 	}
-
+	
 	public List<Provider> getProviders() {
 		return providers;
 	}

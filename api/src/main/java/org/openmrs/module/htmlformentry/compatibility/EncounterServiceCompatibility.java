@@ -28,7 +28,7 @@ import org.openmrs.VisitType;
 
 public interface EncounterServiceCompatibility {
 	
-	List<Encounter> getEncounters(Patient who, Location loc, Date fromDate, Date toDate,
-			Collection<Form> enteredViaForms, Collection<EncounterType> encounterTypes, Collection<Provider> providers,
-			Collection<VisitType> visitTypes, Collection<Visit> visits, boolean includeVoided);
+	List<Encounter> getEncounters(Patient who, Location loc, Date fromDate, Date toDate, Collection<Form> enteredViaForms,
+	        Collection<EncounterType> encounterTypes, Collection<Provider> providers, Collection<VisitType> visitTypes,
+	        Collection<Visit> visits, boolean includeVoided);
 }

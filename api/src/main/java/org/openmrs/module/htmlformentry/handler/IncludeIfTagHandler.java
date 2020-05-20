@@ -4,7 +4,6 @@ import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.w3c.dom.Node;
 
-
 /**
  * Make a test against the logicTest/velocityTest to include/exclude the content within
  * <p/>
@@ -29,13 +28,12 @@ import org.w3c.dom.Node;
  * </htmlform>
  * }
  * </pre>
- *
  */
 public class IncludeIfTagHandler extends LogicConditionalIncludeTagHandler {
-
-    @Override
-    public boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) throws BadFormDesignException {
-        return shouldIncludeContentHelper(session, parent, node);
-    }
-
+	
+	@Override
+	public boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) throws BadFormDesignException {
+		return shouldIncludeContentHelper(session, parent, node);
+	}
+	
 }

@@ -28,25 +28,25 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.DrugCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class DrugCompatibility2_0 implements DrugCompatibility {
-
+	
 	@Override
 	public List<Map<String, Object>> simplify(List<Drug> drugs) {
 		List<Map<String, Object>> simplified = new ArrayList<Map<String, Object>>();
-        Locale locale = Context.getLocale();
-        for (Drug drug : drugs) {
-            Map<String, Object> item = new LinkedHashMap<String, Object>();
-            item.put("id", drug.getId());
-            item.put("name", drug.getName());
-            item.put("retired", drug.getRetired().booleanValue());
-            if (drug.getDosageForm() != null) {
-                item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
-            }
-            item.put("combination", drug.getCombination());
-            if (drug.getConcept() != null) {
-                item.put("concept", drug.getConcept().getName(locale).getName());
-            }
-            simplified.add(item);
-        }
-        return simplified;
+		Locale locale = Context.getLocale();
+		for (Drug drug : drugs) {
+			Map<String, Object> item = new LinkedHashMap<String, Object>();
+			item.put("id", drug.getId());
+			item.put("name", drug.getName());
+			item.put("retired", drug.getRetired().booleanValue());
+			if (drug.getDosageForm() != null) {
+				item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
+			}
+			item.put("combination", drug.getCombination());
+			if (drug.getConcept() != null) {
+				item.put("concept", drug.getConcept().getName(locale).getName());
+			}
+			simplified.add(item);
+		}
+		return simplified;
 	}
 }

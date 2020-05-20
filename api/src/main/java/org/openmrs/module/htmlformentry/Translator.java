@@ -11,11 +11,13 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Encapsulates Translator functionality (see {@see HtmlFormEntryGenerator#applyTranslations(String, FormEntryContext)})
+ * Encapsulates Translator functionality (see {@see HtmlFormEntryGenerator#applyTranslations(String,
+ * FormEntryContext)})
  */
 public class Translator {
-
+	
 	private String defaultLocaleStr = "en";
+	
 	private Map<String, Map<String, String>> translations = new HashMap<String, Map<String, String>>();
 	
 	/**
@@ -23,20 +25,21 @@ public class Translator {
 	 */
 	public static enum Format {
 		/** Set all characters to lower-case */
-		LOWERCASE, 
+		LOWERCASE,
 		/** Set all characters to upper-case */
-		UPPERCASE, 
+		UPPERCASE,
 		/** Capitalize the first word (set the first letter of the first word to upper-case */
-		CAPITALIZE, 
-		/** Capitalize all words (set first letter of each word to upper-case)*/
+		CAPITALIZE,
+		/** Capitalize all words (set first letter of each word to upper-case) */
 		CAPITALIZE_ALL
 	}
 	
 	/**
 	 * Default Constructor
 	 */
-	public Translator() {}
-
+	public Translator() {
+	}
+	
 	/**
 	 * Returns the translation mappings associated with this Translator
 	 * 
@@ -45,7 +48,7 @@ public class Translator {
 	public Map<String, Map<String, String>> getTranslations() {
 		return translations;
 	}
-
+	
 	/**
 	 * Sets the translation mappings associated with this Translator
 	 * 
@@ -63,7 +66,7 @@ public class Translator {
 	public String getDefaultLocaleStr() {
 		return defaultLocaleStr;
 	}
-
+	
 	/**
 	 * Sets the default locale used by this Translator
 	 * 
@@ -72,7 +75,7 @@ public class Translator {
 	public void setDefaultLocaleStr(String defaultLocaleStr) {
 		this.defaultLocaleStr = defaultLocaleStr;
 	}
-
+	
 	/**
 	 * Adds a translation for the given code and locale
 	 * <p>
@@ -104,7 +107,7 @@ public class Translator {
 	 * @return the translation map for that locale
 	 */
 	public Map<String, String> getTranslations(String localeStr) {
-	
+		
 		Map<String, String> ret = new HashMap<String, String>();
 		
 		// First add all translations from the default locale.  Then gradually build up variants
@@ -115,7 +118,7 @@ public class Translator {
 		if (localeStr != null) {
 			String[] split = localeStr.split(Pattern.quote("_"));
 			String currLocaleStr = "";
-			for (int i=0; i<split.length; i++) {
+			for (int i = 0; i < split.length; i++) {
 				currLocaleStr += (i > 0 ? "_" : "") + split[i];
 				Map<String, String> m = translations.get(currLocaleStr);
 				if (m != null) {
@@ -141,7 +144,7 @@ public class Translator {
 	 * Gets the translation for a specific code and locale
 	 * 
 	 * @param localeStr the name of the locale
-	 * @param key the code 
+	 * @param key the code
 	 * @return the translation associated with that code and locale
 	 */
 	public String translate(String localeStr, String key) {
@@ -154,11 +157,11 @@ public class Translator {
 	}
 	
 	/**
-	 * Gets the translation for a specific code and locale, returning the
-	 * translation in a specified format
+	 * Gets the translation for a specific code and locale, returning the translation in a specified
+	 * format
 	 * 
 	 * @param localeStr the name of the locale
-	 * @param key the code 
+	 * @param key the code
 	 * @param format to return the translation in (see {@see Format})
 	 * @return the translation associated with that code and locale
 	 */

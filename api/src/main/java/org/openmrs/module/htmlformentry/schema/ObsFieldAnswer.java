@@ -6,17 +6,19 @@ import org.openmrs.Concept;
  * Represents an Obs field answer in the HTML Form Schema
  */
 public class ObsFieldAnswer {
-
+	
 	private String displayName;
+	
 	private Concept concept;
-    
-    public ObsFieldAnswer() { }
-    
-    public ObsFieldAnswer(String displayName, Concept concept) { 
-        this.displayName = displayName;
-        this.concept = concept;   
-    }
-
+	
+	public ObsFieldAnswer() {
+	}
+	
+	public ObsFieldAnswer(String displayName, Concept concept) {
+		this.displayName = displayName;
+		this.concept = concept;
+	}
+	
 	/**
 	 * Gets the display name for this answer
 	 * 
@@ -25,7 +27,7 @@ public class ObsFieldAnswer {
 	public String getDisplayName() {
 		return displayName;
 	}
-
+	
 	/**
 	 * Sets the display name for this answer
 	 * 
@@ -34,7 +36,7 @@ public class ObsFieldAnswer {
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
-
+	
 	/**
 	 * Gets the concept associated with this answer
 	 * 
@@ -43,7 +45,7 @@ public class ObsFieldAnswer {
 	public Concept getConcept() {
 		return concept;
 	}
-
+	
 	/**
 	 * Sets the concept associated with this answer
 	 * 

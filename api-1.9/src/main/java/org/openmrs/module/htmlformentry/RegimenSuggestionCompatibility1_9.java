@@ -31,20 +31,20 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.RegimenSuggestionCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "1.9.9 - 1.12.*")
 public class RegimenSuggestionCompatibility1_9 implements RegimenSuggestionCompatibility {
-
+	
 	@Override
 	public void AddDrugDependencies(String id, AttributeDescriptor attributeDescriptor, Set<OpenmrsObject> dependencies) {
 		//RegimenSuggestion -- see global property 'dashboard.regimen.standardRegimens'
-		if (RegimenSuggestion.class.equals(attributeDescriptor.getClazz())){
+		if (RegimenSuggestion.class.equals(attributeDescriptor.getClazz())) {
 			List<RegimenSuggestion> stRegimens = DrugOrderSupport.getInstance().getStandardRegimens();
-			if (stRegimens != null){
+			if (stRegimens != null) {
 				ConceptService cs = Context.getConceptService();
-				for (RegimenSuggestion rs : stRegimens){
-					if (rs.getCodeName().equals(id) && rs.getDrugComponents() != null){
-						for (DrugSuggestion ds : rs.getDrugComponents()){
+				for (RegimenSuggestion rs : stRegimens) {
+					if (rs.getCodeName().equals(id) && rs.getDrugComponents() != null) {
+						for (DrugSuggestion ds : rs.getDrugComponents()) {
 							Drug drug = cs.getDrug(ds.getDrugId());
 							if (drug == null)
-								 drug = cs.getDrugByUuid(ds.getDrugId());
+								drug = cs.getDrugByUuid(ds.getDrugId());
 							if (drug != null)
 								dependencies.add(drug);
 						}

@@ -27,50 +27,47 @@ import javax.servlet.http.HttpSession;
  */
 @Controller
 public class HtmlFormSchemaController {
-
-    /** Logger for this class and subclasses */
-    protected final Log log = LogFactory.getLog(getClass());
-
-    @RequestMapping("/module/htmlformentry/htmlFormSchema")
-    public void viewSchema(@RequestParam(value="id", required=false) Integer id,
-                           @RequestParam(value="filePath", required=false) String filePath,
-                           Model model, HttpSession httpSession) throws Exception {
-        String message = "";
-        String xml = null;
-        if (StringUtils.hasText(filePath)) {
-        	model.addAttribute("filePath", filePath);
-        	try {
-        		File f = new File(filePath);
-        		if (f != null && f.exists()) {
-        			xml = OpenmrsUtil.getFileAsString(f);
-        		}
-        		else {
-        			message = "Please specify a valid file path.";
-        		}
-        	}
-        	catch (Exception e) {
-        		log.error("An error occurred while loading the html.", e);
-        		message = "An error occurred while loading the html. " + e.getMessage();
-        	}
-        }
-        else if (id != null) {
-        	HtmlForm form = Context.getService(HtmlFormEntryService.class).getHtmlForm(id);
-        	xml = form.getXmlData();
-        }
-        else {
-        	message = "You must specify a file path to preview from file";
-        }
-
-        model.addAttribute("schema", generateSchema(xml, httpSession));
-        model.addAttribute("message", message);
-    }
-
-    private HtmlFormSchema generateSchema(String xml, HttpSession httpSession) throws Exception {
-        Patient p = HtmlFormEntryUtil.getFakePerson();
-        HtmlForm fakeForm = new HtmlForm();
-        fakeForm.setXmlData(xml);
-        FormEntrySession fes = new FormEntrySession(p, null, FormEntryContext.Mode.ENTER, fakeForm, httpSession);
-        fes.getHtmlToDisplay();
-        return fes.getContext().getSchema();
-    }
+	
+	/** Logger for this class and subclasses */
+	protected final Log log = LogFactory.getLog(getClass());
+	
+	@RequestMapping("/module/htmlformentry/htmlFormSchema")
+	public void viewSchema(@RequestParam(value = "id", required = false) Integer id,
+	        @RequestParam(value = "filePath", required = false) String filePath, Model model, HttpSession httpSession)
+	        throws Exception {
+		String message = "";
+		String xml = null;
+		if (StringUtils.hasText(filePath)) {
+			model.addAttribute("filePath", filePath);
+			try {
+				File f = new File(filePath);
+				if (f != null && f.exists()) {
+					xml = OpenmrsUtil.getFileAsString(f);
+				} else {
+					message = "Please specify a valid file path.";
+				}
+			}
+			catch (Exception e) {
+				log.error("An error occurred while loading the html.", e);
+				message = "An error occurred while loading the html. " + e.getMessage();
+			}
+		} else if (id != null) {
+			HtmlForm form = Context.getService(HtmlFormEntryService.class).getHtmlForm(id);
+			xml = form.getXmlData();
+		} else {
+			message = "You must specify a file path to preview from file";
+		}
+		
+		model.addAttribute("schema", generateSchema(xml, httpSession));
+		model.addAttribute("message", message);
+	}
+	
+	private HtmlFormSchema generateSchema(String xml, HttpSession httpSession) throws Exception {
+		Patient p = HtmlFormEntryUtil.getFakePerson();
+		HtmlForm fakeForm = new HtmlForm();
+		fakeForm.setXmlData(xml);
+		FormEntrySession fes = new FormEntrySession(p, null, FormEntryContext.Mode.ENTER, fakeForm, httpSession);
+		fes.getHtmlToDisplay();
+		return fes.getContext().getSchema();
+	}
 }

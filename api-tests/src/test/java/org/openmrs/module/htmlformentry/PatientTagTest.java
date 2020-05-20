@@ -56,7 +56,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				System.out.println(">>>>\n" + html);
 			}
-
+			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("PersonName.givenName"), "Given");
@@ -238,8 +238,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	/**
-	 * TODO Testcase Fails with error org.hibernate.PropertyValueException: not-null property
-	 * references a null or transient value: org.openmrs.PersonName.dateCreated
+	 * TODO Testcase Fails with error org.hibernate.PropertyValueException: not-null property references
+	 * a null or transient value: org.openmrs.PersonName.dateCreated
 	 */
 	public void testEditPatientNameAndMultipleObs() throws Exception {
 		final Date date = new Date();
@@ -438,8 +438,9 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testViewingPatient(Patient patient, String html) {
 				// confirm that the patient date changed has not changed
-				Assert.assertTrue("patient date changed has been errorneously changed", patient.getDateChanged() == null
-				        && patientDateChanged == null || patient.getDateChanged().equals(patientDateChanged));
+				Assert.assertTrue("patient date changed has been errorneously changed",
+				    patient.getDateChanged() == null && patientDateChanged == null
+				            || patient.getDateChanged().equals(patientDateChanged));
 			}
 			
 		}.run();
@@ -492,8 +493,9 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testViewingPatient(Patient patient, String html) {
 				// confirm that the patient date changed has not changed
-				Assert.assertTrue("patient date changed has been errorneously changed", patient.getDateChanged() == null
-				        && patientDateChanged == null || patient.getDateChanged().equals(patientDateChanged));
+				Assert.assertTrue("patient date changed has been errorneously changed",
+				    patient.getDateChanged() == null && patientDateChanged == null
+				            || patient.getDateChanged().equals(patientDateChanged));
 			}
 			
 		}.run();
@@ -597,64 +599,64 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			}
 		}.run();
 	}
-
-    @Test
-    public void testCreatePatientAndEnrollInProgram() throws Exception {
-        final Date date = new Date();
-
-        new RegressionTestHelper() {
-
-            @Override
-            public String getFormName() {
-                return "patientAndEnrollInProgramForm";
-            }
-
-            @Override
-            public Patient getPatient() {
-                return new Patient();
-            }
-
-            @Override
-            public String[] widgetLabels() {
-                return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
-                        "Identifier:", "Identifier Location:", "Identifier Type:", "Date:" };
-            }
-
-            @Override
-            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-                request.setParameter(widgets.get("PersonName.givenName"), "Given");
-                request.setParameter(widgets.get("PersonName.familyName"), "Family");
-                request.setParameter(widgets.get("Gender:"), "F");
-                request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
-                request.setParameter(widgets.get("Identifier:"), "987654-1");
-                request.setParameter(widgets.get("Identifier Location:"), "2");
-                // hack because identifier type is a hidden input with no label
-                request.setParameter("w17", "1");
-
-                request.setParameter(widgets.get("Date:"), dateAsString(date));
-            }
-
-            @Override
-            public void testResults(SubmissionResults results) {
-                Date datePartOnly = ymdToDate(dateAsString(date));
-
-                results.assertNoErrors();
-
-                results.assertPatient();
-                Assert.assertEquals("Given", results.getPatient().getPersonName().getGivenName());
-                Assert.assertEquals("Family", results.getPatient().getPersonName().getFamilyName());
-                Assert.assertEquals("F", results.getPatient().getGender());
-                Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
-                Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
-                Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
-
-                List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(
-                		results.getPatient(), null, null, null, null, null, false);
-            	Assert.assertTrue(patientPrograms.size() == 1);
-            }
-        }.run();
-    }
-
+	
+	@Test
+	public void testCreatePatientAndEnrollInProgram() throws Exception {
+		final Date date = new Date();
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "patientAndEnrollInProgramForm";
+			}
+			
+			@Override
+			public Patient getPatient() {
+				return new Patient();
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "PersonName.givenName", "PersonName.familyName", "Gender:", "Birthdate:",
+				        "Identifier:", "Identifier Location:", "Identifier Type:", "Date:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("PersonName.givenName"), "Given");
+				request.setParameter(widgets.get("PersonName.familyName"), "Family");
+				request.setParameter(widgets.get("Gender:"), "F");
+				request.setParameter(widgets.get("Birthdate:"), dateAsString(date));
+				request.setParameter(widgets.get("Identifier:"), "987654-1");
+				request.setParameter(widgets.get("Identifier Location:"), "2");
+				// hack because identifier type is a hidden input with no label
+				request.setParameter("w17", "1");
+				
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				Date datePartOnly = ymdToDate(dateAsString(date));
+				
+				results.assertNoErrors();
+				
+				results.assertPatient();
+				Assert.assertEquals("Given", results.getPatient().getPersonName().getGivenName());
+				Assert.assertEquals("Family", results.getPatient().getPersonName().getFamilyName());
+				Assert.assertEquals("F", results.getPatient().getGender());
+				Assert.assertEquals(datePartOnly, results.getPatient().getBirthdate());
+				Assert.assertEquals(false, results.getPatient().getBirthdateEstimated());
+				Assert.assertEquals("987654-1", results.getPatient().getPatientIdentifier().getIdentifier());
+				
+				List<PatientProgram> patientPrograms = Context.getProgramWorkflowService()
+				        .getPatientPrograms(results.getPatient(), null, null, null, null, null, false);
+				Assert.assertTrue(patientPrograms.size() == 1);
+			}
+		}.run();
+	}
+	
 	@Test
 	public void testEditPatientAndCreatingObs() throws Exception {
 		final Date date = new Date();
@@ -818,7 +820,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2,new Double(75));
+				results.assertObsCreated(2, new Double(75));
 				results.assertObsCreated(8, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
@@ -835,10 +837,10 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			return;
 		}
 		
-		setupAddressTemplate();	
+		setupAddressTemplate();
 		
 		final Date date = new Date();
-	
+		
 		new RegressionTestHelper() {
 			
 			@Override
@@ -902,7 +904,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		if (majorVersion == 1 && minorVersion < 9) {
 			return;
 		}
-				
+		
 		final Date date = new Date();
 		
 		setupAddressTemplate();
@@ -928,8 +930,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public String[] widgetLabelsForEdit() {
-				return new String[] {"Location.address1", "Location.cityVillage",
-				        "Location.stateProvince", "Location.postalCode" };
+				return new String[] { "Location.address1", "Location.cityVillage", "Location.stateProvince",
+				        "Location.postalCode" };
 			}
 			
 			@Override
@@ -971,7 +973,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location.address1"), "273 Beaver Dam Rd.");
 				request.addParameter(widgets.get("Location.cityVillage"), "Scituate");
 				request.addParameter(widgets.get("Location.stateProvince"), "MA");
-				request.addParameter(widgets.get("Location.postalCode"), "02066");	
+				request.addParameter(widgets.get("Location.postalCode"), "02066");
 			}
 			
 			@Override
@@ -1038,8 +1040,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered age
-				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), ymdToDate(dateAsString(results.getPatient()
-				        .getBirthdate())));
+				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)),
+				    ymdToDate(dateAsString(results.getPatient().getBirthdate())));
 				results.assertEncounterEdited();
 			}
 		}.run();
@@ -1101,8 +1103,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
-	
-	
 	/**
 	 * Tests applying decimal ages to patients
 	 * 
@@ -1150,13 +1150,13 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				//the birthdate should have been computed basing on the entered age
 				long oneYear = Long.valueOf("31536000000");
 				long oneMonth = Long.valueOf("2628000000");
-				Assert.assertTrue(((new Date()).getTime() - oneYear*5) > results.getPatient().getBirthdate().getTime()); //birthdate is before 5 years ago
-				Assert.assertTrue(((new Date()).getTime() - oneYear*5) < (results.getPatient().getBirthdate().getTime() + (4*oneMonth))); //birthdate + 4 months is greater than 5years ago
+				Assert.assertTrue(((new Date()).getTime() - oneYear * 5) > results.getPatient().getBirthdate().getTime()); //birthdate is before 5 years ago
+				Assert.assertTrue(((new Date()).getTime() - oneYear * 5) < (results.getPatient().getBirthdate().getTime()
+				        + (4 * oneMonth))); //birthdate + 4 months is greater than 5years ago
 				results.assertEncounterEdited();
 			}
 		}.run();
 	}
-	
 	
 	/**
 	 * Tests that the birthdate works with any date format string. orininally replicated HTML-339
@@ -1199,7 +1199,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public String[] widgetLabelsForEdit() {
-				return new String[] {"Birthdate:" };
+				return new String[] { "Birthdate:" };
 			}
 			
 			@Override
@@ -1218,28 +1218,19 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
-	
-	
 	private void setupAddressTemplate() {
 		
-		GlobalProperty property = new GlobalProperty ("layout.address.format", "<org.openmrs.layout.web.address.AddressTemplate>" +
-																					"<nameMappings class=\"properties\">"+ 
-																					"<property name=\"postalCode\" value=\"Location.postalCode\"/>" +
-																					"<property name=\"address1\" value=\"Location.address1\"/>" +
-																					"<property name=\"stateProvince\" value=\"Location.stateProvince\"/>" +
-																					"<property name=\"cityVillage\" value=\"Location.cityVillage\"/>" +
-																					"</nameMappings>" + 
-																					"<sizeMappings class=\"properties\">" +
-																					"<property name=\"postalCode\" value=\"10\"/>" +
-																					"<property name=\"address1\" value=\"40\"/>" +
-																					"<property name=\"stateProvince\" value=\"10\"/>" +
-																					"<property name=\"cityVillage\" value=\"10\"/>" +
-																					"</sizeMappings>" +						
-        																			"<lineByLineFormat>" +
-        																			"<string>address1</string>" +
-        																			"<string>cityVillage stateProvince postalCode</string>" +
-        																			"</lineByLineFormat>" +
-        																			"</org.openmrs.layout.web.address.AddressTemplate>");	
+		GlobalProperty property = new GlobalProperty("layout.address.format",
+		        "<org.openmrs.layout.web.address.AddressTemplate>" + "<nameMappings class=\"properties\">"
+		                + "<property name=\"postalCode\" value=\"Location.postalCode\"/>"
+		                + "<property name=\"address1\" value=\"Location.address1\"/>"
+		                + "<property name=\"stateProvince\" value=\"Location.stateProvince\"/>"
+		                + "<property name=\"cityVillage\" value=\"Location.cityVillage\"/>" + "</nameMappings>"
+		                + "<sizeMappings class=\"properties\">" + "<property name=\"postalCode\" value=\"10\"/>"
+		                + "<property name=\"address1\" value=\"40\"/>" + "<property name=\"stateProvince\" value=\"10\"/>"
+		                + "<property name=\"cityVillage\" value=\"10\"/>" + "</sizeMappings>" + "<lineByLineFormat>"
+		                + "<string>address1</string>" + "<string>cityVillage stateProvince postalCode</string>"
+		                + "</lineByLineFormat>" + "</org.openmrs.layout.web.address.AddressTemplate>");
 		
 		Context.getAdministrationService().saveGlobalProperty(property);
 		

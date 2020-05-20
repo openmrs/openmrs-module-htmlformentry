@@ -59,9 +59,9 @@ public class LocationWidget implements Widget {
 			        + ((location != null) ? HtmlUtils.htmlEscape(location.getName()) : "")
 			        + "\" onblur=\"updateLocationFields(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
-			sb.append("\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\""
-			        + context.getFieldName(this) + "\" value=\"" + ((location != null) ? location.getLocationId() : "")
-			        + "\" />");
+			sb.append(
+			    "\n<input type=\"hidden\" id=\"" + context.getFieldName(this) + "\" name=\"" + context.getFieldName(this)
+			            + "\" value=\"" + ((location != null) ? location.getLocationId() : "") + "\" />");
 			sb.append("\n<script>");
 			sb.append("\nvar locationNameIdMap = new Object();");
 			ArrayList<String> escapedLocationNames = new ArrayList<String>(useLocations.size());
@@ -80,7 +80,8 @@ public class LocationWidget implements Widget {
 			sb.append("\n}");
 			sb.append("\n");
 			sb.append("\n$j('input#display_" + context.getFieldName(this) + "').autocomplete({");
-			sb.append("\n	source:[" + StringUtils.collectionToDelimitedString(escapedLocationNames, ",", "\"", "\"") + "],");
+			sb.append(
+			    "\n	source:[" + StringUtils.collectionToDelimitedString(escapedLocationNames, ",", "\"", "\"") + "],");
 			sb.append("\n	select: function(event, ui) {");
 			sb.append("\n				$j(\"#" + context.getFieldName(this) + "\").val(locationNameIdMap[ui.item.value]);");
 			sb.append("\n			}");

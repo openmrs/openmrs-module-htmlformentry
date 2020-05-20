@@ -17,18 +17,18 @@ import org.openmrs.util.OpenmrsClassLoader;
 import java.util.Date;
 
 public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
-
+	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
 	protected static final String XML_HTML_FORM_ENTRY_SERVICE_DATASET = "htmlFormEntryServiceDataSet";
-
+	
 	private HtmlFormEntryService service;
 	
 	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_SERVICE_DATASET));
 		service = Context.getService(HtmlFormEntryService.class);
-        service.clearConceptMappingCache();
+		service.clearConceptMappingCache();
 	}
 	
 	/**
@@ -50,70 +50,70 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-     * @see {@link HtmlFormEntryService#getUsersAsPersonStubs(String)}
-     */
-    @Test
-    @Verifies(value = "should return all ProviderStubs", method = "getProviderStub()")
-    public void getProviderStub_shouldReturnAllProviderStubs() throws Exception {
-        Assert.assertEquals(1, service.getUsersAsPersonStubs("Provider").size());
-        //make sure getDisplayValue is working:
-        Assert.assertEquals("Hippocrates of Cos", service.getUsersAsPersonStubs("Provider").get(0).getDisplayValue());
-        Assert.assertEquals(0, service.getUsersAsPersonStubs("Clinician").size());
-        
-        //Create the Clinician role and add to the existing user, and see if user is returned.
-        Integer userId = service.getUsersAsPersonStubs("Provider").get(0).getId();
-        Role role = new Role();
-        role.setUuid(java.util.UUID.randomUUID().toString());
-        role.setRole("Clinician");
-        role.setRetired(false);
-        role.setName("Clinician");
-        role.setDateCreated(new Date());
-        role.setDescription("boo");
-        role.setCreator(Context.getAuthenticatedUser());
-        Context.getUserService().saveRole(role);
-        User user = Context.getUserService().getUser(userId);
-        user.addRole(role);
-        user.getPersonName().setFamilyName(null);
-        user.getPersonName().setGivenName(null);
-        user.getPersonName().setMiddleName("middleName");
-        Context.getUserService().saveUser(user, null);
-        Assert.assertEquals(1, service.getUsersAsPersonStubs("Clinician").size());
-        
-        //lets look at the PersonStub for the Clinician:
-        PersonStub ps = service.getUsersAsPersonStubs("Clinician").get(0);
-        Assert.assertNull(ps.getGivenName());
-        Assert.assertNull(ps.getFamilyName());
-        Assert.assertNotNull(ps.getId());
- 
-    }
-
-    @Test
-    @Verifies(value = "Should save archived form to the database", method = "reprocessArchivedForm")
-    public void reprocessArchivedForm_shouldProcessForm() throws Exception {
-        EncounterService encService = Context.getEncounterService();
-
-        String path = OpenmrsClassLoader.getInstance().getResource("archivedFormData.xml").getPath();
-        System.out.println("Path: "+path);
-
-        //Get the SerializableFormObject
-        SerializableFormObject formObject = SerializableFormObject.deserializeXml(path);
-        Assert.assertEquals("da7f524f-27ce-4bb2-86d6-6d1d05312bd5",formObject.getPatientUuid());
-
-        Patient patient = Context.getPatientService().getPatientByUuid("da7f524f-27ce-4bb2-86d6-6d1d05312bd5");
-
-        int noEnc = encService.getEncountersByPatient(patient).size();
-        service.reprocessArchivedForm(path);
-        int newNoEnc = encService.getEncountersByPatient(patient).size();
-
-        Assert.assertEquals(noEnc+1,newNoEnc);
-    }
-
+	 * @see {@link HtmlFormEntryService#getUsersAsPersonStubs(String)}
+	 */
+	@Test
+	@Verifies(value = "should return all ProviderStubs", method = "getProviderStub()")
+	public void getProviderStub_shouldReturnAllProviderStubs() throws Exception {
+		Assert.assertEquals(1, service.getUsersAsPersonStubs("Provider").size());
+		//make sure getDisplayValue is working:
+		Assert.assertEquals("Hippocrates of Cos", service.getUsersAsPersonStubs("Provider").get(0).getDisplayValue());
+		Assert.assertEquals(0, service.getUsersAsPersonStubs("Clinician").size());
+		
+		//Create the Clinician role and add to the existing user, and see if user is returned.
+		Integer userId = service.getUsersAsPersonStubs("Provider").get(0).getId();
+		Role role = new Role();
+		role.setUuid(java.util.UUID.randomUUID().toString());
+		role.setRole("Clinician");
+		role.setRetired(false);
+		role.setName("Clinician");
+		role.setDateCreated(new Date());
+		role.setDescription("boo");
+		role.setCreator(Context.getAuthenticatedUser());
+		Context.getUserService().saveRole(role);
+		User user = Context.getUserService().getUser(userId);
+		user.addRole(role);
+		user.getPersonName().setFamilyName(null);
+		user.getPersonName().setGivenName(null);
+		user.getPersonName().setMiddleName("middleName");
+		Context.getUserService().saveUser(user, null);
+		Assert.assertEquals(1, service.getUsersAsPersonStubs("Clinician").size());
+		
+		//lets look at the PersonStub for the Clinician:
+		PersonStub ps = service.getUsersAsPersonStubs("Clinician").get(0);
+		Assert.assertNull(ps.getGivenName());
+		Assert.assertNull(ps.getFamilyName());
+		Assert.assertNotNull(ps.getId());
+		
+	}
+	
+	@Test
+	@Verifies(value = "Should save archived form to the database", method = "reprocessArchivedForm")
+	public void reprocessArchivedForm_shouldProcessForm() throws Exception {
+		EncounterService encService = Context.getEncounterService();
+		
+		String path = OpenmrsClassLoader.getInstance().getResource("archivedFormData.xml").getPath();
+		System.out.println("Path: " + path);
+		
+		//Get the SerializableFormObject
+		SerializableFormObject formObject = SerializableFormObject.deserializeXml(path);
+		Assert.assertEquals("da7f524f-27ce-4bb2-86d6-6d1d05312bd5", formObject.getPatientUuid());
+		
+		Patient patient = Context.getPatientService().getPatientByUuid("da7f524f-27ce-4bb2-86d6-6d1d05312bd5");
+		
+		int noEnc = encService.getEncountersByPatient(patient).size();
+		service.reprocessArchivedForm(path);
+		int newNoEnc = encService.getEncountersByPatient(patient).size();
+		
+		Assert.assertEquals(noEnc + 1, newNoEnc);
+	}
+	
 	@Test
 	public void getConceptByMapping_shouldRetrieveConceptByMapping() throws Exception {
-    	Concept concept = service.getConceptByMapping("XYZ:HT");
-    	Assert.assertEquals(3, concept.getConceptId().intValue());
+		Concept concept = service.getConceptByMapping("XYZ:HT");
+		Assert.assertEquals(3, concept.getConceptId().intValue());
 	}
-
+	
 	@Test
 	public void getConceptByMapping_shouldReturnNullIfInvalidMappingSpecified() throws Exception {
 		Concept concept = service.getConceptByMapping("XYZ-HT");

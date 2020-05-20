@@ -35,26 +35,16 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.EncounterServiceCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class EncounterServiceCompatibility2_0 implements EncounterServiceCompatibility {
-
+	
 	@Override
 	public List<Encounter> getEncounters(Patient who, Location loc, Date fromDate, Date toDate,
-			Collection<Form> enteredViaForms,
-			Collection<EncounterType> encounterTypes,
-			Collection<Provider> providers, Collection<VisitType> visitTypes,
-			Collection<Visit> visits, boolean includeVoided) {
+	        Collection<Form> enteredViaForms, Collection<EncounterType> encounterTypes, Collection<Provider> providers,
+	        Collection<VisitType> visitTypes, Collection<Visit> visits, boolean includeVoided) {
 		
-		EncounterSearchCriteria encounterSearchCriteria = new EncounterSearchCriteriaBuilder()
-		.setPatient(who)
-		.setLocation(loc)
-		.setFromDate(fromDate)
-		.setToDate(toDate)
-		.setEnteredViaForms(enteredViaForms)
-		.setEncounterTypes(encounterTypes)
-		.setProviders(providers)
-		.setVisitTypes(visitTypes)
-		.setVisits(visits)
-		.setIncludeVoided(includeVoided)
-		.createEncounterSearchCriteria();
+		EncounterSearchCriteria encounterSearchCriteria = new EncounterSearchCriteriaBuilder().setPatient(who)
+		        .setLocation(loc).setFromDate(fromDate).setToDate(toDate).setEnteredViaForms(enteredViaForms)
+		        .setEncounterTypes(encounterTypes).setProviders(providers).setVisitTypes(visitTypes).setVisits(visits)
+		        .setIncludeVoided(includeVoided).createEncounterSearchCriteria();
 		
 		return Context.getEncounterService().getEncounters(encounterSearchCriteria);
 	}

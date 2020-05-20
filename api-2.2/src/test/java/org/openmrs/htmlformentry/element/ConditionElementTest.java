@@ -37,17 +37,16 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Context.class)
 public class ConditionElementTest {
-
+	
 	private ConditionElement element;
 	
 	private MockHttpServletRequest request;
 	
 	@Mock
-    private MessageSourceService messageSourceService;
+	private MessageSourceService messageSourceService;
 	
 	@Mock
 	private ConditionService conditionService;
@@ -69,7 +68,7 @@ public class ConditionElementTest {
 	
 	@Mock
 	private DateWidget onsetDateWidget;
-
+	
 	@Before
 	public void setup() {
 		// Stub services
@@ -83,7 +82,8 @@ public class ConditionElementTest {
 		when(session.getContext()).thenReturn(context);
 		when(session.getPatient()).thenReturn(new Patient(1));
 		
-		when(onsetDateWidget.getValue(context, request)).thenReturn(new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime());
+		when(onsetDateWidget.getValue(context, request))
+		        .thenReturn(new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime());
 		
 		// setup condition element
 		element = spy(new ConditionElement());
@@ -167,18 +167,19 @@ public class ConditionElementTest {
 		
 		// replay
 		element.handleSubmission(session, request);
-
+		
 		// verify
 		verify(conditionService, never()).saveCondition(any(Condition.class));
 	}
-
+	
 	@Test
 	public void validateSubmission_shouldFailValidationWhenConditionIsNotGivenAndIsRequired() {
 		// setup
 		element.setRequired(true);
 		when(conditionSearchWidget.getValue(context, request)).thenReturn(null);
-		when(messageSourceService.getMessage("htmlformentry.conditionui.condition.required")).thenReturn("A condition is required");
-
+		when(messageSourceService.getMessage("htmlformentry.conditionui.condition.required"))
+		        .thenReturn("A condition is required");
+		
 		// replay
 		List<FormSubmissionError> errors = (List<FormSubmissionError>) element.validateSubmission(context, request);
 		
@@ -189,8 +190,10 @@ public class ConditionElementTest {
 	@Test
 	public void validateSubmission_shouldFailValidationWhenOnsetDateIsGreaterThanEnddate() {
 		// setup
-		when(endDateWidget.getValue(context, request)).thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
-		when(messageSourceService.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error")).thenReturn("The end date cannot be ealier than the onset date.");
+		when(endDateWidget.getValue(context, request))
+		        .thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
+		when(messageSourceService.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error"))
+		        .thenReturn("The end date cannot be ealier than the onset date.");
 		
 		// replay
 		List<FormSubmissionError> errors = (List<FormSubmissionError>) element.validateSubmission(context, request);

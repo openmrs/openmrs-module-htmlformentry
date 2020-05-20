@@ -54,10 +54,12 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-
+	
 	// For testing concept lookups by static constant
 	public static final int TEST_CONCEPT_CONSTANT_ID = 3;
+	
 	public static final String TEST_CONCEPT_CONSTANT_UUID = "0cbe2ed3-cd5f-4f46-9459-26127c9265ab";
+	
 	public static final String TEST_CONCEPT_CONSTANT_MAPPING = "XYZ:HT";
 	
 	@Before
@@ -100,34 +102,35 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getLocation_shouldFindALocationInIdNameFormat() throws Exception {
 		Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("2 - Xanadu").getId().toString());
 	}
-
-    /**
-     * @see {@link HtmlFormEntryUtil#getLocation(String, FormEntryContext)}
-     */
-    @Test
-    @Verifies(value = "should find a location by session attribute", method = "getLocation(String,FormEntrySession)")
-    public void getLocation_shouldFindALocationBySessionAttribute() throws Exception {
-        String attrName = "emr.sessionLocation";
-        MockHttpSession httpSession = new MockHttpSession();
-        httpSession.setAttribute(attrName, "2");
-
-        FormEntryContext formEntryContext = new FormEntryContext(FormEntryContext.Mode.ENTER);
-        formEntryContext.setHttpSession(httpSession);
-
-        Assert.assertEquals("2", HtmlFormEntryUtil.getLocation("SessionAttribute:" + attrName, formEntryContext).getId().toString());
-    }
-
-    /**
-     * @see {@link HtmlFormEntryUtil#getLocation(String, FormEntryContext)}
-     * @verifies not fail if trying to find a location by session attribute and we have no session
-     */
-    @Test
-    public void getLocation_shouldNotFailIfTryingToFindALocationBySessionAttriubteAndWeHaveNoSession() {
-        FormEntryContext formEntryContext = new FormEntryContext(FormEntryContext.Mode.ENTER);
-        Assert.assertNull(HtmlFormEntryUtil.getLocation("SessionAttribute:someSessionAttribute", formEntryContext));
-    }
-
-    /**
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String, FormEntryContext)}
+	 */
+	@Test
+	@Verifies(value = "should find a location by session attribute", method = "getLocation(String,FormEntrySession)")
+	public void getLocation_shouldFindALocationBySessionAttribute() throws Exception {
+		String attrName = "emr.sessionLocation";
+		MockHttpSession httpSession = new MockHttpSession();
+		httpSession.setAttribute(attrName, "2");
+		
+		FormEntryContext formEntryContext = new FormEntryContext(FormEntryContext.Mode.ENTER);
+		formEntryContext.setHttpSession(httpSession);
+		
+		Assert.assertEquals("2",
+		    HtmlFormEntryUtil.getLocation("SessionAttribute:" + attrName, formEntryContext).getId().toString());
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryUtil#getLocation(String, FormEntryContext)}
+	 * @verifies not fail if trying to find a location by session attribute and we have no session
+	 */
+	@Test
+	public void getLocation_shouldNotFailIfTryingToFindALocationBySessionAttriubteAndWeHaveNoSession() {
+		FormEntryContext formEntryContext = new FormEntryContext(FormEntryContext.Mode.ENTER);
+		Assert.assertNull(HtmlFormEntryUtil.getLocation("SessionAttribute:someSessionAttribute", formEntryContext));
+	}
+	
+	/**
 	 * @see {@link HtmlFormEntryUtil#getLocation(String)}
 	 */
 	@Test
@@ -173,7 +176,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should find a program by its name", method = "getProgram(String)")
 	public void getProgram_shouldFindAProgramByItsName() throws Exception {
-		Assert.assertEquals("71779c39-d289-4dfe-91b5-e7cfaa27c78b", HtmlFormEntryUtil.getProgram("MDR-TB PROGRAM").getUuid());
+		Assert.assertEquals("71779c39-d289-4dfe-91b5-e7cfaa27c78b",
+		    HtmlFormEntryUtil.getProgram("MDR-TB PROGRAM").getUuid());
 	}
 	
 	/**
@@ -213,8 +217,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should find a person by uuid", method = "getPerson(String)")
 	public void getPerson_shouldFindAPersonByUuid() throws Exception {
-		Assert.assertEquals("Hornblower", HtmlFormEntryUtil.getPerson("da7f524f-27ce-4bb2-86d6-6d1d05312bd5")
-		        .getFamilyName());
+		Assert.assertEquals("Hornblower",
+		    HtmlFormEntryUtil.getPerson("da7f524f-27ce-4bb2-86d6-6d1d05312bd5").getFamilyName());
 	}
 	
 	/**
@@ -291,8 +295,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests a uuid that is 36 characters long but
-	 *      has no dashes
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests a uuid that is 36 characters long but has
+	 *      no dashes
 	 */
 	@Test
 	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
@@ -303,8 +307,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests a uuid that is in invalid format
-	 *      (less than 36 characters)
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests a uuid that is in invalid format (less
+	 *      than 36 characters)
 	 */
 	@Test
 	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
@@ -313,16 +317,21 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		String id = "1000";
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
-
+	
 	/**
-	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests static constant containing ids, mappings and UUIDs
+	 * @see {@link HtmlFormEntryUtil#getConcept(String)} tests static constant containing ids, mappings
+	 *      and UUIDs
 	 */
 	@Test
 	@Verifies(value = "should find a concept by static constant", method = "getConcept(String)")
 	public void getConcept_shouldFindAConceptByStaticConstant() throws Exception {
-		assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_ID"), notNullValue());
-		assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_UUID"), notNullValue());
-		assertThat(HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_MAPPING"), notNullValue());
+		assertThat(
+		    HtmlFormEntryUtil.getConcept("org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_ID"),
+		    notNullValue());
+		assertThat(HtmlFormEntryUtil.getConcept(
+		    "org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_UUID"), notNullValue());
+		assertThat(HtmlFormEntryUtil.getConcept(
+		    "org.openmrs.module.htmlformentry.HtmlFormEntryUtilTest.TEST_CONCEPT_CONSTANT_MAPPING"), notNullValue());
 	}
 	
 	/**
@@ -449,8 +458,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH
-		        + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
 		//this is going to test out the voided state of the obs in the encounter after processing:
@@ -490,8 +499,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH
-		        + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
 		//this is going to test out the voided state of the obs in the encounter after processing:
@@ -560,8 +569,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH
-		        + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, "test void reason");
 		
@@ -610,8 +619,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH
-		        + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
@@ -668,8 +677,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH
-		        + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
@@ -703,9 +712,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)}
-	 * see wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference for the date format
-	 *      the Obs defaultDatetime and defaultObsDatetime attributes support
+	 * @see {@link HtmlFormEntryUtil#translateDatetimeParam(String,String)} see
+	 *      wiki.openmrs.org/display/docs/HTML+Form+Entry+Module+HTML+Reference for the date format the
+	 *      Obs defaultDatetime and defaultObsDatetime attributes support
 	 */
 	@Test
 	@Verifies(value = "should return a Date object matching the value param if a format is specified", method = "translateDatetimeParam(String,String)")
@@ -800,7 +809,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
-		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
+		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
 	}
 	
 	/**
@@ -819,7 +829,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,Program)")
 	public void getStateProgram_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
-		Assert.assertEquals("1",HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1)).getId().toString());
+		Assert.assertEquals("1",
+		    HtmlFormEntryUtil
+		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getProgram(1))
+		            .getId().toString());
 	}
 	
 	/**
@@ -830,14 +843,15 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil
+		        .getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@SuppressWarnings("deprecation")
-    @Test
+	@Test
 	@Verifies(value = "should return the state with the matching id", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingId() throws Exception {
 		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
@@ -848,22 +862,26 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@SuppressWarnings("deprecation")
-    @Test
+	@Test
 	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
-		Assert.assertEquals("1",HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getWorkflow(1)).getId().toString());
+		Assert.assertEquals("1",
+		    HtmlFormEntryUtil
+		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getWorkflow(1))
+		            .getId().toString());
 	}
 	
 	/**
 	 * @see {@link HtmlFormEntryUtil#getState(String,Program)}
 	 */
 	@SuppressWarnings("deprecation")
-    @Test
+	@Test
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",HtmlFormEntryUtil.getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getWorkflow(108)).getUuid());
+		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil
+		        .getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getWorkflow(108)).getUuid());
 	}
 	
 	/**
@@ -913,7 +931,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return false if the date is before the existing patient program enrollment date", method = "isEnrolledInProgram(Patient,Program,Date)")
 	public void isEnrolledInProgram_shouldReturnFalseIfTheDateIsBeforeTheExistingPatientProgramEnrollmentDateIgnoringTimeFields()
-	    throws Exception {//2008-08-01 00:00:00.0
+	        throws Exception {//2008-08-01 00:00:00.0
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
 		Program program = pws.getProgram(1);
@@ -927,8 +945,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should return null if no program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
-	public void getClosestFutureProgramEnrollment_shouldReturnNullIfNoProgramEnrollmentAfterSpecifiedDate() throws Exception {
+	@Verifies(value = "should return null if no program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
+	public void getClosestFutureProgramEnrollment_shouldReturnNullIfNoProgramEnrollmentAfterSpecifiedDate()
+	        throws Exception {
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
 		Program program = pws.getProgram(1);
@@ -936,7 +955,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
+	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
 	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
 		// load this data set so that we get the additional patient program created in this data case
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
@@ -961,7 +980,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	@Verifies(value = "should return null if program enrollment date same as specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)") 
+	@Verifies(value = "should return null if program enrollment date same as specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
 	public void getClosestFutureProgramEnrollment_shouldReturnNullIfProgramEnrollmentSameAsSpecifiedDate() throws Exception {
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
@@ -972,12 +991,13 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	@Verifies(value = "stringToDocument should handle ascii-escaped characters correctly", method = "stringToDocument(String xml)")
-	public void stringToDocument_shouldHandleAsciiEsapeChars(){
+	public void stringToDocument_shouldHandleAsciiEsapeChars() {
 		String str = "<htmlform> <input type=\"text\" value=\"HI!\" /> &#160; </htmlform>";
 		try {
 			Document doc = HtmlFormEntryUtil.stringToDocument(str);
 			Assert.assertNotNull(doc);
-		} catch (Exception ex){
+		}
+		catch (Exception ex) {
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
@@ -985,77 +1005,69 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	@Verifies(value = "stringToDocument should handle escaped characters correctly if defined as an entity", method = "stringToDocument(String xml)")
-	public void stringToDocument_shouldHandleEsapeCharsWhenDefinedAsEntity(){
+	public void stringToDocument_shouldHandleEsapeCharsWhenDefinedAsEntity() {
 		String str = "<?xml version=\"1.0\"?> <!DOCTYPE some_name [ <!ENTITY nbsp \"&#160;\">]> <htmlform> <input type=\"text\" value=\"HI!\" /> &nbsp; </htmlform>";
 		try {
 			Document doc = HtmlFormEntryUtil.stringToDocument(str);
 			Assert.assertNotNull(doc);
-		} catch (Exception ex){
+		}
+		catch (Exception ex) {
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
 	}
-
+	
 	@Test
 	@Verifies(value = "stringToDocument should not access filesystem resources", method = "stringToDocument(String xml)")
-	public void stringToDocument_shouldNotAccessFilesystemResources() throws java.io.IOException{
-
+	public void stringToDocument_shouldNotAccessFilesystemResources() throws java.io.IOException {
+		
 		File tempFile = File.createTempFile("htmlformentry-shouldNotAcccessFilesystemResources", ".tmp");
-
-		String evil_xml = "<!DOCTYPE foo [\n" +
-				"  <!ELEMENT foo ANY>\n" +
-				"  <!ENTITY bar SYSTEM\n" +
-				"  \"file:" + tempFile.getAbsolutePath() + "\">\n" +
-				"]>\n" +
-				"<htmlform>\n" +
-				"    <foo>\n" +
-				"        &bar;\n" +
-				"    </foo>\n" +
-				"   <h1>test</h1>\n" +
-				"\n" +
-				"</htmlform>";
-
+		
+		String evil_xml = "<!DOCTYPE foo [\n" + "  <!ELEMENT foo ANY>\n" + "  <!ENTITY bar SYSTEM\n" + "  \"file:"
+		        + tempFile.getAbsolutePath() + "\">\n" + "]>\n" + "<htmlform>\n" + "    <foo>\n" + "        &bar;\n"
+		        + "    </foo>\n" + "   <h1>test</h1>\n" + "\n" + "</htmlform>";
+		
 		String mock_sensitive_info = "68c98358dc3b14bb3e787afbc8662fad";
-
+		
 		BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
 		bw.write(mock_sensitive_info);
 		bw.close();
-
+		
 		try {
 			Document doc = HtmlFormEntryUtil.stringToDocument(evil_xml);
 			NodeList foo_nodes = doc.getElementsByTagName("foo");
-
-			for (int i = 0; i < foo_nodes.getLength(); i++){
+			
+			for (int i = 0; i < foo_nodes.getLength(); i++) {
 				Node curr_node = foo_nodes.item(i);
 				String contents = curr_node.getFirstChild().getNodeValue();
 				Assert.assertTrue(!contents.contains(mock_sensitive_info));
 			}
-
-
-		} catch (Exception ex){
+			
+		}
+		catch (Exception ex) {
 			System.out.println(ex);
 			Assert.assertTrue(false);
 		}
-
+		
 	}
 	
 	@Test
-	@Verifies(value="shouldSetTheValueComplexOfObsIfConceptIsComplex",method="createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
-	public void createObs_shouldSetTheValueComplexOfObsIfConceptIsComplex(){
+	@Verifies(value = "shouldSetTheValueComplexOfObsIfConceptIsComplex", method = "createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+	public void createObs_shouldSetTheValueComplexOfObsIfConceptIsComplex() {
 		
-		ComplexData complexData=new ComplexData("test", null);
-		Concept c=new Concept();
-		ConceptDatatype cd=new ConceptDatatype();
+		ComplexData complexData = new ComplexData("test", null);
+		Concept c = new Concept();
+		ConceptDatatype cd = new ConceptDatatype();
 		cd.setUuid(HtmlFormEntryConstants.COMPLEX_UUID);
 		c.setDatatype(cd);
-		Obs o=HtmlFormEntryUtil.createObs(c, complexData, null, null);
-	    Assert.assertEquals(o.getValueComplex(),complexData.getTitle());
+		Obs o = HtmlFormEntryUtil.createObs(c, complexData, null, null);
+		Assert.assertEquals(o.getValueComplex(), complexData.getTitle());
 		
 	}
-
+	
 	@Test
-	@Verifies(value="shouldSetTheValueOfABooleanConceptCorrectly",method="createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
-	public void createObs_shouldSetTheValueOfABooleanConceptCorrectly(){
+	@Verifies(value = "shouldSetTheValueOfABooleanConceptCorrectly", method = "createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+	public void createObs_shouldSetTheValueOfABooleanConceptCorrectly() {
 		Concept c = new Concept();
 		c.setUuid(UUID.randomUUID().toString());
 		c.setDatatype(Context.getConceptService().getConceptDatatype(10));
@@ -1064,72 +1076,71 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		checkBooleanObsValue(HtmlFormEntryUtil.createObs(c, "true", new Date(), ""), true);
 		checkBooleanObsValue(HtmlFormEntryUtil.createObs(c, Boolean.TRUE, new Date(), ""), true);
 	}
-
-    @Test
-    @Verifies(value="shouldSetValueCodedNameGivenAConceptName",method="createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
-    public void createObs_shouldSetValueCodedNameGivenAConceptName() {
-        Concept answerConcept = new Concept();
-        ConceptName answer = new ConceptName("Answer", Context.getLocale());
-        answerConcept.addName(answer);
-
-        Concept question = new Concept();
-        question.setUuid(UUID.randomUUID().toString());
-        question.setDatatype(Context.getConceptService().getConceptDatatypeByName("Coded"));
-        Obs created = HtmlFormEntryUtil.createObs(question, answer, new Date(), "");
-        assertThat(created.getValueCodedName(), is(answerConcept.getPreferredName(Context.getLocale())));
-        assertThat(created.getValueCoded(), is(answerConcept));
-    }
-
-    @Test
-    @Verifies(value="shouldReturnMetadataNameIfNoFormatterPresent", method="format(OpenmrsMetadata md, Locale locale)")
-    public void sholdReturnMetadataNameIfNoFormatterPresent() {
-
-        Location location = new Location();
-        location.setName("Test name");
-
-        Assert.assertTrue(HtmlFormEntryUtil.format(location, Locale.US).equals("Test name"));
-    }
-
-    @Test
-    @Verifies(value="shouldFetchLocationTagByName", method="getLocationTag(String identifier)")
-    public void shouldFetchLocationTagByName() throws Exception {
-        // this tag is in the regression test dataset
-        executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-
-        LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
-        Assert.assertNotNull(tag);
-        Assert.assertEquals("Some Tag", tag.getTag());
-    }
-
-    @Test
-    @Verifies(value="shouldFetchLocationTagById", method="getLocationTag(String identifier)")
-    public void shouldFetchLocationTagById() throws Exception {
-        // this tag is in the regression test dataset
-        executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-
-        LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
-        Assert.assertNotNull(tag);
-        Assert.assertEquals("Some Tag", tag.getTag());
-    }
-
+	
+	@Test
+	@Verifies(value = "shouldSetValueCodedNameGivenAConceptName", method = "createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+	public void createObs_shouldSetValueCodedNameGivenAConceptName() {
+		Concept answerConcept = new Concept();
+		ConceptName answer = new ConceptName("Answer", Context.getLocale());
+		answerConcept.addName(answer);
+		
+		Concept question = new Concept();
+		question.setUuid(UUID.randomUUID().toString());
+		question.setDatatype(Context.getConceptService().getConceptDatatypeByName("Coded"));
+		Obs created = HtmlFormEntryUtil.createObs(question, answer, new Date(), "");
+		assertThat(created.getValueCodedName(), is(answerConcept.getPreferredName(Context.getLocale())));
+		assertThat(created.getValueCoded(), is(answerConcept));
+	}
+	
+	@Test
+	@Verifies(value = "shouldReturnMetadataNameIfNoFormatterPresent", method = "format(OpenmrsMetadata md, Locale locale)")
+	public void sholdReturnMetadataNameIfNoFormatterPresent() {
+		
+		Location location = new Location();
+		location.setName("Test name");
+		
+		Assert.assertTrue(HtmlFormEntryUtil.format(location, Locale.US).equals("Test name"));
+	}
+	
+	@Test
+	@Verifies(value = "shouldFetchLocationTagByName", method = "getLocationTag(String identifier)")
+	public void shouldFetchLocationTagByName() throws Exception {
+		// this tag is in the regression test dataset
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		
+		LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
+		Assert.assertNotNull(tag);
+		Assert.assertEquals("Some Tag", tag.getTag());
+	}
+	
+	@Test
+	@Verifies(value = "shouldFetchLocationTagById", method = "getLocationTag(String identifier)")
+	public void shouldFetchLocationTagById() throws Exception {
+		// this tag is in the regression test dataset
+		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		
+		LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
+		Assert.assertNotNull(tag);
+		Assert.assertEquals("Some Tag", tag.getTag());
+	}
+	
 	@Test
 	public void evaluateStaticConstant_shouldReturnEvaluatedConstant() {
-		assertThat(HtmlFormEntryUtil.evaluateStaticConstant(
-                        "org.openmrs.module.htmlformentry.HtmlFormEntryConstants.CONSTANT_YES"),
-                is((Object) HtmlFormEntryConstants.CONSTANT_YES));
+		assertThat(
+		    HtmlFormEntryUtil.evaluateStaticConstant("org.openmrs.module.htmlformentry.HtmlFormEntryConstants.CONSTANT_YES"),
+		    is((Object) HtmlFormEntryConstants.CONSTANT_YES));
 	}
-
+	
 	@Test(expected = IllegalArgumentException.class)
 	public void evaluateStaticConstant_shouldThrowExceptionForNonExistentConstant() {
 		HtmlFormEntryUtil.evaluateStaticConstant("xxx.yyy.ZZZ");
 	}
-
+	
 	protected void checkBooleanObsValue(Obs obs, boolean expected) {
 		if (OpenmrsConstants.OPENMRS_VERSION_SHORT.equals("1.6")) {
 			Double expectedValue = expected ? 1.0 : 0.0;
 			Assert.assertEquals(expectedValue, obs.getValueNumeric());
-		}
-		else {
+		} else {
 			String expectedGpProperty = expected ? "concept.true" : "concept.false";
 			String conceptId = Context.getAdministrationService().getGlobalProperty(expectedGpProperty);
 			Assert.assertEquals(conceptId, obs.getValueCoded().getConceptId().toString());

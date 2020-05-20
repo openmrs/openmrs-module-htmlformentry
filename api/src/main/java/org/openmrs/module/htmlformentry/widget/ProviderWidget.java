@@ -26,19 +26,18 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.ProviderByPersonNameComparator;
 import org.springframework.util.StringUtils;
 
-
 /**
  * Widget that lets you choose a {@link Provider} from a dropdown
  */
 public class ProviderWidget implements Widget {
 	
 	private Provider initialValue;
-
-    private List<Provider> providers;
-
-    public ProviderWidget(List<Provider> providers) {
-    	this.providers = providers;
-    }
+	
+	private List<Provider> providers;
+	
+	public ProviderWidget(List<Provider> providers) {
+		this.providers = providers;
+	}
 	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
@@ -47,54 +46,56 @@ public class ProviderWidget implements Widget {
 	public void setInitialValue(Object initialValue) {
 		this.initialValue = (Provider) initialValue;
 	}
-
-    public void setProviders(List<Provider> providers) {
-        this.providers = providers;
-    }
-
-    /**
+	
+	public void setProviders(List<Provider> providers) {
+		this.providers = providers;
+	}
+	
+	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-            if (initialValue != null)
-                return WidgetFactory.displayValue(initialValue.getName());
-            else
-                return "";
-        }
-
+			if (initialValue != null)
+				return WidgetFactory.displayValue(initialValue.getName());
+			else
+				return "";
+		}
+		
 		Collections.sort(providers, new ProviderByPersonNameComparator());
-
+		
 		StringBuilder sb = new StringBuilder();
-        sb.append("<select name=\"" + context.getFieldName(this) + "\">");
-        sb.append("\n<option value=\"\">");
-        sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"));
-        sb.append("</option>");
-
-        for (Provider provider : providers) {
-        	sb.append("\n<option ");
-        	if (initialValue != null && initialValue.equals(provider))
-        		sb.append("selected=\"true\" ");
-        	sb.append("value=\"" + provider.getId() + "\">").append(provider.getPerson() != null ?
-                    HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName()) :
-                    provider.getName())
-                    .append("</option>");
-        }
-        sb.append("</select>");
+		sb.append("<select name=\"" + context.getFieldName(this) + "\">");
+		sb.append("\n<option value=\"\">");
+		sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"));
+		sb.append("</option>");
+		
+		for (Provider provider : providers) {
+			sb.append("\n<option ");
+			if (initialValue != null && initialValue.equals(provider))
+				sb.append("selected=\"true\" ");
+			sb.append("value=\"" + provider.getId() + "\">")
+			        .append(provider.getPerson() != null
+			                ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName())
+			                : provider.getName())
+			        .append("</option>");
+		}
+		sb.append("</select>");
 		return sb.toString();
 	}
-
+	
 	/**
-	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext, HttpServletRequest)
+	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext,
+	 *      HttpServletRequest)
 	 */
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		String val = request.getParameter(context.getFieldName(this));
-        if (StringUtils.hasText(val)) {
-        	return Context.getProviderService().getProvider(Integer.valueOf(val));
-        }
-        return null;
+		if (StringUtils.hasText(val)) {
+			return Context.getProviderService().getProvider(Integer.valueOf(val));
+		}
+		return null;
 	}
 	
 }

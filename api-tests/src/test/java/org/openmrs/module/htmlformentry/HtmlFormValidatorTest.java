@@ -65,17 +65,12 @@ public class HtmlFormValidatorTest extends BaseModuleContextSensitiveTest {
 		new HtmlFormValidator().validate(htmlForm, errors);
 		Assert.assertTrue(errors.hasFieldErrors("xmlData"));
 	}
-
+	
 	@Test
 	public void validate_shouldAllowXmlWithValidObsGroupAndSetMembers() throws Exception {
-		String xml = "<htmlform>"
-				+ "<obsgroup groupingConceptId=\"23\">"
-				+ "<obs conceptId=\"18\" />"
-				+ "</obsgroup>"
-				+ "Date: <encounterDate/>Location: <encounterLocation/>"
-				+ "Provider: <encounterProvider role=\"Provider\"/>"
-				+ "Encounter Type: <encounterType /> <submit/>"
-				+ "</htmlform>";
+		String xml = "<htmlform>" + "<obsgroup groupingConceptId=\"23\">" + "<obs conceptId=\"18\" />" + "</obsgroup>"
+		        + "Date: <encounterDate/>Location: <encounterLocation/>" + "Provider: <encounterProvider role=\"Provider\"/>"
+		        + "Encounter Type: <encounterType /> <submit/>" + "</htmlform>";
 		HtmlForm htmlForm = new HtmlForm();
 		Form form = Context.getFormService().getForm(1);
 		htmlForm.setXmlData(xml);
@@ -89,16 +84,10 @@ public class HtmlFormValidatorTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void validate_shouldWarnWhenXmlObsGroupIsNotASet() throws Exception {
-		String xml = "<htmlform>"
-				+ "<obsgroup groupingConceptId=\"10\">\n"
-				+ "<obs conceptId=\"3\" />\n"
-				+ "<obs conceptId=\"4\" />\n"
-				+ "</obsgroup>\n"
-				+ "Date: <encounterDate/>Location: <encounterLocation/>"
-				+ "Provider: <encounterProvider role=\"Provider\"/>"
-				+ "Encounter Type: <encounterType />"
-				+ "<submit/>"
-				+ "</htmlform>";
+		String xml = "<htmlform>" + "<obsgroup groupingConceptId=\"10\">\n" + "<obs conceptId=\"3\" />\n"
+		        + "<obs conceptId=\"4\" />\n" + "</obsgroup>\n" + "Date: <encounterDate/>Location: <encounterLocation/>"
+		        + "Provider: <encounterProvider role=\"Provider\"/>" + "Encounter Type: <encounterType />" + "<submit/>"
+		        + "</htmlform>";
 		HtmlForm htmlForm = new HtmlForm();
 		Form form = Context.getFormService().getForm(1);
 		htmlForm.setXmlData(xml);

@@ -22,12 +22,11 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 import java.util.Collection;
 
-
 /**
  * Test finding dependencies when doing a Metadata Sharing export of a form with this module's tags
  */
 public class MetadataSharingExportTest extends BaseModuleContextSensitiveTest {
-
+	
 	@Before
 	public void setup() throws Exception {
 		executeDataSet("org/openmrs/module/htmlformentry/include/encounterProviderAndRole.xml");
@@ -37,16 +36,21 @@ public class MetadataSharingExportTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void testExportWithEncounterRoleAndProvider() throws Exception {
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingExportTest.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingExportTest.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(true, true, true, true);
 		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
-				
-		Assert.assertTrue(dependencies.contains(Context.getEncounterService().getEncounterRoleByUuid("e5c5cc92-5283-11e1-bb6a-d975bd577a5e")));
-		Assert.assertTrue(dependencies.contains(Context.getEncounterService().getEncounterRoleByUuid("eb75d754-5283-11e1-bb6a-d975bd577a5e")));
-		Assert.assertTrue(dependencies.contains(Context.getProviderService().getProviderByUuid("d2299800-cca9-11e0-9572-0800200c9a66")));
-		Assert.assertTrue(dependencies.contains(Context.getProviderService().getProviderByUuid("c2299800-cca9-11e0-9572-0800200c9a66")));
+		
+		Assert.assertTrue(dependencies
+		        .contains(Context.getEncounterService().getEncounterRoleByUuid("e5c5cc92-5283-11e1-bb6a-d975bd577a5e")));
+		Assert.assertTrue(dependencies
+		        .contains(Context.getEncounterService().getEncounterRoleByUuid("eb75d754-5283-11e1-bb6a-d975bd577a5e")));
+		Assert.assertTrue(
+		    dependencies.contains(Context.getProviderService().getProviderByUuid("d2299800-cca9-11e0-9572-0800200c9a66")));
+		Assert.assertTrue(
+		    dependencies.contains(Context.getProviderService().getProviderByUuid("c2299800-cca9-11e0-9572-0800200c9a66")));
 	}
 	
 }

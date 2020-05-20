@@ -19,21 +19,20 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @Controller
 public class PopupWidgetController {
-                      
+	
 	@RequestMapping("/module/htmlformentry/personSearch")
 	public void patientSearch(ModelMap model) throws Exception {
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-    @RequestMapping("/module/htmlformentry/personResultTable")
-	public void personSearch(ModelMap model, @RequestParam(value="pSearch",required=false) String searchPhrase, 
-	                                 @RequestParam(value="pAttribute",required=false) String searchAttribute,
-	                                 @RequestParam(value="pAttributeValue",required=false) String attributeValue,
-	                                 @RequestParam(value="pProgram",required=false) String searchProgram) throws Exception {
+	@RequestMapping("/module/htmlformentry/personResultTable")
+	public void personSearch(ModelMap model, @RequestParam(value = "pSearch", required = false) String searchPhrase,
+	        @RequestParam(value = "pAttribute", required = false) String searchAttribute,
+	        @RequestParam(value = "pAttributeValue", required = false) String attributeValue,
+	        @RequestParam(value = "pProgram", required = false) String searchProgram) throws Exception {
 		
 		List<Integer> personId = new ArrayList<Integer>();
 		List<Object> personList = new ArrayList<Object>();
@@ -49,8 +48,7 @@ public class PopupWidgetController {
 		PersonService ps = Context.getPersonService();
 		for (Person p : ps.getPeople(searchPhrase, null)) {
 			
-			if(!personId.contains(p.getId()))
-			{
+			if (!personId.contains(p.getId())) {
 				personList.add(PersonListItem.createBestMatch(p));
 			}
 		}
@@ -59,75 +57,59 @@ public class PopupWidgetController {
 		if (searchPhrase.matches(".*\\d+.*")) {
 			patientService = Context.getPatientService();
 			for (Patient p : patientService.getPatients(null, searchPhrase, null, false)) {
-				if(!personId.contains(p.getId()))
-				{
+				if (!personId.contains(p.getId())) {
 					personList.add(PersonListItem.createBestMatch(p));
 				}
 			}
 		}
 		
 		Cohort cohort = null;
-		if(searchAttribute != null)
-		{
+		if (searchAttribute != null) {
 			String[] attributes = searchAttribute.split(",");
 			String[] attrValues = null;
-			if(attributeValue != null)
-			{
+			if (attributeValue != null) {
 				attrValues = searchAttribute.split(",");
 			}
 			
-			for(int i = 0; i < attributes.length; i++)
-			{
+			for (int i = 0; i < attributes.length; i++) {
 				String attr = attributes[i];
 				String val = null;
-				if(attrValues != null && attrValues[i].trim().length() > 0)
-				{
+				if (attrValues != null && attrValues[i].trim().length() > 0) {
 					val = attrValues[i];
 				}
-				if(attr != null && attr.trim().length() > 0)
-				{
-					List<Integer> ids = Context.getService(HtmlFormEntryService.class).getPersonIdsHavingAttributes(attr, val);
+				if (attr != null && attr.trim().length() > 0) {
+					List<Integer> ids = Context.getService(HtmlFormEntryService.class).getPersonIdsHavingAttributes(attr,
+					    val);
 					Set<Integer> setOfIds = new HashSet<Integer>();
 					setOfIds.addAll(ids);
 					
 					Cohort pp = new Cohort();
 					pp.setMemberIds(setOfIds);
-				
-					if(cohort != null)
-					{
+					
+					if (cohort != null) {
 						cohort = Cohort.intersect(cohort, pp);
-					}
-					else
-					{
+					} else {
 						cohort = pp;
 					}
 				}
 			}
 		}
 		
-		if(searchProgram != null)
-		{
+		if (searchProgram != null) {
 			String[] programs = searchProgram.split(",");
 			
-			for(int i = 0; i < programs.length; i++)
-			{
+			for (int i = 0; i < programs.length; i++) {
 				String prog = programs[i];
-				if(prog != null && prog.trim().length() > 0)
-				{
+				if (prog != null && prog.trim().length() > 0) {
 					Program personProgram = Context.getProgramWorkflowService().getProgramByUuid(prog);
-					if(personProgram == null)
-					{
+					if (personProgram == null) {
 						personProgram = Context.getProgramWorkflowService().getProgram(Integer.parseInt(prog));
 					}
-					if(personProgram != null)
-					{
+					if (personProgram != null) {
 						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
-						if(cohort != null)
-						{
+						if (cohort != null) {
 							cohort = Cohort.intersect(cohort, pp);
-						}
-						else
-						{
+						} else {
 							cohort = pp;
 						}
 					}
@@ -135,26 +117,20 @@ public class PopupWidgetController {
 			}
 		}
 		//not iterate through the person list and filter based on the cohort
-		if(cohort != null)
-		{
+		if (cohort != null) {
 			List<Object> filteredList = new ArrayList<Object>();
-			for(Object o: personList)
-			{
-				PersonListItem pli = (PersonListItem)o;
+			for (Object o : personList) {
+				PersonListItem pli = (PersonListItem) o;
 				
-				if(cohort.getMemberIds().contains(pli.getPersonId()))
-				{
+				if (cohort.getMemberIds().contains(pli.getPersonId())) {
 					filteredList.add(o);
 				}
 			}
 			personList = filteredList;
-		}	
+		}
 		
 		model.put("people", personList);
 		
 	}
-	
-	
-	
 	
 }

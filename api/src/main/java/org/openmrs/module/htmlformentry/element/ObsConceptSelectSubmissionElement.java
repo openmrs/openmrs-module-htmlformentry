@@ -30,213 +30,218 @@ import javax.servlet.http.HttpServletRequest;
 
 @Deprecated
 public class ObsConceptSelectSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
-    
-    private List<Concept> concepts = new ArrayList<Concept>(); //possible concepts
-    private List<String> conceptLabels = new ArrayList<String>(); //the text to show for possible concepts
-    private Concept concept; // the winner
-    private Concept answerConcept; //the answerConcept
-    private String valueLabel; //the conceptAnswer label
-    private Widget valueWidget;
-    private ErrorWidget errorWidget;
-    private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
-    private boolean required;
-
-    public ObsConceptSelectSubmissionElement(FormEntryContext context,
-            Map<String, String> parameters) {
-        try {
-            String answerConceptId = parameters.get("answerConceptId");
-            answerConcept = HtmlFormEntryUtil.getConcept(answerConceptId);
-            if (answerConcept == null)
-                throw new NullPointerException();
-        } catch (Exception ex) {
-            throw new IllegalArgumentException("You must provide a valid answerConcept in "
-                    + parameters);
-        }
-        String conceptIds = parameters.get("conceptIds");
-        for (StringTokenizer st = new StringTokenizer(conceptIds, ","); st.hasMoreTokens(); ) {
-            String s = st.nextToken().trim();
-            Concept concept = HtmlFormEntryUtil.getConcept(s);
-            if (concept == null)
-                throw new IllegalArgumentException("Cannot find concept value " + s + " in conceptIds attribute value. Parameters: " + parameters);
-            concepts.add(concept);
-        }
-        if (concepts.size() == 0)
-            throw new IllegalArgumentException("You must provide some valid concept Ids for the conceptIds attribute. Parameters: " + parameters);
-        if ("true".equals(parameters.get("required"))) {
-            required = true;
-        }
-        prepareWidgets(context, parameters);
-    }
-    
-    private void prepareWidgets(FormEntryContext context,Map<String, String> parameters) {
-        String userLocaleStr = Context.getLocale().toString();
-        //find existing obs, if necessary
-        if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
-            existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
-        } else {
-            existingObs = context.removeExistingObs(concepts, answerConcept);
-        }
-        errorWidget = new ErrorWidget();
-        context.registerWidget(errorWidget);
-        //next, just setup all variables:
-        if (parameters.containsKey("labelNameTag")) {
-            if (parameters.get("labelNameTag").equals("default"))
-                valueLabel = answerConcept.getName(Context.getLocale(), false).getName();
-            else
-                throw new IllegalArgumentException(
-                        "Name tags other than 'default' not yet implemented");
-        } else if (parameters.containsKey("labelText")) {
-            valueLabel = parameters.get("labelText");
-        } else if (parameters.containsKey("labelCode")) {
-            valueLabel = context.getTranslator().translate(userLocaleStr,
-                    parameters.get("labelCode"));
-        } else {
-            valueLabel = answerConcept.getName(Context.getLocale(), false).getName();
-        }
-        if (parameters.get("conceptLabels") != null) {
-            conceptLabels = Arrays.asList(parameters.get("conceptLabels").split(","));
-        }
-        if ("radio".equals(parameters.get("style"))) {
-            valueWidget = new RadioButtonsWidget();
-        } else { // dropdown
-            valueWidget = new DropdownWidget();
-            ((DropdownWidget) valueWidget).addOption(new Option());
-        }
-        for (int i = 0; i < concepts.size(); ++i) {
-            Concept c = concepts.get(i);
-            String label = null;
-            if (conceptLabels != null && i < conceptLabels.size()) {
-                label = conceptLabels.get(i);
-            } else {
-                label = c.getName(Context.getLocale(), false).getName();
-            }
-            ((SingleOptionWidget) valueWidget).addOption(new Option(
-                label, c.getConceptId().toString(), false));
-        }
-        if (existingObs != null) {
-            valueWidget.setInitialValue(existingObs.getConcept());
-        }
-        context.registerWidget(valueWidget);
-        context.registerErrorWidget(valueWidget, errorWidget);
-        
-        ObsField field = new ObsField();
-        field.setName(valueLabel);
-        //field.setQuestion(concept);
-        if (answerConcept != null) {
-            ObsFieldAnswer ans = new ObsFieldAnswer();
-            ans.setDisplayName(getValueLabel());
-            ans.setConcept(answerConcept);
-            field.setAnswers(Arrays.asList(ans));
-        }
-        context.addFieldToActiveSection(field);
-    }
-    
-    @Override
-    public String generateHtml(FormEntryContext context) {
-        StringBuilder ret = new StringBuilder();
-        ret.append(valueLabel);
-        if (!"".equals(valueLabel))
-            ret.append(" ");
-        // if value is required
-        ret.append(valueWidget.generateHtml(context));
-        if (required) {
-            ret.append("<span class='required'>*</span>");
-        }
-        
-        if (context.getMode() != Mode.VIEW) {
-            ret.append(" ");
-            ret.append(errorWidget.generateHtml(context));
-        }
-        return ret.toString();
-    }
-    
-    @Override
-    public Collection<FormSubmissionError> validateSubmission(
-            FormEntryContext context, HttpServletRequest submission) {
-        List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-        Object value = null;
-        try {
-            value = valueWidget.getValue(context, submission);
-        } catch (Exception ex) {
-            ret.add(new FormSubmissionError(valueWidget, ex.getMessage()));
-        }
-
-        if (required) {
-            if (value == null) {
-                ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
-            } else if (value instanceof String) {
-                String valueStr = (String) value;
-                if (StringUtils.isEmpty(valueStr)) {
-                    ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
-                }
-            }
-        }
-        
-        return ret;
-    }
-    
-    @Override
-    public void handleSubmission(FormEntrySession session,
-            HttpServletRequest submission) {
-        Object value = valueWidget.getValue(session.getContext(), submission);
-        try {
-            if (value instanceof Concept)
-                concept = (Concept) value;
-            else
-                concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
-        } catch (Exception ex){
-            throw new RuntimeException("Unable to convert response to a concept!");
-        }
-        Date obsDatetime = null;
-        String accessionNumberValue = null;
-        if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
-            //TODO:  we're going to need a new version of this that uses the conceptAnswer as the matching concept...
-            session.getSubmissionActions().modifyObs(existingObs, concept,
-                    answerConcept, obsDatetime, accessionNumberValue, null);
-        } else {
-            if (value != null && !"".equals(value) && concept != null) {
-                session.getSubmissionActions().createObs(concept, answerConcept,
-                        obsDatetime, accessionNumberValue, null);
-            }
-        }
-    }
-
-    public List<Concept> getConcepts() {
-        return concepts;
-    }
-
-    public List<String> getConceptLabels() {
-        return conceptLabels;
-    }
-
-    public Concept getConcept() {
-        return concept;
-    }
-
-    public Concept getAnswerConcept() {
-        return answerConcept;
-    }
-
-    public String getValueLabel() {
-        return valueLabel;
-    }
-
-    public Widget getValueWidget() {
-        return valueWidget;
-    }
-
-    public ErrorWidget getErrorWidget() {
-        return errorWidget;
-    }
-
-    public Obs getExistingObs() {
-        return existingObs;
-    }
-
-    public boolean isRequired() {
-        return required;
-    }
-    
-    
-    
+	
+	private List<Concept> concepts = new ArrayList<Concept>(); //possible concepts
+	
+	private List<String> conceptLabels = new ArrayList<String>(); //the text to show for possible concepts
+	
+	private Concept concept; // the winner
+	
+	private Concept answerConcept; //the answerConcept
+	
+	private String valueLabel; //the conceptAnswer label
+	
+	private Widget valueWidget;
+	
+	private ErrorWidget errorWidget;
+	
+	private Obs existingObs; // in edit mode, this allows submission to check whether the obs has been modified or not
+	
+	private boolean required;
+	
+	public ObsConceptSelectSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
+		try {
+			String answerConceptId = parameters.get("answerConceptId");
+			answerConcept = HtmlFormEntryUtil.getConcept(answerConceptId);
+			if (answerConcept == null)
+				throw new NullPointerException();
+		}
+		catch (Exception ex) {
+			throw new IllegalArgumentException("You must provide a valid answerConcept in " + parameters);
+		}
+		String conceptIds = parameters.get("conceptIds");
+		for (StringTokenizer st = new StringTokenizer(conceptIds, ","); st.hasMoreTokens();) {
+			String s = st.nextToken().trim();
+			Concept concept = HtmlFormEntryUtil.getConcept(s);
+			if (concept == null)
+				throw new IllegalArgumentException(
+				        "Cannot find concept value " + s + " in conceptIds attribute value. Parameters: " + parameters);
+			concepts.add(concept);
+		}
+		if (concepts.size() == 0)
+			throw new IllegalArgumentException(
+			        "You must provide some valid concept Ids for the conceptIds attribute. Parameters: " + parameters);
+		if ("true".equals(parameters.get("required"))) {
+			required = true;
+		}
+		prepareWidgets(context, parameters);
+	}
+	
+	private void prepareWidgets(FormEntryContext context, Map<String, String> parameters) {
+		String userLocaleStr = Context.getLocale().toString();
+		//find existing obs, if necessary
+		if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
+			existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
+		} else {
+			existingObs = context.removeExistingObs(concepts, answerConcept);
+		}
+		errorWidget = new ErrorWidget();
+		context.registerWidget(errorWidget);
+		//next, just setup all variables:
+		if (parameters.containsKey("labelNameTag")) {
+			if (parameters.get("labelNameTag").equals("default"))
+				valueLabel = answerConcept.getName(Context.getLocale(), false).getName();
+			else
+				throw new IllegalArgumentException("Name tags other than 'default' not yet implemented");
+		} else if (parameters.containsKey("labelText")) {
+			valueLabel = parameters.get("labelText");
+		} else if (parameters.containsKey("labelCode")) {
+			valueLabel = context.getTranslator().translate(userLocaleStr, parameters.get("labelCode"));
+		} else {
+			valueLabel = answerConcept.getName(Context.getLocale(), false).getName();
+		}
+		if (parameters.get("conceptLabels") != null) {
+			conceptLabels = Arrays.asList(parameters.get("conceptLabels").split(","));
+		}
+		if ("radio".equals(parameters.get("style"))) {
+			valueWidget = new RadioButtonsWidget();
+		} else { // dropdown
+			valueWidget = new DropdownWidget();
+			((DropdownWidget) valueWidget).addOption(new Option());
+		}
+		for (int i = 0; i < concepts.size(); ++i) {
+			Concept c = concepts.get(i);
+			String label = null;
+			if (conceptLabels != null && i < conceptLabels.size()) {
+				label = conceptLabels.get(i);
+			} else {
+				label = c.getName(Context.getLocale(), false).getName();
+			}
+			((SingleOptionWidget) valueWidget).addOption(new Option(label, c.getConceptId().toString(), false));
+		}
+		if (existingObs != null) {
+			valueWidget.setInitialValue(existingObs.getConcept());
+		}
+		context.registerWidget(valueWidget);
+		context.registerErrorWidget(valueWidget, errorWidget);
+		
+		ObsField field = new ObsField();
+		field.setName(valueLabel);
+		//field.setQuestion(concept);
+		if (answerConcept != null) {
+			ObsFieldAnswer ans = new ObsFieldAnswer();
+			ans.setDisplayName(getValueLabel());
+			ans.setConcept(answerConcept);
+			field.setAnswers(Arrays.asList(ans));
+		}
+		context.addFieldToActiveSection(field);
+	}
+	
+	@Override
+	public String generateHtml(FormEntryContext context) {
+		StringBuilder ret = new StringBuilder();
+		ret.append(valueLabel);
+		if (!"".equals(valueLabel))
+			ret.append(" ");
+		// if value is required
+		ret.append(valueWidget.generateHtml(context));
+		if (required) {
+			ret.append("<span class='required'>*</span>");
+		}
+		
+		if (context.getMode() != Mode.VIEW) {
+			ret.append(" ");
+			ret.append(errorWidget.generateHtml(context));
+		}
+		return ret.toString();
+	}
+	
+	@Override
+	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+		Object value = null;
+		try {
+			value = valueWidget.getValue(context, submission);
+		}
+		catch (Exception ex) {
+			ret.add(new FormSubmissionError(valueWidget, ex.getMessage()));
+		}
+		
+		if (required) {
+			if (value == null) {
+				ret.add(new FormSubmissionError(valueWidget,
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
+			} else if (value instanceof String) {
+				String valueStr = (String) value;
+				if (StringUtils.isEmpty(valueStr)) {
+					ret.add(new FormSubmissionError(valueWidget,
+					        Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
+				}
+			}
+		}
+		
+		return ret;
+	}
+	
+	@Override
+	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+		Object value = valueWidget.getValue(session.getContext(), submission);
+		try {
+			if (value instanceof Concept)
+				concept = (Concept) value;
+			else
+				concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+		}
+		catch (Exception ex) {
+			throw new RuntimeException("Unable to convert response to a concept!");
+		}
+		Date obsDatetime = null;
+		String accessionNumberValue = null;
+		if (existingObs != null && session.getContext().getMode() == Mode.EDIT) {
+			//TODO:  we're going to need a new version of this that uses the conceptAnswer as the matching concept...
+			session.getSubmissionActions().modifyObs(existingObs, concept, answerConcept, obsDatetime, accessionNumberValue,
+			    null);
+		} else {
+			if (value != null && !"".equals(value) && concept != null) {
+				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue, null);
+			}
+		}
+	}
+	
+	public List<Concept> getConcepts() {
+		return concepts;
+	}
+	
+	public List<String> getConceptLabels() {
+		return conceptLabels;
+	}
+	
+	public Concept getConcept() {
+		return concept;
+	}
+	
+	public Concept getAnswerConcept() {
+		return answerConcept;
+	}
+	
+	public String getValueLabel() {
+		return valueLabel;
+	}
+	
+	public Widget getValueWidget() {
+		return valueWidget;
+	}
+	
+	public ErrorWidget getErrorWidget() {
+		return errorWidget;
+	}
+	
+	public Obs getExistingObs() {
+		return existingObs;
+	}
+	
+	public boolean isRequired() {
+		return required;
+	}
+	
 }

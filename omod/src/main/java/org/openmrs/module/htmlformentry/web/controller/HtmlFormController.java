@@ -33,72 +33,67 @@ import org.springframework.web.context.request.WebRequest;
 
 @Controller
 public class HtmlFormController {
-
-    /** Logger for this class and subclasses */
-    protected final Log log = LogFactory.getLog(getClass());
 	
-
-    @InitBinder
+	/** Logger for this class and subclasses */
+	protected final Log log = LogFactory.getLog(getClass());
+	
+	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-    	binder.registerCustomEditor(EncounterType.class, new EncounterTypeEditor());
-        binder.registerCustomEditor(java.util.Date.class, 
-                new CustomDateEditor(SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT, Context.getLocale()), true));
+		binder.registerCustomEditor(EncounterType.class, new EncounterTypeEditor());
+		binder.registerCustomEditor(java.util.Date.class,
+		    new CustomDateEditor(SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT, Context.getLocale()), true));
 	}
-
-    
-    @ModelAttribute("encounterTypes")
+	
+	@ModelAttribute("encounterTypes")
 	List<EncounterType> getEncounterTypes() {
 		return Context.getEncounterService().getAllEncounterTypes();
 	}
 	
-    @ModelAttribute("htmlForm")
-    HtmlForm formBackingObject(@RequestParam(value="id", required=false) Integer id) {
-    	if (id != null) {
-            HtmlForm hf = HtmlFormEntryUtil.getService().getHtmlForm(id);
-            // avoid LazyInitializationException
-            hf.getForm().getFormFields().size();
-            return hf;
-        } else {
-        	HtmlForm hf = new HtmlForm();
-        	hf.setForm(new Form());
-        	return hf;
-        }
-    }
-    
+	@ModelAttribute("htmlForm")
+	HtmlForm formBackingObject(@RequestParam(value = "id", required = false) Integer id) {
+		if (id != null) {
+			HtmlForm hf = HtmlFormEntryUtil.getService().getHtmlForm(id);
+			// avoid LazyInitializationException
+			hf.getForm().getFormFields().size();
+			return hf;
+		} else {
+			HtmlForm hf = new HtmlForm();
+			hf.setForm(new Form());
+			return hf;
+		}
+	}
+	
 	/**
 	 * Show a single HTML Form
 	 */
-	@RequestMapping(value="/module/htmlformentry/htmlForm", method=RequestMethod.GET)
-	public void showHtmlForm(Model model,
-                             HttpSession httpSession,
-	                         @ModelAttribute("htmlForm") HtmlForm htmlForm) {
+	@RequestMapping(value = "/module/htmlformentry/htmlForm", method = RequestMethod.GET)
+	public void showHtmlForm(Model model, HttpSession httpSession, @ModelAttribute("htmlForm") HtmlForm htmlForm) {
 		HtmlForm hf = (HtmlForm) model.asMap().get("htmlForm");
 		if (hf.getId() == null) {
 			model.addAttribute("previewHtml", "");
 		} else {
 			try {
-                Patient demo = HtmlFormEntryUtil.getFakePerson();
-                FormEntrySession fes = new FormEntrySession(demo, hf.getXmlData(), httpSession);
-                String html = fes.getHtmlToDisplay();
-                if (fes.getFieldAccessorJavascript() != null) {
-                	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
-                }
-                model.addAttribute("previewHtml", html);
-            } catch (Exception ex) {
-                log.warn("Error rendering html form", ex);
-                model.addAttribute("previewHtml", "Error! " + ex);
-            }
+				Patient demo = HtmlFormEntryUtil.getFakePerson();
+				FormEntrySession fes = new FormEntrySession(demo, hf.getXmlData(), httpSession);
+				String html = fes.getHtmlToDisplay();
+				if (fes.getFieldAccessorJavascript() != null) {
+					html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
+				}
+				model.addAttribute("previewHtml", html);
+			}
+			catch (Exception ex) {
+				log.warn("Error rendering html form", ex);
+				model.addAttribute("previewHtml", "Error! " + ex);
+			}
 		}
 	}
-
 	
 	/**
 	 * Save changes to an HTML Form
 	 */
-	@RequestMapping(value="/module/htmlformentry/htmlForm", method=RequestMethod.POST)
-	public String saveHtmlForm(Model model,
-	                           @ModelAttribute("htmlForm") HtmlForm htmlForm, BindingResult result,
-	                           WebRequest request) {
+	@RequestMapping(value = "/module/htmlformentry/htmlForm", method = RequestMethod.POST)
+	public String saveHtmlForm(Model model, @ModelAttribute("htmlForm") HtmlForm htmlForm, BindingResult result,
+	        WebRequest request) {
 		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
 		if (htmlForm.getId() == null && StringUtils.isBlank(htmlForm.getXmlData())) {
 			htmlForm.setXmlData(service.getStartingFormXml(htmlForm));
@@ -111,10 +106,11 @@ public class HtmlFormController {
 		if (result.hasErrors()) {
 			return null;
 		} else {
-	        htmlForm = service.saveHtmlForm(htmlForm);	        
-	        request.setAttribute(WebConstants.OPENMRS_MSG_ATTR, "Saved " + htmlForm.getForm().getName() + " " + htmlForm.getForm().getVersion(), WebRequest.SCOPE_SESSION);
+			htmlForm = service.saveHtmlForm(htmlForm);
+			request.setAttribute(WebConstants.OPENMRS_MSG_ATTR,
+			    "Saved " + htmlForm.getForm().getName() + " " + htmlForm.getForm().getVersion(), WebRequest.SCOPE_SESSION);
 			return "redirect:htmlForm.form?id=" + htmlForm.getId();
 		}
 	}
-    
+	
 }

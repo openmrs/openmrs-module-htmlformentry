@@ -20,16 +20,16 @@ import org.openmrs.PersonName;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
- * // TODO: this is deprecated  the PersonByNameComparator in core is the one that should now be used=
- *
- * A simple person comparator for sorting persons by name. Sorts names based on the following
+ * // TODO: this is deprecated the PersonByNameComparator in core is the one that should now be
+ * used= A simple person comparator for sorting persons by name. Sorts names based on the following
  * precedence: FamilyName, FamilyName2, GivenName, MiddleName, FamilyNamePrefix, FamilyNameSuffix
  */
 @Deprecated
 public class PersonByNameComparator implements Comparator<Person> {
+	
 	@Override
-    public int compare(Person person1, Person person2) {
-
+	public int compare(Person person1, Person person2) {
+		
 		// test for null cases (sorting them to be last in a list)
 		if (person1 == null || person1.getPersonName() == null) {
 			return 1;
@@ -62,7 +62,7 @@ public class PersonByNameComparator implements Comparator<Person> {
 		if (ret == 0) {
 			ret = OpenmrsUtil.compareWithNullAsGreatest(name1.getFamilyNameSuffix(), name2.getFamilyNameSuffix());
 		}
-	
+		
 		return ret;
 	}
 }
