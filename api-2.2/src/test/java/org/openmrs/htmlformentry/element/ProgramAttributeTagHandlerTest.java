@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class ProgramAttributeElementTest extends BaseModuleContextSensitiveTest {
+public class ProgramAttributeTagHandlerTest extends BaseModuleContextSensitiveTest {
 
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 
