@@ -91,6 +91,36 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
+	@Verifies(value = "should return correct xml after applying <repeat with=''> tag with tabs in between", method = "applyRepeats(String)")
+	public void applyRepeats_shouldReturnCorrectValueAfterApplyRepeatWithTagWithTab() throws Exception {
+		
+		// note that we throw in some random spaces here to make sure that we handle them correctly
+		String htmlform = "<htmlform><repeat    with=\" [ '4301','STROKE' ], ['4302', 'OTHER NON-CODED' ]\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />"
+		        + "</repeat></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label>"
+		        + "<input type=\"hidden\" name=\"_w2\"/> <span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span>"
+		        + "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label>"
+		        + "<input type=\"hidden\" name=\"_w4\"/>";
+		Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
+	}
+	
+	@Test
+	@Verifies(value = "should return correct xml after applying <repeat with=''> tag with new line in between", method = "applyRepeats(String)")
+	public void applyRepeats_shouldReturnCorrectValueAfterApplyRepeatWithTagWithNewLine() throws Exception {
+		
+		// note that we throw in some random spaces here to make sure that we handle them correctly
+		String htmlform = "<htmlform><repeat\n with=\" [ '4301','STROKE' ], ['4302', 'OTHER NON-CODED' ]\"><obs conceptId=\"4300\" answerConceptId=\"{0}\" answerLabel=\"{1}\" style=\"checkbox\" />"
+		        + "</repeat></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		String testText = "<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"4301\"/><label for=\"w2\">STROKE</label>"
+		        + "<input type=\"hidden\" name=\"_w2\"/> <span class=\"error field-error\" style=\"display: none\" id=\"w1\"></span>"
+		        + "<input type=\"checkbox\" id=\"w4\" name=\"w4\" value=\"4302\"/><label for=\"w4\">OTHER NON-CODED</label>"
+		        + "<input type=\"hidden\" name=\"_w4\"/>";
+		Assert.assertTrue(session.getHtmlToDisplay().contains(testText));
+	}
+	
+	@Test
 	@Verifies(value = "should return correct xml after applying multiple <repeat with=''> tag", method = "applyRepeats(String)")
 	public void applyRepeats_shouldReturnCorrectVaueAfterApplyingMultipleRepeatWithTag() throws Exception {
 		

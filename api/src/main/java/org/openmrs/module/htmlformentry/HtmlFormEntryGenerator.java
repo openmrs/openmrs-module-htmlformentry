@@ -494,6 +494,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 */
 	private String applyRepeatWithTags(String xml) throws Exception {
 		
+		// replacing extra space between "repeat & with" to ease of checking "<repeat with=" occurances
+		xml = xml.replaceAll("<repeat(\\s)+with=", "<repeat with=");
 		while (xml.contains("<repeat with=")) {
 			
 			int startIndex = xml.indexOf("<repeat with=");
