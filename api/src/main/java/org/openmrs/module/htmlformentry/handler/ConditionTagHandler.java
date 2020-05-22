@@ -17,5 +17,13 @@ public class ConditionTagHandler extends SubstitutionTagHandler {
 	        Map<String, String> parameters) throws BadFormDesignException {
 		return handler.getSubstitution(session, controllerActions, parameters);
 	}
-	
+
+	public ConditionTagHandlerSupport getHandler() {
+		return handler;
+	}
+
+	public void setHandler(ConditionTagHandlerSupport handler) {
+		this.handler = handler;
+	}
+
 }

@@ -7,13 +7,13 @@
         <version>3.11.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>htmlformentry-api-2.2</artifactId>
+    <artifactId>htmlformentry-api-2.3</artifactId>
     <packaging>jar</packaging>
-    <name>htmlformentry Module api 2.2</name>
-    <description>2.2 api project for htmlformentry</description>
+    <name>htmlformentry Module api 2.3</name>
+    <description>2.3 api project for htmlformentry</description>
 
     <properties>
-        <openMRSVersion>2.2.0</openMRSVersion>
+        <openMRSVersion>2.3.1-SNAPSHOT</openMRSVersion>
     </properties>
 
     <dependencies>
@@ -21,8 +21,21 @@
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-api</artifactId>
             <version>${project.parent.version}</version>
+            <classifier>tests</classifier>
+			<exclusions>
+				<exclusion>
+					<artifactId>javassist</artifactId>
+					<groupId>javassist</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>htmlformentry-api-tests</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		
         <dependency>
             <groupId>org.openmrs.api</groupId>
             <artifactId>openmrs-api</artifactId>
@@ -30,6 +43,19 @@
             <scope>provided</scope>
         </dependency>
        
+       <dependency>
+			<groupId>org.openmrs.api</groupId>
+			<artifactId>openmrs-api</artifactId>
+			<version>${openMRSVersion}</version>
+			<classifier>tests</classifier>
+			<exclusions>
+				<exclusion>
+					<artifactId>javassist</artifactId>
+					<groupId>javassist</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.openmrs.test</groupId>
 			<artifactId>openmrs-test</artifactId>
@@ -40,6 +66,37 @@
         <dependency>
 			<groupId>org.openmrs.web</groupId>
 			<artifactId>openmrs-web</artifactId>
+			<version>${openMRSVersion}</version>	
+		</dependency>
+		
+		<!-- jars required only to run test scripts (scope=test) -->
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.joda</groupId>
+			<artifactId>joda-convert</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -52,6 +109,18 @@
     </dependencies>
 
     <build>
+	  <plugins>
+	      <plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-compiler-plugin</artifactId>
+	        <version>3.8.1</version>
+	        <configuration>
+	          <source>1.8</source>
+	          <target>1.8</target>
+	        </configuration>
+	      </plugin>
+	    </plugins>
+	    
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
