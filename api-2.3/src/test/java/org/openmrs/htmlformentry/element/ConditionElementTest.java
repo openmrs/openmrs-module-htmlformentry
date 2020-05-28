@@ -103,7 +103,7 @@ public class ConditionElementTest {
 			}
 			
 		}).when(conceptService).getConcept(any(Integer.class));
-
+		
 		doAnswer(new Answer<ConceptClass>() {
 			
 			@Override
@@ -114,7 +114,7 @@ public class ConditionElementTest {
 			}
 			
 		}).when(conceptService).getConceptClassByName(any(String.class));
-				
+		
 		// Setup html form session context
 		when(context.getMode()).thenReturn(Mode.ENTER);
 		request = new MockHttpServletRequest();
@@ -150,7 +150,7 @@ public class ConditionElementTest {
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
-
+		
 	}
 	
 	@Test
@@ -251,7 +251,8 @@ public class ConditionElementTest {
 	public void htmlForConditionSearchWidget_shouldGetConceptSourceClassesFromGP() {
 		// setup
 		element.setMessageSourceService(messageSourceService);
-		when(adminService.getGlobalProperty(ConditionElement.GLOBAL_PROPERTY_CONDITIONS_CRITERIA)).thenReturn("Diagnosis,Finding");
+		when(adminService.getGlobalProperty(ConditionElement.GLOBAL_PROPERTY_CONDITIONS_CRITERIA))
+		        .thenReturn("Diagnosis,Finding");
 		
 		// replay
 		String html = element.htmlForConditionSearchWidget(context);
@@ -271,7 +272,7 @@ public class ConditionElementTest {
 		
 		// verify
 		Assert.assertTrue(html.contains("setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null')"));
-
+		
 	}
-
+	
 }

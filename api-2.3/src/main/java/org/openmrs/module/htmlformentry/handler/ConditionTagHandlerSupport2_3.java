@@ -14,14 +14,12 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 	private ConditionElement conditionElement;
 	
 	public ConditionTagHandlerSupport2_3() {
-		conditionElement = new ConditionElement();
 	}
 	
 	@Override
-	public String getSubstitution(FormEntrySession session, FormSubmissionController controller, Map<String, String> attributes) {
-		if (conditionElement == null) {
-			conditionElement = new ConditionElement();
-		}
+	public String getSubstitution(FormEntrySession session, FormSubmissionController controller,
+	        Map<String, String> attributes) {
+		conditionElement = new ConditionElement();
 		String required = attributes.get("required");
 		if (required != null) {
 			conditionElement.setRequired(required.equalsIgnoreCase("true"));
@@ -32,14 +30,7 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 		}
 		conditionElement.setFormFieldName(formFieldName);
 		session.getSubmissionController().addAction(conditionElement);
-		return conditionElement.generateHtml(session.getContext());	
+		return conditionElement.generateHtml(session.getContext());
 	}
-
-	public ConditionElement getConditionElement() {
-		return conditionElement;
-	}
-
-	public void setConditionElement(ConditionElement conditionElement) {
-		this.conditionElement = conditionElement;
-	}
+	
 }
