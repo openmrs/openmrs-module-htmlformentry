@@ -4,8 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,19 +20,19 @@ import org.springframework.mock.web.MockHttpServletRequest;
 public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	
 	// field names
-	private String searchWidgetForCurrectCondition = "w7";
+	private String searchWidgetIdForCurrentCondition = "w7";
 	
-	private String statusWidgetForCurrectCondition = "w9";
+	private String statusWidgetIdForCurrentCondition = "w9";
 	
-	private String onsetDateWidgetForCurrectCondition = "w11";
+	private String onsetDateWidgetIdForCurrentCondition = "w11";
 	
-	private String searchWidgetForPastCondition = "w14";
+	private String searchWidgetIdForPastCondition = "w14";
 	
-	private String statusWidgetForPastCondition = "w16";
+	private String statusWidgetIdForPastCondition = "w16";
 	
-	private String onsetDateWidgetForPastCondition = "w18";
+	private String onsetDateWidgetIdForPastCondition = "w18";
 	
-	private String endDateWidgetForPastCondition = "w19";
+	private String endDateWidgetIdForPastCondition = "w19";
 	
 	@Before
 	public void setup() throws Exception {
@@ -56,46 +54,39 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html) {
-				System.out.println(html);
-			}
-			
-			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				
 				// setup for current condition
-				request.addParameter(searchWidgetForCurrectCondition, "Epilepsy");
-				request.addParameter(searchWidgetForCurrectCondition + "_hid", "3476");
-				request.addParameter(statusWidgetForCurrectCondition, "active");
-				request.addParameter(onsetDateWidgetForCurrectCondition, "2014-02-11");
+				request.addParameter(searchWidgetIdForCurrentCondition, "Epilepsy");
+				request.addParameter(searchWidgetIdForCurrentCondition + "_hid", "3476");
+				request.addParameter(statusWidgetIdForCurrentCondition, "active");
+				request.addParameter(onsetDateWidgetIdForCurrentCondition, "2014-02-11");
 				
 				// setup for past condition
-				request.addParameter(searchWidgetForPastCondition, "Some past condition");
-				request.addParameter(statusWidgetForPastCondition, "inactive");
-				request.addParameter(onsetDateWidgetForPastCondition, "2013-02-11");
-				request.setParameter(endDateWidgetForPastCondition, "2019-04-11");
+				request.addParameter(searchWidgetIdForPastCondition, "Some past condition");
+				request.addParameter(statusWidgetIdForPastCondition, "inactive");
+				request.addParameter(onsetDateWidgetIdForPastCondition, "2013-02-11");
+				request.setParameter(endDateWidgetIdForPastCondition, "2019-04-11");
 			}
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				Set<Condition> conditions = results.getEncounterCreated().getConditions();
+				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
 				Concept expectedCondition = Context.getConceptService().getConceptByName("Epilepsy");
 				
 				results.assertNoErrors();
-				Assert.assertEquals(2, conditions.size());
-				
-				Condition[] conditionsArray = conditions.toArray(new Condition[conditions.size()]);
-				
-				Condition currentCondition = conditionsArray[0];
+				Assert.assertEquals(2, conditions.length);
+								
+				Condition currentCondition = conditions[0];
 				Assert.assertEquals(ConditionClinicalStatus.ACTIVE, currentCondition.getClinicalStatus());
 				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
 				Assert.assertEquals("2014-02-11", dateAsString(currentCondition.getOnsetDate()));
 				Assert.assertNotNull(currentCondition.getId());
 				
-				Condition pastCondition = conditionsArray[1];
+				Condition pastCondition = conditions[1];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, pastCondition.getClinicalStatus());
 				Assert.assertEquals("Some past condition", pastCondition.getCondition().getNonCoded());
 				Assert.assertEquals("2013-02-11", dateAsString(pastCondition.getOnsetDate()));
@@ -110,23 +101,19 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				// do edit the current condition
-				request.setParameter(searchWidgetForCurrectCondition, "Epilepsy");
-				request.setParameter(searchWidgetForCurrectCondition + "_hid", "3476");
-				request.setParameter(statusWidgetForCurrectCondition, "active");
-				// edit onset date
-				request.setParameter(onsetDateWidgetForCurrectCondition, "2020-02-11");
+				// edit onset date for the current condition
+				request.setParameter(onsetDateWidgetIdForCurrentCondition, "2020-02-11");
 			}
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				// setup
-				Set<Condition> conditions = results.getEncounterCreated().getConditions();
+				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
 				
 				results.assertNoErrors();
-				Assert.assertEquals(2, conditions.size());
+				Assert.assertEquals(2, conditions.length);
 				
-				Condition currentCondition = results.getEncounterCreated().getConditions().iterator().next();
+				Condition currentCondition = conditions[0];
 				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
 			}
 			
