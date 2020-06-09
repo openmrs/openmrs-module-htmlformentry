@@ -18,4 +18,12 @@ public class ConditionTagHandler extends SubstitutionTagHandler {
 		return handler.getSubstitution(session, controllerActions, parameters);
 	}
 	
+	public ConditionTagHandlerSupport getHandler() {
+		return handler;
+	}
+	
+	public void setHandler(ConditionTagHandlerSupport handler) {
+		this.handler = handler;
+	}
+	
 }

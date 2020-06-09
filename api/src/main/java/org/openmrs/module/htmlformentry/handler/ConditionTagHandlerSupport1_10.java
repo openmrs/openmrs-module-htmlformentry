@@ -12,7 +12,7 @@ public class ConditionTagHandlerSupport1_10 implements ConditionTagHandlerSuppor
 	@Override
 	public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
 	        Map<String, String> parameters) {
-		throw new RuntimeException("The Condition tag should be used on 2.2.0 platform version and above.");
+		throw new RuntimeException("The Condition tag should be used on 2.3.1 platform version and above.");
 	}
 	
 }

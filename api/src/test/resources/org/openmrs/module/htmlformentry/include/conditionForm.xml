@@ -1,0 +1,9 @@
+<htmlform>
+
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	Current Condition: <condition required="true" formFieldName="current_condition" />
+	Past Condition: <condition required="true" formFieldName="past_condition" />
+</htmlform>
