@@ -79,7 +79,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				
 				results.assertNoErrors();
 				Assert.assertEquals(2, conditions.length);
-								
+				
 				Condition currentCondition = conditions[0];
 				Assert.assertEquals(ConditionClinicalStatus.ACTIVE, currentCondition.getClinicalStatus());
 				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
