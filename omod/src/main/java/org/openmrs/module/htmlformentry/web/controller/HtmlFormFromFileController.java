@@ -7,8 +7,8 @@ import java.io.StringWriter;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
@@ -41,28 +41,26 @@ public class HtmlFormFromFileController {
 	
 	@RequestMapping("/module/htmlformentry/htmlFormFromFile.form")
 	public void handleRequest(Model model, @RequestParam(value = "filePath", required = false) String filePath,
-	                          @RequestParam(value = "patientId", required = false) Integer pId,
-	                          @RequestParam(value = "isFileUpload", required = false) boolean isFileUpload,
-	                          HttpServletRequest request) throws Exception {
-
-        Context.requirePrivilege("Manage Forms");
+	        @RequestParam(value = "patientId", required = false) Integer pId,
+	        @RequestParam(value = "isFileUpload", required = false) boolean isFileUpload, HttpServletRequest request)
+	        throws Exception {
+		
+		Context.requirePrivilege("Manage Forms");
 		
 		if (log.isDebugEnabled())
 			log.debug("In reference data...");
 		
 		model.addAttribute("previewHtml", "");
-		String message = "";
+		String message;
 		File f = null;
 		try {
 			if (isFileUpload) {
 				MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
 				MultipartFile multipartFile = multipartRequest.getFile("htmlFormFile");
 				if (multipartFile != null) {
-					//use the same file for the logged in user
-					f = new File(SystemUtils.JAVA_IO_TMPDIR, TEMP_HTML_FORM_FILE_PREFIX
-					        + Context.getAuthenticatedUser().getSystemId());
-					if (!f.exists())
-						f.createNewFile();
+					// use an unpredictable file name
+					f = File.createTempFile(TEMP_HTML_FORM_FILE_PREFIX, ".tmp");
+					f.deleteOnExit();
 					
 					filePath = f.getAbsolutePath();
 					FileOutputStream fileOut = new FileOutputStream(f);
@@ -72,8 +70,10 @@ public class HtmlFormFromFileController {
 			} else {
 				if (StringUtils.hasText(filePath)) {
 					f = new File(filePath);
-				} else {
-					message = "You must specify a file path to preview from file";
+					// prevent reading  a file via an absolute path or path traversal
+					if (f.isAbsolute() || !FilenameUtils.normalize(filePath).equals(filePath)) {
+						f = null;
+					}
 				}
 			}
 			
@@ -84,7 +84,10 @@ public class HtmlFormFromFileController {
 				IOUtils.copy(new FileInputStream(f), writer, "UTF-8");
 				String xml = writer.toString();
 				
-				Patient p = null;
+				// validate file is actually xml
+				HtmlFormEntryUtil.stringToDocument(xml);
+				
+				Patient p;
 				if (pId != null) {
 					p = Context.getPatientService().getPatient(pId);
 				} else {
@@ -95,8 +98,8 @@ public class HtmlFormFromFileController {
 				FormEntrySession fes = new FormEntrySession(p, null, Mode.ENTER, fakeForm, request.getSession());
 				String html = fes.getHtmlToDisplay();
 				if (fes.getFieldAccessorJavascript() != null) {
-                	html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
-                }
+					html += "<script>" + fes.getFieldAccessorJavascript() + "</script>";
+				}
 				model.addAttribute("previewHtml", html);
 				//clear the error message
 				message = "";

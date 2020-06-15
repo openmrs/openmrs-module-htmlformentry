@@ -29,7 +29,7 @@ import org.openmrs.util.LocaleUtility;
  * Tag support functions, providing common methods for parsing parameters
  */
 public class TagUtil {
-
+	
 	public static <T> List<T> parseListParameter(Map<String, String> parameters, String paramName, Class<T> type) {
 		List<T> ret = new ArrayList<T>();
 		String csvValue = parseParameter(parameters, paramName, String.class);
@@ -40,11 +40,11 @@ public class TagUtil {
 		}
 		return ret;
 	}
-
+	
 	public static <T> T parseParameter(Map<String, String> parameters, String paramName, Class<T> type) {
 		return parseParameter(parameters, paramName, type, null);
 	}
-
+	
 	public static <T> T parseParameter(Map<String, String> parameters, String paramName, Class<T> type, T defaultValue) {
 		T paramValue = parseValue(parameters.get(paramName), type);
 		if (paramValue == null) {
@@ -52,38 +52,29 @@ public class TagUtil {
 		}
 		return paramValue;
 	}
-
+	
 	public static <T> T parseValue(String valueToParse, Class<T> type) {
 		T ret = null;
 		if (valueToParse != null) {
 			if (type == String.class) {
 				ret = (T) valueToParse;
-			}
-			else if (type == Integer.class) {
+			} else if (type == Integer.class) {
 				ret = (T) Integer.valueOf(valueToParse);
-			}
-			else if (type == Double.class) {
+			} else if (type == Double.class) {
 				ret = (T) Double.valueOf(valueToParse);
-			}
-			else if (type == Boolean.class) {
+			} else if (type == Boolean.class) {
 				ret = (T) Boolean.valueOf(valueToParse);
-			}
-			else if (type == Locale.class) {
+			} else if (type == Locale.class) {
 				ret = (T) LocaleUtility.fromSpecification(valueToParse);
-			}
-			else if (type == Concept.class) {
+			} else if (type == Concept.class) {
 				ret = (T) HtmlFormEntryUtil.getConcept(valueToParse);
-			}
-			else if (type == Drug.class) {
+			} else if (type == Drug.class) {
 				ret = (T) HtmlFormEntryUtil.getDrug(valueToParse);
-			}
-			else if (type == EncounterRole.class) {
+			} else if (type == EncounterRole.class) {
 				ret = (T) HtmlFormEntryUtil.getEncounterRole(valueToParse);
-			}
-			else if (type == Provider.class) {
+			} else if (type == Provider.class) {
 				ret = (T) HtmlFormEntryUtil.getProvider(valueToParse);
-			}
-			else if (type.isEnum()) {
+			} else if (type.isEnum()) {
 				for (T enumConstant : type.getEnumConstants()) {
 					if (enumConstant.toString().equalsIgnoreCase(valueToParse)) {
 						ret = enumConstant;

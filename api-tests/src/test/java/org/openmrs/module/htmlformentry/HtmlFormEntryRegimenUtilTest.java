@@ -23,27 +23,25 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsConstants;
 
-
-
 public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-    
+	
 	protected static final String XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET = "RegimenUtilsTest.xml";
+	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-    
+	
 	@Before
-    public void setupDatabase() throws Exception {
+	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		
-		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);	
+		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
 		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS);
 		gp.setPropertyValue(xml);
 		Context.getAdministrationService().saveGlobalProperty(gp);
-    }
-
+	}
 	
 	@Test
 	@Verifies(value = "should create the correct number of DrugOrders, and they should save correctly", method = "standardRegimenToDrugOrders(RegimenSuggestion, Date, Patient)")
@@ -78,7 +76,6 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Assert.assertTrue(enc.getOrders().size() == 2);
 	}
 	
-	
 	@Test
 	@Verifies(value = "should match drugOrders to standard regimen correctly", method = "findStrongestStandardRegimenInDrugOrders(List<RegimenSuggestion>, List<Order>)")
 	public void findStrongestStandardRegimenInDrugOrders_shouldMatchLargeRegimenCorrectly() throws Exception {
@@ -92,7 +89,8 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Encounter e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
-		Map<RegimenSuggestion, List<DrugOrder>>  m = RegimenUtil.findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(),dors);
+		Map<RegimenSuggestion, List<DrugOrder>> m = RegimenUtil
+		        .findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(), dors);
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
@@ -112,7 +110,8 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Encounter e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
-		Map<RegimenSuggestion, List<DrugOrder>>  m = RegimenUtil.findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(),dors);
+		Map<RegimenSuggestion, List<DrugOrder>> m = RegimenUtil
+		        .findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(), dors);
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
@@ -131,7 +130,8 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		Encounter e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
-		Map<RegimenSuggestion, List<DrugOrder>>  m = RegimenUtil.findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(),dors);
+		Map<RegimenSuggestion, List<DrugOrder>> m = RegimenUtil
+		        .findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(), dors);
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
@@ -148,11 +148,11 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		
 		//update orders to have different start dates
 		Encounter e = Context.getEncounterService().getEncounter(encId);
-		int aDay = 1000*60*60*24;
+		int aDay = 1000 * 60 * 60 * 24;
 		int counter = 1;
-		for (Order dor : e.getOrders()){
+		for (Order dor : e.getOrders()) {
 			dor.setStartDate(new Date((dor.getStartDate().getTime()) - (aDay * counter)));
-			counter ++;
+			counter++;
 			log.debug("drugOrder now has start date " + dor.getStartDate());
 		}
 		Context.getEncounterService().saveEncounter(e);
@@ -163,18 +163,19 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		e = Context.getEncounterService().getEncounter(encId);
 		List<Order> dors = new ArrayList<Order>();
 		dors.addAll(e.getOrders());
-		Map<RegimenSuggestion, List<DrugOrder>>  m = RegimenUtil.findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(),dors);
+		Map<RegimenSuggestion, List<DrugOrder>> m = RegimenUtil
+		        .findStrongestStandardRegimenInDrugOrders(Context.getOrderService().getStandardRegimens(), dors);
 		Assert.assertTrue(m.size() > 0);
 		RegimenSuggestion rs = m.keySet().iterator().next();
 		log.debug("findStrongestStandardRegimenInDrugOrders found standard regimen " + rs.getCodeName());
 		Assert.assertTrue(rs.getCodeName().equals("drug2only"));
 	}
 	
-	
 	/**
-	 * Builds an Encounter for Patient (id = 2), and adds DrugOrders to the Patient according to which StandardRegimen you want.
+	 * Builds an Encounter for Patient (id = 2), and adds DrugOrders to the Patient according to which
+	 * StandardRegimen you want.
 	 */
-	private static Integer regimenTestBuildEncounterHelper(String code){
+	private static Integer regimenTestBuildEncounterHelper(String code) {
 		List<RegimenSuggestion> regList = Context.getOrderService().getStandardRegimens();
 		Assert.assertTrue(regList.size() > 0);
 		
@@ -189,7 +190,8 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		
 		//And, add some drugOrders
 		Patient p = Context.getPatientService().getPatient(2);
-		Set<Order> dos = RegimenUtil.standardRegimenToDrugOrders(RegimenUtil.getStandardRegimenByCode(regList, code), new Date(), p);
+		Set<Order> dos = RegimenUtil.standardRegimenToDrugOrders(RegimenUtil.getStandardRegimenByCode(regList, code),
+		    new Date(), p);
 		for (Order o : dos)
 			e.addOrder(o);
 		

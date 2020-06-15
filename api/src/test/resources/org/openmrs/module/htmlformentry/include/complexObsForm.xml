@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Upload: <obs conceptId="edd25bd1-56ef-4382-afda-4e15a33ad33a"/>
+    <submit/>
+</htmlform>

@@ -22,15 +22,16 @@ import org.springframework.web.context.request.WebRequest;
 @Controller
 @RequestMapping("/module/htmlformentry/migrateNamesAndDescriptions")
 public class MigrateNamesAndDescriptionsController {
-
+	
 	/**
 	 * Determines what stage of the migration we're at, and forwards to the correct JSP
+	 * 
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(method=RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET)
 	public String showMigrationsNeeded(Model model) {
-		HtmlFormEntryService service = HtmlFormEntryUtil.getService();		
+		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
 		List<HtmlForm> allForms = service.getAllHtmlForms();
 		
 		// 1. figure out whether any htmlforms need splitting because they share a form
@@ -72,7 +73,6 @@ public class MigrateNamesAndDescriptionsController {
 		}
 	}
 	
-	
 	private Map<Integer, List<HtmlForm>> getDuplicateForms(List<HtmlForm> allForms) {
 		Map<Integer, List<HtmlForm>> ret = new LinkedHashMap<Integer, List<HtmlForm>>();
 		for (HtmlForm htmlForm : allForms) {
@@ -85,20 +85,20 @@ public class MigrateNamesAndDescriptionsController {
 			holder.add(htmlForm);
 		}
 		// remove anything that doesn't appear multiple times
-		for (Iterator<Map.Entry<Integer, List<HtmlForm>>> i = ret.entrySet().iterator(); i.hasNext(); ) {
+		for (Iterator<Map.Entry<Integer, List<HtmlForm>>> i = ret.entrySet().iterator(); i.hasNext();) {
 			if (i.next().getValue().size() < 2)
 				i.remove();
 		}
 		return ret;
-    }
-	
+	}
 	
 	/**
 	 * Handles submission for splitting html forms that share an underlying form
+	 * 
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(method=RequestMethod.POST, params="migration=duplicateForms")
+	@RequestMapping(method = RequestMethod.POST, params = "migration=duplicateForms")
 	public String splitDuplicateForms(WebRequest request) {
 		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
 		Map<Integer, List<HtmlForm>> duplicates = getDuplicateForms(service.getAllHtmlForms());
@@ -113,19 +113,22 @@ public class MigrateNamesAndDescriptionsController {
 						splitUnderlyingForm(htmlForm);
 					}
 				}
-			} catch (NumberFormatException ex) { }
+			}
+			catch (NumberFormatException ex) {}
 		}
-	    return "redirect:migrateNamesAndDescriptions.form";
+		return "redirect:migrateNamesAndDescriptions.form";
 	}
-
+	
 	/**
 	 * Clears deprecated names and descriptions (because they exactly matched the underlying form
+	 * 
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(method=RequestMethod.POST, params="migration=clearNamesAndDescriptions")
-	public String clearNamesAndDescriptionsThatMatch(@RequestParam(value="clearName", required=false) List<Integer> clearNames,
-	                                                 @RequestParam(value="clearDescription", required=false) List<Integer> clearDescriptions) {
+	@RequestMapping(method = RequestMethod.POST, params = "migration=clearNamesAndDescriptions")
+	public String clearNamesAndDescriptionsThatMatch(
+	        @RequestParam(value = "clearName", required = false) List<Integer> clearNames,
+	        @RequestParam(value = "clearDescription", required = false) List<Integer> clearDescriptions) {
 		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
 		for (HtmlForm form : service.getAllHtmlForms()) {
 			boolean needToSave = false;
@@ -140,38 +143,39 @@ public class MigrateNamesAndDescriptionsController {
 			if (needToSave)
 				service.saveHtmlForm(form);
 		}
-	    return "redirect:migrateNamesAndDescriptions.form";
+		return "redirect:migrateNamesAndDescriptions.form";
 	}
-
+	
 	/**
 	 * Duplicates the Form that this HtmlForm points to, and points this HtmlForm to the new form.
+	 * 
 	 * @param htmlForm
 	 */
 	private void splitUnderlyingForm(HtmlForm htmlForm) {
 		Form oldForm = htmlForm.getForm();
-	    Form newForm = Context.getFormService().duplicateForm(oldForm);
-	    htmlForm.setForm(newForm);
-	    HtmlFormEntryService service = HtmlFormEntryUtil.getService();
-	    if (htmlForm.getDeprecatedName() != null) {
-	    	newForm.setName(htmlForm.getDeprecatedName());
-	    	htmlForm.setDeprecatedName(null);
-	    }
-	    service.saveHtmlForm(htmlForm);
-    }
-
+		Form newForm = Context.getFormService().duplicateForm(oldForm);
+		htmlForm.setForm(newForm);
+		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
+		if (htmlForm.getDeprecatedName() != null) {
+			newForm.setName(htmlForm.getDeprecatedName());
+			htmlForm.setDeprecatedName(null);
+		}
+		service.saveHtmlForm(htmlForm);
+	}
 	
 	/**
 	 * Handles submission of user choices for which names and descriptions to use.
+	 * 
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(method=RequestMethod.POST, params="migration=namesAndDescriptions")
+	@RequestMapping(method = RequestMethod.POST, params = "migration=namesAndDescriptions")
 	public String doNameAndDescriptionMigration(WebRequest request) {
 		HtmlFormEntryService service = HtmlFormEntryUtil.getService();
 		
 		for (HtmlForm htmlForm : service.getAllHtmlForms()) {
 			boolean modified = false;
-
+			
 			String nameChoice = request.getParameter("name." + htmlForm.getId());
 			if (StringUtils.isNotBlank(nameChoice)) {
 				if (nameChoice.equals("html")) {

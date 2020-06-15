@@ -11,11 +11,12 @@ import java.util.Map;
  * Tag handler for <immunization .. />
  */
 public class ImmunizationTagHandler extends SubstitutionTagHandler {
-
-    @Override
-    protected String getSubstitution(FormEntrySession session, FormSubmissionController submissionController, Map<String, String> parameters) throws BadFormDesignException {
-        ImmunizationSubmissionElement element = new ImmunizationSubmissionElement(session.getContext(), parameters);
-        submissionController.addAction(element);
-        return element.generateHtml(session.getContext());
-    }
+	
+	@Override
+	protected String getSubstitution(FormEntrySession session, FormSubmissionController submissionController,
+	        Map<String, String> parameters) throws BadFormDesignException {
+		ImmunizationSubmissionElement element = new ImmunizationSubmissionElement(session.getContext(), parameters);
+		submissionController.addAction(element);
+		return element.generateHtml(session.getContext());
+	}
 }

@@ -11,10 +11,10 @@ import org.springframework.web.servlet.mvc.SimpleFormController;
  * Handles {@code htmlForm.list} requests. Renders view {@code htmlFormList.jsp}.
  */
 public class HtmlFormListController extends SimpleFormController {
-
-    @Override
-    protected Object formBackingObject(HttpServletRequest request) throws Exception {
-        return HtmlFormEntryUtil.getService().getAllHtmlForms();
-    }
-    
+	
+	@Override
+	protected Object formBackingObject(HttpServletRequest request) throws Exception {
+		return HtmlFormEntryUtil.getService().getAllHtmlForms();
+	}
+	
 }

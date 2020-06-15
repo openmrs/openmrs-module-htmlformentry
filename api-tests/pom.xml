@@ -40,7 +40,6 @@
 			<artifactId>htmlformentry-api-2.0</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>

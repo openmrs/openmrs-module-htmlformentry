@@ -36,13 +36,13 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	
 	/** Gets the unique identifying id for this HTML Form */
 	@Override
-    public Integer getId() {
+	public Integer getId() {
 		return id;
 	}
 	
 	/** Sets the unique identifying id for this HTML Form */
 	@Override
-    public void setId(Integer id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 	
@@ -152,12 +152,11 @@ public class HtmlForm extends BaseOpenmrsMetadata {
 	 * Allows HtmlForm to be shared via Metadata Sharing Module.
 	 * <p>
 	 * The onSave method is called just before saving this form in the database on the destination
-	 * server. It is used to replace references to incoming OpenMrs objects with references to existing OpenMrs objects that will be used within
-	 * this form on the destination server.
+	 * server. It is used to replace references to incoming OpenMrs objects with references to existing
+	 * OpenMrs objects that will be used within this form on the destination server.
 	 * 
 	 * @param incomingToExisting map from items included in this form to items existing in the
-	 *            destination server
-	 * <strong>Should</strong> should replace uuids and names
+	 *            destination server <strong>Should</strong> should replace uuids and names
 	 */
 	protected void onSave(Map<OpenmrsObject, OpenmrsObject> incomingToExisting) {
 		HtmlFormSubstitutionUtils.replaceIncomingOpenmrsObjectsWithExistingOpenmrsObjects(this, incomingToExisting);

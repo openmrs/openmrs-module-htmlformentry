@@ -175,13 +175,13 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		try {
-			if (dateWidget != null) { 
+			if (dateWidget != null) {
 				Date date = dateWidget.getValue(context, submission);
 				
 				if (date != null) {
 					if (OpenmrsUtil.compare(date, new Date()) > 0) {
-						ret.add(new FormSubmissionError(dateWidget, Context.getMessageSourceService().getMessage(
-						    "htmlformentry.error.cannotBeInFuture")));
+						ret.add(new FormSubmissionError(dateWidget,
+						        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeInFuture")));
 					}
 				}
 			}
@@ -212,7 +212,8 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 		if (!checked && existingObsGroup != null) {
 			session.getSubmissionActions().getObsToVoid().add(existingObsGroup);
 		} else if (checked) {
-			if (existingObsGroup != null && OpenmrsUtil.compareWithNullAsEarliest(existingObsGroup.getObsDatetime(), date) == 0) {
+			if (existingObsGroup != null
+			        && OpenmrsUtil.compareWithNullAsEarliest(existingObsGroup.getObsDatetime(), date) == 0) {
 				return; //nothing changed
 			}
 			
@@ -238,7 +239,7 @@ public class ImmunizationSubmissionElement implements HtmlGeneratorElement, Form
 			catch (InvalidActionException e) {
 				e.printStackTrace();
 			}
-		} 
+		}
 	}
 	
 	/**

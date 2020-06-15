@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.PatientServiceCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "1.9.9 - 1.12.*")
 public class PatientServiceCompatibility1_9 implements PatientServiceCompatibility {
-
+	
 	@Override
 	public void exitFromCare(Patient patient, Date dateExited, Concept reasonForExit) throws APIException {
 		Context.getPatientService().exitFromCare(patient, dateExited, reasonForExit);

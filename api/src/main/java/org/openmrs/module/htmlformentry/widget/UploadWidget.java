@@ -63,8 +63,8 @@ public class UploadWidget implements Widget {
 	@Override
 	public ComplexData getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
-			return (ComplexData) HtmlFormEntryUtil
-			        .getParameterAsType(request, context.getFieldName(this), ComplexData.class);
+			return (ComplexData) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this),
+			    ComplexData.class);
 		}
 		catch (Exception ex) {
 			throw new IllegalArgumentException("Illegal value");

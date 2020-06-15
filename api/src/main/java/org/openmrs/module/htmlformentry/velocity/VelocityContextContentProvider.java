@@ -16,19 +16,18 @@ package org.openmrs.module.htmlformentry.velocity;
 import org.apache.velocity.VelocityContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 
-
 /**
- * Modules may implement this interface if they want to add additional content to the {@link VelocityContext}
- * used in the lookup, includeIf, and excludeIf tags.
+ * Modules may implement this interface if they want to add additional content to the
+ * {@link VelocityContext} used in the lookup, includeIf, and excludeIf tags.
  */
 public interface VelocityContextContentProvider {
-
+	
 	/**
-     * Called by {@link FormEntrySession} after instantiating and populating a velocity context
-     * 
-     * @param session
-     * @param velocityContext
-     */
-    void populateContext(FormEntrySession session, VelocityContext velocityContext);
+	 * Called by {@link FormEntrySession} after instantiating and populating a velocity context
+	 * 
+	 * @param session
+	 * @param velocityContext
+	 */
+	void populateContext(FormEntrySession session, VelocityContext velocityContext);
 	
 }

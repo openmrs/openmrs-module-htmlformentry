@@ -20,45 +20,48 @@ public class HtmlFormSubstitutionUtils {
 	/**
 	 * Replaces all the ids in a form with uuids. This method operates using the AttributeDescriptors
 	 * property of TagHandlers; if you have have a new attribute that you want to configure for
-	 * id-to-uuid substitution, add a descriptor for that attribute to the appropriate tag handler
-	 * and set the class property of that descriptor to the appropriate class. Can currently handle
-	 * ids for the following classes: Concept, Program, Person, PatientIdentifierType, Location, and
-	 * Drug
+	 * id-to-uuid substitution, add a descriptor for that attribute to the appropriate tag handler and
+	 * set the class property of that descriptor to the appropriate class. Can currently handle ids for
+	 * the following classes: Concept, Program, Person, PatientIdentifierType, Location, and Drug
 	 */
 	public static void replaceIdsWithUuids(HtmlForm form) {
 		performSubstitution(form, new IdToUuidSubstituter(), null);
 	}
 	
 	/**
-	 * Replaces all the program name in a form with uuids. This method operates using the AttributeDescriptors
-	 * property of TagHandlers; if you have have a new attribute that you want to configure for
-	 * program-name-to-uuid substitution, add a descriptor for that attribute to the appropriate tag handler. 
+	 * Replaces all the program name in a form with uuids. This method operates using the
+	 * AttributeDescriptors property of TagHandlers; if you have have a new attribute that you want to
+	 * configure for program-name-to-uuid substitution, add a descriptor for that attribute to the
+	 * appropriate tag handler.
 	 */
 	public static void replaceProgramNamesWithUuids(HtmlForm form) {
 		performSubstitution(form, new ProgramNameToUuidSubstituter(), null);
 	}
 	
 	/**
-	 * Given an map of OpenmrsObjects to OpenmrsObjects, searches through the form for any references to 
-	 * OpenmrsObjects in the key set, and replaces those references to the references to the corresponding
-	 * OpenmrsObject in the value set. Used to handle any metadata replacement that may need to take place
-	 * when sharing a form via Metadata Sharing
+	 * Given an map of OpenmrsObjects to OpenmrsObjects, searches through the form for any references to
+	 * OpenmrsObjects in the key set, and replaces those references to the references to the
+	 * corresponding OpenmrsObject in the value set. Used to handle any metadata replacement that may
+	 * need to take place when sharing a form via Metadata Sharing
+	 * 
 	 * @param form
 	 * @param substitutionMap
 	 */
-	public static void replaceIncomingOpenmrsObjectsWithExistingOpenmrsObjects(HtmlForm form, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
+	public static void replaceIncomingOpenmrsObjectsWithExistingOpenmrsObjects(HtmlForm form,
+	        Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 		performSubstitution(form, new OpenmrsObjectSubstituter(), substitutionMap);
 	}
 	
-	
 	/**
-	 * Reads through the content of a form and finds all values listed in any attributes defined in AttributeDescriptors
-	 * Then used the passed Substituter to determine which values need to be substituted.
+	 * Reads through the content of a form and finds all values listed in any attributes defined in
+	 * AttributeDescriptors Then used the passed Substituter to determine which values need to be
+	 * substituted.
 	 */
-	private static void performSubstitution(HtmlForm form, Substituter substituter,  Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
+	private static void performSubstitution(HtmlForm form, Substituter substituter,
+	        Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 		
 		// if the form is has no content, nothing to do
-		if(StringUtils.isEmpty(form.getXmlData())) {
+		if (StringUtils.isEmpty(form.getXmlData())) {
 			return;
 		}
 		
@@ -91,9 +94,8 @@ public class HtmlFormSubstitutionUtils {
 	/**
 	 * Helper method used by performSubstitution
 	 */
-	private static String performSubstitutionHelper(String formXmlData, String tagAndAttribute,
-	                                                Class<?> clazz, Substituter substituter,
-	                                                Map<OpenmrsObject, OpenmrsObject> substitutionMap, Boolean includeQuotes) {
+	private static String performSubstitutionHelper(String formXmlData, String tagAndAttribute, Class<?> clazz,
+	        Substituter substituter, Map<OpenmrsObject, OpenmrsObject> substitutionMap, Boolean includeQuotes) {
 		Pattern substitutionPattern;
 		
 		if (includeQuotes) {

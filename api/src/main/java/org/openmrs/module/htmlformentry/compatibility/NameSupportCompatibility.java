@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface NameSupportCompatibility {
-
+	
 	List<List<Map<String, String>>> getLines();
 	
 	String getLayoutToken();

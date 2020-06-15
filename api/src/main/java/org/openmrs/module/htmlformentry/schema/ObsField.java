@@ -10,16 +10,22 @@ import java.util.List;
  * Represents an Obs field in an HTML Form schema
  */
 public class ObsField implements HtmlFormField {
-
+	
 	private String name;
+	
 	private Concept question;
+	
 	private List<ObsFieldAnswer> answers = new ArrayList<ObsFieldAnswer>();
+	
 	private List<ObsFieldAnswer> questions = new ArrayList<ObsFieldAnswer>(); //for concept selects
-    private Obs existingObs; // any obs currently associated with this field
+	
+	private Obs existingObs; // any obs currently associated with this field
+	
 	private boolean obsReference = false;
-    
-    public ObsField() { }
-
+	
+	public ObsField() {
+	}
+	
 	/**
 	 * Gets the name of the field
 	 * 
@@ -28,7 +34,7 @@ public class ObsField implements HtmlFormField {
 	public String getName() {
 		return name;
 	}
-
+	
 	/**
 	 * Sets the name of the field
 	 * 
@@ -37,7 +43,7 @@ public class ObsField implements HtmlFormField {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
 	/**
 	 * Gets the question associated with the field
 	 * 
@@ -46,7 +52,7 @@ public class ObsField implements HtmlFormField {
 	public Concept getQuestion() {
 		return question;
 	}
-
+	
 	/**
 	 * Sets the question associated with the field
 	 * 
@@ -55,7 +61,7 @@ public class ObsField implements HtmlFormField {
 	public void setQuestion(Concept question) {
 		this.question = question;
 	}
-
+	
 	/**
 	 * Gets the answers associated with the field
 	 * 
@@ -64,7 +70,7 @@ public class ObsField implements HtmlFormField {
 	public List<ObsFieldAnswer> getAnswers() {
 		return answers;
 	}
-
+	
 	/**
 	 * Sets the answers associated with the field
 	 * 
@@ -73,9 +79,8 @@ public class ObsField implements HtmlFormField {
 	public void setAnswers(List<ObsFieldAnswer> answers) {
 		this.answers = answers;
 	}
-
+	
 	/**
-	 * 
 	 * gets the possible questions when doing a concept select
 	 * 
 	 * @return List<ObsFieldAnswer>
@@ -85,7 +90,6 @@ public class ObsField implements HtmlFormField {
 	}
 	
 	/**
-	 * 
 	 * sets the possible questions when doing a concept select
 	 * 
 	 * @param questions
@@ -93,25 +97,27 @@ public class ObsField implements HtmlFormField {
 	public void setQuestions(List<ObsFieldAnswer> questions) {
 		this.questions = questions;
 	}
-
-    /**
-     * If used with the context of an existing form/encounter, any existing obs associated with this field is stored here
-     */
-    public Obs getExistingObs() {
-        return existingObs;
-    }
-
-    /**
-     * If used with the context of an existing form/encounter, any existing obs associated with this field is stored here
-     */
-    public void setExistingObs(Obs existingObs) {
-        this.existingObs = existingObs;
-    }
-
+	
+	/**
+	 * If used with the context of an existing form/encounter, any existing obs associated with this
+	 * field is stored here
+	 */
+	public Obs getExistingObs() {
+		return existingObs;
+	}
+	
+	/**
+	 * If used with the context of an existing form/encounter, any existing obs associated with this
+	 * field is stored here
+	 */
+	public void setExistingObs(Obs existingObs) {
+		this.existingObs = existingObs;
+	}
+	
 	public boolean isObsReference() {
 		return obsReference;
 	}
-
+	
 	public void setObsReference(boolean obsReference) {
 		this.obsReference = obsReference;
 	}

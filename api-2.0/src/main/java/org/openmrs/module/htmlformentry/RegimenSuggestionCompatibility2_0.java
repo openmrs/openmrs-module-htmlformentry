@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.RegimenSuggestionCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "2.*")
 public class RegimenSuggestionCompatibility2_0 implements RegimenSuggestionCompatibility {
-
+	
 	@Override
 	public void AddDrugDependencies(String id, AttributeDescriptor attributeDescriptor, Set<OpenmrsObject> dependencies) {
 		//this is left empty because RegimenSuggestion was removed in platform 2.0

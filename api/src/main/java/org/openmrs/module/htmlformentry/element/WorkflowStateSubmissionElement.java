@@ -84,8 +84,8 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 				ProgramWorkflowState state = HtmlFormEntryUtil.getState(stateId, workflow);
 				
 				if (state == null) {
-					throw new IllegalArgumentException("workflow with id " + workflow.getId() + " does not have state id "
-					        + stateId);
+					throw new IllegalArgumentException(
+					        "workflow with id " + workflow.getId() + " does not have state id " + stateId);
 				}
 				
 				String label = state.getConcept().getName().getName();
@@ -169,7 +169,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 				}
 			}
 			// "initialValue" has a different meaning for a hidden widget (it is set above)
-			else if (!(widget instanceof HiddenFieldWidget)){
+			else if (!(widget instanceof HiddenFieldWidget)) {
 				widget.setInitialValue(currentState.getUuid());
 			}
 		}
@@ -186,7 +186,7 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 	private PatientState getActivePatientState(Patient patient, Date encounterDatetime, ProgramWorkflow workflow) {
 		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
 		if (patientProgram != null) {
-			for (PatientState patientState : patientProgram.statesInWorkflow(workflow,false)) {
+			for (PatientState patientState : patientProgram.statesInWorkflow(workflow, false)) {
 				if (patientState.getActive(encounterDatetime)) {
 					return patientState;
 				}
@@ -216,42 +216,45 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 			if (Mode.EDIT.equals(session.getContext().getMode())) {
 				
 				ProgramWorkflowState newState = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
-				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(), session
-				        .getContext().getPreviousEncounterDate(), workflow);
+				PatientState oldPatientState = getActivePatientState(session.getContext().getExistingPatient(),
+				    session.getContext().getPreviousEncounterDate(), workflow);
 				
 				// if no old state, simply transition to this new state
 				if (oldPatientState == null) {
-
-                    // if there is an active program enrollment in this program, add it to the programs to update (so that
-                    // it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
-                    PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
-                            newState.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
-
-                    if (patientProgram != null) {
-                        session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
-                    }
-
+					
+					// if there is an active program enrollment in this program, add it to the programs to update (so that
+					// it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
+					PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
+					    newState.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
+					
+					if (patientProgram != null) {
+						session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
+					}
+					
 					session.getSubmissionActions().transitionToState(newState);
-				}
-				else {
+				} else {
 					PatientProgram patientProgram = oldPatientState.getPatientProgram();
 					Date previousEncounterDate = session.getContext().getPreviousEncounterDate();
 					Date newEncounterDate = session.getEncounter().getEncounterDatetime();
 					
 					// if the encounter date has been moved earlier
-					if (previousEncounterDate != null  && newEncounterDate.before(previousEncounterDate)) {
+					if (previousEncounterDate != null && newEncounterDate.before(previousEncounterDate)) {
 						
 						// if there is an existing patient state on the new encounter date and it differs from the state on the old encounter date
 						// we need to end it
-						PatientState existingPatientStateOnNewEncounterDate = getActivePatientState(session.getContext().getExistingPatient(), newEncounterDate, workflow);
-						if (existingPatientStateOnNewEncounterDate != null &&  !existingPatientStateOnNewEncounterDate.equals(oldPatientState)) {
+						PatientState existingPatientStateOnNewEncounterDate = getActivePatientState(
+						    session.getContext().getExistingPatient(), newEncounterDate, workflow);
+						if (existingPatientStateOnNewEncounterDate != null
+						        && !existingPatientStateOnNewEncounterDate.equals(oldPatientState)) {
 							existingPatientStateOnNewEncounterDate.setEndDate(newEncounterDate);
 						}
 						
 						// we also need to void any other states for this workflow that may have started between the new and old encounter dates
 						for (PatientState state : patientProgram.statesInWorkflow(workflow, false)) {
-							if (!state.equals(oldPatientState) && (state.getStartDate().after(newEncounterDate) || state.getStartDate().compareTo(newEncounterDate) == 0) 
-									&& state.getStartDate().before(previousEncounterDate)) {
+							if (!state.equals(oldPatientState)
+							        && (state.getStartDate().after(newEncounterDate)
+							                || state.getStartDate().compareTo(newEncounterDate) == 0)
+							        && state.getStartDate().before(previousEncounterDate)) {
 								state.setVoided(true);
 								state.setVoidedBy(Context.getAuthenticatedUser());
 								state.setVoidReason("voided during htmlformentry submission");
@@ -263,7 +266,8 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 					if (previousEncounterDate != null && newEncounterDate.after(previousEncounterDate)) {
 						// make sure we aren't trying to move the state start date past its end date
 						if (oldPatientState.getEndDate() != null && newEncounterDate.after(oldPatientState.getEndDate())) {
-							throw new FormEntryException("Cannot move encounter date ahead of end date of current active state");
+							throw new FormEntryException(
+							        "Cannot move encounter date ahead of end date of current active state");
 						}
 						
 						// if there is a state that ended on the previous encounter date, its end date needs to be set to the new encounter date
@@ -289,18 +293,18 @@ public class WorkflowStateSubmissionElement implements HtmlGeneratorElement, For
 					
 					session.getSubmissionActions().getPatientProgramsToUpdate().add(oldPatientState.getPatientProgram());
 				}
-			} else {   // handle ENTER state
+			} else { // handle ENTER state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(stateUuid);
-
-                // if there is an active program enrollment in the state, add it to the programs to update (so that
-                // it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
-                PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
-                        state.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
-
-                if (patientProgram != null) {
-                    session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
-                }
-
+				
+				// if there is an active program enrollment in the state, add it to the programs to update (so that
+				// it is picked up by the FormSubmissionAction.transitionToState method and a new program is not created)
+				PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(session.getPatient(),
+				    state.getProgramWorkflow().getProgram(), session.getEncounter().getEncounterDatetime());
+				
+				if (patientProgram != null) {
+					session.getSubmissionActions().getPatientProgramsToUpdate().add(patientProgram);
+				}
+				
 				session.getSubmissionActions().transitionToState(state);
 			}
 		}

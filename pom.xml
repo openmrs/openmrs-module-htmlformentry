@@ -203,14 +203,49 @@
 		<module>api-1.9</module>
 		<module>api-1.10</module>
 		<module>api-2.0</module>
-		<module>api-2.2</module>
+		<module>api-2.3</module>
 		<module>api-tests</module>
 		<module>omod</module>
 	</modules>
 
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>net.revelc.code.formatter</groupId>
+				<artifactId>formatter-maven-plugin</artifactId>
+				<version>2.10.0</version>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>format</goal>
+						</goals>
+						<configuration>
+							<directories>
+								<directory>.</directory>
+							</directories>
+							<configFile>eclipse/OpenMRSFormatter.xml</configFile>
+							<includes>
+								<include>**/*.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>net.revelc.code.formatter</groupId>
+					<artifactId>formatter-maven-plugin</artifactId>
+					<dependencies>
+						<dependency>
+							<groupId>org.openmrs.tools</groupId>
+							<artifactId>openmrs-tools</artifactId>
+							<version>${openMRSBuildVersion}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>

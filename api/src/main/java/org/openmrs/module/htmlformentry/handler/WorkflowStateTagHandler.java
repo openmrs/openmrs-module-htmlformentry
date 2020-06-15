@@ -24,12 +24,11 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.WorkflowStateSubmissionElement;
 
-
 /**
  * Handles the {@code <workflowState>} tag
  */
 public class WorkflowStateTagHandler extends SubstitutionTagHandler {
-
+	
 	/**
 	 * @see org.openmrs.module.htmlformentry.handler.AbstractTagHandler#createAttributeDescriptors()
 	 */
@@ -43,14 +42,15 @@ public class WorkflowStateTagHandler extends SubstitutionTagHandler {
 	}
 	
 	/**
-     * @see org.openmrs.module.htmlformentry.handler.SubstitutionTagHandler#getSubstitution(org.openmrs.module.htmlformentry.FormEntrySession, org.openmrs.module.htmlformentry.FormSubmissionController, java.util.Map)
-     */
-    @Override
-    protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-                                     Map<String, String> parameters) {
-    	WorkflowStateSubmissionElement element = new WorkflowStateSubmissionElement(session.getContext(), parameters);
+	 * @see org.openmrs.module.htmlformentry.handler.SubstitutionTagHandler#getSubstitution(org.openmrs.module.htmlformentry.FormEntrySession,
+	 *      org.openmrs.module.htmlformentry.FormSubmissionController, java.util.Map)
+	 */
+	@Override
+	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	        Map<String, String> parameters) {
+		WorkflowStateSubmissionElement element = new WorkflowStateSubmissionElement(session.getContext(), parameters);
 		session.getSubmissionController().addAction(element);
 		return element.generateHtml(session.getContext());
-    }
+	}
 	
 }

@@ -25,14 +25,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-
 /**
  * Handles the <encounterProviderAndRole, for the new {@link Provider} model in OpenMRS 1.9+
  */
 public class EncounterProviderAndRoleTagHandler extends SubstitutionTagHandler {
-
+	
 	@Override
-    protected List<AttributeDescriptor> createAttributeDescriptors() {
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("default", Provider.class));
 		attributeDescriptors.add(new AttributeDescriptor("encounterRole", EncounterRole.class));
@@ -41,15 +40,16 @@ public class EncounterProviderAndRoleTagHandler extends SubstitutionTagHandler {
 	}
 	
 	/**
-	 * @see org.openmrs.module.htmlformentry.handler.SubstitutionTagHandler#getSubstitution(org.openmrs.module.htmlformentry.FormEntrySession, org.openmrs.module.htmlformentry.FormSubmissionController, java.util.Map)
-     * @throws BadFormDesignException 
-     */
-    @Override
-    protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-                                     Map<String, String> parameters) throws BadFormDesignException {
-	    ProviderAndRoleElement element = new ProviderAndRoleElement(session.getContext(), parameters);
-	    session.getSubmissionController().addAction(element);
-	    return element.generateHtml(session.getContext());
-    }
+	 * @see org.openmrs.module.htmlformentry.handler.SubstitutionTagHandler#getSubstitution(org.openmrs.module.htmlformentry.FormEntrySession,
+	 *      org.openmrs.module.htmlformentry.FormSubmissionController, java.util.Map)
+	 * @throws BadFormDesignException
+	 */
+	@Override
+	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	        Map<String, String> parameters) throws BadFormDesignException {
+		ProviderAndRoleElement element = new ProviderAndRoleElement(session.getContext(), parameters);
+		session.getSubmissionController().addAction(element);
+		return element.generateHtml(session.getContext());
+	}
 	
 }

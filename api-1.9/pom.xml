@@ -9,7 +9,7 @@
 
     <artifactId>htmlformentry-api-1.9</artifactId>
     <packaging>jar</packaging>
-    <name>htmlformentry Module api 1.9</name>
+    <name>HTML Form Entry API 1.9</name>
     <description>1.9 api project for htmlformentry</description>
 
     <properties>

@@ -28,29 +28,29 @@ import org.springframework.stereotype.Component;
 @Component("htmlformentry.DrugCompatibility")
 @OpenmrsProfile(openmrsPlatformVersion = "1.9.9 - 1.12.*")
 public class DrugCompatibility1_9 implements DrugCompatibility {
-
+	
 	@Override
 	public List<Map<String, Object>> simplify(List<Drug> drugs) {
 		List<Map<String, Object>> simplified = new ArrayList<Map<String, Object>>();
-        Locale locale = Context.getLocale();
-        for (Drug drug : drugs) {
-            Map<String, Object> item = new LinkedHashMap<String, Object>();
-            item.put("id", drug.getId());
-            item.put("name", drug.getName());
-            if (drug.getDosageForm() != null) {
-                item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
-            }
-            if (drug.getRoute() != null) {
-                item.put("route", drug.getRoute().getName(locale).getName());
-            }
-            item.put("doseStrength", drug.getDoseStrength());
-            item.put("units", drug.getUnits());
-            item.put("combination", drug.getCombination());
-            if (drug.getConcept() != null) {
-                item.put("concept", drug.getConcept().getName(locale).getName());
-            }
-            simplified.add(item);
-        }
-        return simplified;
+		Locale locale = Context.getLocale();
+		for (Drug drug : drugs) {
+			Map<String, Object> item = new LinkedHashMap<String, Object>();
+			item.put("id", drug.getId());
+			item.put("name", drug.getName());
+			if (drug.getDosageForm() != null) {
+				item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
+			}
+			if (drug.getRoute() != null) {
+				item.put("route", drug.getRoute().getName(locale).getName());
+			}
+			item.put("doseStrength", drug.getDoseStrength());
+			item.put("units", drug.getUnits());
+			item.put("combination", drug.getCombination());
+			if (drug.getConcept() != null) {
+				item.put("concept", drug.getConcept().getName(locale).getName());
+			}
+			simplified.add(item);
+		}
+		return simplified;
 	}
 }

@@ -42,13 +42,12 @@
 	 /AOP -->
 
 
-	<!-- Required Privileges
+	<!-- Required Privileges -->
 	<privilege>
-		<name>Form Entry</name>
-		<description>Allows user to access Form Entry pages/functions</description>
+		<name>Preview Forms</name>
+		<description>Allows user to preview Form Entry pages from files. This should be restricted to trusted users only.</description>
 	</privilege>
-	 /Required Privileges -->
-
+	<!-- /Required Privileges -->
 
 	<!-- Required Global Properties -->
 	<globalProperty>

@@ -17,19 +17,19 @@ import java.util.Vector;
  */
 
 public class DynamicAutocompleteWidget implements Widget {
-
+	
 	private List<Concept> initialValues;
-
+	
 	private String allowedConceptIds;
-
+	
 	private String allowedConceptClassNames;
-
+	
 	private String allowedConceptSetIds;
-
+	
 	private String src;
-
+	
 	private static String defaultSrc = "conceptSearch.form";
-
+	
 	public DynamicAutocompleteWidget(List<Concept> conceptList, List<ConceptClass> allowedconceptclasses, String src) {
 		this.src = src;
 		initialValues = new Vector<Concept>();
@@ -37,15 +37,14 @@ public class DynamicAutocompleteWidget implements Widget {
 		if (allowedconceptclasses == null || allowedconceptclasses.size() == 0) {
 			StringBuilder sb = new StringBuilder();
 			if (conceptList != null) {
-				for (Iterator<Concept> it = conceptList.iterator(); it.hasNext(); ) {
+				for (Iterator<Concept> it = conceptList.iterator(); it.hasNext();) {
 					sb.append(it.next().getConceptId());
 					if (it.hasNext())
 						sb.append(",");
 				}
 				this.allowedConceptIds = sb.toString();
 			}
-		}
-		else {
+		} else {
 			StringBuilder sb = new StringBuilder();
 			for (Iterator<ConceptClass> it = allowedconceptclasses.iterator(); it.hasNext();) {
 				sb.append(it.next().getName());
@@ -55,15 +54,15 @@ public class DynamicAutocompleteWidget implements Widget {
 			this.allowedConceptClassNames = sb.toString();
 		}
 	}
-
+	
 	public DynamicAutocompleteWidget(List<Concept> conceptList, List<ConceptClass> allowedconceptclasses) {
 		this(conceptList, allowedconceptclasses, defaultSrc);
 	}
-
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		// hardcoded for concept search
-
+		
 		StringBuilder sb = new StringBuilder();
 		if (context.getMode().equals(Mode.VIEW)) {
 			String toPrint = "";
@@ -82,12 +81,12 @@ public class DynamicAutocompleteWidget implements Widget {
 				sb.append(" value=\"" + initialValues.size() + "\"");
 			}
 			sb.append("/>");
-
+			
 			sb.append("<input type=\"text\"  id=\"" + context.getFieldName(this) + "\"" + " name=\""
 			        + context.getFieldName(this) + "\" " + " onfocus=\"setupAutocomplete(this, '" + this.src + "','"
-			        + this.allowedConceptIds + "','" + this.allowedConceptClassNames + "','" + this.allowedConceptSetIds + "');\""
-			        + "class=\"autoCompleteText\"" + " onBlur=\"onBlurAutocomplete(this)\"");
-
+			        + this.allowedConceptIds + "','" + this.allowedConceptClassNames + "','" + this.allowedConceptSetIds
+			        + "');\"" + "class=\"autoCompleteText\"" + " onBlur=\"onBlurAutocomplete(this)\"");
+			
 			sb.append("/>");
 			sb.append("<input id=\"" + context.getFieldName(this) + "_button"
 			        + "\" type=\"button\" class=\"addConceptButton\" value=\"Add\" />");
@@ -106,39 +105,39 @@ public class DynamicAutocompleteWidget implements Widget {
 		}
 		return sb.toString();
 	}
-
+	
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
-
-        List values = new ArrayList<Object>();
-        String widgetName = context.getFieldName(this);
-        String entryCount = request.getParameter(widgetName + "_hid");
-
-        if (StringUtils.isNotBlank(entryCount)) {
-            int count = Integer.parseInt(entryCount);
-
-            for (int i = 0; i < count; i++) {
-                values.add(request.getParameter(widgetName + "span_" + i + "_hid"));
-            }
-        }
-
-        return values;
+		
+		List values = new ArrayList<Object>();
+		String widgetName = context.getFieldName(this);
+		String entryCount = request.getParameter(widgetName + "_hid");
+		
+		if (StringUtils.isNotBlank(entryCount)) {
+			int count = Integer.parseInt(entryCount);
+			
+			for (int i = 0; i < count; i++) {
+				values.add(request.getParameter(widgetName + "span_" + i + "_hid"));
+			}
+		}
+		
+		return values;
 	}
-
+	
 	@Override
-    public void setInitialValue(Object initialValue) {
-        this.initialValues = new Vector<Concept>();
-        initialValues.add((Concept) initialValue);
+	public void setInitialValue(Object initialValue) {
+		this.initialValues = new Vector<Concept>();
+		initialValues.add((Concept) initialValue);
 	}
-
+	
 	public void addInitialValue(Object initialValue) {
 		this.initialValues.add((Concept) initialValue);
 	}
-
+	
 	public List<Concept> getInitialValueList() {
 		return initialValues;
 	}
-
+	
 	public void setAllowedConceptSetIds(String allowedConceptSetIds) {
 		this.allowedConceptSetIds = allowedConceptSetIds;
 	}

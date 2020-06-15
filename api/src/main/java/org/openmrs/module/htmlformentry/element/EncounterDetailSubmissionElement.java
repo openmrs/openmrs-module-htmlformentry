@@ -357,6 +357,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				throw new RuntimeException(
 				        "Using both \"order\" and \"tags\" attribute in an encounterLocation tag is not currently supported");
 			}
+			
 			if (parameters.get("restrictToSupportedVisitLocations") != null) {
 				Set<Location> allVisitLocations = new HashSet<Location>();
 				Set<Location> allChildAndGrandVisitLocations = new HashSet<Location>();
@@ -374,6 +375,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 
 			}
+
 			// if the "tags" attribute has been specified, load all the locations referenced by tag
 			if (parameters.get("tags") != null) {
 				
@@ -788,6 +790,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		return ret;
 	}
+
 	
 	/**
 	 * Gets provider id and obtains the Provider from it
@@ -889,3 +892,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	}
 	
 }
+
+
+

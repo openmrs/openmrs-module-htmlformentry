@@ -29,9 +29,9 @@ import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 
 /**
- * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a
- * list of OpenmrsObjects references in the form xml so that the Metadata sharing module knows which
- * other Openmrs objects it needs to package up with the form.
+ * HtmlFormExporter intended to be used by the Metadata sharing module. The clone includes a list of
+ * OpenmrsObjects references in the form xml so that the Metadata sharing module knows which other
+ * Openmrs objects it needs to package up with the form.
  */
 public class HtmlFormExporter {
 	
@@ -69,8 +69,8 @@ public class HtmlFormExporter {
 		copy.setXmlData(form.getXmlData());
 		return copy;
 	}
-
-	private MetadataMappingResolver getMetadataMappingResolver(){
+	
+	private MetadataMappingResolver getMetadataMappingResolver() {
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
 	}
 	
@@ -79,9 +79,9 @@ public class HtmlFormExporter {
 		Set<OpenmrsObject> dependencies = new HashSet<OpenmrsObject>();
 		
 		Set<Class<?>> classesNotToExport = getClassesNotToExport();
-
+		
 		MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
-
+		
 		// we to resolve any macros or repeat/renders first, but we *don't* want these changes to
 		// be applied to the form we are exporting so we copy the xml into a new string first
 		// (calculate Uuid dependencies should operate properly even with out this, but will be do this just to be safe)
@@ -104,17 +104,19 @@ public class HtmlFormExporter {
 		// loop through all the attribute descriptors for the registered handlers
 		for (String tagName : tagHandlers.keySet()) {
 			log.debug("Handling dependencies for tag " + tagName);
-
+			
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
-					if (attributeDescriptor.getClazz() != null && !classesNotToExport.contains(attributeDescriptor.getClazz())) {
-
+					if (attributeDescriptor.getClazz() != null
+					        && !classesNotToExport.contains(attributeDescriptor.getClazz())) {
+						
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
 						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;
 						// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
 						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
-						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName() + "=\"(.*?)\"";
+						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName()
+						        + "=\"(.*?)\"";
 						log.debug("dependency substitution pattern: " + pattern);
 						
 						// now search through and find all matches
@@ -125,15 +127,17 @@ public class HtmlFormExporter {
 							
 							for (String id : ids) {
 								// if this id matches a uuid pattern, try to fetch the object by uuid
-								if (HtmlFormEntryUtil.isValidUuidFormat(id) && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
+								if (HtmlFormEntryUtil.isValidUuidFormat(id)
+								        && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
 									    (Class<? extends OpenmrsObject>) attributeDescriptor.getClazz(), id);
 									if (object != null) {
 										//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
 										if (Form.class.equals(attributeDescriptor.getClazz())) {
 											Form form = (Form) object;
-											HtmlForm htmlForm = Context.getService(HtmlFormEntryService.class).getHtmlFormByForm(form);
-											if (htmlForm != null){
+											HtmlForm htmlForm = Context.getService(HtmlFormEntryService.class)
+											        .getHtmlFormByForm(form);
+											if (htmlForm != null) {
 												dependencies.add(htmlForm);
 												continue;
 											}
@@ -142,16 +146,17 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-
+								
 								//if openmrs metadata, try to get it by metadataMapping service
-								if(OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())){
-									OpenmrsObject object = metadataMappingResolver.getMetadataItem((Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
-									if(object != null){
+								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
+									OpenmrsObject object = metadataMappingResolver.getMetadataItem(
+									    (Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
+									if (object != null) {
 										dependencies.add(object);
 										continue;
 									}
 								}
-
+								
 								// if we haven't found anything by uuid, try by name
 								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
 									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByName(
@@ -196,14 +201,16 @@ public class HtmlFormExporter {
 								}
 								//RelationshipType from the relationship tag, in case of lookup by name (which may or may not be implemented yet...)
 								if (RelationshipType.class.equals(attributeDescriptor.getClazz())) {
-									RelationshipType relationshipType = Context.getPersonService().getRelationshipTypeByName(id);
+									RelationshipType relationshipType = Context.getPersonService()
+									        .getRelationshipTypeByName(id);
 									if (relationshipType != null) {
 										dependencies.add(relationshipType);
 										continue;
 									}
 								}
 								
-								RegimenSuggestionCompatibility regimen = Context.getRegisteredComponent("htmlformentry.RegimenSuggestionCompatibility", RegimenSuggestionCompatibility.class);
+								RegimenSuggestionCompatibility regimen = Context.getRegisteredComponent(
+								    "htmlformentry.RegimenSuggestionCompatibility", RegimenSuggestionCompatibility.class);
 								regimen.AddDrugDependencies(id, attributeDescriptor, dependencies);
 							}
 						}
@@ -215,24 +222,27 @@ public class HtmlFormExporter {
 	}
 	
 	/**
-     * @return results of parsing the {@link HtmlFormEntryConstants#GP_CLASSES_NOT_TO_EXPORT_WITH_MDS} global property
-     */
-    private Set<Class<?>> getClassesNotToExport() {
-    	Set<Class<?>> ret = new HashSet<Class<?>>();
-    	String gp = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_CLASSES_NOT_TO_EXPORT_WITH_MDS);
-    	if (StringUtils.isNotBlank(gp)) {
-    		for (StringTokenizer st = new StringTokenizer(gp, ", "); st.hasMoreTokens(); ) {
-    			String className = st.nextToken();
-    			try {
-    				ret.add(Context.loadClass(className));
-    			} catch (ClassNotFoundException ex) {
-    				// pass
-    			}
-    		}
-    	}
-    	return ret;
-    }
-
+	 * @return results of parsing the {@link HtmlFormEntryConstants#GP_CLASSES_NOT_TO_EXPORT_WITH_MDS}
+	 *         global property
+	 */
+	private Set<Class<?>> getClassesNotToExport() {
+		Set<Class<?>> ret = new HashSet<Class<?>>();
+		String gp = Context.getAdministrationService()
+		        .getGlobalProperty(HtmlFormEntryConstants.GP_CLASSES_NOT_TO_EXPORT_WITH_MDS);
+		if (StringUtils.isNotBlank(gp)) {
+			for (StringTokenizer st = new StringTokenizer(gp, ", "); st.hasMoreTokens();) {
+				String className = st.nextToken();
+				try {
+					ret.add(Context.loadClass(className));
+				}
+				catch (ClassNotFoundException ex) {
+					// pass
+				}
+			}
+		}
+		return ret;
+	}
+	
 	private void stripLocalAttributesFromXml() {
 		// get the tag handlers so we can gain access to the attribute descriptors
 		Map<String, TagHandler> tagHandlers = Context.getService(HtmlFormEntryService.class).getHandlers();
@@ -247,7 +257,8 @@ public class HtmlFormExporter {
 						// build the attribute string we are searching for
 						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to attribute="[anything]"
 						// see above method for more detail
-						String stripPattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)(" + attributeDescriptor.getName() + "=\".*?\")";
+						String stripPattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)(" + attributeDescriptor.getName()
+						        + "=\".*?\")";
 						log.debug("stripping substitution pattern: " + stripPattern);
 						
 						if (!this.includeLocations && attributeDescriptor.getClazz().equals(Location.class)) {
@@ -282,7 +293,7 @@ public class HtmlFormExporter {
 	}
 	
 	public HtmlForm export(Boolean includeLocations, Boolean includePersons, Boolean includeRoles,
-	                       Boolean includePatientIdentifierTypes) {
+	        Boolean includePatientIdentifierTypes) {
 		this.includeLocations = includeLocations;
 		this.includePersons = includePersons;
 		this.includeRoles = includeRoles;

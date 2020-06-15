@@ -81,8 +81,8 @@ public class WorkflowStateTag {
 		}
 		
 		if (!allowedTypes.contains(type)) {
-			throw new IllegalArgumentException("Invalid type: " + type + ". Allowed type: "
-			        + StringUtils.join(allowedTypes, ","));
+			throw new IllegalArgumentException(
+			        "Invalid type: " + type + ". Allowed type: " + StringUtils.join(allowedTypes, ","));
 		}
 		
 		if (StringUtils.isBlank(parameters.get("stateLabels"))) {
@@ -103,8 +103,8 @@ public class WorkflowStateTag {
 				labels[i] = labels[i].trim();
 			}
 			if (labels.length != stateIds.size()) {
-				throw new IllegalArgumentException("stateLabels length " + labels.length + " must match stateIds length "
-				        + stateIds.size());
+				throw new IllegalArgumentException(
+				        "stateLabels length " + labels.length + " must match stateIds length " + stateIds.size());
 			}
 			stateLabels = Collections.unmodifiableList(Arrays.asList(labels));
 		}

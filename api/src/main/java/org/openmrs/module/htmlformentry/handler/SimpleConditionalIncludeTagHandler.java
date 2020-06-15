@@ -21,42 +21,45 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.w3c.dom.Node;
 
 /**
- * Helper for subclasses that want to decide whether or not to include certain content. (This doesn't support having the
- * module do any further substitutions on the contents of this tag.)
+ * Helper for subclasses that want to decide whether or not to include certain content. (This
+ * doesn't support having the module do any further substitutions on the contents of this tag.)
  */
 public abstract class SimpleConditionalIncludeTagHandler extends AbstractTagHandler {
-
-    /**
-     * @param session
-     * @param parent
-     * @param node
-     * @return whether or not to include the content
-     */
-    public abstract boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node) throws BadFormDesignException;
-
-    /**
-     * @param session
-     * @param parent
-     * @param node
-     * @return what content to include, or null (the default implementation) to indicate processing the tag's contents
-     */
-    public String getContentsToInclude(FormEntrySession session, Node parent, Node node) {
-        return null;
-    }
-
-    @Override
-    public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
-        if (shouldIncludeContent(session, parent, node)) {
-            String toInclude = getContentsToInclude(session, parent, node);
-            if (toInclude == null) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
-        // do nothing
-    }
+	
+	/**
+	 * @param session
+	 * @param parent
+	 * @param node
+	 * @return whether or not to include the content
+	 */
+	public abstract boolean shouldIncludeContent(FormEntrySession session, Node parent, Node node)
+	        throws BadFormDesignException;
+	
+	/**
+	 * @param session
+	 * @param parent
+	 * @param node
+	 * @return what content to include, or null (the default implementation) to indicate processing the
+	 *         tag's contents
+	 */
+	public String getContentsToInclude(FormEntrySession session, Node parent, Node node) {
+		return null;
+	}
+	
+	@Override
+	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node)
+	        throws BadFormDesignException {
+		if (shouldIncludeContent(session, parent, node)) {
+			String toInclude = getContentsToInclude(session, parent, node);
+			if (toInclude == null) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
+		// do nothing
+	}
 }

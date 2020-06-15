@@ -20,6 +20,6 @@ import org.openmrs.Patient;
 import org.openmrs.api.APIException;
 
 public interface PatientServiceCompatibility {
-
+	
 	void exitFromCare(Patient patient, Date dateExited, Concept reasonForExit) throws APIException;
 }

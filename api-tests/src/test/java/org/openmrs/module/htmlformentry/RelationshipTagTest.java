@@ -397,7 +397,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testRelationshipTag_shouldNotOverrideExistingRelationshipIfChangeExistingRelationshipIsFalse()
-	    throws Exception {
+	        throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
@@ -658,7 +658,7 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testRelationshipTag_shouldShowAllPersonsEnrolledInProgramsAsOptionsShouldIntersectMultiplePrograms()
-	    throws Exception {
+	        throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override

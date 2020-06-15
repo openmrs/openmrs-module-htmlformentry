@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class StandardRegimenTagHandlerSupport1_6 implements StandardRegimenTagHandlerSupport {
 	
 	@Override
-    public List<AttributeDescriptor> createAttributeDescriptors() {
+	public List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonAnswers", Concept.class));
@@ -26,14 +26,14 @@ public class StandardRegimenTagHandlerSupport1_6 implements StandardRegimenTagHa
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
-    @Override
-    public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-            Map<String, String> parameters) {
-    	
-    	StandardRegimenElement element = new StandardRegimenElement(session.getContext(), parameters);
+	@Override
+	public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	        Map<String, String> parameters) {
+		
+		StandardRegimenElement element = new StandardRegimenElement(session.getContext(), parameters);
 		session.getSubmissionController().addAction(element);
 		
 		return element.generateHtml(session.getContext());
-    }
-
+	}
+	
 }

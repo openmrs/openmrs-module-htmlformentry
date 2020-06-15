@@ -16,6 +16,6 @@ package org.openmrs.module.htmlformentry.compatibility;
 import org.openmrs.ConceptNumeric;
 
 public interface ConceptCompatibility {
-
+	
 	Boolean isAllowDecimal(ConceptNumeric cn);
 }

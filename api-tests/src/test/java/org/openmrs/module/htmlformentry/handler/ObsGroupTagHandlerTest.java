@@ -11,12 +11,8 @@ public class ObsGroupTagHandlerTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void validate_shouldWarnWhenObsgroupConceptIsNotASet() throws Exception {
-		String xml = "<htmlform>\n"
-				+ "<obsgroup groupingConceptId=\"10\">\n"
-				+ "<obs conceptId=\"3\" />\n"
-				+ "<obs conceptId=\"4\" />\n"
-				+ "</obsgroup>\n"
-				+ "</htmlform>";
+		String xml = "<htmlform>\n" + "<obsgroup groupingConceptId=\"10\">\n" + "<obs conceptId=\"3\" />\n"
+		        + "<obs conceptId=\"4\" />\n" + "</obsgroup>\n" + "</htmlform>";
 		
 		Document document = HtmlFormEntryUtil.stringToDocument(xml);
 		Node obsGroupNode = HtmlFormEntryUtil.findDescendant(document, "obsgroup");

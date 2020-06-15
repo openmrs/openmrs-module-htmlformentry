@@ -9,15 +9,16 @@ import org.w3c.dom.Node;
 import java.io.PrintWriter;
 
 public class ObsReferenceTagHandler extends ObsTagHandler {
-
-    @Override
-    public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) throws BadFormDesignException {
-        FormEntryContext context = session.getContext();
-        ObsReferenceSubmissionElement element = new ObsReferenceSubmissionElement(context, getAttributes(node));
-        session.getSubmissionController().addAction(element);
-        out.print(element.generateHtml(context));
-        context.pushToStack(element);
-        return true;
-    }
-
+	
+	@Override
+	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node)
+	        throws BadFormDesignException {
+		FormEntryContext context = session.getContext();
+		ObsReferenceSubmissionElement element = new ObsReferenceSubmissionElement(context, getAttributes(node));
+		session.getSubmissionController().addAction(element);
+		out.print(element.generateHtml(context));
+		context.pushToStack(element);
+		return true;
+	}
+	
 }

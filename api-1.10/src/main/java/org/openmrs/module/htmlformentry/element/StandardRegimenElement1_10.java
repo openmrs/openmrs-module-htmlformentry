@@ -42,15 +42,15 @@ public class StandardRegimenElement1_10 extends StandardRegimenElement {
 	public String generateHtml(FormEntryContext context) {
 		MessageSourceService mss = Context.getMessageSourceService();
 		String html = super.generateHtml(context);
-		html += DrugOrderSubmissionElement.generateHtmlForWidget(context, mss.getMessage("htmlformentry.drugOrder.careSetting") + " ",
-		    careSettingWidget, null);
+		html += DrugOrderSubmissionElement.generateHtmlForWidget(context,
+		    mss.getMessage("htmlformentry.drugOrder.careSetting") + " ", careSettingWidget, null);
 		return html;
 	}
 	
 	@Override
 	protected void matchStandardRegimenInExistingOrders(FormEntryContext context) {
-		Map<RegimenSuggestion, List<DrugOrder>> map = RegimenUtil1_10.findStrongestStandardRegimenInDrugOrders(
-		    possibleRegimens, context.getRemainingExistingOrders());
+		Map<RegimenSuggestion, List<DrugOrder>> map = RegimenUtil1_10
+		        .findStrongestStandardRegimenInDrugOrders(possibleRegimens, context.getRemainingExistingOrders());
 		if (map.size() == 1) {
 			existingStandardRegimen = map.keySet().iterator().next();
 			for (DrugOrder dor : map.get(existingStandardRegimen)) {

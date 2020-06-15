@@ -24,9 +24,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-
 public class TestUtil {
-
+	
 	public static final String TEST_DATASETS_PROPERTIES_FILE = "test-datasets.properties";
 	
 	public String loadXmlFromFile(String filename) throws Exception {
@@ -52,11 +51,11 @@ public class TestUtil {
 		return sb.toString();
 	}
 	
-	
 	/**
-	 * Determines the name of the proper test dataset based on what version of OpenMRS we are testing against
+	 * Determines the name of the proper test dataset based on what version of OpenMRS we are testing
+	 * against
 	 */
-    public String getTestDatasetFilename(String testDatasetName) throws Exception {
+	public String getTestDatasetFilename(String testDatasetName) throws Exception {
 		
 		InputStream propertiesFileStream = null;
 		
@@ -69,13 +68,13 @@ public class TestUtil {
 			if (propertiesFileStream == null)
 				throw new FileNotFoundException("Unable to find '" + TEST_DATASETS_PROPERTIES_FILE + "' in the classpath");
 		}
-  
+		
 		Properties props = new Properties();
 		
 		OpenmrsUtil.loadProperties(props, propertiesFileStream);
-
+		
 		if (props.getProperty(testDatasetName) == null) {
-			throw new Exception ("Test dataset named " + testDatasetName + " not found in properties file");
+			throw new Exception("Test dataset named " + testDatasetName + " not found in properties file");
 		}
 		
 		return props.getProperty(testDatasetName);
@@ -121,9 +120,9 @@ public class TestUtil {
 			return ((Concept) value).getName(Context.getLocale()).getName();
 		else if (value instanceof Date)
 			return Format.format((Date) value);
-        else if (value instanceof Drug) {
-            return "" + ((Drug) value).getFullName(Context.getLocale());
-        } else
+		else if (value instanceof Drug) {
+			return "" + ((Drug) value).getFullName(Context.getLocale());
+		} else
 			return value.toString();
 	}
 	
@@ -144,8 +143,8 @@ public class TestUtil {
 	}
 	
 	/**
-	 * Tests whether the substring is contained in the actual string. Allows for inclusion of
-	 * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
+	 * Tests whether the substring is contained in the actual string. Allows for inclusion of regular
+	 * expressions in the substring. Ignores white space. Ignores capitalization. Strips
 	 * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
 	 * <htmlform>...</htmlform>.
 	 */
@@ -163,8 +162,8 @@ public class TestUtil {
 	}
 	
 	/**
-	 * Tests whether the substring is contained in the actual string. Allows for inclusion of
-	 * regular expressions in the substring.
+	 * Tests whether the substring is contained in the actual string. Allows for inclusion of regular
+	 * expressions in the substring.
 	 */
 	public static void assertContains(String substring, String actual) {
 		if (substring == null) {
@@ -180,24 +179,23 @@ public class TestUtil {
 	}
 	
 	/**
-     * Tests whether the substring is NOT contained in the actual string. Allows for inclusion of
-     * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
-     * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
-     * <htmlform>...</htmlform>.
-     */
-    public static void assertFuzzyDoesNotContain(String substring, String actual) {
-        if (substring == null) {
-            return;
-        }
-        if (actual == null) {
-            return;
-        }
-        
-        if (Pattern.compile(stripTagsAndWhitespace(substring)).matcher(stripTagsAndWhitespace(actual)).find()) {
-            Assert.fail(substring + " found in  " + actual);
-        }
-    }
-	
+	 * Tests whether the substring is NOT contained in the actual string. Allows for inclusion of
+	 * regular expressions in the substring. Ignores white space. Ignores capitalization. Strips
+	 * <span class="value">...</span>. Removes <span class="emptyValue">___</span>. Strips
+	 * <htmlform>...</htmlform>.
+	 */
+	public static void assertFuzzyDoesNotContain(String substring, String actual) {
+		if (substring == null) {
+			return;
+		}
+		if (actual == null) {
+			return;
+		}
+		
+		if (Pattern.compile(stripTagsAndWhitespace(substring)).matcher(stripTagsAndWhitespace(actual)).find()) {
+			Assert.fail(substring + " found in  " + actual);
+		}
+	}
 	
 	private static String stripTagsAndWhitespace(String string) {
 		string = string.toLowerCase();
@@ -210,8 +208,7 @@ public class TestUtil {
 	}
 	
 	/**
-	 * 
-	 * Adds an Obs to the specified encounter.  
+	 * Adds an Obs to the specified encounter.
 	 * 
 	 * @param encounter the encounter to add the obs to
 	 * @param conceptId the concept id associated with the encounter
@@ -220,14 +217,14 @@ public class TestUtil {
 	 * @return
 	 */
 	public static Obs addObs(Encounter encounter, Integer conceptId, Object value, Date date) {
-	    Obs obs = createObs(encounter, conceptId, value, date);
+		Obs obs = createObs(encounter, conceptId, value, date);
 		encounter.addObs(obs);
 		return obs;
 	}
 	
 	/**
-	 * Creates an obsgroup and adds it to the specified encounter. The obsDetails arguements should be triplets of conceptId, concept
-	 * value, and date created.
+	 * Creates an obsgroup and adds it to the specified encounter. The obsDetails arguements should be
+	 * triplets of conceptId, concept value, and date created.
 	 * 
 	 * @param encounter
 	 * @param groupingConceptId
@@ -250,7 +247,6 @@ public class TestUtil {
 	}
 	
 	/**
-	 * 
 	 * Utility to give us a ready-to-save (without violating foreign-key constraints) Obs
 	 * 
 	 * @param encounter
@@ -259,20 +255,21 @@ public class TestUtil {
 	 * @param date
 	 * @return
 	 */
-	public static Obs createObs(Encounter encounter, Integer conceptId, Object value, Date date){
-	    Obs obs = new Obs(encounter.getPatient(), Context.getConceptService().getConcept(conceptId), date, encounter.getLocation());
-        if (value != null) {
-            if (value instanceof Number)
-                obs.setValueNumeric(((Number) value).doubleValue());
-            else if (value instanceof String)
-                obs.setValueText((String) value);
-            else if (value instanceof Date)
-                obs.setValueDatetime((Date) value);
-            else if (value instanceof Concept)
-                obs.setValueCoded((Concept) value);
-        }
-        obs.setDateCreated(new Date());
-        return obs;
+	public static Obs createObs(Encounter encounter, Integer conceptId, Object value, Date date) {
+		Obs obs = new Obs(encounter.getPatient(), Context.getConceptService().getConcept(conceptId), date,
+		        encounter.getLocation());
+		if (value != null) {
+			if (value instanceof Number)
+				obs.setValueNumeric(((Number) value).doubleValue());
+			else if (value instanceof String)
+				obs.setValueText((String) value);
+			else if (value instanceof Date)
+				obs.setValueDatetime((Date) value);
+			else if (value instanceof Concept)
+				obs.setValueCoded((Concept) value);
+		}
+		obs.setDateCreated(new Date());
+		return obs;
 	}
 	
 	/**
@@ -282,21 +279,21 @@ public class TestUtil {
 		return clearTimeComponent(date1).equals(clearTimeComponent(date2));
 	}
 	
-	
 	/**
-	 * Given a Date object, returns a Date object for the same date but with the time component (hours, minutes, seconds & milliseconds) removed
+	 * Given a Date object, returns a Date object for the same date but with the time component (hours,
+	 * minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
 		// Get Calendar object set to the date and time of the given Date object  
-		Calendar cal = Calendar.getInstance();  
-		cal.setTime(date);  
-		  
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
 		// Set time fields to zero  
-		cal.set(Calendar.HOUR_OF_DAY, 0);  
-		cal.set(Calendar.MINUTE, 0);  
-		cal.set(Calendar.SECOND, 0);  
-		cal.set(Calendar.MILLISECOND, 0);  
-		  	
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		
 		return cal.getTime();
 	}
 	

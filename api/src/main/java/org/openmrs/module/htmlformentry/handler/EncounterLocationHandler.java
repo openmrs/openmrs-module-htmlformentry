@@ -16,29 +16,29 @@ import java.util.Map;
  * Handles the {@code <encounterLocation>} tag
  */
 public class EncounterLocationHandler extends SubstitutionTagHandler {
-
+	
 	@Override
-    protected List<AttributeDescriptor> createAttributeDescriptors() {
+	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("order", Location.class));
 		attributeDescriptors.add(new AttributeDescriptor("default", Location.class));
-        attributeDescriptors.add(new AttributeDescriptor("tags", LocationTag.class));
+		attributeDescriptors.add(new AttributeDescriptor("tags", LocationTag.class));
 		attributeDescriptors.add(new AttributeDescriptor("required", String.class));
 		attributeDescriptors.add(new AttributeDescriptor("restrictToSupportedVisitLocations",Location.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
-    @Override
-    protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-            Map<String, String> parameters) {
-
-        Map<String, Object> temp = new HashMap<String, Object>();
-        temp.putAll(parameters);
-        temp.put("location", true);
-        EncounterDetailSubmissionElement element = new EncounterDetailSubmissionElement(session.getContext(), temp);
-        session.getSubmissionController().addAction(element);
-        
-        return element.generateHtml(session.getContext());
-    }
-
+	@Override
+	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
+	        Map<String, String> parameters) {
+		
+		Map<String, Object> temp = new HashMap<String, Object>();
+		temp.putAll(parameters);
+		temp.put("location", true);
+		EncounterDetailSubmissionElement element = new EncounterDetailSubmissionElement(session.getContext(), temp);
+		session.getSubmissionController().addAction(element);
+		
+		return element.generateHtml(session.getContext());
+	}
+	
 }

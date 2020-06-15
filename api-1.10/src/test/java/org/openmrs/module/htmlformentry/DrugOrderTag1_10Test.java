@@ -28,31 +28,33 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-
 public class DrugOrderTag1_10Test extends BaseModuleContextSensitiveTest {
 	
-protected final Log log = LogFactory.getLog(getClass());
+	protected final Log log = LogFactory.getLog(getClass());
 	
 	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+	
 	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElementDataSet";
-
+	
 	@Before
-    public void setupDatabase() throws Exception {
+	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
-    }
+	}
 	
 	@Test
-	public void testDrugOrderTag_shouldCreateAndDiscontinueDrugOrder() throws Exception {		
+	public void testDrugOrderTag_shouldCreateAndDiscontinueDrugOrder() throws Exception {
 		final RegressionTestHelper createAndEditEncounterTest = new RegressionTestHelper() {
+			
 			final Date date = new Date();
 			
 			private Encounter encounter;
 			
 			@Override
 			public Patient getPatient() {
-			    return Context.getPatientService().getPatient(8);
+				return Context.getPatientService().getPatient(8);
 			}
 			
 			@Override
@@ -67,7 +69,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				System.out.println(html);
 			}
 			
@@ -102,8 +104,8 @@ protected final Log log = LogFactory.getLog(getClass());
 				List<Order> orders = getOrderedOrders(encounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
+				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				    hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 			
 			@Override
@@ -144,17 +146,17 @@ protected final Log log = LogFactory.getLog(getClass());
 				List<Order> orders = getOrderedOrders(editedEncounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, contains(
-					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
-					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)), 
-						hasProperty("action", is(Order.Action.REVISE))), 
-					allOf(hasProperty("drug", is(drug)), 
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
-					));
+				assertThat(orders,
+				    contains(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)),
+				            hasProperty("action", is(Order.Action.REVISE))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
+				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
 			}
 		};
-        executeDataSet("otherConceptMappings.xml");
+		executeDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
 		//Test viewing edited drug order
@@ -176,15 +178,16 @@ protected final Log log = LogFactory.getLog(getClass());
 	}
 	
 	@Test
-	public void testDrugOrderTag_shouldCreateAndEditDrugOrder() throws Exception {		
+	public void testDrugOrderTag_shouldCreateAndEditDrugOrder() throws Exception {
 		final RegressionTestHelper createAndEditEncounterTest = new RegressionTestHelper() {
+			
 			final Date date = new Date();
 			
 			private Encounter encounter;
 			
 			@Override
 			public Patient getPatient() {
-			    return Context.getPatientService().getPatient(8);
+				return Context.getPatientService().getPatient(8);
 			}
 			
 			@Override
@@ -199,7 +202,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				System.out.println(html);
 			}
 			
@@ -234,8 +237,8 @@ protected final Log log = LogFactory.getLog(getClass());
 				List<Order> orders = getOrderedOrders(encounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
+				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				    hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 			
 			@Override
@@ -273,18 +276,19 @@ protected final Log log = LogFactory.getLog(getClass());
 				List<Order> orders = getOrderedOrders(editedEncounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, containsInAnyOrder(
-					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)), 
-					hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))), hasProperty("action", is(Order.Action.REVISE))),
-					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))
-					));
+				assertThat(orders,
+				    containsInAnyOrder(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
+				            hasProperty("action", is(Order.Action.REVISE))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 		};
-        executeDataSet("otherConceptMappings.xml");
+		executeDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
-        //Test viewing edited drug order
+		//Test viewing edited drug order
 		new RegressionTestHelper() {
 			
 			@Override
@@ -303,8 +307,9 @@ protected final Log log = LogFactory.getLog(getClass());
 	}
 	
 	@Test
-	public void testDrugOrderTag_shouldEditDiscontinueDrugOrder() throws Exception {		
+	public void testDrugOrderTag_shouldEditDiscontinueDrugOrder() throws Exception {
 		final RegressionTestHelper createAndEditEncounterTest = new RegressionTestHelper() {
+			
 			final Date date = DateUtils.addDays(new Date(), -4);
 			
 			final Date discontinueDate = DateUtils.addDays(new Date(), -2);
@@ -315,7 +320,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			
 			@Override
 			public Patient getPatient() {
-			    return Context.getPatientService().getPatient(8);
+				return Context.getPatientService().getPatient(8);
 			}
 			
 			@Override
@@ -330,7 +335,7 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 			
 			@Override
-			public void testBlankFormHtml(String html){
+			public void testBlankFormHtml(String html) {
 				System.out.println(html);
 			}
 			
@@ -368,9 +373,12 @@ protected final Log log = LogFactory.getLog(getClass());
 				List<Order> orders = getOrderedOrders(encounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-					hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
-					allOf(hasProperty("drug", is(drug)), hasProperty("action", is(Order.Action.DISCONTINUE)), hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate)))))));
+				assertThat(orders,
+				    contains(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("action", is(Order.Action.DISCONTINUE)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate)))))));
 			}
 			
 			@Override
@@ -411,14 +419,16 @@ protected final Log log = LogFactory.getLog(getClass());
 				List<Order> orders = getOrderedOrders(editedEncounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				assertThat(orders, contains(
-					allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)), 
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
-					allOf(hasProperty("drug", is(drug)), hasProperty("voided", is(true)), 
-						hasProperty("action", is(Order.Action.DISCONTINUE)), hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))),
-					allOf(hasProperty("drug", is(drug)), 
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(newDiscontinueDate)))), hasProperty("action", is(Order.Action.DISCONTINUE)))
-					));
+				assertThat(orders,
+				    contains(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("voided", is(true)),
+				            hasProperty("action", is(Order.Action.DISCONTINUE)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))),
+				        allOf(hasProperty("drug", is(drug)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(newDiscontinueDate)))),
+				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
 			}
 		};
 		createAndEditEncounterTest.run();
@@ -440,15 +450,16 @@ protected final Log log = LogFactory.getLog(getClass());
 			}
 		}.run();
 	}
-
+	
 	private List<Order> getOrderedOrders(Encounter editedEncounter) {
-	    List<Order> orders = new ArrayList<Order>(editedEncounter.getOrders());
-	    Collections.sort(orders, new Comparator<Order>() {
-	    	@Override
-	    	public int compare(Order o1, Order o2) {
-	    	    return o1.getOrderNumber().compareTo(o2.getOrderNumber());
-	    	}
-	    });
-	    return orders;
-    }
+		List<Order> orders = new ArrayList<Order>(editedEncounter.getOrders());
+		Collections.sort(orders, new Comparator<Order>() {
+			
+			@Override
+			public int compare(Order o1, Order o2) {
+				return o1.getOrderNumber().compareTo(o2.getOrderNumber());
+			}
+		});
+		return orders;
+	}
 }
