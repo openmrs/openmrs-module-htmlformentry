@@ -3,7 +3,7 @@
   <!-- A patient -->
   <patient patient_id="2" creator="1" date_created="2005-09-22 00:00:00.0" changed_by="1" date_changed="2008-08-18 12:29:59.0" voided="false" void_reason=""/>
   <patient_identifier patient_identifier_id="1" patient_id="2" identifier="101" identifier_type="2" preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
-  <patient_identifier_type patient_identifier_type_id="2" name="Old Identification Number" description="Number given out prior to the OpenMRS system (No check digit)" format="" check_digit="false" creator="1" date_created="2005-09-22 00:00:00.0" required="false" retired="false"/>
+  <patient_identifier_type patient_identifier_type_id="2" name="Old Identification Number" description="Number given out prior to the OpenMRS system (No check digit)" format="" creator="1" date_created="2005-09-22 00:00:00.0" required="false" retired="false"/>
  
   <!-- Concept Datatypes -->
   <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float (e.g., creatinine, weight)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4488-c2cc-11de-8d13-0010c6dffd0f"/>
@@ -25,8 +25,8 @@
   <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
 
   <!-- Weight and Height obs for our patient -->
-  <obs obs_id="1" person_id="2" concept_id="2" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
-  <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
+  <obs obs_id="1" person_id="2" concept_id="2" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" status="FINAL" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
+  <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" status="FINAL" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
 
   <!-- Put two concepts DOSE and UNIT in a set -->
   <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="10"/>
@@ -84,7 +84,7 @@
   <person_name person_id="2" person_name_id="2" preferred="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" given_name="John" middle_name="" family_name="Doe" />
   <patient patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
   <patient_identifier patient_identifier_id="2" patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="a-D" identifier_type="1" preferred="1" voided="false" location_id="1" />
-  <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" check_digit="false" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
+  <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
   
   <!-- Required metadata -->
   <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
@@ -180,9 +180,7 @@
     
   <!-- An encounter (with a couple obs) to test editing forms -->
   <encounter encounter_id="101" encounter_type="1" patient_id="2" location_id="1" form_id="1" encounter_datetime="2008-08-01 00:00:00.0" creator="1" date_created="2008-08-18 14:09:05.0" voided="false" void_reason="" uuid="6519d653-393b-4118-9c83-a3715b82dfff"/>
-  <obs obs_id="101" person_id="2" concept_id="2" encounter_id="101" obs_datetime="2008-07-01 00:00:00.0" location_id="1" value_numeric="50.0" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" uuid="39fb7f47-e80a-4056-9285-bd798be13fff"/>
-  <obs obs_id="102" person_id="2" concept_id="8" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_text="Penicillin" comments="" creator="1" date_created="2008-08-18 14:11:13.0" voided="false" uuid="be48cdcb-6a76-47e3-9f2e-2635032f3fff"/>
-
+ 
   <!-- New (since 1.9) provider model -->
   <provider provider_id="1" person_id="502"/>
   <encounter_provider encounter_provider_id="1" provider_id="1" encounter_id="101"/>
@@ -256,9 +254,6 @@
   <program_workflow_state program_workflow_state_id="207" program_workflow_id="107" concept_id="10008" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11e1-8cb6-00248140a5eb"/>
   <program_workflow_state program_workflow_state_id="208" program_workflow_id="108" concept_id="10009" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="6de7ed10-53ad-11e1-8cb6-00248140a5eb"/>
 
-  <!-- Enroll a patient in a program with an outcome to test completeProgram tag -->
-  <patient_program patient_program_id="102" patient_id="8" program_id="10" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="31396060-03aa-102d-b0e3-001ec94a0cc5"/>
-
     <!-- test data for exit from care functionality -->
   <global_property property="concept.reasonExitedCare" property_value="4200" uuid="4f55827e-26fe-102b-80cb-0017b4ec71b3"/>
 
@@ -313,7 +308,9 @@
   <concept concept_id="6101" retired="false" datatype_id="13" class_id="5" is_set="false" creator="1" date_created="2005-01-01 00:00:00.0" uuid="7afe5c4d-886d-47a8-b0cf-af67efebceb4"/>
   <concept_complex concept_id="6101" handler="TextHandler" />
 
-  <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
-  <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
+  <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" status="FINAL" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
+  <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" status="FINAL" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
 
+<program_attribute_type program_attribute_type_id="1" name="ProgramId" min_occurs="1" retired="false" creator="1" date_created="2008-08-15 17:04:50.0" datatype="org.openmrs.customdatatype.datatype.FreeTextDatatype" uuid="d7477c21-bfc3-4922-9591-e89d8b9c8efb"/> 
+<patient_program_attribute patient_program_attribute_id="14" patient_program_id="1" attribute_type_id="1" value_reference="newvalue" creator="1" date_created="2008-08-15 17:04:02.0" changed_by="1" date_changed="2008-08-15 17:04:50.0" voided="false" uuid="9de7ed10-97ad-11e1-8cb6-00248150a7eb"/>
 </dataset>
