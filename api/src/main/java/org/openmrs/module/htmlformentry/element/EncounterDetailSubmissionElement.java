@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import org.apache.commons.beanutils.PropertyUtils;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -356,6 +357,23 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (parameters.get("tags") != null && parameters.get("orders") != null) {
 				throw new RuntimeException(
 				        "Using both \"order\" and \"tags\" attribute in an encounterLocation tag is not currently supported");
+			}
+			if (parameters.get("restrictToSupportedVisitLocations") != null) {
+				Set<Location> allVisitLocations = new HashSet<Location>();
+				Set<Location> traversedLocations = new HashSet<Location>();
+				Set<Location> allVisitsAndChildLocations = new HashSet<Location>();
+				if ("true".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+					LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
+					List<Location> visitLocations = Context.getLocationService().getLocationsByTag(visitLocationTag);
+					allVisitLocations.addAll(visitLocations);
+					allVisitsAndChildLocations = getAllVisitsAndChildLocations(allVisitLocations, traversedLocations);
+					locations.addAll(allVisitsAndChildLocations);
+					
+				} else if (!"false".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+					
+					throw new RuntimeException("Invalid value for restrictToSupportedVisitLocations,use true or false");
+				}
+				
 			}
 			
 			// if the "tags" attribute has been specified, load all the locations referenced by tag
@@ -850,6 +868,26 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	private DateMidnight stripTimeComponent(Date date) {
 		return new DateMidnight(date);
+	}
+	
+	public static Set<Location> getAllVisitsAndChildLocations(Set<Location> visitLocations,
+	        Set<Location> traversedLocations) {
+		
+		Set<Location> locations = new HashSet<Location>();
+		
+		for (Location visitLocation : visitLocations) {
+			if (!traversedLocations.contains(visitLocation)) {
+				locations.add(visitLocation);
+				traversedLocations.add(visitLocation);
+				
+				if (visitLocation.getChildLocations() != null) {
+					locations.addAll(getAllVisitsAndChildLocations(visitLocation.getChildLocations(), traversedLocations));
+					
+				}
+			}
+			
+		}
+		return locations;
 	}
 	
 }
