@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.XMLConstants;
@@ -2077,6 +2080,110 @@ public class HtmlFormEntryUtil {
 	
 	public static List<Provider> getAllProviders() {
 		return Context.getProviderService().getAllProviders(false);
+	}
+	
+	/**
+	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
+	 * {@code state}
+	 * 
+	 * @param patient - the patient
+	 * @param patientProgram - the associated patient program
+	 * @param state - the state to transition to
+	 * @param encounter - the associated encounter
+	 */
+	public static void transitionToState(Patient patient, PatientProgram patientProgram, ProgramWorkflowState state,
+	        Encounter encounter) {
+		// if patient program is null, we need to create a new program
+		if (patientProgram == null) {
+			patientProgram = new PatientProgram();
+			patientProgram.setPatient(patient);
+			patientProgram.setProgram(state.getProgramWorkflow().getProgram());
+			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
+			// HACK: we need to set the date created, creator, and uuid here as a hack around a hibernate flushing issue
+			// (should be able to remove this once we move to Hibernate Interceptors instead of Spring AOP to set these parameters)
+			patientProgram.setDateCreated(new Date());
+			patientProgram.setCreator(Context.getAuthenticatedUser());
+			patientProgram.setUuid(UUID.randomUUID().toString());
+			
+		}
+		
+		for (PatientState patientState : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
+			if (patientState.getActive(encounter.getEncounterDatetime())) {
+				if (patientState.getState().equals(state)) {
+					return;
+				}
+			}
+		}
+		
+		PatientState previousState = null;
+		PatientState nextState = null;
+		PatientState newState = new PatientState();
+		newState.setPatientProgram(patientProgram);
+		newState.setState(state);
+		newState.setStartDate(encounter.getEncounterDatetime());
+		// HACK: we need to set the date created, creator, and uuid here as a hack around a hibernate flushing issue
+		// (should be able to remove this once we move to Hibernate Interceptors instead of Spring AOP to set these parameters)
+		newState.setDateCreated(new Date());
+		newState.setCreator(Context.getAuthenticatedUser());
+		newState.setUuid(UUID.randomUUID().toString());
+		
+		Collection<PatientState> sortedStates = new TreeSet<PatientState>(new Comparator<PatientState>() {
+			
+			@Override
+			public int compare(PatientState o1, PatientState o2) {
+				int result = OpenmrsUtil.compareWithNullAsEarliest(o1.getStartDate(), o2.getStartDate());
+				if (result == 0) {
+					result = OpenmrsUtil.compareWithNullAsLatest(o1.getEndDate(), o2.getEndDate());
+				}
+				return result;
+			}
+			
+		});
+		sortedStates.addAll(patientProgram.statesInWorkflow(state.getProgramWorkflow(), false));
+		for (PatientState currentState : sortedStates) {
+			
+			Date newStartDate = newState.getStartDate();
+			Date currentStartDate = currentState.getStartDate();
+			Date currentEndDate = currentState.getEndDate();
+			
+			if (currentEndDate != null) {
+				if (currentEndDate.after(newStartDate)) {
+					if (currentStartDate.after(newStartDate)) {
+						nextState = currentState;
+						break;
+					} else {
+						previousState = currentState;
+					}
+				} else {
+					previousState = currentState;
+				}
+			} else if (currentStartDate.after(newStartDate)) {
+				nextState = currentState;
+				break;
+			} else {
+				previousState = currentState;
+				nextState = null;
+				break;
+			}
+		}
+		
+		if (nextState == null) {
+			if (previousState != null) {
+				previousState.setEndDate(newState.getStartDate());
+			}
+		} else {
+			if (previousState != null) {
+				previousState.setEndDate(newState.getStartDate());
+			}
+			newState.setEndDate(nextState.getStartDate());
+		}
+		
+		patientProgram.getStates().add(newState);
+		
+		if (encounter.getEncounterDatetime().before(patientProgram.getDateEnrolled())) {
+			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
+		}
+		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
 	
 	private static Object getProviderRoleById(Integer providerRoleId) {
