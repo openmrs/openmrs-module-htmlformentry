@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,12 +19,17 @@ import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.AuditableInterceptor;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
+
+import org.slf4j.Logger;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTest {
 	
+	 //Logger.getLogger(AuditableInterceptor.class).setLevel(Level.INFO);
+
 	protected static final String XML_REGRESSION_TEST_DATASET = "org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.2.xml";
 	
 	PatientService ps;
@@ -38,6 +45,9 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 	
 	@Test
 	public void enrollInProgram_shouldEnrollAPatietntWhenPatientProgramAttributeIsSetByUuid() throws Exception {
+
+		Logger.getLogger(AuditableInterceptor.class).setLevel(Level.INFO);
+
 		final Integer patientId = 2;
 		final Integer programId = 10;
 		final Patient patient = Context.getPatientService().getPatient(patientId);
