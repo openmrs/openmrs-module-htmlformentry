@@ -99,7 +99,7 @@ public class DateWidget implements Widget {
 			if (!hidden) {
 				if ("true".equals(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_SHOW_DATE_FORMAT))) {
-					sb.append(" (" + dateFormat().toPattern().toLowerCase() + ")");
+					sb.append(" (" + dateFormat().toLocalizedPattern().toLowerCase() + ")");
 				}
 				
 				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
