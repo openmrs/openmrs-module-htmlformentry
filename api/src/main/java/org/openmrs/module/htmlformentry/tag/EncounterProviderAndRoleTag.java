@@ -16,6 +16,7 @@ package org.openmrs.module.htmlformentry.tag;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.openmrs.EncounterRole;
 import org.openmrs.Provider;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -42,6 +43,9 @@ public class EncounterProviderAndRoleTag {
 	
 	private List<String> providerRoles; // Comma-separated list of roles to limit providers to
 	
+	private List<String> userRoles; // Comma-separated list of user roles to limit providers to; ignored if
+									// providerRoles are given
+
 	private MatchMode providerMatchMode; // For autocomplete, what match mode to use for searching
 	
 	private Provider defaultValue; // Can set to "currentuser" or a specific provider id/uuid
@@ -60,14 +64,22 @@ public class EncounterProviderAndRoleTag {
 		providerMatchMode = TagUtil.parseParameter(parameters, "providerMatchMode", MatchMode.class, MatchMode.ANYWHERE);
 		defaultValue = TagUtil.parseParameter(parameters, "default", Provider.class);
 		providerRoles = TagUtil.parseListParameter(parameters, "providerRoles", String.class);
+		userRoles = TagUtil.parseListParameter(parameters, "userRoles", String.class);
 		if (!autocompleteProvider) {
-			providers = HtmlFormEntryUtil.getProviders(providerRoles, true);
+
+			if (CollectionUtils.isNotEmpty(providerRoles)) {
+				providers = HtmlFormEntryUtil.getProviders(providerRoles, true);
+			} else if (CollectionUtils.isNotEmpty(userRoles)) {
+				providers = HtmlFormEntryUtil.getProviderByUserRoles(userRoles);
+			} else {
+				providers = HtmlFormEntryUtil.getAllProviders();
+			}
 		}
 	}
 	
 	public Widget instantiateProviderWidget() {
 		if (isAutocompleteProvider()) {
-			return new ProviderAjaxAutoCompleteWidget(getProviderMatchMode(), providerRoles);
+			return new ProviderAjaxAutoCompleteWidget(getProviderMatchMode(), providerRoles, userRoles);
 		} else {
 			return new ProviderWidget(providers);
 		}

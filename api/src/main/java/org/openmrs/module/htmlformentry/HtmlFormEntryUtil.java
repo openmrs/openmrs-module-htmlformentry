@@ -39,6 +39,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -71,8 +72,11 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Provider;
+import org.openmrs.Role;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
+import org.openmrs.api.ProviderService;
+import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -1463,7 +1467,7 @@ public class HtmlFormEntryUtil {
 	 */
 	private static Object returnOrderCopy(Order source, Map<Order, Order> replacementOrders) throws Exception {
 		Object ret = returnCopy(source);
-		replacementOrders.put((Order) ret, (Order) source);
+		replacementOrders.put((Order) ret, source);
 		return ret;
 	}
 	
@@ -1996,8 +2000,7 @@ public class HtmlFormEntryUtil {
 		String value = Context.getAdministrationService().getGlobalProperty("htmlformentry.archiveDir");
 		if (value != null && org.springframework.util.StringUtils.hasLength(value)) {
 			
-			//Replace %Y and %M if any
-			Date today = new Date();
+			new Date();
 			GregorianCalendar gCal = new GregorianCalendar();
 			value = value.replace("%Y", String.valueOf(gCal.get(Calendar.YEAR)));
 			value = value.replace("%y", String.valueOf(gCal.get(Calendar.YEAR)));
@@ -2222,6 +2225,24 @@ public class HtmlFormEntryUtil {
 			        e);
 		}
 		
+	}
+	
+	public static ArrayList<Provider> getProviderByUserRoles(List<String> userRoles) {
+		Set<Provider> providersByUserRoles = new HashSet<Provider>();
+		UserService userService = Context.getUserService();
+		ProviderService providerService = Context.getProviderService();
+		for (String userRole : userRoles) {
+			Role role = userService.getRole(userRole);
+			List<User> usersByRole = userService.getUsersByRole(role);
+			for (User user : usersByRole) {
+				Person person = user.getPerson();
+				Collection<Provider> providersByPerson = providerService.getProvidersByPerson(person);
+				if (!CollectionUtils.isEmpty(providersByPerson)) {
+					providersByUserRoles.add(providersByPerson.iterator().next());
+				}
+			}
+		}
+		return new ArrayList<Provider>(providersByUserRoles);
 	}
 	
 	public static List<Provider> getProviders(List<ProviderRole> providerRoles) {
