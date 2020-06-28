@@ -6,9 +6,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
-
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
@@ -22,13 +22,11 @@ import org.openmrs.api.context.Context;
 import org.openmrs.api.db.hibernate.AuditableInterceptor;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import org.slf4j.Logger;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+import junit.framework.Assert;
+
 public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTest {
-	
-	 //Logger.getLogger(AuditableInterceptor.class).setLevel(Level.INFO);
 
 	protected static final String XML_REGRESSION_TEST_DATASET = "org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.2.xml";
 	
@@ -45,7 +43,8 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 	
 	@Test
 	public void enrollInProgram_shouldEnrollAPatietntWhenPatientProgramAttributeIsSetByUuid() throws Exception {
-
+		
+		//This is a temporary workaround for TRUNK-5491 
 		Logger.getLogger(AuditableInterceptor.class).setLevel(Level.INFO);
 
 		final Integer patientId = 2;
@@ -108,8 +107,8 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 			
 				// make sure the patient program attribute has been set
 				Set<PatientProgramAttribute> attributes = pps.get(0).getAttributes();
-				assertEquals(1, attributes.size());
-				assertEquals(attributes, Context.getProgramWorkflowService()
+				Assert.assertEquals(1, attributes.size());
+				Assert.assertEquals(attributes.toArray()[0], Context.getProgramWorkflowService()
 						.getPatientProgramAttributeByUuid("9de7ed10-97ad-11e1-8cb6-00248150a7eb"));
 			
 			}
