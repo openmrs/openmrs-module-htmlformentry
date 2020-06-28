@@ -27,7 +27,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import junit.framework.Assert;
 
 public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTest {
-
+	
 	protected static final String XML_REGRESSION_TEST_DATASET = "org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.2.xml";
 	
 	PatientService ps;
@@ -44,14 +44,14 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 	@Test
 	public void enrollInProgram_shouldEnrollAPatietntWhenPatientProgramAttributeIsSetByUuid() throws Exception {
 		
-		//This is a temporary workaround for TRUNK-5491 
+		// This is a temporary workaround for TRUNK-5491.
 		Logger.getLogger(AuditableInterceptor.class).setLevel(Level.INFO);
-
+		
 		final Integer patientId = 2;
 		final Integer programId = 10;
 		final Patient patient = Context.getPatientService().getPatient(patientId);
 		final PatientProgramAttribute ppa = Context.getProgramWorkflowService()
-				.getPatientProgramAttributeByUuid("9de7ed10-97ad-11e1-8cb6-00248150a7eb");
+		        .getPatientProgramAttributeByUuid("9de7ed10-97ad-11e1-8cb6-00248150a7eb");
 		// sanity check
 		assertEquals(0,
 		    pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null, null, null, null, false)
@@ -72,7 +72,7 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 		pp.getCurrentState(wf).getState();
 		pp.getId();
 		pp.getDateCompleted();
-
+		
 		new RegressionTestHelper() {
 			
 			@Override
@@ -101,16 +101,16 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
-				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId),
-						null, null, null, null, false);
+				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
+				    null, null, null, false);
 				assertEquals(1, pps.size());
-			
+				
 				// make sure the patient program attribute has been set
 				Set<PatientProgramAttribute> attributes = pps.get(0).getAttributes();
 				Assert.assertEquals(1, attributes.size());
 				Assert.assertEquals(attributes.toArray()[0], Context.getProgramWorkflowService()
-						.getPatientProgramAttributeByUuid("9de7ed10-97ad-11e1-8cb6-00248150a7eb"));
-			
+				        .getPatientProgramAttributeByUuid("9de7ed10-97ad-11e1-8cb6-00248150a7eb"));
+				
 			}
 		}.run();
 	}
