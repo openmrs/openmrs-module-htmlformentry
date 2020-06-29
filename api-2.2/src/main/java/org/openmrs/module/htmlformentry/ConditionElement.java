@@ -148,8 +148,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append(" jq('#" + conditionNameTextInputId + "').css('min-width', '46.4%');\n");
 		
 		// Add support for non-coded concept values.
-		// This a hack to let the autocomplete widget accept values that aren't part of
-		// the concept list.
+		// This a hack to let the autocomplete widget accept values that aren't part of the concept list.
 		ret.append("jq('#" + conditionNameTextInputId + "').blur(function(e){\n");
 		ret.append("     var valueAttr = jq('#" + conditionNameTextInputId + "_hid" + "').attr('value');\n");
 		ret.append("     if(valueAttr === \"ERROR\"){\n");
