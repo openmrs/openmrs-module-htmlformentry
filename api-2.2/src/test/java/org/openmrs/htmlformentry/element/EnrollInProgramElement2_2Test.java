@@ -44,7 +44,7 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 	@Test
 	public void enrollInProgram_shouldEnrollAPatietntWhenPatientProgramAttributeIsSetByUuid() throws Exception {
 		
-		// This is a temporary workaround for TRUNK-5491.
+		// This is a temporary workaround for TRUNK-5491
 		Logger.getLogger(AuditableInterceptor.class).setLevel(Level.INFO);
 		
 		final Integer patientId = 2;
