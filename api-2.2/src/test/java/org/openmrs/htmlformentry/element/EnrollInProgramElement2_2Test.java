@@ -58,7 +58,7 @@ public class EnrollInProgramElement2_2Test extends BaseModuleContextSensitiveTes
 		            .size());
 		final Date encounterDate = new Date();
 		
-		// enroll the patient in a test program
+		// enroll the patient in a test program.
 		PatientProgram pp = new PatientProgram();
 		pp.setPatient(patient);
 		pp.setAttribute(ppa);
