@@ -13,7 +13,11 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import junit.framework.Assert;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,10 +28,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import junit.framework.Assert;
 
 /**
  * Integration test for the <encounterProviderAndRole/> tag
@@ -459,7 +460,7 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 		// load the provider role specific test dataset
 		executeDataSet("org/openmrs/module/htmlformentry/include/providerRoles-dataset.xml");
 		
-		final Date date = new Date();
+		final Date date =new Date();
 		new RegressionTestHelper() {
 			
 			@Override
@@ -483,5 +484,62 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 			
 		}.run();
 	}
-	
+
+
+	@Test
+	public void encounterProviderAndRole_testWithSingleUserRoleAttribute() throws Exception {
+
+		// load the user role specific test dataset
+		executeDataSet("org/openmrs/module/htmlformentry/include/userRoles-dataset.xml");
+
+		final Date date =new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			protected String getXmlDatasetPath() {
+				return "org/openmrs/module/htmlformentry/include/";
+			}
+
+			@Override
+			public String getFormName() {
+				return "encounterProviderAndRoleTagWithUserRoleAttribute";
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Doctor", html);
+
+			}
+
+		}.run();
+	}
+
+	@Test
+	public void encounterProviderAndRole_testWithMultipleUserRolesAttribute() throws Exception {
+
+		// load the user role specific test dataset
+		executeDataSet("org/openmrs/module/htmlformentry/include/userRoles-dataset.xml");
+
+		final Date date =new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			protected String getXmlDatasetPath() {
+				return "org/openmrs/module/htmlformentry/include/";
+			}
+
+			@Override
+			public String getFormName() {
+				return "encounterProviderAndRoleTagWithUserRolesAttribute";
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Doctor", html);
+				TestUtil.assertFuzzyContains("Nurse", html);
+			}
+
+		}.run();
+	}
+
 }

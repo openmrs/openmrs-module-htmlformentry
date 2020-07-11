@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import static java.util.Arrays.asList;
+
 @Controller
 public class ProviderSearchController {
 	
@@ -22,17 +24,22 @@ public class ProviderSearchController {
 	@ResponseBody
 	public Object getProviders(@RequestParam(value = "searchParam", required = false) String searchParam,
 	        @RequestParam(value = "matchMode", required = false) MatchMode matchMode,
-	        @RequestParam(value = "providerRoles", required = false) String providerRoles) throws Exception {
+	        @RequestParam(value = "providerRoles", required = false) String providerRoles,
+	        @RequestParam(value="userRoles", required=false) String userRoles
+	        ) throws Exception {
 		
-		List<String> providerRoleIds = new ArrayList<String>();
+		List<Provider> providerList;
+		
 		if (StringUtils.isNotBlank(providerRoles)) {
-			for (String roleId : providerRoles.split(",")) {
-				providerRoleIds.add(roleId);
-			}
+			List<String> providerRoleIds = asList(providerRoles.split(","));
+            providerList = HtmlFormEntryUtil.getProviders(providerRoleIds, true);
+        }else if (StringUtils.isNotBlank(userRoles)){
+            List<String> userRolesList = asList(userRoles.split(","));
+            providerList = HtmlFormEntryUtil.getProviderByUserRoles(userRolesList);
+        }else{
+            providerList = HtmlFormEntryUtil.getAllProviders();
 		}
-		
-		List<Provider> providerList = HtmlFormEntryUtil.getProviders(providerRoleIds, true);
-		
+				
 		List<ProviderStub> stubs;
 		if (searchParam == null) {
 			stubs = HtmlFormEntryUtil.getProviderStubs(providerList);
