@@ -7,7 +7,9 @@
 
     <class name="MetadataSource" table="metadata_source">
         <id name="MetadataSourceId" type="int" column="metadata_source_id">
-            <generator class="native" />
+			<generator class="native">
+				<param name="sequence">metadata_source_metadata_source_id_seq</param>
+			</generator>
         </id>
         <property name="name" type="string" not-null="true" length="30"/>
         <property name="uuid" type="string" length="38" not-null="true" />
