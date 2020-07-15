@@ -160,7 +160,7 @@
                                  referencedTableName="users" referencedColumnNames="user_id"/>
     </changeSet>
 
-    <changeSet id="htmlformentry_html_form_update_uuid" author="Mark Goodrich">
+    <changeSet id="htmlformentry_html_form_update_uuid" author="Mark Goodrich" dbms="mysql">
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="htmlformentry_html_form" columnName="uuid"/>
         </preConditions>
@@ -171,6 +171,26 @@
 
         <sql>
             UPDATE htmlformentry_html_form SET uuid = UUID() WHERE uuid is null;
+        </sql>
+
+        <modifyColumn tableName="htmlformentry_html_form">
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false"/>
+            </column>
+        </modifyColumn>
+    </changeSet>
+
+    <changeSet id="htmlformentry_html_form_update_uuid_postgresql" author="aman" dbms="postgresql">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="htmlformentry_html_form" columnName="uuid"/>
+        </preConditions>
+
+        <comment>
+            Remove null values from uuid column
+        </comment>
+
+        <sql>
+            UPDATE htmlformentry_html_form SET uuid = uuid_generate_v1() WHERE uuid is null;
         </sql>
 
         <modifyColumn tableName="htmlformentry_html_form">
