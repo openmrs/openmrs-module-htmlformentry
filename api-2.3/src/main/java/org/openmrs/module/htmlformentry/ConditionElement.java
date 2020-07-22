@@ -36,6 +36,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private boolean required;
 	
 	private String formFieldName;
+
+	private String formFieldPath;
 	
 	private Condition existingCondition;
 	
@@ -87,6 +89,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			}
 			condition.setPatient(session.getPatient());
 			condition.setAdditionalDetail(formFieldName);
+			condition.setFormField("htmlformentry", formFieldPath);
 			session.getEncounter().addCondition(condition);
 		}
 	}
@@ -436,15 +439,23 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-	
+
 	public String getFormFieldName() {
 		return formFieldName;
 	}
-	
+
 	public void setFormFieldName(String formFieldName) {
 		this.formFieldName = formFieldName;
 	}
-	
+
+	public String getFormFieldPath() {
+		return formFieldPath;
+	}
+
+	public void setFormFieldPath(String formPath) {
+		this.formFieldPath = formPath;
+	}
+
 	public Condition getExistingCondition() {
 		return existingCondition;
 	}

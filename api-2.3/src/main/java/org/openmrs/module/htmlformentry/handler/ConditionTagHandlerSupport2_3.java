@@ -8,29 +8,30 @@ import org.openmrs.module.htmlformentry.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 
-@OpenmrsProfile(openmrsPlatformVersion = "2.3.1")
+@OpenmrsProfile(openmrsPlatformVersion = "2.3.2")
 public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport {
-	
-	private ConditionElement conditionElement;
-	
-	public ConditionTagHandlerSupport2_3() {
-	}
-	
-	@Override
-	public String getSubstitution(FormEntrySession session, FormSubmissionController controller,
-	        Map<String, String> attributes) {
-		conditionElement = new ConditionElement();
-		String required = attributes.get("required");
-		if (required != null) {
-			conditionElement.setRequired(required.equalsIgnoreCase("true"));
-		}
-		String formFieldName = attributes.get("formFieldName");
-		if (StringUtils.isBlank(formFieldName)) {
-			throw new IllegalArgumentException("Parameter formFieldName cannot be blank");
-		}
-		conditionElement.setFormFieldName(formFieldName);
-		session.getSubmissionController().addAction(conditionElement);
-		return conditionElement.generateHtml(session.getContext());
-	}
-	
+
+    private ConditionElement conditionElement;
+
+    public ConditionTagHandlerSupport2_3() {
+    }
+
+    @Override
+    public String getSubstitution(FormEntrySession session, FormSubmissionController controller,
+                                  Map<String, String> attributes) {
+        conditionElement = new ConditionElement();
+        String required = attributes.get("required");
+        if (required != null) {
+            conditionElement.setRequired(required.equalsIgnoreCase("true"));
+        }
+        String formFieldName = attributes.get("formFieldName");
+        if (StringUtils.isBlank(formFieldName)) {
+            throw new IllegalArgumentException("Parameter formFieldName cannot be blank");
+        }
+        conditionElement.setFormFieldName(formFieldName);
+        conditionElement.setFormFieldPath(attributes.get("formPath"));
+        session.getSubmissionController().addAction(conditionElement);
+        return conditionElement.generateHtml(session.getContext());
+    }
+
 }
