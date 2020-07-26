@@ -202,16 +202,16 @@
     </changeSet>
 
     <changeSet id="htmlformentry_html_form_make_name_nullable" author="Darius Jazayeri">
+    	<validCheckSum>8:5c2e2c0a7fc14d26736d96ec0d64ba57</validCheckSum> <!-- old checksum without use of dropNotNullConstraint for liquibase -->
+    	<validCheckSum>8:54cf2d4509397d6294e47f2fa5b6ebf5</validCheckSum> <!-- new checksum with use of dropNotNullConstraint for liquibase -->
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="htmlformentry_html_form" columnName="name"/>
         </preConditions>
         <comment>
             Make name column nullable (because we're deprecating it)
         </comment>
-
-        <modifyColumn tableName="htmlformentry_html_form">
-            <column name="name" type="varchar(255)"/>
-        </modifyColumn>
+        
+        <dropNotNullConstraint columnDataType="varchar(255)"  columnName="name" tableName="htmlformentry_html_form"/>
 
     </changeSet>
 
