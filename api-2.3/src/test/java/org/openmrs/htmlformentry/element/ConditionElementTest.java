@@ -234,7 +234,7 @@ public class ConditionElementTest {
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
-		Assert.assertEquals("htmlformentry^fieldName", condition.getFormNamespaceAndPath());
+		Assert.assertEquals("HtmlFormEntry^fieldName", condition.getFormNamespaceAndPath());
 	}
 	
 	@Test
