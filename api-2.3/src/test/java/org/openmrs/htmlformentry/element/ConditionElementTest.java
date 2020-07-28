@@ -216,27 +216,27 @@ public class ConditionElementTest {
 		// verify
 		verify(conditionService, never()).saveCondition(any(Condition.class));
 	}
-
+	
 	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
 		element.setFormFieldPath("fieldName");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
-
+		
 		// replay
 		element.handleSubmission(session, request);
-
+		
 		// verify
 		Set<Condition> conditions = encounter.getConditions();
 		Assert.assertEquals(1, conditions.size());
-
+		
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 		Assert.assertEquals("htmlformentry^fieldName", condition.getFormNamespaceAndPath());
 	}
-
+	
 	@Test
 	public void validateSubmission_shouldFailValidationWhenConditionIsNotGivenAndIsRequired() {
 		// setup
