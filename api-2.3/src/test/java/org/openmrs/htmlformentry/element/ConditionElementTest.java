@@ -220,7 +220,7 @@ public class ConditionElementTest {
 	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
-		element.setFormFieldPath("fieldName");
+		element.setFormFieldPath("MyForm.1.0/my_condition_tag-0");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
 		
@@ -234,7 +234,7 @@ public class ConditionElementTest {
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
-		Assert.assertEquals("HtmlFormEntry^fieldName", condition.getFormNamespaceAndPath());
+		Assert.assertEquals("HtmlFormEntry^MyForm.1.0/my_condition_tag-0", condition.getFormNamespaceAndPath());
 	}
 	
 	@Test
