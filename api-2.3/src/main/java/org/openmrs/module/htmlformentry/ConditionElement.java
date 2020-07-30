@@ -36,9 +36,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private MessageSourceService mss;
 	
 	private boolean required;
-	
-	private String formFieldName;
-	
+
 	private String formFieldPath;
 	
 	private Condition existingCondition;
@@ -90,7 +88,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				condition.setEndDate(endDateWidget.getValue(context, submission));
 			}
 			condition.setPatient(session.getPatient());
-			condition.setAdditionalDetail(formFieldName);
 			condition.setFormField(FORM_NAMESPACE, formFieldPath);
 			session.getEncounter().addCondition(condition);
 		}
@@ -128,8 +125,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		wrapperDivId = "htmlformentry-condition-" + formFieldName;
-		endDatePickerWrapperId = "condition-end-date-" + formFieldName;
+		wrapperDivId = "htmlformentry-condition-" + formFieldPath;
+		endDatePickerWrapperId = "condition-end-date-" + formFieldPath;
 		if (mss == null) {
 			mss = Context.getMessageSourceService();
 		}
@@ -168,7 +165,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	/**
 	 * Looks up the existing condition from the encounter to be edited or viewed.
 	 * <p>
-	 * It uses the {@code formFieldName} to map the widget on the form to the target condition
+	 * It uses the {@code formFieldPath} to map the widget on the form to the target condition
 	 *
 	 * @param context - the current FormEntryContext
 	 */
@@ -176,7 +173,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.ENTER) {
 			Set<Condition> conditions = context.getExistingEncounter().getConditions();
 			for (Condition candidate : conditions) {
-				if (candidate.getAdditionalDetail().equals(formFieldName)) {
+				if (candidate.getFormFieldPath().equals(formFieldPath)) {
 					this.existingCondition = candidate;
 					return;
 				}
@@ -303,7 +300,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		context.registerErrorWidget(conditionStatusesWidget, conditionStatusesErrorWidget);
 		
 		StringBuilder sb = new StringBuilder();
-		final String conditionStatusDivId = "condition-status-" + formFieldName;
+		final String conditionStatusDivId = "condition-status-" + formFieldPath;
 		sb.append("<div id=\"" + conditionStatusDivId + "\">");
 		if (context.getMode() != Mode.VIEW) {
 			sb.append(conditionStatusesErrorWidget.generateHtml(context));
@@ -441,15 +438,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-	
-	public String getFormFieldName() {
-		return formFieldName;
-	}
-	
-	public void setFormFieldName(String formFieldName) {
-		this.formFieldName = formFieldName;
-	}
-	
+
 	public String getFormFieldPath() {
 		return formFieldPath;
 	}

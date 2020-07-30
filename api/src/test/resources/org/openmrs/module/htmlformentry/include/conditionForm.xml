@@ -4,6 +4,6 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	Current Condition: <condition required="true" formFieldName="current_condition" />
-	Past Condition: <condition required="true" formFieldName="past_condition" />
+	Current Condition: <condition required="true" formPath="current_condition" />
+	Past Condition: <condition required="true" formPath="past_condition" />
 </htmlform>
