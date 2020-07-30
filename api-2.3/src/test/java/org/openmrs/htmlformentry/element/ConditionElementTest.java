@@ -2,12 +2,7 @@ package org.openmrs.htmlformentry.element;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.util.Calendar;
@@ -23,12 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.openmrs.Concept;
-import org.openmrs.ConceptClass;
-import org.openmrs.Condition;
-import org.openmrs.ConditionClinicalStatus;
-import org.openmrs.Encounter;
-import org.openmrs.Patient;
+import org.openmrs.*;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.ConditionService;
@@ -220,9 +210,16 @@ public class ConditionElementTest {
 	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
-		element.setFormFieldPath("MyForm.1.0/my_condition_tag-0");
+		element.setFormPath("my_condition_tag");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
+		
+		// Mock session
+		Form form = new Form();
+		form.setName("MyForm");
+		form.setVersion("1.0");
+		when(session.getForm()).thenReturn(form);
+		doCallRealMethod().when(session).generateFormField(anyString(), anyString());
 		
 		// replay
 		element.handleSubmission(session, request);

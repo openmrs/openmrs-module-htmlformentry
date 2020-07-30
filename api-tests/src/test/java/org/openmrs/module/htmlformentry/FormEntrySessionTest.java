@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Form;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -81,7 +82,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link FormEntrySession#createForm(String)}
+	 * @see {@link FormEntrySession#(String)}
 	 */
 	@Test
 	@Verifies(value = "should return correct xml with a compound expression in an excludeIf tag", method = "createForm(String)")
@@ -91,5 +92,25 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		        + "</excludeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\"></div>", session.getHtmlToDisplay());
+	}
+	
+	/**
+	 * @see {@link FormEntrySession#generateFormField(String, String)}
+	 */
+	@Test
+	@Verifies(value = "should return the form field with thwe form name, form version, form path and a counter", method = "generateFormField(String, String)")
+	public void createForm_shouldReturnTheFormFiled() throws Exception {
+		String excludeText = "Patient age is valid";
+		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + excludeText
+		        + "</excludeIf></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		Form form = new Form();
+		form.setName("MyForm");
+		form.setVersion("1.0");
+		session.setForm(form);
+		
+		String formField = session.generateFormField("my_condition_tag", "0");
+		
+		Assert.assertEquals("MyForm.1.0/my_condition_tag-0", formField);
 	}
 }

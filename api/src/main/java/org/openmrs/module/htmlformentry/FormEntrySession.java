@@ -1185,4 +1185,28 @@ public class FormEntrySession {
 	public String getEncounterLocationName() {
 		return StringEscapeUtils.escapeHtml(encounter.getLocation() == null ? "" : encounter.getLocation().getName());
 	}
+	
+	/**
+	 * Create form field based on the form name, form version, form field path and a counter. The form
+	 * field will have the following format: <MyForm.1.0/my_condition_tag-0>
+	 *
+	 * @param formPath
+	 * @param count
+	 * @return
+	 */
+	public String generateFormField(String formPath, String count) {
+		String formField = "";
+		
+		// Create form path
+		if (this.getForm() != null) {
+			String formName = this.getForm().getName();
+			String formVersion = this.getForm().getVersion();
+			formField = formName + "." + formVersion + "/";
+		}
+		
+		// Create field path
+		formField += formPath + "-" + count;
+		
+		return formField;
+	}
 }
