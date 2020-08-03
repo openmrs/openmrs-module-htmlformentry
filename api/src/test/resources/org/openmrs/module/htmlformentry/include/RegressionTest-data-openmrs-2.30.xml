@@ -187,7 +187,7 @@
 
   <!-- An encounter (with a couple obs) to test editing forms -->
   <encounter encounter_id="101" encounter_type="1" patient_id="2" location_id="1" form_id="1" encounter_datetime="2008-08-01 00:00:00.0" creator="1" date_created="2008-08-18 14:09:05.0" voided="false" void_reason="" uuid="6519d653-393b-4118-9c83-a3715b82dfff"/>
-  <conditions condition_id="100" patient_id="2" clinical_status="INACTIVE" condition_non_coded="Edema" encounter_id="101" creator="1" date_created="2015-01-12 00:00:00" voided="false" onset_date="2017-01-12 00:00:00" end_date="2019-01-15 00:00:00" verification_status="PROVISIONAL" additional_detail="current_condition" uuid="2cc6880e-2c46-15e4-9038-a6c5e4d22fb7"/>
+  <conditions condition_id="100" patient_id="2" clinical_status="INACTIVE" condition_non_coded="Edema" encounter_id="101" creator="1" date_created="2015-01-12 00:00:00" voided="false" onset_date="2017-01-12 00:00:00" end_date="2019-01-15 00:00:00" verification_status="PROVISIONAL" form_namespace_and_path="HtmlFormEntry^conditionForm.1.0/current_condition-0" uuid="2cc6880e-2c46-15e4-9038-a6c5e4d22fb7"/>
   
   <!-- New (since 1.9) provider model -->
   <provider provider_id="1" person_id="502"/>

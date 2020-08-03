@@ -173,7 +173,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.ENTER) {
 			Set<Condition> conditions = context.getExistingEncounter().getConditions();
 			for (Condition candidate : conditions) {
-				if (candidate.getFormFieldPath().equals(formPath)) {
+				if (StringUtils.equals(getControlId(candidate), formPath)) {
 					this.existingCondition = candidate;
 					return;
 				}
@@ -458,5 +458,21 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	// available for testing purposes only
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
+	}
+	
+	/**
+	 * Return control id from Condition.formFieldPath.
+	 * HtmlFormEntry^MyForm.1.0/<b>my_condition_tag</b>-0
+	 *
+	 * @param condition
+	 * @return
+	 */
+	public String getControlId(Condition condition) {
+		if (condition.getFormFieldPath() == null) {
+			return null;
+		} else {
+			String controlId = condition.getFormFieldPath().split("/")[1];
+			return controlId.split("-")[0];
+		}
 	}
 }
