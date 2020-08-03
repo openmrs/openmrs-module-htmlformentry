@@ -24,11 +24,11 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 		if (required != null) {
 			conditionElement.setRequired(required.equalsIgnoreCase("true"));
 		}
-		String formPath = attributes.get("formPath");
-		if (StringUtils.isBlank(formPath)) {
-			throw new IllegalArgumentException("Attribute formPath cannot be blank");
+		String controlId = attributes.get("controlId");
+		if (StringUtils.isBlank(controlId)) {
+			throw new IllegalArgumentException("Attribute controlId cannot be blank");
 		}
-		conditionElement.setFormPath(formPath);
+		conditionElement.setControlId(controlId);
 		session.getSubmissionController().addAction(conditionElement);
 		return conditionElement.generateHtml(session.getContext());
 	}
