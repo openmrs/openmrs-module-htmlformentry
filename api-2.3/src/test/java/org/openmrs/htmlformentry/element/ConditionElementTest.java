@@ -210,7 +210,7 @@ public class ConditionElementTest {
 	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
-		element.setFormPath("my_condition_tag");
+		element.setControlId("my_condition_tag");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
 		
