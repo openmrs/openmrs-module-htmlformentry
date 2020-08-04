@@ -268,5 +268,4 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void setRequired(boolean required) {
 		this.required = required;
 	}
-	
 }
