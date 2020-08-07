@@ -1194,7 +1194,7 @@ public class FormEntrySession {
 	 * @param count
 	 * @return
 	 */
-	public String generateFormField(String formPath, String count) {
+	public String generateFormField(String formPath, Integer count) {
 		String formField = "";
 		
 		// Create form path
