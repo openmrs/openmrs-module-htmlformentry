@@ -219,7 +219,7 @@ public class ConditionElementTest {
 		form.setName("MyForm");
 		form.setVersion("1.0");
 		when(session.getForm()).thenReturn(form);
-		doCallRealMethod().when(session).generateFormField(anyString(), anyString());
+		doCallRealMethod().when(session).generateFormField(anyString(), anyInt());
 		
 		// replay
 		element.handleSubmission(session, request);
