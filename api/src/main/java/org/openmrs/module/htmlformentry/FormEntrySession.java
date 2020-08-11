@@ -1196,17 +1196,17 @@ public class FormEntrySession {
 	 */
 	public String generateControlFormPath(String controlId, Integer controlCounter) {
 		String formField = "";
-
+		
 		// Validate if the form is not null
 		if (this.getForm() == null) {
 			throw new IllegalStateException("The form entry session has a null form.");
 		}
-
+		
 		// Create form path
 		String formName = this.getForm().getName();
 		String formVersion = this.getForm().getVersion();
 		formField = formName + "." + formVersion + "/";
-
+		
 		// Create control form path
 		formField += controlId + "-" + controlCounter;
 		
