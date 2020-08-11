@@ -88,7 +88,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				condition.setEndDate(endDateWidget.getValue(context, submission));
 			}
 			condition.setPatient(session.getPatient());
-			condition.setFormField(FORM_NAMESPACE, session.generateFormField(controlId, 0));
+			condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
 			session.getEncounter().addCondition(condition);
 		}
 	}

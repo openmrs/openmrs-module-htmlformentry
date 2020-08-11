@@ -1190,22 +1190,25 @@ public class FormEntrySession {
 	 * Create form field based on the form name, form version, form field path and a counter. The form
 	 * field will have the following format: <MyForm.1.0/my_condition_tag-0>
 	 *
-	 * @param formPath
-	 * @param count
+	 * @param controlId
+	 * @param controlCounter
 	 * @return
 	 */
-	public String generateFormField(String formPath, Integer count) {
+	public String generateControlFormPath(String controlId, Integer controlCounter) {
 		String formField = "";
-		
-		// Create form path
-		if (this.getForm() != null) {
-			String formName = this.getForm().getName();
-			String formVersion = this.getForm().getVersion();
-			formField = formName + "." + formVersion + "/";
+
+		// Validate if the form is not null
+		if (this.getForm() == null) {
+			throw new IllegalStateException("The form entry session has a null form.");
 		}
-		
-		// Create field path
-		formField += formPath + "-" + count;
+
+		// Create form path
+		String formName = this.getForm().getName();
+		String formVersion = this.getForm().getVersion();
+		formField = formName + "." + formVersion + "/";
+
+		// Create control form path
+		formField += controlId + "-" + controlCounter;
 		
 		return formField;
 	}

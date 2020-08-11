@@ -109,7 +109,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		form.setVersion("1.0");
 		session.setForm(form);
 		
-		String formField = session.generateFormField("my_condition_tag", 0);
+		String formField = session.generateControlFormPath("my_condition_tag", 0);
 		
 		Assert.assertEquals("MyForm.1.0/my_condition_tag-0", formField);
 	}
