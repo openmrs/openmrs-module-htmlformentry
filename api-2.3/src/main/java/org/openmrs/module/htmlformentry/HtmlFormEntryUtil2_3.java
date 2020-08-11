@@ -1,6 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
-import org.openmrs.Condition;
+import org.openmrs.FormRecordable;
 
 /**
  * HTML Form Entry utility methods for version 2.3
@@ -8,17 +8,17 @@ import org.openmrs.Condition;
 public class HtmlFormEntryUtil2_3 {
 	
 	/**
-	 * Return control id from Condition.formFieldPath.
+	 * Return control id from FormRecordable.getFormFieldPath.
 	 * HtmlFormEntry^MyForm.1.0/<b>my_condition_tag</b>-0
 	 *
-	 * @param condition
+	 * @param openmrsData
 	 * @return
 	 */
-	public static String getControlId(Condition condition) {
-		if (condition.getFormFieldPath() == null) {
+	public static String getControlId(FormRecordable openmrsData) {
+		if (openmrsData.getFormFieldPath() == null) {
 			return null;
 		} else {
-			String controlId = condition.getFormFieldPath().split("/")[1];
+			String controlId = openmrsData.getFormFieldPath().split("/")[1];
 			return controlId.split("-")[0];
 		}
 	}
