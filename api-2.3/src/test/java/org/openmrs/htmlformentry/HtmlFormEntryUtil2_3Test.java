@@ -39,6 +39,20 @@ public class HtmlFormEntryUtil2_3Test {
 		// Validation
 		Assert.assertEquals("my-condition-tag", controlId);
 	}
+
+	@Test
+	public void getControlId_shouldReturnControlIdWithoutControlCounter() {
+
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-X");
+
+		// Test
+		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
+
+		// Validation
+		Assert.assertEquals("my_condition_tag-X", controlId);
+	}
 	
 	@Test(expected = IllegalStateException.class)
 	public void getControlId_shouldThrowIllegalStateException() {

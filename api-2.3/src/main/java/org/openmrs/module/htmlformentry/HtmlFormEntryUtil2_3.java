@@ -1,7 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.openmrs.FormRecordable;
-import org.springframework.util.StringUtils;
 
 /**
  * HTML Form Entry utility methods with Core 2.3 compatibility
@@ -25,8 +26,14 @@ public class HtmlFormEntryUtil2_3 {
 		
 		// get the control id
 		String controlId = openmrsData.getFormFieldPath().split("/")[1];
-		return controlId.split("-[^-]*$")[0];
-		
+		String[] controlIdSplitted = controlId.split("-(?!.*-)");
+
+		// check if it has a control counter
+		if (NumberUtils.isDigits(controlIdSplitted[1])) {
+			return controlIdSplitted[0];
+		} else {
+			return controlId;
+		}
 	}
 	
 }
