@@ -25,7 +25,7 @@ public class HtmlFormEntryUtil2_3 {
 		
 		// get the control id
 		String controlId = openmrsData.getFormFieldPath().split("/")[1];
-		return controlId.split("(-)(?!.*-)")[0];
+		return controlId.split("-[^-]*$")[0];
 		
 	}
 	

@@ -17,11 +17,25 @@ public class HtmlFormEntryUtil2_3Test {
 		
 		// Prepare parameters
 		Obs observation = new Obs();
-		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my-condition-tag-0");
-		
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-0");
+
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
 		
+		// Validation
+		Assert.assertEquals("my_condition_tag", controlId);
+	}
+
+	@Test
+	public void getControlId_shouldReturnControlIdWithMoreThanOneDash() {
+
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my-condition-tag-0");
+
+		// Test
+		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
+
 		// Validation
 		Assert.assertEquals("my-condition-tag", controlId);
 	}
