@@ -53,7 +53,36 @@ public class HtmlFormEntryUtil2_3Test {
 		// Validation
 		Assert.assertEquals("my_condition_tag-X", controlId);
 	}
-	
+
+	@Test
+	public void getControlId_shouldReturnControlIdWithTwoNumbers() {
+
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-123-0");
+
+		// Test
+		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
+
+		// Validation
+		Assert.assertEquals("my_condition_tag-123", controlId);
+	}
+
+	@Test
+	public void getControlId_shouldReturnControlIdWithBigFormVersion() {
+
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0-42fcd95f/my_condition_tag-0");
+
+		// Test
+		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
+
+		// Validation
+		Assert.assertEquals("my_condition_tag", controlId);
+	}
+
+
 	@Test(expected = IllegalStateException.class)
 	public void getControlId_shouldThrowIllegalStateException() {
 		
