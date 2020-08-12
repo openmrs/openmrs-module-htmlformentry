@@ -27,7 +27,7 @@ public class HtmlFormEntryUtil2_3Test {
 	}
 
 	@Test
-	public void getControlId_shouldReturnControlIdWithMoreThanOneDash() {
+	public void getControlId_shouldReturnControlIdWhenMoreThanOneDash() {
 
 		// Prepare parameters
 		Obs observation = new Obs();
@@ -41,7 +41,7 @@ public class HtmlFormEntryUtil2_3Test {
 	}
 
 	@Test
-	public void getControlId_shouldReturnControlIdWithoutControlCounter() {
+	public void getControlId_shouldReturnControlIdWhenNoControlCounter() {
 
 		// Prepare parameters
 		Obs observation = new Obs();
@@ -55,7 +55,7 @@ public class HtmlFormEntryUtil2_3Test {
 	}
 
 	@Test
-	public void getControlId_shouldReturnControlIdWithTwoNumbers() {
+	public void getControlId_shouldReturnControlIdContainingWhenSuffixedWithInteger() {
 
 		// Prepare parameters
 		Obs observation = new Obs();
@@ -69,7 +69,7 @@ public class HtmlFormEntryUtil2_3Test {
 	}
 
 	@Test
-	public void getControlId_shouldReturnControlIdWithBigFormVersion() {
+	public void getControlId_shouldReturnControlIdWhenDashInFormVersion() {
 
 		// Prepare parameters
 		Obs observation = new Obs();
@@ -84,7 +84,7 @@ public class HtmlFormEntryUtil2_3Test {
 
 
 	@Test(expected = IllegalStateException.class)
-	public void getControlId_shouldThrowIllegalStateException() {
+	public void getControlId_shouldThrowWhenNoFormNamespaceAndPath() {
 		
 		// Prepare parameters
 		Obs observation = new Obs();

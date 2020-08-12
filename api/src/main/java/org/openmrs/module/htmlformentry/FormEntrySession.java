@@ -1187,12 +1187,12 @@ public class FormEntrySession {
 	}
 	
 	/**
-	 * Create form field based on the form name, form version, form field path and a counter. The form
-	 * field will have the following format: <MyForm.1.0/my_condition_tag-0>
+	 * Generates the form path based on the form name, form version, form field path and control counter. The form
+	 * path will have the following format: "MyForm.1.0/my_condition_tag-0"
 	 *
-	 * @param controlId
-	 * @param controlCounter
-	 * @return
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @param controlCounter The control counter, an integer
+	 * @return The constructed form path
 	 */
 	public String generateControlFormPath(String controlId, Integer controlCounter) {
 		String formField = "";
