@@ -175,14 +175,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			for (Condition candidate : conditions) {
 				
 				// Get candidate control id
-				String candidateControlID = HtmlFormEntryUtil2_3.getControlId(candidate);
-				if (candidateControlID == null) {
+				String candidateControlId = HtmlFormEntryUtil2_3.getControlId(candidate);
+				if (candidateControlId == null) {
 					throw new IllegalStateException(
 					        "A form recordable object was found to have no form namespace and path set, its control id in the form could not be determined.");
 				}
 				
 				// Verify if it is a valid candidate for the condition
-				if (StringUtils.equals(candidateControlID, controlId)) {
+				if (StringUtils.equals(candidateControlId, controlId)) {
 					this.existingCondition = candidate;
 					return;
 				}
