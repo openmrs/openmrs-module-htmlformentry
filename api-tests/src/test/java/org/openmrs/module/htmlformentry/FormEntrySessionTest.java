@@ -99,7 +99,7 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	@Verifies(value = "should return the form field with thwe form name, form version, form path and a counter", method = "generateFormField(String, String)")
-	public void createForm_shouldReturnTheFormPath() throws Exception {
+	public void generateControlFormPath_shouldCreateFormPath() throws Exception {
 		String excludeText = "Patient age is valid";
 		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + excludeText
 		        + "</excludeIf></htmlform>";
