@@ -1185,4 +1185,31 @@ public class FormEntrySession {
 	public String getEncounterLocationName() {
 		return StringEscapeUtils.escapeHtml(encounter.getLocation() == null ? "" : encounter.getLocation().getName());
 	}
+	
+	/**
+	 * Generates the form path based on the form name, form version, form field path and control counter. The form
+	 * path will have the following format: "MyForm.1.0/my_condition_tag-0"
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @param controlCounter The control counter, an integer
+	 * @return The constructed form path
+	 */
+	public String generateControlFormPath(String controlId, Integer controlCounter) {
+		String formField = "";
+		
+		// Validate if the form is not null
+		if (this.getForm() == null) {
+			throw new IllegalStateException("The form entry session has a null form.");
+		}
+		
+		// Create form path
+		String formName = this.getForm().getName();
+		String formVersion = this.getForm().getVersion();
+		formField = formName + "." + formVersion + "/";
+		
+		// Create control form path
+		formField += controlId + "-" + controlCounter;
+		
+		return formField;
+	}
 }

@@ -8,7 +8,7 @@ import org.openmrs.module.htmlformentry.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 
-@OpenmrsProfile(openmrsPlatformVersion = "2.3.1")
+@OpenmrsProfile(openmrsPlatformVersion = "2.3.2")
 public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport {
 	
 	private ConditionElement conditionElement;
@@ -24,11 +24,11 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 		if (required != null) {
 			conditionElement.setRequired(required.equalsIgnoreCase("true"));
 		}
-		String formFieldName = attributes.get("formFieldName");
-		if (StringUtils.isBlank(formFieldName)) {
-			throw new IllegalArgumentException("Parameter formFieldName cannot be blank");
+		String controlId = attributes.get("controlId");
+		if (StringUtils.isBlank(controlId)) {
+			throw new IllegalArgumentException("Attribute controlId cannot be blank");
 		}
-		conditionElement.setFormFieldName(formFieldName);
+		conditionElement.setControlId(controlId);
 		session.getSubmissionController().addAction(conditionElement);
 		return conditionElement.generateHtml(session.getContext());
 	}
