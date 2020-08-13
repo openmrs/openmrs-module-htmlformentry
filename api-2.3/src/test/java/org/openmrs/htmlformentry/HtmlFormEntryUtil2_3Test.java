@@ -18,71 +18,70 @@ public class HtmlFormEntryUtil2_3Test {
 		// Prepare parameters
 		Obs observation = new Obs();
 		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-0");
-
+		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
 		
 		// Validation
 		Assert.assertEquals("my_condition_tag", controlId);
 	}
-
+	
 	@Test
 	public void getControlId_shouldReturnControlIdWhenMoreThanOneDash() {
-
+		
 		// Prepare parameters
 		Obs observation = new Obs();
 		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my-condition-tag-0");
-
+		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
-
+		
 		// Validation
 		Assert.assertEquals("my-condition-tag", controlId);
 	}
-
+	
 	@Test
 	public void getControlId_shouldReturnControlIdWhenNoControlCounter() {
-
+		
 		// Prepare parameters
 		Obs observation = new Obs();
 		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-X");
-
+		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
-
+		
 		// Validation
 		Assert.assertEquals("my_condition_tag-X", controlId);
 	}
-
+	
 	@Test
 	public void getControlId_shouldReturnControlIdContainingWhenSuffixedWithInteger() {
-
+		
 		// Prepare parameters
 		Obs observation = new Obs();
 		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-123-0");
-
+		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
-
+		
 		// Validation
 		Assert.assertEquals("my_condition_tag-123", controlId);
 	}
-
+	
 	@Test
 	public void getControlId_shouldReturnControlIdWhenDashInFormVersion() {
-
+		
 		// Prepare parameters
 		Obs observation = new Obs();
 		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0-42fcd95f/my_condition_tag-0");
-
+		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
-
+		
 		// Validation
 		Assert.assertEquals("my_condition_tag", controlId);
 	}
-
-
+	
 	@Test()
 	public void getControlId_shouldReturnNull() {
 		
@@ -91,8 +90,8 @@ public class HtmlFormEntryUtil2_3Test {
 		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
-
+		
 		// Validation
-		Assert.assertNull( controlId);
+		Assert.assertNull(controlId);
 	}
 }

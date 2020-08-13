@@ -95,11 +95,11 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	/**
-	 * @see {@link FormEntrySession#generateFormField(String, String)}
+	 * @see {@link FormEntrySession#generateControlFormPath(String, Integer)}
 	 */
 	@Test
 	@Verifies(value = "should return the form field with thwe form name, form version, form path and a counter", method = "generateFormField(String, String)")
-	public void createForm_shouldReturnTheFormFiled() throws Exception {
+	public void createForm_shouldReturnTheFormPath() throws Exception {
 		String excludeText = "Patient age is valid";
 		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.age >= 1 && $patient.age <= 120 \">" + excludeText
 		        + "</excludeIf></htmlform>";
@@ -109,8 +109,8 @@ public class FormEntrySessionTest extends BaseModuleContextSensitiveTest {
 		form.setVersion("1.0");
 		session.setForm(form);
 		
-		String formField = session.generateControlFormPath("my_condition_tag", 0);
+		String formPath = session.generateControlFormPath("my_condition_tag", 0);
 		
-		Assert.assertEquals("MyForm.1.0/my_condition_tag-0", formField);
+		Assert.assertEquals("MyForm.1.0/my_condition_tag-0", formPath);
 	}
 }
