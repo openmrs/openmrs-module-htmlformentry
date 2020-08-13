@@ -83,14 +83,16 @@ public class HtmlFormEntryUtil2_3Test {
 	}
 
 
-	@Test(expected = IllegalStateException.class)
-	public void getControlId_shouldThrowWhenNoFormNamespaceAndPath() {
+	@Test()
+	public void getControlId_shouldReturnNull() {
 		
 		// Prepare parameters
 		Obs observation = new Obs();
 		
 		// Test
 		String controlId = HtmlFormEntryUtil2_3.getControlId(observation);
-		
+
+		// Validation
+		Assert.assertNull( controlId);
 	}
 }
