@@ -82,8 +82,8 @@ public class HtmlFormEntryUtil2_3Test {
 		Assert.assertEquals("my_condition_tag", controlId);
 	}
 	
-	@Test()
-	public void getControlId_shouldReturnNull() {
+	@Test
+	public void getControlId_shouldReturnNullWhenFormFieldIsMissing() {
 		
 		// Prepare parameters
 		Obs observation = new Obs();
