@@ -293,7 +293,7 @@ public class ConditionElementTest {
 	}
 	
 	@Test(expected = IllegalStateException.class)
-	public void generateHtml_shouldShouldThrowIllegalStateException() {
+	public void generateHtml_shouldShouldThrowWhenFormPathIsMissing() {
 		// setup
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
