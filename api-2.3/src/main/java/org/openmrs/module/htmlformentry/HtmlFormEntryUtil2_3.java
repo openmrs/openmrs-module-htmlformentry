@@ -14,7 +14,7 @@ public class HtmlFormEntryUtil2_3 {
 	 * "my_condition_tag" out of "HtmlFormEntry^MyForm.1.0/my_condition_tag-0"
 	 *
 	 * @param openmrsData The form recordable OpenMRS data object
-	 * @return The control id
+	 * @return The control id or null if the form recordable has no form namespace and path set
 	 */
 	public static String getControlId(FormRecordable openmrsData) {
 		
