@@ -119,8 +119,6 @@ public class ConditionElementTest {
 		element = spy(new ConditionElement());
 		element.setConditionSearchWidget(conditionSearchWidget);
 		element.setConditionStatusesWidget(conditionStatusesWidget);
-		element.setOnSetDateWidget(onsetDateWidget);
-		element.setEndDateWidget(endDateWidget);
 		encounter = session.getEncounter();
 	}
 	
@@ -160,7 +158,6 @@ public class ConditionElementTest {
 		
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.INACTIVE, condition.getClinicalStatus());
-		Assert.assertEquals(endDate.getTime(), condition.getEndDate());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 	}
 	
@@ -248,22 +245,7 @@ public class ConditionElementTest {
 		// verify
 		Assert.assertEquals("A condition is required", errors.get(0).getError());
 	}
-	
-	@Test
-	public void validateSubmission_shouldFailValidationWhenOnsetDateIsGreaterThanEnddate() {
-		// setup
-		when(endDateWidget.getValue(context, request))
-		        .thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
-		when(messageSourceService.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error"))
-		        .thenReturn("The end date cannot be ealier than the onset date.");
-		
-		// replay
-		List<FormSubmissionError> errors = (List<FormSubmissionError>) element.validateSubmission(context, request);
-		
-		// verify
-		Assert.assertEquals("The end date cannot be ealier than the onset date.", errors.get(0).getError());
-	}
-	
+
 	@Test
 	public void htmlForConditionSearchWidget_shouldGetConceptSourceClassesFromGP() {
 		// setup

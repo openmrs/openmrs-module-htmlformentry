@@ -23,16 +23,10 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	private String searchWidgetIdForCurrentCondition = "w7";
 	
 	private String statusWidgetIdForCurrentCondition = "w9";
+
+	private String searchWidgetIdForPastCondition = "w11";
 	
-	private String onsetDateWidgetIdForCurrentCondition = "w11";
-	
-	private String searchWidgetIdForPastCondition = "w14";
-	
-	private String statusWidgetIdForPastCondition = "w16";
-	
-	private String onsetDateWidgetIdForPastCondition = "w18";
-	
-	private String endDateWidgetIdForPastCondition = "w19";
+	private String statusWidgetIdForPastCondition = "w13";
 	
 	@Before
 	public void setup() throws Exception {
@@ -63,13 +57,10 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(searchWidgetIdForCurrentCondition, "Epilepsy");
 				request.addParameter(searchWidgetIdForCurrentCondition + "_hid", "3476");
 				request.addParameter(statusWidgetIdForCurrentCondition, "active");
-				request.addParameter(onsetDateWidgetIdForCurrentCondition, "2014-02-11");
 				
 				// setup for past condition
 				request.addParameter(searchWidgetIdForPastCondition, "Some past condition");
 				request.addParameter(statusWidgetIdForPastCondition, "inactive");
-				request.addParameter(onsetDateWidgetIdForPastCondition, "2013-02-11");
-				request.setParameter(endDateWidgetIdForPastCondition, "2019-04-11");
 			}
 			
 			@Override
@@ -79,18 +70,15 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				
 				results.assertNoErrors();
 				Assert.assertEquals(2, conditions.length);
-								
+				
 				Condition currentCondition = conditions[0];
 				Assert.assertEquals(ConditionClinicalStatus.ACTIVE, currentCondition.getClinicalStatus());
 				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
-				Assert.assertEquals("2014-02-11", dateAsString(currentCondition.getOnsetDate()));
 				Assert.assertNotNull(currentCondition.getId());
 				
 				Condition pastCondition = conditions[1];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, pastCondition.getClinicalStatus());
 				Assert.assertEquals("Some past condition", pastCondition.getCondition().getNonCoded());
-				Assert.assertEquals("2013-02-11", dateAsString(pastCondition.getOnsetDate()));
-				Assert.assertEquals("2019-04-11", dateAsString(pastCondition.getEndDate()));
 				Assert.assertNotNull(pastCondition.getId());
 			}
 			
@@ -102,7 +90,6 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// edit onset date for the current condition
-				request.setParameter(onsetDateWidgetIdForCurrentCondition, "2020-02-11");
 			}
 			
 			@Override
@@ -114,7 +101,6 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(2, conditions.length);
 				
 				Condition currentCondition = conditions[0];
-				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
 			}
 			
 		}.run();
@@ -140,10 +126,6 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				assertTrue(html.contains("Condition: <span class=\"value\">Edema</span>"));
 				// Verify for condition status
 				assertTrue(html.contains("Status: <span class=\"value\">inactive</span>"));
-				// Verify for onset date 
-				assertTrue(html.contains("Onset Date: <span class=\"value\">12/01/2017</span>"));
-				// Verify for end date
-				assertTrue(html.contains("End Date: <span class=\"value\">15/01/2019</span>"));
 				
 			}
 			
@@ -165,12 +147,6 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
 				    "<input type=\"radio\" id=\"w9_1\" name=\"w9\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
-				// Verify the onset date - '2017-01-12'
-				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w11-display', '#w11', '2017-01-12')</script>"));
-				// Verify the end date - '2019-01-15'
-				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w12-display', '#w12', '2019-01-15')</script>"));
 				
 			}
 			
