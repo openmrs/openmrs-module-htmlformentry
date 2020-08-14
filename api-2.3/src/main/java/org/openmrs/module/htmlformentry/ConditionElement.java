@@ -2,19 +2,12 @@ package org.openmrs.module.htmlformentry;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.openmrs.CodedOrFreeText;
-import org.openmrs.ConceptClass;
-import org.openmrs.Condition;
-import org.openmrs.ConditionClinicalStatus;
+import org.openmrs.*;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -33,6 +26,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private static final String DEFAULT_CONDITION_LIST_CONCEPT_CLASS_NAME = "Diagnosis";
 	
+	private Locale locale = Context.getLocale();
+	
 	private MessageSourceService mss;
 	
 	private boolean required;
@@ -40,6 +35,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private String controlId;
 	
 	private Condition existingCondition;
+	
+	private Concept concept;
 	
 	// widgets
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
@@ -65,11 +62,16 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		FormEntryContext context = session.getContext();
 		if (context.getMode() != Mode.VIEW) {
 			Condition condition = bootstrap(context);
+			
+			// Handle Condition Clinical Status
+			ConditionClinicalStatus status = getStatus(context, submission);
+			condition.setClinicalStatus(status);
+			
+			// Handle condition concept
 			CodedOrFreeText conditionConcept = new CodedOrFreeText();
 			try {
 				int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
 				conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
-				
 			}
 			catch (NumberFormatException e) {
 				String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
@@ -80,16 +82,25 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				conditionConcept.setNonCoded(nonCodedConcept);
 			}
 			condition.setCondition(conditionConcept);
-			ConditionClinicalStatus status = getStatus(context, submission);
-			condition.setClinicalStatus(status);
+
+			// Handle on set date
 			condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
-			
+
+			// Handle end date
 			if (status != ConditionClinicalStatus.ACTIVE) {
 				condition.setEndDate(endDateWidget.getValue(context, submission));
 			}
+
+			// Handle Patient
 			condition.setPatient(session.getPatient());
+
+			// Handle Form field position
 			condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
-			session.getEncounter().addCondition(condition);
+			
+			// Only save the condition if no concept defined or is defined but has status
+			if (concept == null || (concept != null && status != null)) {
+				session.getEncounter().addCondition(condition);
+			}
 		}
 	}
 	
@@ -223,14 +234,21 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		conditionSearchWidget = new ConceptSearchAutocompleteWidget(null, allowedConceptClasses);
 		String conditionNameTextInputId = context.registerWidget(conditionSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();
-		if (existingCondition != null && context.getMode() != Mode.ENTER) {
-			CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
-			if (codedOrFreeText.getCoded() != null) {
-				conditionSearchWidget.setInitialValue(codedOrFreeText.getCoded());
-			} else {
-				freeTextVal = codedOrFreeText.getNonCoded();
+
+		if (concept == null) {
+			if (existingCondition != null && context.getMode() != Mode.ENTER) {
+				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
+				if (codedOrFreeText.getCoded() != null) {
+					conditionSearchWidget.setInitialValue(codedOrFreeText.getCoded());
+				} else {
+					freeTextVal = codedOrFreeText.getNonCoded();
+				}
 			}
+		} else {
+			// If exist concept define it as default value
+			conditionSearchWidget.setInitialValue(concept);
 		}
+		
 		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
 		
 		StringBuilder ret = new StringBuilder();
@@ -265,6 +283,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append("\n<script>jq('#" + conditionNameTextInputId + "').attr('placeholder',");
 			ret.append(" '" + conditionLabel + "');\n");
 			ret.append(" jq('#" + conditionNameTextInputId + "').css('min-width', '46.4%');\n");
+
+			// Mark search box as read only if it has a concept
+			if (concept != null) {
+				ret.append("jq('#" + conditionNameTextInputId + "').attr(\"readonly\", true)\n");
+			}
 			
 			// Add support for non-coded concept values.
 			// This a hack to let the autocomplete widget accept values that aren't part of the concept list.
@@ -462,6 +485,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	public void setExistingCondition(Condition existingCondition) {
 		this.existingCondition = existingCondition;
+	}
+	
+	public Concept getConcept() {
+		return concept;
+	}
+	
+	public void setConcept(Concept concept) {
+		this.concept = concept;
 	}
 	
 	// available for testing purposes only
