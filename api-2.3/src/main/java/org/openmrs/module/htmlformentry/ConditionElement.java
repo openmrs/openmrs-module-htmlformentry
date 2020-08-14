@@ -62,11 +62,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		FormEntryContext context = session.getContext();
 		if (context.getMode() != Mode.VIEW) {
 			Condition condition = bootstrap(context);
-			
-			// Handle Condition Clinical Status
-			ConditionClinicalStatus status = getStatus(context, submission);
-			condition.setClinicalStatus(status);
-			
+
 			// Handle condition concept
 			CodedOrFreeText conditionConcept = new CodedOrFreeText();
 			try {
@@ -83,17 +79,21 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			}
 			condition.setCondition(conditionConcept);
 
+			// Handle Condition Clinical Status
+			ConditionClinicalStatus status = getStatus(context, submission);
+			condition.setClinicalStatus(status);
+
 			// Handle on set date
 			condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
-
+			
 			// Handle end date
 			if (status != ConditionClinicalStatus.ACTIVE) {
 				condition.setEndDate(endDateWidget.getValue(context, submission));
 			}
-
+			
 			// Handle Patient
 			condition.setPatient(session.getPatient());
-
+			
 			// Handle Form field position
 			condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
 			
@@ -234,7 +234,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		conditionSearchWidget = new ConceptSearchAutocompleteWidget(null, allowedConceptClasses);
 		String conditionNameTextInputId = context.registerWidget(conditionSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();
-
+		
 		if (concept == null) {
 			if (existingCondition != null && context.getMode() != Mode.ENTER) {
 				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
@@ -283,7 +283,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append("\n<script>jq('#" + conditionNameTextInputId + "').attr('placeholder',");
 			ret.append(" '" + conditionLabel + "');\n");
 			ret.append(" jq('#" + conditionNameTextInputId + "').css('min-width', '46.4%');\n");
-
+			
 			// Mark search box as read only if it has a concept
 			if (concept != null) {
 				ret.append("jq('#" + conditionNameTextInputId + "').attr(\"readonly\", true)\n");

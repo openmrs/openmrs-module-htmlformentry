@@ -33,7 +33,17 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	private String onsetDateWidgetIdForPastCondition = "w18";
 	
 	private String endDateWidgetIdForPastCondition = "w19";
-	
+
+	private String searchWidgetIdForPresetCondition = "w21";
+
+	private String statusWidgetIdForPresetCondition = "w23";
+
+	private String onsetDateWidgetIdForPresetCondition = "w25";
+
+	private String endDateWidgetIdForPresetCondition = "w26";
+
+	private String searchWidgetIdForPresetConditionWithoutStatus = "w28";
+
 	@Before
 	public void setup() throws Exception {
 		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.30.xml");
@@ -70,6 +80,16 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(statusWidgetIdForPastCondition, "inactive");
 				request.addParameter(onsetDateWidgetIdForPastCondition, "2013-02-11");
 				request.setParameter(endDateWidgetIdForPastCondition, "2019-04-11");
+
+				// setup for preset condition
+				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition");
+				request.addParameter(statusWidgetIdForPresetCondition, "inactive");
+				request.addParameter(onsetDateWidgetIdForPresetCondition, "2014-02-11");
+				request.setParameter(endDateWidgetIdForPresetCondition, "2020-04-11");
+
+
+				// setup for preset condition without status
+				request.addParameter(searchWidgetIdForPresetConditionWithoutStatus, "Some preset condition without status");
 			}
 			
 			@Override
@@ -78,8 +98,8 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Concept expectedCondition = Context.getConceptService().getConceptByName("Epilepsy");
 				
 				results.assertNoErrors();
-				Assert.assertEquals(2, conditions.length);
-								
+				Assert.assertEquals(3, conditions.length);
+				
 				Condition currentCondition = conditions[0];
 				Assert.assertEquals(ConditionClinicalStatus.ACTIVE, currentCondition.getClinicalStatus());
 				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
@@ -92,6 +112,13 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("2013-02-11", dateAsString(pastCondition.getOnsetDate()));
 				Assert.assertEquals("2019-04-11", dateAsString(pastCondition.getEndDate()));
 				Assert.assertNotNull(pastCondition.getId());
+
+				Condition presetCondition = conditions[2];
+				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, presetCondition.getClinicalStatus());
+				Assert.assertEquals("Some preset condition", presetCondition.getCondition().getNonCoded());
+				Assert.assertEquals("2014-02-11", dateAsString(presetCondition.getOnsetDate()));
+				Assert.assertEquals("2020-04-11", dateAsString(presetCondition.getEndDate()));
+				Assert.assertNotNull(presetCondition.getId());
 			}
 			
 			@Override
@@ -111,7 +138,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
 				
 				results.assertNoErrors();
-				Assert.assertEquals(2, conditions.length);
+				Assert.assertEquals(4, conditions.length);
 				
 				Condition currentCondition = conditions[0];
 				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));

@@ -6,4 +6,6 @@
 
 	Current Condition: <condition required="true" controlId="current_condition" />
 	Past Condition: <condition required="true" controlId="past_condition" />
+	Preset Condition: <condition conceptId="e10ffe54-5184-4efe-8960-cd565ec1cdf8" controlId="preset_condition" />
+	Preset Condition Without Status: <condition conceptId="e10ffe54-5184-4efe-8960-cd565ec1cdf8" controlId="preset_condition_without_status" />
 </htmlform>
