@@ -358,6 +358,30 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return sb.toString();
 	}
 
+	private String htmlForAdditionalDetailsWidget(FormEntryContext context) {
+
+		// Create wrapper id
+		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
+
+		// Register widget
+		setAdditionalDetailsWidget(new TextFieldWidget());
+		context.registerWidget(getAdditionalDetailsWidget());
+
+		// Fill value for Edit/View
+		if (context.getMode() != Mode.ENTER && existingCondition != null) {
+			getAdditionalDetailsWidget().setInitialValue(existingCondition.getAdditionalDetail());
+		}
+
+		// Generate html
+		StringBuilder ret = new StringBuilder();
+		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
+		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
+		ret.append(getAdditionalDetailsWidget().generateHtml(context));
+		ret.append("</div>");
+
+		return ret.toString();
+	}
+
 	private ConditionClinicalStatus getStatus(FormEntryContext context, HttpServletRequest request) {
 		if (conditionStatusesWidget == null) {
 			return null;
