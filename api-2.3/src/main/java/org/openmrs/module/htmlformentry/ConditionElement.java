@@ -13,12 +13,7 @@ import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.element.HtmlGeneratorElement;
-import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
-import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
-import org.openmrs.module.htmlformentry.widget.WidgetFactory;
+import org.openmrs.module.htmlformentry.widget.*;
 
 public class ConditionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
@@ -38,12 +33,16 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private Concept concept;
 	
+	private boolean showAdditionalDetails;
+	
 	// widgets
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
 	
 	private DateWidget onSetDateWidget;
 	
 	private DateWidget endDateWidget;
+	
+	private TextFieldWidget additionalDetailsWidget;
 	
 	private RadioButtonsWidget conditionStatusesWidget;
 	
@@ -62,7 +61,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		FormEntryContext context = session.getContext();
 		if (context.getMode() != Mode.VIEW) {
 			Condition condition = bootstrap(context);
-
+			
 			// Handle condition concept
 			CodedOrFreeText conditionConcept = new CodedOrFreeText();
 			try {
@@ -78,11 +77,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				conditionConcept.setNonCoded(nonCodedConcept);
 			}
 			condition.setCondition(conditionConcept);
-
+			
 			// Handle Condition Clinical Status
 			ConditionClinicalStatus status = getStatus(context, submission);
 			condition.setClinicalStatus(status);
-
+			
+			// Handle Additional Details widget
+			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
+			
 			// Handle on set date
 			condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
 			
@@ -144,9 +146,20 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		initializeExistingCondition(context);
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
+		// Show condition search
 		ret.append(htmlForConditionSearchWidget(context));
+		
+		// Show additional details
+		if (showAdditionalDetails) {
+			ret.append(htmlForAdituionalDetailsWidget(context));
+		}
+		
+		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
+		
+		// Show condition dates
 		ret.append(htmlForConditionDatesWidget(context));
+		
 		ret.append("</div>");
 		return ret.toString();
 	}
@@ -416,6 +429,30 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return ret.toString();
 	}
 	
+	private String htmlForAdituionalDetailsWidget(FormEntryContext context) {
+		
+		// Create wrapper id
+		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
+		
+		// Register widget
+		additionalDetailsWidget = new TextFieldWidget();
+		context.registerWidget(additionalDetailsWidget);
+		
+		// Fill value for Edit/View
+		if (context.getMode() != Mode.ENTER && existingCondition != null) {
+			additionalDetailsWidget.setInitialValue(existingCondition.getAdditionalDetail());
+		}
+		
+		// Generate html
+		StringBuilder ret = new StringBuilder();
+		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
+		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
+		ret.append(additionalDetailsWidget.generateHtml(context));
+		ret.append("</div>");
+		
+		return ret.toString();
+	}
+	
 	private ConditionClinicalStatus getStatus(FormEntryContext context, HttpServletRequest request) {
 		if (conditionStatusesWidget == null) {
 			return null;
@@ -493,6 +530,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	public void setConcept(Concept concept) {
 		this.concept = concept;
+	}
+	
+	public boolean isShowAdditionalDetails() {
+		return showAdditionalDetails;
+	}
+	
+	public void setShowAdditionalDetails(boolean showAdditionalDetails) {
+		this.showAdditionalDetails = showAdditionalDetails;
 	}
 	
 	// available for testing purposes only

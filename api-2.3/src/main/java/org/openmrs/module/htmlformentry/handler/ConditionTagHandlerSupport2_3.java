@@ -41,6 +41,12 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 			conditionElement.setConcept(HtmlFormEntryUtil.getConcept(conceptId));
 		}
 		
+		// Fill show additional detail attribute
+		String showAdditionalDetail = attributes.get("showAdditionalDetail");
+		if (!StringUtils.equals("true", showAdditionalDetail)) {
+			conditionElement.setShowAdditionalDetails(true);
+		}
+		
 		session.getSubmissionController().addAction(conditionElement);
 		return conditionElement.generateHtml(session.getContext());
 	}
