@@ -21,9 +21,9 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	
 	// field names
 	private String searchWidgetIdForCurrentCondition = "w7";
-
+	
 	private String additionalDetailsForCurrentCondition = "w9";
-
+	
 	private String statusWidgetIdForCurrentCondition = "w10";
 	
 	private String onsetDateWidgetIdForCurrentCondition = "w12";
@@ -43,7 +43,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	private String onsetDateWidgetIdForPresetCondition = "w26";
 	
 	private String endDateWidgetIdForPresetCondition = "w27";
-
+	
 	private String searchWidgetIdForPresetConditionWithoutStatus = "w29";
 	
 	@Before
@@ -77,7 +77,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(statusWidgetIdForCurrentCondition, "active");
 				request.addParameter(onsetDateWidgetIdForCurrentCondition, "2014-02-11");
 				request.addParameter(additionalDetailsForCurrentCondition, "Additional details");
-
+				
 				// setup for past condition
 				request.addParameter(searchWidgetIdForPastCondition, "Some past condition");
 				request.addParameter(statusWidgetIdForPastCondition, "inactive");
@@ -192,10 +192,9 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
 				    "<input type=\"text\"  id=\"w7\" name=\"w7\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
-
+				
 				// Verify the condition Additional detail value - 'Some additional details'
-				assertTrue(html.contains(
-				"<input type=\"text\" name=\"w9\" id=\"w9\" value=\"Some additional details\"/>"));
+				assertTrue(html.contains("<input type=\"text\" name=\"w9\" id=\"w9\" value=\"Some additional details\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
 				    "<input type=\"radio\" id=\"w10_1\" name=\"w10\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));

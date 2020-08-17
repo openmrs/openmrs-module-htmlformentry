@@ -83,7 +83,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			condition.setClinicalStatus(status);
 			
 			// Handle Additional Details widget
-			if(showAdditionalDetails) {
+			if (showAdditionalDetails) {
 				condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
 			}
 			
@@ -265,15 +265,13 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		}
 		
 		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
-
-
-
+		
 		StringBuilder ret = new StringBuilder();
-
+		
 		// Create wrapper id
 		String searchWidgetWrapperId = "condition-" + controlId;
 		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
-
+		
 		if (context.getMode() == Mode.VIEW) {
 			// append label
 			ret.append(conditionLabel + ": ");
@@ -505,15 +503,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public DateWidget getEndDateWidget() {
 		return endDateWidget;
 	}
-
+	
 	public TextFieldWidget getAdditionalDetailsWidget() {
 		return additionalDetailsWidget;
 	}
-
+	
 	public void setAdditionalDetailsWidget(TextFieldWidget additionalDetailsWidget) {
 		this.additionalDetailsWidget = additionalDetailsWidget;
 	}
-
+	
 	public void setConditionStatusesWidget(RadioButtonsWidget conditionStatusesWidget) {
 		this.conditionStatusesWidget = conditionStatusesWidget;
 	}
@@ -562,5 +560,5 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
 	}
-
+	
 }
