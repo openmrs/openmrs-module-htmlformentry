@@ -43,7 +43,7 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 		
 		// Fill show additional detail attribute
 		String showAdditionalDetail = attributes.get("showAdditionalDetail");
-		if (!StringUtils.equals("true", showAdditionalDetail)) {
+		if (StringUtils.equals("true", showAdditionalDetail)) {
 			conditionElement.setShowAdditionalDetails(true);
 		}
 		

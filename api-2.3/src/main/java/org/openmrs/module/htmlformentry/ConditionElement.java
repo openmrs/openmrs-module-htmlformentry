@@ -83,7 +83,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			condition.setClinicalStatus(status);
 			
 			// Handle Additional Details widget
-			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
+			if(showAdditionalDetails) {
+				condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
+			}
 			
 			// Handle on set date
 			condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
@@ -435,19 +437,19 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
 		
 		// Register widget
-		additionalDetailsWidget = new TextFieldWidget();
-		context.registerWidget(additionalDetailsWidget);
+		setAdditionalDetailsWidget(new TextFieldWidget());
+		context.registerWidget(getAdditionalDetailsWidget());
 		
 		// Fill value for Edit/View
 		if (context.getMode() != Mode.ENTER && existingCondition != null) {
-			additionalDetailsWidget.setInitialValue(existingCondition.getAdditionalDetail());
+			getAdditionalDetailsWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
 		
 		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
 		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
-		ret.append(additionalDetailsWidget.generateHtml(context));
+		ret.append(getAdditionalDetailsWidget().generateHtml(context));
 		ret.append("</div>");
 		
 		return ret.toString();
@@ -495,7 +497,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public DateWidget getEndDateWidget() {
 		return endDateWidget;
 	}
-	
+
+	public TextFieldWidget getAdditionalDetailsWidget() {
+		return additionalDetailsWidget;
+	}
+
+	public void setAdditionalDetailsWidget(TextFieldWidget additionalDetailsWidget) {
+		this.additionalDetailsWidget = additionalDetailsWidget;
+	}
+
 	public void setConditionStatusesWidget(RadioButtonsWidget conditionStatusesWidget) {
 		this.conditionStatusesWidget = conditionStatusesWidget;
 	}
@@ -544,5 +554,5 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
 	}
-	
+
 }

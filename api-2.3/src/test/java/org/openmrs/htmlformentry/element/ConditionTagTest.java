@@ -21,29 +21,31 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	
 	// field names
 	private String searchWidgetIdForCurrentCondition = "w7";
-	
-	private String statusWidgetIdForCurrentCondition = "w9";
-	
-	private String onsetDateWidgetIdForCurrentCondition = "w11";
-	
-	private String searchWidgetIdForPastCondition = "w14";
-	
-	private String statusWidgetIdForPastCondition = "w16";
-	
-	private String onsetDateWidgetIdForPastCondition = "w18";
-	
-	private String endDateWidgetIdForPastCondition = "w19";
 
-	private String searchWidgetIdForPresetCondition = "w21";
+	private String additionalDetailsForCurrentCondition = "w9";
 
-	private String statusWidgetIdForPresetCondition = "w23";
+	private String statusWidgetIdForCurrentCondition = "w10";
+	
+	private String onsetDateWidgetIdForCurrentCondition = "w12";
+	
+	private String searchWidgetIdForPastCondition = "w15";
+	
+	private String statusWidgetIdForPastCondition = "w17";
+	
+	private String onsetDateWidgetIdForPastCondition = "w19";
+	
+	private String endDateWidgetIdForPastCondition = "w20";
+	
+	private String searchWidgetIdForPresetCondition = "w22";
+	
+	private String statusWidgetIdForPresetCondition = "w24";
+	
+	private String onsetDateWidgetIdForPresetCondition = "w26";
+	
+	private String endDateWidgetIdForPresetCondition = "w27";
 
-	private String onsetDateWidgetIdForPresetCondition = "w25";
-
-	private String endDateWidgetIdForPresetCondition = "w26";
-
-	private String searchWidgetIdForPresetConditionWithoutStatus = "w28";
-
+	private String searchWidgetIdForPresetConditionWithoutStatus = "w29";
+	
 	@Before
 	public void setup() throws Exception {
 		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.30.xml");
@@ -74,20 +76,20 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(searchWidgetIdForCurrentCondition + "_hid", "3476");
 				request.addParameter(statusWidgetIdForCurrentCondition, "active");
 				request.addParameter(onsetDateWidgetIdForCurrentCondition, "2014-02-11");
-				
+				request.addParameter(additionalDetailsForCurrentCondition, "Additional details");
+
 				// setup for past condition
 				request.addParameter(searchWidgetIdForPastCondition, "Some past condition");
 				request.addParameter(statusWidgetIdForPastCondition, "inactive");
 				request.addParameter(onsetDateWidgetIdForPastCondition, "2013-02-11");
 				request.setParameter(endDateWidgetIdForPastCondition, "2019-04-11");
-
+				
 				// setup for preset condition
 				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition");
 				request.addParameter(statusWidgetIdForPresetCondition, "inactive");
 				request.addParameter(onsetDateWidgetIdForPresetCondition, "2014-02-11");
 				request.setParameter(endDateWidgetIdForPresetCondition, "2020-04-11");
-
-
+				
 				// setup for preset condition without status
 				request.addParameter(searchWidgetIdForPresetConditionWithoutStatus, "Some preset condition without status");
 			}
@@ -104,6 +106,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(ConditionClinicalStatus.ACTIVE, currentCondition.getClinicalStatus());
 				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
 				Assert.assertEquals("2014-02-11", dateAsString(currentCondition.getOnsetDate()));
+				Assert.assertEquals("Additional details", currentCondition.getAdditionalDetail());
 				Assert.assertNotNull(currentCondition.getId());
 				
 				Condition pastCondition = conditions[1];
@@ -112,7 +115,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("2013-02-11", dateAsString(pastCondition.getOnsetDate()));
 				Assert.assertEquals("2019-04-11", dateAsString(pastCondition.getEndDate()));
 				Assert.assertNotNull(pastCondition.getId());
-
+				
 				Condition presetCondition = conditions[2];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, presetCondition.getClinicalStatus());
 				Assert.assertEquals("Some preset condition", presetCondition.getCondition().getNonCoded());
@@ -189,15 +192,19 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
 				    "<input type=\"text\"  id=\"w7\" name=\"w7\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
+
+				// Verify the condition Additional detail value - 'Some additional details'
+				assertTrue(html.contains(
+				"<input type=\"text\" name=\"w9\" id=\"w9\" value=\"Some additional details\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
-				    "<input type=\"radio\" id=\"w9_1\" name=\"w9\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+				    "<input type=\"radio\" id=\"w10_1\" name=\"w10\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
 				// Verify the onset date - '2017-01-12'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w11-display', '#w11', '2017-01-12')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w12-display', '#w12', '2017-01-12')</script>"));
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w12-display', '#w12', '2019-01-15')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w13-display', '#w13', '2019-01-15')</script>"));
 				
 			}
 			
