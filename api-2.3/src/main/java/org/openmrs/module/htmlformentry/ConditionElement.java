@@ -128,6 +128,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
+		
 		// Add condition search html
 		ret.append(htmlForConditionSearchWidget(context, existingCondition));
 
