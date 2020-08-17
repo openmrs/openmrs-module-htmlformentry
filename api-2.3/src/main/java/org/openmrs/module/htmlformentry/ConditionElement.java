@@ -117,7 +117,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		// Create wrapper id
 		String wrapperDivId = "htmlformentry-condition-" + controlId;
 
-		// Load Message source service
+		// Load messages service
 		if (mss == null) {
 			mss = Context.getMessageSourceService();
 		}
@@ -128,15 +128,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
-		// Show condition search
+		// Add condition search html
 		ret.append(htmlForConditionSearchWidget(context, existingCondition));
 
-		// Show additional details
+		// Add additional details html
 		if (showAdditionalDetails) {
 			ret.append(htmlForAdditionalDetailsWidget(context, existingCondition));
 		}
 
-		// Show condition state
+		// Add condition state html
 		ret.append(htmlForConditionStatusesWidgets(context, existingCondition));
 
 		ret.append("</div>");
