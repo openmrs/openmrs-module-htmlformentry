@@ -250,8 +250,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		}
 		
 		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
-		
+
+
+
 		StringBuilder ret = new StringBuilder();
+
+		// Create wrapper id
+		String searchWidgetWrapperId = "condition-" + controlId;
+		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
+
 		if (context.getMode() == Mode.VIEW) {
 			// append label
 			ret.append(conditionLabel + ": ");
@@ -299,6 +306,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append("});\n");
 			ret.append("</script>\n");
 		}
+		ret.append("</div>");
 		return ret.toString();
 	}
 	
