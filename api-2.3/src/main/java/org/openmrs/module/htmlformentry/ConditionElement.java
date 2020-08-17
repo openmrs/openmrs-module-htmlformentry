@@ -28,9 +28,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private boolean required;
 	
 	private String controlId;
-	
-	private Condition existingCondition;
-	
+
 	private Concept concept;
 
 	private boolean showAdditionalDetails;
@@ -45,11 +43,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private ErrorWidget conditionSearchErrorWidget;
 	
 	private ErrorWidget conditionStatusesErrorWidget;
-	
-	private String wrapperDivId;
-	
-	private String endDatePickerWrapperId;
-	
+
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
@@ -119,24 +113,31 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		wrapperDivId = "htmlformentry-condition-" + controlId;
-		endDatePickerWrapperId = "condition-end-date-" + controlId;
+
+		// Create wrapper id
+		String wrapperDivId = "htmlformentry-condition-" + controlId;
+
+		// Load Message source service
 		if (mss == null) {
 			mss = Context.getMessageSourceService();
 		}
-		initializeExistingCondition(context);
+
+		// Find condition for form position
+		Condition existingCondition = initializeExistingCondition(context);
+
+		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
 		// Show condition search
-		ret.append(htmlForConditionSearchWidget(context));
+		ret.append(htmlForConditionSearchWidget(context, existingCondition));
 
 		// Show additional details
 		if (showAdditionalDetails) {
-			ret.append(htmlForAdditionalDetailsWidget(context));
+			ret.append(htmlForAdditionalDetailsWidget(context, existingCondition));
 		}
 
 		// Show condition state
-		ret.append(htmlForConditionStatusesWidgets(context));
+		ret.append(htmlForConditionStatusesWidgets(context, existingCondition));
 
 		ret.append("</div>");
 		return ret.toString();
@@ -153,25 +154,23 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private Condition bootstrap(FormEntryContext context) {
 		Condition ret = null;
 		if (context.getMode() != Mode.ENTER) {
-			if (existingCondition == null) {
-				initializeExistingCondition(context);
-			}
-			ret = existingCondition;
+			ret = initializeExistingCondition(context);
 		}
 		if (ret == null) {
 			ret = new Condition();
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Looks up the existing condition from the encounter to be edited or viewed.
 	 * <p>
 	 * It uses the {@code formFieldPath} to map the widget on the form to the target condition
 	 *
 	 * @param context - the current FormEntryContext
+	 * @return Condition - existing condition for form position
 	 */
-	private void initializeExistingCondition(FormEntryContext context) {
+	private Condition initializeExistingCondition(FormEntryContext context) {
 		if (context.getMode() != Mode.ENTER) {
 			Set<Condition> conditions = context.getExistingEncounter().getConditions();
 			for (Condition candidate : conditions) {
@@ -185,15 +184,16 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				
 				// Verify if it is a valid candidate for the condition
 				if (StringUtils.equals(candidateControlId, controlId)) {
-					this.existingCondition = candidate;
-					return;
+					return candidate;
 				}
 			}
 		}
+		// Return null if no candidate is found
+		return null;
 	}
 	
 	// public visibility for testing purposes only
-	public String htmlForConditionSearchWidget(FormEntryContext context) {
+	public String htmlForConditionSearchWidget(FormEntryContext context, Condition existingCondition) {
 		String freeTextVal = null;
 		String conditionLabel = mss.getMessage("htmlformentry.conditionui.condition.label");
 		// use value set for GP 'coreapps.conditionListClasses' as concept source
@@ -299,7 +299,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return ret.toString();
 	}
 	
-	private String htmlForConditionStatusesWidgets(FormEntryContext context) {
+	private String htmlForConditionStatusesWidgets(FormEntryContext context, Condition existingCondition) {
 		Option initialStatus = null;
 		Option active = new Option(mss.getMessage("htmlformentry.conditionui.active.label"), "active", false);
 		Option inactive = new Option(mss.getMessage("htmlformentry.conditionui.inactive.label"), "inactive", false);
@@ -334,12 +334,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.VIEW) {
 			sb.append(conditionStatusesErrorWidget.generateHtml(context));
 			sb.append(conditionStatusesWidget.generateHtml(context));
-			sb.append("<script>");
-			sb.append("jq(\"input[name='" + radioGroupName + "']\").change(function(e){\n"
-			        + "    if($(this).val() == 'active') {\n" + "		document.getElementById('" + endDatePickerWrapperId
-			        + "').style.visibility=\"hidden\"; \n" + "    } else {\n" + "		document.getElementById('"
-			        + endDatePickerWrapperId + "').style.visibility=\"visible\";\n" + "    }\n" + "\n" + "});");
-			sb.append("</script>");
 			sb.append("<style>");
 			sb.append("#" + conditionStatusDivId + " input {\n" + "    display: inline;\n" + "    float: none;\n" + "}\n"
 			        + "#" + conditionStatusDivId + " label {\n" + "    display: inline;\n" + "}");
@@ -358,7 +352,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return sb.toString();
 	}
 
-	private String htmlForAdditionalDetailsWidget(FormEntryContext context) {
+	private String htmlForAdditionalDetailsWidget(FormEntryContext context, Condition existingCondition) {
 
 		// Create wrapper id
 		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
@@ -436,15 +430,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void setControlId(String controlId) {
 		this.controlId = controlId;
 	}
-	
-	public Condition getExistingCondition() {
-		return existingCondition;
-	}
-	
-	public void setExistingCondition(Condition existingCondition) {
-		this.existingCondition = existingCondition;
-	}
-	
+
 	public Concept getConcept() {
 		return concept;
 	}

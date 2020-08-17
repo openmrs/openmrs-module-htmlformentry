@@ -293,7 +293,7 @@ public class ConditionElementTest {
 		        .thenReturn("Diagnosis,Finding");
 		
 		// replay
-		String html = element.htmlForConditionSearchWidget(context);
+		String html = element.htmlForConditionSearchWidget(context, null);
 		
 		// verify
 		Assert.assertTrue(html.contains("setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis,Finding','null')"));
@@ -306,7 +306,7 @@ public class ConditionElementTest {
 		when(adminService.getGlobalProperty(ConditionElement.GLOBAL_PROPERTY_CONDITIONS_CRITERIA)).thenReturn(null);
 		
 		// replay
-		String html = element.htmlForConditionSearchWidget(context);
+		String html = element.htmlForConditionSearchWidget(context,null);
 		
 		// verify
 		Assert.assertTrue(html.contains("setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null')"));
