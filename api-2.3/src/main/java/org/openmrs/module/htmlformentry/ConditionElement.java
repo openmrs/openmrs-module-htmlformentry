@@ -153,7 +153,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		// Show additional details
 		if (showAdditionalDetails) {
-			ret.append(htmlForAdituionalDetailsWidget(context));
+			ret.append(htmlForAdditionalDetailsWidget(context));
 		}
 		
 		// Show condition state
@@ -431,7 +431,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return ret.toString();
 	}
 	
-	private String htmlForAdituionalDetailsWidget(FormEntryContext context) {
+	private String htmlForAdditionalDetailsWidget(FormEntryContext context) {
 		
 		// Create wrapper id
 		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
