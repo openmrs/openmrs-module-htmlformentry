@@ -18,10 +18,10 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class ConditionTagTest extends BaseModuleContextSensitiveTest {
-	
+
 	// field names
 	private String searchWidgetIdForCurrentCondition = "w7";
-	
+
 	private String additionalDetailsForCurrentCondition = "w9";
 
 	private String statusWidgetIdForCurrentCondition = "w10";
@@ -29,38 +29,36 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	private String searchWidgetIdForPastCondition = "w12";
 
 	private String statusWidgetIdForPastCondition = "w14";
-	
+
 	private String searchWidgetIdForPresetCondition = "w16";
 
 	private String statusWidgetIdForPresetCondition = "w18";
 
-	private String searchWidgetIdForPresetConditionWithoutStatus = "w20";
-	
 	@Before
 	public void setup() throws Exception {
 		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.30.xml");
 	}
-	
+
 	@Test
 	public void shouldRecordAndEditCondition() throws Exception {
 		new RegressionTestHelper() {
-			
+
 			@Override
 			public String getFormName() {
 				return "conditionForm";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				
+
 				// setup for current condition
 				request.addParameter(searchWidgetIdForCurrentCondition, "Epilepsy");
 				request.addParameter(searchWidgetIdForCurrentCondition + "_hid", "3476");
@@ -75,15 +73,13 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition");
 				request.addParameter(statusWidgetIdForPresetCondition, "inactive");
 
-				// setup for preset condition without status
-				request.addParameter(searchWidgetIdForPresetConditionWithoutStatus, "Some preset condition without status");
 			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
 				Concept expectedCondition = Context.getConceptService().getConceptByName("Epilepsy");
-				
+
 				results.assertNoErrors();
 				Assert.assertEquals(3, conditions.length);
 
@@ -92,7 +88,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
 				Assert.assertEquals("Additional details", currentCondition.getAdditionalDetail());
 				Assert.assertNotNull(currentCondition.getId());
-				
+
 				Condition pastCondition = conditions[1];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, pastCondition.getClinicalStatus());
 				Assert.assertEquals("Some past condition", pastCondition.getCondition().getNonCoded());
@@ -103,28 +99,103 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("Some preset condition", presetCondition.getCondition().getNonCoded());
 				Assert.assertNotNull(presetCondition.getId());
 			}
-			
+
 			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
-			
+
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// edit onset date for the current condition
 			}
-			
+
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				// setup
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
-				
+
 				results.assertNoErrors();
-				Assert.assertEquals(4, conditions.length);
-				
+				Assert.assertEquals(3, conditions.length);
+
 				Condition currentCondition = conditions[0];
 			}
-			
+
+		}.run();
+	}
+
+	@Test
+	public void shouldRecordAndEditConditionWithoutStatus() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "conditionForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+
+				// setup for current condition
+				request.addParameter(searchWidgetIdForCurrentCondition, "Epilepsy");
+				request.addParameter(searchWidgetIdForCurrentCondition + "_hid", "3476");
+				request.addParameter(statusWidgetIdForCurrentCondition, "active");
+
+				// setup for past condition
+				request.addParameter(searchWidgetIdForPastCondition, "Some past condition");
+				request.addParameter(statusWidgetIdForPastCondition, "inactive");
+
+				// setup for preset condition
+				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition without status");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
+				Concept expectedCondition = Context.getConceptService().getConceptByName("Epilepsy");
+
+				results.assertNoErrors();
+				Assert.assertEquals(2, conditions.length);
+
+				Condition currentCondition = conditions[0];
+				Assert.assertEquals(ConditionClinicalStatus.ACTIVE, currentCondition.getClinicalStatus());
+				Assert.assertEquals(expectedCondition, currentCondition.getCondition().getCoded());
+				Assert.assertNotNull(currentCondition.getId());
+
+				Condition pastCondition = conditions[1];
+				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, pastCondition.getClinicalStatus());
+				Assert.assertEquals("Some past condition", pastCondition.getCondition().getNonCoded());
+				Assert.assertNotNull(pastCondition.getId());
+			}
+
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				// edit onset date for the current condition
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				// setup
+				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
+
+				results.assertNoErrors();
+				Assert.assertEquals(3, conditions.length);
+
+			}
+
 		}.run();
 	}
 	
@@ -172,8 +243,8 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				assertTrue(html.contains(
 				    "<input type=\"radio\" id=\"w10_1\" name=\"w10\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
 			}
-			
+
 		}.run();
 	}
-	
+
 }
