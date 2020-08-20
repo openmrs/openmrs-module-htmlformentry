@@ -68,7 +68,7 @@ public class ConditionElementTest {
 	
 	@Mock
 	private TextFieldWidget additionalDetailsWidget;
-
+	
 	@Mock
 	private RadioButtonsWidget conditionStatusesWidget;
 	
@@ -172,19 +172,19 @@ public class ConditionElementTest {
 		when(additionalDetailsWidget.getValue(context, request)).thenReturn("Additional details");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
-
+		
 		// replay
 		element.setShowAdditionalDetails(true);
 		element.handleSubmission(session, request);
-
+		
 		// verify
 		Set<Condition> conditions = encounter.getConditions();
 		Assert.assertEquals(1, conditions.size());
-
+		
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals("Additional details", condition.getAdditionalDetail());
 	}
-
+	
 	@Test
 	public void handleSubmission_shouldSupportNoneCodedConceptValues() {
 		// setup
@@ -245,19 +245,19 @@ public class ConditionElementTest {
 	
 	@Test
 	public void handleSubmission_shouldNotSaveIfConceptTagDefinedAndNoStatus() {
-
+		
 		// Mock condition search widget
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
-
+		
 		// Test
 		element.setConcept(new Concept());
 		element.handleSubmission(session, request);
-
+		
 		// Verify
 		Set<Condition> conditions = encounter.getConditions();
 		Assert.assertEquals(0, conditions.size());
 	}
-
+	
 	@Test
 	public void validateSubmission_shouldFailValidationWhenConditionIsNotGivenAndIsRequired() {
 		// setup
@@ -272,7 +272,7 @@ public class ConditionElementTest {
 		// verify
 		Assert.assertEquals("A condition is required", errors.get(0).getError());
 	}
-
+	
 	@Test
 	public void htmlForConditionSearchWidget_shouldGetConceptSourceClassesFromGP() {
 		// setup
@@ -294,7 +294,7 @@ public class ConditionElementTest {
 		when(adminService.getGlobalProperty(ConditionElement.GLOBAL_PROPERTY_CONDITIONS_CRITERIA)).thenReturn(null);
 		
 		// replay
-		String html = element.htmlForConditionSearchWidget(context,null);
+		String html = element.htmlForConditionSearchWidget(context, null);
 		
 		// verify
 		Assert.assertTrue(html.contains("setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null')"));
