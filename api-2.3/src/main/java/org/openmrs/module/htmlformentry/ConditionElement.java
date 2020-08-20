@@ -2,26 +2,38 @@ package org.openmrs.module.htmlformentry;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
-import java.util.*;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.openmrs.*;
+import org.openmrs.CodedOrFreeText;
+import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
+import org.openmrs.Condition;
+import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.element.HtmlGeneratorElement;
-import org.openmrs.module.htmlformentry.widget.*;
+import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
+import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
+import org.openmrs.module.htmlformentry.widget.WidgetFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class ConditionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
 	public static final String GLOBAL_PROPERTY_CONDITIONS_CRITERIA = "coreapps.conditionListClasses";
 	
 	private static final String DEFAULT_CONDITION_LIST_CONCEPT_CLASS_NAME = "Diagnosis";
-	
-	private Locale locale = Context.getLocale();
 
 	private MessageSourceService mss;
 	
@@ -47,50 +59,41 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
-		if (context.getMode() != Mode.VIEW) {
-			Condition condition = bootstrap(context);
+		Condition condition = bootstrap(context);
 
-			// Handle condition concept
-			CodedOrFreeText conditionConcept = new CodedOrFreeText();
-			try {
-				int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
-				conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
-			}
-			catch (NumberFormatException e) {
-				String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
-				if (StringUtils.isBlank(nonCodedConcept) && !required) {
-					// ignore silently
-					return;
-				}
-				conditionConcept.setNonCoded(nonCodedConcept);
-			}
-			condition.setCondition(conditionConcept);
+		CodedOrFreeText conditionConcept = new CodedOrFreeText();
 
-			// Handle Condition Clinical Status
-			ConditionClinicalStatus status = getStatus(context, submission);
-			condition.setClinicalStatus(status);
-
-			// Handle Additional Details widget
-			if (showAdditionalDetails) {
-				condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
-			}
-
-			// Handle Patient
-			condition.setPatient(session.getPatient());
-
-			// Handle Form field position
-			condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
-
-			// Only save the condition if no concept defined or is defined but has status
-			if (concept == null || (concept != null && status != null)) {
-				session.getEncounter().addCondition(condition);
-			}
+		try {
+			int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
+			conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
 		}
+		catch (NumberFormatException e) {
+			String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
+			conditionConcept.setNonCoded(nonCodedConcept);
+		}
+		condition.setCondition(conditionConcept);
+
+		ConditionClinicalStatus status = getStatus(context, submission);
+		condition.setClinicalStatus(status);
+
+		if (showAdditionalDetails) {
+			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
+		}
+
+		condition.setPatient(session.getPatient());
+
+		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
+
+		if (concept != null && status == null && !required) {
+			return;
+		}
+
+		session.getEncounter().addCondition(condition);
 	}
 	
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+		List<FormSubmissionError> ret = new ArrayList<>();
 		String condition = StringUtils.isNotBlank((String) conditionSearchWidget.getValue(context, submission))
 		        ? (String) conditionSearchWidget.getValue(context, submission)
 		        : submission.getParameter(context.getFieldName(conditionSearchWidget));

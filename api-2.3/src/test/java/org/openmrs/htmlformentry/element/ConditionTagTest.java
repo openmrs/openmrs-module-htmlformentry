@@ -119,6 +119,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(3, conditions.length);
 
 				Condition currentCondition = conditions[0];
+				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
 			}
 
 		}.run();
@@ -242,6 +243,13 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
 				    "<input type=\"radio\" id=\"w10_1\" name=\"w10\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+				// Verify the onset date - '2017-01-12'
+				assertTrue(html.contains(
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w12-display', '#w12', '2017-01-12')</script>"));
+				// Verify the end date - '2019-01-15'
+				assertTrue(html.contains(
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w13-display', '#w13', '2019-01-15')</script>"));
+				
 			}
 
 		}.run();
