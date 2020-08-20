@@ -196,18 +196,6 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldNotCreateConditionInViewMode() {
-		// setup
-		when(context.getMode()).thenReturn(Mode.VIEW);
-		
-		// replay
-		element.handleSubmission(session, request);
-		
-		// verify
-		verify(conditionService, never()).saveCondition(any(Condition.class));
-	}
-	
-	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
 		element.setControlId("my_condition_tag");
@@ -233,17 +221,17 @@ public class ConditionElementTest {
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 		Assert.assertEquals("HtmlFormEntry^MyForm.1.0/my_condition_tag-0", condition.getFormNamespaceAndPath());
 	}
-
+	
 	@Test
 	public void handleSubmission_shouldNotSaveIfConceptTagDefinedAndNoStatus() {
-
+		
 		// Mock condition search widget
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
-
+		
 		// Test
 		element.setConcept(new Concept());
 		element.handleSubmission(session, request);
-
+		
 		// Verify
 		Set<Condition> conditions = encounter.getConditions();
 		Assert.assertEquals(0, conditions.size());
