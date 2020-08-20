@@ -2,16 +2,11 @@ package org.openmrs.module.htmlformentry;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.CodedOrFreeText;
+import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.Condition;
 import org.openmrs.ConditionClinicalStatus;
@@ -25,7 +20,14 @@ import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
+import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.WidgetFactory;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 public class ConditionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
@@ -39,65 +41,59 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private String controlId;
 	
-	private Condition existingCondition;
+	private Concept concept;
+	
+	private boolean showAdditionalDetails;
 	
 	// widgets
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
 	
-	private DateWidget onSetDateWidget;
-	
-	private DateWidget endDateWidget;
+	private TextFieldWidget additionalDetailsWidget;
 	
 	private RadioButtonsWidget conditionStatusesWidget;
-	
-	private ErrorWidget endDateErrorWidget;
 	
 	private ErrorWidget conditionSearchErrorWidget;
 	
 	private ErrorWidget conditionStatusesErrorWidget;
 	
-	private String wrapperDivId;
-	
-	private String endDatePickerWrapperId;
-	
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
-		if (context.getMode() != Mode.VIEW) {
-			Condition condition = bootstrap(context);
-			CodedOrFreeText conditionConcept = new CodedOrFreeText();
-			try {
-				int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
-				conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
-				
-			}
-			catch (NumberFormatException e) {
-				String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
-				if (StringUtils.isBlank(nonCodedConcept) && !required) {
-					// ignore silently
-					return;
-				}
-				conditionConcept.setNonCoded(nonCodedConcept);
-			}
-			condition.setCondition(conditionConcept);
-			ConditionClinicalStatus status = getStatus(context, submission);
-			condition.setClinicalStatus(status);
-			condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
-			
-			if (status != ConditionClinicalStatus.ACTIVE) {
-				condition.setEndDate(endDateWidget.getValue(context, submission));
-			}
-			condition.setPatient(session.getPatient());
-			condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
-			session.getEncounter().addCondition(condition);
+		Condition condition = bootstrap(context);
+		
+		CodedOrFreeText conditionConcept = new CodedOrFreeText();
+		
+		try {
+			int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
+			conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
 		}
+		catch (NumberFormatException e) {
+			String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
+			conditionConcept.setNonCoded(nonCodedConcept);
+		}
+		condition.setCondition(conditionConcept);
+		
+		ConditionClinicalStatus status = getStatus(context, submission);
+		condition.setClinicalStatus(status);
+		
+		if (showAdditionalDetails) {
+			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
+		}
+		
+		condition.setPatient(session.getPatient());
+		
+		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
+		
+		if (concept != null && status == null && !required) {
+			return;
+		}
+		
+		session.getEncounter().addCondition(condition);
 	}
 	
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-		Date givenOnsetDate = onSetDateWidget.getValue(context, submission);
-		Date givenEndDate = endDateWidget.getValue(context, submission);
+		List<FormSubmissionError> ret = new ArrayList<>();
 		String condition = StringUtils.isNotBlank((String) conditionSearchWidget.getValue(context, submission))
 		        ? (String) conditionSearchWidget.getValue(context, submission)
 		        : submission.getParameter(context.getFieldName(conditionSearchWidget));
@@ -109,12 +105,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				ret.add(new FormSubmissionError(context.getFieldName(conditionSearchWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.condition.required")));
 			}
-			if (givenOnsetDate != null && givenEndDate != null) {
-				if (givenOnsetDate.after(givenEndDate)) {
-					ret.add(new FormSubmissionError(context.getFieldName(endDateWidget), Context.getMessageSourceService()
-					        .getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error")));
-				}
-			}
+			
 			if (status == null && required) {
 				ret.add(new FormSubmissionError(context.getFieldName(conditionStatusesWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.status.required")));
@@ -125,17 +116,33 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		wrapperDivId = "htmlformentry-condition-" + controlId;
-		endDatePickerWrapperId = "condition-end-date-" + controlId;
+		
+		// Create wrapper id
+		String wrapperDivId = "htmlformentry-condition-" + controlId;
+		
+		// Load messages service
 		if (mss == null) {
 			mss = Context.getMessageSourceService();
 		}
-		initializeExistingCondition(context);
+		
+		// Find condition for form position
+		Condition existingCondition = initializeExistingCondition(context);
+		
+		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
-		ret.append(htmlForConditionSearchWidget(context));
-		ret.append(htmlForConditionStatusesWidgets(context));
-		ret.append(htmlForConditionDatesWidget(context));
+		
+		// Add condition search html
+		ret.append(htmlForConditionSearchWidget(context, existingCondition));
+		
+		// Add additional details html
+		if (showAdditionalDetails) {
+			ret.append(htmlForAdditionalDetailsWidget(context, existingCondition));
+		}
+		
+		// Add condition state html
+		ret.append(htmlForConditionStatusesWidgets(context, existingCondition));
+		
 		ret.append("</div>");
 		return ret.toString();
 	}
@@ -151,10 +158,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private Condition bootstrap(FormEntryContext context) {
 		Condition ret = null;
 		if (context.getMode() != Mode.ENTER) {
-			if (existingCondition == null) {
-				initializeExistingCondition(context);
-			}
-			ret = existingCondition;
+			ret = initializeExistingCondition(context);
 		}
 		if (ret == null) {
 			ret = new Condition();
@@ -168,8 +172,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	 * It uses the {@code formFieldPath} to map the widget on the form to the target condition
 	 *
 	 * @param context - the current FormEntryContext
+	 * @return Condition - existing condition for form position
 	 */
-	private void initializeExistingCondition(FormEntryContext context) {
+	private Condition initializeExistingCondition(FormEntryContext context) {
 		if (context.getMode() != Mode.ENTER) {
 			Set<Condition> conditions = context.getExistingEncounter().getConditions();
 			for (Condition candidate : conditions) {
@@ -183,15 +188,16 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				
 				// Verify if it is a valid candidate for the condition
 				if (StringUtils.equals(candidateControlId, controlId)) {
-					this.existingCondition = candidate;
-					return;
+					return candidate;
 				}
 			}
 		}
+		// Return null if no candidate is found
+		return null;
 	}
 	
 	// public visibility for testing purposes only
-	public String htmlForConditionSearchWidget(FormEntryContext context) {
+	public String htmlForConditionSearchWidget(FormEntryContext context, Condition existingCondition) {
 		String freeTextVal = null;
 		String conditionLabel = mss.getMessage("htmlformentry.conditionui.condition.label");
 		// use value set for GP 'coreapps.conditionListClasses' as concept source
@@ -223,17 +229,29 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		conditionSearchWidget = new ConceptSearchAutocompleteWidget(null, allowedConceptClasses);
 		String conditionNameTextInputId = context.registerWidget(conditionSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();
-		if (existingCondition != null && context.getMode() != Mode.ENTER) {
-			CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
-			if (codedOrFreeText.getCoded() != null) {
-				conditionSearchWidget.setInitialValue(codedOrFreeText.getCoded());
-			} else {
-				freeTextVal = codedOrFreeText.getNonCoded();
+		
+		if (concept == null) {
+			if (existingCondition != null && context.getMode() != Mode.ENTER) {
+				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
+				if (codedOrFreeText.getCoded() != null) {
+					conditionSearchWidget.setInitialValue(codedOrFreeText.getCoded());
+				} else {
+					freeTextVal = codedOrFreeText.getNonCoded();
+				}
 			}
+		} else {
+			// If exist concept define it as default value
+			conditionSearchWidget.setInitialValue(concept);
 		}
+		
 		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
 		
 		StringBuilder ret = new StringBuilder();
+		
+		// Create wrapper id
+		String searchWidgetWrapperId = "condition-" + controlId;
+		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
+		
 		if (context.getMode() == Mode.VIEW) {
 			// append label
 			ret.append(conditionLabel + ": ");
@@ -266,6 +284,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append(" '" + conditionLabel + "');\n");
 			ret.append(" jq('#" + conditionNameTextInputId + "').css('min-width', '46.4%');\n");
 			
+			// Mark search box as read only if it has a concept
+			if (concept != null) {
+				ret.append("jq('#" + conditionNameTextInputId + "').attr(\"readonly\", true)\n");
+			}
+			
 			// Add support for non-coded concept values.
 			// This a hack to let the autocomplete widget accept values that aren't part of the concept list.
 			ret.append("jq('#" + conditionNameTextInputId + "').blur(function(e){\n");
@@ -276,10 +299,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append("});\n");
 			ret.append("</script>\n");
 		}
+		ret.append("</div>");
 		return ret.toString();
 	}
 	
-	private String htmlForConditionStatusesWidgets(FormEntryContext context) {
+	private String htmlForConditionStatusesWidgets(FormEntryContext context, Condition existingCondition) {
 		Option initialStatus = null;
 		Option active = new Option(mss.getMessage("htmlformentry.conditionui.active.label"), "active", false);
 		Option inactive = new Option(mss.getMessage("htmlformentry.conditionui.inactive.label"), "inactive", false);
@@ -314,12 +338,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.VIEW) {
 			sb.append(conditionStatusesErrorWidget.generateHtml(context));
 			sb.append(conditionStatusesWidget.generateHtml(context));
-			sb.append("<script>");
-			sb.append("jq(\"input[name='" + radioGroupName + "']\").change(function(e){\n"
-			        + "    if($(this).val() == 'active') {\n" + "		document.getElementById('" + endDatePickerWrapperId
-			        + "').style.visibility=\"hidden\"; \n" + "    } else {\n" + "		document.getElementById('"
-			        + endDatePickerWrapperId + "').style.visibility=\"visible\";\n" + "    }\n" + "\n" + "});");
-			sb.append("</script>");
 			sb.append("<style>");
 			sb.append("#" + conditionStatusDivId + " input {\n" + "    display: inline;\n" + "    float: none;\n" + "}\n"
 			        + "#" + conditionStatusDivId + " label {\n" + "    display: inline;\n" + "}");
@@ -338,58 +356,27 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return sb.toString();
 	}
 	
-	private String htmlForConditionDatesWidget(FormEntryContext context) {
-		onSetDateWidget = new DateWidget();
-		endDateWidget = new DateWidget();
-		String onsetDateLabel = mss.getMessage("htmlformentry.conditionui.onsetdate.label");
-		String endDateLabel = mss.getMessage("htmlformentry.conditionui.endDate.label");
+	private String htmlForAdditionalDetailsWidget(FormEntryContext context, Condition existingCondition) {
 		
-		if (existingCondition != null && context.getMode() != Mode.ENTER) {
-			Date initialOnsetDate = existingCondition.getOnsetDate();
-			Date initialEndDate = existingCondition.getEndDate();
-			
-			if (initialOnsetDate != null) {
-				onSetDateWidget.setInitialValue(initialOnsetDate);
-			}
-			if (initialEndDate != null) {
-				endDateWidget.setInitialValue(initialEndDate);
-			}
+		// Create wrapper id
+		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
+		
+		// Register widget
+		setAdditionalDetailsWidget(new TextFieldWidget());
+		context.registerWidget(getAdditionalDetailsWidget());
+		
+		// Fill value for Edit/View
+		if (context.getMode() != Mode.ENTER && existingCondition != null) {
+			getAdditionalDetailsWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
-		String onsetDateTextInputId = context.registerWidget(onSetDateWidget) + "-display";
-		endDateErrorWidget = new ErrorWidget();
-		String endDateTextInputId = context.registerWidget(endDateWidget) + "-display";
-		context.registerErrorWidget(endDateWidget, endDateErrorWidget);
 		
+		// Generate html
 		StringBuilder ret = new StringBuilder();
-		ret.append("<ul>");
-		ret.append("<li>");
-		if (context.getMode() == Mode.VIEW) {
-			// if in view mode, append label
-			ret.append(onsetDateLabel + ": ");
-		}
-		ret.append(onSetDateWidget.generateHtml(context));
-		ret.append("</li> <li>");
-		ret.append("<span id=\"" + endDatePickerWrapperId + "\">");
-		if (context.getMode() == Mode.VIEW) {
-			// if in view mode, append label
-			ret.append(endDateLabel + ": ");
-		}
-		ret.append(endDateWidget.generateHtml(context));
-		ret.append("</span>");
-		ret.append("</li>");
-		if (context.getMode() != Mode.VIEW) {
-			ret.append(endDateErrorWidget.generateHtml(context));
-		}
-		ret.append("</ul> <br/>");
-		ret.append("<script> jq('#" + onsetDateTextInputId + "').attr('placeholder',");
-		ret.append(" '" + onsetDateLabel + "');");
-		ret.append("jq('#" + endDateTextInputId + "').attr('placeholder',");
-		ret.append(" '" + endDateLabel + "');");
-		ret.append("</script>");
-		ret.append("<style>");
-		ret.append("#" + wrapperDivId + " li {\n" + "	width:30%;\n" + "   float: left;\n" + "}");
-		ret.append("#" + wrapperDivId + " ul {\n" + "	display:flow-root;\n" + "   width:85%" + "}");
-		ret.append("</style>");
+		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
+		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
+		ret.append(getAdditionalDetailsWidget().generateHtml(context));
+		ret.append("</div>");
+		
 		return ret.toString();
 	}
 	
@@ -420,20 +407,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return conditionSearchWidget;
 	}
 	
-	public void setOnSetDateWidget(DateWidget onSetDateWidget) {
-		this.onSetDateWidget = onSetDateWidget;
+	public TextFieldWidget getAdditionalDetailsWidget() {
+		return additionalDetailsWidget;
 	}
 	
-	public DateWidget getOnSetDateWidget() {
-		return onSetDateWidget;
-	}
-	
-	public void setEndDateWidget(DateWidget endDateWidget) {
-		this.endDateWidget = endDateWidget;
-	}
-	
-	public DateWidget getEndDateWidget() {
-		return endDateWidget;
+	public void setAdditionalDetailsWidget(TextFieldWidget additionalDetailsWidget) {
+		this.additionalDetailsWidget = additionalDetailsWidget;
 	}
 	
 	public void setConditionStatusesWidget(RadioButtonsWidget conditionStatusesWidget) {
@@ -456,12 +435,20 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		this.controlId = controlId;
 	}
 	
-	public Condition getExistingCondition() {
-		return existingCondition;
+	public Concept getConcept() {
+		return concept;
 	}
 	
-	public void setExistingCondition(Condition existingCondition) {
-		this.existingCondition = existingCondition;
+	public void setConcept(Concept concept) {
+		this.concept = concept;
+	}
+	
+	public boolean isShowAdditionalDetails() {
+		return showAdditionalDetails;
+	}
+	
+	public void setShowAdditionalDetails(boolean showAdditionalDetails) {
+		this.showAdditionalDetails = showAdditionalDetails;
 	}
 	
 	// available for testing purposes only

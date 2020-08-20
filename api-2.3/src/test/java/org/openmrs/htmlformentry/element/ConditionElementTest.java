@@ -32,6 +32,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
+import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -64,6 +65,9 @@ public class ConditionElementTest {
 	
 	@Mock
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
+	
+	@Mock
+	private TextFieldWidget additionalDetailsWidget;
 	
 	@Mock
 	private RadioButtonsWidget conditionStatusesWidget;
@@ -119,8 +123,7 @@ public class ConditionElementTest {
 		element = spy(new ConditionElement());
 		element.setConditionSearchWidget(conditionSearchWidget);
 		element.setConditionStatusesWidget(conditionStatusesWidget);
-		element.setOnSetDateWidget(onsetDateWidget);
-		element.setEndDateWidget(endDateWidget);
+		element.setAdditionalDetailsWidget(additionalDetailsWidget);
 		encounter = session.getEncounter();
 	}
 	
@@ -160,8 +163,26 @@ public class ConditionElementTest {
 		
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.INACTIVE, condition.getClinicalStatus());
-		Assert.assertEquals(endDate.getTime(), condition.getEndDate());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
+	}
+	
+	@Test
+	public void handleSubmission_shouldCreateNewConditionWithAdditionalDetails() {
+		// setup
+		when(additionalDetailsWidget.getValue(context, request)).thenReturn("Additional details");
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
+		
+		// replay
+		element.setShowAdditionalDetails(true);
+		element.handleSubmission(session, request);
+		
+		// verify
+		Set<Condition> conditions = encounter.getConditions();
+		Assert.assertEquals(1, conditions.size());
+		
+		Condition condition = conditions.iterator().next();
+		Assert.assertEquals("Additional details", condition.getAdditionalDetail());
 	}
 	
 	@Test
@@ -196,18 +217,6 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldNotCreateConditionInViewMode() {
-		// setup
-		when(context.getMode()).thenReturn(Mode.VIEW);
-		
-		// replay
-		element.handleSubmission(session, request);
-		
-		// verify
-		verify(conditionService, never()).saveCondition(any(Condition.class));
-	}
-	
-	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
 		element.setControlId("my_condition_tag");
@@ -235,6 +244,21 @@ public class ConditionElementTest {
 	}
 	
 	@Test
+	public void handleSubmission_shouldNotSaveIfConceptTagDefinedAndNoStatus() {
+		
+		// Mock condition search widget
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		
+		// Test
+		element.setConcept(new Concept());
+		element.handleSubmission(session, request);
+		
+		// Verify
+		Set<Condition> conditions = encounter.getConditions();
+		Assert.assertEquals(0, conditions.size());
+	}
+	
+	@Test
 	public void validateSubmission_shouldFailValidationWhenConditionIsNotGivenAndIsRequired() {
 		// setup
 		element.setRequired(true);
@@ -250,21 +274,6 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void validateSubmission_shouldFailValidationWhenOnsetDateIsGreaterThanEnddate() {
-		// setup
-		when(endDateWidget.getValue(context, request))
-		        .thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
-		when(messageSourceService.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error"))
-		        .thenReturn("The end date cannot be ealier than the onset date.");
-		
-		// replay
-		List<FormSubmissionError> errors = (List<FormSubmissionError>) element.validateSubmission(context, request);
-		
-		// verify
-		Assert.assertEquals("The end date cannot be ealier than the onset date.", errors.get(0).getError());
-	}
-	
-	@Test
 	public void htmlForConditionSearchWidget_shouldGetConceptSourceClassesFromGP() {
 		// setup
 		element.setMessageSourceService(messageSourceService);
@@ -272,7 +281,7 @@ public class ConditionElementTest {
 		        .thenReturn("Diagnosis,Finding");
 		
 		// replay
-		String html = element.htmlForConditionSearchWidget(context);
+		String html = element.htmlForConditionSearchWidget(context, null);
 		
 		// verify
 		Assert.assertTrue(html.contains("setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis,Finding','null')"));
@@ -285,7 +294,7 @@ public class ConditionElementTest {
 		when(adminService.getGlobalProperty(ConditionElement.GLOBAL_PROPERTY_CONDITIONS_CRITERIA)).thenReturn(null);
 		
 		// replay
-		String html = element.htmlForConditionSearchWidget(context);
+		String html = element.htmlForConditionSearchWidget(context, null);
 		
 		// verify
 		Assert.assertTrue(html.contains("setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null')"));
