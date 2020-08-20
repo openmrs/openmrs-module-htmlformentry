@@ -220,18 +220,6 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldNotCreateConditionInViewMode() {
-		// setup
-		when(context.getMode()).thenReturn(Mode.VIEW);
-		
-		// replay
-		element.handleSubmission(session, request);
-		
-		// verify
-		verify(conditionService, never()).saveCondition(any(Condition.class));
-	}
-	
-	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
 		element.setControlId("my_condition_tag");

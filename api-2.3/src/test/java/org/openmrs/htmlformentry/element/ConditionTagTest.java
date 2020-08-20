@@ -219,21 +219,21 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 
 		}.run();
 	}
-	
+
 	@Test
 	public void shouldInitializeDefaultValues() throws Exception {
 		new RegressionTestHelper() {
-			
+
 			@Override
 			public String getFormName() {
 				return "conditionForm";
 			}
-			
+
 			@Override
 			public Encounter getEncounterToView() throws Exception {
 				return Context.getEncounterService().getEncounter(101);
 			}
-			
+
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				// Verify for condition
@@ -244,19 +244,19 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				assertTrue(html.contains("Onset Date: <span class=\"value\">12/01/2017</span>"));
 				// Verify for end date
 				assertTrue(html.contains("End Date: <span class=\"value\">15/01/2019</span>"));
-				
+
 			}
-			
+
 			@Override
 			public Patient getPatientToEdit() {
 				return getPatient();
 			}
-			
+
 			@Override
 			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
-			
+
 			@Override
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
@@ -274,7 +274,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
 				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w13-display', '#w13', '2019-01-15')</script>"));
-				
+
 			}
 
 		}.run();
