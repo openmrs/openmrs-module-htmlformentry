@@ -20,6 +20,7 @@ import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
+import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.WidgetFactory;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public static final String GLOBAL_PROPERTY_CONDITIONS_CRITERIA = "coreapps.conditionListClasses";
 	
 	private static final String DEFAULT_CONDITION_LIST_CONCEPT_CLASS_NAME = "Diagnosis";
-
+	
 	private MessageSourceService mss;
 	
 	private boolean required;
@@ -45,7 +46,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private Concept concept;
 	
 	private boolean showAdditionalDetails;
-
+	
 	// widgets
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
 	
@@ -54,7 +55,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private DateWidget endDateWidget;
 	
 	private TextFieldWidget additionalDetailsWidget;
-
+	
 	private RadioButtonsWidget conditionStatusesWidget;
 	
 	private ErrorWidget endDateErrorWidget;
@@ -71,9 +72,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
 		Condition condition = bootstrap(context);
-
+		
 		CodedOrFreeText conditionConcept = new CodedOrFreeText();
-
+		
 		try {
 			int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
 			conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
@@ -83,28 +84,28 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			conditionConcept.setNonCoded(nonCodedConcept);
 		}
 		condition.setCondition(conditionConcept);
-
+		
 		ConditionClinicalStatus status = getStatus(context, submission);
 		condition.setClinicalStatus(status);
-
+		
 		if (showAdditionalDetails) {
 			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
 		}
-
+		
 		condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
-
+		
 		if (status != ConditionClinicalStatus.ACTIVE) {
 			condition.setEndDate(endDateWidget.getValue(context, submission));
 		}
-
+		
 		condition.setPatient(session.getPatient());
-
+		
 		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
-
+		
 		if (concept != null && status == null && !required) {
 			return;
 		}
-
+		
 		session.getEncounter().addCondition(condition);
 	}
 	
@@ -150,18 +151,18 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append("<div id=\"" + wrapperDivId + "\">");
 		// Show condition search
 		ret.append(htmlForConditionSearchWidget(context));
-
+		
 		// Show additional details
 		if (showAdditionalDetails) {
 			ret.append(htmlForAdditionalDetailsWidget(context));
 		}
-
+		
 		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
-
+		
 		// Show condition dates
 		ret.append(htmlForConditionDatesWidget(context));
-
+		
 		ret.append("</div>");
 		return ret.toString();
 	}
@@ -265,13 +266,13 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		}
 		
 		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
-
+		
 		StringBuilder ret = new StringBuilder();
-
+		
 		// Create wrapper id
 		String searchWidgetWrapperId = "condition-" + controlId;
 		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
-
+		
 		if (context.getMode() == Mode.VIEW) {
 			// append label
 			ret.append(conditionLabel + ": ");
@@ -436,31 +437,31 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append("</style>");
 		return ret.toString();
 	}
-
+	
 	private String htmlForAdditionalDetailsWidget(FormEntryContext context) {
-
+		
 		// Create wrapper id
 		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
-
+		
 		// Register widget
 		setAdditionalDetailsWidget(new TextFieldWidget());
 		context.registerWidget(getAdditionalDetailsWidget());
-
+		
 		// Fill value for Edit/View
 		if (context.getMode() != Mode.ENTER && existingCondition != null) {
 			getAdditionalDetailsWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
-
+		
 		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
 		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
 		ret.append(getAdditionalDetailsWidget().generateHtml(context));
 		ret.append("</div>");
-
+		
 		return ret.toString();
 	}
-
+	
 	private ConditionClinicalStatus getStatus(FormEntryContext context, HttpServletRequest request) {
 		if (conditionStatusesWidget == null) {
 			return null;
@@ -507,11 +508,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public TextFieldWidget getAdditionalDetailsWidget() {
 		return additionalDetailsWidget;
 	}
-
+	
 	public void setAdditionalDetailsWidget(TextFieldWidget additionalDetailsWidget) {
 		this.additionalDetailsWidget = additionalDetailsWidget;
 	}
-
+	
 	public void setConditionStatusesWidget(RadioButtonsWidget conditionStatusesWidget) {
 		this.conditionStatusesWidget = conditionStatusesWidget;
 	}
@@ -551,11 +552,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public boolean isShowAdditionalDetails() {
 		return showAdditionalDetails;
 	}
-
+	
 	public void setShowAdditionalDetails(boolean showAdditionalDetails) {
 		this.showAdditionalDetails = showAdditionalDetails;
 	}
-
+	
 	// available for testing purposes only
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
