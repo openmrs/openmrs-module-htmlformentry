@@ -42,7 +42,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private Condition existingCondition;
 	
-	private Concept concept;
+	private Concept presetConcept;
 	
 	// widgets
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
@@ -92,11 +92,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		condition.setPatient(session.getPatient());
 		
 		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
-		
-		if (concept != null && status == null && !required) {
-			return;
+
+		if (presetConcept != null && status == null && !required) {
+			if (context.getMode() != Mode.EDIT){
+				session.getEncounter().removeCondition(condition);
+			}else{
+				return;
+			}
 		}
-		
+
 		session.getEncounter().addCondition(condition);
 	}
 	
@@ -231,7 +235,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		String conditionNameTextInputId = context.registerWidget(conditionSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();
 		
-		if (concept == null) {
+		if (presetConcept == null) {
 			if (existingCondition != null && context.getMode() != Mode.ENTER) {
 				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
 				if (codedOrFreeText.getCoded() != null) {
@@ -242,7 +246,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			}
 		} else {
 			// If exist concept define it as default value
-			conditionSearchWidget.setInitialValue(concept);
+			conditionSearchWidget.setInitialValue(presetConcept);
 		}
 		
 		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
@@ -286,7 +290,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append(" jq('#" + conditionNameTextInputId + "').css('min-width', '46.4%');\n");
 			
 			// Mark search box as read only if it has a concept
-			if (concept != null) {
+			if (presetConcept != null) {
 				ret.append("jq('#" + conditionNameTextInputId + "').attr(\"readonly\", true)\n");
 			}
 			
@@ -489,12 +493,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		this.existingCondition = existingCondition;
 	}
 	
-	public Concept getConcept() {
-		return concept;
+	public Concept getPresetConcept() {
+		return presetConcept;
 	}
 	
-	public void setConcept(Concept concept) {
-		this.concept = concept;
+	public void setPresetConcept(Concept presetConcept) {
+		this.presetConcept = presetConcept;
 	}
 	
 	// available for testing purposes only

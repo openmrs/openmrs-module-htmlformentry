@@ -38,7 +38,7 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 		// Fill concept id attribute
 		String conceptId = attributes.get("conceptId");
 		if (!StringUtils.isEmpty(conceptId)) {
-			conditionElement.setConcept(HtmlFormEntryUtil.getConcept(conceptId));
+			conditionElement.setPresetConcept(HtmlFormEntryUtil.getConcept(conceptId));
 		}
 		
 		session.getSubmissionController().addAction(conditionElement);

@@ -229,7 +229,7 @@ public class ConditionElementTest {
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		
 		// Test
-		element.setConcept(new Concept());
+		element.setPresetConcept(new Concept());
 		element.handleSubmission(session, request);
 		
 		// Verify
