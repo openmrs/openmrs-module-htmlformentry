@@ -57,25 +57,25 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			public String getFormName() {
 				return "conditionForm";
 			}
-			
+
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
-			
+
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				
-				// setup for current condition
+				// setup for required Coded Condition
 				request.addParameter(searchWidgetIdForRequiredCodedCondition, "Epilepsy");
 				request.addParameter(searchWidgetIdForRequiredCodedCondition + "_hid", "3476");
 				request.addParameter(statusWidgetIdForRequiredCodedCondition, "active");
 				request.addParameter(onsetDateWidgetIdForRequiredCodedCondition, "2014-02-11");
 				
-				// setup for past condition
+				// setup for required Non-coded Condition
 				request.addParameter(searchWidgetIdForRequiredNonCodedCondition, "Some required Non-coded Condition");
 				request.addParameter(statusWidgetIdForRequiredNonCodedCondition, "inactive");
 				request.addParameter(onsetDateWidgetIdForRequiredNonCodedCondition, "2013-02-11");
@@ -117,7 +117,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("2020-04-11", dateAsString(presetCondition.getEndDate()));
 				Assert.assertNotNull(presetCondition.getId());
 			}
-			
+
 			@Override
 			public boolean doEditEncounter() {
 				return true;
@@ -126,7 +126,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 
-				// setup for current condition
+				// setup for required Coded Condition
 				request.setParameter(onsetDateWidgetIdForRequiredCodedCondition, "2020-02-11");
 
 				// setup for preset condition
@@ -145,7 +145,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition currentCondition = conditions[0];
 				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
 			}
-			
+
 		}.run();
 	}
 
@@ -190,16 +190,16 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
-				    "<input type=\"text\"  id=\"w7\" name=\"w7\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
+				    "<input type=\"text\"  id=\"w14\" name=\"w14\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
-				    "<input type=\"radio\" id=\"w9_1\" name=\"w9\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+				    "<input type=\"radio\" id=\"w16_1\" name=\"w16\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
 				// Verify the onset date - '2017-01-12'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w11-display', '#w11', '2017-01-12')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w18-display', '#w18', '2017-01-12')</script>"));
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w12-display', '#w12', '2019-01-15')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w19-display', '#w19', '2019-01-15')</script>"));
 
 			}
 
