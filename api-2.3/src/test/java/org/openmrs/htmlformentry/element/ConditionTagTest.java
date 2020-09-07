@@ -21,7 +21,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	
 	// field names
 	private String searchWidgetIdForRequiredCodedCondition = "w7";
-
+	
 	private String statusWidgetIdForRequiredCodedCondition = "w9";
 	
 	private String onsetDateWidgetIdForRequiredCodedCondition = "w11";
@@ -57,12 +57,12 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			public String getFormName() {
 				return "conditionForm";
 			}
-
+			
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Date:", "Location:", "Provider:" };
 			}
-
+			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
@@ -117,18 +117,18 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("2020-04-11", dateAsString(presetCondition.getEndDate()));
 				Assert.assertNotNull(presetCondition.getId());
 			}
-
+			
 			@Override
 			public boolean doEditEncounter() {
 				return true;
 			}
-
+			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-
+				
 				// setup for required Coded Condition
 				request.setParameter(onsetDateWidgetIdForRequiredCodedCondition, "2020-02-11");
-
+				
 				// setup for preset condition
 				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition");
 				request.removeParameter(statusWidgetIdForPresetCondition);
@@ -145,24 +145,24 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition currentCondition = conditions[0];
 				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
 			}
-
+			
 		}.run();
 	}
-
+	
 	@Test
 	public void shouldInitializeDefaultValues() throws Exception {
 		new RegressionTestHelper() {
-
+			
 			@Override
 			public String getFormName() {
 				return "conditionForm";
 			}
-
+			
 			@Override
 			public Encounter getEncounterToView() throws Exception {
 				return Context.getEncounterService().getEncounter(101);
 			}
-
+			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				// Verify for condition
@@ -173,19 +173,19 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				assertTrue(html.contains("Onset Date: <span class=\"value\">12/01/2017</span>"));
 				// Verify for end date
 				assertTrue(html.contains("End Date: <span class=\"value\">15/01/2019</span>"));
-
+				
 			}
-
+			
 			@Override
 			public Patient getPatientToEdit() {
 				return getPatient();
 			}
-
+			
 			@Override
 			public Encounter getEncounterToEdit() {
 				return Context.getEncounterService().getEncounter(101);
 			}
-
+			
 			@Override
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
@@ -200,10 +200,10 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
 				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w19-display', '#w19', '2019-01-15')</script>"));
-
+				
 			}
-
+			
 		}.run();
 	}
-
+	
 }
