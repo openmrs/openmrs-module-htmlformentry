@@ -223,7 +223,7 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldNotSaveIfConceptTagDefinedAndNoStatus() {
+	public void handleSubmission_shouldNotSubmitTagWithPresetConceptAndWithoutStatus() {
 		
 		// Mock condition search widget
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
