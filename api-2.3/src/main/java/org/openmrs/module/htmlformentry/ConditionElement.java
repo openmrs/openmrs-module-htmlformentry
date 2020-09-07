@@ -93,15 +93,16 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
 
+		// a non-required preset concept will not be submitted
 		if (presetConcept != null && status == null && !required) {
-			if (context.getMode() == Mode.EDIT){
+			if (context.getMode() == Mode.EDIT) {
 				session.getEncounter().removeCondition(condition);
 				return;
-			}else{
+			} else {
 				return;
 			}
 		}
-
+		
 		session.getEncounter().addCondition(condition);
 	}
 	

@@ -76,13 +76,13 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(onsetDateWidgetIdForRequiredCodedCondition, "2014-02-11");
 				
 				// setup for required Non-coded Condition
-				request.addParameter(searchWidgetIdForRequiredNonCodedCondition, "Some required Non-coded Condition");
+				request.addParameter(searchWidgetIdForRequiredNonCodedCondition, "Anemia (non-coded)");
 				request.addParameter(statusWidgetIdForRequiredNonCodedCondition, "inactive");
 				request.addParameter(onsetDateWidgetIdForRequiredNonCodedCondition, "2013-02-11");
 				request.setParameter(endDateWidgetIdForRequiredNonCodedCondition, "2019-04-11");
 				
 				// setup for preset condition
-				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition");
+				request.addParameter(searchWidgetIdForPresetCondition, "Glaucoma (coded)");
 				request.addParameter(statusWidgetIdForPresetCondition, "inactive");
 				request.addParameter(onsetDateWidgetIdForPresetCondition, "2014-02-11");
 				request.setParameter(endDateWidgetIdForPresetCondition, "2020-04-11");
@@ -105,14 +105,14 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				
 				Condition pastCondition = conditions[1];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, pastCondition.getClinicalStatus());
-				Assert.assertEquals("Some required Non-coded Condition", pastCondition.getCondition().getNonCoded());
+				Assert.assertEquals("Anemia (non-coded)", pastCondition.getCondition().getNonCoded());
 				Assert.assertEquals("2013-02-11", dateAsString(pastCondition.getOnsetDate()));
 				Assert.assertEquals("2019-04-11", dateAsString(pastCondition.getEndDate()));
 				Assert.assertNotNull(pastCondition.getId());
 				
 				Condition presetCondition = conditions[2];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, presetCondition.getClinicalStatus());
-				Assert.assertEquals("Some preset condition", presetCondition.getCondition().getNonCoded());
+				Assert.assertEquals("Glaucoma (coded)", presetCondition.getCondition().getNonCoded());
 				Assert.assertEquals("2014-02-11", dateAsString(presetCondition.getOnsetDate()));
 				Assert.assertEquals("2020-04-11", dateAsString(presetCondition.getEndDate()));
 				Assert.assertNotNull(presetCondition.getId());
@@ -130,7 +130,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(onsetDateWidgetIdForRequiredCodedCondition, "2020-02-11");
 				
 				// setup for preset condition
-				request.addParameter(searchWidgetIdForPresetCondition, "Some preset condition");
+				request.addParameter(searchWidgetIdForPresetCondition, "Glaucoma (coded)");
 				request.removeParameter(statusWidgetIdForPresetCondition);
 			}
 			
