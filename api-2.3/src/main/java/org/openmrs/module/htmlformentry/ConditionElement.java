@@ -58,6 +58,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private String wrapperDivId;
 	
+	private Integer passedConceptId;
+	
 	private String endDatePickerWrapperId;
 	
 	@Override
@@ -66,18 +68,32 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.VIEW) {
 			Condition condition = bootstrap(context);
 			CodedOrFreeText conditionConcept = new CodedOrFreeText();
-			try {
+			ConditionElement conditionElement=new ConditionElement();
+			
+			if(conditionElement.getPassedConceptId() != null) {
+				if(Context.getConceptService().getConcept(conditionElement.getPassedConceptId())!=null) {
+					conditionConcept.setCoded(Context.getConceptService().getConcept(conditionElement.getPassedConceptId()));
+				}
+	
+			 }
+			
+		   else {
+				
+			  try {
 				int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
 				conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
 				
-			}
-			catch (NumberFormatException e) {
-				String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
+			   }
+			 catch (NumberFormatException e) {
+			  	String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
 				if (StringUtils.isBlank(nonCodedConcept) && !required) {
 					// ignore silently
 					return;
 				}
 				conditionConcept.setNonCoded(nonCodedConcept);
+				
+			  }
+			
 			}
 			condition.setCondition(conditionConcept);
 			ConditionClinicalStatus status = getStatus(context, submission);
@@ -467,6 +483,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	// available for testing purposes only
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
+	}
+
+	public Integer getPassedConceptId() {
+		return passedConceptId;
+	}
+
+	public void setPassedConceptId(Integer passedConceptId) {
+		this.passedConceptId = passedConceptId;
 	}
 	
 }

@@ -28,6 +28,11 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 		if (StringUtils.isBlank(controlId)) {
 			throw new IllegalArgumentException("Attribute controlId cannot be blank");
 		}
+		Integer conceptId =Integer.parseInt(attributes.get("conceptId"));
+		if(conceptId !=null) {
+			conditionElement.setPassedConceptId(conceptId);
+			
+		}
 		conditionElement.setControlId(controlId);
 		session.getSubmissionController().addAction(conditionElement);
 		return conditionElement.generateHtml(session.getContext());
