@@ -1,9 +1,12 @@
 package org.openmrs.htmlformentry.element;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,7 +114,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				
 				Condition presetCondition = conditions[2];
 				Assert.assertEquals(ConditionClinicalStatus.INACTIVE, presetCondition.getClinicalStatus());
-				//Assert.assertEquals("3474", presetCondition.getCondition().getCoded().getId());
+				assertThat(presetCondition.getCondition().getCoded().getId(), is(22));
 				Assert.assertEquals("2014-02-11", dateAsString(presetCondition.getOnsetDate()));
 				Assert.assertEquals("2020-04-11", dateAsString(presetCondition.getEndDate()));
 				Assert.assertNotNull(presetCondition.getId());
@@ -129,7 +132,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.setParameter(onsetDateWidgetIdForRequiredCodedCondition, "2020-02-11");
 				
 				// setup for preset condition
-			////request.addParameter(searchWidgetIdForPresetCondition, "Glaucoma (coded)");
+				////request.addParameter(searchWidgetIdForPresetCondition, "Glaucoma (coded)");
 				request.removeParameter(statusWidgetIdForPresetCondition);
 			}
 			
