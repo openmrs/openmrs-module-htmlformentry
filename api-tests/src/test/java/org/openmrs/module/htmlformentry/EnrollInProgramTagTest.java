@@ -1,11 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +14,12 @@ import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Tests of the various program-related tags
@@ -875,5 +875,207 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertFalse("Found unexpected content in " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("disabled"));
+	}
+	
+	@Test
+	public void enrollInProgram_shouldSetEnrollmentLocationBasedOnLocationTag() throws Exception {
+		
+		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		
+		final Integer patientId = 2;
+		final Integer programId = 10;
+		//sanity check
+		Assert.assertEquals(0,
+		    pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null, null, null, null, false)
+		            .size());
+		final Date encounterDate = new Date();
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "enrollPatientInProgramSimpleFormWithLocationTag";
+			}
+			
+			@Override
+			public Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
+				request.setParameter(widgets.get("Encounter Location:"), "1001"); // 1001 is tagged as a "Visit Location" in encounterLocationTest.xml
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
+				    null, null, null, false);
+				Assert.assertEquals(1, pps.size());
+				
+				Assert.assertEquals(1001, (int) pps.get(0).getLocation().getId());
+				
+				//the encounter date should have been set as the enrollment date
+				Assert.assertEquals(ymdToDate(dateAsString(encounterDate)),
+				    ymdToDate(dateAsString(pps.get(0).getDateEnrolled())));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void enrollInProgram_shouldSetEnrollmentLocationToParentLocationWithLocationTag() throws Exception {
+		
+		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		
+		final Integer patientId = 2;
+		final Integer programId = 10;
+		//sanity check
+		Assert.assertEquals(0,
+		    pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null, null, null, null, false)
+		            .size());
+		final Date encounterDate = new Date();
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "enrollPatientInProgramSimpleFormWithLocationTag";
+			}
+			
+			@Override
+			public Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
+				request.setParameter(widgets.get("Encounter Location:"), "1010"); // 1010 is *not* tagged as a "Visit Location" in encounterLocationTest.xml, but has ancestors that are
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
+				    null, null, null, false);
+				Assert.assertEquals(1, pps.size());
+				
+				Assert.assertEquals(1003, (int) pps.get(0).getLocation().getId()); // 1003 is the parent of 1010 and *is* tagged as a Visit Location
+				
+				//the encounter date should have been set as the enrollment date
+				Assert.assertEquals(ymdToDate(dateAsString(encounterDate)),
+				    ymdToDate(dateAsString(pps.get(0).getDateEnrolled())));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void enrollInProgram_shouldNotFailIfNoLocationMatchingTag() throws Exception {
+		
+		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		
+		final Integer patientId = 2;
+		final Integer programId = 10;
+		//sanity check
+		Assert.assertEquals(0,
+		    pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null, null, null, null, false)
+		            .size());
+		final Date encounterDate = new Date();
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "enrollPatientInProgramSimpleFormWithLocationTag";
+			}
+			
+			@Override
+			public Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(encounterDate));
+				request.setParameter(widgets.get("Encounter Location:"), "2"); // not tagged as a visit location, nor does it have ancestors that are
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				List<PatientProgram> pps = pws.getPatientPrograms(ps.getPatient(patientId), pws.getProgram(programId), null,
+				    null, null, null, false);
+				Assert.assertEquals(1, pps.size());
+				
+				Assert.assertNull(pps.get(0).getLocation());
+				
+				//the encounter date should have been set as the enrollment date
+				Assert.assertEquals(ymdToDate(dateAsString(encounterDate)),
+				    ymdToDate(dateAsString(pps.get(0).getDateEnrolled())));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void editPatientProgram_shouldNotChangeEnrollmentDate() throws Exception {
+		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		
+		final Integer patientId = 2;
+		final Integer patientProgramId = 1;
+		final Date currentEnrollmentDate = pws.getPatientProgram(patientProgramId).getDateEnrolled();
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "enrollPatientInProgramSimpleFormWithLocationTag";
+			}
+			
+			@Override
+			public Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(currentEnrollmentDate));
+				request.setParameter(widgets.get("Encounter Location:"), "1001"); // 1001 is tagged as a "Visit Location" in encounterLocationTest.xml, however we don't expect the enrollment location to change
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(1);
+				Assert.assertNull(pp.getLocation());
+			}
+		}.run();
 	}
 }
