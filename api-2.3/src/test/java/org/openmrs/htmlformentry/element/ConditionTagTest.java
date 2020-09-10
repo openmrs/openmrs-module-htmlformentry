@@ -53,8 +53,9 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:", "Required Coded Condition:",
-				        "Required Non-coded Condition:", "Preset Condition:" };
+				return new String[] { "Date:", "Location:", "Provider:", "Optional Coded Condition:",
+				        "Required Coded Condition:", "Optional Non-coded Condition:", "Required Non-coded Condition:",
+				        "Preset Condition:" };
 			}
 			
 			@Override
@@ -68,11 +69,23 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				
+				// setup for Optional Coded Condition
+				request.addParameter(widgets.get("Optional Coded Condition:"), "Epilepsy");
+				request.addParameter(widgets.get("Optional Coded Condition:") + "_hid", "3476");
+				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:")), "active");
+				request.addParameter(getOnsetDateWidget(widgets.get("Optional Coded Condition:")), "2014-02-11");
+				
 				// setup for required Coded Condition
 				request.addParameter(widgets.get("Required Coded Condition:"), "Epilepsy");
 				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3476");
 				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
 				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2014-02-11");
+				
+				// setup for Optional Non-coded Condition
+				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Anemia (non-coded)");
+				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:")), "inactive");
+				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:")), "2013-02-11");
+				request.setParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:")), "2019-04-11");
 				
 				// setup for required Non-coded Condition
 				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
@@ -91,10 +104,10 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[3]);
 				
 				results.assertNoErrors();
-				assertThat(conditions.length, is(3));
+				assertThat(conditions.length, is(5));
 				
 				Condition actualCondition;
-				// Required coded condition
+				// Optional Coded Condition
 				{
 					actualCondition = conditions[0];
 					Assert.assertEquals(ConditionClinicalStatus.ACTIVE, actualCondition.getClinicalStatus());
@@ -103,9 +116,27 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Required non-coded condition
+				// Required coded condition
 				{
 					actualCondition = conditions[1];
+					Assert.assertEquals(ConditionClinicalStatus.ACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
+					    actualCondition.getCondition().getCoded());
+					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertNotNull(actualCondition.getId());
+				}
+				// Optional Non-coded Condition
+				{
+					actualCondition = conditions[2];
+					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
+					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
+					Assert.assertNotNull(actualCondition.getId());
+				}
+				// Required non-coded condition
+				{
+					actualCondition = conditions[3];
 					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
 					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
@@ -114,7 +145,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				}
 				// Optional preset condition
 				{
-					actualCondition = conditions[2];
+					actualCondition = conditions[4];
 					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
 					assertThat(actualCondition.getCondition().getCoded().getId(), is(22));
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
@@ -140,9 +171,9 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
 				
 				results.assertNoErrors();
-				Assert.assertEquals(2, conditions.length);
+				Assert.assertEquals(4, conditions.length);
 				
-				Condition currentCondition = conditions[0];
+				Condition currentCondition = conditions[1];
 				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
 			}
 			
@@ -190,16 +221,16 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
-				    "<input type=\"text\"  id=\"w14\" name=\"w14\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
+				    "<input type=\"text\"  id=\"w28\" name=\"w28\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
-				    "<input type=\"radio\" id=\"w16_1\" name=\"w16\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+				    "<input type=\"radio\" id=\"w30_1\" name=\"w30\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
 				// Verify the onset date - '2017-01-12'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w18-display', '#w18', '2017-01-12')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w32-display', '#w32', '2017-01-12')</script>"));
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w19-display', '#w19', '2019-01-15')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w33-display', '#w33', '2019-01-15')</script>"));
 				
 			}
 			
