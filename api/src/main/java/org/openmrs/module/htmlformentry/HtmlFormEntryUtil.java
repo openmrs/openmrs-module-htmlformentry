@@ -1,44 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -105,17 +66,55 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+
 /**
  * HTML Form Entry utility methods
  */
 public class HtmlFormEntryUtil {
-	
+
 	public static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
-	
+
 	private static MetadataMappingResolver getMetadaMappingResolver() {
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
 	}
-	
+
 	/**
 	 * Returns the HTML Form Entry service from the Context
 	 *
@@ -124,7 +123,7 @@ public class HtmlFormEntryUtil {
 	public static HtmlFormEntryService getService() {
 		return Context.getService(HtmlFormEntryService.class);
 	}
-	
+
 	private static <T extends OpenmrsMetadata> T getMetadataByMapping(Class<T> type, String identifier) {
 		MetadataMappingResolver metadataMappingResolver = getMetadaMappingResolver();
 		if (metadataMappingResolver != null) {
@@ -132,7 +131,7 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Fetches a http request parameter from an http request and returns it as a specific type
 	 *
@@ -149,7 +148,7 @@ public class HtmlFormEntryUtil {
 			return convertToType(val, clazz);
 		}
 	}
-	
+
 	public static ComplexData convertToComplexData(HttpServletRequest request, String name) {
 		MultipartHttpServletRequest mRequest = (MultipartHttpServletRequest) request;
 		MultipartFile file = mRequest.getFile(name);
@@ -166,7 +165,7 @@ public class HtmlFormEntryUtil {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Converts a string to specified type
 	 *
@@ -225,7 +224,7 @@ public class HtmlFormEntryUtil {
 			return val;
 		}
 	}
-	
+
 	/**
 	 * Creaets an OpenMRS Obs instance
 	 *
@@ -235,14 +234,14 @@ public class HtmlFormEntryUtil {
 	 * @param accessionNumber accession number associatd with the Obs (may be null)
 	 * @return the created Obs instance
 	 */
-	
+
 	public static Obs createObs(FormField formField, Object value, Date datetime, String accessionNumber) {
 		Concept concept = formField.getField().getConcept();
 		if (concept == null)
 			throw new FormEntryException("Can't create an Obs for a formField that doesn't represent a Concept");
 		return createObs(concept, value, datetime, accessionNumber);
 	}
-	
+
 	/**
 	 * Creates an OpenMRS Obs instance
 	 *
@@ -309,7 +308,7 @@ public class HtmlFormEntryUtil {
 			obs.setAccessionNumber(accessionNumber);
 		return obs;
 	}
-	
+
 	/**
 	 * Converts an xml string to a Document object
 	 *
@@ -320,13 +319,13 @@ public class HtmlFormEntryUtil {
 	public static Document stringToDocument(String xml) throws Exception {
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			
+
 			// Disable XXE: security measure to prevent DOS, arbitrary-file-read, and possibly RCE
 			dbf.setExpandEntityReferences(false);
 			dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 			dbf.setFeature("http://xml.org/sax/features/external-general-entities", false);
 			dbf.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-			
+
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			Document document = db.parse(new InputSource(new StringReader(xml)));
 			return document;
@@ -336,7 +335,7 @@ public class HtmlFormEntryUtil {
 			throw e;
 		}
 	}
-	
+
 	/**
 	 * Converts a Document object to an xml string
 	 *
@@ -348,7 +347,7 @@ public class HtmlFormEntryUtil {
 		//set up a transformer
 		Transformer trans = null;
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		
+
 		try {
 			trans = transfac.newTransformer();
 		}
@@ -359,7 +358,7 @@ public class HtmlFormEntryUtil {
 		trans.setOutputProperty(OutputKeys.INDENT, HtmlFormEntryConstants.CONSTANT_YES);
 		trans.setOutputProperty(OutputKeys.METHOD, HtmlFormEntryConstants.CONSTANT_XML);
 		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		
+
 		//create string from xml tree
 		StringWriter sw = new StringWriter();
 		StreamResult result = new StreamResult(sw);
@@ -371,10 +370,10 @@ public class HtmlFormEntryUtil {
 			System.out.println(HtmlFormEntryConstants.ERROR_TRANSFORMER_2 + te);
 		}
 		String xmlString = sw.toString();
-		
+
 		return xmlString;
 	}
-	
+
 	/**
 	 * Retrieves a child Node by name
 	 *
@@ -393,10 +392,10 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Finds the first descendant of this node with the given tag name
-	 * 
+	 *
 	 * @param node
 	 * @param tagName
 	 * @return
@@ -416,7 +415,7 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns all the attributes associated with a Node
 	 *
@@ -432,7 +431,7 @@ public class HtmlFormEntryUtil {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Returns a specific attribute of a Node
 	 *
@@ -446,7 +445,7 @@ public class HtmlFormEntryUtil {
 		String ret = getNodeAttributes(node).get(attributeName);
 		return (ret == null ? defaultVal : ret);
 	}
-	
+
 	/**
 	 * @param node
 	 * @return the contents of node as a String
@@ -464,7 +463,7 @@ public class HtmlFormEntryUtil {
 		}
 		return sw.toString();
 	}
-	
+
 	/**
 	 * Creates a non-persistent "Fake" Person (used when previewing or validating an HTML Form)
 	 *
@@ -486,7 +485,7 @@ public class HtmlFormEntryUtil {
 			cal.add(Calendar.YEAR, -31);
 			demo.setBirthdate(cal.getTime());
 		}
-		
+
 		for (PersonAttributeType type : Context.getPersonService().getAllPersonAttributeTypes()) {
 			if (type.getFormat() != null && type.getFormat().equals("java.lang.String")) {
 				demo.addAttribute(new PersonAttribute(type, "Test " + type.getName() + " Attribute"));
@@ -500,7 +499,7 @@ public class HtmlFormEntryUtil {
 		demo.addAddress(addr);
 		return demo;
 	}
-	
+
 	public static HtmlFormSchema getHtmlFormSchema(HtmlForm htmlForm, FormEntryContext.Mode mode) {
 		try {
 			Patient patient = HtmlFormEntryUtil.getFakePerson();
@@ -512,7 +511,7 @@ public class HtmlFormEntryUtil {
 			throw new IllegalStateException("Unable to load html form schema for htmlform: " + htmlForm, e);
 		}
 	}
-	
+
 	/**
 	 * Combines a Date object that contains only a date component (day, month, year) with a Date object
 	 * that contains only a time component (hour, minute, second) into a single Date object
@@ -525,7 +524,7 @@ public class HtmlFormEntryUtil {
 		if (date == null)
 			return null;
 		Calendar cal = Calendar.getInstance();
-		
+
 		cal.setTime(date);
 		if (time != null) {
 			Calendar temp = Calendar.getInstance();
@@ -537,10 +536,10 @@ public class HtmlFormEntryUtil {
 		}
 		return cal.getTime();
 	}
-	
+
 	/**
 	 * Find Drug by UUID
-	 * 
+	 *
 	 * @param uuid
 	 * @return
 	 */
@@ -556,7 +555,7 @@ public class HtmlFormEntryUtil {
 		}
 		return drug;
 	}
-	
+
 	/**
 	 * Get the concept by id where the id can either be: 1) an integer id like 5090 2) a mapping type id
 	 * like "XYZ:HT" 3) a uuid like "a3e12268-74bf-11df-9768-17cfc9833272" 4) the fully qualified name
@@ -570,18 +569,18 @@ public class HtmlFormEntryUtil {
 	 *         its mapping with a space in between
 	 */
 	public static Concept getConcept(String id) {
-		
+
 		Concept cpt = null;
-		
+
 		if (id != null) {
-			
+
 			id = id.trim();
-			
+
 			// see if this is a parseable int; if so, try looking up concept by id
 			try { //handle integer: id
 				int conceptId = Integer.parseInt(id);
 				cpt = Context.getConceptService().getConcept(conceptId);
-				
+
 				if (cpt != null) {
 					return cpt;
 				}
@@ -589,7 +588,7 @@ public class HtmlFormEntryUtil {
 			catch (Exception ex) {
 				//do nothing
 			}
-			
+
 			// handle  mapping id: xyz:ht
 			int index = id.indexOf(":");
 			if (index != -1) {
@@ -598,7 +597,7 @@ public class HtmlFormEntryUtil {
 					return cpt;
 				}
 			}
-			
+
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if the id matches a uuid format
 			if (isValidUuidFormat(id)) {
 				cpt = Context.getConceptService().getConceptByUuid(id);
@@ -608,10 +607,10 @@ public class HtmlFormEntryUtil {
 				return getConcept(evaluateStaticConstant(id));
 			}
 		}
-		
+
 		return cpt;
 	}
-	
+
 	/**
 	 * Gets a concept by id, mapping, or uuid. (See #getConcept(String) for precise details.) If no
 	 * concept is found, throws an IllegalArgumentException with the given message.
@@ -622,7 +621,7 @@ public class HtmlFormEntryUtil {
 	 * @throws IllegalArgumentException
 	 */
 	public static Concept getConcept(String id, String errorMessageIfNotFound) throws IllegalArgumentException {
-		
+
 		Concept c = null;
 		try {
 			c = getConcept(id);
@@ -634,17 +633,17 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException(errorMessageIfNotFound);
 		return c;
 	}
-	
+
 	/**
 	 * This method doesn't support "SessionAttribute:", but is otherwise like the similarly-named
 	 * method.
-	 * 
+	 *
 	 * @see #getLocation(String, FormEntryContext)
 	 */
 	public static Location getLocation(String id) {
 		return getLocation(id, null);
 	}
-	
+
 	/**
 	 * Get the location by:
 	 * <ol>
@@ -669,19 +668,19 @@ public class HtmlFormEntryUtil {
 	 *         otherwise
 	 */
 	public static Location getLocation(String id, FormEntryContext context) {
-		
+
 		Location location = null;
-		
+
 		if (id != null) {
-			
+
 			id = id.trim();
-			
+
 			// handle "SystemDefault" setting
 			if (id.equals(HtmlFormEntryConstants.SYSTEM_DEFAULT)) {
 				location = Context.getLocationService().getDefaultLocation();
 				if (location != null) {
 					return location;
-					
+
 				}
 			}
 			// handle GlobalProperty:property.name
@@ -692,7 +691,7 @@ public class HtmlFormEntryUtil {
 					return getLocation(gpValue, context);
 				}
 			}
-			
+
 			// handle UserProperty:propName
 			if (id.startsWith("UserProperty:")) {
 				String upName = id.substring("UserProperty:".length());
@@ -719,12 +718,12 @@ public class HtmlFormEntryUtil {
 					return getLocation(saValue.toString(), context);
 				}
 			}
-			
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int locationId = Integer.parseInt(id);
 				location = Context.getLocationService().getLocation(locationId);
-				
+
 				if (location != null) {
 					return location;
 				}
@@ -732,36 +731,36 @@ public class HtmlFormEntryUtil {
 			catch (Exception ex) {
 				//do nothing
 			}
-			
+
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format
 			if (isValidUuidFormat(id)) {
 				location = Context.getLocationService().getLocationByUuid(id);
-				
+
 				if (location != null) {
 					return location;
 				}
 			}
-			
+
 			//get by mapping "source:code"
 			location = getMetadataByMapping(Location.class, id);
 			if (location != null) {
 				return location;
 			}
-			
+
 			// if it's neither a uuid or id, try location name
 			location = Context.getLocationService().getLocation(id);
-			
+
 			if (location != null) {
 				return location;
 			}
-			
+
 			// try the "101 - Cange" case
 			if (id.contains(" ")) {
 				String[] values = id.split(" ");
 				try {
 					int locationId = Integer.parseInt(values[0]);
 					location = Context.getLocationService().getLocation(locationId);
-					
+
 					if (location != null) {
 						return location;
 					}
@@ -771,11 +770,11 @@ public class HtmlFormEntryUtil {
 				}
 			}
 		}
-		
+
 		// no match found, so return null
 		return null;
 	}
-	
+
 	/***
 	 * Get the program by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) name of *associated concept* (not name of program),
@@ -788,18 +787,18 @@ public class HtmlFormEntryUtil {
 	 *         otherwise
 	 */
 	public static Program getProgram(String id) {
-		
+
 		Program program = null;
-		
+
 		if (id != null) {
-			
+
 			id = id.trim();
-			
+
 			// see if this is parseable int; if so, try looking up by id
 			try {//handle integer: id
 				int programId = Integer.parseInt(id);
 				program = Context.getProgramWorkflowService().getProgram(programId);
-				
+
 				if (program != null) {
 					return program;
 				}
@@ -807,17 +806,17 @@ public class HtmlFormEntryUtil {
 			catch (Exception ex) {
 				//do nothing
 			}
-			
+
 			//get Program by mapping
 			program = getMetadataByMapping(Program.class, id);
 			if (program != null) {
 				return program;
 			}
-			
+
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
 			if (isValidUuidFormat(id)) {
 				program = Context.getProgramWorkflowService().getProgramByUuid(id);
-				
+
 				if (program != null) {
 					return program;
 				}
@@ -826,82 +825,82 @@ public class HtmlFormEntryUtil {
 				// (note that this API method actually checks based on name of the associated concept, not the name of the program itself)
 				program = Context.getProgramWorkflowService().getProgramByName(id);
 			}
-			
+
 		}
 		return program;
 	}
-	
+
 	/***
 	 * Get the person by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a username like "mgoodrich" or 4) an id/name pair
 	 * like "5090 - Bob Jones" (this format is used when saving a person on a obs as a value text)
-	 * 
+	 *
 	 * @param id
 	 * @return the person if exist, else null <strong>Should</strong> find a person by its id
 	 *         <strong>Should</strong> find a person by its uuid <strong>Should</strong> find a person
 	 *         by username of corresponding user <strong>Should</strong> return null otherwise
 	 */
 	public static Person getPerson(String id) {
-		
+
 		Person person = null;
-		
+
 		if (id != null) {
-			
+
 			id = id.trim();
-			
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int personId = Integer.parseInt(id);
 				person = Context.getPersonService().getPerson(personId);
-				
+
 				if (person != null) {
 					return person;
 				}
 			}
 			catch (Exception ex) {
-				//do nothing 
+				//do nothing
 			}
-			
+
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
 			if (isValidUuidFormat(id)) {
 				person = Context.getPersonService().getPersonByUuid(id);
-				
+
 				if (person != null) {
 					return person;
 				}
 			}
-			
+
 			// handle username
 			User personByUsername = Context.getUserService().getUserByUsername(id);
 			if (personByUsername != null) {
 				return personByUsername.getPerson();
 			}
-			
+
 			// try the "5090 - Bob Jones" case
 			if (id.contains(" ")) {
 				String[] values = id.split(" ");
 				try {
 					int personId = Integer.parseInt(values[0]);
 					person = Context.getPersonService().getPerson(personId);
-					
+
 					if (person != null) {
 						return person;
 					}
 				}
 				catch (Exception ex) {
-					//do nothing 
+					//do nothing
 				}
 			}
 		}
-		
+
 		// no match found, so return null
 		return null;
 	}
-	
+
 	/***
 	 * Get the patient identifier type by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a name like "Temporary Identifier"
-	 * 
+	 *
 	 * @param id
 	 * @return the identifier type if exist, else null <strong>Should</strong> find an identifier type
 	 *         by its id <strong>Should</strong> find an identifier type by its uuid
@@ -910,34 +909,34 @@ public class HtmlFormEntryUtil {
 	 */
 	public static PatientIdentifierType getPatientIdentifierType(String id) {
 		PatientIdentifierType identifierType = null;
-		
+
 		if (id != null) {
-			
+
 			id = id.trim();
-			
+
 			// see if this is parseable int; if so, try looking up by id
 			try { //handle integer: id
 				int identifierTypeId = Integer.parseInt(id);
 				identifierType = Context.getPatientService().getPatientIdentifierType(identifierTypeId);
-				
+
 				if (identifierType != null) {
 					return identifierType;
 				}
 			}
 			catch (Exception ex) {
-				//do nothing 
+				//do nothing
 			}
-			
+
 			//get PatientIdentifierType by mapping
 			identifierType = getMetadataByMapping(PatientIdentifierType.class, id);
 			if (identifierType != null) {
 				return identifierType;
 			}
-			
+
 			//handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
 			if (isValidUuidFormat(id)) {
 				identifierType = Context.getPatientService().getPatientIdentifierTypeByUuid(id);
-				
+
 				if (identifierType != null) {
 					return identifierType;
 				}
@@ -950,7 +949,7 @@ public class HtmlFormEntryUtil {
 		}
 		return identifierType;
 	}
-	
+
 	public static ProgramWorkflow getWorkflow(Integer id) {
 		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
 			for (ProgramWorkflow w : p.getAllWorkflows()) {
@@ -961,44 +960,44 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Looks up a {@link ProgramWorkflow} by id, uuid or by concept map of the underlying concept
 	 */
 	@SuppressWarnings("deprecation")
 	public static ProgramWorkflow getWorkflow(String identifier) {
 		ProgramWorkflow workflow = null;
-		
+
 		if (identifier != null) {
-			
+
 			identifier = identifier.trim();
-			
+
 			// first try to fetch by id
 			try {
 				Integer id = Integer.valueOf(identifier);
 				workflow = getWorkflow(id);
-				
+
 				if (workflow != null) {
 					return workflow;
 				}
 			}
 			catch (NumberFormatException e) {}
-			
+
 			// if not, try to fetch by uuid
 			if (isValidUuidFormat(identifier)) {
 				workflow = Context.getProgramWorkflowService().getWorkflowByUuid(identifier);
-				
+
 				if (workflow != null) {
 					return workflow;
 				}
 			}
-			
+
 			// finally, try to fetch by concept map
 			// handle  mapping id: xyz:ht
 			int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
-				
+
 				// iterate through workflows until we see if we find a match
 				if (concept != null) {
 					for (Program program : Context.getProgramWorkflowService().getAllPrograms(false)) {
@@ -1011,16 +1010,16 @@ public class HtmlFormEntryUtil {
 				}
 			}
 		}
-		
+
 		return workflow;
 	}
-	
+
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified program by programWorkflowStateId,
 	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple states
 	 * associated with the same concept in the program, this method will return an arbitrary one if
 	 * fetched by concept mapping)
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1031,17 +1030,17 @@ public class HtmlFormEntryUtil {
 		if (identifier == null) {
 			return null;
 		}
-		
+
 		// first try to fetch by id or uuid
 		ProgramWorkflowState state = getState(identifier);
-		
+
 		if (state != null) {
 			return state;
 		}
 		// if we didn't find a match, see if this is a concept mapping
 		else {
 			identifier = identifier.trim();
-			
+
 			int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
@@ -1058,13 +1057,13 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by programWorkflowStateId,
 	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple states
 	 * associated with the same concept in the workflow, this method will return an arbitrary one if
 	 * fetched by concept mapping)
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param workflow
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1075,18 +1074,18 @@ public class HtmlFormEntryUtil {
 		if (identifier == null) {
 			return null;
 		}
-		
+
 		// first try to fetch by id or uuid
 		ProgramWorkflowState state = getState(identifier);
-		
+
 		if (state != null && state.getProgramWorkflow().equals(workflow)) {
 			return state;
 		}
-		
+
 		// if we didn't find a match, see if this is a concept mapping
 		else {
 			identifier = identifier.trim();
-			
+
 			int index = identifier.indexOf(":");
 			if (index != -1) {
 				Concept concept = getConcept(identifier);
@@ -1101,12 +1100,12 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	public static List<Location> getLocationsByTags(String attributeName, Map<String, String> parameters) {
 		List<Location> locations = null;
-		
+
 		String locationTags = parameters.get(attributeName);
-		
+
 		if (locationTags != null) {
 			List<LocationTag> tags = new ArrayList<LocationTag>();
 			String[] temp = locationTags.split(",");
@@ -1124,7 +1123,7 @@ public class HtmlFormEntryUtil {
 		}
 		return locations;
 	}
-	
+
 	/**
 	 * Fetches a location tag by name or id (Will add support for uuid once we stop supporting OpenMRS
 	 * 1.6, which doesn't a uuid on location tag)
@@ -1133,38 +1132,58 @@ public class HtmlFormEntryUtil {
 	 * @return
 	 */
 	public static LocationTag getLocationTag(String identifier) {
-		
+
 		LocationTag tag = null;
-		
+
 		if (identifier != null) {
-			
+
 			identifier = identifier.trim();
-			
+
 			// first try to fetch by id
 			try {
 				Integer id = Integer.valueOf(identifier);
 				tag = Context.getLocationService().getLocationTag(id);
-				
+
 				if (tag != null) {
 					return tag;
 				}
 			}
 			catch (NumberFormatException e) {}
-			
+
 			// if not, try to fetch by name
 			tag = Context.getLocationService().getLocationTagByName(identifier);
-			
+
 			if (tag != null) {
 				return tag;
 			}
-			
+
 			// TODO add ability to fetch by uuid once we are no longer worried about being compatible with OpenMRS 1.6 (since getLocationTagByUuid is not available in 1.6)
-			
+
 		}
-		
+
 		return null;
 	}
-	
+
+	/**
+	 * Finds the first ancestor (including the current location) that is tagged with the specified
+	 * location tag
+	 *
+	 * @param location
+	 * @param locationTag
+	 * @return
+	 */
+	public static Location getFirstAncestorWithTag(Location location, LocationTag locationTag) {
+		if (location == null || locationTag == null) {
+		    return null;
+        } else if (location.hasTag(locationTag.getName())) {
+			return location;
+		} else if (location.getParentLocation() != null) {
+			return getFirstAncestorWithTag(location.getParentLocation(), locationTag);
+		} else {
+			return null;
+		}
+	}
+
 	private static List<ProgramWorkflowState> getStates(boolean includeRetired) {
 		List<ProgramWorkflowState> ret = new ArrayList<ProgramWorkflowState>();
 		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
@@ -1178,7 +1197,7 @@ public class HtmlFormEntryUtil {
 		}
 		return ret;
 	}
-	
+
 	private static ProgramWorkflowState getState(Integer id) {
 		for (ProgramWorkflowState s : getStates(true)) {
 			if (s.getProgramWorkflowStateId().equals(id)) {
@@ -1187,11 +1206,11 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by programWorkflowStateId, or
 	 * uuid
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId or uuid to match against
 	 * @param
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1200,30 +1219,30 @@ public class HtmlFormEntryUtil {
 	@SuppressWarnings("deprecation")
 	public static ProgramWorkflowState getState(String identifier) {
 		ProgramWorkflowState state = null;
-		
+
 		if (identifier != null) {
 			try {
-				
+
 				identifier = identifier.trim();
-				
+
 				Integer id = Integer.valueOf(identifier);
 				state = getState(id);
-				
+
 				if (state != null) {
 					return state;
 				}
 			}
 			catch (NumberFormatException e) {}
-			
+
 			//get ProgramWorkflowState by mapping
 			state = getMetadataByMapping(ProgramWorkflowState.class, identifier);
 			if (state != null) {
 				return state;
 			}
-			
+
 			if (isValidUuidFormat(identifier)) {
 				state = Context.getProgramWorkflowService().getStateByUuid(identifier);
-				
+
 				if (state != null) {
 					return state;
 				}
@@ -1231,7 +1250,7 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/***
 	 * Determines if the passed string is in valid uuid format By OpenMRS standards, a uuid must be 36
 	 * characters in length and not contain whitespace, but we do not enforce that a uuid be in the
@@ -1243,13 +1262,13 @@ public class HtmlFormEntryUtil {
 		if (uuid.length() < 36 || uuid.length() > 38 || uuid.contains(" ") || uuid.contains(".")) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Evaluates the specified Java constant using reflection
-	 * 
+	 *
 	 * @param fqn the fully qualified name of the constant
 	 * @return the constant value
 	 */
@@ -1257,7 +1276,7 @@ public class HtmlFormEntryUtil {
 		int lastPeriod = fqn.lastIndexOf(".");
 		String clazzName = fqn.substring(0, lastPeriod);
 		String constantName = fqn.substring(lastPeriod + 1);
-		
+
 		try {
 			Class<?> clazz = Context.loadClass(clazzName);
 			Field constantField = clazz.getField(constantName);
@@ -1268,16 +1287,16 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("Unable to evaluate " + fqn, ex);
 		}
 	}
-	
+
 	/**
 	 * Gets all patient identifier types
-	 * 
+	 *
 	 * @return the patient identifier types
 	 */
 	public static List<PatientIdentifierType> getPatientIdentifierTypes() {
 		return Context.getPatientService().getAllPatientIdentifierTypes();
 	}
-	
+
 	/**
 	 * Utility method to void an encounter. If the voidEncounterByHtmlFormSchema global property has
 	 * been set to true, OR if the Html Form Flowsheet module has been started AND the
@@ -1290,15 +1309,15 @@ public class HtmlFormEntryUtil {
 		if (voidReason == null) {
 			voidReason = "htmlformentry";
 		}
-		
+
 		if (HtmlFormEntryGlobalProperties.VOID_ENCOUNTER_BY_HTML_FORM_SCHEMA() != null) {
-			
+
 			if (HtmlFormEntryGlobalProperties.VOID_ENCOUNTER_BY_HTML_FORM_SCHEMA() == true) {
 				voidEncounterByHtmlFormSchema(e, htmlform, voidReason);
 			} else {
 				Context.getEncounterService().voidEncounter(e, voidReason);
 			}
-			
+
 		} else if (HtmlFormEntryGlobalProperties.HTML_FORM_FLOWSHEET_STARTED() != null
 		        && HtmlFormEntryGlobalProperties.HTML_FORM_FLOWSHEET_STARTED() == true) {
 			voidEncounterByHtmlFormSchema(e, htmlform, voidReason);
@@ -1306,7 +1325,7 @@ public class HtmlFormEntryUtil {
 			Context.getEncounterService().voidEncounter(e, voidReason);
 		}
 	}
-	
+
 	/**
 	 * Utility method that sets all matched obs and orders to voided, and voids encounter if all obs and
 	 * orders in encounter are voided. Does not call save, just updates the voided fields on all objects
@@ -1346,7 +1365,7 @@ public class HtmlFormEntryUtil {
 					}
 				}
 			}
-			
+
 			for (Obs o : e.getAllObs(false)) { //ignore voided obs
 				boolean matched = false;
 				for (Obs oMatched : matchedObs) {
@@ -1362,7 +1381,7 @@ public class HtmlFormEntryUtil {
 				if (!matched)
 					shouldVoidEncounter = false;
 			}
-			
+
 			for (Order o : e.getOrders()) {
 				if (!o.isVoided()) { //ignore voided orders
 					boolean matched = false;
@@ -1382,7 +1401,7 @@ public class HtmlFormEntryUtil {
 						shouldVoidEncounter = false;
 				}
 			}
-			
+
 			if (shouldVoidEncounter) {
 				e.setVoided(true);
 				e.setVoidedBy(Context.getAuthenticatedUser());
@@ -1392,11 +1411,11 @@ public class HtmlFormEntryUtil {
 			eTmp = null;
 		}
 	}
-	
+
 	/**
 	 * Method that returns a copy of an Encounter. Includes copies of all Obs tree structures and
 	 * Orders.
-	 * 
+	 *
 	 * @param source
 	 * @param replacementObs
 	 * @param replacementOrders
@@ -1407,16 +1426,16 @@ public class HtmlFormEntryUtil {
 	        Map<Order, Order> replacementOrders) throws Exception {
 		if (source != null) {
 			Encounter encNew = (Encounter) returnCopy(source);
-			
+
 			//note: we can do this because we're not going to manipulate anything about these obs or orders, and this copy won't be persisted...
-			
+
 			Set<Obs> newObs = new HashSet<Obs>();
 			for (Obs o : source.getAllObs(true)) {
 				Obs oNew = returnObsCopy(o, replacementObs);
 				newObs.add(oNew);
 			}
 			encNew.setObs(newObs);
-			
+
 			Set<Order> newOrders = new HashSet<Order>();
 			for (Order o : source.getOrders()) {
 				Order oNew = (Order) returnOrderCopy(o, replacementOrders);
@@ -1427,11 +1446,11 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns a copy of an Obs. Recurses through GroupMembers to return copies of those also, so the
 	 * whole Obs tree is a copy.
-	 * 
+	 *
 	 * @param obsToCopy
 	 * @param replacements
 	 * @return
@@ -1439,7 +1458,7 @@ public class HtmlFormEntryUtil {
 	 */
 	private static Obs returnObsCopy(Obs obsToCopy, Map<Obs, Obs> replacements) throws Exception {
 		Obs newObs = (Obs) returnCopy(obsToCopy);
-		
+
 		if (obsToCopy.isObsGrouping()) {
 			newObs.setGroupMembers(null);
 			for (Obs oinner : obsToCopy.getGroupMembers()) {
@@ -1447,15 +1466,15 @@ public class HtmlFormEntryUtil {
 				newObs.addGroupMember(oinnerNew);
 			}
 		}
-		
+
 		replacements.put(newObs, obsToCopy);
 		return newObs;
 	}
-	
+
 	/**
 	 * Utility to return a copy of an Order. Uses reflection so that this code will support any
 	 * subclassing of Order, such as DrugOrder
-	 * 
+	 *
 	 * @param source
 	 * @param replacementOrders
 	 * @return A copy of an Order
@@ -1466,11 +1485,11 @@ public class HtmlFormEntryUtil {
 		replacementOrders.put((Order) ret, (Order) source);
 		return ret;
 	}
-	
+
 	/**
 	 * Utility to return a copy of an Object. Copies all properties that are referencese by getters and
 	 * setters and *are not* collection
-	 * 
+	 *
 	 * @param source
 	 * @return A copy of an object
 	 * @throws Exception
@@ -1502,18 +1521,18 @@ public class HtmlFormEntryUtil {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * The Encounter.setProvider() contains the different overloaded methods and this filters the
 	 * correct setter from those
-	 * 
+	 *
 	 * @param clazz
 	 * @param getter
 	 * @param methodname
 	 * @return
 	 */
 	private static Method getSetter(Class<? extends Object> clazz, Method getter, String methodname) {
-		
+
 		List<Method> setterMethods = getMethodCaseInsensitive(clazz, methodname);
 		if (setterMethods != null && !setterMethods.isEmpty()) {
 			if (setterMethods.size() == 1) {
@@ -1531,29 +1550,29 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Performs a case insensitive search on a class for a method by name.
-	 * 
+	 *
 	 * @param clazz
 	 * @param methodName
 	 * @return the found Method
 	 */
 	private static List<Method> getMethodCaseInsensitive(Class<? extends Object> clazz, String methodName) {
-		
+
 		List<Method> methodList = new ArrayList<Method>();
 		for (Method m : clazz.getMethods()) {
 			if (m.getName().toUpperCase().equals(methodName.toUpperCase())) {
 				methodList.add(m);
-				
+
 			}
 		}
 		return methodList;
 	}
-	
+
 	/**
 	 * compares getter return types to setter parameter types
-	 * 
+	 *
 	 * @param getter
 	 * @param setter
 	 * @return true if getter return types are the same as setter parameter types. Else false.
@@ -1564,10 +1583,10 @@ public class HtmlFormEntryUtil {
 			return true;
 		return false;
 	}
-	
+
 	/**
 	 * recurses through all superclasses of a class and adds the fields from that superclass
-	 * 
+	 *
 	 * @param fields
 	 * @param clazz
 	 */
@@ -1577,10 +1596,10 @@ public class HtmlFormEntryUtil {
 			addSuperclassFields(fields, clazz.getSuperclass());
 		}
 	}
-	
+
 	/**
 	 * Translates a String into a Date.
-	 * 
+	 *
 	 * @param value use "now" for the current timestamp, "today" for the current date with a timestamp
 	 *            of 00:00, or a date string that can be parsed by SimpleDateFormat with the format
 	 *            parameter.
@@ -1620,7 +1639,7 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Given a list of patient programs and a program, returns the first patient program that matches
 	 * the specified program
@@ -1630,16 +1649,16 @@ public class HtmlFormEntryUtil {
 	 * @return
 	 */
 	public static PatientProgram getPatientProgramByProgram(List<PatientProgram> patientPrograms, Program program) {
-		
+
 		for (PatientProgram patientProgram : patientPrograms) {
 			if (patientProgram.getProgram().equals(program)) {
 				return patientProgram;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Given a patient and a program workflow, returns the first patient program that contains a state
 	 * in the specified workflow
@@ -1651,9 +1670,9 @@ public class HtmlFormEntryUtil {
 	public static PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow) {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    workflow.getProgram(), null, null, null, null, false);
-		
+
 		PatientProgram patientProgram = null;
-		
+
 		for (PatientProgram eachPatientProgram : patientPrograms) {
 			boolean foundState = false;
 			for (PatientState patientState : eachPatientProgram.getStates()) {
@@ -1661,7 +1680,7 @@ public class HtmlFormEntryUtil {
 					foundState = true;
 				}
 			}
-			
+
 			if (foundState) {
 				if (patientProgram != null) {
 					throw new IllegalStateException("Does not support multiple programs");
@@ -1670,10 +1689,10 @@ public class HtmlFormEntryUtil {
 				}
 			}
 		}
-		
+
 		return patientProgram;
 	}
-	
+
 	/**
 	 * If the specified patient is enrolled in the specified program on the specified date, return the
 	 * associated patient program, otherwise return null
@@ -1684,25 +1703,25 @@ public class HtmlFormEntryUtil {
 	 * @return
 	 */
 	public static PatientProgram getPatientProgramByProgramOnDate(Patient patient, Program program, Date date) {
-		
+
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null,
 		    date, date, null, false);
-		
+
 		if (patientPrograms.size() > 1) {
 			throw new APIException("Simultaneous program enrollments in same program not supported");
 		}
-		
+
 		if (patientPrograms.size() == 1) {
 			return patientPrograms.get(0);
 		} else {
 			return null;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Checks whether the encounter has a provider specified (including ugly reflection code for 1.9+)
-	 * 
+	 *
 	 * @param e
 	 * @return whether e has one or more providers specified
 	 */
@@ -1718,10 +1737,10 @@ public class HtmlFormEntryUtil {
 			return EncounterCompatibility.getProvider(e) != null;
 		}
 	}
-	
+
 	/**
 	 * Checks if the user is enrolled in a program at the specified date
-	 * 
+	 *
 	 * @param patient the patient that should be enrolled in the program
 	 * @param program the program the patient be enrolled in
 	 * @param date the date at which to check
@@ -1738,17 +1757,17 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("program should not be null");
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
-		
+
 		if (patient.getPatientId() == null)
 			return false;
-		
+
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, null,
 		    date, date, null, false);
-		
+
 		return (patientPrograms.size() > 0);
-		
+
 	}
-	
+
 	/**
 	 * Checks to see if the patient has a program enrollment in the specified program after the given
 	 * date If multiple patient programs, returns the earliest enrollment If no enrollments, returns
@@ -1761,43 +1780,43 @@ public class HtmlFormEntryUtil {
 			throw new IllegalArgumentException("program should not be null");
 		if (date == null)
 			throw new IllegalArgumentException("date should not be null");
-		
+
 		if (patient.getPatientId() == null)
 			return null;
-		
+
 		PatientProgram closestProgram = null;
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient, program, date,
 		    null, null, null, false);
-		
+
 		for (PatientProgram pp : patientPrograms) {
 			if ((closestProgram == null || pp.getDateEnrolled().before(closestProgram.getDateEnrolled()))
 			        && pp.getDateEnrolled().after(date)) {
 				closestProgram = pp;
 			}
-			
+
 		}
-		
+
 		return closestProgram;
 	}
-	
+
 	/**
 	 * Given a Date object, returns a Date object for the same date but with the time component (hours,
 	 * minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
-		// Get Calendar object set to the date and time of the given Date object  
+		// Get Calendar object set to the date and time of the given Date object
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		
-		// Set time fields to zero  
+
+		// Set time fields to zero
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-		
+
 		return cal.getTime();
 	}
-	
+
 	/**
 	 * @param s the string to conver to camelcase
 	 * @return should return the passed in string in the camelcase format
@@ -1805,22 +1824,22 @@ public class HtmlFormEntryUtil {
 	public static String toCamelCase(String s) {
 		StringBuffer sb = new StringBuffer();
 		String[] words = s.replaceAll("[^A-Za-z]", " ").replaceAll("\\s+", " ").trim().split(" ");
-		
+
 		for (int i = 0; i < words.length; i++) {
 			if (i == 0)
 				words[i] = words[i].toLowerCase();
 			else
 				words[i] = String.valueOf(words[i].charAt(0)).toUpperCase() + words[i].substring(1);
-			
+
 			sb.append(words[i]);
 		}
 		return sb.toString();
 	}
-	
+
 	/***
 	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
-	 * 
+	 *
 	 * @param id
 	 * @return the encounter type if exist, else null <strong>Should</strong> find a encounter type by
 	 *         its encounterTypeId <strong>Should</strong> find a encounter type by name
@@ -1828,48 +1847,48 @@ public class HtmlFormEntryUtil {
 	 *         null otherwise
 	 */
 	public static EncounterType getEncounterType(String id) {
-		
+
 		EncounterType encounterType = null;
-		
+
 		if (StringUtils.isNotBlank(id)) {
 			id = id.trim();
 			// see if this is parseable int; if so, try looking up by id
 			try {
 				int encounterTypeId = Integer.parseInt(id);
 				encounterType = Context.getEncounterService().getEncounterType(encounterTypeId);
-				
+
 				if (encounterType != null)
 					return encounterType;
 			}
 			catch (Exception ex) {
 				//do nothing
 			}
-			
+
 			//get EncounterType by mapping
 			encounterType = getMetadataByMapping(EncounterType.class, id);
 			if (encounterType != null) {
 				return encounterType;
 			}
-			
+
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272" if id matches a uuid format
 			if (isValidUuidFormat(id)) {
 				encounterType = Context.getEncounterService().getEncounterTypeByUuid(id);
-				
+
 				if (encounterType != null)
 					return encounterType;
 			}
-			
+
 			// if it's neither a uuid or id, try encounter type name
 			encounterType = Context.getEncounterService().getEncounterType(id);
-			
+
 			if (encounterType != null)
 				return encounterType;
 		}
-		
+
 		// no match found
 		return null;
 	}
-	
+
 	public static EncounterRole getEncounterRole(String id) {
 		EncounterRole role = null;
 		if (StringUtils.isNotBlank(id)) {
@@ -1884,7 +1903,7 @@ public class HtmlFormEntryUtil {
 		}
 		return role;
 	}
-	
+
 	/**
 	 * Removes any Obs that are empty or which have only empty children
 	 */
@@ -1912,7 +1931,7 @@ public class HtmlFormEntryUtil {
 			}
 		}
 	}
-	
+
 	/**
 	 * Formats a piece of Metadata for Display
 	 *
@@ -1922,7 +1941,7 @@ public class HtmlFormEntryUtil {
 	public static String format(OpenmrsMetadata md) {
 		return format(md, Context.getLocale());
 	}
-	
+
 	/**
 	 * Formats a piece of Metadata for Display TODO This was copied from UiFramework--we probably should
 	 * come up with a way to inject a formatter directly into HFE
@@ -1935,7 +1954,7 @@ public class HtmlFormEntryUtil {
 		String override = getLocalization(locale, md.getClass().getSimpleName(), md.getUuid());
 		return override != null ? override : StringEscapeUtils.escapeHtml(md.getName());
 	}
-	
+
 	/**
 	 * See if there is a custom name for this message in the messages.properties files TODO This was
 	 * copied from UiFramework--we probably should come up with a way to inject a formatter directly
@@ -1945,14 +1964,14 @@ public class HtmlFormEntryUtil {
 	 * @return
 	 */
 	private static String getLocalization(Locale locale, String shortClassName, String uuid) {
-		
+
 		// in case this is a hibernate proxy, strip off anything after an underscore
 		// ie: EncounterType_$$_javassist_26 needs to be converted to EncounterType
 		int underscoreIndex = shortClassName.indexOf("_$");
 		if (underscoreIndex > 0) {
 			shortClassName = shortClassName.substring(0, underscoreIndex);
 		}
-		
+
 		String code = "ui.i18n." + shortClassName + ".name." + uuid;
 		String localization = Context.getService(MessageSourceService.class).getMessage(code, null, locale);
 		if (localization == null || localization.equals(code)) {
@@ -1961,7 +1980,7 @@ public class HtmlFormEntryUtil {
 			return localization;
 		}
 	}
-	
+
 	/**
 	 * Given a include/exclude string. fetch the test expression
 	 *
@@ -1973,20 +1992,20 @@ public class HtmlFormEntryUtil {
 	public static String getTestStr(String teststr) throws BadFormDesignException {
 		if (StringUtils.isBlank(teststr))
 			throw new BadFormDesignException("Can't extract the test expression from " + teststr);
-		
+
 		//get the text inside the quotes, i.e the expression
 		String[] actualExpression = StringUtils.substringsBetween(teststr, "\"", "\"");
-		
+
 		if (actualExpression == null || actualExpression.length != 1 || StringUtils.isBlank(actualExpression[0])) {
 			throw new BadFormDesignException("Can't extract the test expression from " + teststr);//throw bad design exception here
 		}
-		
+
 		return actualExpression[0];
 	}
-	
+
 	/**
 	 * Read the global property htmlformentry.archiveDir and return the correct path
-	 * 
+	 *
 	 * @return String representation of archive directory path <strong>Should</strong> return null if
 	 *         htmlformentry.archiveDir is not defined <strong>Should</strong> replace %Y with a four
 	 *         digit year value <strong>Should</strong> replace %M with a 2 digit month value
@@ -1995,13 +2014,13 @@ public class HtmlFormEntryUtil {
 	public static String getArchiveDirPath() {
 		String value = Context.getAdministrationService().getGlobalProperty("htmlformentry.archiveDir");
 		if (value != null && org.springframework.util.StringUtils.hasLength(value)) {
-			
+
 			//Replace %Y and %M if any
 			Date today = new Date();
 			GregorianCalendar gCal = new GregorianCalendar();
 			value = value.replace("%Y", String.valueOf(gCal.get(Calendar.YEAR)));
 			value = value.replace("%y", String.valueOf(gCal.get(Calendar.YEAR)));
-			
+
 			int month = gCal.get(Calendar.MONTH);
 			month++;
 			if (month < 10) {
@@ -2011,7 +2030,7 @@ public class HtmlFormEntryUtil {
 				value = value.replace("%M", String.valueOf(month));
 				value = value.replace("%m", String.valueOf(month));
 			}
-			
+
 			//Check if not absolute concatenate with application directory
 			File path = new File(value);
 			if (!path.isAbsolute()) {
@@ -2021,7 +2040,7 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Attempts to parse the passed string as an Integer and fetch the provider role with that id If no
 	 * match, or the string is unparseable as an Integer, try to fetch by uuid
@@ -2030,35 +2049,35 @@ public class HtmlFormEntryUtil {
 	 * @return
 	 */
 	public static Object getProviderRole(String id) {
-		
+
 		Object providerRole = null;
-		
+
 		if (StringUtils.isNotBlank(id)) {
-			
+
 			// see if this is parseable int; if so, try looking up by id
 			Integer providerRoleId = null;
-			
+
 			try {
 				providerRoleId = Integer.parseInt(id);
 				providerRole = getProviderRoleById(providerRoleId);
-				
+
 				if (providerRole != null) {
 					return providerRole;
 				}
-				
+
 			}
 			catch (Exception e) {
 				// ignore this, move to try by uuid
 			}
-			
+
 			// if no match by id, look up by uuid
 			providerRole = getProviderRoleByUuid(id);
-			
+
 		}
-		
+
 		return providerRole;
 	}
-	
+
 	public static List<Provider> getProviders(List<String> providerRoleIds, boolean returnAllIfNoRolesSpecified) {
 		if (providerRoleIds == null || providerRoleIds.isEmpty()) {
 			if (returnAllIfNoRolesSpecified) {
@@ -2077,15 +2096,15 @@ public class HtmlFormEntryUtil {
 			return getProviders(providerRoles);
 		}
 	}
-	
+
 	public static List<Provider> getAllProviders() {
 		return Context.getProviderService().getAllProviders(false);
 	}
-	
+
 	/**
 	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
 	 * {@code state}
-	 * 
+	 *
 	 * @param patient - the patient
 	 * @param patientProgram - the associated patient program
 	 * @param state - the state to transition to
@@ -2104,9 +2123,9 @@ public class HtmlFormEntryUtil {
 			patientProgram.setDateCreated(new Date());
 			patientProgram.setCreator(Context.getAuthenticatedUser());
 			patientProgram.setUuid(UUID.randomUUID().toString());
-			
+
 		}
-		
+
 		for (PatientState patientState : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
 			if (patientState.getActive(encounter.getEncounterDatetime())) {
 				if (patientState.getState().equals(state)) {
@@ -2114,7 +2133,7 @@ public class HtmlFormEntryUtil {
 				}
 			}
 		}
-		
+
 		PatientState previousState = null;
 		PatientState nextState = null;
 		PatientState newState = new PatientState();
@@ -2126,9 +2145,9 @@ public class HtmlFormEntryUtil {
 		newState.setDateCreated(new Date());
 		newState.setCreator(Context.getAuthenticatedUser());
 		newState.setUuid(UUID.randomUUID().toString());
-		
+
 		Collection<PatientState> sortedStates = new TreeSet<PatientState>(new Comparator<PatientState>() {
-			
+
 			@Override
 			public int compare(PatientState o1, PatientState o2) {
 				int result = OpenmrsUtil.compareWithNullAsEarliest(o1.getStartDate(), o2.getStartDate());
@@ -2137,15 +2156,15 @@ public class HtmlFormEntryUtil {
 				}
 				return result;
 			}
-			
+
 		});
 		sortedStates.addAll(patientProgram.statesInWorkflow(state.getProgramWorkflow(), false));
 		for (PatientState currentState : sortedStates) {
-			
+
 			Date newStartDate = newState.getStartDate();
 			Date currentStartDate = currentState.getStartDate();
 			Date currentEndDate = currentState.getEndDate();
-			
+
 			if (currentEndDate != null) {
 				if (currentEndDate.after(newStartDate)) {
 					if (currentStartDate.after(newStartDate)) {
@@ -2166,7 +2185,7 @@ public class HtmlFormEntryUtil {
 				break;
 			}
 		}
-		
+
 		if (nextState == null) {
 			if (previousState != null) {
 				previousState.setEndDate(newState.getStartDate());
@@ -2177,19 +2196,19 @@ public class HtmlFormEntryUtil {
 			}
 			newState.setEndDate(nextState.getStartDate());
 		}
-		
+
 		patientProgram.getStates().add(newState);
-		
+
 		if (encounter.getEncounterDatetime().before(patientProgram.getDateEnrolled())) {
 			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
 		}
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
-	
+
 	private static Object getProviderRoleById(Integer providerRoleId) {
-		
+
 		// we have to fetch the provider role by reflection, since the provider management module is not a required dependency
-		
+
 		try {
 			Class<?> providerManagementServiceClass = Context
 			        .loadClass("org.openmrs.module.providermanagement.api.ProviderManagementService");
@@ -2202,13 +2221,13 @@ public class HtmlFormEntryUtil {
 			        "Unable to get provider role by id; the Provider Management module needs to be installed if using the providerRoles attribute",
 			        e);
 		}
-		
+
 	}
-	
+
 	private static Object getProviderRoleByUuid(String providerRoleUuid) {
-		
+
 		// we have to fetch the provider roles by reflection, since the provider management module is not a required dependency
-		
+
 		try {
 			Class<?> providerManagementServiceClass = Context
 			        .loadClass("org.openmrs.module.providermanagement.api.ProviderManagementService");
@@ -2221,20 +2240,20 @@ public class HtmlFormEntryUtil {
 			        "Unable to get provider role by uuid; the Provider Management module needs to be installed if using the providerRoles attribute",
 			        e);
 		}
-		
+
 	}
-	
+
 	public static List<Provider> getProviders(List<ProviderRole> providerRoles) {
-		
+
 		if (providerRoles == null || providerRoles.size() == 0) {
 			return new ArrayList<Provider>();
 		}
-		
+
 		ProviderManagementService providerManagementService = Context.getService(ProviderManagementService.class);
 		//Service returns list of org.openmrs.module.providermanagement.Provider, not org.openmrs.Provider
 		return new ArrayList<Provider>(providerManagementService.getProvidersByRoles(providerRoles));
 	}
-	
+
 	/**
 	 * @return the provider with the given id, where the id can be either the primary key id or uuid of
 	 *         the provider If id passed in is "currentuser", then return the first provider record
@@ -2260,7 +2279,7 @@ public class HtmlFormEntryUtil {
 		}
 		return provider;
 	}
-	
+
 	/**
 	 * Convenience method to get all the names of this PersonName and concatonating them together with
 	 * family name compoenents first, separated by a comma from given and middle names. If any part of
@@ -2271,13 +2290,13 @@ public class HtmlFormEntryUtil {
 	 *         not put spaces around an empty middle name
 	 */
 	public static String getFullNameWithFamilyNameFirst(PersonName personName) {
-		
+
 		if (personName == null) {
 			return "[" + Context.getMessageSourceService().getMessage("htmlformentry.unknownProviderName") + "]";
 		}
-		
+
 		StringBuffer nameString = new StringBuffer();
-		
+
 		if (StringUtils.isNotBlank(personName.getFamilyNamePrefix())) {
 			nameString.append(personName.getFamilyNamePrefix() + " ");
 		}
@@ -2290,12 +2309,12 @@ public class HtmlFormEntryUtil {
 		if (StringUtils.isNotBlank(personName.getFamilyNameSuffix())) {
 			nameString.append(personName.getFamilyNameSuffix() + " ");
 		}
-		
+
 		if (nameString.length() > 0) {
 			nameString.deleteCharAt(nameString.length() - 1); // delete trailing space
 			nameString.append(", ");
 		}
-		
+
 		if (StringUtils.isNotBlank(personName.getPrefix())) {
 			nameString.append(personName.getPrefix() + " ");
 		}
@@ -2308,17 +2327,17 @@ public class HtmlFormEntryUtil {
 		if (StringUtils.isNotBlank(personName.getDegree())) {
 			nameString.append(personName.getDegree() + " ");
 		}
-		
+
 		if (nameString.length() > 1) {
 			nameString.deleteCharAt(nameString.length() - 1); // delete trailing space
 		}
-		
+
 		return nameString.toString();
 	}
-	
+
 	/**
 	 * Converts a collection of providers domain object into simple stub representation
-	 * 
+	 *
 	 * @param providers
 	 * @return
 	 */
@@ -2331,7 +2350,7 @@ public class HtmlFormEntryUtil {
 		}
 		return providerStubList;
 	}
-	
+
 	public static List<ProviderStub> getProviderStubs(Collection<Provider> providers, String searchParam, MatchMode mode) {
 		if (mode != null && StringUtils.isNotBlank(searchParam)) {
 			ProviderTransformer transformer = new ProviderTransformer();
@@ -2346,10 +2365,10 @@ public class HtmlFormEntryUtil {
 		}
 		return getProviderStubs(providers);
 	}
-	
+
 	private static Predicate<Provider> startsWith(final String param) {
 		return new Predicate<Provider>() {
-			
+
 			@Override
 			public boolean test(Provider provider) {
 				String searchParam = param.toLowerCase();
@@ -2362,10 +2381,10 @@ public class HtmlFormEntryUtil {
 			}
 		};
 	}
-	
+
 	private static Predicate<Provider> endsWith(final String param) {
 		return new Predicate<Provider>() {
-			
+
 			@Override
 			public boolean test(Provider provider) {
 				String searchParam = param.toLowerCase();
@@ -2378,10 +2397,10 @@ public class HtmlFormEntryUtil {
 			}
 		};
 	}
-	
+
 	private static Predicate<Provider> contains(final String param) {
 		return new Predicate<Provider>() {
-			
+
 			@Override
 			public boolean test(Provider provider) {
 				String searchParam = param.toLowerCase();
@@ -2394,7 +2413,7 @@ public class HtmlFormEntryUtil {
 			}
 		};
 	}
-	
+
 	private static List<String> getProviderFieldsToSearch(Provider provider) {
 		List<String> ret = new ArrayList<String>();
 		String identifier = provider.getIdentifier();

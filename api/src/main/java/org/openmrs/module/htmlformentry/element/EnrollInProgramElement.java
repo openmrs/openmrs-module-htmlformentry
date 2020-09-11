@@ -1,24 +1,11 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.openmrs.Encounter;
+import org.openmrs.LocationTag;
 import org.openmrs.Patient;
-import org.openmrs.PatientProgram;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntryException;
@@ -30,6 +17,16 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Serves as both the HtmlGeneratorElement and the FormSubmissionControllerAction for a Program
@@ -48,6 +45,8 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 	private DateWidget dateWidget;
 	
 	private ErrorWidget dateErrorWidget;
+	
+	private LocationTag locationTag;
 	
 	public EnrollInProgramElement(FormEntryContext context, Map<String, String> parameters) {
 		try {
@@ -116,7 +115,14 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 				if (!states.contains(state))
 					states.add(state);
 			}
-			
+		}
+		
+		String locationTagStr = parameters.get("locationTag");
+		if (StringUtils.isNotBlank(locationTagStr)) {
+			locationTag = HtmlFormEntryUtil.getLocationTag(locationTagStr);
+			if (locationTag == null) {
+				throw new FormEntryException("Unable to find location tag " + locationTagStr);
+			}
 		}
 	}
 	
@@ -150,7 +156,7 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			if (dateWidget != null) {
 				selectedDate = (Date) dateWidget.getValue(session.getContext(), submission);
 			}
-			session.getSubmissionActions().enrollInProgram(program, selectedDate, states);
+			session.getSubmissionActions().enrollInProgram(program, selectedDate, states, locationTag);
 		}
 	}
 	
