@@ -3,12 +3,15 @@
 
     var onObsChangedCheck = function() {
         var whenValueThenDisplaySection = $(this).data('whenValueThenDisplaySection');
-         // handle differently autocomplete fields since the obs value is located on the hidden element
-         var val = $(this).val();
 
-         if ($(this).hasClass("ui-autocomplete-input")) {
-                val = $("#"+$(this).attr("id")+"_hid").val();
-            }
+        var val = $(this).val();
+
+        // handle differently autocomplete fields since the obs value is located on the hidden element
+        if ($(this).hasClass("ui-autocomplete-input")) {
+          val = $("#"+$(this).attr("id")+"_hid").val();
+        }
+
+
         if (whenValueThenDisplaySection) {
             $.each(whenValueThenDisplaySection, function(ifValue, thenSection) {
                 if (val == ifValue) {
@@ -31,7 +34,7 @@
         var whenValueElseJs = $(this).data('whenValueElseJs');
         if (whenValueElseJs) {
             $.each(whenValueElseJs, function(ifValue, elseJs) {
-                if (val != ifValue) {           
+                if (val != ifValue) {
                     eval(elseJs);
                 }
             });
@@ -99,4 +102,4 @@
         htmlForm.preventAutofill();
     }
 
-}( window.htmlForm = window.htmlForm || {}, jQuery )); 
+}( window.htmlForm = window.htmlForm || {}, jQuery ));
