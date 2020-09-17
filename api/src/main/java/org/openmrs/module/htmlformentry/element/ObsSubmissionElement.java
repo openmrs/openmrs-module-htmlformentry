@@ -1264,10 +1264,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	 * @return
 	 */
 	private String getFieldFunction(Widget widget) {
-		if (widget == null)
-			return null;
-		if (widget instanceof DateWidget)
-			return "dateFieldGetterFunction";
+		if (widget == null) {
+            return null;
+        }
+		if (widget instanceof DateWidget) {
+            return "dateFieldGetterFunction";
+        }
+		if (widget instanceof RadioButtonsWidget) {
+		    return "radioButtonsFieldGetterFunction";
+        }
+
 		return null;
 	}
 
