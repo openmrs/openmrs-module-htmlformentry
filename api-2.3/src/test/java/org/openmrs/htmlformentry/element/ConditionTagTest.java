@@ -81,11 +81,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
 				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2014-02-11");
 				
-				// setup for Optional Non-coded Condition
-				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Anemia (non-coded)");
-				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:")), "inactive");
-				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:")), "2013-02-11");
-				request.setParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:")), "2019-04-11");
+				// dont setup for Optional Non-coded Condition
 				
 				// setup for required Non-coded Condition
 				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
@@ -93,8 +89,8 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2013-02-11");
 				request.setParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:")), "2019-04-11");
 				
-				// setup for preset condition7
-				request.addParameter(getStatusWidget(widgets.get("Preset Condition:")), "inactive");
+				// setup for preset condition
+				request.addParameter(getStatusWidget(widgets.get("Preset Condition:")), "history-of");
 				request.addParameter(getOnsetDateWidget(widgets.get("Preset Condition:")), "2014-02-11");
 				request.setParameter(getEndDateWidget(widgets.get("Preset Condition:")), "2020-04-11");
 			}
@@ -104,7 +100,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[3]);
 				
 				results.assertNoErrors();
-				assertThat(conditions.length, is(5));
+				assertThat(conditions.length, is(4));
 				
 				Condition actualCondition;
 				// Optional Coded Condition
@@ -126,6 +122,8 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				// Optional Non-coded Condition
+				{}
+				// Required non-coded condition
 				{
 					actualCondition = conditions[2];
 					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
@@ -134,19 +132,10 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Required non-coded condition
-				{
-					actualCondition = conditions[3];
-					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
-					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
-					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
-					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
-					Assert.assertNotNull(actualCondition.getId());
-				}
 				// Optional preset condition
 				{
-					actualCondition = conditions[4];
-					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					actualCondition = conditions[3];
+					Assert.assertEquals(ConditionClinicalStatus.HISTORY_OF, actualCondition.getClinicalStatus());
 					assertThat(actualCondition.getCondition().getCoded().getId(), is(22));
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertEquals("2020-04-11", dateAsString(actualCondition.getEndDate()));
@@ -161,7 +150,33 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2020-02-11");
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				
+				// remove setup for Optional Coded Condition
+				request.removeParameter(widgets.get("Optional Coded Condition:"));
+				request.removeParameter(widgets.get("Optional Coded Condition:") + "_hid");
+				
+				// setup for required Coded Condition
+				request.addParameter(widgets.get("Required Coded Condition:"), "Epilepsy");
+				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3476");
+				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
+				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2014-02-11");
+				
+				// setup for Optional Non-coded Condition
+				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Anemia (non-coded)");
+				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:")), "inactive");
+				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:")), "2013-02-11");
+				request.setParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:")), "2019-04-11");
+				
+				// setup for required Non-coded Condition
+				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
+				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:")), "inactive");
+				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2020-02-11");
+				request.setParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:")), "2019-04-11");
+				
+				// setup for preset condition
 				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:")));
 			}
 			
@@ -171,10 +186,47 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
 				
 				results.assertNoErrors();
-				Assert.assertEquals(4, conditions.length);
+				Assert.assertEquals(3, conditions.length);
 				
-				Condition currentCondition = conditions[1];
-				Assert.assertEquals("2020-02-11", dateAsString(currentCondition.getOnsetDate()));
+				Condition actualCondition;
+				// Optional Coded Condition
+				{}
+				// Required coded condition
+				{
+					actualCondition = conditions[0];
+					Assert.assertEquals(ConditionClinicalStatus.ACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
+					    actualCondition.getCondition().getCoded());
+					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertNotNull(actualCondition.getId());
+				}
+				// Optional Non-coded Condition
+				{
+					actualCondition = conditions[2];
+					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
+					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
+					Assert.assertNotNull(actualCondition.getId());
+				}
+				// Required non-coded condition
+				{
+					actualCondition = conditions[1];
+					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
+					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
+					Assert.assertNotNull(actualCondition.getId());
+				}
+				// Optional preset condition
+				{
+					actualCondition = conditions[3];
+					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					assertThat(actualCondition.getCondition().getCoded().getId(), is(22));
+					Assert.assertEquals("2020-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertEquals("2020-04-11", dateAsString(actualCondition.getEndDate()));
+					Assert.assertNotNull(actualCondition.getId());
+				}
 			}
 			
 		}.run();

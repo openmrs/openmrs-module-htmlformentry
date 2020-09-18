@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.openmrs.CodedOrFreeText;
 import org.openmrs.FormRecordable;
 
 /**
@@ -35,4 +36,26 @@ public class HtmlFormEntryUtil2_3 {
 		}
 	}
 	
+	/**
+	 * Validate if a CodedOrFreeText condition is empty
+	 *
+	 * @param condition
+	 * @return
+	 */
+	public static boolean CodedOrFreeTextIsEmpty(CodedOrFreeText condition) {
+		
+		if (condition.getCoded() != null) {
+			return false;
+		}
+		
+		if (StringUtils.isNotBlank(condition.getNonCoded())) {
+			return false;
+		}
+		
+		if (condition.getSpecificName() != null) {
+			return false;
+		}
+		
+		return true;
+	}
 }
