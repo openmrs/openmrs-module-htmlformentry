@@ -7,7 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptMap;
 import org.openmrs.ConceptName;
+import org.openmrs.ConceptReferenceTerm;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -21,10 +23,13 @@ import org.openmrs.PatientProgram;
 import org.openmrs.Program;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.compatibility.DrugOrderCompatibility;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsConstants;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -61,6 +66,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public static final String TEST_CONCEPT_CONSTANT_UUID = "0cbe2ed3-cd5f-4f46-9459-26127c9265ab";
 	
 	public static final String TEST_CONCEPT_CONSTANT_MAPPING = "XYZ:HT";
+	
+	@Autowired
+	DrugOrderCompatibility drugOrderCompatibility;
 	
 	@Before
 	public void setupDatabase() throws Exception {
@@ -279,8 +287,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getConcept_shouldFindAConceptByItsMapping() throws Exception {
 		String id = "XYZ:HT";
 		Concept cpt = HtmlFormEntryUtil.getConcept(id);
-		Assert.assertEquals("XYZ", cpt.getConceptMappings().iterator().next().getSource().getName());
-		Assert.assertEquals("HT", cpt.getConceptMappings().iterator().next().getSourceCode());
+		assertConceptHasMapping(cpt, "XYZ", "HT");
 	}
 	
 	/**
@@ -367,8 +374,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getConcept_shouldFindAConceptByItsMappingWithASpaceInBetween() throws Exception {
 		String id = "XYZ: HT";
 		Concept cpt = HtmlFormEntryUtil.getConcept(id);
-		Assert.assertEquals("XYZ", cpt.getConceptMappings().iterator().next().getSource().getName());
-		Assert.assertEquals("HT", cpt.getConceptMappings().iterator().next().getSourceCode());
+		assertConceptHasMapping(cpt, "XYZ", "HT");
 	}
 	
 	/**
@@ -448,7 +454,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		//add a bunch of obs...
 		TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date); //matches
@@ -477,7 +483,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		//add a bunch of obs...
 		TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date); //matches
@@ -547,7 +553,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		TestUtil.addObs(e, 1, 5000, date); //a matching obs
 		
 		DrugOrder dor = new DrugOrder();
@@ -555,11 +561,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		dor.setConcept(Context.getConceptService().getConcept(792));
 		dor.setCreator(Context.getUserService().getUser(1));
 		dor.setDateCreated(new Date());
-		dor.setDiscontinued(false);
 		dor.setDrug(Context.getConceptService().getDrug(2));
 		dor.setOrderType(Context.getOrderService().getOrderType(1));
 		dor.setPatient(Context.getPatientService().getPatient(2));
-		dor.setStartDate(new Date());
+		drugOrderCompatibility.setStartDate(dor, new Date());
 		e.addOrder(dor);
 		
 		Context.getEncounterService().saveEncounter(e);
@@ -597,7 +602,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		TestUtil.addObs(e, 3, 5000, date);//adding an un-matched Obs
 		
 		DrugOrder dor = new DrugOrder();
@@ -605,11 +610,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		dor.setConcept(Context.getConceptService().getConcept(792));
 		dor.setCreator(Context.getUserService().getUser(1));
 		dor.setDateCreated(new Date());
-		dor.setDiscontinued(false);
 		dor.setDrug(Context.getConceptService().getDrug(2));
 		dor.setOrderType(Context.getOrderService().getOrderType(1));
 		dor.setPatient(Context.getPatientService().getPatient(2));
-		dor.setStartDate(new Date());
+		drugOrderCompatibility.setStartDate(dor, new Date());
 		e.addOrder(dor);
 		
 		Context.getEncounterService().saveEncounter(e);
@@ -644,7 +648,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		TestUtil.addObs(e, 3, 5000, date);//adding an un-matched, voided Obs
 		for (Obs o : e.getAllObs(true)) {
 			o.setVoided(true);
@@ -659,7 +663,6 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		dor.setConcept(Context.getConceptService().getConcept(792));
 		dor.setCreator(Context.getUserService().getUser(1));
 		dor.setDateCreated(new Date());
-		dor.setDiscontinued(false);
 		dor.setDrug(Context.getConceptService().getDrug(2));
 		dor.setOrderType(Context.getOrderService().getOrderType(1));
 		dor.setPatient(Context.getPatientService().getPatient(2));
@@ -667,7 +670,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		dor.setVoidedBy(Context.getUserService().getUser(1));
 		dor.setVoidReason("blah");
 		dor.setDateVoided(new Date());
-		dor.setStartDate(new Date());
+		drugOrderCompatibility.setStartDate(dor, new Date());
 		e.addOrder(dor);
 		
 		Context.getEncounterService().saveEncounter(e);
@@ -1110,7 +1113,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
 		Assert.assertNotNull(tag);
-		Assert.assertEquals("Some Tag", tag.getTag());
+		Assert.assertEquals("Some Tag", tag.getName());
 	}
 	
 	@Test
@@ -1121,7 +1124,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
 		Assert.assertNotNull(tag);
-		Assert.assertEquals("Some Tag", tag.getTag());
+		Assert.assertEquals("Some Tag", tag.getName());
 	}
 	
 	@Test
@@ -1145,5 +1148,16 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 			String conceptId = Context.getAdministrationService().getGlobalProperty(expectedGpProperty);
 			Assert.assertEquals(conceptId, obs.getValueCoded().getConceptId().toString());
 		}
+	}
+	
+	protected void assertConceptHasMapping(Concept concept, String source, String code) {
+		boolean found = false;
+		for (ConceptMap m : concept.getConceptMappings()) {
+			ConceptReferenceTerm term = m.getConceptReferenceTerm();
+			if (term.getConceptSource().getName().equalsIgnoreCase(source) && term.getCode().equalsIgnoreCase(code)) {
+				found = true;
+			}
+		}
+		Assert.assertTrue(found);
 	}
 }

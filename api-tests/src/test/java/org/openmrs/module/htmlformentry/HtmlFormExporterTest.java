@@ -42,7 +42,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
 		
 		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
-		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS);
+		GlobalProperty gp = new GlobalProperty("dashboard.regimen.standardRegimens");
 		gp.setPropertyValue(xml);
 		Context.getAdministrationService().saveGlobalProperty(gp);
 	}

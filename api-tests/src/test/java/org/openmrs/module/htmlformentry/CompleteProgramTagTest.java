@@ -77,8 +77,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Program program = Context.getProgramWorkflowService().getProgram(1);
 				
 				// as a sanity check, make sure the patient is currently enrolled in the program before we run the test
-				Assert.assertTrue("Patient should be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				Assert.assertTrue("Patient should be in program", isInProgram(patient, program, new Date(), null));
 				
 				return patient;
 			};
@@ -108,11 +107,11 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Patient patient = Context.getPatientService().getPatient(2);
 				Program program = Context.getProgramWorkflowService().getProgram(1);
 				Assert.assertFalse("Patient should no longer be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				    isInProgram(patient, program, new Date(), null));
 				
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));
+				    isInProgram(patient, program, null, new Date()));
 				
 				// confirm that the proper program has been closed
 				PatientProgram pp = Context.getProgramWorkflowService()
@@ -165,11 +164,11 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Patient patient = Context.getPatientService().getPatient(2);
 				Program program = Context.getProgramWorkflowService().getProgram(1);
 				Assert.assertFalse("Patient should no longer be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				    isInProgram(patient, program, new Date(), null));
 				
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));
+				    isInProgram(patient, program, null, new Date()));
 				
 				// confirm that the proper program has been closed
 				PatientProgram pp = Context.getProgramWorkflowService()
@@ -200,8 +199,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Program program = Context.getProgramWorkflowService().getProgram(10);
 				
 				// as a sanity check, make sure the patient is currently enrolled in the program before we run the test
-				Assert.assertTrue("Patient should be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				Assert.assertTrue("Patient should be in program", isInProgram(patient, program, new Date(), null));
 				
 				return patient;
 			};
@@ -232,11 +230,11 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Patient patient = Context.getPatientService().getPatient(8);
 				Program program = Context.getProgramWorkflowService().getProgram(10);
 				Assert.assertFalse("Patient should no longer be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				    isInProgram(patient, program, new Date(), null));
 				
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));
+				    isInProgram(patient, program, null, new Date()));
 				
 				// confirm that the proper program has been closed
 				PatientProgram pp = Context.getProgramWorkflowService()
@@ -278,8 +276,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Program program = Context.getProgramWorkflowService().getProgram(1);
 				
 				// as a sanity check, make sure the patient is currently enrolled in the program before we run the test
-				Assert.assertTrue("Patient should be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				Assert.assertTrue("Patient should be in program", isInProgram(patient, program, new Date(), null));
 				
 				return patient;
 			};
@@ -309,11 +306,11 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 				Patient patient = Context.getPatientService().getPatient(2);
 				Program program = Context.getProgramWorkflowService().getProgram(1);
 				Assert.assertFalse("Patient should no longer be in program",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, new Date(), null));
+				    isInProgram(patient, program, new Date(), null));
 				
 				// but confirm that the patient was in the program in the past
 				Assert.assertTrue("Patient should still be in program in the past",
-				    Context.getProgramWorkflowService().isInProgram(patient, program, null, new Date()));
+				    isInProgram(patient, program, null, new Date()));
 				
 				// confirm that the proper program has been closed
 				PatientProgram pp = Context.getProgramWorkflowService()
@@ -325,4 +322,12 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 		}.run();
 	}
 	
+	/**
+	 * @return the ProgramWorkflowService.isInProgram method removed in 2.x. Copied below for
+	 *         consistency.
+	 */
+	public boolean isInProgram(Patient patient, Program program, Date fromDate, Date toDate) {
+		return !Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, toDate, fromDate, null, false)
+		        .isEmpty();
+	}
 }

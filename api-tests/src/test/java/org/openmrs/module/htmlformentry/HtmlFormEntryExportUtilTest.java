@@ -11,6 +11,7 @@ import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
@@ -101,7 +102,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date);
 		TestUtil.addObs(e, 3017, Context.getConceptService().getConcept(767), date);
@@ -231,7 +232,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		//top of form
 		TestUtil.addObs(e, 3032, date, date);
 		TestUtil.addObs(e, 1441, Context.getConceptService().getConcept(656), date);
@@ -299,7 +300,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		Context.getEncounterService().saveEncounter(e);
 		encounters.add(e);
@@ -341,7 +342,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		TestUtil.addObs(e, 1119, date, date);
 		TestUtil.addObs(e, 1007, date, date);
@@ -361,7 +362,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 	 * calls session.createForm on a form that has both conceptIds with labels, and conceptIds without
 	 * labels in obs tags. Verifies that the dropdown options for selecting a concept are correctly
 	 * labeled.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test

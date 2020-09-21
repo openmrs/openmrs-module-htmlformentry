@@ -17,6 +17,7 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.regimen.RegimenUtil;
 import org.openmrs.order.RegimenSuggestion;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -56,7 +57,7 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		//And, add some drugOrders
 		Patient p = Context.getPatientService().getPatient(2);
@@ -186,7 +187,7 @@ public class HtmlFormEntryRegimenUtilTest extends BaseModuleContextSensitiveTest
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 		
 		//And, add some drugOrders
 		Patient p = Context.getPatientService().getPatient(2);

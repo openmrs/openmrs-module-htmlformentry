@@ -210,6 +210,24 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>openmrs-2.3</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<testExcludes>
+								<!-- These test regimen suggestions and drugordersupport, which were removed in 2.x -->
+								<testExclude>**/StandardRegimenTagTest.java</testExclude>
+								<testExclude>**/HtmlFormEntryRegimenUtilTest.java</testExclude>
+							</testExcludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 
 	</profiles>
 

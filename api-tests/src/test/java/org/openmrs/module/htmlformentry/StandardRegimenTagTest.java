@@ -18,6 +18,7 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.module.htmlformentry.regimen.RegimenUtil;
 import org.openmrs.order.DrugOrderSupport;
 import org.openmrs.order.RegimenSuggestion;
@@ -277,7 +278,7 @@ public class StandardRegimenTagTest extends BaseModuleContextSensitiveTest {
 				Patient p = Context.getPatientService().getPatient(2);
 				e.setPatient(p);
 				e.setEncounterDatetime(date);
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 				e.setLocation(Context.getLocationService().getLocation(2));
 				
@@ -324,7 +325,7 @@ public class StandardRegimenTagTest extends BaseModuleContextSensitiveTest {
 				Patient p = Context.getPatientService().getPatient(2);
 				e.setPatient(p);
 				e.setEncounterDatetime(date);
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 				e.setLocation(Context.getLocationService().getLocation(2));
 				

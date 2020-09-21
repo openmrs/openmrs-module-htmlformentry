@@ -366,6 +366,14 @@
 		</profile>
 
 		<profile>
+			<id>openmrs-2.3</id>
+			<properties>
+				<openMRSVersion>2.3.0</openMRSVersion>
+				<openMRSMinorVersion>2.3</openMRSMinorVersion>
+			</properties>
+		</profile>
+
+		<profile>
 			<id>release-tests</id>
 			<modules>
 				<module>release-tests</module>

@@ -6,6 +6,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.logic.util.LogicUtil;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 import java.text.ParseException;
@@ -52,7 +53,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -86,7 +87,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -120,7 +121,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				TestUtil.addObs(e, 5089, 12.3, null); // weight has conceptId 2
 				return e;
 			}
@@ -155,7 +156,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -188,7 +189,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				TestUtil.addObs(e, 1000, Context.getConceptService().getConcept(1002), null);
 				return e;
 			}
@@ -223,7 +224,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -256,7 +257,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				TestUtil.addObs(e, 8, "Cats", null);
 				return e;
 			}
@@ -291,7 +292,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -325,7 +326,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -359,7 +360,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -392,7 +393,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -432,7 +433,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -480,7 +481,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -526,7 +527,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -571,7 +572,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -616,7 +617,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
@@ -655,7 +656,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 					e.setDateCreated(new Date());
 					e.setEncounterDatetime(date);
 					e.setLocation(Context.getLocationService().getLocation(2));
-					e.setProvider(Context.getPersonService().getPerson(502));
+					EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 					TestUtil.addObs(e, 5089, 12.3, null); // weight has conceptId 2
 				}
 				catch (ParseException ex) {
@@ -663,7 +664,7 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 				}
 				
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				EncounterCompatibility.setProvider(e, Context.getPersonService().getPerson(502));
 				return e;
 			}
 			
