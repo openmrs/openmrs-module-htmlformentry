@@ -26,8 +26,8 @@
   <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
 
   <!-- Weight and Height obs for our patient -->
-  <obs obs_id="1" person_id="2" concept_id="2" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" status="FINAL" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
-  <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" status="FINAL" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
+  <obs obs_id="1" person_id="2" concept_id="2" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
+  <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
 
   <!-- Put two concepts DOSE and UNIT in a set -->
   <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="10"/>
@@ -316,8 +316,8 @@
   <concept concept_id="6101" retired="false" datatype_id="11" class_id="5" is_set="false" creator="1" date_created="2005-01-01 00:00:00.0" uuid="7afe5c4d-886d-47a8-b0cf-af67efebceb4"/>
   <concept_complex concept_id="6101" handler="TextHandler" />
 
-  <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="gif image |openmrs_logo_small.gif" status="FINAL" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
-  <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="txt image |sometext.txt" status="FINAL" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
+  <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
+  <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
 
   <!-- test data for non-precise numeric datatype concept -->
   <concept concept_id="5497" retired="false" datatype_id="1" class_id="1" is_set="false" creator="1" date_created="2004-08-12 00:00:00.0" version="0.1" changed_by="1" date_changed="2006-06-09 14:57:33.0" uuid="a09ab2c5-878e-4905-b25d-5784167d0216"/>

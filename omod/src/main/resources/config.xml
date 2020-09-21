@@ -27,11 +27,11 @@
 	<!-- Extensions -->
 	<extension>
 		<point>org.openmrs.admin.list</point>
-		<class>org.openmrs.module.htmlformentry.extension.html.AdminList</class>
+		<class>org.openmrs.module.htmlformentry.web.extension.AdminList</class>
 	</extension>
 	<extension>
 		<point>org.openmrs.module.web.extension.FormEntryHandler</point>
-		<class>org.openmrs.module.htmlformentry.extension.html.FormEntryHandlerExtension</class>
+		<class>org.openmrs.module.htmlformentry.web.extension.FormEntryHandlerExtension</class>
 	</extension>
 
 	<!-- AOP

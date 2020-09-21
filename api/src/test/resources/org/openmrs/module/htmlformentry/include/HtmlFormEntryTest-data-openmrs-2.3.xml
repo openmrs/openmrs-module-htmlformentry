@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <concept_reference_source concept_source_id="1" uuid="931abfea-b2ca-49e7-b7ff-7420055f0ea1" name="XYZ" date_Created="2010-07-09 11:00:38" retired="false" creator="1" />
+  <concept_reference_map concept_map_id="1" concept_map_type_id="1" concept_reference_term_id="15" uuid="26755d29-9cc3-43bc-bc86-1c1df20f698f" concept_id="981" creator="1"  date_created="2010-07-09 11:00:38"/>
+  <concept_reference_term concept_reference_term_id="15" concept_source_id="1" code="HT" name="height term" description="A person's height in kilograms" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="26755d29-9cc3-43bc-bc86-1c1df20f6987" />
+  <concept_reference_map concept_map_id="5" concept_id="16" concept_reference_term_id="5" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="5407a500-49d8-11e0-8fed-18a905e044dc "/>
+
+ <concept concept_id="981" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="44d3611a-6699-4d52-823f-b4b788bac3e3"/>
+ 
+ <!-- concepts for non-standard uuid tests -->
+ <concept concept_id="982" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"/>
+ <concept concept_id="983" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="1000"/>
+  
+ <role role="System Administrator" description="Blah" uuid="92b70b00-58b1-11e0-80e3-0800200c9a66"/>
+ <role role="Data Clerk" description="Blah" uuid="a238c500-58b1-11e0-80e3-0800200c9a66"/>
+
+</dataset>

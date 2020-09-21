@@ -1,4 +1,4 @@
-package org.openmrs.module.htmlformentry.extension.html;
+package org.openmrs.module.htmlformentry.web.extension;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import org.openmrs.util.PrivilegeConstants;
 public class FormEntryHandlerExtension extends FormEntryHandler {
 	
 	/**
-	 * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getFormEntryUrl()
+	 * @see org.openmrs.module.web.extension.FormEntryHandler#getFormEntryUrl()
 	 */
 	@Override
 	public String getFormEntryUrl() {
@@ -31,7 +31,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	}
 	
 	/**
-	 * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getViewFormUrl()
+	 * @see org.openmrs.module.web.extension.FormEntryHandler#getViewFormUrl()
 	 */
 	@Override
 	public String getViewFormUrl() {
@@ -47,7 +47,7 @@ public class FormEntryHandlerExtension extends FormEntryHandler {
 	}
 	
 	/**
-	 * @see org.openmrs.module.web.extension.FormEntryModuleExtension#getFormList()
+	 * @see org.openmrs.module.web.extension.FormEntryHandler#getFormsModuleCanEnter(FormEntryContext)
 	 */
 	@Override
 	public List<Form> getFormsModuleCanEnter(FormEntryContext formEntryContext) {
