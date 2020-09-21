@@ -568,23 +568,6 @@ public abstract class RegressionTestHelper {
 		return results;
 	}
 	
-	private Encounter getLastEncounter(Patient patient) {
-		List<Encounter> encs = Context.getEncounterService().getEncounters(patient, null, null, null, null, null, null,
-		    true);
-		if (encs == null || encs.size() == 0)
-			return null;
-		if (encs.size() == 1)
-			return encs.get(0);
-		Collections.sort(encs, new Comparator<Encounter>() {
-			
-			@Override
-			public int compare(Encounter left, Encounter right) {
-				return OpenmrsUtil.compareWithNullAsEarliest(left.getEncounterDatetime(), right.getEncounterDatetime());
-			}
-		});
-		return encs.get(encs.size() - 1);
-	}
-	
 	public class SubmissionResults {
 		
 		private List<FormSubmissionError> validationErrors;
