@@ -11,6 +11,12 @@
           val = $("#"+$(this).attr("id")+"_hid").val();
         }
 
+        // handle differently radio sets since the obs value is associated with the name, not id
+        // (in radio sets, each radio button has an id in format "w123_x" but all have the same name in format "w123")
+        if ($(this).attr('id') && $(this).attr('id').indexOf("_") !== -1) {
+          var widgetId = $(this).attr('id').split("_")[0];
+          val = $("[name='" + widgetId + "']:checked").val();
+        }
 
         if (whenValueThenDisplaySection) {
             $.each(whenValueThenDisplaySection, function(ifValue, thenSection) {
