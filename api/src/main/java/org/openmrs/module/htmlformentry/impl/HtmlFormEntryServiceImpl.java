@@ -250,11 +250,11 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					Program personProgram = HtmlFormEntryUtil.getProgram(prog);
 					
 					if (personProgram != null) {
-						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
+						Set<Integer> matchingEnrollments = dao.getPatientIdHavingEnrollments(personProgram);
 						if (programMatches != null) {
-							programMatches.retainAll(pp.getMemberIds());
+							programMatches.retainAll(matchingEnrollments);
 						} else {
-							programMatches = pp.getMemberIds();
+							programMatches = matchingEnrollments;
 						}
 					}
 				}

@@ -1,9 +1,12 @@
 package org.openmrs.module.htmlformentry.db.hibernate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -14,6 +17,7 @@ import org.hibernate.transform.Transformers;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.Program;
 import org.openmrs.api.db.hibernate.DbSessionFactory;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
@@ -147,5 +151,19 @@ public class HibernateHtmlFormEntryDAO implements HtmlFormEntryDAO {
 			query = query + " and value='" + attributeValue + "'";
 		}
 		return (List<Integer>) sessionFactory.getCurrentSession().createSQLQuery(query).list();
+	}
+	
+	/**
+	 * In 1.x, this implementation is in HibernatePatientSetDAO, but this is removed in 2.x lines
+	 */
+	@Override
+	public Set<Integer> getPatientIdHavingEnrollments(Program program) {
+		String sql = "select pp.patient_id from patient_program pp ";
+		sql += " inner join patient p on pp.patient_id = p.patient_id and p.voided = false ";
+		sql += " where pp.voided = false and pp.program_id = :programId ";
+		Query query = sessionFactory.getCurrentSession().createSQLQuery(sql);
+		query.setCacheMode(CacheMode.IGNORE);
+		query.setInteger("programId", program.getProgramId());
+		return new HashSet<Integer>(query.list());
 	}
 }
