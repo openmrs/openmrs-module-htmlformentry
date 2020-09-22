@@ -15,11 +15,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.10</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
 			<artifactId>htmlformentry-api</artifactId>
 			<version>${project.parent.version}</version>
 			<classifier>tests</classifier>
@@ -33,6 +28,11 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>htmlformentry-api-1.9</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>htmlformentry-api-1.x</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>

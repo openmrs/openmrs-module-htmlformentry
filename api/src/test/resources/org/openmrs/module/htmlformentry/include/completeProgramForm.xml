@@ -1,8 +1,0 @@
-<htmlform>
-	Date: <encounterDate/>
-	Location: <encounterLocation/>
-	Provider: <encounterProvider role="Provider"/>
-
-    <completeProgram programId="1"/>
-    <submit/>
-</htmlform>

@@ -359,4 +359,9 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	public void clearConceptMappingCache() {
 		conceptMappingCache = new HashMap<String, Integer>();
 	}
+	
+	@Override
+	public Set<Integer> getPatientIdHavingEnrollments(Program program) {
+		return dao.getPatientIdHavingEnrollments(program);
+	}
 }

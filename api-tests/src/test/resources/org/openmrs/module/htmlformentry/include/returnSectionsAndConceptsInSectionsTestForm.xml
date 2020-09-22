@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	
+	<section headerLabel="Section One">
+			<section headerLabel="Section One Inner One">
+				<obs conceptIds="2474,3017,1441" answerConceptId="656"/>
+			</section>
+			
+			<section headerLabel="Section One Inner Two">
+			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="label one, label two"/>
+			</section>
+			<obs conceptId="3032" labelText="DST Result Date"/>
+	</section>
+	
+	<section>
+	       <obs conceptId="2"/>
+	       <obs conceptId="1"/>
+	</section>
+	
+	<submit/>
+</htmlform>

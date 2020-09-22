@@ -1,0 +1,10 @@
+<htmlform>	
+
+	Encounter Date: <encounterDate/>
+    Encounter Location: <encounterLocation/>
+    Encounter Provider: <encounterProvider role="Provider"/>
+ 
+	<enrollInProgram programId="10" />
+    
+    <submit/>
+</htmlform>

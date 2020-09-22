@@ -89,6 +89,18 @@
 				<version>2.0</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.openmrs.module</groupId>
+				<artifactId>legacyui-api</artifactId>
+				<version>${legacyuiVersion}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.openmrs.module</groupId>
+				<artifactId>legacyui-omod</artifactId>
+				<version>${legacyuiVersion}</version>
+				<scope>provided</scope>
+			</dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
@@ -191,19 +203,22 @@
 
 	<!-- default property values, required for eclipse build path configuration -->
 	<properties>
-		<openMRSVersion>1.9.9</openMRSVersion>
-		<openMRSBuildVersion>1.9.9</openMRSBuildVersion>
-		<openMRSMinorVersion>1.9</openMRSMinorVersion>
-        <jacksonVersion>1.5.0</jacksonVersion>
+		<openMRSVersion>2.3.0</openMRSVersion>
+		<openMRSBuildVersion>2.3.0</openMRSBuildVersion>
+		<openMRSMinorVersion>2.3</openMRSMinorVersion>
+		<legacyuiVersion>1.6.0</legacyuiVersion>
+		<jacksonVersion>1.5.0</jacksonVersion>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<modules>
 		<module>api</module>
 		<module>api-1.9</module>
-		<module>api-1.10</module>
+		<module>api-1.x</module>
 		<module>api-2.0</module>
 		<module>api-2.3</module>
+		<module>api-tests-1.9</module>
+		<module>api-tests-1.x</module>
 		<module>api-tests</module>
 		<module>omod</module>
 	</modules>

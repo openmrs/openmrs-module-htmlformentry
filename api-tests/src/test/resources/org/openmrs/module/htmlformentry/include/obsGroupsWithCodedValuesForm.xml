@@ -1,0 +1,18 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<obsgroup groupingConceptId="7">
+		Allergy 1: <obs conceptId="1000"/>
+		Allergy Date 1: <obs conceptId="1119"/>
+	</obsgroup>
+	<obsgroup groupingConceptId="7">
+		Allergy 2: <obs conceptId="1000"/>
+		Allergy Date 2: <obs conceptId="1119"/>
+	</obsgroup>
+	<obsgroup groupingConceptId="7">
+		Allergy 3: <obs conceptId="1000"/>
+		Allergy Date 3: <obs conceptId="1119"/>
+	</obsgroup>
+	<submit/>
+</htmlform>

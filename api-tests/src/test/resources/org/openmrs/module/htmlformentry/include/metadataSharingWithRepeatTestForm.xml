@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<repeat>
+		<template>
+			<obsgroup groupingConceptId="{allergyGroup}">
+				Allergy: <obs conceptId="{allergy}" answerConceptIds="{allergyAnswers}"/>
+			</obsgroup>
+		</template>
+		<render allergyGroup="7" allergy="1000" allergyAnswers="1001,1002" />
+		<render allergyGroup="1004" allergy="1005" allergyAnswers="1002,1003" />
+	</repeat>
+	<submit/>
+</htmlform>

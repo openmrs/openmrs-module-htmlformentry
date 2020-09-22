@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+
+  <!-- Weight and CD4 concepts -->
+   <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"  uuid="32296057-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept_datatype concept_datatype_id="2" name="Coded" hl7_abbreviation="CWE" description="Value determined by term dictionary lookup (i.e., term identifier)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a48b6-c2cc-11de-8d13-0010c6dffd0f"/>
+  
+  <concept concept_id="101" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2"  uuid="32296060-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept_name voided="false" concept_name_id="101" concept_id="101" name="REGIMEN DISCONTINUE REASON" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296061-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept concept_id="102" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296062-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept_name voided="false" concept_name_id="102" concept_id="102" name="TOXICITY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296063-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept concept_id="103" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296065-0370-102d-b0e3-001ec94a0cc1"/>
+  <concept_name voided="false" concept_name_id="103" concept_id="103" name="TRANSFERRED OUT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296066-0370-102d-b0e3-001ec94a0cc1"/>
+
+  <concept_answer concept_answer_id="100" concept_id="101" answer_concept="102" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="101" concept_id="101" answer_concept="103" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+</dataset>

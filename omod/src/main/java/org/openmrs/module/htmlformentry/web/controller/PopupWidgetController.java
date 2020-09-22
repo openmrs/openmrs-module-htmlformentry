@@ -106,11 +106,14 @@ public class PopupWidgetController {
 						personProgram = Context.getProgramWorkflowService().getProgram(Integer.parseInt(prog));
 					}
 					if (personProgram != null) {
-						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
+						HtmlFormEntryService svc = Context.getService(HtmlFormEntryService.class);
+						Set<Integer> pIds = svc.getPatientIdHavingEnrollments(personProgram);
 						if (cohort != null) {
-							cohort = Cohort.intersect(cohort, pp);
+							Set<Integer> existing = cohort.getMemberIds();
+							existing.retainAll(pIds);
+							cohort = new Cohort(existing);
 						} else {
-							cohort = pp;
+							cohort = new Cohort(pIds);
 						}
 					}
 				}

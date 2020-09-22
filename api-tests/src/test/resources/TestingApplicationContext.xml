@@ -8,22 +8,28 @@
 	From applicationContext-service.xml in openmrs-api
 	Needed to override and add hibernate mappings to the classpath since omod is not packaged yet 
 	-->
-	<bean id="sessionFactory" class="org.openmrs.api.db.hibernate.HibernateSessionFactoryBean">
-		<property name="configLocations">
-			<list>
-				<value>classpath:hibernate.cfg.xml</value>
-				<value>classpath:test-hibernate.cfg.xml</value>
-			</list>
-		</property>
-		<property name="mappingJarLocations">
-			<ref bean="mappingJarResources" />
-		</property>
-		<!--  default properties must be set in the hibernate.default.properties -->
-	</bean>
+    <bean id="sessionFactory" class="org.openmrs.api.db.hibernate.HibernateSessionFactoryBean">
+        <property name="configLocations">
+            <list>
+                <value>classpath:hibernate.cfg.xml</value>
+                <value>classpath:test-hibernate.cfg.xml</value>
+            </list>
+        </property>
+        <property name="mappingJarLocations">
+            <ref bean="mappingJarResources"/>
+        </property>
+        <property name="packagesToScan">
+            <list>
+                <value>org.openmrs</value>
+            </list>
+        </property>
+    </bean>
 
 	<!--  we definite the name support beans here so that we can access them to test functions that use them -->
 	
     <!-- specialTokens ordered so that the subset string 'familyName' is last -->
+
+    <!--  TODO: This is not compatible with all versions of OMRS
     <bean id="nameSupport" class="org.openmrs.layout.web.name.NameSupport">
         <property name="defaultLayoutFormat"><value>spain</value></property>
         <property name="layoutTemplates">
@@ -71,6 +77,6 @@
         </property>
     </bean>
     
-    
+    -->
 	
 </beans>

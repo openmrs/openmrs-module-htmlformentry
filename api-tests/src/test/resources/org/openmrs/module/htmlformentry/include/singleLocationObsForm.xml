@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Favorite Health Clinic to Eat: <obs conceptId="19" style="location"/>   <!-- a concept of type value-text -->
+	<submit/>
+</htmlform>

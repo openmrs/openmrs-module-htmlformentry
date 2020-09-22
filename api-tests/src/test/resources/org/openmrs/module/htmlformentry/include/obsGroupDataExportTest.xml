@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	
+	<section headerLabel="Section One">
+			<section headerLabel="Section One Inner One">
+				<obs conceptIds="2474,3017,1441" answerConceptId="656"/> ISONIAZID
+				<obsgroup groupingConceptId="1004">
+						Hyper-Allergy 1: <obs conceptId="1005"/>
+				</obsgroup>
+				<section headerLabel="3rd Level Section">
+					<obs conceptId="1119"/> ALLERGY DATE
+				</section>
+			</section>
+			
+			<section headerLabel="Section One Inner Two">
+			    <obs conceptIds="2474,3017" answerConceptId="767" labelText="R" conceptLabels="Susc,Interm"/>  RIFAMPIN
+			</section>
+			<obs conceptId="3032" labelText="DST Result Date"/> DST START DATE
+	</section>
+	
+	<section>
+			<obsgroup groupingConceptId="3040">
+		        <obsgroup groupingConceptId="3025">
+					<obs conceptIds="2474,3017,1441" answerConceptId="656"/> 
+					INH colonies: <obs conceptId="3016"/> 
+				</obsgroup>
+			</obsgroup>
+	</section>
+	
+	<submit/>
+</htmlform>

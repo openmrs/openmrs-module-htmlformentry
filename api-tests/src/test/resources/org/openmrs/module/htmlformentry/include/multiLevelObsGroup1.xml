@@ -1,0 +1,20 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+		<obsgroup groupingConceptId="3040">
+			<obsgroup groupingConceptId="3025">
+				<obs conceptIds="2474,3017,1441" answerConceptId="1414"/>
+			</obsgroup>
+			<obsgroup groupingConceptId="3025">
+				<obs conceptIds="2474,3017,1441" answerConceptId="767" labelText="R" conceptLabels="S,I,R"/> (should be S)
+				RIF colonies: <obs conceptId="3016"/>  (should be null)
+			</obsgroup>
+			<br/>
+			<obsgroup groupingConceptId="3025">
+				<obs conceptIds="2474,3017,1441" answerConceptId="656"/> (should be resistant)
+				INH colonies: <obs conceptId="3016"/> (should be 200)
+			</obsgroup>
+			<obs conceptId="3032" labelText="DST Result Date"/>
+		</obsgroup>
+</htmlform>

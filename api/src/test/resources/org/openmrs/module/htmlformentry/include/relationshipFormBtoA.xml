@@ -1,9 +1,0 @@
-<htmlform>
-	Date: <encounterDate/>
-	Location: <encounterLocation/>
-	Provider: <encounterProvider role="Provider"/>
-	
-	Relationship: <relationship type="1" whoAmI="B" changeExistingRelationship="false" />
-	
-	<submit/>
-</htmlform>

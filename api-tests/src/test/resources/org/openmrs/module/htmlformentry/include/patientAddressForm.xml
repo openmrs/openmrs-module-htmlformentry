@@ -1,0 +1,9 @@
+<htmlform>
+    Name: <patient field="name"/>
+    Gender: <patient field="gender"/>
+    Birthdate: <patient field="birthDate"/>
+    Identifier: <patient field="identifier"/>
+    Identifier Location: <patient field="identifierLocation"/>
+    Address: <patient field="address"/>
+    <submit/>
+</htmlform>

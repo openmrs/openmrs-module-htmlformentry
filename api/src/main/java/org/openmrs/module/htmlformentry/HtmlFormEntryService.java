@@ -2,12 +2,14 @@ package org.openmrs.module.htmlformentry;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openmrs.Concept;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Person;
+import org.openmrs.Program;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
@@ -193,4 +195,10 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 */
 	@Transactional(readOnly = true)
 	public void clearConceptMappingCache();
+	
+	/**
+	 * @return patient ids for anyone who has had an enrollment in the given program
+	 */
+	@Transactional(readOnly = true)
+	public Set<Integer> getPatientIdHavingEnrollments(Program program);
 }

@@ -1,0 +1,11 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	
+	Relationship: <relationship type="1" whoAmI="A" changeExistingRelationship="false" />
+	Relationship: <relationship type="4" whoAmI="B" changeExistingRelationship="false" />
+	Relationship: <relationship type="1" whoAmI="A" changeExistingRelationship="false" />
+	
+	<submit/>
+</htmlform>

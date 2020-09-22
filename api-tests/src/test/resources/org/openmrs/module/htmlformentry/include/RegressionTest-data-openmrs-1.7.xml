@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <!-- A patient -->
+  <patient patient_id="2" creator="1" date_created="2005-09-22 00:00:00.0" changed_by="1" date_changed="2008-08-18 12:29:59.0" voided="false" void_reason=""/>
+  <patient_identifier patient_identifier_id="1" patient_id="2" identifier="101" identifier_type="2" preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0" voided="false" void_reason=""/>
+  <patient_identifier_type patient_identifier_type_id="2" name="Old Identification Number" description="Number given out prior to the OpenMRS system (No check digit)" format="" check_digit="false" creator="1" date_created="2005-09-22 00:00:00.0" required="false" retired="false"/>
+   
+  <!-- Concept Datatypes -->
+  <concept_datatype concept_datatype_id="1" name="Numeric" hl7_abbreviation="NM" description="Numeric value, including integer or float (e.g., creatinine, weight)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4488-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="2" name="Coded" hl7_abbreviation="CWE" description="Value determined by term dictionary lookup (i.e., term identifier)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a48b6-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="3" name="Text" hl7_abbreviation="ST" description="Free text" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4ab4-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="4" name="N/A" hl7_abbreviation="ZZ" description="Not associated with a datatype (e.g., term answers, sets)" creator="1" date_created="2004-02-02 00:00:00.0" retired="false" uuid="8d4a4c94-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="6" name="Date" hl7_abbreviation="DT" description="Absolute date" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a505e-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="7" name="Time" hl7_abbreviation="TM" description="Absolute time of day" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a591e-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="8" name="Datetime" hl7_abbreviation="TS" description="Absolute date and time" creator="1" date_created="2004-07-22 00:00:00.0" retired="false" uuid="8d4a5af4-c2cc-11de-8d13-0010c6dffd0f"/>
+  <concept_datatype concept_datatype_id="10" name="Boolean" hl7_abbreviation="BIT" description="Boolean value (yes/no, true/false)" creator="1" date_created="2004-08-26 00:00:00.0" retired="false" uuid="8d4a5cca-c2cc-11de-8d13-0010c6dffd0f"/>
+
+  <!-- Weight and CD4 concepts -->
+  <concept concept_id="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" />
+  <concept_name voided="false" concept_name_id="1" concept_id="1" name="CD4 COUNT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept concept_id="2" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept_name voided="false" concept_name_id="2" concept_id="2" name="WEIGHT (KG)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="3" concept_id="2" name="POIDS (KG)" locale="fr" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept concept_id="3" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept_name voided="false" concept_name_id="4" concept_id="3" name="HEIGHT (CM)" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+
+  <!-- Weight and Height obs for our patient -->
+  <obs obs_id="1" person_id="2" concept_id="2" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
+  <obs obs_id="2" person_id="2" concept_id="3" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
+
+  <!-- Put two concepts DOSE and UNIT in a set -->
+  <concept concept_id="4" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="10"/>
+  <concept concept_id="5" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+  <concept concept_id="6" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3"/>
+  <concept_name voided="false" concept_name_id="5" concept_id="4" name="DOSAGE CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="6" concept_id="5" name="DOSE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="7" concept_id="6" name="UNIT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_set concept_set_id="1" concept_id="5" concept_set="4" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="2" concept_id="6" concept_set="4" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+  <!-- And put ALLERGY and ALLERGY DATE in a set -->
+  <concept concept_id="7" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4" uuid="32296060-03aa-102d-b0e3-001ec94a0cc1"/>
+  <concept concept_id="8" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3" uuid="32296060-03aa-102d-b0e3-001ec94a0cc2"/>
+  <concept concept_id="1119" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6" uuid="32296060-03aa-102d-b0e3-001ec94a0cc3"/>
+  <concept concept_id="1000" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec94a0cc4"/>
+  <concept_name voided="false" concept_name_id="7" concept_id="7" name="ALLERGY CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="8" concept_id="8" name="ALLERGY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="1119" concept_id="1119" name="ALLERGY DATE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="1100" concept_id="1000" name="ALLERGY CODED" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_set concept_set_id="3" concept_id="8" concept_set="7" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="4" concept_id="1119" concept_set="7" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="5" concept_id="1000" concept_set="7" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+  <!-- Add another allergy construct -->
+ <concept concept_id="1004" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="4" uuid="42296060-03-102d-b0e3-001ec94a0cc1"/>
+ <concept_name voided="false" concept_name_id="1004" concept_id="1004" name="ANOTHER ALLERGY CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+ <concept_set concept_set_id="6" concept_id="8" concept_set="1004" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+ <concept_set concept_set_id="7" concept_id="1119" concept_set="1004" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+ <concept_set concept_set_id="8" concept_id="1000" concept_set="1004" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+ 
+ <!--  Add a HYPER-ALLERGY concept to test obsgroupb with similar answers -->
+ <concept concept_id="1005" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="aa52296060-03-102d-b0e3-001ec94a0cc1"/>
+ <concept_name voided="false" concept_name_id="1008" concept_id="1005" name="HYPER-ALLERGY CODED" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+ <concept_set concept_set_id="9" concept_id="1005" concept_set="7" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
+ <concept_set concept_set_id="10" concept_id="1005" concept_set="1004" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
+ 
+  <!-- Add some allergies -->
+  <concept concept_id="1001" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec94a0cc5"/>
+  <concept concept_id="1002" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec94a0cc6"/>
+  <concept concept_id="1003" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec94a0cc7"/>
+  <concept_name voided="false" concept_name_id="1001" concept_id="1001" name="PENICILLIN" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="1002" concept_id="1002" name="CATS" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="1003" concept_id="1003" name="OPENMRS" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="1001" concept_id="1000" answer_concept="1001" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1002" concept_id="1000" answer_concept="1002" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1003" concept_id="1000" answer_concept="1003" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1004" concept_id="1005" answer_concept="1001" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1005" concept_id="1005" answer_concept="1002" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1006" concept_id="1005" answer_concept="1003" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+  <!-- A person with only a patient attached -->
+  <person person_id="2" dead="false" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" gender="M" />
+  <person_name person_id="2" person_name_id="2" preferred="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" given_name="John" middle_name="" family_name="Doe" />
+  <patient patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" />
+  <patient_identifier patient_identifier_id="2" patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="a-D" identifier_type="1" preferred="1" voided="false" location_id="1" />
+  <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" check_digit="false" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
+  
+  <!-- Required metadata -->
+  <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
+  <field_type field_type_id="1" creator="1" date_created="2005-01-01 00:00:00.0" name="Concept" is_set="false" />
+  <field_type field_type_id="2" creator="1" date_created="2005-01-01 00:00:00.0" name="Database element" is_set="false" />
+  <field_type field_type_id="3" creator="1" date_created="2005-01-01 00:00:00.0" name="Set of Terms" is_set="true" />
+  <field_type field_type_id="4" creator="1" date_created="2005-01-01 00:00:00.0" name="Miscellaneous Set" is_set="true" />
+  <field_type field_type_id="5" creator="1" date_created="2005-01-01 00:00:00.0" name="Section" is_set="true" />
+  
+  <!-- A form and its fields -->
+  <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" template="" xslt="" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+  <field field_id="5" name="Current weight" description="" field_type="1" concept_id="2" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="1" name="PATIENT" description="Patient section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="2" name="ENCOUNTER" description="Encounter section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="3" name="OBS" description="Obs section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="4" name="Most recent CD4" description="" field_type="1" concept_id="1" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="6" name="Current height" description="" field_type="1" concept_id="3" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="7" name="Dose and unit construct" description="" field_type="3" concept_id="4" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="8" name="Dose" description="" field_type="1" concept_id="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="9" name="Unit" description="" field_type="1" concept_id="6" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <field field_id="10" name="Allergy and date construct" description="" field_type="3" concept_id="7" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="11" name="Allergy" description="" field_type="1" concept_id="8" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  <field field_id="12" name="Date" description="" field_type="1" concept_id="1119" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
+  
+  <form_field form_field_id="5" form_id="1" field_id="5" field_number="1" field_part="b" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="500"/>
+  <form_field form_field_id="1" form_id="1" field_id="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="100"/>
+  <form_field form_field_id="2" form_id="1" field_id="2" parent_form_field="1" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="200"/>
+  <form_field form_field_id="3" form_id="1" field_id="3" parent_form_field="2" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="300"/>
+  <form_field form_field_id="4" form_id="1" field_id="4" field_number="1" field_part="a" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="400"/>
+  <form_field form_field_id="6" form_id="1" field_id="6" field_number="1" field_part="c" page_number="1" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="600"/>
+  <form_field form_field_id="7" form_id="1" field_id="7" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700" min_occurs="0" max_occurs="10"/>
+  <form_field form_field_id="8" form_id="1" field_id="8" parent_form_field="7" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
+  <form_field form_field_id="9" form_id="1" field_id="9" parent_form_field="7" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+  <form_field form_field_id="10" form_id="1" field_id="10" parent_form_field="3" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="700"/>
+  <form_field form_field_id="11" form_id="1" field_id="11" parent_form_field="10" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="800"/>
+  <form_field form_field_id="12" form_id="1" field_id="12" parent_form_field="10" required="0" creator="1" date_created="2006-07-18 11:04:36" sort_weight="900"/>
+
+	<!-- DST data, with similar conceptIds to PIH dictionary -->
+  <concept concept_id="2474" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec5670cc5"/>
+  <concept concept_id="3017" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec3450cc6"/>
+  <concept concept_id="1441" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec4560cc7"/>
+  <concept concept_id="656" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03aa-102d-b0e3-001ec4560ddd"/>
+  <concept concept_id="767" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03aa-102d-b0e3-001ec4560333"/>
+  <concept concept_id="1414" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03aa-102d-b0e3-001ec4561414"/>
+  <concept concept_id="3016" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="32296060-03aa-102d-b0e3-001ec4560334"/>
+  <concept concept_id="3032" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6" uuid="32296060-03aa-102d-bb7e-001ec4560334"/>
+  <concept_name voided="false" concept_name_id="3032" concept_id="3032" name="DST Start Date" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="3016" concept_id="3016" name="Colonies" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="2474" concept_id="2474" name="Susceptible" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="3017" concept_id="3017" name="Intermediate" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="1441" concept_id="1441" name="Resistant" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="656" concept_id="656" name="ISONIAZID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="767" concept_id="767" name="RIFAMPICIN" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_name voided="false" concept_name_id="1414" concept_id="1414" name="ETHIONAMIDE" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="1008" concept_id="2474" answer_concept="656" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1009" concept_id="2474" answer_concept="767" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1010" concept_id="3017" answer_concept="656" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1011" concept_id="3017" answer_concept="767" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1012" concept_id="1441" answer_concept="656" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1013" concept_id="1441" answer_concept="767" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1014" concept_id="3017" answer_concept="1414" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1015" concept_id="2474" answer_concept="1414" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="1016" concept_id="1441" answer_concept="1414" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <!--  here are the DST parent groups -->
+  <concept concept_id="3040" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03aa-102d-b0e3-001ece375333"/>
+  <concept_name voided="false" concept_name_id="3040" concept_id="3040" name="TUBERCULOSIS DRUG SENSITIVITY TEST CONSTRUCT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept concept_id="3025" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296060-03aa-102d-b0e3-001f63240333"/>
+  <concept_name voided="false" concept_name_id="3025" concept_id="3025" name="TUBERCULOSIS DRUG SENSITIVITY TEST RESULT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <!-- DST construct owns DST result constructs-->
+  <concept_set concept_set_id="3040" concept_id="3025" concept_set="3040" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3041" concept_id="3032" concept_set="3040" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <!-- DST result constructs owns specific results -->
+  <concept_set concept_set_id="2474" concept_id="2474" concept_set="3025" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3017" concept_id="3017" concept_set="3025" sort_weight="2" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="1441" concept_id="1441" concept_set="3025" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_set concept_set_id="3016" concept_id="3016" concept_set="3025" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  
+  <!-- Concepts for testing datatypes -->
+  <concept concept_id="1007" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="8" uuid="32296060-03aa-102d-b0e3-001ec94a0dd3"/>
+  <concept_name voided="false" concept_name_id="1007" concept_id="1007" name="Timestamp Test" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept concept_id="1008" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="6" uuid="e6660638-fce1-11df-9692-001e378eb67e"/>
+  <concept_name voided="false" concept_name_id="1009" concept_id="1008" name="Date" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/> 
+  <concept concept_id="1009" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="7" uuid="f5396f06-fce1-11df-9692-001e378eb67e"/>
+  <concept_name voided="false" concept_name_id="1010" concept_id="1009" name="Time" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true"/>
+
+  <!-- Some drugs -->
+  <drug drug_id="2" concept_id="792" name="Triomune-30" combination="true" dose_strength="1.0" units="tab(s)" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="3cfcf118-931c-46f7-8ff6-7b876f0d4202"/>
+  <drug drug_id="3" concept_id="88" name="Aspirin" combination="false" dose_strength="325.0" units="mg" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="05ec820a-d297-44e3-be6e-698531d9dd3f"/>
+  <drug drug_id="11" concept_id="3" name="NyQuil" combination="true" units="" creator="1" date_created="2008-08-15 15:34:03.0" retired="true" uuid="7e2323fa-0fa0-461f-9b59-6765997d849e"/>
+  
+  <!-- An encounter (with a couple obs) to test editing forms -->
+  <encounter encounter_id="101" encounter_type="1" patient_id="2" provider_id="502" location_id="1" form_id="1" encounter_datetime="2008-08-01 00:00:00.0" creator="1" date_created="2008-08-18 14:09:05.0" voided="false" void_reason="" uuid="6519d653-393b-4118-9c83-a3715b82dfff"/>
+  <obs obs_id="101" person_id="2" concept_id="2" encounter_id="101" obs_datetime="2008-07-01 00:00:00.0" location_id="1" value_numeric="50.0" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" uuid="39fb7f47-e80a-4056-9285-bd798be13fff"/>
+  <obs obs_id="102" person_id="2" concept_id="8" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_text="Penicillin" comments="" creator="1" date_created="2008-08-18 14:11:13.0" voided="false" uuid="be48cdcb-6a76-47e3-9f2e-2635032f3fff"/>
+
+  <!-- Drug Order Discontinue Reasons -->
+  <concept concept_id="555" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2"  uuid="32296060-0370-102d-b0e3-123456789011"/>
+  <concept_name voided="false" concept_name_id="555" concept_id="555" name="REGIMEN DISCONTINUE REASON" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296061-0370-102d-b0e3-123456789012" locale_preferred="true"/>
+  <concept concept_id="556" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296062-0370-102d-b0e3-123456789013"/>
+  <concept_name voided="false" concept_name_id="556" concept_id="556" name="TOXICITY" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296063-0370-102d-b0e3-123456789014" locale_preferred="true"/>
+  <concept concept_id="557" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="4" uuid="32296065-0370-102d-b0e3-123456789015"/>
+  <concept_name voided="false" concept_name_id="557" concept_id="557" name="TRANSFERRED OUT" locale="en" creator="1" date_created="2005-01-01 00:00:00.0"  uuid="32296066-0370-102d-b0e3-123456789016" locale_preferred="true"/>
+
+  <concept_answer concept_answer_id="555" concept_id="555" answer_concept="556" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  <concept_answer concept_answer_id="556" concept_id="555" answer_concept="557" creator="1" date_created="2005-01-01 00:00:00.0"/>
+  	
+  <!-- Enroll a patient in a program -->
+  <patient_program patient_program_id="1" patient_id="2" program_id="1" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32296060-03aa-102d-b0e3-001ec94a0cc5"/>
+  <patient_program patient_program_id="101" patient_id="2" program_id="1" creator="1" date_enrolled="2001-01-01 00:00:00.0" date_created="2001-01-01 00:00:00.0" date_completed="2003-05-01 00:00:00.0" voided="false" uuid="32596060-03aa-102d-b0e3-001ec94a0cc5"/>
+  
+    <!-- Define a relationship type (this relationship type is defined in standard test data, but the id is changed from 5 to 2 between 1.7 and 1.8 so we define our own version here with id = 4 -->
+  <relationship_type relationship_type_id="4" a_is_to_b="Parent" b_is_to_a="Child" preferred="0" weight="0" description="parent and child" creator="1" date_created="2008-08-15 15:55:18.0" retired="false" uuid="2a5f4ff4-a179-4b8a-aa4c-40f71956efeg"/>
+ 
+  <!-- Add a person attribute (for one of the Relationship tests) -->
+  <person_attribute person_attribute_id="14" person_id="8" value="6" person_attribute_type_id="8" creator="1" date_created="2008-08-18 11:56:42.0" voided="false" uuid="63a5a4a0-dd44-46ac-b8c0-c6bfb5a5f878"/>
+  
+  <!-- Add a new program -->
+  <concept concept_id="10000" datatype_id="4" class_id="16" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3093de5c-5140-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20000" concept_id="10000" name="TEST PROGRAM" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="36122a96-5140-11e1-a3e3-00248140a5eb"/>
+	
+  <concept concept_id="10001" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="e73079ba-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20001" concept_id="10001" name="TEST WORKFLOW" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="f7ff174c-5143-11e1-a3e3-00248140a5eb"/>
+	
+  <concept concept_id="10002" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="36142ffa-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20002" concept_id="10002" name="START STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="3accabda-5143-11e1-a3e3-00248140a5eb"/>
+	
+  <concept concept_id="10003" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3fe89e62-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20003" concept_id="10003" name="END STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="44c8dd98-5143-11e1-a3e3-00248140a5eb"/>
+
+  <concept concept_id="10004" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="33e89e62-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20004" concept_id="10004" name="MIDDLE STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="80c8dd98-5143-11e1-a3e3-00248140a5eb"/>
+
+  <concept concept_id="10005" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="65e89e62-5143-11e1-a3e3-00248140a5eb"/>
+  <concept_name concept_name_id="20005" concept_id="10005" name="RETIRED STATE" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="90c8dd98-5143-11e1-a3e3-00248140a5eb"/>
+
+  <concept concept_id="10006" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="c4d364c0-53a7-11e1-8cb6-00248140a5eb"/>
+  <concept_name concept_name_id="20006" concept_id="10006" name="TEST WORKFLOW1" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="ccd6d1fc-53a7-11e1-8cb6-00248140a5eb"/>
+  <concept_map concept_map_id="10001" concept_id="10006" source="2" source_code="Test Workflow Code" creator="1" date_created="2008-08-15 15:27:51.0" uuid="50ffdf34-53ad-11e1-8cb6-01248140a5eb"/>
+  
+  <concept concept_id="10007" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="d5e83970-53a7-11e1-8cb6-00248140a5eb"/>
+  <concept_name concept_name_id="20007" concept_id="10007" name="TEST WORKFLOW2" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="db36a0ce-53a7-11e1-8cb6-00248140a5eb"/>
+  
+  <concept concept_id="10008" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3ac056a2-53ad-11e1-8cb6-00248140a5eb"/>
+  <concept_name concept_name_id="20008" concept_id="10008" name="TEST STATE7" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="3fcf5d3c-53ad-11e1-8cb6-00248140a5eb"/>
+  
+  <concept concept_id="10009" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="450dd72e-53ad-11e1-8cb6-00248140a5eb"/>
+  <concept_name concept_name_id="20009" concept_id="10009" name="TEST STATE8" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+  <concept_map concept_map_id="10000" concept_id="10009" source="2" source_code="Test Code" creator="1" date_created="2008-08-15 15:27:51.0" uuid="50ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+  
+  <program program_id="10" concept_id="10000" creator="1" date_created="2008-08-15 16:07:11.0" changed_by="1" date_changed="2008-08-15 17:04:50.0" retired="false" name="Test Program" description="testing program" uuid="67bad8f4-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow program_workflow_id="100" program_id="10" concept_id="10001" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="72a90efc-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow program_workflow_id="107" program_id="10" concept_id="10006" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="7c3e071a-53a7-11e1-8cb6-00248140a5eb"/>
+  <program_workflow program_workflow_id="108" program_id="10" concept_id="10007" creator="1" date_created="2008-08-15 17:01:00.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="8343cfae-53a7-11e1-8cb6-00248140a5eb"/>
+  	
+  <program_workflow_state program_workflow_state_id="200" program_workflow_id="100" concept_id="10002" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="89d1a292-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="201" program_workflow_id="100" concept_id="10003" initial="false" terminal="true" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="8ef66ca8-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="202" program_workflow_id="100" concept_id="10004" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="99f66ca8-5140-11e1-a3e3-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="203" program_workflow_id="100" concept_id="10005" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="true" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="91f66ca8-5140-11e1-a3e3-00248140a5eb"/>
+  
+   <program_workflow_state program_workflow_state_id="207" program_workflow_id="107" concept_id="10008" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11e1-8cb6-00248140a5eb"/>
+  <program_workflow_state program_workflow_state_id="208" program_workflow_id="108" concept_id="10009" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="6de7ed10-53ad-11e1-8cb6-00248140a5eb"/>
+
+
+  <!-- test data for exit from care functionality -->
+  <global_property property="concept.reasonExitedCare" property_value="4200" uuid="4f55827e-26fe-102b-80cb-0017b4ec71b3"/>
+
+  <concept concept_id="4200" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-bb7e-001ec4ec0334"/>
+  <concept_name voided="false" concept_name_id="4200" concept_id="4200" name="REASON EXITED CARE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+
+  <concept concept_id="4201" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec93a0cc7"/>
+  <concept_name voided="false" concept_name_id="4201" concept_id="4201" name="RECOVERED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3001" concept_id="4200" answer_concept="4201" creator="1" date_created="2012-01-01 00:00:00.0"/>
+  <concept concept_id="4202" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b1e3-001ec94a0cc7"/>
+  <concept_name voided="false" concept_name_id="4202" concept_id="4202" name="PATIENT DIED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3002" concept_id="4200" answer_concept="4202" creator="1" date_created="2012-01-01 00:00:00.0"/>
+
+  <global_property property="concept.causeOfDeath" property_value="4300" uuid="4f55827e-26fe-102b-81cb-0017b4ec71b3"/>
+  <global_property property="concept.patientDied" property_value="4202" uuid="4f55827e-26fe-102b-82cb-0017b4ec71b3"/>
+  <global_property property="concept.otherNonCoded" property_value="4302" uuid="4f55827e-26fe-102b-82cb-0027b4ec71b3"/>
+
+  <concept concept_id="4300" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296160-03aa-102d-bb7e-001ec4ec0334"/>
+  <concept_name voided="false" concept_name_id="4300" concept_id="4300" name="CAUSE OF DEATH" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+
+  <concept concept_id="4301" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32496060-03aa-102d-b0e3-001ec93a0cc7"/>
+  <concept_name voided="false" concept_name_id="4301" concept_id="4301" name="STROKE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3003" concept_id="4300" answer_concept="4301" creator="1" date_created="2012-01-01 00:00:00.0"/>
+  <concept concept_id="4302" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32496060-03aa-102d-b1e3-001ec94a0cc7"/>
+  <concept_name voided="false" concept_name_id="4302" concept_id="4302" name="OTHER NON-CODED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
+  <concept_answer concept_answer_id="3004" concept_id="4300" answer_concept="4302" creator="1" date_created="2012-01-01 00:00:00.0"/>
+
+   <!-- some location tags and additional location-->
+  <location_tag location_tag_id="1001" name="Some Tag" retired="false" creator="1" date_created="2008-08-15 15:51:57.0" uuid="321c1f44-0459-4201-bf70-0b90535ba362"/>
+  <location_tag location_tag_id="1002" name="Another Tag" retired="false" creator="1" date_created="2008-08-15 15:51:57.0" uuid="362c1fcc-0459-4201-bf70-0b90535ba362"/>
+
+  <location location_id="1001" name="Kigali" creator="1" date_created="2005-09-22 00:00:00.0" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba362"/>
+  <location location_id="1002" name="Mirebalais" creator="1" date_created="2008-08-15 13:46:50.0" retired="false" uuid="92326400c-a5a2-4532-8f2b-2361b3446eb8"/>
+  <location location_id="1003" name="Indianapolis" creator="1" date_created="2008-08-15 15:28:54.0" retired="true" retired_by="1" date_retired="2008-08-15 00:00:00.0" retire_reason="test" uuid="167ce666-4785-4285-9119-d197268f7f4a"/>
+  <location location_id="1004" name="Boston" creator="1" date_created="2008-08-15 13:46:50.0" retired="false" uuid="9356400c-a5a2-4588-8f2b-2361b3446eb8"/>
+  <location location_id="1005" name="Scituate" creator="1" date_created="2008-08-15 15:28:54.0" retired="false" uuid="167ce20c-4325-4285-9119-d197268f7f4a"/>
+  <location location_id="1006" name="Lacolline" creator="1" date_created="2008-08-15 15:28:54.0" retired="false" uuid="23e7bb0d-51f9-4d5f-b34b-2fbbfeea1960"/>
+
+  <location_tag_map location_id="1001" location_tag_id="1001" />
+  <location_tag_map location_id="1002" location_tag_id="1001" />
+  <location_tag_map location_id="1003" location_tag_id="1001" />
+  <location_tag_map location_id="1003" location_tag_id="1002" />
+  <location_tag_map location_id="1004" location_tag_id="1002" />
+  <location_tag_map location_id="1005" location_tag_id="1002" />
+
+</dataset>

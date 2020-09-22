@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
-	private static Log log = LogFactory.getLog(EncounterLocationTagTest.class);
+	private static Log log = LogFactory.getLog(EncounterLocationTag2Test.class);
 	
 	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
 	
@@ -40,7 +40,6 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test

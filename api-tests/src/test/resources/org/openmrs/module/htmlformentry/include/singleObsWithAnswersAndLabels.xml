@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	ALLERGY CODED: <obs conceptId="1000" answerConceptIds="1003,1002,1001" answerLabels="OPENMRS,CATS,PENICILLIN"/>
+	<submit/>
+</htmlform>
+
+

@@ -1,0 +1,9 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	
+	Relationship: <relationship type="1" whoAmI="A" changeExistingRelationship="false" required="true" display="dropDown" requireAttributes="Civil Status:5"/>
+	
+	<submit/>
+</htmlform>

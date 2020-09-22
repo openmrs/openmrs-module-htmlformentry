@@ -20,4 +20,14 @@ import org.openmrs.DrugOrder;
 public interface DrugOrderCompatibility {
 	
 	void setStartDate(DrugOrder drugOrder, Date startDate);
+	
+	Date getStartDate(DrugOrder drugOrder);
+	
+	void setFrequency(DrugOrder drugOrder, String frequency);
+	
+	void setDoseUnits(DrugOrder drugOrder, String units);
+	
+	void setRoute(DrugOrder drugOrder);
+	
+	void discontinue(DrugOrder drugOrder, Date discontinueDate, String reason);
 }
