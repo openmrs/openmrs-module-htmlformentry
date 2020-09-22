@@ -23,7 +23,6 @@ import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.compatibility.RegimenSuggestionCompatibility;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
@@ -208,10 +207,6 @@ public class HtmlFormExporter {
 										continue;
 									}
 								}
-								
-								RegimenSuggestionCompatibility regimen = Context.getRegisteredComponent(
-								    "htmlformentry.RegimenSuggestionCompatibility", RegimenSuggestionCompatibility.class);
-								regimen.AddDrugDependencies(id, attributeDescriptor, dependencies);
 							}
 						}
 					}
