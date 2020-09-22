@@ -3,7 +3,7 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 	Last weight: <lookup expression="fn.latestObs(2).valueNumeric"/>
-	Gender: <lookup expression="fn.logic('GENDER').toString()"/>
+	Gender: <lookup expression="patient.gender"/>
 	Last Encounter Location: <lookup expression="fn.latestEncounter().location"/>
     Last Something: <lookup expression="fn.latestEncounter().location"/>
 	<submit/>

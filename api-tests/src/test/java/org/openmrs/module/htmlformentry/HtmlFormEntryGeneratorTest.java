@@ -8,7 +8,6 @@ import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
@@ -44,8 +43,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return correct xml after apply excludeIf tag", method = "applyExcludes(FormEntrySession,String)")
 	public void applyExcludes_shouldReturnCorrectXmlAfterApplyExcludeIfTag() throws Exception {
-		LogicUtil.registerDefaultRules();
-		String htmlform = "<htmlform><excludeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</excludeIf><excludeIf logicTest=\"GENDER = M\">This shows a logic test for a man</excludeIf></htmlform>";
+		String htmlform = "<htmlform><excludeIf velocityTest=\"$patient.gender == 'F'\">This shows a logic test for a woman</excludeIf><excludeIf velocityTest=\"$patient.gender == 'M'\">This shows a logic test for a man</excludeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a woman</div>", session.getHtmlToDisplay());
 	}
@@ -53,8 +51,7 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return correct xml after apply include tag", method = "applyIncludes(FormEntrySession,String)")
 	public void applyIncludes_shouldReturnCorrectXmlAfterApplyIncludeTag() throws Exception {
-		LogicUtil.registerDefaultRules();
-		String htmlform = "<htmlform><includeIf logicTest=\"GENDER = F\">This shows a logic test for a woman</includeIf><includeIf logicTest=\"GENDER = M\">This shows a logic test for a man</includeIf></htmlform>";
+		String htmlform = "<htmlform><includeIf velocityTest=\"$patient.gender == 'F'\">This shows a logic test for a woman</includeIf><includeIf velocityTest=\"$patient.gender == 'M'\">This shows a logic test for a man</includeIf></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\">This shows a logic test for a man</div>", session.getHtmlToDisplay());
 	}
@@ -255,7 +252,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void stripComments_shouldStripOutComments() throws Exception {
-		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
@@ -270,7 +266,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return correct xml to display after filtering out comments", method = "stripComments(String)")
 	public void stripComments_shouldReturnCorrectHtmlAfterFilteringOutComments() throws Exception {
-		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><section><!--some comment that should not be displayed--></section></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		Assert.assertEquals("<div class=\"htmlform\"><div class=\"section\"></div></div>", session.getHtmlToDisplay());
@@ -282,7 +277,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void substituteCharacterCodesWithAsciiCodes_shouldSubstituteSpecialCharacters() throws Exception {
-		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><h1>Testing&nbsp;Replacement</h1></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.substituteCharacterCodesWithAsciiCodes(htmlform);
@@ -292,7 +286,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should close br tags", method = "doStartTag(FormEntrySession,PrintWriter,Node,Node)")
 	public void doStartTag_shouldCloseBrTags() throws Exception {
-		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><section><span></span><br/><h1></h1></section></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		String html = session.getHtmlToDisplay();
@@ -307,7 +300,6 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should skip br tags", method = "doEndTag(FormEntrySession,PrintWriter,Node,Node)")
 	public void doEndTag_shouldCloseBrTags() throws Exception {
-		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><section><span></span><BR/><h1></h1></section></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		String html = session.getHtmlToDisplay();

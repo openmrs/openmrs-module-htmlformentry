@@ -1,15 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.text.ParseException;
-import java.util.Date;
 
 public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -26,7 +25,6 @@ public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		executeDataSet("org/openmrs/module/htmlformentry/include/" + XML_OBS_REFERENCE_TEST_DATASET + ".xml");
 		patient = Context.getPatientService().getPatient(2);
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test

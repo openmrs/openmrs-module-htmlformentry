@@ -1,22 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.Encounter;
-import org.openmrs.EncounterType;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
-import org.openmrs.module.htmlformentry.schema.HtmlFormField;
-import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroup;
-import org.openmrs.obs.ComplexData;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.mock.web.MockHttpServletRequest;
+import static org.hamcrest.core.Is.is;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -26,7 +10,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.core.Is.is;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.ObsField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.obs.ComplexData;
+import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
@@ -1002,7 +1001,6 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testVelocityExpressions() throws Exception {
-		LogicUtil.registerDefaultRules();
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1023,7 +1021,6 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testVelocityExpressionWithNoValueShouldReturnEmptyString() throws Exception {
-		LogicUtil.registerDefaultRules();
 		new RegressionTestHelper() {
 			
 			@Override

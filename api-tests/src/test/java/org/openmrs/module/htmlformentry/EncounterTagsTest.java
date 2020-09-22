@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
@@ -19,7 +18,6 @@ public class EncounterTagsTest extends BaseModuleContextSensitiveTest {
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		patient = Context.getPatientService().getPatient(2);
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test

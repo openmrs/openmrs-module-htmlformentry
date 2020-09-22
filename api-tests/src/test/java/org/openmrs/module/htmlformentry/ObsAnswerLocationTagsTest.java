@@ -2,7 +2,6 @@ package org.openmrs.module.htmlformentry;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
@@ -14,7 +13,6 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test

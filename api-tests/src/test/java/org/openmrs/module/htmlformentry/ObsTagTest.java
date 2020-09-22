@@ -21,7 +21,6 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
@@ -54,7 +53,6 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		patient = Context.getPatientService().getPatient(2);
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test
@@ -115,7 +113,6 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSetDefaultBooleanValueToFalse() throws Exception {
-		LogicUtil.registerDefaultRules();
 		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"false\" style=\"no_yes_dropdown\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(),

@@ -28,7 +28,6 @@ import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -76,7 +75,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
 		patient = Context.getPatientService().getPatient(2);
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test(expected = IllegalArgumentException.class)

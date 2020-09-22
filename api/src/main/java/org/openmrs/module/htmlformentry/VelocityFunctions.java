@@ -25,10 +25,6 @@ import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.LogicCriteria;
-import org.openmrs.logic.LogicService;
-import org.openmrs.logic.result.EmptyResult;
-import org.openmrs.logic.result.Result;
 import org.openmrs.module.htmlformentry.compatibility.EncounterServiceCompatibility;
 import org.openmrs.util.LocaleUtility;
 
@@ -37,8 +33,6 @@ public class VelocityFunctions {
 	private FormEntrySession session;
 	
 	private ObsService obsService;
-	
-	private LogicService logicService;
 	
 	private ProgramWorkflowService programWorkflowService;
 	
@@ -54,12 +48,6 @@ public class VelocityFunctions {
 		if (obsService == null)
 			obsService = Context.getObsService();
 		return obsService;
-	}
-	
-	private LogicService getLogicService() {
-		if (logicService == null)
-			logicService = Context.getLogicService();
-		return logicService;
 	}
 	
 	private ProgramWorkflowService getProgramWorkflowService() {
@@ -215,14 +203,6 @@ public class VelocityFunctions {
 	 */
 	public Encounter latestEncounter() {
 		return latestEncounter(null);
-	}
-	
-	public Result logic(String expression) {
-		if (session.getPatient() == null)
-			return new EmptyResult();
-		cannotBePreviewed();
-		LogicCriteria lc = getLogicService().parse(expression);
-		return getLogicService().eval(session.getPatient().getPatientId(), lc);
 	}
 	
 	public ProgramWorkflow getWorkflow(Integer id) {

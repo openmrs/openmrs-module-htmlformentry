@@ -13,6 +13,9 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,11 +26,7 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -40,7 +39,6 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test

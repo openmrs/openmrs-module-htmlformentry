@@ -19,7 +19,6 @@ import java.util.regex.Pattern;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.logic.util.LogicUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 
 public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
@@ -31,7 +30,6 @@ public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
 	@Before
 	public void before() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		LogicUtil.registerDefaultRules();
 	}
 	
 	@Test

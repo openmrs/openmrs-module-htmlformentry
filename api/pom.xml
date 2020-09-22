@@ -43,10 +43,6 @@
 			(scope=provided) -->
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>logic</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
 			<artifactId>providermanagement-api</artifactId>
 		</dependency>
 
