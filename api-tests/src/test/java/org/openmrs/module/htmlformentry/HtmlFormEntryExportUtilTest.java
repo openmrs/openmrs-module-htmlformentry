@@ -110,7 +110,7 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		TestUtil.addObs(e, 5497, 1500, date);
 		TestUtil.addObs(e, 5089, 50, date); //not in form schema, should not be included after trimEncounter
 		TestUtil.addObs(e, 5090, 100, date); //not in form schema, should not be included after trimEncounter
-		TestUtil.addObs(e, 60000, "blah blah", date);
+		TestUtil.addObs(e, 80000, "blah blah", date);
 		//1004 is ANOTHER ALLERGY CONSTRUCT, 1005 is HYPER-ALLERGY CODED, 1001 is PENICILLIN
 		TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1001), new Date());
 		//7 IS ALLERGY CONSTRUCT, 1000 IS ALLERGY CODED, 1003 IS OPENMRS

@@ -14,6 +14,11 @@
 		<level value="DEBUG" />
 		<appender-ref ref="CONSOLE" />
  	</logger>
+
+	<logger name="org.openmrs">
+		<level value="INFO" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
  	
  	<!-- Hide unnecessary errors logged by Hibernate during unit testing -->
 	<logger name="org.hibernate.tool.hbm2ddl.SchemaExport">

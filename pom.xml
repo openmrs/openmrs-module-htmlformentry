@@ -13,9 +13,9 @@
 
     <!-- default property values, required for eclipse build path configuration -->
     <properties>
-        <openMRSVersion>2.0.0</openMRSVersion>
+        <openMRSVersion>2.1.0</openMRSVersion>
         <openMRSBuildVersion>${openMRSVersion}</openMRSBuildVersion>
-        <openMRSMinorVersion>2.0</openMRSMinorVersion>
+        <openMRSMinorVersion>2.1</openMRSMinorVersion>
         <legacyuiVersion>1.6.0</legacyuiVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -205,8 +205,22 @@
                 <version>${legacyuiVersion}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+                <scope>test</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

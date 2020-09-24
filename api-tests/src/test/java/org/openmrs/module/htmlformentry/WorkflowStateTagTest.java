@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,16 +60,15 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	public static final String MAPPED_STATE = "6de7ed10-53ad-11e1-8cb6-00248140a5eb";
 	
-	public static final Date DATE = HtmlFormEntryUtil.clearTimeComponent(new Date());
+	public static final Date TODAY = HtmlFormEntryUtil.clearTimeComponent(new Date());
 	
-	public static final Date PAST_DATE = HtmlFormEntryUtil.clearTimeComponent(new Date(DATE.getTime() - 31536000000L));
+	public static final Date ONE_YEAR_AGO = DateUtils.addYears(TODAY, -1);
 	
-	public static final Date FURTHER_PAST_DATE = HtmlFormEntryUtil
-	        .clearTimeComponent(new Date(PAST_DATE.getTime() - 31536000000L));
+	public static final Date TWO_YEARS_AGO = DateUtils.addYears(TODAY, -2);
 	
-	public static final Date FUTURE_DATE = HtmlFormEntryUtil.clearTimeComponent(new Date(DATE.getTime() + 31536000000L));
+	public static final Date ONE_YEAR_IN_FUTURE = DateUtils.addYears(TODAY, 1);
 	
-	private static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
+	public static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	private Patient patient;
 	
@@ -368,7 +368,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Provider:"), "502");
 				
 				//When: Html form is entered in which workflow state Y is selected
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -381,12 +381,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: Workflow state Y is created with a start date of the encounter date
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
 			}
 		}.run();
 	}
@@ -394,7 +394,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldTransitionToStateBeforeAnotherState() throws Exception {
 		//Given: Patient has a workflow state of X starting in Jan 2012
-		transitionToState(END_STATE, DATE);
+		transitionToState(END_STATE, TODAY);
 		
 		new RegressionTestHelper() {
 			
@@ -414,7 +414,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Provider:"), "502");
 				
 				//When: Html form is being back entered with an encounter date of June 2011, in which the workflow state selected is Y
-				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -427,17 +427,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: Workflow state Y is created with a start date of June 2011 and a stop date of Jan 2012. Workflow state X stays as is.
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
 				
 				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				patientState = getPatientState(patientProgram, state, DATE);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				patientState = getPatientState(patientProgram, state, TODAY);
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -457,7 +457,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldTransitionToStateAfterAnotherState() throws Exception {
 		//Given: Patient has a workflow state of X starting in June 2011
-		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -473,7 +473,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				//When: Html form is being entered with an encounter date of Jan 2012, in which workflow state Y is selected
@@ -489,16 +489,16 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: Workflow state X is stopped with a stop date of Jan 2012, Workflow state Y is created with a start date of Jan 2012 and is still current
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
 				
 				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				patientState = getPatientState(patientProgram, state, DATE);
+				patientState = getPatientState(patientProgram, state, TODAY);
 				
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 		}.run();
@@ -507,7 +507,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldNotTransitionToSameState() throws Exception {
 		//Given: Patient has a workflow state of X starting in June 2011 (still current)
-		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -525,7 +525,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state X is selected
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -538,11 +538,11 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: No change to workflow state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 			}
 		}.run();
 	}
@@ -550,7 +550,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldTransitionToStateAfterCurrent() throws Exception {
 		//Given: Patient has a workflow state of X starting in Jan 2012 (still current)
-		transitionToState(START_STATE, DATE);
+		transitionToState(START_STATE, TODAY);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -568,7 +568,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				//When: Html form is entered with an encounter date of June 2011 in which workflow state X is selected 
-				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -581,17 +581,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: A new workflow state X is created with a Start date of June 2011 and a stop date of Jan 2012
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
 				
-				patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				patientState = getPatientState(patientProgram, state, DATE);
+				patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 		}.run();
@@ -616,7 +616,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -631,7 +631,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, null);
 				PatientState patientState = getPatientState(patientProgram, state, null);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -674,7 +674,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state Y is selected 
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -690,14 +690,14 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, null);
 				PatientState patientState = getPatientState(patientProgram, state, null);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
 				
 				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
 				patientProgram = getPatientProgramByState(results.getPatient(), state, null);
 				patientState = getPatientState(patientProgram, state, null);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -725,10 +725,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void shouldTransitonToStateInBetweenStates() throws Exception {
+	public void shouldTransitionToStateInBetweenStates() throws Exception {
 		//Given: Patient has a workflow state of X from June 2011 to Jan 2012, then a workflow state of Y from Jan 2012 to current
-		transitionToState(START_STATE, PAST_DATE);
-		transitionToState(END_STATE, DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
+		transitionToState(END_STATE, TODAY);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -746,7 +746,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				//When: Html form is entered with an encounter date of Sept 2011 in which workflow state Z is selected
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -759,24 +759,24 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: Workflow X is changed to a stop date of Sept 2011, Workflow Z is created with a start date of Sept 2011 and a stop date of Jan 2012
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TWO_YEARS_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, TWO_YEARS_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getEndDate()));
 				
 				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				patientState = getPatientState(patientProgram, state, DATE);
+				patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(FUTURE_DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
 				
 				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				patientProgram = getPatientProgramByState(results.getPatient(), state, FUTURE_DATE);
-				patientState = getPatientState(patientProgram, state, FUTURE_DATE);
+				patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(FUTURE_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -789,24 +789,13 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
 			}
-			
-			@Override
-			public boolean doEditEncounter() {
-				return true;
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				Assert.assertTrue("Edit should contain current state: " + html,
-				    html.contains("selected=\"true\">MIDDLE STATE"));
-			}
 		}.run();
 	}
 	
 	@Test
 	public void shouldNotTransitionIfNotAnswered() throws Exception {
 		//Given: Patient has a workflow state of X
-		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -824,7 +813,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				//When: Question on Html form is not answered 
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), "");
 			}
 			
@@ -837,10 +826,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				//Then: No action
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -885,7 +874,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -897,10 +886,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -928,7 +917,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -937,15 +926,15 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 				
 				// assert that the other state no longer exists
 				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				patientState = getPatientState(patientProgram, state, DATE);
+				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNull(patientState);
 			}
 		}.run();
@@ -969,7 +958,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -981,10 +970,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1012,25 +1001,25 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
 				
 				// assert that the start dates of the program and state have been moved
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 				
 				// assert that the other state no longer exists
 				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				patientState = getPatientState(patientProgram, state, DATE);
+				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNull(patientState);
 			}
 			
@@ -1055,7 +1044,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -1067,10 +1056,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1098,7 +1087,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -1107,20 +1096,20 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
 				
 				// assert that the start date of the program is the same
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
 				
 				// assert that the start date of the state has moved
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 				
 				// assert that the other state no longer exists
 				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				patientState = getPatientState(patientProgram, state, DATE);
+				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNull(patientState);
 			}
 			
@@ -1130,7 +1119,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldTransitionFromNoStateToSelectedStateOnEdit() throws Exception {
 		// first enroll the patient in the program
-		enrollInProgram(START_STATE, DATE);
+		enrollInProgram(START_STATE, TODAY);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1147,7 +1136,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), ""); // set no state
 			}
 			
@@ -1167,7 +1156,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				PatientProgram patientProgram = Context.getProgramWorkflowService()
 				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
 				
 				// assert that no states have been associated
 				Assert.assertEquals(0, patientProgram.getStates().size());
@@ -1187,7 +1176,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -1198,17 +1187,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
 				
 				// first verify that the existing patient program still exists and that the enrollment date has not been changed
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
 				
 				// assert that the program has only one state
 				Assert.assertEquals(1, patientProgram.getStates().size());
 				
 				// assert that the start state of the state is correct
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1218,7 +1207,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldCreateNewProgramIfEncounterDateNotDuringProgramEnrollmentOnEdit() throws Exception {
 		// first enroll the patient in the program
-		enrollInProgram(START_STATE, DATE);
+		enrollInProgram(START_STATE, TODAY);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1235,7 +1224,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), ""); // set no state
 			}
 			
@@ -1253,7 +1242,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -1271,17 +1260,17 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
 				
 				// now verify that new state is correct
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
 				
 				// assert that the program has only one state
 				Assert.assertEquals(1, patientProgram.getStates().size());
 				
 				// assert that the start state of the state is correct
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1291,7 +1280,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldEndExistingStatesAsNeededWhenShiftingStateEarlier() throws Exception {
 		
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1309,7 +1298,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
 			
@@ -1322,10 +1311,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// do a sanity check here
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1353,7 +1342,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -1364,23 +1353,22 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
 				ProgramWorkflowState middleState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
 				
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), startState,
-				    FURTHER_PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), startState, TWO_YEARS_AGO);
 				Assert.assertNotNull(patientProgram);
 				
 				// assert that the patient program only has two states
 				Assert.assertEquals(2, patientProgram.getStates().size());
 				
 				// verify that the start state now ends on PAST_DATE
-				PatientState patientState = getPatientState(patientProgram, startState, FURTHER_PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, startState, TWO_YEARS_AGO);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(FURTHER_PAST_DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getEndDate()));
 				
 				// verify that the middle state starts on PAST_DATE and has no current end date
-				patientState = getPatientState(patientProgram, middleState, PAST_DATE);
+				patientState = getPatientState(patientProgram, middleState, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1390,8 +1378,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldRemoveExistingStatesAsNeededWhenShiftingStateEarlier() throws Exception {
 		
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
-		transitionToState(MIDDLE_STATE, PAST_DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
+		transitionToState(MIDDLE_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1409,7 +1397,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
 			
@@ -1432,7 +1420,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), END_STATE);
 			}
 			
@@ -1456,19 +1444,19 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(2, patientProgram.statesInWorkflow(workflow, false).size());
 				
 				// verify that the start state
-				PatientState patientState = getPatientState(patientProgram, startState, FURTHER_PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, startState, TWO_YEARS_AGO);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(FURTHER_PAST_DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getEndDate()));
 				
 				// verify that the end state starts on PAST_DATE and has no current end date
-				patientState = getPatientState(patientProgram, endState, PAST_DATE);
+				patientState = getPatientState(patientProgram, endState, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 				
 				// verify that the middle state no longer exists
-				patientState = getPatientState(patientProgram, middleState, PAST_DATE);
+				patientState = getPatientState(patientProgram, middleState, ONE_YEAR_AGO);
 				Assert.assertNull(patientState);
 			}
 			
@@ -1478,7 +1466,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldShiftExistingStateEndDateFowardAsNeededWhenShiftingStateLater() throws Exception {
 		
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1496,7 +1484,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(PAST_DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
 			
@@ -1519,7 +1507,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), END_STATE);
 			}
 			
@@ -1542,15 +1530,15 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(2, patientProgram.statesInWorkflow(workflow, false).size());
 				
 				// verify that the start state
-				PatientState patientState = getPatientState(patientProgram, startState, FURTHER_PAST_DATE);
+				PatientState patientState = getPatientState(patientProgram, startState, TWO_YEARS_AGO);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(FURTHER_PAST_DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getEndDate()));
+				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
 				
 				// verify that the end state starts on DATE and has no current end date
-				patientState = getPatientState(patientProgram, endState, DATE);
+				patientState = getPatientState(patientProgram, endState, TODAY);
 				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1560,8 +1548,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test(expected = FormEntryException.class)
 	public void shouldFailIfAttemptingToShiftStateStartDatePastEndDate() throws Exception {
 		
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
-		transitionToState(END_STATE, PAST_DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
+		transitionToState(END_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1579,7 +1567,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(FURTHER_PAST_DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TWO_YEARS_AGO));
 				request.addParameter(widgets.get("State:"), "");
 			}
 			
@@ -1602,7 +1590,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 		}.run();
@@ -1611,8 +1599,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void checkboxShouldAppearCheckedIfCurrentlyInSpecifiedState() throws Exception {
 		
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
-		transitionToState(MIDDLE_STATE, PAST_DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
+		transitionToState(MIDDLE_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1634,7 +1622,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void checkboxShouldNotAppearCheckedIfNotCurrentlyInSpecifiedState() throws Exception {
 		
-		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1655,7 +1643,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void checkboxShouldSetPatientInState() throws Exception {
 		
-		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1673,7 +1661,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -1686,10 +1674,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// patient should now be in the middle state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1711,8 +1699,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	// this test case can be modified when we add this functionality
 	public void checkboxShouldNotRemovePatientInState() throws Exception {
 		
-		transitionToState(START_STATE, FURTHER_PAST_DATE);
-		transitionToState(MIDDLE_STATE, PAST_DATE);
+		transitionToState(START_STATE, TWO_YEARS_AGO);
+		transitionToState(MIDDLE_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1730,7 +1718,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), "");
 			}
 			
@@ -1743,10 +1731,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// patient still be in the middle state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, PAST_DATE);
-				PatientState patientState = getPatientState(patientProgram, state, PAST_DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
+				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1766,7 +1754,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void hiddenTagShouldSetPatientInState() throws Exception {
 		
-		transitionToState(START_STATE, PAST_DATE);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
 			
@@ -1785,7 +1773,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				// hidden tag, so nothing gets submitted
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 			}
 			
 			@Override
@@ -1804,7 +1792,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				// hidden tag, so nothing gets submitted
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 			}
 			
 			@Override
@@ -1816,10 +1804,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// patient should now be in the middle state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
 				Assert.assertNull(patientState.getEndDate());
 			}
 			
@@ -1847,7 +1835,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Provider:"), "502");
 				
 				//When: Html form is entered in which workflow state Y is selected
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 				request.addParameter(widgets.get("AnotherState:"), "67337cdc-53ad-11e1-8cb6-00248140a5eb"); // workflow state 207 in regressionTestData
 			}
@@ -1863,14 +1851,14 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
 				ProgramWorkflowState anotherState = Context.getProgramWorkflowService()
 				        .getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb");
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
-				PatientState anotherPatientState = getPatientState(patientProgram, anotherState, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
+				PatientState anotherPatientState = getPatientState(patientProgram, anotherState, TODAY);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(DATE), dateAsString(anotherPatientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(anotherPatientState.getStartDate()));
 				
 			}
 		}.run();
@@ -1883,7 +1871,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		PatientProgram patientProgram = new PatientProgram();
 		patientProgram.setPatient(patient);
 		patientProgram.setProgram(Context.getProgramWorkflowService().getProgram(10));
-		patientProgram.setDateEnrolled(PAST_DATE);
+		patientProgram.setDateEnrolled(ONE_YEAR_AGO);
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 		
 		new RegressionTestHelper() {
@@ -1904,7 +1892,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Provider:"), "502");
 				
 				//When: Html form is entered in which workflow state Y is selected
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -1917,12 +1905,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// double check that state has been set
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
 			}
 		}.run();
 	}
@@ -1934,7 +1922,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		PatientProgram patientProgram = new PatientProgram();
 		patientProgram.setPatient(patient);
 		patientProgram.setProgram(Context.getProgramWorkflowService().getProgram(10));
-		patientProgram.setDateEnrolled(PAST_DATE);
+		patientProgram.setDateEnrolled(ONE_YEAR_AGO);
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 		
 		new RegressionTestHelper() {
@@ -1955,7 +1943,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Provider:"), "502");
 				
 				// on first submit, don't submit any state
-				request.addParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), "");
 			}
 			
@@ -1969,7 +1957,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// sanity check: program should not yet be in the start state
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
 				Assert.assertNull(patientProgram);
 			}
 			
@@ -1987,7 +1975,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Date:"), dateAsString(DATE));
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
 			
@@ -2000,12 +1988,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				
 				// double check that state has been set
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, DATE);
-				PatientState patientState = getPatientState(patientProgram, state, DATE);
+				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
+				PatientState patientState = getPatientState(patientProgram, state, TODAY);
 				
 				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(DATE), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(PAST_DATE), dateAsString(patientProgram.getDateEnrolled()));
+				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
+				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
 			}
 		}.run();
 	}

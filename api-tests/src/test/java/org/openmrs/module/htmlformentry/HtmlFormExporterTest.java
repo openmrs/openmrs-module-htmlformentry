@@ -27,7 +27,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElement.xml";
 	
 	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc",
-	        "1.1.0-alpha1");
+	        "1.3.4");
 	
 	@Before
 	public void setupDatabase() throws Exception {

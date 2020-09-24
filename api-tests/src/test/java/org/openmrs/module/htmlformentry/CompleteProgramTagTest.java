@@ -29,7 +29,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc",
-	        "1.1.0-alpha1");
+	        "1.3.4");
 	
 	@Before
 	public void loadConcepts() throws Exception {
@@ -42,19 +42,16 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 		metadataSource.setName("source");
 		metadataSource.setDateCreated(new Date());
 		metadataSource.setRetired(false);
-		metadataSource.setId(1);
 		metadataSource = Context.getService(MetadataMappingService.class).saveMetadataSource(metadataSource);
 		
 		MetadataTermMapping metadataTermMapping1 = new MetadataTermMapping(metadataSource, "CODE",
 		        Context.getProgramWorkflowService().getProgram(1));
 		metadataTermMapping1.setName("mapping1");
-		metadataTermMapping1.setMetadataTermMappingId(1);
 		Context.getService(MetadataMappingService.class).saveMetadataTermMapping(metadataTermMapping1);
 		
 		MetadataTermMapping metadataTermMapping2 = new MetadataTermMapping(metadataSource, "CODE2",
 		        Context.getUserService().getRole("Provider"));
 		metadataTermMapping2.setName("mapping2");
-		metadataTermMapping2.setMetadataTermMappingId(2);
 		Context.getService(MetadataMappingService.class).saveMetadataTermMapping(metadataTermMapping2);
 	}
 	
@@ -259,7 +256,7 @@ public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
 			public void testBlankFormHtml(String html) {
 				super.testBlankFormHtml(html);
 				Assert.assertTrue("Should check the html form", html.contains(
-				    "<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option><option value=\"502\">Hippocrates of Cos</option>"));
+				    "<option value=\"\" selected=\"true\">Choose a Provider</option><option value=\"502\">Hippocrates of Cos</option>"));
 			}
 			
 			@SuppressWarnings("deprecation")

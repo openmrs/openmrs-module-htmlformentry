@@ -1154,8 +1154,11 @@ public class FormEntrySession {
 	
 	public void setHtmlForm(HtmlForm htmlForm) {
 		this.htmlForm = htmlForm;
-		if (form != null)
+		if (form != null) {
 			this.htmlForm.setForm(form);
+		} else {
+			this.form = htmlForm.getForm();
+		}
 	}
 	
 	public String getPatientPersonName() {

@@ -1464,7 +1464,7 @@ public class HtmlFormEntryUtil {
 		Obs newObs = (Obs) returnCopy(obsToCopy);
 		
 		if (obsToCopy.isObsGrouping()) {
-			newObs.setGroupMembers(null);
+			newObs.setGroupMembers(new HashSet<Obs>());
 			for (Obs oinner : obsToCopy.getGroupMembers()) {
 				Obs oinnerNew = returnObsCopy(oinner, replacements);
 				newObs.addGroupMember(oinnerNew);

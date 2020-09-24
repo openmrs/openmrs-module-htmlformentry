@@ -280,11 +280,11 @@
 
     <encounter_provider encounter_provider_id="1" provider_id="1" encounter_id="101"/>
 
-    <obs obs_id="11111" person_id="2" concept_id="5089" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_numeric="50.0" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" value_coded="[NULL]" value_coded_name_id="[NULL]" value_complex="[NULL]" value_text="[NULL]" value_datetime="[NULL]" value_drug="[NULL]" uuid="39fb7f47-e80a-4056-1185-bd798be13c63"/>
-    <obs obs_id="11112" person_id="2" concept_id="80000" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_text="Penicillin" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" uuid="39fb7f47-e1ba-4056-1185-bd798be13c63"/>
-    <obs obs_id="1" person_id="2" concept_id="5089" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
-    <obs obs_id="2" person_id="2" concept_id="5090" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
-    <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
-    <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
+    <obs obs_id="11111" person_id="2" concept_id="5089" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_numeric="50.0" status="FINAL" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" value_coded="[NULL]" value_coded_name_id="[NULL]" value_complex="[NULL]" value_text="[NULL]" value_datetime="[NULL]" value_drug="[NULL]" uuid="39fb7f47-e80a-4056-1185-bd798be13c63"/>
+    <obs obs_id="11112" person_id="2" concept_id="80000" encounter_id="101" obs_datetime="2008-08-01 00:00:00.0" location_id="1" value_text="Penicillin" status="FINAL" comments="" creator="1" date_created="2008-08-18 14:09:35.0" voided="false" uuid="39fb7f47-e1ba-4056-1185-bd798be13c63"/>
+    <obs obs_id="1" person_id="2" concept_id="5089" obs_datetime="2005-01-01 00:00:00.0" value_numeric="70.0" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="93bf1d82-e1fe-11df-9195-001e378eb67e" />
+    <obs obs_id="2" person_id="2" concept_id="5090" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
+    <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" status="FINAL" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
+    <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" status="FINAL" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
 
 </dataset>

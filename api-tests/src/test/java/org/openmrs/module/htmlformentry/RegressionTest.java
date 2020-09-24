@@ -500,8 +500,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				results.assertObsGroupCreatedCount(2);
 				results.assertObsLeafCreatedCount(3);
-				results.assertObsGroupCreated(7, 80000, "Bee stings", 1119, date);
-				results.assertObsGroupCreated(7, 80000, "Penicillin");
+				results.assertObsGroupCreated(70000, 80000, "Bee stings", 1119, date);
+				results.assertObsGroupCreated(70000, 80000, "Penicillin");
 			}
 		}.run();
 	}
