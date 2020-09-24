@@ -65,7 +65,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Exit From Care:"), "4201");
+				request.setParameter(widgets.get("Exit From Care:"), "4201"); // Recovered
 				// the exit date is set by using widget id, since there is no label
 				request.setParameter("w7", dateAsString(date));
 				request.setParameter("w11", "");

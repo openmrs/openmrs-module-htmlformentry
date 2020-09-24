@@ -724,9 +724,10 @@ public class FormEntrySession {
 				Context.getPatientService().processDeath(this.getPatient(), exitFromCareProperty.getDateOfExit(),
 				    exitFromCareProperty.getCauseOfDeathConcept(), exitFromCareProperty.getOtherReason());
 			} else {
-				// This was moved to the exit from care module?  TODO: Check on this.
+				HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
+				hfes.exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(),
+				    exitFromCareProperty.getReasonExitConcept());
 			}
-			
 		}
 		
 		// handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
