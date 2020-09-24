@@ -13,11 +13,12 @@ import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.htmlformentry.BaseHtmlFormEntry23Test;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ConditionTagTest extends BaseModuleContextSensitiveTest {
+public class ConditionTagTest extends BaseHtmlFormEntry23Test {
 	
 	// field names
 	private String searchWidgetIdForCurrentCondition = "w7";
@@ -36,9 +37,10 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.30.xml");
+		executeDataSetFor23("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.1.xml");
+		executeDataSetFor23("org/openmrs/module/htmlformentry/include/conditions-data.xml");
 	}
-	
+
 	@Test
 	public void shouldRecordAndEditCondition() throws Exception {
 		new RegressionTestHelper() {
