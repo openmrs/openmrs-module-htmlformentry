@@ -3,7 +3,7 @@ package org.openmrs.module.htmlformentry;
 import java.util.Collection;
 import java.util.Date;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.GlobalProperty;
@@ -15,7 +15,6 @@ import org.openmrs.module.metadatamapping.MetadataTermMapping;
 import org.openmrs.module.metadatamapping.api.MetadataMappingService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
-import org.openmrs.util.OpenmrsConstants;
 
 public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	
@@ -25,9 +24,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
-	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElementDataSet";
-	
-	protected static final String XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET = "RegimenUtilsTest.xml";
+	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElement.xml";
 	
 	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc",
 	        "1.1.0-alpha1");
@@ -35,12 +32,7 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	@Before
 	public void setupDatabase() throws Exception {
 		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_DRUG_ORDER_ELEMENT_DATASET));
-		
-		String xml = (new TestUtil()).loadXmlFromFile(XML_DATASET_PATH + XML_HTML_FORM_ENTRY_REGIMEN_UTIL_TEST_DATASET);
-		GlobalProperty gp = new GlobalProperty(OpenmrsConstants.GLOBAL_PROPERTY_STANDARD_DRUG_REGIMENS);
-		gp.setPropertyValue(xml);
-		Context.getAdministrationService().saveGlobalProperty(gp);
+		executeDataSet(XML_DATASET_PATH + XML_DRUG_ORDER_ELEMENT_DATASET);
 	}
 	
 	private void setupMappings() {
@@ -48,7 +40,6 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		metadataSource.setName("source");
 		metadataSource.setDateCreated(new Date());
 		metadataSource.setRetired(false);
-		metadataSource.setId(1);
 		metadataSource = Context.getService(MetadataMappingService.class).saveMetadataSource(metadataSource);
 		
 		MetadataTermMapping metadataTermMapping1 = new MetadataTermMapping(metadataSource, "DataClerk",
@@ -97,6 +88,8 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		Collection<OpenmrsObject> dependencies = formClone.getDependencies();
 		
 		// make sure all the appropriate concepts have been added to the dependencies
+		Assert.assertTrue(
+		    dependencies.contains(Context.getConceptService().getConceptByUuid("32296060-03aa-102d-b0e3-001ec94a0cc7")));
 		Assert.assertTrue(
 		    dependencies.contains(Context.getConceptService().getConceptByUuid("32296060-03aa-102d-b0e3-001ec94a0cc1")));
 		Assert.assertTrue(
@@ -177,8 +170,9 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 		Assert.assertTrue(
 		    dependencies.contains(Context.getUserService().getRoleByUuid("a238c500-58b1-11e0-80e3-0800200c9a66")));
 		
-		// TODO test exporting location tags once we upgrade to only supporting OpenMRS 1.7 and above (since in 1.6, locations tags don't have names)
-		
+		// make sure the location tags have been added to the list of dependencies
+		Assert.assertTrue(dependencies
+		        .contains(Context.getLocationService().getLocationTagByUuid("321c1f44-0459-4201-bf70-0b90535ba362")));
 	}
 	
 	@Test

@@ -208,7 +208,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w12", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			
@@ -249,7 +249,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w14", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			
@@ -313,7 +313,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w8", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			
@@ -377,7 +377,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w10", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			

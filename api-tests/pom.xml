@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.10</artifactId>
+			<artifactId>htmlformentry-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -29,16 +29,6 @@
 					<groupId>javassist</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.9</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-2.0</artifactId>
-			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
@@ -66,7 +56,6 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>metadatamapping-api</artifactId>
-			<version>1.1.0-alpha1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
@@ -184,28 +173,5 @@
 		<MODULE_VERSION>${project.parent.version}</MODULE_VERSION>
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
 	</properties>
-
-	<profiles>
-		<profile>
-			<id>openmrs-1.10</id>
-			<build>
-				<plugins>
-					<plugin>
-					  <groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<testExcludes>
-								<!-- Run only against OpenMRS versions before 1.10 -->
-								<testExclude>**/HtmlFormEntryRegimenUtilTest.java</testExclude>
-								<testExclude>**/HtmlFormEntryUtilTest.java</testExclude>
-								<testExclude>**/DrugOrderTagTest.java</testExclude>
-							</testExcludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-	</profiles>
 
 </project>

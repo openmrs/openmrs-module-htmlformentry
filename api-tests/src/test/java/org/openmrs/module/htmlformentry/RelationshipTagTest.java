@@ -211,8 +211,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 70d);
-				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(5089, 70d);
+				results.assertObsCreated(80000, "Bee stings");
 				results.assertObsCreated(1119, date);
 				
 				// now make sure the relationship has been created
@@ -627,8 +627,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// John Doe (from standard test data) is enrolled in program 1
-				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// Horatio Test Hornblower (from standard test data) is enrolled in program 1
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 			}
 		}.run();
 	}
@@ -648,8 +648,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// John Doe (patient 2) is the current patient in this case, and so should be excluded
-				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// Horatio Test Hornblower (patient 2) is the current patient in this case, and so should be excluded
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 			}
 		}.run();
 	}
@@ -674,8 +674,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// John Doe (from standard test data) is enrolled in program 1, but not in program 3, so he SHOULDN'T appear
-				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// Horatio Test Hornblower (from standard test data) is enrolled in program 1, but not in program 3, so he SHOULDN'T appear
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 			}
 		}.run();
 	}
@@ -797,8 +797,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// should contain John Doe (patient 2)
-				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// should contain Horatio Test Hornblower (patient 2)
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 				
 				// patients with attribute, but not with program, should be excluded
 				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);

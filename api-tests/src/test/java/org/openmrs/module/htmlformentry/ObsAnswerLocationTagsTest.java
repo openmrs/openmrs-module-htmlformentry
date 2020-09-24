@@ -17,7 +17,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTags_shouldRestrictToTaggedLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\"Some Tag,1002\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\"Some Tag,1002\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -39,7 +39,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTags_shouldDisplayAllLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -48,7 +48,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTags0_shouldDisplayAllLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\"\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\"\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -57,7 +57,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTagsEmpty_shouldDisplayAllLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\",,\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\",,\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();

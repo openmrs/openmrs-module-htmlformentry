@@ -73,16 +73,17 @@ public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
 		Context.getUserService().saveRole(role);
 		User user = Context.getUserService().getUser(userId);
 		user.addRole(role);
-		user.getPersonName().setFamilyName(null);
-		user.getPersonName().setGivenName(null);
+		user.getPersonName().setFamilyName("UserFamily");
+		user.getPersonName().setGivenName("UserGiven");
 		user.getPersonName().setMiddleName("middleName");
-		Context.getUserService().saveUser(user, null);
+		Context.getUserService().saveUser(user);
 		Assert.assertEquals(1, service.getUsersAsPersonStubs("Clinician").size());
 		
 		//lets look at the PersonStub for the Clinician:
 		PersonStub ps = service.getUsersAsPersonStubs("Clinician").get(0);
-		Assert.assertNull(ps.getGivenName());
-		Assert.assertNull(ps.getFamilyName());
+		Assert.assertEquals("UserGiven", ps.getGivenName());
+		Assert.assertEquals("UserFamily", ps.getFamilyName());
+		Assert.assertEquals("middleName", ps.getMiddleName());
 		Assert.assertNotNull(ps.getId());
 		
 	}

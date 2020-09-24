@@ -16,9 +16,9 @@ package org.openmrs.module.htmlformentry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
@@ -45,42 +45,40 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
+		Assert.assertTrue(
+		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">Choose a Location...</option>"));
+		Assert.assertFalse(session.getHtmlToDisplay().contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldDisplayEnterOptionIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") == -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") > -1);
+		Assert.assertFalse(
+		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">Choose a Location...</option>"));
+		Assert.assertTrue(session.getHtmlToDisplay().contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
+		Assert.assertTrue(
+		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">Choose a Location...</option>"));
+		Assert.assertFalse(session.getHtmlToDisplay().contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(
-		    session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Unknown Location\"") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay().contains("<input type=\"text\" id=\"w1\" value=\"Unknown Location\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>")
 		        .matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
@@ -99,10 +97,7 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>")
 		        .matcher(session.getHtmlToDisplay());
 		Assert.assertTrue(matcher.find());
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"2\" selected=\"true\">Xanadu</option>") > -1);
-		
-		//String selectedId = matcher.group(1);
-		//Assert.assertEquals("2", selectedId);
+		Assert.assertTrue(session.getHtmlToDisplay().contains("<option value=\"2\" selected=\"true\">Xanadu</option>"));
 	}
 	
 	@Test

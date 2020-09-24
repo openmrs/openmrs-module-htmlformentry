@@ -16,7 +16,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
-import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
@@ -250,11 +249,11 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					Program personProgram = HtmlFormEntryUtil.getProgram(prog);
 					
 					if (personProgram != null) {
-						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
+						Set<Integer> matchingEnrollments = dao.getPatientIdHavingEnrollments(personProgram);
 						if (programMatches != null) {
-							programMatches.retainAll(pp.getMemberIds());
+							programMatches.retainAll(matchingEnrollments);
 						} else {
-							programMatches = pp.getMemberIds();
+							programMatches = matchingEnrollments;
 						}
 					}
 				}
@@ -358,5 +357,12 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	@Override
 	public void clearConceptMappingCache() {
 		conceptMappingCache = new HashMap<String, Integer>();
+	}
+	
+	/**
+	 * @see HtmlFormEntryService#getPatientIdHavingEnrollments(Program)
+	 */
+	public Set<Integer> getPatientIdHavingEnrollments(Program program) {
+		return dao.getPatientIdHavingEnrollments(program);
 	}
 }

@@ -1,5 +1,11 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,14 +17,7 @@ import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
@@ -178,7 +177,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("Simon", results.getPatient().getGivenName());
 				Assert.assertEquals("paul", results.getPatient().getFamilyName());
 				Assert.assertEquals("M", results.getPatient().getGender());
-				results.assertEncounterEdited();
 			}
 			
 		}.run();
@@ -237,10 +235,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	/**
-	 * TODO Testcase Fails with error org.hibernate.PropertyValueException: not-null property references
-	 * a null or transient value: org.openmrs.PersonName.dateCreated
-	 */
 	public void testEditPatientNameAndMultipleObs() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
@@ -283,7 +277,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("Den", results.getPatient().getFamilyName());
 				Assert.assertEquals("M", results.getPatient().getGender());
 				
-				results.assertObsCreated(2, 100d);
+				results.assertObsCreated(5089, 100d);
 				
 			}
 			
@@ -328,8 +322,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertPatient();
-				results.assertEncounterEdited();
-				results.assertObsCreated(2, 100d);
+				results.assertObsCreated(5089, 100d);
 			};
 			
 		}.run();
@@ -381,7 +374,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals("Den", results.getPatient().getFamilyName());
 				Assert.assertEquals("M", results.getPatient().getGender());
 				
-				results.assertObsCreated(2, 100d);
+				results.assertObsCreated(5089, 100d);
 				
 				Assert.assertEquals(datePartOnly, results.getEncounterCreated().getEncounterDatetime());
 				results.assertProvider(502);
@@ -518,7 +511,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				TestUtil.addObs(e, 19, "7 - Collet Test Chebaskwony", null);
 				return e;
 			}
@@ -593,8 +587,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, new Double(75));
-				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(5089, new Double(75));
+				results.assertObsCreated(80000, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
 		}.run();
@@ -730,8 +724,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, new Double(75));
-				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(5089, new Double(75));
+				results.assertObsCreated(80000, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
 			
@@ -820,8 +814,8 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, new Double(75));
-				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(5089, new Double(75));
+				results.assertObsCreated(80000, "Bee stings");
 				results.assertObsCreated(1119, datePartOnly);
 			}
 		}.run();
@@ -829,13 +823,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testCreatePatientWithAddress() throws Exception {
-		
-		// only run this test on OpenMRS 1.9 and above (since we have not configured it to work with old Address model)
-		int majorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[0]);
-		int minorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[1]);
-		if (majorVersion == 1 && minorVersion < 9) {
-			return;
-		}
 		
 		setupAddressTemplate();
 		
@@ -897,13 +884,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testEditPatientWithAddress() throws Exception {
-		
-		// only run this test on OpenMRS 1.9 and above (since we have not configured it to work with old Address model)
-		int majorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[0]);
-		int minorVersion = Integer.parseInt(OpenmrsConstants.OPENMRS_VERSION_SHORT.split("\\.")[1]);
-		if (majorVersion == 1 && minorVersion < 9) {
-			return;
-		}
 		
 		final Date date = new Date();
 		
@@ -1042,7 +1022,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				//the birthdate should have been computed basing on the entered age
 				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)),
 				    ymdToDate(dateAsString(results.getPatient().getBirthdate())));
-				results.assertEncounterEdited();
 			}
 		}.run();
 	}
@@ -1098,7 +1077,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered birthdate
 				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
-				results.assertEncounterEdited();
 			}
 		}.run();
 	}
@@ -1153,7 +1131,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertTrue(((new Date()).getTime() - oneYear * 5) > results.getPatient().getBirthdate().getTime()); //birthdate is before 5 years ago
 				Assert.assertTrue(((new Date()).getTime() - oneYear * 5) < (results.getPatient().getBirthdate().getTime()
 				        + (4 * oneMonth))); //birthdate + 4 months is greater than 5years ago
-				results.assertEncounterEdited();
 			}
 		}.run();
 	}
@@ -1213,7 +1190,6 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 				results.assertPatient();
 				//the birthdate should have been computed basing on the entered birthdate
 				Assert.assertEquals(ymdToDate(dateAsString(expectedBirthDate)), results.getPatient().getBirthdate());
-				results.assertEncounterEdited();
 			}
 		}.run();
 	}
@@ -1221,7 +1197,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 	private void setupAddressTemplate() {
 		
 		GlobalProperty property = new GlobalProperty("layout.address.format",
-		        "<org.openmrs.layout.web.address.AddressTemplate>" + "<nameMappings class=\"properties\">"
+		        "<org.openmrs.layout.address.AddressTemplate>" + "<nameMappings class=\"properties\">"
 		                + "<property name=\"postalCode\" value=\"Location.postalCode\"/>"
 		                + "<property name=\"address1\" value=\"Location.address1\"/>"
 		                + "<property name=\"stateProvince\" value=\"Location.stateProvince\"/>"
@@ -1230,7 +1206,7 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		                + "<property name=\"address1\" value=\"40\"/>" + "<property name=\"stateProvince\" value=\"10\"/>"
 		                + "<property name=\"cityVillage\" value=\"10\"/>" + "</sizeMappings>" + "<lineByLineFormat>"
 		                + "<string>address1</string>" + "<string>cityVillage stateProvince postalCode</string>"
-		                + "</lineByLineFormat>" + "</org.openmrs.layout.web.address.AddressTemplate>");
+		                + "</lineByLineFormat>" + "</org.openmrs.layout.address.AddressTemplate>");
 		
 		Context.getAdministrationService().saveGlobalProperty(property);
 		

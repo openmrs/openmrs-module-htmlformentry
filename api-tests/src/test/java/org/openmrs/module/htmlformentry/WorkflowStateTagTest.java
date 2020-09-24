@@ -27,6 +27,7 @@ import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
+import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -727,7 +728,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldTransitonToStateInBetweenStates() throws Exception {
 		//Given: Patient has a workflow state of X from June 2011 to Jan 2012, then a workflow state of Y from Jan 2012 to current
 		transitionToState(START_STATE, PAST_DATE);
-		transitionToState(END_STATE, FUTURE_DATE);
+		transitionToState(END_STATE, DATE);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1159,7 +1160,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				
 				// make sure the enrollment date has NOT been changed (since no state was set)
-				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				ProgramWorkflowService pws = Context.getProgramWorkflowService();
+				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
 				Assert.assertEquals(1, Context.getProgramWorkflowService()
 				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
 				PatientProgram patientProgram = Context.getProgramWorkflowService()
@@ -1263,7 +1265,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
 				
 				// we should now have two program enrollments, one on PAST_DATE and one on DATE
-				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				ProgramWorkflowService pws = Context.getProgramWorkflowService();
+				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
 				Assert.assertEquals(2, Context.getProgramWorkflowService()
 				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
 				
@@ -1438,7 +1441,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				ProgramWorkflowService pws = Context.getProgramWorkflowService();
+				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
 				
 				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
 				ProgramWorkflowState middleState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
@@ -1524,7 +1528,8 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflow workflow = Context.getProgramWorkflowService().getWorkflow(100);
+				ProgramWorkflowService pws = Context.getProgramWorkflowService();
+				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
 				
 				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
 				ProgramWorkflowState endState = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
@@ -2060,11 +2065,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
 	
-	/**
-	 * @param results
-	 * @param state
-	 * @return
-	 */
 	private PatientProgram getPatientProgramByWorkflow(Patient patient, ProgramWorkflow workflow, Date activeDate) {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    workflow.getProgram(), null, null, null, null, false);
@@ -2084,11 +2084,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		return null;
 	}
 	
-	/**
-	 * @param results
-	 * @param state
-	 * @return
-	 */
 	private PatientProgram getPatientProgramByState(Patient patient, ProgramWorkflowState state, Date activeDate) {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);

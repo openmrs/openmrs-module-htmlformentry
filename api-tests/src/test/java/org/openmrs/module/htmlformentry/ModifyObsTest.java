@@ -76,11 +76,11 @@ public class ModifyObsTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertObsCreatedCount(1);
 				//this is the behavior of valueNumeric, arguably 0.0 should equal 0
-				results.assertObsVoided(2, "0.0");
+				results.assertObsVoided(5089, "0.0");
 				//arguably 4.0 should equal 4
-				results.assertObsCreated(2, "4.0");
+				results.assertObsCreated(5089, "4.0");
 				
-				results.assertPreviousVersion(2);
+				results.assertPreviousVersion(5089);
 			}
 			
 		}.run();

@@ -166,7 +166,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 				results.assertErrors(1);
 				
 				FormSubmissionError error = results.getValidationErrors().get(0);
-				assertThat(error.getError(), is("htmlformentry.error.cannotBeInFuture"));
+				assertThat(error.getError(), is("Cannot be in the future"));
 				
 			}
 		}.run();

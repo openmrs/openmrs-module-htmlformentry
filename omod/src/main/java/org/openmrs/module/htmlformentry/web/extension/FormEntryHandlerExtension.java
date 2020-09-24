@@ -1,4 +1,4 @@
-package org.openmrs.module.htmlformentry.extension.html;
+package org.openmrs.module.htmlformentry.web.extension;
 
 import java.util.ArrayList;
 import java.util.Collection;

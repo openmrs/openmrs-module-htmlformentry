@@ -13,8 +13,8 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import junit.framework.Assert;
 import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.api.context.Context;
@@ -35,8 +35,8 @@ public class EncounterTypeTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterTypeTag_shouldIncludeOnlyTheSpecifiedEncounterTypesOptions() throws Exception {
 		String htmlform = "<htmlform><encounterType types=\"1\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(
-		    session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseEncounterType</option>") > -1);
+		String html = session.getHtmlToDisplay();
+		Assert.assertTrue(html.contains("<option value=\"\">Choose...</option>"));
 		Assert.assertEquals(2, StringUtils.countMatches(session.getHtmlToDisplay(), "<option value=\""));
 	}
 	
@@ -44,19 +44,18 @@ public class EncounterTypeTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterTypeTag_shouldIncludeAllEncounterTypesIfNoneAreSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterType/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(
-		    session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseEncounterType</option>") > -1);
-		Assert.assertEquals(1 + Context.getEncounterService().getAllEncounterTypes().size(),
-		    StringUtils.countMatches(session.getHtmlToDisplay(), "<option value=\""));
+		String html = session.getHtmlToDisplay();
+		Assert.assertTrue(html.contains("<option value=\"\">Choose...</option>"));
+		int numExpected = Context.getEncounterService().getAllEncounterTypes().size() + 1;
+		Assert.assertEquals(numExpected, StringUtils.countMatches(session.getHtmlToDisplay(), "<option value=\""));
 	}
 	
 	@Test
 	public void encounterTypeTag_shouldAutoSelectTheDefaultEncounterTypeIfAny() throws Exception {
 		String htmlform = "<htmlform><encounterType default=\"07000be2-26b6-4cce-8b40-866d8435b613\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(
-		    session.getHtmlToDisplay().indexOf("<option value=\"\">htmlformentry.chooseEncounterType</option>") > -1);
-		Assert.assertTrue(
-		    session.getHtmlToDisplay().indexOf("<option selected=\"true\" value=\"2\">Emergency</option>") > -1);
+		String html = session.getHtmlToDisplay();
+		Assert.assertTrue(html.contains("<option value=\"\">Choose...</option>"));
+		Assert.assertTrue(session.getHtmlToDisplay().contains("<option selected=\"true\" value=\"2\">Emergency</option>"));
 	}
 }

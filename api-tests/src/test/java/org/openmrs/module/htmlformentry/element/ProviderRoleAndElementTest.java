@@ -17,7 +17,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-//@Ignore
 public class ProviderRoleAndElementTest extends BaseModuleContextSensitiveTest {
 	
 	// TODO: figure out why these tests are failing on bamboo and re-enable!

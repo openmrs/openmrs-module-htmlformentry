@@ -16,7 +16,7 @@
 	<updateURL>https://modules.openmrs.org/modules/download/@MODULE_ID@/update.rdf</updateURL>
 	<!-- /Base Module Properties -->
 
-	<require_version>1.11.3, 1.10.2 - 1.10.*, 1.9.9 - 1.9.*</require_version>
+	<require_version>${openMRSVersion}</require_version>
 
 	<aware_of_modules>
 	    <aware_of_module>org.openmrs.module.legacyui</aware_of_module>
@@ -27,11 +27,11 @@
 	<!-- Extensions -->
 	<extension>
 		<point>org.openmrs.admin.list</point>
-		<class>org.openmrs.module.htmlformentry.extension.html.AdminList</class>
+		<class>org.openmrs.module.htmlformentry.web.extension.AdminList</class>
 	</extension>
 	<extension>
 		<point>org.openmrs.module.web.extension.FormEntryHandler</point>
-		<class>org.openmrs.module.htmlformentry.extension.html.FormEntryHandlerExtension</class>
+		<class>org.openmrs.module.htmlformentry.web.extension.FormEntryHandlerExtension</class>
 	</extension>
 
 	<!-- AOP
@@ -215,10 +215,6 @@
 	</mappingFiles>
 
 	<conditionalResources>
-		<conditionalResource>
-			<path>/lib/htmlformentry-api-1.10.*</path>
-			<openmrsVersion>1.10</openmrsVersion>
-		</conditionalResource>
 		<conditionalResource>
 			<path>/lib/htmlformentry-api-2.0.*</path>
 			<openmrsVersion>2.*</openmrsVersion>

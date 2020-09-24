@@ -13,10 +13,10 @@
 			<td>
 				<obsgroup groupingConceptId="3">
 					<!-- CD4 -->
-					<obs conceptId="1" labelNameTag="default" showDate="true" dateLabel="Date:"/>
+					<obs conceptId="5497" labelNameTag="default" showDate="true" dateLabel="Date:"/>
 
 					<!-- Weight -->
-					<obs conceptId="2" labelNameTag="default" answers="1,2,3"/>
+					<obs conceptId="5089" labelNameTag="default" answers="1,2,3"/>
 				</obsgroup>
 			</td>
 		</tr>

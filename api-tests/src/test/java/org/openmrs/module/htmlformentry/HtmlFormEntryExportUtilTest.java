@@ -1,5 +1,15 @@
 package org.openmrs.module.htmlformentry;
 
+import static org.hamcrest.core.Is.is;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -14,16 +24,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-
-import static org.hamcrest.core.Is.is;
 
 public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest {
 	
@@ -100,20 +100,21 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		
 		TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date);
 		TestUtil.addObs(e, 3017, Context.getConceptService().getConcept(767), date);
 		TestUtil.addObs(e, 3032, new Date(), date);
-		TestUtil.addObs(e, 1, 5000, date);
-		TestUtil.addObs(e, 2, 5000, date); //not in form schema, should not be included after trimEncounter
-		TestUtil.addObs(e, 3, 5000, date); //not in form schema, should not be included after trimEncounter
-		TestUtil.addObs(e, 6, "blah blah", date);
+		TestUtil.addObs(e, 5497, 1500, date);
+		TestUtil.addObs(e, 5089, 50, date); //not in form schema, should not be included after trimEncounter
+		TestUtil.addObs(e, 5090, 100, date); //not in form schema, should not be included after trimEncounter
+		TestUtil.addObs(e, 60000, "blah blah", date);
 		//1004 is ANOTHER ALLERGY CONSTRUCT, 1005 is HYPER-ALLERGY CODED, 1001 is PENICILLIN
 		TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1001), new Date());
 		//7 IS ALLERGY CONSTRUCT, 1000 IS ALLERGY CODED, 1003 IS OPENMRS
-		TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
+		TestUtil.addObsGroup(e, 70000, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date());
 		Context.getEncounterService().saveEncounter(e);
 		e = HtmlFormEntryExportUtil.trimEncounterToMatchForm(e, htmlform);
 		if (log.isDebugEnabled()) {
@@ -190,12 +191,12 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		Assert.assertTrue(ret.contains("\"CD4_COUNT_VALUE_MOD\""));
 		Assert.assertTrue(ret.contains("\"CD4_COUNT_ACCESSION_NUM\""));
 		Assert.assertTrue(ret.contains("\"CD4_COUNT_COMMENT\""));
-		Assert.assertTrue(ret.contains("\"MARRIED\""));
-		Assert.assertTrue(ret.contains("\"MARRIED_DATE\""));
-		Assert.assertTrue(ret.contains("\"MARRIED_PARENT\""));
-		Assert.assertTrue(ret.contains("\"MARRIED_VALUE_MOD\""));
-		Assert.assertTrue(ret.contains("\"MARRIED_ACCESSION_NUM\""));
-		Assert.assertTrue(ret.contains("\"MARRIED_COMMENT\""));
+		Assert.assertTrue(ret.contains("\"ALLERGY\""));
+		Assert.assertTrue(ret.contains("\"ALLERGY_DATE\""));
+		Assert.assertTrue(ret.contains("\"ALLERGY_PARENT\""));
+		Assert.assertTrue(ret.contains("\"ALLERGY_VALUE_MOD\""));
+		Assert.assertTrue(ret.contains("\"ALLERGY_ACCESSION_NUM\""));
+		Assert.assertTrue(ret.contains("\"ALLERGY_COMMENT\""));
 		Assert.assertTrue(ret.contains("\"ALLERGY_CODED\""));
 		Assert.assertTrue(ret.contains("\"ALLERGY_CODED_DATE\""));
 		Assert.assertTrue(ret.contains("\"ALLERGY_CODED_PARENT\""));
@@ -229,9 +230,10 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		//top of form
 		TestUtil.addObs(e, 3032, date, date);
 		TestUtil.addObs(e, 1441, Context.getConceptService().getConcept(656), date);
@@ -297,9 +299,10 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		
 		Context.getEncounterService().saveEncounter(e);
 		encounters.add(e);
@@ -340,8 +343,9 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		
 		TestUtil.addObs(e, 1119, date, date);
 		TestUtil.addObs(e, 1007, date, date);

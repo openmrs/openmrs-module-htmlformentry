@@ -24,7 +24,7 @@
 	<!--  we definite the name support beans here so that we can access them to test functions that use them -->
 	
     <!-- specialTokens ordered so that the subset string 'familyName' is last -->
-    <bean id="nameSupport" class="org.openmrs.layout.web.name.NameSupport">
+    <bean id="nameSupport" class="org.openmrs.layout.name.NameSupport">
         <property name="defaultLayoutFormat"><value>spain</value></property>
         <property name="layoutTemplates">
             <list>
@@ -45,7 +45,7 @@
         </property>
     </bean>
     
-    <bean id="nameTemplateSpain" class="org.openmrs.layout.web.name.NameTemplate">
+    <bean id="nameTemplateSpain" class="org.openmrs.layout.name.NameTemplate">
         <property name="displayName"><value>Formato de Nombres en Espana</value></property>
         <property name="codeName"><value>spain</value></property>
         <property name="nameMappings">
@@ -70,7 +70,5 @@
             </list>
         </property>
     </bean>
-    
-    
-	
+
 </beans>

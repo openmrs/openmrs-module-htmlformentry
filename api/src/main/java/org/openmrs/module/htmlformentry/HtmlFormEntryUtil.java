@@ -35,6 +35,7 @@ import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
@@ -272,8 +273,11 @@ public class HtmlFormEntryUtil {
 			}
 		} else if (dt.isCoded()) {
 			if (value instanceof Drug) {
-				obs.setValueDrug((Drug) value);
-				obs.setValueCoded(((Drug) value).getConcept());
+				Drug drugValue = (Drug) value;
+				// TODO: Not sure why this should be necessary, but unit tests fail without it (MS, 9/22/2020)
+				Concept conceptValue = HibernateUtil.getRealObjectFromProxy(drugValue.getConcept());
+				obs.setValueDrug(drugValue);
+				obs.setValueCoded(conceptValue);
 			} else if (value instanceof ConceptName) {
 				obs.setValueCodedName((ConceptName) value);
 				obs.setValueCoded(obs.getValueCodedName().getConcept());

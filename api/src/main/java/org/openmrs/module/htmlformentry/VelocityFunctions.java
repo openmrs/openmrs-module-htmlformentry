@@ -21,11 +21,12 @@ import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
+import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.compatibility.EncounterServiceCompatibility;
+import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
 public class VelocityFunctions {
@@ -168,9 +169,10 @@ public class VelocityFunctions {
 				List<EncounterType> typeList = new ArrayList<EncounterType>();
 				typeList.add(type);
 				
-				EncounterServiceCompatibility esc = Context.getRegisteredComponent(
-				    "htmlformentry.EncounterServiceCompatibility", EncounterServiceCompatibility.class);
-				return esc.getEncounters(p, null, null, null, null, typeList, null, null, null, false);
+				EncounterService esc = Context.getEncounterService();
+				EncounterSearchCriteriaBuilder b = new EncounterSearchCriteriaBuilder();
+				b.setPatient(p).setEncounterTypes(typeList).setIncludeVoided(false);
+				return Context.getEncounterService().getEncounters(b.createEncounterSearchCriteria());
 			}
 		}
 	}

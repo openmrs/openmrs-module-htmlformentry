@@ -57,20 +57,20 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSetDefaultNumericValue() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"2\" defaultValue=\"60\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"5089\" defaultValue=\"60\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("value=\"60\""));
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultNumericValueIsInvalid() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"2\" defaultValue=\"invalidNumber\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"5089\" defaultValue=\"invalidNumber\"/></htmlform>";
 		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
 	@Test
 	public void shouldSetDefaultTextValue() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"8\" defaultValue=\"sometext\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"80000\" defaultValue=\"sometext\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains("value=\"sometext\""));
 	}
@@ -97,7 +97,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSetDefaultBooleanValueToTrue() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"true\" style=\"no_yes_dropdown\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"18\" defaultValue=\"true\" style=\"no_yes_dropdown\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"true\" selected=\"true\">"));
@@ -105,7 +105,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSetSelectSize() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"1\" required=\"true\" size=\"3\" id=\"paymentAmount\" answerLabels=\"50,Exempt\" answers=\"50,0\" defaultValue=\"50\" style=\"dropdown\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"5497\" required=\"true\" size=\"3\" id=\"paymentAmount\" answerLabels=\"50,Exempt\" answers=\"50,0\" defaultValue=\"50\" style=\"dropdown\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		String htmlToDisplay = session.getHtmlToDisplay();
 		assertTrue("Result: " + htmlToDisplay, htmlToDisplay.matches(".*<select.*size=\"3\".*"));
@@ -113,7 +113,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSetDefaultBooleanValueToFalse() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"false\" style=\"no_yes_dropdown\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"18\" defaultValue=\"false\" style=\"no_yes_dropdown\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"false\" selected=\"true\">"));
@@ -121,7 +121,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSetDefaultBooleanValueToNone() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"\" style=\"no_yes_dropdown\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"18\" defaultValue=\"\" style=\"no_yes_dropdown\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">"));
@@ -129,7 +129,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void shouldThrowExceptionIfDefaultBooleanValueIsInvalid() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"4\" defaultValue=\"yes\" style=\"no_yes_dropdown\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"18\" defaultValue=\"yes\" style=\"no_yes_dropdown\"/></htmlform>";
 		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
@@ -409,7 +409,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldSupportCheckboxForNumericObs() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"8\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"5089\" answer=\"8\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertTrue("Result: " + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains("<input type=\"checkbox\" id=\"w2\" name=\"w2\" value=\"8.0\"/>"));
@@ -417,7 +417,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test(expected = NumberFormatException.class)
 	public void shouldThrowExceptionWithCheckboxIfAnswerIsNotNumeric() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"2\" answer=\"eight\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"5089\" answer=\"eight\" answerLabel=\"Eight\" style=\"checkbox\"/></htmlform>";
 		new FormEntrySession(patient, htmlform, null).getHtmlToDisplay();
 	}
 	
@@ -454,7 +454,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(1);
-				results.assertObsCreated(1, "8.0");
+				results.assertObsCreated(5497, "8");
 			}
 			
 			public boolean doViewEncounter() {
@@ -509,7 +509,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(1);
-				results.assertObsCreated(1, "8.0");
+				results.assertObsCreated(5497, "8");
 			}
 			
 			@Override
@@ -531,8 +531,8 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertObsCreatedCount(1);
-				results.assertObsVoided(1, "8.0");
-				results.assertObsCreated(1, "4.0");
+				results.assertObsVoided(5497, "8");
+				results.assertObsCreated(5497, "4");
 				
 			}
 		}.run();
@@ -541,17 +541,16 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayDefaultOrUserDefinedCommentFieldLabelIfRequested() throws Exception {
 		// If there is no comment label text defined, show the default comment text
-		String htmlform = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\"/></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"5497\" labelText=\"CD4 count\" showCommentField=\"true\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
-		assertTrue(
-		    session.getHtmlToDisplay().contains("htmlformentry.comment: <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
+		assertTrue(session.getHtmlToDisplay().contains("Comment: <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
 		
 		// else show the user entered comment field text
-		String htmlform2 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" commentFieldLabel=\"Add comment\"/></htmlform>";
+		String htmlform2 = "<htmlform><obs conceptId=\"5497\" labelText=\"CD4 count\" commentFieldLabel=\"Add comment\"/></htmlform>";
 		FormEntrySession session2 = new FormEntrySession(patient, htmlform2, null);
 		assertTrue(session2.getHtmlToDisplay().contains("Add comment <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
 		
-		String htmlform3 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldLabel=\"Add comment\"/></htmlform>";
+		String htmlform3 = "<htmlform><obs conceptId=\"5497\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldLabel=\"Add comment\"/></htmlform>";
 		FormEntrySession session3 = new FormEntrySession(patient, htmlform3, null);
 		assertTrue(session3.getHtmlToDisplay().contains("Add comment <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
 		
@@ -560,12 +559,12 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void shouldDisplayDefaultOrUserDefinedCommentFieldCodeIfRequested() throws Exception {
 		
-		String htmlform1 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" commentFieldCode=\"some.message.code\"/></htmlform>";
+		String htmlform1 = "<htmlform><obs conceptId=\"5497\" labelText=\"CD4 count\" commentFieldCode=\"some.message.code\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform1, null);
 		String html = session.getHtmlToDisplay();
 		assertTrue(session.getHtmlToDisplay().contains("some.message.code <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
 		
-		String htmlform2 = "<htmlform><obs conceptId=\"1\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldCode=\"some.message.code\"/></htmlform>";
+		String htmlform2 = "<htmlform><obs conceptId=\"5497\" labelText=\"CD4 count\" showCommentField=\"true\" commentFieldCode=\"some.message.code\"/></htmlform>";
 		FormEntrySession session2 = new FormEntrySession(patient, htmlform2, null);
 		String html2 = session2.getHtmlToDisplay();
 		assertTrue(session2.getHtmlToDisplay().contains("some.message.code <input type=\"text\" name=\"w3\" id=\"w3\"/>"));
@@ -574,7 +573,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldAddCustomIdToSpanAroundObs() throws Exception {
-		String htmlform = "<htmlform><obs id=\"obs-id\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+		String htmlform = "<htmlform><obs id=\"obs-id\" conceptId=\"5497\" labelText=\"CD4 count\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		String htmlToDisplay = session.getHtmlToDisplay();
 		assertTrue(htmlToDisplay.contains("<span id=\"obs-id\" class=\"obs-field\">"));
@@ -582,7 +581,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldAddCustomClassToSpanAroundObs() throws Exception {
-		String htmlform = "<htmlform><obs class=\"custom-class\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+		String htmlform = "<htmlform><obs class=\"custom-class\" conceptId=\"5497\" labelText=\"CD4 count\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		String htmlToDisplay = session.getHtmlToDisplay();
 		assertTrue(htmlToDisplay.contains("<span class=\"obs-field custom-class\">"));
@@ -611,7 +610,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldAddCustomIDAndClassToSpanAroundObs() throws Exception {
-		String htmlform = "<htmlform><obs id=\"obs-id\" class=\"custom-class\" conceptId=\"1\" labelText=\"CD4 count\"/></htmlform>";
+		String htmlform = "<htmlform><obs id=\"obs-id\" class=\"custom-class\" conceptId=\"5497\" labelText=\"CD4 count\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		String htmlToDisplay = session.getHtmlToDisplay();
 		assertTrue(htmlToDisplay.contains("<span id=\"obs-id\" class=\"obs-field custom-class\">"));

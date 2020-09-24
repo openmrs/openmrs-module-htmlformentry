@@ -16,7 +16,7 @@ package org.openmrs.module.htmlformentry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -36,27 +36,27 @@ public class EncounterProviderTagTest extends BaseModuleContextSensitiveTest {
 	public void encounterProviderTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterProvider/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
+		String htmlToDisplay = session.getHtmlToDisplay();
+		Assert.assertTrue(htmlToDisplay.contains("<option value=\"\" selected=\"true\">Choose a Provider</option>"));
+		Assert.assertFalse(htmlToDisplay.contains("placeholder=\"htmlformentry.form.value.placeholder\""));
 	}
 	
 	@Test
 	public void encounterProviderTag_shouldDisplayEnterOptionIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterProvider type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") == -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") > -1);
+		String htmlToDisplay = session.getHtmlToDisplay();
+		Assert.assertFalse(htmlToDisplay.contains("<option value=\"\" selected=\"true\">Choose a Provider</option>"));
+		Assert.assertTrue(htmlToDisplay.contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterProviderTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterProvider type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseAProvider</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
+		String htmlToDisplay = session.getHtmlToDisplay();
+		Assert.assertTrue(htmlToDisplay.contains("<option value=\"\" selected=\"true\">Choose a Provider</option>"));
+		Assert.assertFalse(htmlToDisplay.contains("placeholder=\"htmlformentry.form.value.placeholder\""));
 	}
 	
 	@Test

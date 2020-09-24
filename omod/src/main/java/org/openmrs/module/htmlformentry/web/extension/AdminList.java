@@ -11,7 +11,7 @@
  *
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
-package org.openmrs.module.htmlformentry.extension.html;
+package org.openmrs.module.htmlformentry.web.extension;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
