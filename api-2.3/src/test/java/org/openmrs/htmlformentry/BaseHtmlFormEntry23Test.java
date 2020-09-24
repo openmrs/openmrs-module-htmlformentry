@@ -15,9 +15,9 @@ import org.openmrs.util.OpenmrsClassLoader;
 import org.xml.sax.InputSource;
 
 public abstract class BaseHtmlFormEntry23Test extends BaseModuleContextSensitiveTest {
-
+	
 	static Map<String, IDataSet> cachedDataSets = new HashMap<>();
-
+	
 	public void executeDataSetFor23(String datasetName) throws Exception {
 		IDataSet dataSet = cachedDataSets.get(datasetName);
 		if (dataSet == null) {
@@ -29,20 +29,20 @@ public abstract class BaseHtmlFormEntry23Test extends BaseModuleContextSensitive
 			catch (Exception e) {
 				throw new RuntimeException("Unable to load " + datasetName, e);
 			}
-
+			
 			// Change "precise" to "allow_decimal"
 			contents = contents.replace("precise=", "allow_decimal=");
-
+			
 			StringReader reader = new StringReader(contents);
 			InputSource inputSource = new InputSource(reader);
 			FlatXmlProducer fxp = new FlatXmlProducer(inputSource, false, true, false);
 			FlatXmlDataSet fxds = new FlatXmlDataSet(fxp);
-
+			
 			ReplacementDataSet replacementDataSet = new ReplacementDataSet(fxds);
-			replacementDataSet.addReplacementObject("[NULL]", (Object)null);
+			replacementDataSet.addReplacementObject("[NULL]", (Object) null);
 			dataSet = replacementDataSet;
 			reader.close();
-
+			
 			cachedDataSets.put(datasetName, dataSet);
 		}
 		executeDataSet(dataSet);

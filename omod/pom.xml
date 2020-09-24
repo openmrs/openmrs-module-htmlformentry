@@ -20,11 +20,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-2.0</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
 			<artifactId>htmlformentry-api-2.3</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

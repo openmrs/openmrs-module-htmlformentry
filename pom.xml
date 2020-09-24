@@ -23,7 +23,6 @@
 
     <modules>
         <module>api</module>
-        <module>api-2.0</module>
         <module>api-2.3</module>
         <module>api-tests</module>
         <module>omod</module>

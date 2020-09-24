@@ -19,7 +19,6 @@ public class HtmlFormAjaxValidationControllerTest extends BaseModuleContextSensi
 	
 	@Before
 	public void setUp() throws Exception {
-		
 		controller = new HtmlFormAjaxValidationController();
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
