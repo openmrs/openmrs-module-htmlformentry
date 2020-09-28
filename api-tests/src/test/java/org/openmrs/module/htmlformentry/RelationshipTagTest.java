@@ -12,18 +12,13 @@ import org.openmrs.Relationship;
 import org.openmrs.RelationshipType;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class RelationshipTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	// test creating a simple A to B relationship

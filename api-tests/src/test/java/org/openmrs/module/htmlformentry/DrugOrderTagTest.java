@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Drug;
@@ -25,23 +23,14 @@ import org.openmrs.Encounter;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class DrugOrderTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected final Log log = LogFactory.getLog(getClass());
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
-	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElement.xml";
+public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		executeDataSet(XML_DATASET_PATH + XML_DRUG_ORDER_ELEMENT_DATASET);
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/drugOrderElement.xml");
 	}
 	
 	@Test
@@ -156,7 +145,7 @@ public class DrugOrderTagTest extends BaseModuleContextSensitiveTest {
 				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
 			}
 		};
-		executeDataSet("otherConceptMappings.xml");
+		executeVersionedDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
 		//Test viewing edited drug order
@@ -285,7 +274,7 @@ public class DrugOrderTagTest extends BaseModuleContextSensitiveTest {
 				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 		};
-		executeDataSet("otherConceptMappings.xml");
+		executeVersionedDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
 		//Test viewing edited drug order

@@ -14,7 +14,6 @@
     <!-- default property values, required for eclipse build path configuration -->
     <properties>
         <openMRSVersion>2.1.0</openMRSVersion>
-        <openMRSBuildVersion>${openMRSVersion}</openMRSBuildVersion>
         <openMRSMinorVersion>2.1</openMRSMinorVersion>
         <legacyuiVersion>1.6.0</legacyuiVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
@@ -53,13 +52,13 @@
             <dependency>
                 <groupId>org.openmrs.api</groupId>
                 <artifactId>openmrs-api</artifactId>
-                <version>${openMRSBuildVersion}</version>
+                <version>${openMRSVersion}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.openmrs.api</groupId>
                 <artifactId>openmrs-api</artifactId>
-                <version>${openMRSBuildVersion}</version>
+                <version>${openMRSVersion}</version>
                 <classifier>tests</classifier>
                 <scope>test</scope>
             </dependency>
@@ -73,7 +72,7 @@
                 <groupId>org.openmrs.test</groupId>
                 <artifactId>openmrs-test</artifactId>
                 <type>pom</type>
-                <version>${openMRSBuildVersion}</version>
+                <version>${openMRSVersion}</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
@@ -85,13 +84,13 @@
             <dependency>
                 <groupId>org.openmrs.web</groupId>
                 <artifactId>openmrs-web</artifactId>
-                <version>${openMRSBuildVersion}</version>
+                <version>${openMRSVersion}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.openmrs.web</groupId>
                 <artifactId>openmrs-web</artifactId>
-                <version>${openMRSBuildVersion}</version>
+                <version>${openMRSVersion}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
             </dependency>
@@ -255,7 +254,7 @@
                         <dependency>
                             <groupId>org.openmrs.tools</groupId>
                             <artifactId>openmrs-tools</artifactId>
-                            <version>${openMRSBuildVersion}</version>
+                            <version>${openMRSVersion}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -263,8 +262,8 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <configuration>
-                        <target>1.6</target>
-                        <source>1.6</source>
+                        <target>1.8</target>
+                        <source>1.8</source>
                         <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>
@@ -359,6 +358,27 @@
 
     <!-- different profiles for building/testing against different version of openmrs -->
     <profiles>
+        <profile>
+            <id>2.2</id>
+            <properties>
+                <openMRSVersion>2.2.0</openMRSVersion>
+                <openMRSMinorVersion>2.2</openMRSMinorVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>2.3</id>
+            <properties>
+                <openMRSVersion>2.3.0</openMRSVersion>
+                <openMRSMinorVersion>2.3</openMRSMinorVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>2.4</id>
+            <properties>
+                <openMRSVersion>2.4.0-alpha</openMRSVersion>
+                <openMRSMinorVersion>2.4</openMRSMinorVersion>
+            </properties>
+        </profile>
         <profile>
             <id>release-tests</id>
             <modules>

@@ -22,20 +22,19 @@ import org.openmrs.Obs;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.export.HtmlFormEntryExportUtil;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
-public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormEntryExportUtilTest extends BaseHtmlFormEntryTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/data/";
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
@@ -46,8 +45,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestForm.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestForm.xml"));
 		Map<Integer, String> map = HtmlFormEntryExportUtil.getSectionIndex(htmlform);
 		String st = "";
 		for (Map.Entry<Integer, String> e : map.entrySet()) {
@@ -68,8 +67,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestForm.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestForm.xml"));
 		String newXml = HtmlFormEntryExportUtil.getSectionAsFormXml(htmlform, 1);
 		//System.out.println(newXML);
 		htmlform.setXmlData(newXml);
@@ -90,8 +89,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		String newXml = HtmlFormEntryExportUtil.getSectionAsFormXml(htmlform, 0);
 		htmlform.setXmlData(newXml);
 		
@@ -136,8 +135,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		List<String> extraCols = new ArrayList<String>();
 		extraCols.add("valueModifier");
 		extraCols.add("accessionNumber");
@@ -214,7 +213,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/obsGroupDataExportTest.xml"));
 		List<String> extraCols = new ArrayList<String>();
 		extraCols.add("valueModifier");
 		extraCols.add("accessionNumber");
@@ -281,7 +281,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/obsGroupDataExportTest.xml"));
 		List<String> extraCols = new ArrayList<String>();
 		extraCols.add("valueModifier");
 		extraCols.add("accessionNumber");
@@ -324,7 +325,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "datatypeRenderingTest.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/datatypeRenderingTest.xml"));
 		List<String> extraCols = new ArrayList<String>();
 		extraCols.add("valueModifier");
 		extraCols.add("accessionNumber");
@@ -376,7 +378,8 @@ public class HtmlFormEntryExportUtilTest extends BaseModuleContextSensitiveTest 
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupDataExportTest.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/obsGroupDataExportTest.xml"));
 		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
 		String xml = session.createForm(htmlform.getXmlData());
 		//        System.out.println(xml);

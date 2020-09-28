@@ -1,25 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
-public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
-	
-	protected final Log log = LogFactory.getLog(getClass());
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	private Patient patient = null;
 	
@@ -35,8 +24,8 @@ public class HtmlFormEntryGeneratorTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		patient = Context.getPatientService().getPatient(2);
 	}
 	

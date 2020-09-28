@@ -13,26 +13,17 @@ import org.openmrs.module.Module;
 import org.openmrs.module.metadatamapping.MetadataSource;
 import org.openmrs.module.metadatamapping.MetadataTermMapping;
 import org.openmrs.module.metadatamapping.api.MetadataMappingService;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
-public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
-	protected static final String XML_DRUG_ORDER_ELEMENT_DATASET = "drugOrderElement.xml";
+public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 	
 	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc",
 	        "1.3.4");
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		executeDataSet(XML_DATASET_PATH + XML_DRUG_ORDER_ELEMENT_DATASET);
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/drugOrderElement.xml");
 	}
 	
 	private void setupMappings() {
@@ -75,12 +66,13 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	public void createCloneForExport_shouldCreateCloneWithDependencies_withMapping() throws Exception {
 		
 		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		
 		setupMappings();
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestFormMapping.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestFormMapping.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(true, true, true, true);
@@ -180,10 +172,11 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	public void createCloneForExport_shouldCreateCloneWithDependencies() throws Exception {
 		
 		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(true, true, true, true);
@@ -279,12 +272,13 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	public void shouldRespectClassesNotToExportGlobalProperty() throws Exception {
 		
 		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		Context.getAdministrationService().saveGlobalProperty(
 		    new GlobalProperty(HtmlFormEntryConstants.GP_CLASSES_NOT_TO_EXPORT_WITH_MDS, "org.openmrs.Program"));
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(true, true, true, true);
@@ -372,10 +366,11 @@ public class HtmlFormExporterTest extends BaseModuleContextSensitiveTest {
 	public void createCloneForExport_shouldCreateCloneButSkipLocationsAndProviders() throws Exception {
 		
 		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(false, false, false, false);

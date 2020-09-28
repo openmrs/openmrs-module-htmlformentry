@@ -1,16 +1,16 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import org.openmrs.Location;
-import org.openmrs.LocationTag;
-import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.module.htmlformentry.FormSubmissionController;
-import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.openmrs.Location;
+import org.openmrs.LocationTag;
+import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.FormSubmissionController;
+import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
 
 /**
  * Handles the {@code <encounterLocation>} tag

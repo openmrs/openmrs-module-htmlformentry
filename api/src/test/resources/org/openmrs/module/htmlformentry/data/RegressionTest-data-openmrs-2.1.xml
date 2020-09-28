@@ -233,6 +233,7 @@
     <global_property property="concept.patientDied" property_value="4202" uuid="4f55827e-26fe-102b-82cb-0017b4ec71b3"/>
     <global_property property="concept.otherNonCoded" property_value="4302" uuid="4f55827e-26fe-102b-82cb-0027b4ec71b3"/>
     <global_property property="obs.complex_obs_dir" property_value="complex_obs"  uuid="192a1db0-114a-42a8-91e5-705613b0fe46"/>
+    <global_property property="layout.name.format" property_value="spain"  uuid="739a1db0-114a-42a8-91e5-705613b0fe46"/>
 
     <!-- Define a relationship type (this relationship type is defined in standard test data, but the id is changed from 5 to 2 between 1.7 and 1.8 so we define our own version here with id = 4 -->
     <relationship_type relationship_type_id="4" a_is_to_b="Parent" b_is_to_a="Child" preferred="0" weight="0" description="parent and child" creator="1" date_created="2008-08-15 15:55:18.0" retired="false" uuid="2a5f4ff4-a179-4b8a-aa4c-40f71956efeg"/>

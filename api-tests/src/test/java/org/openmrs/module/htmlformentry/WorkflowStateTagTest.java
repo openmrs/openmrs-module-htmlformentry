@@ -30,19 +30,13 @@ import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.util.OpenmrsUtil;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  *
  */
-public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
-	
-	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
-	public static final String XML_TEST_DATASET = "htmlFormEntryTestDataSet";
+public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	public static final String XML_FORM_NAME = "workflowStateForm";
 	
@@ -74,7 +68,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		patient = Context.getPatientService().getPatient(2);
 	}
 	
@@ -201,7 +195,7 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		String htmlform = "<htmlform><workflowState workflowId=\"108\" stateId=\"SNOMED CT:Test Code\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, MAPPED_STATE);
@@ -438,7 +432,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
 				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				
+				// Since this is a terminal state, OpenMRS should mark this as completed on same day, though not in 2.1 and prior
+				Date endDate = patientState.getEndDate();
+				Assert.assertTrue(endDate == null || endDate.equals(patientState.getStartDate()));
 			}
 			
 			@Override
@@ -587,12 +584,6 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
 				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
 				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
-				
-				patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
 			}
 		}.run();
 	}
@@ -777,7 +768,10 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				patientState = getPatientState(patientProgram, state, TODAY);
 				Assert.assertNotNull(patientProgram);
 				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				
+				// Since this is a terminal state, OpenMRS should mark this as completed on same day, though not in 2.1 and prior
+				Date endDate = patientState.getEndDate();
+				Assert.assertTrue(endDate == null || endDate.equals(patientState.getStartDate()));
 			}
 			
 			@Override
@@ -1453,11 +1447,12 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 				patientState = getPatientState(patientProgram, endState, ONE_YEAR_AGO);
 				Assert.assertNotNull(patientState);
 				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
+				
 				Assert.assertNull(patientState.getEndDate());
 				
 				// verify that the middle state no longer exists
 				patientState = getPatientState(patientProgram, middleState, ONE_YEAR_AGO);
-				Assert.assertNull(patientState);
+				Assert.assertTrue(patientState == null || patientState.isVoided());
 			}
 			
 		}.run();
@@ -2076,11 +2071,14 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
 		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);
 		for (PatientProgram patientProgram : patientPrograms) {
-			for (PatientState patientState : patientProgram.getStates()) {
-				if (patientState.getState().equals(state)) {
-					if (activeDate != null) {
-						if (patientState.getActive(activeDate)) {
-							return patientProgram;
+			for (PatientState ps : patientProgram.getStates()) {
+				if (ps.getState().equals(state)) {
+					if (ps != null) {
+						if (activeDate == null || ps.getStartDate().compareTo(activeDate) <= 0) {
+							if (activeDate == null || ps.getEndDate() == null
+							        || ps.getEndDate().compareTo(activeDate) >= 0) {
+								return patientProgram;
+							}
 						}
 					} else {
 						return patientProgram;
@@ -2098,14 +2096,16 @@ public class WorkflowStateTagTest extends BaseModuleContextSensitiveTest {
 	 * @return
 	 */
 	private PatientState getPatientState(PatientProgram patientProgram, ProgramWorkflowState state, Date activeDate) {
-		for (PatientState patientState : patientProgram.getStates()) {
-			if (patientState.getState().equals(state)) {
+		for (PatientState ps : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
+			if (ps.getState().equals(state)) {
 				if (activeDate != null) {
-					if (patientState.getActive(activeDate)) {
-						return patientState;
+					if (ps.getStartDate().compareTo(activeDate) <= 0) {
+						if (ps.getEndDate() == null || ps.getEndDate().compareTo(activeDate) >= 0) {
+							return ps;
+						}
 					}
 				} else {
-					return patientState;
+					return ps;
 				}
 			}
 		}

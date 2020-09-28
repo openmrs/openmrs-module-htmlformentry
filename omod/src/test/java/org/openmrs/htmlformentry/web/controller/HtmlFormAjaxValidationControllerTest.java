@@ -4,12 +4,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.web.controller.HtmlFormAjaxValidationController;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.web.test.BaseModuleWebContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.ui.ModelMap;
 
-public class HtmlFormAjaxValidationControllerTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormAjaxValidationControllerTest extends BaseModuleWebContextSensitiveTest {
 	
 	private MockHttpServletRequest request;
 	

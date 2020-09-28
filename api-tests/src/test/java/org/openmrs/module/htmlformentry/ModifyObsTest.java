@@ -6,18 +6,13 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ModifyObsTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class ModifyObsTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test

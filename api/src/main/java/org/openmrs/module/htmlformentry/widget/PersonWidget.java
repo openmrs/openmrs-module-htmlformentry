@@ -1,9 +1,8 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Person;
 import org.openmrs.api.context.Context;

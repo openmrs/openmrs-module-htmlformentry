@@ -1,5 +1,13 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import static org.hamcrest.CoreMatchers.any;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
@@ -7,14 +15,6 @@ import org.openmrs.ConceptClass;
 import org.openmrs.ConceptName;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.TestUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.any;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ConceptSeachAutocompleteWidgetTest {
 	

@@ -16,24 +16,19 @@ import org.openmrs.module.Module;
 import org.openmrs.module.metadatamapping.MetadataSource;
 import org.openmrs.module.metadatamapping.MetadataTermMapping;
 import org.openmrs.module.metadatamapping.api.MetadataMappingService;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  * Tests of the various program-related tags
  */
-public class CompleteProgramTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class CompleteProgramTagTest extends BaseHtmlFormEntryTest {
 	
 	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc",
 	        "1.3.4");
 	
 	@Before
 	public void loadConcepts() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		loadTestMappings();
 	}
 	

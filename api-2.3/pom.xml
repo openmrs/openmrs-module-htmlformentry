@@ -13,7 +13,8 @@
     <description>2.3 api project for htmlformentry</description>
 
     <properties>
-        <openMRSVersion>2.3.2-SNAPSHOT</openMRSVersion>
+        <openMRSVersion>2.3.2</openMRSVersion>
+		<openMRSMinorVersion>2.3</openMRSMinorVersion>
     </properties>
 
     <dependencies>

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,12 +14,11 @@ import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.htmlformentry.BaseHtmlFormEntry23Test;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ConditionTagTest extends BaseHtmlFormEntry23Test {
+public class ConditionTagTest extends BaseHtmlFormEntryTest {
 	
 	// field names
 	private String searchWidgetIdForCurrentCondition = "w7";
@@ -37,8 +37,8 @@ public class ConditionTagTest extends BaseHtmlFormEntry23Test {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSetFor23("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.1.xml");
-		executeDataSetFor23("org/openmrs/module/htmlformentry/include/conditions-data.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/conditions-data.xml");
 	}
 	
 	@Test

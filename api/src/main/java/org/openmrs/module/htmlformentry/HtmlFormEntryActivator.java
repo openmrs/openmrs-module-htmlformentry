@@ -16,12 +16,9 @@ package org.openmrs.module.htmlformentry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.APIException;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.BaseModuleActivator;
 import org.openmrs.module.Module;
 import org.openmrs.module.ModuleFactory;
-import org.openmrs.module.ModuleUtil;
-import org.openmrs.module.htmlformentry.handler.EncounterProviderAndRoleTagHandler;
 
 /**
  * Contains the logic that is run every time HTML Form Entry module is either started or shutdown

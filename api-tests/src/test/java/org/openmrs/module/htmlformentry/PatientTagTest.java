@@ -1,7 +1,9 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -16,18 +18,16 @@ import org.openmrs.PatientProgram;
 import org.openmrs.Person;
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.layout.name.NameSupport;
+import org.openmrs.layout.name.NameTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class PatientTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class PatientTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		initializeNameSupport();
 	}
 	
 	@Test
@@ -1210,5 +1210,35 @@ public class PatientTagTest extends BaseModuleContextSensitiveTest {
 		
 		Context.getAdministrationService().saveGlobalProperty(property);
 		
+	}
+	
+	protected void initializeNameSupport() {
+		NameSupport nameSupport;
+		try {
+			nameSupport = NameSupport.getInstance();
+		}
+		catch (Exception e) {
+			nameSupport = new NameSupport();
+		}
+		if (nameSupport.getLayoutTemplates() == null || nameSupport.getLayoutTemplates().isEmpty()) {
+			nameSupport.setDefaultLayoutFormat("spain");
+			nameSupport.setSpecialTokens(Arrays.asList("prefix", "givenName", "middelName", "familyNamePrefix",
+			    "familyNameSuffix", "familyName2", "familyName", "degree"));
+			NameTemplate template = new NameTemplate();
+			template.setCodeName("spain");
+			template.setDisplayName("Formato de Nombres en Espana");
+			Map<String, String> nameMappings = new LinkedHashMap<>();
+			nameMappings.put("givenName", "PersonName.givenName");
+			nameMappings.put("familyName", "PersonName.familyName");
+			nameMappings.put("familyName2", "PersonName.familyName2");
+			template.setNameMappings(nameMappings);
+			Map<String, String> sizeMappings = new LinkedHashMap<>();
+			sizeMappings.put("givenName", "30");
+			sizeMappings.put("familyName", "25");
+			sizeMappings.put("familyName2", "25");
+			template.setSizeMappings(sizeMappings);
+			template.setLineByLineFormat(Arrays.asList("givenName", "familyName", "familyName2"));
+			nameSupport.setLayoutTemplates(Arrays.asList(template));
+		}
 	}
 }

@@ -1,16 +1,16 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * A widget that allows the selection of a certain time-of-day. To handle both a date and time, see

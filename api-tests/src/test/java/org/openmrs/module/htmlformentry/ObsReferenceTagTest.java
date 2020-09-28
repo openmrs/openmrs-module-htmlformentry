@@ -8,22 +8,15 @@ import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class ObsReferenceTagTest extends BaseModuleContextSensitiveTest {
+public class ObsReferenceTagTest extends BaseHtmlFormEntryTest {
 	
 	private Patient patient;
 	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
-	protected static final String XML_OBS_REFERENCE_TEST_DATASET = "obsReferenceTestDataSet";
-	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		executeDataSet("org/openmrs/module/htmlformentry/include/" + XML_OBS_REFERENCE_TEST_DATASET + ".xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/obsReferenceTestDataSet.xml");
 		patient = Context.getPatientService().getPatient(2);
 	}
 	

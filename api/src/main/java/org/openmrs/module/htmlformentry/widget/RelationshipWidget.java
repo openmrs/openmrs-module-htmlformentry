@@ -1,10 +1,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Relationship;
 import org.openmrs.RelationshipType;

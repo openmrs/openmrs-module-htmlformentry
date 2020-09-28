@@ -1,10 +1,10 @@
 package org.openmrs.module.htmlformentry.schema;
 
-import org.openmrs.Concept;
-import org.openmrs.Obs;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openmrs.Concept;
+import org.openmrs.Obs;
 
 /**
  * Represents an Obs field in an HTML Form schema

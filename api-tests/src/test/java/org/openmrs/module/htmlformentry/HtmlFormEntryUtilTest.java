@@ -39,7 +39,6 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.obs.ComplexData;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpSession;
@@ -50,15 +49,9 @@ import org.w3c.dom.NodeList;
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
  */
-public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	// For testing concept lookups by static constant
 	public static final int TEST_CONCEPT_CONSTANT_ID = 3;
@@ -69,7 +62,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 	}
 	
 	/**
@@ -445,7 +438,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterVoided() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -462,8 +455,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
 		//this is going to test out the voided state of the obs in the encounter after processing:
@@ -474,7 +467,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterCorrectly() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -504,8 +497,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
 		//this is going to test out the voided state of the obs in the encounter after processing:
@@ -545,7 +538,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectly() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -576,8 +569,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, "test void reason");
 		
@@ -597,7 +590,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderAndObsCorrectly() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -628,8 +621,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
@@ -646,7 +639,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should delete encounter correctly", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldDeleteEncounter() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -688,8 +681,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
@@ -818,7 +811,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should look up a workflow by a concept mapping", method = "getWorkflow(String)")
 	public void getWorkflow_shouldLookUpAWorkflowByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
 		    HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
@@ -853,7 +846,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil
 		        .getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
@@ -892,7 +885,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		ProgramWorkflow wf = pws.getWorkflowByUuid("8343cfae-53a7-11e1-8cb6-00248140a5eb");
@@ -974,7 +967,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
 	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
 		// load this data set so that we get the additional patient program created in this data case
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
@@ -1122,7 +1115,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "shouldFetchLocationTagByName", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagByName() throws Exception {
 		// this tag is in the regression test dataset
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
 		Assert.assertNotNull(tag);
@@ -1133,7 +1126,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "shouldFetchLocationTagById", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagById() throws Exception {
 		// this tag is in the regression test dataset
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
 		Assert.assertNotNull(tag);

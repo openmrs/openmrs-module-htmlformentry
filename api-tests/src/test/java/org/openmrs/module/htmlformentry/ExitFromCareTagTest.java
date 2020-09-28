@@ -24,14 +24,9 @@ import org.openmrs.Obs;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class ExitFromCareTagTest extends BaseHtmlFormEntryTest {
 	
 	ObsService os;
 	
@@ -39,7 +34,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		os = Context.getObsService();
 		cs = Context.getConceptService();
 	}

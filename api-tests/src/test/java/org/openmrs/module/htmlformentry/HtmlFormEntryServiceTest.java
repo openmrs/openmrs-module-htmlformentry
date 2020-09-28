@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,23 +12,16 @@ import org.openmrs.User;
 import org.openmrs.api.EncounterService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.PersonStub;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsClassLoader;
 
-import java.util.Date;
-
-public class HtmlFormEntryServiceTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_SERVICE_DATASET = "htmlFormEntryServiceDataSet";
+public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 	
 	private HtmlFormEntryService service;
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_SERVICE_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryService-data-openmrs-2.1.xml");
 		service = Context.getService(HtmlFormEntryService.class);
 		service.clearConceptMappingCache();
 	}

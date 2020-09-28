@@ -7,25 +7,18 @@ import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
  */
-public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
+public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 	}
 	
 	/**
@@ -34,11 +27,12 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuids() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
 		
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		HtmlFormSubstitutionUtils.replaceIdsWithUuids(form);
 		
 		Location location1 = Context.getLocationService().getLocation(1);
@@ -76,11 +70,12 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithinRepeatTags() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
 		
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingWithRepeatTestForm.xml"));
+		form.setXmlData(new TestUtil()
+		        .loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingWithRepeatTestForm.xml"));
 		HtmlFormSubstitutionUtils.replaceIdsWithUuids(form);
 		
 		// make sure it's left the keys alone
@@ -112,11 +107,12 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithMacros() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
 		
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingWithMacrosTestForm.xml"));
+		form.setXmlData(new TestUtil()
+		        .loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingWithMacrosTestForm.xml"));
 		HtmlFormSubstitutionUtils.replaceIdsWithUuids(form);
 		
 		// make sure it's left the macro references alone
@@ -142,7 +138,8 @@ public class SubstitutionUtilsTest extends BaseModuleContextSensitiveTest {
 	public void replaceProgamNamesWithUuids_shouldReplaceProgramNamesWithUuids() throws Exception {
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		HtmlFormSubstitutionUtils.replaceProgramNamesWithUuids(form);
 		
 		// make the program is no longer referenced by name

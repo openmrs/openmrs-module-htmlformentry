@@ -18,17 +18,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class EncounterTypeTagTest extends BaseModuleContextSensitiveTest {
-	
-	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class EncounterTypeTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test

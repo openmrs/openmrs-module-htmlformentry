@@ -1,5 +1,15 @@
 package org.openmrs.module.htmlformentry;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -7,26 +17,15 @@ import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.providermanagement.ProviderRole;
 import org.openmrs.module.providermanagement.api.ProviderManagementService;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 @Ignore
-public class HtmlFormEntryUtilComponentTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormEntryUtilComponentTest extends BaseHtmlFormEntryTest {
 	
 	// TODO: figure out why these tests are failing on bamboo and re-enable!
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/providerRoles-dataset.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
 	}
 	
 	@Test

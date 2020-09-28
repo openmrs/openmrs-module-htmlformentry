@@ -1,15 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Assert;
-import org.openmrs.Concept;
-import org.openmrs.Drug;
-import org.openmrs.Encounter;
-import org.openmrs.Obs;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.RegressionTestHelper.ObsValue;
-import org.openmrs.util.Format;
-import org.openmrs.util.OpenmrsUtil;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +13,16 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.junit.Assert;
+import org.openmrs.Concept;
+import org.openmrs.Drug;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.RegressionTestHelper.ObsValue;
+import org.openmrs.util.Format;
+import org.openmrs.util.OpenmrsUtil;
 
 public class TestUtil {
 	

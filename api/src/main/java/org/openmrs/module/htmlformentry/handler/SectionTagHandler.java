@@ -1,13 +1,13 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.PrintWriter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.Translator;
 import org.w3c.dom.Node;
-
-import java.io.PrintWriter;
 
 /**
  * Handles the {@code <section>} tag

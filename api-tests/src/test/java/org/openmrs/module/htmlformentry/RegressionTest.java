@@ -24,18 +24,13 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.obs.ComplexData;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class RegressionTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class RegressionTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
@@ -1288,7 +1283,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/obsGroupSchemaTest.xml"));
 		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
 		session.getHtmlToDisplay();
 		HtmlFormSchema hfs = session.getContext().getSchema();

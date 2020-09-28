@@ -1,12 +1,11 @@
 package org.openmrs.module.htmlformentry.element;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;

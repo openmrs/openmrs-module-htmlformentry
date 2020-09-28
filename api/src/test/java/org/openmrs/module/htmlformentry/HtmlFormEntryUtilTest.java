@@ -1,5 +1,11 @@
 package org.openmrs.module.htmlformentry;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.PersonName;
@@ -8,19 +14,12 @@ import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.util.MatchMode;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/provider-dataset.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/provider-dataset.xml");
 	}
 	
 	@Test

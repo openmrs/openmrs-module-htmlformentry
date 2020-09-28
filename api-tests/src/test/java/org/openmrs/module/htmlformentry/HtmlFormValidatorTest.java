@@ -18,12 +18,11 @@ import org.junit.Test;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 
-public class HtmlFormValidatorTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormValidatorTest extends BaseHtmlFormEntryTest {
 	
 	/**
 	 * @see {@link HtmlFormValidator#validate(Object,Errors)}

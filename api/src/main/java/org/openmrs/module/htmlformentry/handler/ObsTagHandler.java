@@ -1,5 +1,15 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.Drug;
@@ -12,16 +22,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.w3c.dom.Node;
-
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Collection;
 
 /**
  * Handles the {@code <obs>} tag
