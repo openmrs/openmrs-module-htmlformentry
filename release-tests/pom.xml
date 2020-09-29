@@ -409,8 +409,7 @@
     </profiles>
     <properties>
         <webapp.name>openmrs</webapp.name>
-        <openMRSVersion>2.0.0</openMRSVersion>
-        <openMRSReleaseTestVersion>2.0.0</openMRSReleaseTestVersion>
+        <openMRSReleaseTestVersion>${openMRSVersion}</openMRSReleaseTestVersion>
         <htmlformentryOmodVersion>${parent.version}</htmlformentryOmodVersion>
         <test>*</test>
     </properties>

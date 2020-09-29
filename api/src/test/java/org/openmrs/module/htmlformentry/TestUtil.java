@@ -10,7 +10,6 @@ import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -22,11 +21,8 @@ import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.RegressionTestHelper.ObsValue;
 import org.openmrs.util.Format;
-import org.openmrs.util.OpenmrsUtil;
 
 public class TestUtil {
-	
-	public static final String TEST_DATASETS_PROPERTIES_FILE = "test-datasets.properties";
 	
 	public String loadXmlFromFile(String filename) throws Exception {
 		InputStream fileInInputStreamFormat = null;
@@ -49,35 +45,6 @@ public class TestUtil {
 			sb.append(line).append("\n");
 		}
 		return sb.toString();
-	}
-	
-	/**
-	 * Determines the name of the proper test dataset based on what version of OpenMRS we are testing
-	 * against
-	 */
-	public String getTestDatasetFilename(String testDatasetName) throws Exception {
-		
-		InputStream propertiesFileStream = null;
-		
-		// try to load the file if its a straight up path to the file or
-		// if its a classpath path to the file
-		if (new File(TEST_DATASETS_PROPERTIES_FILE).exists()) {
-			propertiesFileStream = new FileInputStream(TEST_DATASETS_PROPERTIES_FILE);
-		} else {
-			propertiesFileStream = getClass().getClassLoader().getResourceAsStream(TEST_DATASETS_PROPERTIES_FILE);
-			if (propertiesFileStream == null)
-				throw new FileNotFoundException("Unable to find '" + TEST_DATASETS_PROPERTIES_FILE + "' in the classpath");
-		}
-		
-		Properties props = new Properties();
-		
-		OpenmrsUtil.loadProperties(props, propertiesFileStream);
-		
-		if (props.getProperty(testDatasetName) == null) {
-			throw new Exception("Test dataset named " + testDatasetName + " not found in properties file");
-		}
-		
-		return props.getProperty(testDatasetName);
 	}
 	
 	/**

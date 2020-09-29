@@ -37,7 +37,7 @@ mysqlpassword="password"
 mysqlport=3306
 omrsusername="admin"
 omrspassword="Admin123"
-openMRSVersion="2.3.0"
+openMRSVersion="2.1.0"
 
 while getopts t:ivbhu:d:p:P:o:w: options
 do 
