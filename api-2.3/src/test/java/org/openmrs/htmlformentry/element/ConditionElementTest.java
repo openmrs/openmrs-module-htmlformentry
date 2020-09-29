@@ -178,7 +178,7 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldSupportNoneCodedValues() {
+	public void handleSubmission_shouldSupportNonCodedValues() {
 		// setup
 		request.addParameter("condition-field-name", "Typed in non-coded value");
 		when(context.getFieldName(conditionSearchWidget)).thenReturn("condition-field-name");
