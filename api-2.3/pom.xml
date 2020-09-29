@@ -29,12 +29,17 @@
 				</exclusion>
 			</exclusions>
         </dependency>
-
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-tests</artifactId>
+			<artifactId>htmlformentry-api</artifactId>
 			<version>${project.parent.version}</version>
-			<scope>test</scope>
+			<classifier>tests</classifier>
+			<exclusions>
+				<exclusion>
+					<artifactId>javassist</artifactId>
+					<groupId>javassist</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
         <dependency>
