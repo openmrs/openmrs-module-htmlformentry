@@ -19,7 +19,7 @@ Currently, a form submission creates one encounter for one patient.
 
 Requirements
 ----------
-+ OpenMRS 2.0.0+
++ OpenMRS 2.1.0+
 
 Instructions
 ---------
