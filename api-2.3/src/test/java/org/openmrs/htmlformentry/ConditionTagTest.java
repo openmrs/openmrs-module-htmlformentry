@@ -37,17 +37,21 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			protected String add(String widget, int offset) {
 				return "w" + (Integer.parseInt(widget.substring(1)) + offset);
 			}
-			
-			protected String getStatusWidget(String conceptSearchWidget) {
+
+			protected String getAdditionalDetailsWidget(String conceptSearchWidget) {
 				return add(conceptSearchWidget, 2);
+			}
+
+			protected String getStatusWidget(String conceptSearchWidget) {
+				return add(conceptSearchWidget, 3);
 			}
 			
 			protected String getOnsetDateWidget(String conceptSearchWidget) {
-				return add(conceptSearchWidget, 4);
+				return add(conceptSearchWidget, 5);
 			}
 			
 			protected String getEndDateWidget(String conceptSearchWidget) {
-				return add(conceptSearchWidget, 5);
+				return add(conceptSearchWidget, 6);
 			}
 			
 			@Override
@@ -72,7 +76,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				
+
 				// filling the optional coded condition tag
 				request.addParameter(widgets.get("Optional Coded Condition:"), "Epilepsy");
 				request.addParameter(widgets.get("Optional Coded Condition:") + "_hid", "3476");
