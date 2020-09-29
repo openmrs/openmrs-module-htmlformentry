@@ -37,22 +37,24 @@ public class HtmlFormEntryUtil2_3 {
 	}
 	
 	/**
-	 * Validate if a CodedOrFreeText condition is empty
+	 * Tells whether a CodedOrFreeText instance is empty.
 	 *
-	 * @param condition
-	 * @return
+	 * @param codedOrFreeText The CodedOrFreeText instance to check.
+	 * @return true if the underlying coded concept is null
+	 * @return true if the underlying non-coded string value is blank
+	 * @return true if the underlying specific concept name is null
 	 */
-	public static boolean CodedOrFreeTextIsEmpty(CodedOrFreeText condition) {
+	public static boolean isEmpty(CodedOrFreeText codedOrFreeText) {
 		
-		if (condition.getCoded() != null) {
+		if (codedOrFreeText.getCoded() != null) {
 			return false;
 		}
 		
-		if (StringUtils.isNotBlank(condition.getNonCoded())) {
+		if (StringUtils.isNotBlank(codedOrFreeText.getNonCoded())) {
 			return false;
 		}
 		
-		if (condition.getSpecificName() != null) {
+		if (codedOrFreeText.getSpecificName() != null) {
 			return false;
 		}
 		

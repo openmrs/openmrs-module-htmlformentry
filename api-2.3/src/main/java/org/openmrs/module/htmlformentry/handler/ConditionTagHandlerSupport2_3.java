@@ -4,10 +4,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.annotation.OpenmrsProfile;
-import org.openmrs.module.htmlformentry.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.element.ConditionElement;
 
 @OpenmrsProfile(openmrsPlatformVersion = "2.3.2")
 public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport {

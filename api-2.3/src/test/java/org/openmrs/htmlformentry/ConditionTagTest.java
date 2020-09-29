@@ -1,20 +1,24 @@
-package org.openmrs.htmlformentry.element;
+package org.openmrs.htmlformentry;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.openmrs.ConditionClinicalStatus.ACTIVE;
+import static org.openmrs.ConditionClinicalStatus.HISTORY_OF;
+import static org.openmrs.ConditionClinicalStatus.INACTIVE;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Condition;
-import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -69,73 +73,66 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				
-				// setup for Optional Coded Condition
+				// filling the optional coded condition tag
 				request.addParameter(widgets.get("Optional Coded Condition:"), "Epilepsy");
 				request.addParameter(widgets.get("Optional Coded Condition:") + "_hid", "3476");
 				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:")), "active");
 				request.addParameter(getOnsetDateWidget(widgets.get("Optional Coded Condition:")), "2014-02-11");
 				
-				// setup for required Coded Condition
-				request.addParameter(widgets.get("Required Coded Condition:"), "Epilepsy");
-				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3476");
+				// filling the required coded condition tag
+				request.addParameter(widgets.get("Required Coded Condition:"), "Indigestion");
+				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3475");
 				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
 				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2014-02-11");
 				
-				// dont setup for Optional Non-coded Condition
-				
-				// setup for required Non-coded Condition
+				// filling the required non-coded condition tag
 				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
 				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:")), "inactive");
 				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2013-02-11");
-				request.setParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:")), "2019-04-11");
+				request.addParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:")), "2019-04-11");
 				
-				// setup for preset condition
+				// filling up the preset condition tag
 				request.addParameter(getStatusWidget(widgets.get("Preset Condition:")), "history-of");
 				request.addParameter(getOnsetDateWidget(widgets.get("Preset Condition:")), "2014-02-11");
-				request.setParameter(getEndDateWidget(widgets.get("Preset Condition:")), "2020-04-11");
+				request.addParameter(getEndDateWidget(widgets.get("Preset Condition:")), "2020-04-11");
 			}
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[3]);
+				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
+				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
-				assertThat(conditions.length, is(4));
+				assertThat(conditions.size(), is(4));
 				
 				Condition actualCondition;
-				// Optional Coded Condition
 				{
-					actualCondition = conditions[0];
-					Assert.assertEquals(ConditionClinicalStatus.ACTIVE, actualCondition.getClinicalStatus());
+					actualCondition = conditions.get("optional_coded_condition");
+					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
 					    actualCondition.getCondition().getCoded());
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Required coded condition
 				{
-					actualCondition = conditions[1];
-					Assert.assertEquals(ConditionClinicalStatus.ACTIVE, actualCondition.getClinicalStatus());
-					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
+					actualCondition = conditions.get("required_coded_condition");
+					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals(Context.getConceptService().getConceptByName("Indigestion"),
 					    actualCondition.getCondition().getCoded());
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Optional Non-coded Condition
-				{}
-				// Required non-coded condition
 				{
-					actualCondition = conditions[2];
-					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					actualCondition = conditions.get("required_noncoded_condition");
+					Assert.assertEquals(INACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
 					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Optional preset condition
 				{
-					actualCondition = conditions[3];
-					Assert.assertEquals(ConditionClinicalStatus.HISTORY_OF, actualCondition.getClinicalStatus());
+					actualCondition = conditions.get("optional_preset_condition");
+					Assert.assertEquals(HISTORY_OF, actualCondition.getClinicalStatus());
 					assertThat(actualCondition.getCondition().getCoded().getId(), is(22));
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertEquals("2020-04-11", dateAsString(actualCondition.getEndDate()));
@@ -150,81 +147,54 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				
-				// remove setup for Optional Coded Condition
+				// removing the concept of the optional coded condition tag
 				request.removeParameter(widgets.get("Optional Coded Condition:"));
 				request.removeParameter(widgets.get("Optional Coded Condition:") + "_hid");
 				
-				// setup for required Coded Condition
-				request.addParameter(widgets.get("Required Coded Condition:"), "Epilepsy");
-				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3476");
-				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
-				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2014-02-11");
-				
-				// setup for Optional Non-coded Condition
-				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Anemia (non-coded)");
+				// filling for the first time in EDIT mode the optional non-coded condition tag 
+				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Sneezy cold (non-coded)");
 				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:")), "inactive");
 				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:")), "2013-02-11");
-				request.setParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:")), "2019-04-11");
+				request.addParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:")), "2019-04-11");
 				
-				// setup for required Non-coded Condition
-				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
-				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:")), "inactive");
-				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2020-02-11");
-				request.setParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:")), "2019-04-11");
+				// changing the onset date of the required non-coded condition tag
+				request.setParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2014-02-11");
 				
-				// setup for preset condition
+				// removing the status of the preset condition tag
 				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:")));
 			}
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
-				// setup
-				Condition[] conditions = results.getEncounterCreated().getConditions().toArray(new Condition[2]);
+				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
+				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
-				Assert.assertEquals(3, conditions.length);
+				assertThat(conditions.size(), is(3));
 				
 				Condition actualCondition;
-				// Optional Coded Condition
-				{}
-				// Required coded condition
 				{
-					actualCondition = conditions[0];
-					Assert.assertEquals(ConditionClinicalStatus.ACTIVE, actualCondition.getClinicalStatus());
-					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
+					actualCondition = conditions.get("required_coded_condition");
+					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals(Context.getConceptService().getConceptByName("Indigestion"),
 					    actualCondition.getCondition().getCoded());
 					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Optional Non-coded Condition
 				{
-					actualCondition = conditions[2];
-					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
-					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
+					actualCondition = conditions.get("optional_noncoded_condition");
+					Assert.assertEquals(INACTIVE, actualCondition.getClinicalStatus());
+					Assert.assertEquals("Sneezy cold (non-coded)", actualCondition.getCondition().getNonCoded());
 					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
-				// Required non-coded condition
 				{
-					actualCondition = conditions[1];
-					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
+					actualCondition = conditions.get("required_noncoded_condition");
+					Assert.assertEquals(INACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
-					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
+					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
-					Assert.assertNotNull(actualCondition.getId());
-				}
-				// Optional preset condition
-				{
-					actualCondition = conditions[3];
-					Assert.assertEquals(ConditionClinicalStatus.INACTIVE, actualCondition.getClinicalStatus());
-					assertThat(actualCondition.getCondition().getCoded().getId(), is(22));
-					Assert.assertEquals("2020-02-11", dateAsString(actualCondition.getOnsetDate()));
-					Assert.assertEquals("2020-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 			}
@@ -233,7 +203,7 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void shouldInitializeDefaultValues() throws Exception {
+	public void shouldInitializeValuesFromEncounter() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
