@@ -1,6 +1,7 @@
-package org.openmrs.module.htmlformentry;
+package org.openmrs.module.htmlformentry.element;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,14 +13,18 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.CodedOrFreeText;
+import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.Condition;
 import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
-import org.openmrs.module.htmlformentry.element.HtmlGeneratorElement;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
@@ -41,10 +46,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private Condition existingCondition;
 	
-	// widgets
-	private ConceptSearchAutocompleteWidget conditionSearchWidget;
+	private Concept presetConcept;
 	
-	private DateWidget onSetDateWidget;
+	// widgets
+	private ConceptSearchAutocompleteWidget conceptSearchWidget;
+	
+	private DateWidget onsetDateWidget;
 	
 	private DateWidget endDateWidget;
 	
@@ -63,50 +70,60 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
-		if (context.getMode() != Mode.VIEW) {
-			Condition condition = bootstrap(context);
-			CodedOrFreeText conditionConcept = new CodedOrFreeText();
+		Condition condition = bootstrap(context);
+		
+		CodedOrFreeText codedOrFreeText = new CodedOrFreeText();
+		if (presetConcept != null) {
+			codedOrFreeText.setCoded(presetConcept);
+		} else {
 			try {
-				int conceptId = Integer.parseInt((String) conditionSearchWidget.getValue(session.getContext(), submission));
-				conditionConcept.setCoded(Context.getConceptService().getConcept(conceptId));
-				
+				int conceptId = Integer.parseInt((String) conceptSearchWidget.getValue(session.getContext(), submission));
+				codedOrFreeText.setCoded(Context.getConceptService().getConcept(conceptId));
 			}
 			catch (NumberFormatException e) {
-				String nonCodedConcept = submission.getParameter(context.getFieldName(conditionSearchWidget));
-				if (StringUtils.isBlank(nonCodedConcept) && !required) {
-					// ignore silently
-					return;
-				}
-				conditionConcept.setNonCoded(nonCodedConcept);
+				String inputText = submission.getParameter(context.getFieldName(conceptSearchWidget));
+				codedOrFreeText.setNonCoded(inputText);
 			}
-			condition.setCondition(conditionConcept);
-			ConditionClinicalStatus status = getStatus(context, submission);
-			condition.setClinicalStatus(status);
-			condition.setOnsetDate(onSetDateWidget.getValue(context, submission));
-			
-			if (status != ConditionClinicalStatus.ACTIVE) {
-				condition.setEndDate(endDateWidget.getValue(context, submission));
+		}
+		condition.setCondition(codedOrFreeText);
+		
+		ConditionClinicalStatus status = getStatus(context, submission);
+		condition.setClinicalStatus(status);
+		
+		condition.setOnsetDate(onsetDateWidget.getValue(context, submission));
+		
+		if (status != ConditionClinicalStatus.ACTIVE) {
+			condition.setEndDate(endDateWidget.getValue(context, submission));
+		}
+		
+		condition.setPatient(session.getPatient());
+		
+		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
+		
+		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
+			// incomplete optional conditions are not submitted or are removed in EDIT mode
+			if (context.getMode() == Mode.EDIT) {
+				session.getEncounter().removeCondition(condition);
 			}
-			condition.setPatient(session.getPatient());
-			condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
+		} else {
 			session.getEncounter().addCondition(condition);
 		}
 	}
 	
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-		Date givenOnsetDate = onSetDateWidget.getValue(context, submission);
+		List<FormSubmissionError> ret = new ArrayList<>();
+		Date givenOnsetDate = onsetDateWidget.getValue(context, submission);
 		Date givenEndDate = endDateWidget.getValue(context, submission);
-		String condition = StringUtils.isNotBlank((String) conditionSearchWidget.getValue(context, submission))
-		        ? (String) conditionSearchWidget.getValue(context, submission)
-		        : submission.getParameter(context.getFieldName(conditionSearchWidget));
+		String condition = StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))
+		        ? (String) conceptSearchWidget.getValue(context, submission)
+		        : submission.getParameter(context.getFieldName(conceptSearchWidget));
 		ConditionClinicalStatus status = getStatus(context, submission);
 		
 		if (context.getMode() != Mode.VIEW) {
 			
 			if (StringUtils.isBlank(condition) && required) {
-				ret.add(new FormSubmissionError(context.getFieldName(conditionSearchWidget),
+				ret.add(new FormSubmissionError(context.getFieldName(conceptSearchWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.condition.required")));
 			}
 			if (givenOnsetDate != null && givenEndDate != null) {
@@ -220,20 +237,31 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			        .getConceptClassByName(DEFAULT_CONDITION_LIST_CONCEPT_CLASS_NAME);
 			allowedConceptClasses.add(conceptClass);
 		}
-		conditionSearchWidget = new ConceptSearchAutocompleteWidget(null, allowedConceptClasses);
-		String conditionNameTextInputId = context.registerWidget(conditionSearchWidget);
+		conceptSearchWidget = new ConceptSearchAutocompleteWidget(null, allowedConceptClasses);
+		String conditionNameTextInputId = context.registerWidget(conceptSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();
-		if (existingCondition != null && context.getMode() != Mode.ENTER) {
-			CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
-			if (codedOrFreeText.getCoded() != null) {
-				conditionSearchWidget.setInitialValue(codedOrFreeText.getCoded());
-			} else {
-				freeTextVal = codedOrFreeText.getNonCoded();
+		
+		if (presetConcept == null) {
+			if (existingCondition != null && context.getMode() != Mode.ENTER) {
+				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
+				if (codedOrFreeText.getCoded() != null) {
+					conceptSearchWidget.setInitialValue(codedOrFreeText.getCoded());
+				} else {
+					freeTextVal = codedOrFreeText.getNonCoded();
+				}
 			}
+		} else {
+			conceptSearchWidget.setInitialValue(presetConcept);
 		}
-		context.registerErrorWidget(conditionSearchWidget, conditionSearchErrorWidget);
+		
+		context.registerErrorWidget(conceptSearchWidget, conditionSearchErrorWidget);
 		
 		StringBuilder ret = new StringBuilder();
+		
+		// Create wrapper id
+		String searchWidgetWrapperId = "condition-" + controlId;
+		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
+		
 		if (context.getMode() == Mode.VIEW) {
 			// append label
 			ret.append(conditionLabel + ": ");
@@ -243,7 +271,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			if (context.getMode() == Mode.VIEW) {
 				return ret.append(WidgetFactory.displayValue(freeTextVal)).toString();
 			} else {
-				String rawMarkup = conditionSearchWidget.generateHtml(context);
+				String rawMarkup = conceptSearchWidget.generateHtml(context);
 				String[] inputElements = rawMarkup.split(">", 2);
 				for (String element : inputElements) {
 					StringBuilder sb = new StringBuilder(element);
@@ -258,13 +286,18 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				}
 			}
 		} else {
-			ret.append(conditionSearchWidget.generateHtml(context));
+			ret.append(conceptSearchWidget.generateHtml(context));
 		}
 		if (context.getMode() != Mode.VIEW) {
 			ret.append(conditionSearchErrorWidget.generateHtml(context));
 			ret.append("\n<script>jq('#" + conditionNameTextInputId + "').attr('placeholder',");
 			ret.append(" '" + conditionLabel + "');\n");
 			ret.append(" jq('#" + conditionNameTextInputId + "').css('min-width', '46.4%');\n");
+			
+			// Mark search box as read only if it has a concept
+			if (presetConcept != null) {
+				ret.append("jq('#" + conditionNameTextInputId + "').attr(\"readonly\", true)\n");
+			}
 			
 			// Add support for non-coded concept values.
 			// This a hack to let the autocomplete widget accept values that aren't part of the concept list.
@@ -276,6 +309,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			ret.append("});\n");
 			ret.append("</script>\n");
 		}
+		ret.append("</div>");
 		return ret.toString();
 	}
 	
@@ -339,7 +373,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	}
 	
 	private String htmlForConditionDatesWidget(FormEntryContext context) {
-		onSetDateWidget = new DateWidget();
+		onsetDateWidget = new DateWidget();
 		endDateWidget = new DateWidget();
 		String onsetDateLabel = mss.getMessage("htmlformentry.conditionui.onsetdate.label");
 		String endDateLabel = mss.getMessage("htmlformentry.conditionui.endDate.label");
@@ -349,13 +383,13 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			Date initialEndDate = existingCondition.getEndDate();
 			
 			if (initialOnsetDate != null) {
-				onSetDateWidget.setInitialValue(initialOnsetDate);
+				onsetDateWidget.setInitialValue(initialOnsetDate);
 			}
 			if (initialEndDate != null) {
 				endDateWidget.setInitialValue(initialEndDate);
 			}
 		}
-		String onsetDateTextInputId = context.registerWidget(onSetDateWidget) + "-display";
+		String onsetDateTextInputId = context.registerWidget(onsetDateWidget) + "-display";
 		endDateErrorWidget = new ErrorWidget();
 		String endDateTextInputId = context.registerWidget(endDateWidget) + "-display";
 		context.registerErrorWidget(endDateWidget, endDateErrorWidget);
@@ -367,7 +401,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			// if in view mode, append label
 			ret.append(onsetDateLabel + ": ");
 		}
-		ret.append(onSetDateWidget.generateHtml(context));
+		ret.append(onsetDateWidget.generateHtml(context));
 		ret.append("</li> <li>");
 		ret.append("<span id=\"" + endDatePickerWrapperId + "\">");
 		if (context.getMode() == Mode.VIEW) {
@@ -413,19 +447,19 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	}
 	
 	public void setConditionSearchWidget(ConceptSearchAutocompleteWidget conditionSearchWidget) {
-		this.conditionSearchWidget = conditionSearchWidget;
+		this.conceptSearchWidget = conditionSearchWidget;
 	}
 	
 	public ConceptSearchAutocompleteWidget getConditionSearchWidget() {
-		return conditionSearchWidget;
+		return conceptSearchWidget;
 	}
 	
 	public void setOnSetDateWidget(DateWidget onSetDateWidget) {
-		this.onSetDateWidget = onSetDateWidget;
+		this.onsetDateWidget = onSetDateWidget;
 	}
 	
 	public DateWidget getOnSetDateWidget() {
-		return onSetDateWidget;
+		return onsetDateWidget;
 	}
 	
 	public void setEndDateWidget(DateWidget endDateWidget) {
@@ -462,6 +496,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	public void setExistingCondition(Condition existingCondition) {
 		this.existingCondition = existingCondition;
+	}
+	
+	public Concept getPresetConcept() {
+		return presetConcept;
+	}
+	
+	public void setPresetConcept(Concept presetConcept) {
+		this.presetConcept = presetConcept;
 	}
 	
 	// available for testing purposes only
