@@ -251,7 +251,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				}
 			}
 		} else {
-			// If exist concept define it as default value
 			conceptSearchWidget.setInitialValue(presetConcept);
 		}
 		
