@@ -21,7 +21,6 @@
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>${project.parent.artifactId}-api</artifactId>
             <version>${project.parent.version}</version>
-            <classifier>tests</classifier>
 			<exclusions>
 				<exclusion>
 					<artifactId>javassist</artifactId>
@@ -34,6 +33,7 @@
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>htmlformentry-api-tests</artifactId>
 			<version>${project.parent.version}</version>
+			<scope>test</scope>
 		</dependency>
 		
         <dependency>

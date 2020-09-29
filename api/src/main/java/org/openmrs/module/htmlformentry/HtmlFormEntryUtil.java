@@ -1,44 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -104,6 +65,44 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 
 /**
  * HTML Form Entry utility methods
@@ -396,7 +395,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Finds the first descendant of this node with the given tag name
-	 * 
+	 *
 	 * @param node
 	 * @param tagName
 	 * @return
@@ -540,7 +539,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Find Drug by UUID
-	 * 
+	 *
 	 * @param uuid
 	 * @return
 	 */
@@ -638,7 +637,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * This method doesn't support "SessionAttribute:", but is otherwise like the similarly-named
 	 * method.
-	 * 
+	 *
 	 * @see #getLocation(String, FormEntryContext)
 	 */
 	public static Location getLocation(String id) {
@@ -835,7 +834,7 @@ public class HtmlFormEntryUtil {
 	 * Get the person by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a username like "mgoodrich" or 4) an id/name pair
 	 * like "5090 - Bob Jones" (this format is used when saving a person on a obs as a value text)
-	 * 
+	 *
 	 * @param id
 	 * @return the person if exist, else null <strong>Should</strong> find a person by its id
 	 *         <strong>Should</strong> find a person by its uuid <strong>Should</strong> find a person
@@ -859,7 +858,7 @@ public class HtmlFormEntryUtil {
 				}
 			}
 			catch (Exception ex) {
-				//do nothing 
+				//do nothing
 			}
 			
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
@@ -889,7 +888,7 @@ public class HtmlFormEntryUtil {
 					}
 				}
 				catch (Exception ex) {
-					//do nothing 
+					//do nothing
 				}
 			}
 		}
@@ -901,7 +900,7 @@ public class HtmlFormEntryUtil {
 	/***
 	 * Get the patient identifier type by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a name like "Temporary Identifier"
-	 * 
+	 *
 	 * @param id
 	 * @return the identifier type if exist, else null <strong>Should</strong> find an identifier type
 	 *         by its id <strong>Should</strong> find an identifier type by its uuid
@@ -925,7 +924,7 @@ public class HtmlFormEntryUtil {
 				}
 			}
 			catch (Exception ex) {
-				//do nothing 
+				//do nothing
 			}
 			
 			//get PatientIdentifierType by mapping
@@ -1020,7 +1019,7 @@ public class HtmlFormEntryUtil {
 	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple states
 	 * associated with the same concept in the program, this method will return an arbitrary one if
 	 * fetched by concept mapping)
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1064,7 +1063,7 @@ public class HtmlFormEntryUtil {
 	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple states
 	 * associated with the same concept in the workflow, this method will return an arbitrary one if
 	 * fetched by concept mapping)
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param workflow
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1165,6 +1164,26 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	/**
+	 * Finds the first ancestor (including the current location) that is tagged with the specified
+	 * location tag
+	 *
+	 * @param location
+	 * @param locationTag
+	 * @return
+	 */
+	public static Location getFirstAncestorWithTag(Location location, LocationTag locationTag) {
+		if (location == null || locationTag == null) {
+			return null;
+		} else if (location.hasTag(locationTag.getName())) {
+			return location;
+		} else if (location.getParentLocation() != null) {
+			return getFirstAncestorWithTag(location.getParentLocation(), locationTag);
+		} else {
+			return null;
+		}
+	}
+	
 	private static List<ProgramWorkflowState> getStates(boolean includeRetired) {
 		List<ProgramWorkflowState> ret = new ArrayList<ProgramWorkflowState>();
 		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
@@ -1191,7 +1210,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by programWorkflowStateId, or
 	 * uuid
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId or uuid to match against
 	 * @param
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1249,7 +1268,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Evaluates the specified Java constant using reflection
-	 * 
+	 *
 	 * @param fqn the fully qualified name of the constant
 	 * @return the constant value
 	 */
@@ -1271,7 +1290,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Gets all patient identifier types
-	 * 
+	 *
 	 * @return the patient identifier types
 	 */
 	public static List<PatientIdentifierType> getPatientIdentifierTypes() {
@@ -1396,7 +1415,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Method that returns a copy of an Encounter. Includes copies of all Obs tree structures and
 	 * Orders.
-	 * 
+	 *
 	 * @param source
 	 * @param replacementObs
 	 * @param replacementOrders
@@ -1431,7 +1450,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Returns a copy of an Obs. Recurses through GroupMembers to return copies of those also, so the
 	 * whole Obs tree is a copy.
-	 * 
+	 *
 	 * @param obsToCopy
 	 * @param replacements
 	 * @return
@@ -1455,7 +1474,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Utility to return a copy of an Order. Uses reflection so that this code will support any
 	 * subclassing of Order, such as DrugOrder
-	 * 
+	 *
 	 * @param source
 	 * @param replacementOrders
 	 * @return A copy of an Order
@@ -1470,7 +1489,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Utility to return a copy of an Object. Copies all properties that are referencese by getters and
 	 * setters and *are not* collection
-	 * 
+	 *
 	 * @param source
 	 * @return A copy of an object
 	 * @throws Exception
@@ -1506,7 +1525,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * The Encounter.setProvider() contains the different overloaded methods and this filters the
 	 * correct setter from those
-	 * 
+	 *
 	 * @param clazz
 	 * @param getter
 	 * @param methodname
@@ -1534,7 +1553,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Performs a case insensitive search on a class for a method by name.
-	 * 
+	 *
 	 * @param clazz
 	 * @param methodName
 	 * @return the found Method
@@ -1553,7 +1572,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * compares getter return types to setter parameter types
-	 * 
+	 *
 	 * @param getter
 	 * @param setter
 	 * @return true if getter return types are the same as setter parameter types. Else false.
@@ -1567,7 +1586,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * recurses through all superclasses of a class and adds the fields from that superclass
-	 * 
+	 *
 	 * @param fields
 	 * @param clazz
 	 */
@@ -1580,7 +1599,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Translates a String into a Date.
-	 * 
+	 *
 	 * @param value use "now" for the current timestamp, "today" for the current date with a timestamp
 	 *            of 00:00, or a date string that can be parsed by SimpleDateFormat with the format
 	 *            parameter.
@@ -1702,7 +1721,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Checks whether the encounter has a provider specified (including ugly reflection code for 1.9+)
-	 * 
+	 *
 	 * @param e
 	 * @return whether e has one or more providers specified
 	 */
@@ -1721,7 +1740,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Checks if the user is enrolled in a program at the specified date
-	 * 
+	 *
 	 * @param patient the patient that should be enrolled in the program
 	 * @param program the program the patient be enrolled in
 	 * @param date the date at which to check
@@ -1785,11 +1804,11 @@ public class HtmlFormEntryUtil {
 	 * minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
-		// Get Calendar object set to the date and time of the given Date object  
+		// Get Calendar object set to the date and time of the given Date object
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		
-		// Set time fields to zero  
+		// Set time fields to zero
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
@@ -1820,7 +1839,7 @@ public class HtmlFormEntryUtil {
 	/***
 	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
-	 * 
+	 *
 	 * @param id
 	 * @return the encounter type if exist, else null <strong>Should</strong> find a encounter type by
 	 *         its encounterTypeId <strong>Should</strong> find a encounter type by name
@@ -1986,7 +2005,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Read the global property htmlformentry.archiveDir and return the correct path
-	 * 
+	 *
 	 * @return String representation of archive directory path <strong>Should</strong> return null if
 	 *         htmlformentry.archiveDir is not defined <strong>Should</strong> replace %Y with a four
 	 *         digit year value <strong>Should</strong> replace %M with a 2 digit month value
@@ -2085,7 +2104,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
 	 * {@code state}
-	 * 
+	 *
 	 * @param patient - the patient
 	 * @param patientProgram - the associated patient program
 	 * @param state - the state to transition to
@@ -2318,7 +2337,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Converts a collection of providers domain object into simple stub representation
-	 * 
+	 *
 	 * @param providers
 	 * @return
 	 */

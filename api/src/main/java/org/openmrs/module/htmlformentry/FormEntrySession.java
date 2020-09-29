@@ -1,15 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +32,15 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
  * fill out or to view.
@@ -59,7 +58,7 @@ import org.springframework.web.util.JavaScriptUtils;
  * <p/>
  * <pre>
  *  session.getHtmlToDisplay();
- * 	List&lt;FormSubmissionError&gt; 
+ * 	List&lt;FormSubmissionError&gt;
  * 	validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
@@ -1187,8 +1186,8 @@ public class FormEntrySession {
 	}
 	
 	/**
-	 * Generates the form path based on the form name, form version, form field path and control counter. The form
-	 * path will have the following format: "MyForm.1.0/my_condition_tag-0"
+	 * Generates the form path based on the form name, form version, form field path and control
+	 * counter. The form path will have the following format: "MyForm.1.0/my_condition_tag-0"
 	 *
 	 * @param controlId The control id, eg "my_condition_tag"
 	 * @param controlCounter The control counter, an integer

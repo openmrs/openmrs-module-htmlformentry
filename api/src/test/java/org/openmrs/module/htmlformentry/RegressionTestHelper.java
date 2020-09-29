@@ -361,6 +361,10 @@ public abstract class RegressionTestHelper {
 			Matcher matcher = forInput.matcher(html);
 			while (matcher.find()) {
 				String element = matcher.group();
+				if (element.contains("type=\"radio\"") && !element.contains("checked=\"true\"")) {
+					// discards unchecked radios
+					continue;
+				}
 				String name = matcher.group(1);
 				Matcher lookForValue = forValue.matcher(element);
 				if (lookForValue.find()) {

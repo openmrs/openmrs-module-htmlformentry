@@ -24,7 +24,7 @@ public class EncounterLocationHandler extends SubstitutionTagHandler {
 		attributeDescriptors.add(new AttributeDescriptor("default", Location.class));
 		attributeDescriptors.add(new AttributeDescriptor("tags", LocationTag.class));
 		attributeDescriptors.add(new AttributeDescriptor("required", String.class));
-		attributeDescriptors.add(new AttributeDescriptor("restrictToSupportedVisitLocations",Location.class));
+		attributeDescriptors.add(new AttributeDescriptor("restrictToSupportedVisitLocations", Location.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
