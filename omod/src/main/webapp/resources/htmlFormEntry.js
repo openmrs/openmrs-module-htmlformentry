@@ -555,6 +555,13 @@ function autocompleteGetterFunction(widgetId) {
     return jQuery('#' + widgetId + '_hid').val();
 }
 
+// custom field getter for radio button
+// TODO: create custom setter for radio buttons? (standard value getter actually already works)
+function radioButtonsFieldGetterFunction(widgetId) {
+  return jQuery("[name='" + widgetId + "']");
+}
+
+
 //does an ajax lookup to see if this form has already been filled out for this encounter date.
 //valid instructions are 'block', and 'warn'
 //TODO:  would be nice if this used javascript confirm(), and 'cancel' meant history.go(-1) and/or closed the pop-up window (closing the popup being a bit harder)

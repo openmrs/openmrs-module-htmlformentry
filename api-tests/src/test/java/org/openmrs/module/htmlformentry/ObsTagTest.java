@@ -474,7 +474,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	/**
 	 * verifies whether the previous obs is correctly voided when a new obs created, with changing the
 	 * numeric value of checkbox, tests the changing of numeric value too.
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -982,12 +982,12 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 	}
 	
 	@Test
-	public void testObsDrug() throws Exception {
+	public void testObsDrugsWithAutoComplete() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "obsDrugForm";
+				return "obsDrugFormWithAutocomplete";
 			}
 			
 			@Override
@@ -1036,6 +1036,83 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			public void testViewingEncounter(Encounter encounter, String html) {
 				assertThat(html, containsString("Allergic to drug: Aspirin"));
 				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;NyQuil</span>", html);
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testObsDrugsWithDropdown() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsDrugFormWithDropdown";
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				assertTrue(
+				    html.contains("<option value=\"Drug:2\">Triomune-30</option><option value=\"Drug:3\">Aspirin</option>"));
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Allergic to drug:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Allergic to drug:"), "Drug:3");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(1);
+				results.assertObsCreated(1000, Context.getConceptService().getDrug(3));
+			}
+			
+			@Override
+			public boolean doViewEncounter() {
+				return true;
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				assertThat(html, containsString(" <span class=\"value\">Aspirin</span>"));
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				System.out.println(html);
+				assertTrue(html.contains("<option value=\"Drug:3\" selected=\"true\">Aspirin</option>"));
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Allergic to drug:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2"); // in the dynamic autocomplete, the widget value is just the count of the number of entries
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertObsCreated(1000, Context.getConceptService().getDrug(2));
 			}
 		}.run();
 	}

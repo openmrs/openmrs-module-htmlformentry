@@ -111,6 +111,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private Drug answerDrug;
 	
+	private List<Drug> answerDrugs = new ArrayList<Drug>();
+	
 	private List<Concept> conceptAnswers = new ArrayList<Concept>();
 	
 	private List<Number> numericAnswers = new ArrayList<Number>();
@@ -568,7 +570,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							}
 						}
 						
-						// Otherwise, limit to users with the default OpenMRS PROVIDER role, 
+						// Otherwise, limit to users with the default OpenMRS PROVIDER role,
 						else {
 							String defaultRole = RoleConstants.PROVIDER;
 							Role role = Context.getUserService().getRole(defaultRole);
@@ -786,7 +788,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							csaw.setAllowedConceptSetIds(answerConceptSetIds);
 							valueWidget = csaw;
 						}
-					} else if (parameters.get("answerDrugs") != null) {
+					}
+					// handle "answerDrugs" automcplete use case
+					else if (parameters.get("answerDrugs") != null) {
 						// we support searching through all drugs via AJAX
 						RemoteJsonAutocompleteWidget widget = new RemoteJsonAutocompleteWidget(
 						        "/" + WebConstants.WEBAPP_NAME + "/module/htmlformentry/drugSearch.form");
@@ -797,11 +801,37 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							widget.setDisplayTemplate("{{name}}");
 						}
 						if (existingObs != null && existingObs.getValueDrug() != null) {
+							// TODO: not quite sure how this works?
 							widget.setInitialValue(new Option(existingObs.getValueDrug().getName(),
 							        existingObs.getValueDrug().getDrugId().toString(), true));
 						}
 						valueWidget = widget;
+					}
+					// handle answerDrugIds dropdown use case
+					else if (parameters.get("answerDrugIds") != null) {
+						for (StringTokenizer st = new StringTokenizer(parameters.get("answerDrugIds"), ","); st
+						        .hasMoreTokens();) {
+							String s = st.nextToken().trim();
+							Drug drug = HtmlFormEntryUtil.getDrug(s);
+							if (drug == null) {
+								throw new IllegalArgumentException("Cannot find drug for value " + s
+								        + " in answerDrugs attribute value. Parameters: " + parameters);
+							}
+							answerDrugs.add(drug);
+						}
 						
+						valueWidget = buildDropdownWidget(size);
+						
+						for (int i = 0; i < answerDrugs.size(); i++) {
+							String label = answerLabels != null && answerLabels.size() > i ? answerLabels.get(i)
+							        : answerDrugs.get(i).getName();
+							((SingleOptionWidget) valueWidget).addOption(
+							    new Option(label, "Drug:" + answerDrugs.get(i).getDrugId().toString(), false));
+						}
+						
+						if (existingObs != null && existingObs.getValueDrug() != null) {
+							valueWidget.setInitialValue("Drug:" + existingObs.getValueDrug().getDrugId().toString());
+						}
 					} else if (parameters.get("answerDrugId") != null) {
 						String answerDrugId = parameters.get("answerDrugId");
 						if (StringUtils.isNotBlank(answerDrugId)) {
@@ -817,7 +847,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 						}
 					} else {
 						// Show Radio Buttons if specified, otherwise default to Drop
-						// Down 
+						// Down
 						boolean isRadio = "radio".equals(parameters.get("style"));
 						if (isRadio) {
 							valueWidget = new RadioButtonsWidget();
@@ -845,12 +875,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							        .addInitialValue(existingObsList.get(i).getValueCoded());
 						}
 					}
-					if (existingObs != null) {
-						if (existingObs.getValueDrug() != null) {
-							valueWidget.setInitialValue(existingObs.getValueDrug());
-						} else {
-							valueWidget.setInitialValue(existingObs.getValueCoded());
-						}
+					// set the initial value, but only if not value drug (we handle that in the above drug-specific code)
+					if (existingObs != null && existingObs.getValueDrug() == null) {
+						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
 						if (initialValue == null) {
@@ -1201,7 +1228,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	/**
 	 * TODO implement for all non-standard widgets
-	 * 
+	 *
 	 * @param widget
 	 * @return
 	 */
@@ -1217,7 +1244,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	/**
 	 * TODO implement for all non-standard widgets
-	 * 
+	 *
 	 * @param widget
 	 * @return
 	 */
@@ -1232,15 +1259,21 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	/**
 	 * TODO implement for all non-standard widgets TODO figure out how to return multiple elements, e.g.
 	 * for date+time widget
-	 * 
+	 *
 	 * @param widget
 	 * @return
 	 */
 	private String getFieldFunction(Widget widget) {
-		if (widget == null)
+		if (widget == null) {
 			return null;
-		if (widget instanceof DateWidget)
+		}
+		if (widget instanceof DateWidget) {
 			return "dateFieldGetterFunction";
+		}
+		if (widget instanceof RadioButtonsWidget) {
+			return "radioButtonsFieldGetterFunction";
+		}
+		
 		return null;
 	}
 	

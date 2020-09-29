@@ -3,7 +3,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>htmlformentry</artifactId>
-	<version>3.12.0-SNAPSHOT</version>
+	<version>3.13.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>HTML Form Entry</name>
 	<description>Parent project for HTML Form Entry</description>
@@ -14,7 +14,7 @@
 		<connection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</connection>
 		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</developerConnection>
 		<url>https://github.com/openmrs/openmrs-module-htmlformentry/</url>
-                <tag>3.1</tag>
+                <tag>HEAD</tag>
         </scm>
 
 	<distributionManagement>
@@ -344,7 +344,7 @@
 	</pluginRepositories>
 
 
-	<!-- different profiles for building/testing against different version of 
+	<!-- different profiles for building/testing against different version of
 		openmrs -->
 	<profiles>
 		<profile>
@@ -355,7 +355,7 @@
 				<openMRSMinorVersion>1.9</openMRSMinorVersion>
 			</properties>
 		</profile>
-		
+
 		<profile>
 			<id>openmrs-1.10</id>
 
