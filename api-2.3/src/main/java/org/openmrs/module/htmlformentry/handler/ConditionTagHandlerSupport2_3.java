@@ -22,20 +22,17 @@ public class ConditionTagHandlerSupport2_3 implements ConditionTagHandlerSupport
 	        Map<String, String> attributes) {
 		conditionElement = new ConditionElement();
 		
-		// Fill required attribute
 		String required = attributes.get("required");
 		if (required != null) {
 			conditionElement.setRequired(required.equalsIgnoreCase("true"));
 		}
 		
-		// Fill control id attribute
 		String controlId = attributes.get("controlId");
 		if (StringUtils.isBlank(controlId)) {
 			throw new IllegalArgumentException("Attribute controlId cannot be blank");
 		}
 		conditionElement.setControlId(controlId);
 		
-		// Fill concept id attribute
 		String conceptId = attributes.get("conceptId");
 		if (!StringUtils.isEmpty(conceptId)) {
 			conditionElement.setPresetConcept(HtmlFormEntryUtil.getConcept(conceptId));
