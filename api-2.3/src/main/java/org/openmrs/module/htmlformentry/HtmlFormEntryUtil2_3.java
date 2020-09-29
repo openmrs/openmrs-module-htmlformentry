@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.openmrs.CodedOrFreeText;
 import org.openmrs.FormRecordable;
 
 /**
@@ -35,4 +36,28 @@ public class HtmlFormEntryUtil2_3 {
 		}
 	}
 	
+	/**
+	 * Tells whether a CodedOrFreeText instance is empty.
+	 *
+	 * @param codedOrFreeText The CodedOrFreeText instance to check.
+	 * @return true if the underlying coded concept is null
+	 * @return true if the underlying non-coded string value is blank
+	 * @return true if the underlying specific concept name is null
+	 */
+	public static boolean isEmpty(CodedOrFreeText codedOrFreeText) {
+		
+		if (codedOrFreeText.getCoded() != null) {
+			return false;
+		}
+		
+		if (StringUtils.isNotBlank(codedOrFreeText.getNonCoded())) {
+			return false;
+		}
+		
+		if (codedOrFreeText.getSpecificName() != null) {
+			return false;
+		}
+		
+		return true;
+	}
 }
