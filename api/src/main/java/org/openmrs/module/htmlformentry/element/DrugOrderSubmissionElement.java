@@ -24,6 +24,7 @@ import org.openmrs.DrugOrder;
 import org.openmrs.EncounterProvider;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
+import org.openmrs.OrderType;
 import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
@@ -552,7 +553,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 							lastRevision = drugOrder;
 						}
 						
-						startDateWidget.setInitialValue(lastRevision.getDateActivated());
+						startDateWidget.setInitialValue(lastRevision.getEffectiveStartDate());
 						
 						if (lastRevision.getRoute() != null) {
 							routeWidget.setInitialValue(lastRevision.getRoute().getId());
@@ -970,9 +971,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		return discontinuationOrder;
 	}
 	
-	protected void enterOrder(FormEntrySession session, OrderTag oldOrderTag) {
-		OrderTag orderTag = (OrderTag) oldOrderTag;
-		
+	protected void enterOrder(FormEntrySession session, OrderTag orderTag) {
 		DrugOrder drugOrder = new DrugOrder();
 		setOrderer(session, drugOrder);
 		
@@ -990,16 +989,31 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		drugOrder.setCareSetting(Context.getOrderService().getCareSetting(orderTag.careSettingId));
 		OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequency(Integer.valueOf(orderTag.frequency));
 		drugOrder.setFrequency(orderFrequency);
-		drugOrder.setDateActivated(orderTag.startDate);
+		
+		// The dateActivated of an order must not be in the future or after the date of the associated encounter
+		// This means we always need to set the dateActivated to the encounterDatetime
+		Date encDate = session.getEncounter().getEncounterDatetime();
+		drugOrder.setDateActivated(encDate);
+		
+		// If the startDate indicated on the orderTag is after the encounterDatetime, then make this a future order
+		drugOrder.setUrgency(Order.Urgency.ROUTINE);
+		if (orderTag.startDate != null) {
+			if (HtmlFormEntryUtil.startOfDay(orderTag.startDate).after(HtmlFormEntryUtil.startOfDay(encDate))) {
+				drugOrder.setScheduledDate(orderTag.startDate);
+				drugOrder.setUrgency(Order.Urgency.ON_SCHEDULED_DATE);
+			}
+		}
+		
 		drugOrder.setNumRefills(orderTag.numRefills);
 		//order duration:
-		if (orderTag.orderDuration != null)
+		if (orderTag.orderDuration != null) {
 			drugOrder.setAutoExpireDate(calculateAutoExpireDate(orderTag.startDate, orderTag.orderDuration));
+		}
 		drugOrder.setVoided(false);
-		drugOrder.setOrderType(Context.getOrderService().getOrderTypeByUuid(DRUG_ORDER_TYPE_UUID));
-		if (!StringUtils.isEmpty(orderTag.instructions))
-			drugOrder.setInstructions((String) orderTag.instructions);
-		
+		setOrderType(session, drugOrder);
+		if (!StringUtils.isEmpty(orderTag.instructions)) {
+			drugOrder.setInstructions(orderTag.instructions);
+		}
 		DrugOrder discontinuationOrder = createDiscontinuationOrderIfNeeded(drugOrder, orderTag.discontinuedDate,
 		    orderTag.discontinuedReasonStr);
 		
@@ -1009,6 +1023,19 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			setOrderer(session, discontinuationOrder);
 			session.getSubmissionActions().getCurrentEncounter().addOrder(discontinuationOrder);
 		}
+	}
+	
+	private void setOrderType(FormEntrySession session, DrugOrder drugOrder) {
+		OrderType ot = Context.getOrderService().getOrderTypeByUuid(DRUG_ORDER_TYPE_UUID);
+		// TODO: Handle cases where an implementation might have multiple order types for Drug Order and want to choose
+		if (ot == null) {
+			for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+				if (orderType.getJavaClass() == DrugOrder.class) {
+					ot = orderType;
+				}
+			}
+		}
+		drugOrder.setOrderType(ot);
 	}
 	
 	private void setOrderer(FormEntrySession session, DrugOrder drugOrder) {
