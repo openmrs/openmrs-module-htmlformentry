@@ -37,21 +37,21 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			protected String add(String widget, int offset) {
 				return "w" + (Integer.parseInt(widget.substring(1)) + offset);
 			}
-
+			
 			protected String getAdditionalDetailsWidget(String conceptSearchWidget) {
 				return add(conceptSearchWidget, 2);
 			}
-
-			protected String getStatusWidget(String conceptSearchWidget) {
-				return add(conceptSearchWidget, 3);
+			
+			protected String getStatusWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
+				return add(conceptSearchWidget, wasAdditionDetails ? 3 : 2);
 			}
 			
-			protected String getOnsetDateWidget(String conceptSearchWidget) {
-				return add(conceptSearchWidget, 5);
+			protected String getOnsetDateWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
+				return add(conceptSearchWidget, wasAdditionDetails ? 5 : 4);
 			}
 			
-			protected String getEndDateWidget(String conceptSearchWidget) {
-				return add(conceptSearchWidget, 6);
+			protected String getEndDateWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
+				return add(conceptSearchWidget, wasAdditionDetails ? 6 : 5);
 			}
 			
 			@Override
@@ -76,29 +76,33 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-
+				
 				// filling the optional coded condition tag
 				request.addParameter(widgets.get("Optional Coded Condition:"), "Epilepsy");
 				request.addParameter(widgets.get("Optional Coded Condition:") + "_hid", "3476");
-				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:")), "active");
-				request.addParameter(getOnsetDateWidget(widgets.get("Optional Coded Condition:")), "2014-02-11");
+				request.addParameter(getAdditionalDetailsWidget(widgets.get("Optional Coded Condition:")),
+				    "Additional details");
+				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:"), true), "active");
+				request.addParameter(getOnsetDateWidget(widgets.get("Optional Coded Condition:"), true), "2014-02-11");
 				
 				// filling the required coded condition tag
 				request.addParameter(widgets.get("Required Coded Condition:"), "Indigestion");
 				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3475");
-				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
-				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:")), "2014-02-11");
+				request.addParameter(getAdditionalDetailsWidget(widgets.get("Required Coded Condition:")),
+				    "Additional details");
+				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:"), true), "active");
+				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:"), true), "2014-02-11");
 				
 				// filling the required non-coded condition tag
 				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
-				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:")), "inactive");
-				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2013-02-11");
-				request.addParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:")), "2019-04-11");
+				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:"), false), "inactive");
+				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:"), false), "2013-02-11");
+				request.addParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:"), false), "2019-04-11");
 				
 				// filling up the preset condition tag
-				request.addParameter(getStatusWidget(widgets.get("Preset Condition:")), "history-of");
-				request.addParameter(getOnsetDateWidget(widgets.get("Preset Condition:")), "2014-02-11");
-				request.addParameter(getEndDateWidget(widgets.get("Preset Condition:")), "2020-04-11");
+				request.addParameter(getStatusWidget(widgets.get("Preset Condition:"), false), "history-of");
+				request.addParameter(getOnsetDateWidget(widgets.get("Preset Condition:"), false), "2014-02-11");
+				request.addParameter(getEndDateWidget(widgets.get("Preset Condition:"), false), "2020-04-11");
 			}
 			
 			@Override
@@ -157,15 +161,15 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 				
 				// filling for the first time in EDIT mode the optional non-coded condition tag 
 				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Sneezy cold (non-coded)");
-				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:")), "inactive");
-				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:")), "2013-02-11");
-				request.addParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:")), "2019-04-11");
+				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:"), false), "inactive");
+				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:"), false), "2013-02-11");
+				request.addParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:"), false), "2019-04-11");
 				
 				// changing the onset date of the required non-coded condition tag
-				request.setParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:")), "2014-02-11");
+				request.setParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:"), false), "2014-02-11");
 				
 				// removing the status of the preset condition tag
-				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:")));
+				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:"), false));
 			}
 			
 			@Override
@@ -247,16 +251,16 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
-				    "<input type=\"text\"  id=\"w28\" name=\"w28\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
+				    "<input type=\"text\"  id=\"w30\" name=\"w30\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
-				    "<input type=\"radio\" id=\"w30_1\" name=\"w30\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+				    "<input type=\"radio\" id=\"w32_1\" name=\"w32\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
 				// Verify the onset date - '2017-01-12'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w32-display', '#w32', '2017-01-12')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w34-display', '#w34', '2017-01-12')</script>"));
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w33-display', '#w33', '2019-01-15')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w35-display', '#w35', '2019-01-15')</script>"));
 				
 			}
 			
