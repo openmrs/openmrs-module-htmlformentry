@@ -3,12 +3,13 @@ package org.openmrs.module.htmlformentry.element;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.CodedOrFreeText;
@@ -22,6 +23,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
@@ -75,11 +77,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (presetConcept != null) {
 			codedOrFreeText.setCoded(presetConcept);
 		} else {
-			try {
-				int conceptId = Integer.parseInt((String) conceptSearchWidget.getValue(session.getContext(), submission));
-				codedOrFreeText.setCoded(Context.getConceptService().getConcept(conceptId));
-			}
-			catch (NumberFormatException e) {
+			String conceptId = (String) conceptSearchWidget.getValue(session.getContext(), submission);
+			Concept concept = HtmlFormEntryUtil.getConcept(conceptId);
+			if (concept != null) {
+				codedOrFreeText.setCoded(concept);
+			} else {
 				String inputText = submission.getParameter(context.getFieldName(conceptSearchWidget));
 				codedOrFreeText.setNonCoded(inputText);
 			}
