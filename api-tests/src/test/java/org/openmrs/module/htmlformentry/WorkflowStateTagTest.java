@@ -26,11 +26,13 @@ import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
+import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.util.OpenmrsUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
@@ -44,11 +46,15 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	public static final String XML_HIDDEN_FORM_NAME = "workflowStateHiddenForm";
 	
+	public static final String TEST_PROGRAM = "67bad8f4-5140-11e1-a3e3-00248140a5eb";
+	
 	public static final String START_STATE = "89d1a292-5140-11e1-a3e3-00248140a5eb";
 	
 	public static final String MIDDLE_STATE = "99f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	public static final String END_STATE = "8ef66ca8-5140-11e1-a3e3-00248140a5eb";
+	
+	public static final String TEST_STATE7 = "67337cdc-53ad-11e1-8cb6-00248140a5eb";
 	
 	public static final String DIFFERENT_PROGRAM_WORKFLOW_STATE = "67337cdc-53ad-11e1-8cb6-00248140a5eb";
 	
@@ -65,6 +71,12 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	public static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
 	private Patient patient;
+	
+	@Autowired
+	ProgramWorkflowService programWorkflowService;
+	
+	@Autowired
+	HtmlFormEntryService htmlFormEntryService;
 	
 	@Before
 	public void before() throws Exception {
@@ -374,13 +386,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: Workflow state Y is created with a start date of the encounter date
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 		}.run();
 	}
@@ -419,23 +426,11 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: Workflow state Y is created with a start date of June 2011 and a stop date of Jan 2012. Workflow state X stays as is.
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
-				
-				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				
-				// Since this is a terminal state, OpenMRS should mark this as completed on same day, though not in 2.1 and prior
-				Date endDate = patientState.getEndDate();
-				Assert.assertTrue(endDate == null || endDate.equals(patientState.getStartDate()));
+				//Then: Workflow state Y is created with a start date of June 2011 and a stop date of Jan 2012.
+				// Workflow state X stays as is.
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, TODAY);
+				assertState(pp, END_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -485,18 +480,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: Workflow state X is stopped with a stop date of Jan 2012, Workflow state Y is created with a start date of Jan 2012 and is still current
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
-				
-				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, TODAY);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
 			}
 		}.run();
 	}
@@ -534,12 +520,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: No change to workflow state
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
 			}
 		}.run();
 	}
@@ -564,7 +546,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of June 2011 in which workflow state X is selected 
+				//When: Html form is entered with an encounter date of June 2011 in which workflow state X is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
@@ -577,13 +559,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: A new workflow state X is created with a Start date of June 2011 and a stop date of Jan 2012
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, TODAY);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 		}.run();
 	}
@@ -618,12 +596,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, null);
-				PatientState patientState = getPatientState(patientProgram, state, null);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -664,7 +638,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state Y is selected 
+				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state Y is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -677,19 +651,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: Workflow state X is stopped with a stop date of Jan 2012, Workflow state Y is created with a start date of Jan 2012 and is still current
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, null);
-				PatientState patientState = getPatientState(patientProgram, state, null);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
-				
-				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				patientProgram = getPatientProgramByState(results.getPatient(), state, null);
-				patientState = getPatientState(patientProgram, state, null);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, START_STATE, TODAY, TODAY);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -749,29 +713,10 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: Workflow X is changed to a stop date of Sept 2011, Workflow Z is created with a start date of Sept 2011 and a stop date of Jan 2012
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TWO_YEARS_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, TWO_YEARS_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getEndDate()));
-				
-				state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
-				
-				state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				
-				// Since this is a terminal state, OpenMRS should mark this as completed on same day, though not in 2.1 and prior
-				Date endDate = patientState.getEndDate();
-				Assert.assertTrue(endDate == null || endDate.equals(patientState.getStartDate()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
+				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
+				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, TODAY);
+				assertState(pp, END_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -780,9 +725,26 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.removeAllParameters(); // This prevents resubmission, while allowing us to test html in edit mode
+			}
+			
+			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				Assert.assertTrue("View should contain current state: " + html, html.contains("MIDDLE STATE"));
 			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				Assert.assertTrue("Edit should contain current state: " + html,
+				    html.contains("selected=\"true\">MIDDLE STATE"));
+			}
+			
 		}.run();
 	}
 	
@@ -806,7 +768,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Question on Html form is not answered 
+				//When: Question on Html form is not answered
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), "");
 			}
@@ -819,12 +781,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				//Then: No action
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
 			}
 			
 			@Override
@@ -879,12 +837,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -918,18 +872,10 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
-				
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
 				// assert that the other state no longer exists
-				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNull(patientState);
+				assertNoState(pp, START_STATE);
 			}
 		}.run();
 	}
@@ -963,12 +909,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -1001,20 +943,11 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				
 				// assert that the start dates of the program and state have been moved
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
-				
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, null);
 				// assert that the other state no longer exists
-				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNull(patientState);
+				assertNoState(pp, START_STATE);
 			}
 			
 		}.run();
@@ -1049,12 +982,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
 			}
 			
 			@Override
@@ -1088,23 +1017,12 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				
 				// assert that the start date of the program is the same
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
-				
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
 				// assert that the start date of the state has moved
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
-				
+				assertState(pp, MIDDLE_STATE, TODAY, null);
 				// assert that the other state no longer exists
-				state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNull(patientState);
+				assertNoState(pp, START_STATE);
 			}
 			
 		}.run();
@@ -1134,7 +1052,6 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(widgets.get("State:"), ""); // set no state
 			}
 			
-			@SuppressWarnings("deprecation")
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -1143,12 +1060,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				// make sure the enrollment date has NOT been changed (since no state was set)
-				ProgramWorkflowService pws = Context.getProgramWorkflowService();
-				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
-				Assert.assertEquals(1, Context.getProgramWorkflowService()
-				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
-				PatientProgram patientProgram = Context.getProgramWorkflowService()
-				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
+				List<PatientProgram> patientPrograms = patientPrograms(patient, TEST_PROGRAM);
+				Assert.assertEquals(1, patientPrograms.size());
+				PatientProgram patientProgram = patientPrograms.get(0);
 				Assert.assertNotNull(patientProgram);
 				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
 				
@@ -1178,21 +1092,14 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				
 				// first verify that the existing patient program still exists and that the enrollment date has not been changed
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				
 				// assert that the program has only one state
-				Assert.assertEquals(1, patientProgram.getStates().size());
+				Assert.assertEquals(1, nonVoidedStates(pp));
 				
 				// assert that the start state of the state is correct
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				assertState(pp, START_STATE, TODAY, null);
 			}
 			
 		}.run();
@@ -1241,31 +1148,21 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			@Override
-			@SuppressWarnings("deprecation")
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				
 				// we should now have two program enrollments, one on PAST_DATE and one on DATE
-				ProgramWorkflowService pws = Context.getProgramWorkflowService();
-				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
-				Assert.assertEquals(2, Context.getProgramWorkflowService()
-				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).size());
+				List<PatientProgram> pps = patientPrograms(results.getPatient(), TEST_PROGRAM);
+				Assert.assertEquals(2, pps.size());
 				
 				// now verify that new state is correct
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
 				
 				// assert that the program has only one state
-				Assert.assertEquals(1, patientProgram.getStates().size());
+				Assert.assertEquals(1, nonVoidedStates(pp));
 				
 				// assert that the start state of the state is correct
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
 			}
 			
 		}.run();
@@ -1304,12 +1201,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				// do a sanity check here
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
+				assertState(pp, END_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -1344,26 +1237,16 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				ProgramWorkflowState middleState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), startState, TWO_YEARS_AGO);
-				Assert.assertNotNull(patientProgram);
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				
 				// assert that the patient program only has two states
-				Assert.assertEquals(2, patientProgram.getStates().size());
+				Assert.assertEquals(2, nonVoidedStates(pp));
 				
 				// verify that the start state now ends on PAST_DATE
-				PatientState patientState = getPatientState(patientProgram, startState, TWO_YEARS_AGO);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getEndDate()));
+				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
 				
 				// verify that the middle state starts on PAST_DATE and has no current end date
-				patientState = getPatientState(patientProgram, middleState, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, null);
 			}
 			
 		}.run();
@@ -1419,47 +1302,30 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			@Override
-			@SuppressWarnings("deprecation")
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflowService pws = Context.getProgramWorkflowService();
-				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
-				
-				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				ProgramWorkflowState middleState = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				ProgramWorkflowState endState = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				
-				PatientProgram patientProgram = Context.getProgramWorkflowService()
-				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
-				Assert.assertNotNull(patientProgram);
+				//Since moving into terminal state, this should end the program
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				
 				// assert that the patient program only has two states
-				Assert.assertEquals(2, patientProgram.statesInWorkflow(workflow, false).size());
+				Assert.assertEquals(2, nonVoidedStates(pp));
 				
 				// verify that the start state
-				PatientState patientState = getPatientState(patientProgram, startState, TWO_YEARS_AGO);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getEndDate()));
+				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
 				
-				// verify that the end state starts on PAST_DATE and has no current end date
-				patientState = getPatientState(patientProgram, endState, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				
-				Assert.assertNull(patientState.getEndDate());
+				// verify that the end state starts on PAST_DATE
+				assertState(pp, END_STATE, ONE_YEAR_AGO, null);
 				
 				// verify that the middle state no longer exists
-				patientState = getPatientState(patientProgram, middleState, ONE_YEAR_AGO);
-				Assert.assertTrue(patientState == null || patientState.isVoided());
+				assertNoState(pp, MIDDLE_STATE);
 			}
 			
 		}.run();
 	}
 	
 	@Test
-	public void shouldShiftExistingStateEndDateFowardAsNeededWhenShiftingStateLater() throws Exception {
+	public void shouldShiftExistingStateEndDateForwardAsNeededWhenShiftingStateLater() throws Exception {
 		
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		
@@ -1507,34 +1373,19 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			@Override
-			@SuppressWarnings("deprecation")
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				ProgramWorkflowService pws = Context.getProgramWorkflowService();
-				ProgramWorkflow workflow = pws.getWorkflowByUuid("72a90efc-5140-11e1-a3e3-00248140a5eb");
-				
-				ProgramWorkflowState startState = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				ProgramWorkflowState endState = Context.getProgramWorkflowService().getStateByUuid(END_STATE);
-				
-				PatientProgram patientProgram = Context.getProgramWorkflowService()
-				        .getPatientPrograms(patient, workflow.getProgram(), null, null, null, null, false).get(0);
-				Assert.assertNotNull(patientProgram);
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				
 				// assert that the patient program only has two states
-				Assert.assertEquals(2, patientProgram.statesInWorkflow(workflow, false).size());
+				Assert.assertEquals(2, nonVoidedStates(pp));
 				
 				// verify that the start state
-				PatientState patientState = getPatientState(patientProgram, startState, TWO_YEARS_AGO);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(TWO_YEARS_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getEndDate()));
+				assertState(pp, START_STATE, TWO_YEARS_AGO, TODAY);
 				
-				// verify that the end state starts on DATE and has no current end date
-				patientState = getPatientState(patientProgram, endState, TODAY);
-				Assert.assertNotNull(patientState);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				// verify that the end state starts on DATE
+				assertState(pp, END_STATE, TODAY, null);
 			}
 			
 		}.run();
@@ -1668,12 +1519,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				// patient should now be in the middle state
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
 			}
 			
 			@Override
@@ -1725,12 +1572,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				// patient still be in the middle state
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, ONE_YEAR_AGO);
-				PatientState patientState = getPatientState(patientProgram, state, ONE_YEAR_AGO);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
+				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, null);
 			}
 			
 			@Override
@@ -1798,12 +1641,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertLocation(2);
 				
 				// patient should now be in the middle state
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(MIDDLE_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertNull(patientState.getEndDate());
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
 			}
 			
 		}.run();
@@ -1832,29 +1671,19 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				//When: Html form is entered in which workflow state Y is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
-				request.addParameter(widgets.get("AnotherState:"), "67337cdc-53ad-11e1-8cb6-00248140a5eb"); // workflow state 207 in regressionTestData
+				request.addParameter(widgets.get("AnotherState:"), TEST_STATE7); // workflow state 207 in regressionTestData
 			}
 			
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient,
-				    Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+				Assert.assertEquals(1, patientPrograms(patient, TEST_PROGRAM).size());
 				
 				// double check that states have been set
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				ProgramWorkflowState anotherState = Context.getProgramWorkflowService()
-				        .getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb");
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				PatientState anotherPatientState = getPatientState(patientProgram, anotherState, TODAY);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(anotherPatientState.getStartDate()));
-				
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				assertState(pp, START_STATE, TODAY, null);
+				assertState(pp, TEST_STATE7, TODAY, null);
 			}
 		}.run();
 	}
@@ -1895,17 +1724,11 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient,
-				    Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+				Assert.assertEquals(1, patientPrograms(patient, TEST_PROGRAM).size());
 				
 				// double check that state has been set
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 		}.run();
 	}
@@ -1947,13 +1770,11 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertNoErrors();
 				
 				// sanity check
-				Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient,
-				    Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+				Assert.assertEquals(1, patientPrograms(patient, TEST_PROGRAM).size());
 				
-				// sanity check: program should not yet be in the start state
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				Assert.assertNull(patientProgram);
+				// double check that state has been set
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertNoState(pp, START_STATE);
 			}
 			
 			@Override
@@ -1978,42 +1799,25 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				Assert.assertEquals(1, Context.getProgramWorkflowService().getPatientPrograms(patient,
-				    Context.getProgramWorkflowService().getProgram(10), null, null, null, null, false).size());
+				Assert.assertEquals(1, patientPrograms(patient, TEST_PROGRAM).size());
 				
 				// double check that state has been set
-				ProgramWorkflowState state = Context.getProgramWorkflowService().getStateByUuid(START_STATE);
-				PatientProgram patientProgram = getPatientProgramByState(results.getPatient(), state, TODAY);
-				PatientState patientState = getPatientState(patientProgram, state, TODAY);
-				
-				Assert.assertNotNull(patientProgram);
-				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientState.getStartDate()));
-				Assert.assertEquals(dateAsString(ONE_YEAR_AGO), dateAsString(patientProgram.getDateEnrolled()));
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, TODAY, null);
 			}
 		}.run();
 	}
 	
-	/**
-	 * @param session
-	 */
 	private void assertNotPresent(FormEntrySession session, String state) throws Exception {
 		Assert.assertFalse("No " + state + " in result:" + session.getHtmlToDisplay(),
 		    session.getHtmlToDisplay().contains(state));
 	}
 	
-	/**
-	 * @param session
-	 */
 	private void assertPresent(FormEntrySession session, String state) throws Exception {
 		Assert.assertTrue(state + " in result: " + session.getHtmlToDisplay(), session.getHtmlToDisplay().contains(state));
 	}
 	
 	// enroll the patient in the program associated with the specified state (but do NOT put the patient in that state)
-	@SuppressWarnings("unused")
-	private void enrollInProgram(String state) {
-		enrollInProgram(state, new Date());
-	}
-	
 	private void enrollInProgram(String state, Date date) {
 		ProgramWorkflowState workflowState = Context.getProgramWorkflowService().getStateByUuid(state);
 		
@@ -2067,49 +1871,57 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 		return null;
 	}
 	
-	private PatientProgram getPatientProgramByState(Patient patient, ProgramWorkflowState state, Date activeDate) {
-		List<PatientProgram> patientPrograms = Context.getProgramWorkflowService().getPatientPrograms(patient,
-		    state.getProgramWorkflow().getProgram(), null, null, null, null, false);
-		for (PatientProgram patientProgram : patientPrograms) {
-			for (PatientState ps : patientProgram.getStates()) {
-				if (ps.getState().equals(state)) {
-					if (ps != null) {
-						if (activeDate == null || ps.getStartDate().compareTo(activeDate) <= 0) {
-							if (activeDate == null || ps.getEndDate() == null
-							        || ps.getEndDate().compareTo(activeDate) >= 0) {
-								return patientProgram;
-							}
-						}
-					} else {
-						return patientProgram;
-					}
-				}
+	protected List<PatientProgram> patientPrograms(Patient patient, String program) {
+		Program p = programWorkflowService.getProgramByUuid(program);
+		return programWorkflowService.getPatientPrograms(patient, p, null, null, null, null, false);
+	}
+	
+	protected PatientProgram patientProgram(Patient patient, String program, Date programStart, Date programEnd) {
+		for (PatientProgram pp : patientPrograms(patient, program)) {
+			boolean programStartMatches = OpenmrsUtil.nullSafeEquals(programStart, pp.getDateEnrolled());
+			boolean programEndMatches = OpenmrsUtil.nullSafeEquals(programEnd, pp.getDateCompleted());
+			if (programStartMatches && programEndMatches) {
+				return pp;
 			}
 		}
 		return null;
 	}
 	
-	/**
-	 * @param patientProgram
-	 * @param state
-	 * @param activeDate
-	 * @return
-	 */
-	private PatientState getPatientState(PatientProgram patientProgram, ProgramWorkflowState state, Date activeDate) {
-		for (PatientState ps : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
-			if (ps.getState().equals(state)) {
-				if (activeDate != null) {
-					if (ps.getStartDate().compareTo(activeDate) <= 0) {
-						if (ps.getEndDate() == null || ps.getEndDate().compareTo(activeDate) >= 0) {
-							return ps;
-						}
-					}
-				} else {
-					return ps;
-				}
-			}
-		}
-		return null;
+	protected PatientProgram assertProgram(Patient patient, String program, Date programStart, Date programEnd) {
+		PatientProgram pp = patientProgram(patient, program, programStart, programEnd);
+		Assert.assertNotNull(pp);
+		return pp;
 	}
 	
+	protected PatientState assertState(PatientProgram pp, String state, Date stateStart, Date stateEnd) {
+		PatientState ret = null;
+		for (PatientState ps : pp.getStates()) {
+			boolean stateMatches = ps.getState().getUuid().equals(state);
+			boolean startMatches = OpenmrsUtil.nullSafeEquals(stateStart, ps.getStartDate());
+			boolean endMatches = OpenmrsUtil.nullSafeEquals(stateEnd, ps.getEndDate());
+			if (stateMatches && startMatches && endMatches) {
+				ret = ps;
+			}
+		}
+		Assert.assertNotNull(ret);
+		return ret;
+	}
+	
+	protected void assertNoState(PatientProgram pp, String state) {
+		for (PatientState ps : pp.getStates()) {
+			if (ps.getState().getUuid().equals(state) && (ps.getVoided() == null || !ps.getVoided())) {
+				Assert.fail("Did not expect a state but found one from " + ps.getStartDate() + " to " + ps.getEndDate());
+			}
+		}
+	}
+	
+	protected int nonVoidedStates(PatientProgram pp) {
+		int ret = 0;
+		for (PatientState ps : pp.getStates()) {
+			if (ps.getVoided() == null || !ps.getVoided()) {
+				ret++;
+			}
+		}
+		return ret;
+	}
 }

@@ -91,11 +91,8 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				List<Order> orders = getOrderList(encounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, containsInAnyOrder(allOf(
-						hasProperty("drug", is(drug)),
-						hasProperty("dose", is(1.0)),
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))
-				)));
+				MatcherAssert.assertThat(orders, containsInAnyOrder(allOf(hasProperty("drug", is(drug)),
+				    hasProperty("dose", is(1.0)), hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 			
 			@Override
@@ -135,23 +132,14 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				List<Order> orders = getOrderList(editedEncounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, containsInAnyOrder(
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dose", is(1.0)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))
-				        ),
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dose", is(2.0)),
-						        hasProperty("action", is(Order.Action.REVISE))
-				        ),
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
-						        hasProperty("action", is(Order.Action.DISCONTINUE))
-				        ))
-				);
+				MatcherAssert.assertThat(orders,
+				    containsInAnyOrder(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)),
+				            hasProperty("action", is(Order.Action.REVISE))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
+				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
 			}
 		};
 		executeVersionedDataSet("otherConceptMappings.xml");
@@ -235,11 +223,8 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				List<Order> orders = getOrderList(encounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, contains(allOf(
-						hasProperty("drug", is(drug)),
-						hasProperty("dose", is(1.0)),
-						hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))
-				)));
+				MatcherAssert.assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				    hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 			
 			@Override
@@ -277,19 +262,13 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				List<Order> orders = getOrderList(editedEncounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, containsInAnyOrder(
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dose", is(2.0)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
-						        hasProperty("action", is(Order.Action.REVISE))
-				        ),
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dose", is(1.0)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))
-				        )
-				));
+				MatcherAssert.assertThat(orders,
+				    containsInAnyOrder(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
+				            hasProperty("action", is(Order.Action.REVISE))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 		};
 		executeVersionedDataSet("otherConceptMappings.xml");
@@ -380,18 +359,12 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				List<Order> orders = getOrderList(encounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, containsInAnyOrder(
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dose", is(1.0)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))
-				        ),
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("action", is(Order.Action.DISCONTINUE)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))
-				        )
-				));
+				MatcherAssert.assertThat(orders,
+				    containsInAnyOrder(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("action", is(Order.Action.DISCONTINUE)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate)))))));
 			}
 			
 			@Override
@@ -432,24 +405,16 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				List<Order> orders = getOrderList(editedEncounter);
 				
 				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, containsInAnyOrder(
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dose", is(1.0)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))
-				        ),
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("voided", is(true)),
-						        hasProperty("action", is(Order.Action.DISCONTINUE)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))
-				        ),
-				        allOf(
-				        		hasProperty("drug", is(drug)),
-						        hasProperty("dateActivated", is(ymdToDate(dateAsString(newDiscontinueDate)))),
-						        hasProperty("action", is(Order.Action.DISCONTINUE))
-				        )
-				));
+				MatcherAssert.assertThat(orders,
+				    containsInAnyOrder(
+				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
+				        allOf(hasProperty("drug", is(drug)), hasProperty("voided", is(true)),
+				            hasProperty("action", is(Order.Action.DISCONTINUE)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))),
+				        allOf(hasProperty("drug", is(drug)),
+				            hasProperty("dateActivated", is(ymdToDate(dateAsString(newDiscontinueDate)))),
+				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
 			}
 		};
 		createAndEditEncounterTest.run();
@@ -471,7 +436,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 			}
 		}.run();
 	}
-
+	
 	private List<Order> getOrderList(Encounter encounter) {
 		return new ArrayList<>(encounter.getOrders());
 	}
