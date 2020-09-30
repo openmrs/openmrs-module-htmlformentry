@@ -1,5 +1,14 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +31,6 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.compatibility.PatientServiceCompatibility;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
@@ -31,15 +39,6 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -551,6 +550,7 @@ public class FormEntrySession {
 		}
 		
 		// TODO wrap this in a transaction
+		Person newlyCreatedPerson = null;
 		if (submissionActions.getPersonsToCreate() != null) {
 			for (Person p : submissionActions.getPersonsToCreate()) {
 				if (p instanceof Patient) {
@@ -564,7 +564,7 @@ public class FormEntrySession {
 						        "Please check the design of your form to make sure the following fields are mandatory to create a patient: <br/><b>&lt;personName/&gt;</b>, <b>&lt;birthDateOrAge/&gt;</b>, <b>&lt;gender/&gt;</b>, <b>&lt;identifierType/&gt;</b>, <b>&lt;identifier/&gt;</b>, and <b>&lt;identifierLocation/&gt;</b>");
 					}
 				}
-				Context.getPersonService().savePerson(p);
+				newlyCreatedPerson = Context.getPersonService().savePerson(p);
 			}
 		}
 		if (submissionActions.getEncountersToCreate() != null) {
@@ -574,6 +574,15 @@ public class FormEntrySession {
 					if (form.getEncounterType() != null)
 						e.setEncounterType(form.getEncounterType());
 				}
+				// Due to the way ObsValidator works, if the associated person has been newly created, re-set it on the Obs
+				if (newlyCreatedPerson != null) {
+					for (Obs o : e.getAllObs(true)) {
+						if (o.getPerson().equals(newlyCreatedPerson)) {
+							o.setPerson(newlyCreatedPerson);
+						}
+					}
+				}
+				
 				Context.getEncounterService().saveEncounter(encounter);
 			}
 		}
@@ -686,18 +695,9 @@ public class FormEntrySession {
 				// this may not work right due to savehandlers (similar error to HTML-135) but this branch is
 				// unreachable until html forms are allowed to edit data without an encounter
 				for (Obs o : submissionActions.getObsToCreate())
-					obsService.saveObs(o, null);
+					obsService.saveObs(o, "Created by htmlformentry");
 			}
 		}
-		
-		/*
-		   ObsService obsService = Context.getObsService();
-		   This should propagate from above
-		  if (submissionActions.getObsToCreate() != null) {
-		      for (Obs o : submissionActions.getObsToCreate())
-		          Context.getObsService().saveObs(o, null);
-		  }
-		  */
 		
 		if (submissionActions.getIdentifiersToVoid() != null) {
 			for (PatientIdentifier patientIdentifier : submissionActions.getIdentifiersToVoid()) {
@@ -724,12 +724,10 @@ public class FormEntrySession {
 				Context.getPatientService().processDeath(this.getPatient(), exitFromCareProperty.getDateOfExit(),
 				    exitFromCareProperty.getCauseOfDeathConcept(), exitFromCareProperty.getOtherReason());
 			} else {
-				PatientServiceCompatibility patientService = Context.getRegisteredComponent(
-				    "htmlformentry.PatientServiceCompatibility", PatientServiceCompatibility.class);
-				patientService.exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(),
+				HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
+				hfes.exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(),
 				    exitFromCareProperty.getReasonExitConcept());
 			}
-			
 		}
 		
 		// handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
@@ -1157,8 +1155,11 @@ public class FormEntrySession {
 	
 	public void setHtmlForm(HtmlForm htmlForm) {
 		this.htmlForm = htmlForm;
-		if (form != null)
+		if (form != null) {
 			this.htmlForm.setForm(form);
+		} else {
+			this.form = htmlForm.getForm();
+		}
 	}
 	
 	public String getPatientPersonName() {

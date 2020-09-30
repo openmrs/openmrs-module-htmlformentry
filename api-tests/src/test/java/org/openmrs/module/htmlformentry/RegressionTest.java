@@ -1,22 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.Encounter;
-import org.openmrs.EncounterType;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
-import org.openmrs.module.htmlformentry.schema.HtmlFormField;
-import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.module.htmlformentry.schema.ObsField;
-import org.openmrs.module.htmlformentry.schema.ObsGroup;
-import org.openmrs.obs.ComplexData;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.mock.web.MockHttpServletRequest;
+import static org.hamcrest.core.Is.is;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -26,17 +10,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.hamcrest.core.Is.is;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.schema.ObsField;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
+import org.openmrs.obs.ComplexData;
+import org.springframework.mock.web.MockHttpServletRequest;
 
-public class RegressionTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class RegressionTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
@@ -317,7 +311,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(1);
-				results.assertObsCreated(2, 70d);
+				results.assertObsCreated(5089, 70d);
 			}
 		}.run();
 	}
@@ -354,8 +348,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 70d);
-				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(5089, 70d);
+				results.assertObsCreated(80000, "Bee stings");
 				results.assertObsCreated(1119, date);
 			}
 		}.run();
@@ -427,8 +421,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				results.assertObsGroupCreatedCount(1);
 				results.assertObsLeafCreatedCount(3); // 2 in the obs group, 1 for weight
-				results.assertObsCreated(2, new Double(70));
-				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date); // allergy construct
+				results.assertObsCreated(5089, new Double(70));
+				results.assertObsGroupCreated(70000, 80000, "Bee stings", 1119, date); // allergy construct
 			}
 		}.run();
 	}
@@ -501,8 +495,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertLocation(2);
 				results.assertObsGroupCreatedCount(2);
 				results.assertObsLeafCreatedCount(3);
-				results.assertObsGroupCreated(7, 8, "Bee stings", 1119, date);
-				results.assertObsGroupCreated(7, 8, "Penicillin");
+				results.assertObsGroupCreated(70000, 80000, "Bee stings", 1119, date);
+				results.assertObsGroupCreated(70000, 80000, "Penicillin");
 			}
 		}.run();
 	}
@@ -558,7 +552,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				return e;
 			}
 			
@@ -586,8 +581,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
-				TestUtil.addObs(e, 2, 12.3, null); // weight has conceptId 2
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
+				TestUtil.addObs(e, 5089, 12.3, null); // weight has conceptId 5089
 				return e;
 			}
 			
@@ -615,7 +611,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				TestUtil.addObs(e, 1, 965.0, null); // this is a CD4 Count
 				return e;
 			}
@@ -644,7 +641,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the ALLERGY CODED obs
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 1119,
@@ -687,7 +685,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 1002,
 				    Context.getConceptService().getConcept(1119), new Date());
@@ -729,7 +728,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 1002,
 				    Context.getConceptService().getConcept(1119), new Date());
@@ -774,7 +774,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 					e.setDateCreated(new Date());
 					e.setEncounterDatetime(date);
 					e.setLocation(Context.getLocationService().getLocation(2));
-					e.setProvider(Context.getPersonService().getPerson(502));
+					e.addProvider(Context.getEncounterService().getEncounterRole(1),
+					    Context.getProviderService().getProvider(1));
 					
 					// first create two ALLERGY CONSTRUCT obsgroups that contain ALLERGY CODED obs with different answer values
 					TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date());
@@ -817,11 +818,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 					e.setDateCreated(new Date());
 					e.setEncounterDatetime(date);
 					e.setLocation(Context.getLocationService().getLocation(2));
-					e.setProvider(Context.getPersonService().getPerson(502));
+					e.addProvider(Context.getEncounterService().getEncounterRole(1),
+					    Context.getProviderService().getProvider(1));
 					
 					// first create two ALLERGY CONSTRUCT obsgroups, both with ALLERGY CODED obs, but with different answer values
-					TestUtil.addObsGroup(e, 7, new Date(), 8, Context.getConceptService().getConcept(1001), new Date());
-					TestUtil.addObsGroup(e, 7, new Date(), 8, Context.getConceptService().getConcept(1002), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 80000, Context.getConceptService().getConcept(1001), new Date());
+					TestUtil.addObsGroup(e, 7, new Date(), 80000, Context.getConceptService().getConcept(1002), new Date());
 					
 					return e;
 				}
@@ -857,11 +859,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 					e.setDateCreated(new Date());
 					e.setEncounterDatetime(date);
 					e.setLocation(Context.getLocationService().getLocation(2));
-					e.setProvider(Context.getPersonService().getPerson(502));
+					e.addProvider(Context.getEncounterService().getEncounterRole(1),
+					    Context.getProviderService().getProvider(1));
 					
 					// create two ALLERGY CONSTRUCT obsgroups, with different text values, one of 01/02/2003, and one with the date set to null
-					TestUtil.addObsGroup(e, 7, new Date(), 8, "Dogs", new Date(), 1119, date, new Date());
-					TestUtil.addObsGroup(e, 7, new Date(), 8, "Cats", new Date(), 1119, null, new Date());
+					TestUtil.addObsGroup(e, 70000, new Date(), 80000, "Dogs", new Date(), 1119, date, new Date());
+					TestUtil.addObsGroup(e, 70000, new Date(), 80000, "Cats", new Date(), 1119, null, new Date());
 					
 					return e;
 				}
@@ -904,9 +907,11 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
 				e.setDateCreated(new Date());
+				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// first create DST parent group
 				Obs dstParent = TestUtil.createObs(e, 3040, null, date);
@@ -987,8 +992,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
-				TestUtil.addObs(e, 6, "blah blah", null);
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
+				TestUtil.addObs(e, 60000, "blah blah", null);
 				return e;
 			}
 			
@@ -1002,7 +1008,6 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testVelocityExpressions() throws Exception {
-		LogicUtil.registerDefaultRules();
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1023,7 +1028,6 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void testVelocityExpressionWithNoValueShouldReturnEmptyString() throws Exception {
-		LogicUtil.registerDefaultRules();
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1068,7 +1072,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(1);
-				results.assertObsCreated(2, 70d);
+				results.assertObsCreated(5089, 70d);
 			}
 			
 			@Override
@@ -1092,8 +1096,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				// TODO: for some reason starting in 1.8. the dateChanged is not set here
 				// see HTML-233: Unit test testEditSingleObsForm(org.openmrs.module.htmlformentry.RegressionTest) fails when tested against (at least) OpenMRS 1.8.2 and above
 				//results.assertEncounterEdited();
-				results.assertObsCreated(2, 75d);
-				results.assertObsVoided(2, 70d);
+				results.assertObsCreated(5089, 75d);
+				results.assertObsVoided(5089, 70d);
 			};
 			
 		}.run();
@@ -1102,7 +1106,9 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	// see https://issues.openmrs.org/browse/HTML-678
 	@Test
 	public void testEditShouldNotClearTimeComponentForm() throws Exception {
-		final Date date = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		final Date date = cal.getTime();
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1163,7 +1169,10 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void testEditShouldEditDate() throws Exception {
 		
-		final Date date = new Date();
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.MILLISECOND, 0);
+		final Date date = cal.getTime();
+		
 		new RegressionTestHelper() {
 			
 			@Override
@@ -1258,11 +1267,10 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				results.assertEncounterEdited();
-				results.assertObsCreated(2, 75d);
-				results.assertObsVoided(2, 50d);
-				results.assertObsCreated(8, "Bee stings");
-				results.assertObsVoided(8, "Penicillin");
+				results.assertObsCreated(5089, 75d);
+				results.assertObsVoided(5089, 50d);
+				results.assertObsCreated(80000, "Bee stings");
+				results.assertObsVoided(80000, "Penicillin");
 			};
 			
 		}.run();
@@ -1275,14 +1283,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "obsGroupSchemaTest.xml"));
+		htmlform.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/obsGroupSchemaTest.xml"));
 		FormEntrySession session = new FormEntrySession(HtmlFormEntryUtil.getFakePerson(), htmlform, null);
 		session.getHtmlToDisplay();
 		HtmlFormSchema hfs = session.getContext().getSchema();
 		
 		// one top-level field
 		Assert.assertThat(hfs.getFields().size(), is(1));
-		Assert.assertThat(((ObsField) hfs.getFields().get(0)).getQuestion().getId(), is(6));
+		Assert.assertThat(((ObsField) hfs.getFields().get(0)).getQuestion().getId(), is(60000));
 		
 		// one top-level section with one field
 		Assert.assertThat(hfs.getSections().size(), is(1));
@@ -1361,7 +1370,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 70d);
+				results.assertObsCreated(5089, 70d);
 				results.assertObsCreated(1008, date);
 				results.assertObsCreated(1009, "07:00:00");
 			}
@@ -1380,8 +1389,7 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				//simplest form should contain default label and class
-				TestUtil.assertFuzzyContains(
-				    "<input type=\"button\" class=\"submitButton\" value=\"htmlformentry.enterFormButton\"", html);
+				TestUtil.assertFuzzyContains("<input type=\"button\" class=\"submitButton\" value=\"Enter Form\"", html);
 				return;
 			}
 			
@@ -1465,7 +1473,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				TestUtil.addObs(e, 19, "2", null); // this is a location
 				return e;
 			}
@@ -1494,7 +1503,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				TestUtil.addObs(e, 19, "2 - Xanadu", null); // this is a location
 				return e;
 			}
@@ -1642,14 +1652,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 80000,
 				    "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 80000,
 				    "foo3", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo1", new Date());
 				
 				return e;
 			}
@@ -1691,14 +1702,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 80000,
 				    "foo3", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 80000,
 				    "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo1", new Date());
 				
 				return e;
 			}
@@ -1740,13 +1752,14 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo1", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 80000,
 				    "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 80000,
 				    "foo3", new Date());
 				
 				return e;
@@ -1789,13 +1802,14 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 80000,
 				    "foo1", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo2", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 80000,
 				    "foo3", new Date());
 				
 				return e;
@@ -1838,14 +1852,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 80000,
 				    "foo1", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 80000,
 				    "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo3", new Date());
 				
 				return e;
 			}
@@ -1887,13 +1902,14 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 80000,
 				    "foo1", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo2", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo3", new Date());
 				
 				return e;
 			}
@@ -1935,12 +1951,13 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				// create three obsgroups with the identical structures but with different answer values for the obs
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo1", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo2", new Date());
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "foo3", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo1", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo2", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "foo3", new Date());
 				
 				return e;
 			}
@@ -1982,9 +1999,10 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 80000,
 				    "bar4", new Date());
 				
 				return e;
@@ -2025,11 +2043,12 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "bar1", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "bar1", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 80000,
 				    "bar4", new Date());
 				
 				return e;
@@ -2071,19 +2090,20 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 80000,
 				    "bar1", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "bar2", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "bar2", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 80000,
 				    "bar3", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 8, "bar4", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, null, new Date(), 80000, "bar4", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 80000,
 				    "bar5", new Date());
 				
 				return e;
@@ -2128,21 +2148,22 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 80000,
 				    "bar1", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 80000,
 				    "bar2", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date(), 80000,
 				    "bar3", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1004), new Date(), 80000,
 				    "bar4", new Date());
 				
-				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 8,
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 80000,
 				    "bar5", new Date());
 				
 				return e;
@@ -2186,13 +2207,15 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("01/02/2003");
 				e.setDateCreated(new Date());
+				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				Obs obs = new Obs();
-				obs.setConcept(Context.getConceptService().getConcept(4));
-				obs.setValueNumeric(new Double(1)); // set this obs to a valid Boolean value 
+				obs.setConcept(Context.getConceptService().getConcept(18)); // Concept 18 is a boolean
+				obs.setValueBoolean(true); // set this obs to a valid Boolean value
 				
 				e.addObs(obs);
 				Context.getEncounterService().saveEncounter(e);
@@ -2225,7 +2248,8 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setDateCreated(new Date());
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				Obs obs = new Obs();
 				obs.setConcept(Context.getConceptService().getConcept(4));
@@ -2524,9 +2548,11 @@ public class RegressionTest extends BaseModuleContextSensitiveTest {
 				e.setPatient(getPatient());
 				Date date = Context.getDateFormat().parse("11/08/2012");
 				e.setDateCreated(new Date());
+				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 				e.setEncounterDatetime(date);
 				e.setLocation(Context.getLocationService().getLocation(2));
-				e.setProvider(Context.getPersonService().getPerson(502));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
 				
 				Obs obs = new Obs();
 				obs.setConcept(Context.getConceptService().getConcept(6100));

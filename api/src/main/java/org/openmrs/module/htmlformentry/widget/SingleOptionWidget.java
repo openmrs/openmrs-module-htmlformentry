@@ -1,11 +1,11 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.openmrs.OpenmrsObject;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.openmrs.OpenmrsObject;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 
 /**
  * This represents a single widget on a form which presents several coded options, of which only one

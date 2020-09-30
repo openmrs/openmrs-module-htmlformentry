@@ -13,6 +13,17 @@ package org.openmrs.module.htmlformentry;
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+
 import net.anotheria.webutils.servlet.request.HttpServletRequestMockImpl;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
@@ -20,12 +31,6 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.serialization.OpenmrsSerializer;
 import org.openmrs.serialization.SerializationException;
 import org.openmrs.serialization.SimpleXStreamSerializer;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
 
 public class SerializableFormObject implements Serializable {
 	

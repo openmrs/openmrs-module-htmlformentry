@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+
+    <!-- encounter for our reference data -->
+    <encounter encounter_id="3001" encounter_type="2" patient_id="2" location_id="1" form_id="1" encounter_datetime="2003-02-01 00:00:00.0" creator="1" date_created="2003-02-01 14:09:05.0" voided="false" uuid="356c9eb4-ff7f-40ff-9ebb-eae5a2b54335"/>
+
+    <concept concept_id="2001" retired="false" datatype_id="6" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="f4cd95b6-9497-48c2-8933-2c43f3233ea0"/>
+    <concept concept_id="2002" retired="false" datatype_id="10" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="eb8542a0-76d6-42ef-ada9-13783fc83f21"/>
+    <concept concept_id="2003" retired="false" datatype_id="10" class_id="11" is_set="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="59f7fd81-6d1c-482e-8417-c9c3cbebfe1f"/>
+
+    <!-- Weight for our patient, as part of an encounter -->
+    <obs obs_id="2001" person_id="2" concept_id="5089" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_numeric="70.0" status="FINAL" location_id="1" creator="1" date_created="2003-02-01 00:00:00.0" voided="false" uuid="04d2c021-b83a-4e02-884f-70e5c12c0dc3" />
+
+    <!-- Allergy for our patient -->
+    <obs obs_id="2002" person_id="2" concept_id="1000" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="1001" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="77308c89-68de-4a78-82cb-8f1f4ccb30ad" />
+
+    <!-- Non-Coded Allergy for our patient -->
+    <obs obs_id="2003" person_id="2" concept_id="80000" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_text="Penicillin" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="f90678a6-db11-4730-8801-3249dca43b95" />
+
+    <!-- Date obs for our patient -->
+    <obs obs_id="2004" person_id="2" concept_id="2001" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_datetime="2003-02-01 00:00:00.0" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="b4350dee-91dd-4ee5-8849-86c8ee96008a" />
+
+    <!-- True/false obs for our patient (value_coded=7 is "Yes" from our test dataset) -->
+    <obs obs_id="2005" person_id="2" concept_id="2002" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="7" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="97990d94-f9b2-4d01-985c-03ac48010d0e" />
+
+    <!-- True/false obs for our patient (value_coded=8 is "No" from our test dataset) -->
+    <obs obs_id="2006" person_id="2" concept_id="2003" encounter_id="3001" obs_datetime="2003-02-01 00:00:00.0" value_coded="80000" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="c9c2e8e7-9b42-418b-9ce2-c8ed6d88dc2de" />
+
+    <!-- Another weight obs on the same day but with a later obs datetime -->
+    <obs obs_id="2007" person_id="2" concept_id="5089" encounter_id="3001" obs_datetime="2003-02-01 10:10:00.0" value_numeric="75.0" status="FINAL" location_id="1" creator="1" date_created="2003-02-01 00:00:00.0" voided="false" uuid="d8ad488b-edb6-4c06-8889-c3bc0cd903f1" />
+
+</dataset>

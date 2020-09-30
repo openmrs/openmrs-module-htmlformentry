@@ -1,13 +1,12 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import org.openmrs.Concept;
+import java.util.Map;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
-
-import java.util.Map;
 
 /**
  * @see ControlsTagHandler

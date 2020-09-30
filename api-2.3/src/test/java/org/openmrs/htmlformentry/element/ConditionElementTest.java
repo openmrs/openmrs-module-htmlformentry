@@ -1,8 +1,15 @@
 package org.openmrs.htmlformentry.element;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.util.Calendar;
@@ -18,17 +25,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.openmrs.*;
+import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
+import org.openmrs.Condition;
+import org.openmrs.ConditionClinicalStatus;
+import org.openmrs.Encounter;
+import org.openmrs.Form;
+import org.openmrs.Patient;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.ConditionService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
-import org.openmrs.module.htmlformentry.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.element.ConditionElement;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
@@ -165,13 +178,14 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldSupportNoneCodedConceptValues() {
+	public void handleSubmission_shouldSupportNonCodedValues() {
 		// setup
 		request.addParameter("condition-field-name", "Typed in non-coded value");
 		when(context.getFieldName(conditionSearchWidget)).thenReturn("condition-field-name");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("");
 		
 		// replay
+		element.setRequired(true);
 		element.handleSubmission(session, request);
 		
 		// verify
@@ -193,18 +207,6 @@ public class ConditionElementTest {
 		// verify
 		ArgumentCaptor<Condition> captor = ArgumentCaptor.forClass(Condition.class);
 		verify(conditionService, times(0)).saveCondition(captor.capture());
-	}
-	
-	@Test
-	public void handleSubmission_shouldNotCreateConditionInViewMode() {
-		// setup
-		when(context.getMode()).thenReturn(Mode.VIEW);
-		
-		// replay
-		element.handleSubmission(session, request);
-		
-		// verify
-		verify(conditionService, never()).saveCondition(any(Condition.class));
 	}
 	
 	@Test
@@ -232,6 +234,21 @@ public class ConditionElementTest {
 		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 		Assert.assertEquals("HtmlFormEntry^MyForm.1.0/my_condition_tag-0", condition.getFormNamespaceAndPath());
+	}
+	
+	@Test
+	public void handleSubmission_shouldNotSubmitTagWithPresetConceptAndWithoutStatus() {
+		
+		// Mock condition search widget
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		
+		// Test
+		element.setPresetConcept(new Concept());
+		element.handleSubmission(session, request);
+		
+		// Verify
+		Set<Condition> conditions = encounter.getConditions();
+		Assert.assertEquals(0, conditions.size());
 	}
 	
 	@Test

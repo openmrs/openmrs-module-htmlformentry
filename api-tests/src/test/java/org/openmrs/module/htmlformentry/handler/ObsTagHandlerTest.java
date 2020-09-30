@@ -2,12 +2,12 @@ package org.openmrs.module.htmlformentry.handler;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class ObsTagHandlerTest extends BaseModuleContextSensitiveTest {
+public class ObsTagHandlerTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void validate_shouldWarnWhenObsIsNotAMemberOfParentObsgroup() throws Exception {

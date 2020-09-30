@@ -13,9 +13,8 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import org.openmrs.EncounterType;
 import org.openmrs.api.context.Context;

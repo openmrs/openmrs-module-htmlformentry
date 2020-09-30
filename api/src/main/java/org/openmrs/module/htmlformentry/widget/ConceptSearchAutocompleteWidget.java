@@ -1,13 +1,13 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * A double parameter autocomplete widget to do the <obs><obs/> auto completion

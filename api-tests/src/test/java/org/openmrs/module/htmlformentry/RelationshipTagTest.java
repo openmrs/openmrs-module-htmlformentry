@@ -12,18 +12,13 @@ import org.openmrs.Relationship;
 import org.openmrs.RelationshipType;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class RelationshipTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	// test creating a simple A to B relationship
@@ -211,8 +206,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				results.assertObsCreatedCount(3);
-				results.assertObsCreated(2, 70d);
-				results.assertObsCreated(8, "Bee stings");
+				results.assertObsCreated(5089, 70d);
+				results.assertObsCreated(80000, "Bee stings");
 				results.assertObsCreated(1119, date);
 				
 				// now make sure the relationship has been created
@@ -627,8 +622,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// John Doe (from standard test data) is enrolled in program 1
-				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// Horatio Test Hornblower (from standard test data) is enrolled in program 1
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 			}
 		}.run();
 	}
@@ -648,8 +643,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// John Doe (patient 2) is the current patient in this case, and so should be excluded
-				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// Horatio Test Hornblower (patient 2) is the current patient in this case, and so should be excluded
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 			}
 		}.run();
 	}
@@ -674,8 +669,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// John Doe (from standard test data) is enrolled in program 1, but not in program 3, so he SHOULDN'T appear
-				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// Horatio Test Hornblower (from standard test data) is enrolled in program 1, but not in program 3, so he SHOULDN'T appear
+				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 			}
 		}.run();
 	}
@@ -797,8 +792,8 @@ public class RelationshipTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				// should contain John Doe (patient 2)
-				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*John Doe", html);
+				// should contain Horatio Test Hornblower (patient 2)
+				TestUtil.assertFuzzyContains("select id=\"w7\" name = \"w7\".*Horatio Test Hornblower", html);
 				
 				// patients with attribute, but not with program, should be excluded
 				TestUtil.assertFuzzyDoesNotContain("select id=\"w7\" name = \"w7\".*Anet Test Oloo", html);

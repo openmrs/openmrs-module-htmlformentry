@@ -2,9 +2,8 @@ package org.openmrs.module.htmlformentry;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class IncludeIfExcludeIfTagTest extends BaseModuleContextSensitiveTest {
+public class IncludeIfExcludeIfTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void singleIncludeIf_shouldExcludeText() throws Exception {

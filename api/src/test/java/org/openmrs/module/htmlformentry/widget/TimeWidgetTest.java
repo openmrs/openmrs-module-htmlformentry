@@ -1,21 +1,21 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.junit.Test;
-import org.openmrs.GlobalProperty;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TimeWidgetTest extends BaseModuleContextSensitiveTest {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.junit.Test;
+import org.openmrs.GlobalProperty;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
+
+public class TimeWidgetTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void testHidden() throws Exception {

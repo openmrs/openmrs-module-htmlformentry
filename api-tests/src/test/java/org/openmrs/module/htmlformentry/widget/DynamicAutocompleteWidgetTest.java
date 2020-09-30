@@ -1,12 +1,10 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.Concept;
-import org.openmrs.ConceptClass;
-import org.openmrs.ConceptName;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.TestUtil;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -14,13 +12,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.any;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
+import org.openmrs.ConceptName;
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.TestUtil;
 
 public class DynamicAutocompleteWidgetTest {
 	
@@ -32,7 +31,7 @@ public class DynamicAutocompleteWidgetTest {
 	public void setup() {
 		request = mock(HttpServletRequest.class);
 		context = mock(FormEntryContext.class);
-		when(context.getFieldName(argThat(any(Widget.class)))).thenReturn("w2");
+		when(context.getFieldName(ArgumentMatchers.any(Widget.class))).thenReturn("w2");
 	}
 	
 	@Test

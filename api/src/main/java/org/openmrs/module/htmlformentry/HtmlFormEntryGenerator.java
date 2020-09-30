@@ -334,8 +334,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	}
 	
 	/**
-	 * Replaces &&, < and > within form with their encoded values within velocity and logic expressions
-	 * (provides backwards compatibility after refactoring includeIf and excludeIf)
+	 * Replaces &&, < and > within form with their encoded values within velocity expressions (provides
+	 * backwards compatibility after refactoring includeIf and excludeIf)
 	 *
 	 * @param xml
 	 * @return
@@ -359,19 +359,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		}
 		velocityMatcher.appendTail(afterVelocityChanges);
 		
-		Matcher logicMatcher = Pattern.compile("logicTest=\"[^\"]*\"").matcher(afterVelocityChanges);
-		StringBuffer afterLogicChanges = new StringBuffer();
-		
-		while (logicMatcher.find()) {
-			String str = logicMatcher.group();
-			str = doubleAmpersand.matcher(str).replaceAll("&amp;&amp;");
-			str = lessThan.matcher(str).replaceAll("&lt;");
-			str = greaterThan.matcher(str).replaceAll("&gt;");
-			logicMatcher.appendReplacement(afterLogicChanges, Matcher.quoteReplacement(str));
-		}
-		
-		logicMatcher.appendTail(afterLogicChanges);
-		return afterLogicChanges.toString();
+		return afterVelocityChanges.toString();
 	}
 	
 	/**

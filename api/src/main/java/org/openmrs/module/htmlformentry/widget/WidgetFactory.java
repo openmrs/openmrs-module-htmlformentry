@@ -23,7 +23,17 @@ public class WidgetFactory {
 	 * Used by {@see inferWidgetTypeHint(FormField)}.
 	 */
 	public enum WidgetTypeHint {
-		NUMBER, TEXT, TEXTAREA, CHECKBOX, RADIO_BUTTONS, DROPDOWN, CHECKBOX_LIST, MULTISELECT, UPLOAD_WIDGET, DATE, DATE_TIME
+		NUMBER,
+		TEXT,
+		TEXTAREA,
+		CHECKBOX,
+		RADIO_BUTTONS,
+		DROPDOWN,
+		CHECKBOX_LIST,
+		MULTISELECT,
+		UPLOAD_WIDGET,
+		DATE,
+		DATE_TIME
 	}
 	
 	/**

@@ -14,11 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
-public class ComplexObsTagTest extends BaseModuleContextSensitiveTest {
+public class ComplexObsTagTest extends BaseHtmlFormEntryTest {
 	
 	private File file;
 	
@@ -35,11 +34,6 @@ public class ComplexObsTagTest extends BaseModuleContextSensitiveTest {
 	public void shouldSaveComplexObsWithImageHandler() throws Exception {
 		
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {
@@ -71,7 +65,9 @@ public class ComplexObsTagTest extends BaseModuleContextSensitiveTest {
 				Assert.assertThat(obs.size(), is(1));
 				
 				Obs o = obs.get(0);
-				Assert.assertEquals("png image |test-image.png", o.getValueComplex());
+				String valueComplex = o.getValueComplex();
+				Assert.assertTrue(valueComplex.startsWith("png image |test-image"));
+				Assert.assertTrue(valueComplex.endsWith(".png"));
 			}
 			
 		}.run();

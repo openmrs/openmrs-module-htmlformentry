@@ -1,10 +1,12 @@
 package org.openmrs.module.htmlformentry.db;
 
 import java.util.List;
+import java.util.Set;
 
 import org.openmrs.Form;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.Program;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.element.PersonStub;
@@ -90,4 +92,8 @@ public interface HtmlFormEntryDAO {
 	 */
 	public List<Integer> getPersonIdHavingAttributes(String attributeId, String attributeValue);
 	
+	/**
+	 * Return a List of patient ids who have ever been enrolled in the given program
+	 */
+	public Set<Integer> getPatientIdHavingEnrollments(Program program);
 }

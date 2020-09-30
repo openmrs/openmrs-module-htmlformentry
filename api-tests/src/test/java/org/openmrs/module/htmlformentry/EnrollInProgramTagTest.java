@@ -1,5 +1,11 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,23 +18,12 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Tests of the various program-related tags
  */
-public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 	
 	PatientService ps;
 	
@@ -38,7 +33,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	public void loadConcepts() throws Exception {
 		ps = Context.getPatientService();
 		pws = Context.getProgramWorkflowService();
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
@@ -285,7 +280,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void editPatientProgram_shouldNotMoveEnrollmentDateIfEnrolledBeforeNewEnrollmentDate() throws Exception {
-		executeDataSet(XML_DATASET_PATH + "ProgramTagTest-otherPatientStates.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/ProgramTagTest-otherPatientStates.xml");
 		final Integer patientId = 2;
 		final Integer idForStateStartedOnEnrollmentDate = 10;
 		final Integer patientProgramId = 1;
@@ -354,7 +349,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void editPatientProgram_shouldMoveEnrollmentDateIfEnrolledAfterNewEnrollmentDate() throws Exception {
-		executeDataSet(XML_DATASET_PATH + "ProgramTagTest-otherPatientStates.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/ProgramTagTest-otherPatientStates.xml");
 		final Integer patientId = 2;
 		final Integer idForStateStartedOnEnrollmentDate = 10;
 		final Integer patientProgramId = 1;
@@ -792,7 +787,6 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void enrollInProgram_shouldNotEnrollAPatientIfAlreadyEnrolledOnTheSelectedDateAndCheckboxPresent()
 	        throws Exception {
-		// executeDataSet(XML_DATASET_PATH + "ProgramTagTest-otherPatientStates.xml");
 		final Integer patientId = 2;
 		final Integer programId = 1;
 		final Integer patientProgramId = 1;
@@ -861,7 +855,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void editPatientProgram_shouldNotDisableCheckboxForPreviouslyCompletedProgram() throws Exception {
-		executeDataSet(XML_DATASET_PATH + "ProgramTagTest-completedProgram.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/ProgramTagTest-completedProgram.xml");
 		final Integer patientId = 7;
 		final Integer programId = 1;
 		Patient patient = Context.getPatientService().getPatient(patientId);
@@ -880,7 +874,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void enrollInProgram_shouldSetEnrollmentLocationBasedOnLocationTag() throws Exception {
 		
-		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml"); // provides a hierarchy of locations and tags
 		
 		final Integer patientId = 2;
 		final Integer programId = 10;
@@ -934,7 +928,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void enrollInProgram_shouldSetEnrollmentLocationToParentLocationWithLocationTag() throws Exception {
 		
-		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml"); // provides a hierarchy of locations and tags
 		
 		final Integer patientId = 2;
 		final Integer programId = 10;
@@ -988,7 +982,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	@Test
 	public void enrollInProgram_shouldNotFailIfNoLocationMatchingTag() throws Exception {
 		
-		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml"); // provides a hierarchy of locations and tags
 		
 		final Integer patientId = 2;
 		final Integer programId = 10;
@@ -1041,7 +1035,7 @@ public class EnrollInProgramTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void editPatientProgram_shouldNotChangeEnrollmentDate() throws Exception {
-		executeDataSet(XML_DATASET_PATH + "encounterLocationTest.xml"); // provides a hierarchy of locations and tags
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml"); // provides a hierarchy of locations and tags
 		
 		final Integer patientId = 2;
 		final Integer patientProgramId = 1;

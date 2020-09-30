@@ -1,16 +1,15 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmrs.ConceptNumeric;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.util.OpenmrsUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -62,13 +61,10 @@ public class NumberFieldWidget implements Widget {
 	public NumberFieldWidget(ConceptNumeric concept, String size, Double absoluteMinimum, Double absoluteMaximum) {
 		if (concept != null) {
 			
-			ConceptCompatibility conceptCompatibility = Context.getRegisteredComponent("htmlformentry.ConceptCompatibility",
-			    ConceptCompatibility.class);
-			
 			setAbsoluteMaximum(absoluteMaximum != null ? absoluteMaximum : concept.getHiAbsolute());
 			setAbsoluteMinimum(absoluteMinimum != null ? absoluteMinimum : concept.getLowAbsolute());
 			
-			setFloatingPoint(conceptCompatibility.isAllowDecimal(concept));
+			setFloatingPoint(concept.getAllowDecimal());
 			if (size != null && !size.equals("")) {
 				try {
 					setNumberFieldSize(Integer.valueOf(size));

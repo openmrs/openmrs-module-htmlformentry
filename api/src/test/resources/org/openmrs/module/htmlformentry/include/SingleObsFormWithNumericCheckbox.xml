@@ -2,6 +2,6 @@
 	Date: <encounterDate/>
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
-	NumericValue: <obs conceptId="1" answer="8" answerLabel="Eight" style="checkbox"/>
+	NumericValue: <obs conceptId="5497" answer="8" answerLabel="Eight" style="checkbox"/>
 	<submit/>
 </htmlform>

@@ -6,18 +6,13 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ModifyObsTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class ModifyObsTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
@@ -76,11 +71,11 @@ public class ModifyObsTest extends BaseModuleContextSensitiveTest {
 				results.assertNoErrors();
 				results.assertObsCreatedCount(1);
 				//this is the behavior of valueNumeric, arguably 0.0 should equal 0
-				results.assertObsVoided(2, "0.0");
+				results.assertObsVoided(5089, "0.0");
 				//arguably 4.0 should equal 4
-				results.assertObsCreated(2, "4.0");
+				results.assertObsCreated(5089, "4.0");
 				
-				results.assertPreviousVersion(2);
+				results.assertPreviousVersion(5089);
 			}
 			
 		}.run();
