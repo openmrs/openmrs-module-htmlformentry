@@ -154,6 +154,8 @@
                         <configuration>
                             <webApp>${basedir}/target/${openMRSVersion}/webapp</webApp>
                             <contextPath>/${webapp.name}</contextPath>
+                            <stopKey></stopKey>
+                            <stopPort></stopPort>
                             <systemProperties>
                                 <systemProperty>
                                     <name>FUNCTIONAL_TEST_MODE</name>
@@ -275,6 +277,8 @@
                         <configuration>
                             <webApp>${basedir}/target/${openMRSVersion}/webapp</webApp>
                             <contextPath>/${webapp.name}</contextPath>
+                            <stopKey></stopKey>
+                            <stopPort></stopPort>
                             <systemProperties>
                                 <systemProperty>
                                     <name>FUNCTIONAL_TEST_MODE</name>
@@ -324,7 +328,6 @@
                                 <configuration>
                                     <mainClass>org.openmrs.ModuleStory</mainClass>
                                     <classpathScope>test</classpathScope>
-                                    <executable>java</executable>
                                 </configuration>
                             </execution>
                         </executions>
@@ -390,7 +393,8 @@
                         <configuration>
                             <webApp>${basedir}/target/${openMRSVersion}/webapp</webApp>
                             <contextPath>/${webapp.name}</contextPath>
-
+                            <stopKey></stopKey>
+                            <stopPort></stopPort>
                             <systemProperties>
                                 <systemProperty>
                                     <name>FUNCTIONAL_TEST_MODE</name>
