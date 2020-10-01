@@ -13,33 +13,33 @@ import org.openmrs.module.htmlformentry.element.ConditionElement;
 public class ConditionTagHandler extends SubstitutionTagHandler {
 	
 	private ConditionElement conditionElement;
-
+	
 	public String getSubstitution(FormEntrySession session, FormSubmissionController controller,
 	        Map<String, String> attributes) {
 		conditionElement = new ConditionElement();
-
+		
 		String required = attributes.get("required");
 		if (required != null) {
 			conditionElement.setRequired(required.equalsIgnoreCase("true"));
 		}
-
+		
 		String controlId = attributes.get("controlId");
 		if (StringUtils.isBlank(controlId)) {
 			throw new IllegalArgumentException("Attribute controlId cannot be blank");
 		}
 		conditionElement.setControlId(controlId);
-
+		
 		String conceptId = attributes.get("conceptId");
 		if (!StringUtils.isEmpty(conceptId)) {
 			conditionElement.setPresetConcept(HtmlFormEntryUtil.getConcept(conceptId));
 		}
-
+		
 		// Fill show additional detail attribute
 		String showAdditionalDetail = attributes.get("showAdditionalDetail");
 		if (StringUtils.equals("true", showAdditionalDetail)) {
 			conditionElement.setShowAdditionalDetails(true);
 		}
-
+		
 		session.getSubmissionController().addAction(conditionElement);
 		return conditionElement.generateHtml(session.getContext());
 	}

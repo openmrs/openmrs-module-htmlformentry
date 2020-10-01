@@ -49,9 +49,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private Condition existingCondition;
 	
 	private Concept presetConcept;
-
+	
 	private boolean showAdditionalDetails;
-
+	
 	// widgets
 	private ConceptSearchAutocompleteWidget conceptSearchWidget;
 	
@@ -60,7 +60,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private DateWidget endDateWidget;
 	
 	private TextFieldWidget additionalDetailsWidget;
-
+	
 	private RadioButtonsWidget conditionStatusesWidget;
 	
 	private ErrorWidget endDateErrorWidget;
@@ -77,7 +77,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
 		Condition condition = bootstrap(context);
-
+		
 		CodedOrFreeText codedOrFreeText = new CodedOrFreeText();
 		if (presetConcept != null) {
 			codedOrFreeText.setCoded(presetConcept);
@@ -92,24 +92,24 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			}
 		}
 		condition.setCondition(codedOrFreeText);
-
+		
 		ConditionClinicalStatus status = getStatus(context, submission);
 		condition.setClinicalStatus(status);
-
+		
 		if (showAdditionalDetails) {
 			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
 		}
-
+		
 		condition.setOnsetDate(onsetDateWidget.getValue(context, submission));
-
+		
 		if (status != ConditionClinicalStatus.ACTIVE) {
 			condition.setEndDate(endDateWidget.getValue(context, submission));
 		}
-
+		
 		condition.setPatient(session.getPatient());
-
+		
 		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
-
+		
 		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
 			// incomplete optional conditions are not submitted or are removed in EDIT mode
 			if (context.getMode() == Mode.EDIT) {
@@ -119,7 +119,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			session.getEncounter().addCondition(condition);
 		}
 	}
-
+	
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<>();
@@ -129,9 +129,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		        ? (String) conceptSearchWidget.getValue(context, submission)
 		        : submission.getParameter(context.getFieldName(conceptSearchWidget));
 		ConditionClinicalStatus status = getStatus(context, submission);
-
+		
 		if (context.getMode() != Mode.VIEW) {
-
+			
 			if (StringUtils.isBlank(condition) && required) {
 				ret.add(new FormSubmissionError(context.getFieldName(conceptSearchWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.condition.required")));
@@ -139,12 +139,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			if (givenOnsetDate != null && givenEndDate != null) {
 				if (givenOnsetDate.after(givenEndDate)) {
 					ret.add(new FormSubmissionError(context.getFieldName(endDateWidget), Context.getMessageSourceService()
-							.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error")));
+					        .getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error")));
 				}
 			}
 			if (status == null && required) {
 				ret.add(new FormSubmissionError(context.getFieldName(conditionStatusesWidget),
-						Context.getMessageSourceService().getMessage("htmlformentry.conditionui.status.required")));
+				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.status.required")));
 			}
 		}
 		return ret;
@@ -162,18 +162,18 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append("<div id=\"" + wrapperDivId + "\">");
 		// Show condition search
 		ret.append(htmlForConditionSearchWidget(context));
-
+		
 		// Show additional details
 		if (showAdditionalDetails) {
 			ret.append(htmlForAdditionalDetailsWidget(context));
 		}
-
+		
 		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
-
+		
 		// Show condition dates
 		ret.append(htmlForConditionDatesWidget(context));
-
+		
 		ret.append("</div>");
 		return ret.toString();
 	}
@@ -261,7 +261,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		conceptSearchWidget = new ConceptSearchAutocompleteWidget(null, allowedConceptClasses);
 		String conditionNameTextInputId = context.registerWidget(conceptSearchWidget);
 		conditionSearchErrorWidget = new ErrorWidget();
-
+		
 		if (presetConcept == null) {
 			if (existingCondition != null && context.getMode() != Mode.ENTER) {
 				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
@@ -274,15 +274,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		} else {
 			conceptSearchWidget.setInitialValue(presetConcept);
 		}
-
+		
 		context.registerErrorWidget(conceptSearchWidget, conditionSearchErrorWidget);
 		
 		StringBuilder ret = new StringBuilder();
-
+		
 		// Create wrapper id
 		String searchWidgetWrapperId = "condition-" + controlId;
 		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
-
+		
 		if (context.getMode() == Mode.VIEW) {
 			// append label
 			ret.append(conditionLabel + ": ");
@@ -319,7 +319,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			if (presetConcept != null) {
 				ret.append("jq('#" + conditionNameTextInputId + "').attr(\"readonly\", true)\n");
 			}
-
+			
 			// Add support for non-coded concept values.
 			// This a hack to let the autocomplete widget accept values that aren't part of the concept list.
 			ret.append("jq('#" + conditionNameTextInputId + "').blur(function(e){\n");
@@ -447,31 +447,31 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append("</style>");
 		return ret.toString();
 	}
-
+	
 	private String htmlForAdditionalDetailsWidget(FormEntryContext context) {
-
+		
 		// Create wrapper id
 		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
-
+		
 		// Register widget
 		setAdditionalDetailsWidget(new TextFieldWidget());
 		context.registerWidget(getAdditionalDetailsWidget());
-
+		
 		// Fill value for Edit/View
 		if (context.getMode() != Mode.ENTER && existingCondition != null) {
 			getAdditionalDetailsWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
-
+		
 		// Generate html
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
 		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
 		ret.append(getAdditionalDetailsWidget().generateHtml(context));
 		ret.append("</div>");
-
+		
 		return ret.toString();
 	}
-
+	
 	private ConditionClinicalStatus getStatus(FormEntryContext context, HttpServletRequest request) {
 		if (conditionStatusesWidget == null) {
 			return null;
@@ -518,11 +518,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public TextFieldWidget getAdditionalDetailsWidget() {
 		return additionalDetailsWidget;
 	}
-
+	
 	public void setAdditionalDetailsWidget(TextFieldWidget additionalDetailsWidget) {
 		this.additionalDetailsWidget = additionalDetailsWidget;
 	}
-
+	
 	public void setConditionStatusesWidget(RadioButtonsWidget conditionStatusesWidget) {
 		this.conditionStatusesWidget = conditionStatusesWidget;
 	}
@@ -554,19 +554,19 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public Concept getPresetConcept() {
 		return presetConcept;
 	}
-
+	
 	public void setPresetConcept(Concept presetConcept) {
 		this.presetConcept = presetConcept;
 	}
-
+	
 	public boolean isShowAdditionalDetails() {
 		return showAdditionalDetails;
 	}
-
+	
 	public void setShowAdditionalDetails(boolean showAdditionalDetails) {
 		this.showAdditionalDetails = showAdditionalDetails;
 	}
-
+	
 	// available for testing purposes only
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
