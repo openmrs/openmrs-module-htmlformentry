@@ -1,18 +1,18 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.PersonAddress;
 import org.openmrs.api.context.Context;
+import org.openmrs.layout.address.AddressSupport;
+import org.openmrs.layout.address.AddressTemplate;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.compatibility.AddressSupportCompatibility;
 
 /**
  * A widget that allows the input of a Person address. Implemented using text fields that accept all
@@ -49,8 +49,7 @@ public class AddressWidget extends Gadget {
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
-		AddressSupportCompatibility addressSupport = Context
-		        .getRegisteredComponent("htmlformentry.AddressSupportCompatibility", AddressSupportCompatibility.class);
+		AddressTemplate addressSupport = AddressSupport.getInstance().getDefaultLayoutTemplate();
 		
 		TextFieldWidget textFieldWidget;
 		Map<String, String> fieldMap;

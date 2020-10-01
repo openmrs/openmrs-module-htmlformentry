@@ -22,9 +22,9 @@
 	</section>
 	
 	<section>
-	       CD4 COUNT numeric <obs conceptId="1"/>
-	       MARRIED text <obs conceptId="6"/>
-	       <obsgroup groupingConceptId="7">
+	       CD4 COUNT numeric <obs conceptId="5497"/>
+	       ALLERGY text <obs conceptId="80000"/>
+	       <obsgroup groupingConceptId="70000">
 				ALLERGY CODED 2: <obs conceptId="1000"/>
 			</obsgroup>
 	</section>

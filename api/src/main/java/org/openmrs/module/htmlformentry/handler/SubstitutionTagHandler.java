@@ -1,5 +1,8 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.PrintWriter;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -7,9 +10,6 @@ import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.w3c.dom.Node;
-
-import java.io.PrintWriter;
-import java.util.Map;
 
 /**
  * An abstract class that provides convenient way to implement a tag handler than just replaces the

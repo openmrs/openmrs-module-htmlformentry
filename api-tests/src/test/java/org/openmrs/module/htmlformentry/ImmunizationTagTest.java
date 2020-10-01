@@ -18,21 +18,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
+public class ImmunizationTagTest extends BaseHtmlFormEntryTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	protected static final String XML_DATASET_PATH = "";
 	
 	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		executeDataSet(XML_DATASET_PATH + "immunizationTagTest.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/immunizationTagTest.xml");
 	}
 	
 	@Test
@@ -166,7 +165,7 @@ public class ImmunizationTagTest extends BaseModuleContextSensitiveTest {
 				results.assertErrors(1);
 				
 				FormSubmissionError error = results.getValidationErrors().get(0);
-				assertThat(error.getError(), is("htmlformentry.error.cannotBeInFuture"));
+				assertThat(error.getError(), is("Cannot be in the future"));
 				
 			}
 		}.run();

@@ -21,15 +21,12 @@ import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
+import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.LogicCriteria;
-import org.openmrs.logic.LogicService;
-import org.openmrs.logic.result.EmptyResult;
-import org.openmrs.logic.result.Result;
-import org.openmrs.module.htmlformentry.compatibility.EncounterServiceCompatibility;
+import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
 public class VelocityFunctions {
@@ -37,8 +34,6 @@ public class VelocityFunctions {
 	private FormEntrySession session;
 	
 	private ObsService obsService;
-	
-	private LogicService logicService;
 	
 	private ProgramWorkflowService programWorkflowService;
 	
@@ -54,12 +49,6 @@ public class VelocityFunctions {
 		if (obsService == null)
 			obsService = Context.getObsService();
 		return obsService;
-	}
-	
-	private LogicService getLogicService() {
-		if (logicService == null)
-			logicService = Context.getLogicService();
-		return logicService;
 	}
 	
 	private ProgramWorkflowService getProgramWorkflowService() {
@@ -180,9 +169,10 @@ public class VelocityFunctions {
 				List<EncounterType> typeList = new ArrayList<EncounterType>();
 				typeList.add(type);
 				
-				EncounterServiceCompatibility esc = Context.getRegisteredComponent(
-				    "htmlformentry.EncounterServiceCompatibility", EncounterServiceCompatibility.class);
-				return esc.getEncounters(p, null, null, null, null, typeList, null, null, null, false);
+				EncounterService esc = Context.getEncounterService();
+				EncounterSearchCriteriaBuilder b = new EncounterSearchCriteriaBuilder();
+				b.setPatient(p).setEncounterTypes(typeList).setIncludeVoided(false);
+				return Context.getEncounterService().getEncounters(b.createEncounterSearchCriteria());
 			}
 		}
 	}
@@ -215,14 +205,6 @@ public class VelocityFunctions {
 	 */
 	public Encounter latestEncounter() {
 		return latestEncounter(null);
-	}
-	
-	public Result logic(String expression) {
-		if (session.getPatient() == null)
-			return new EmptyResult();
-		cannotBePreviewed();
-		LogicCriteria lc = getLogicService().parse(expression);
-		return getLogicService().eval(session.getPatient().getPatientId(), lc);
 	}
 	
 	public ProgramWorkflow getWorkflow(Integer id) {

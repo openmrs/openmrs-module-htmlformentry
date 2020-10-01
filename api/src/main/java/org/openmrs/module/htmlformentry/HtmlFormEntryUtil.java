@@ -1,71 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.openmrs.Concept;
-import org.openmrs.ConceptDatatype;
-import org.openmrs.ConceptName;
-import org.openmrs.Drug;
-import org.openmrs.Encounter;
-import org.openmrs.EncounterRole;
-import org.openmrs.EncounterType;
-import org.openmrs.FormField;
-import org.openmrs.Location;
-import org.openmrs.LocationTag;
-import org.openmrs.Obs;
-import org.openmrs.OpenmrsMetadata;
-import org.openmrs.Order;
-import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
-import org.openmrs.PatientIdentifierType;
-import org.openmrs.PatientProgram;
-import org.openmrs.PatientState;
-import org.openmrs.Person;
-import org.openmrs.PersonAddress;
-import org.openmrs.PersonAttribute;
-import org.openmrs.PersonAttributeType;
-import org.openmrs.PersonName;
-import org.openmrs.Program;
-import org.openmrs.ProgramWorkflow;
-import org.openmrs.ProgramWorkflowState;
-import org.openmrs.Provider;
-import org.openmrs.User;
-import org.openmrs.api.APIException;
-import org.openmrs.api.context.Context;
-import org.openmrs.messagesource.MessageSourceService;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
-import org.openmrs.module.htmlformentry.action.ObsGroupAction;
-import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
-import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
-import org.openmrs.module.htmlformentry.element.ProviderStub;
-import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.module.htmlformentry.util.MatchMode;
-import org.openmrs.module.htmlformentry.util.Predicate;
-import org.openmrs.module.htmlformentry.util.ProviderTransformer;
-import org.openmrs.module.providermanagement.ProviderRole;
-import org.openmrs.module.providermanagement.api.ProviderManagementService;
-import org.openmrs.obs.ComplexData;
-import org.openmrs.propertyeditor.ConceptEditor;
-import org.openmrs.propertyeditor.DrugEditor;
-import org.openmrs.propertyeditor.EncounterTypeEditor;
-import org.openmrs.propertyeditor.LocationEditor;
-import org.openmrs.propertyeditor.PatientEditor;
-import org.openmrs.propertyeditor.PersonEditor;
-import org.openmrs.propertyeditor.UserEditor;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -103,6 +37,73 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openmrs.Concept;
+import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptName;
+import org.openmrs.Drug;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterRole;
+import org.openmrs.EncounterType;
+import org.openmrs.FormField;
+import org.openmrs.Location;
+import org.openmrs.LocationTag;
+import org.openmrs.Obs;
+import org.openmrs.OpenmrsMetadata;
+import org.openmrs.Order;
+import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
+import org.openmrs.Person;
+import org.openmrs.PersonAddress;
+import org.openmrs.PersonAttribute;
+import org.openmrs.PersonAttributeType;
+import org.openmrs.PersonName;
+import org.openmrs.Program;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.ProgramWorkflowState;
+import org.openmrs.Provider;
+import org.openmrs.User;
+import org.openmrs.api.APIException;
+import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.action.ObsGroupAction;
+import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
+import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
+import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
+import org.openmrs.module.htmlformentry.element.ProviderStub;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.util.MatchMode;
+import org.openmrs.module.htmlformentry.util.Predicate;
+import org.openmrs.module.htmlformentry.util.ProviderTransformer;
+import org.openmrs.module.providermanagement.ProviderRole;
+import org.openmrs.module.providermanagement.api.ProviderManagementService;
+import org.openmrs.obs.ComplexData;
+import org.openmrs.propertyeditor.ConceptEditor;
+import org.openmrs.propertyeditor.DrugEditor;
+import org.openmrs.propertyeditor.EncounterTypeEditor;
+import org.openmrs.propertyeditor.LocationEditor;
+import org.openmrs.propertyeditor.PatientEditor;
+import org.openmrs.propertyeditor.PersonEditor;
+import org.openmrs.propertyeditor.UserEditor;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * HTML Form Entry utility methods
@@ -272,8 +273,11 @@ public class HtmlFormEntryUtil {
 			}
 		} else if (dt.isCoded()) {
 			if (value instanceof Drug) {
-				obs.setValueDrug((Drug) value);
-				obs.setValueCoded(((Drug) value).getConcept());
+				Drug drugValue = (Drug) value;
+				// TODO: Not sure why this should be necessary, but unit tests fail without it (MS, 9/22/2020)
+				Concept conceptValue = HibernateUtil.getRealObjectFromProxy(drugValue.getConcept());
+				obs.setValueDrug(drugValue);
+				obs.setValueCoded(conceptValue);
 			} else if (value instanceof ConceptName) {
 				obs.setValueCodedName((ConceptName) value);
 				obs.setValueCoded(obs.getValueCodedName().getConcept());
@@ -535,6 +539,19 @@ public class HtmlFormEntryUtil {
 			cal.set(Calendar.MILLISECOND, temp.get(Calendar.MILLISECOND));
 		}
 		return cal.getTime();
+	}
+	
+	public static Date startOfDay(Date d) {
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			return c.getTime();
+		}
+		return null;
 	}
 	
 	/**
@@ -1460,7 +1477,7 @@ public class HtmlFormEntryUtil {
 		Obs newObs = (Obs) returnCopy(obsToCopy);
 		
 		if (obsToCopy.isObsGrouping()) {
-			newObs.setGroupMembers(null);
+			newObs.setGroupMembers(new HashSet<Obs>());
 			for (Obs oinner : obsToCopy.getGroupMembers()) {
 				Obs oinnerNew = returnObsCopy(oinner, replacements);
 				newObs.addGroupMember(oinnerNew);

@@ -18,11 +18,11 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class AutocompleteWidgetTest extends BaseModuleContextSensitiveTest {
+public class AutocompleteWidgetTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void autocompleteWidget_shouldAcceptLocationOptionsWithSingleOrDoubleQuotesInMiddle() throws Exception {

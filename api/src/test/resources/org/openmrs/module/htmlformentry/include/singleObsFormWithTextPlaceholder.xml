@@ -2,6 +2,6 @@
     Date: <encounterDate/>
     Location: <encounterLocation/>
     Provider: <encounterProvider role="Provider"/>
-    Text: <obs conceptId="6" placeholder="type something"/>
+    Text: <obs conceptId="80000" placeholder="type something"/>
     <submit/>
 </htmlform>

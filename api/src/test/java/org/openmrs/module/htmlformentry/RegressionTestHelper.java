@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,17 +13,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.junit.Assert;
 import org.openmrs.Encounter;
@@ -419,8 +416,8 @@ public abstract class RegressionTestHelper {
 	
 	/**
 	 * Override this if you need to load your form's xml from somewhere other than the standard location
-	 * defined by {@link RegressionTest#XML_DATASET_PATH}. For example you should override this for any
-	 * tests in modules that depend on HTML Form Entry.
+	 * defined by {@link RegressionTestHelper#XML_DATASET_PATH}. For example you should override this
+	 * for any tests in modules that depend on HTML Form Entry.
 	 */
 	protected String getXmlDatasetPath() {
 		return RegressionTestHelper.XML_DATASET_PATH;
@@ -570,23 +567,6 @@ public abstract class RegressionTestHelper {
 		results.setEncounterCreated(session.getEncounter());
 		results.setFormEntrySession(session);
 		return results;
-	}
-	
-	private Encounter getLastEncounter(Patient patient) {
-		List<Encounter> encs = Context.getEncounterService().getEncounters(patient, null, null, null, null, null, null,
-		    true);
-		if (encs == null || encs.size() == 0)
-			return null;
-		if (encs.size() == 1)
-			return encs.get(0);
-		Collections.sort(encs, new Comparator<Encounter>() {
-			
-			@Override
-			public int compare(Encounter left, Encounter right) {
-				return OpenmrsUtil.compareWithNullAsEarliest(left.getEncounterDatetime(), right.getEncounterDatetime());
-			}
-		});
-		return encs.get(encs.size() - 1);
 	}
 	
 	public class SubmissionResults {
@@ -948,10 +928,19 @@ public abstract class RegressionTestHelper {
 				if (lookForVoided && !obs.isVoided())
 					continue;
 				if (obs.getConcept().getConceptId() == conceptId) {
-					if (valueAsString == null)
+					if (valueAsString == null) {
 						return;
-					if (valueAsString.equals(obs.getValueAsString(Context.getLocale())))
+					}
+					String valueToCompare = obs.getValueAsString(Context.getLocale());
+					if (valueAsString.equals(valueToCompare)) {
 						return;
+					}
+					if (obs.getValueDatetime() != null) {
+						if (valueAsString.equals(formatObsValueDate(obs.getValueDatetime()))) {
+							return;
+						}
+						;
+					}
 				}
 			}
 			Assert.fail("Could not find obs with conceptId " + conceptId + " and value " + valueAsString);

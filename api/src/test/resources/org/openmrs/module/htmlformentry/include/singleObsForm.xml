@@ -2,6 +2,6 @@
 	Date: <encounterDate/>
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
-	Weight: <obs conceptId="2"/>
+	Weight: <obs conceptId="5089"/>
 	<submit/>
 </htmlform>

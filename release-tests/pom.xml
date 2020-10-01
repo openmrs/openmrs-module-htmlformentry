@@ -5,7 +5,7 @@
     <parent>
         <artifactId>htmlformentry</artifactId>
         <groupId>org.openmrs.module</groupId>
-        <version>3.0-SNAPSHOT</version>
+        <version>4.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -154,6 +154,8 @@
                         <configuration>
                             <webApp>${basedir}/target/${openMRSVersion}/webapp</webApp>
                             <contextPath>/${webapp.name}</contextPath>
+                            <stopKey></stopKey>
+                            <stopPort></stopPort>
                             <systemProperties>
                                 <systemProperty>
                                     <name>FUNCTIONAL_TEST_MODE</name>
@@ -275,6 +277,8 @@
                         <configuration>
                             <webApp>${basedir}/target/${openMRSVersion}/webapp</webApp>
                             <contextPath>/${webapp.name}</contextPath>
+                            <stopKey></stopKey>
+                            <stopPort></stopPort>
                             <systemProperties>
                                 <systemProperty>
                                     <name>FUNCTIONAL_TEST_MODE</name>
@@ -324,7 +328,6 @@
                                 <configuration>
                                     <mainClass>org.openmrs.ModuleStory</mainClass>
                                     <classpathScope>test</classpathScope>
-                                    <executable>java</executable>
                                 </configuration>
                             </execution>
                         </executions>
@@ -390,7 +393,8 @@
                         <configuration>
                             <webApp>${basedir}/target/${openMRSVersion}/webapp</webApp>
                             <contextPath>/${webapp.name}</contextPath>
-
+                            <stopKey></stopKey>
+                            <stopPort></stopPort>
                             <systemProperties>
                                 <systemProperty>
                                     <name>FUNCTIONAL_TEST_MODE</name>
@@ -409,8 +413,7 @@
     </profiles>
     <properties>
         <webapp.name>openmrs</webapp.name>
-        <openMRSVersion>1.10.0-SNAPSHOT</openMRSVersion>
-        <openMRSReleaseTestVersion>1.10.0-SNAPSHOT</openMRSReleaseTestVersion>
+        <openMRSReleaseTestVersion>${openMRSVersion}</openMRSReleaseTestVersion>
         <htmlformentryOmodVersion>${parent.version}</htmlformentryOmodVersion>
         <test>*</test>
     </properties>

@@ -24,14 +24,9 @@ import org.openmrs.Obs;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class ExitFromCareTagTest extends BaseHtmlFormEntryTest {
 	
 	ObsService os;
 	
@@ -39,7 +34,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		os = Context.getObsService();
 		cs = Context.getConceptService();
 	}
@@ -65,7 +60,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				request.setParameter(widgets.get("Exit From Care:"), "4201");
+				request.setParameter(widgets.get("Exit From Care:"), "4201"); // Recovered
 				// the exit date is set by using widget id, since there is no label
 				request.setParameter("w7", dateAsString(date));
 				request.setParameter("w11", "");
@@ -208,7 +203,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w12", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			
@@ -249,7 +244,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w14", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			
@@ -313,7 +308,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w8", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			
@@ -377,7 +372,7 @@ public class ExitFromCareTagTest extends BaseModuleContextSensitiveTest {
 				List<FormSubmissionError> errors = results.getValidationErrors();
 				for (FormSubmissionError error : errors) {
 					Assert.assertEquals("w10", error.getId().trim());
-					Assert.assertEquals("htmlformentry.error.required", error.getError().trim());
+					Assert.assertEquals("Required", error.getError().trim());
 				}
 			}
 			

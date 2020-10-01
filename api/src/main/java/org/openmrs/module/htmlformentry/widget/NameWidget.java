@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -7,13 +8,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
+import org.openmrs.layout.LayoutTemplate;
+import org.openmrs.layout.name.NameSupport;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.compatibility.NameSupportCompatibility;
 
 /**
  * A widget that allows the input of a Person name. Implemented using text fields that accept all
@@ -43,8 +43,6 @@ public class NameWidget extends Gadget {
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		MessageSourceService messageSourceService = Context.getMessageSourceService();
-		NameSupportCompatibility nameSupport = Context.getRegisteredComponent("htmlformentry.NameSupportCompatibility",
-		    NameSupportCompatibility.class);
 		
 		TextFieldWidget textFieldWidget;
 		Map<String, String> fieldMap;
@@ -59,6 +57,7 @@ public class NameWidget extends Gadget {
 		
 		sb.append("<table>");
 		
+		LayoutTemplate nameSupport = NameSupport.getInstance().getDefaultLayoutTemplate();
 		List<List<Map<String, String>>> fieldLines = nameSupport.getLines();
 		
 		for (List<Map<String, String>> line : fieldLines) {

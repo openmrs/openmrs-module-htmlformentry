@@ -1,15 +1,15 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.junit.Test;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.junit.Test;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 
 public class DateWidgetTest {
 	

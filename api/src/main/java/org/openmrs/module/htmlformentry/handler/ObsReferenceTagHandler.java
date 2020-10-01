@@ -1,12 +1,12 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.PrintWriter;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.element.ObsReferenceSubmissionElement;
 import org.w3c.dom.Node;
-
-import java.io.PrintWriter;
 
 public class ObsReferenceTagHandler extends ObsTagHandler {
 	

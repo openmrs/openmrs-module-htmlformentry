@@ -13,17 +13,17 @@
  */
 package org.openmrs.module.htmlformentry.handler;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.openmrs.EncounterRole;
 import org.openmrs.Provider;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.ProviderAndRoleElement;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Handles the <encounterProviderAndRole, for the new {@link Provider} model in OpenMRS 1.9+

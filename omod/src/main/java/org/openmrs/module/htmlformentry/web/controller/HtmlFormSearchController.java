@@ -1,5 +1,21 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
@@ -8,7 +24,6 @@ import org.openmrs.Drug;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.compatibility.DrugCompatibility;
 import org.openmrs.propertyeditor.ConceptClassEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.util.OpenmrsConstants;
@@ -21,29 +36,11 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
 @Controller
 public class HtmlFormSearchController {
 	
 	@Autowired
 	private ConceptService conceptService;
-	
-	@Autowired
-	private DrugCompatibility drugCompatibility;
 	
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
@@ -145,12 +142,32 @@ public class HtmlFormSearchController {
 			}
 		}
 		
-		List<Map<String, Object>> simplified = drugCompatibility.simplify(drugs);
+		List<Map<String, Object>> simplified = simplify(drugs);
 		
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter out = response.getWriter();
 		
 		new ObjectMapper().writeValue(out, simplified);
+	}
+	
+	public List<Map<String, Object>> simplify(List<Drug> drugs) {
+		List<Map<String, Object>> simplified = new ArrayList<Map<String, Object>>();
+		Locale locale = Context.getLocale();
+		for (Drug drug : drugs) {
+			Map<String, Object> item = new LinkedHashMap<String, Object>();
+			item.put("id", drug.getId());
+			item.put("name", drug.getName());
+			item.put("retired", drug.getRetired().booleanValue());
+			if (drug.getDosageForm() != null) {
+				item.put("dosageForm", drug.getDosageForm().getName(locale).getName());
+			}
+			item.put("combination", drug.getCombination());
+			if (drug.getConcept() != null) {
+				item.put("concept", drug.getConcept().getName(locale).getName());
+			}
+			simplified.add(item);
+		}
+		return simplified;
 	}
 }

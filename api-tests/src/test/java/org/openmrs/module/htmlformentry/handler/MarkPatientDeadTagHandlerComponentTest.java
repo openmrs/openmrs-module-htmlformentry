@@ -1,28 +1,23 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import org.joda.time.DateMidnight;
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.module.htmlformentry.RegressionTestHelper;
-import org.openmrs.module.htmlformentry.TestUtil;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.mock.web.MockHttpServletRequest;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import org.joda.time.DateMidnight;
+import org.junit.Before;
+import org.junit.Test;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
+import org.openmrs.module.htmlformentry.RegressionTestHelper;
+import org.springframework.mock.web.MockHttpServletRequest;
 
-public class MarkPatientDeadTagHandlerComponentTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class MarkPatientDeadTagHandlerComponentTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test

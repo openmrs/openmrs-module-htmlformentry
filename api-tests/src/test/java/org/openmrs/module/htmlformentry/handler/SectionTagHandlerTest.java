@@ -14,6 +14,10 @@
 
 package org.openmrs.module.htmlformentry.handler;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
@@ -24,10 +28,6 @@ import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  *

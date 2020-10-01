@@ -1,9 +1,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * A checkbox widget, like {@code <input type="checkbox"/>}

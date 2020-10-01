@@ -16,22 +16,23 @@ package org.openmrs.module.htmlformentry;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
+public class EncounterLocationTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/encounterLocationTest.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
 		
 	}
 	

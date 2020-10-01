@@ -9,7 +9,7 @@
 				Allergy: <obs conceptId="{allergy}" answerConceptIds="{allergyAnswers}"/>
 			</obsgroup>
 		</template>
-		<render allergyGroup="7" allergy="1000" allergyAnswers="1001,1002" />
+		<render allergyGroup="70000" allergy="1000" allergyAnswers="1001,1002" />
 		<render allergyGroup="1004" allergy="1005" allergyAnswers="1002,1003" />
 	</repeat>
 	<submit/>

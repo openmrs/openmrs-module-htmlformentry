@@ -1,8 +1,7 @@
 package org.openmrs.module.htmlformentry.action;
 
-import java.util.Collection;
-
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;

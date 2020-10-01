@@ -5,8 +5,8 @@
 	
 	Relationship: <relationship type="1" whoAmI="A" changeExistingRelationship="false"/>
 	
-	Weight: <obs conceptId="2"/>
-	Allergy: <obs conceptId="8"/>
+	Weight: <obs conceptId="5089"/>
+	Allergy: <obs conceptId="80000"/>
 	Allergy Date: <obs conceptId="1119"/>
 	
 	<submit/>

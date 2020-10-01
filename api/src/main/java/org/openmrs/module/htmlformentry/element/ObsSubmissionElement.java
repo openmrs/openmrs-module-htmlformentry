@@ -1,5 +1,19 @@
 package org.openmrs.module.htmlformentry.element;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -21,7 +35,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
-import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
@@ -47,20 +60,6 @@ import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.openmrs.web.WebConstants;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -384,9 +383,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					cn = Context.getConceptService().getConceptNumeric(concept.getConceptId());
 				}
 				
-				ConceptCompatibility conceptCompatibility = Context
-				        .getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class);
-				boolean isPrecise = cn != null ? conceptCompatibility.isAllowDecimal(cn) : true;
+				boolean isPrecise = cn != null ? cn.getAllowDecimal() : true;
 				
 				if (parameters.get("answers") != null) {
 					try {
