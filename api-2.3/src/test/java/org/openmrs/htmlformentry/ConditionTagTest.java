@@ -18,16 +18,17 @@ import org.openmrs.Condition;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class ConditionTagTest extends BaseModuleContextSensitiveTest {
+public class ConditionTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/RegressionTest-data-openmrs-2.30.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/data/conditions-data.xml");
 	}
 	
 	@Test
@@ -251,16 +252,16 @@ public class ConditionTagTest extends BaseModuleContextSensitiveTest {
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
-				    "<input type=\"text\"  id=\"w30\" name=\"w30\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
+				    "<input type=\"text\"  id=\"w23\" name=\"w23\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
-				    "<input type=\"radio\" id=\"w32_1\" name=\"w32\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+				    "<input type=\"radio\" id=\"w25_1\" name=\"w25\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
 				// Verify the onset date - '2017-01-12'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w34-display', '#w34', '2017-01-12')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w27-display', '#w27', '2017-01-12')</script>"));
 				// Verify the end date - '2019-01-15'
 				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w35-display', '#w35', '2019-01-15')</script>"));
+				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w28-display', '#w28', '2019-01-15')</script>"));
 				
 			}
 			
