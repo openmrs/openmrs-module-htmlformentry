@@ -58,73 +58,72 @@ import java.util.Stack;
  * </p>
  */
 public class FormEntryContext {
-	
+
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
 	private Mode mode;
-	
+
 	private Map<Widget, String> fieldNames = new HashMap<Widget, String>();
-	
+
 	private Map<Widget, ErrorWidget> errorWidgets = new HashMap<Widget, ErrorWidget>();
-	
+
 	private Map<String, String> javascriptFieldAccessorInfo = new LinkedHashMap<String, String>();
-	
+
 	private Translator translator = new Translator();
-	
+
 	private HtmlFormSchema schema = new HtmlFormSchema();
-	
+
 	private Stack<HtmlFormSection> sectionsStack = new Stack<HtmlFormSection>();
-	
+
 	private Stack<Map<ObsGroup, List<Obs>>> obsGroupStack = new Stack<Map<ObsGroup, List<Obs>>>();
-	
+
 	private ObsGroup activeObsGroup;
-	
+
 	private Patient existingPatient;
-	
+
 	private Encounter existingEncounter;
-	
+
 	private Map<Concept, List<Obs>> existingObs;
-	
+
 	private Map<Concept, List<Order>> existingOrders;
-	
+
 	private Map<Obs, Set<Obs>> existingObsInGroups;
-	
+
 	private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
-	
+
 	private List<Obs> currentObsGroupMembers;
-	
+
 	private Date previousEncounterDate; // if the encounter has been edited on a form, this stores the prior encounter date
-	
+
 	private Location defaultLocation;
-	
+
 	private Date defaultEncounterDate;
-	
+
 	private List<ObsGroupEntity> unmatchedObsGroupEntities = null;
-	
+
 	private boolean unmatchedMode = false;
-	
+
 	private boolean guessingInd = false;
-	
+
 	private HttpSession httpSession;
-	
+
 	private boolean automaticClientSideValidation = true;
-	
+
 	private boolean clientSideValidationHints = false;
-	
+
 	private Stack<Object> stack = new Stack<Object>();
-	
-	// TODO once Html Form Entry no longer supports older core versions that don't have visits, we should:
-	// TODO 1) change the type of this variable to visit
-	// TODO 2) change HtmlFormEntryController so that it correctly populates the context with the relevant visit (if available)
+
+	// TODO now that the Html Form Entry no longer supports older core versions that don't have visits, we should:
+	// TODO * change HtmlFormEntryController so that it correctly populates the context with the relevant visit (if available)
 	private Visit visit;
-	
+
 	public FormEntryContext(Mode mode) {
 		this.mode = mode;
 		setupExistingData((Encounter) null);
 		translator.setDefaultLocaleStr(LocaleUtility.getDefaultLocale().toString());
 	}
-	
+
 	/**
 	 * Gets the {@see Mode} associated with this Context
 	 *
@@ -133,9 +132,9 @@ public class FormEntryContext {
 	public Mode getMode() {
 		return mode;
 	}
-	
+
 	private Integer sequenceNextVal = 1;
-	
+
 	/**
 	 * Registers a widget within the Context
 	 *
@@ -156,7 +155,7 @@ public class FormEntryContext {
 			log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
 		return fieldName;
 	}
-	
+
 	/**
 	 * Registers an error widget within the Context
 	 *
@@ -172,10 +171,10 @@ public class FormEntryContext {
 			errorWidgetId = getFieldName(errorWidget);
 		}
 		errorWidgets.put(widget, errorWidget);
-		
+
 		return errorWidgetId;
 	}
-	
+
 	/**
 	 * Gets the field id used to identify a specific widget within the HTML Form
 	 *
@@ -190,7 +189,7 @@ public class FormEntryContext {
 		else
 			return fieldName;
 	}
-	
+
 	/**
 	 * Like {@link #getFieldName(Widget)} but returns null if the widget is not registered (instead of
 	 * throwing an exception).
@@ -201,7 +200,7 @@ public class FormEntryContext {
 	public String getFieldNameIfRegistered(Widget widget) {
 		return fieldNames.get(widget);
 	}
-	
+
 	/**
 	 * @return the widget that is registered for the given field name, or null if there is none
 	 */
@@ -212,7 +211,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Gets the field id used to identify a specific error widget within the HTML Form
 	 *
@@ -222,7 +221,7 @@ public class FormEntryContext {
 	public String getErrorFieldId(Widget widget) {
 		return getFieldName(errorWidgets.get(widget));
 	}
-	
+
 	/**
 	 * Gets the fields ids for all currently registered error widgets
 	 *
@@ -234,26 +233,26 @@ public class FormEntryContext {
 			ret.add(getFieldName(e));
 		return ret;
 	}
-	
+
 	/**
 	 * Adds a new section
 	 */
 	public void beginSection(HtmlFormSection section) {
-		
+
 		// is this a top-level section or it is a child of the existing section
 		if (sectionsStack.size() > 0) {
 			sectionsStack.peek().addChildSection(section);
 		} else {
 			schema.getSections().add(section);
 		}
-		
+
 		sectionsStack.push(section);
 	}
-	
+
 	public void beginSection() {
 		beginSection(new HtmlFormSection());
 	}
-	
+
 	public HtmlFormSection getActiveSection() {
 		if (sectionsStack.size() > 0) {
 			return sectionsStack.peek();
@@ -261,7 +260,7 @@ public class FormEntryContext {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Adds an HTML Form Field to the schema
 	 *
@@ -274,11 +273,11 @@ public class FormEntryContext {
 			schema.getFields().add(field);
 		}
 	}
-	
+
 	public void endSection() {
 		sectionsStack.pop();
 	}
-	
+
 	/**
 	 * Marks the start of a new {@see ObsGroup} within current Context
 	 */
@@ -290,7 +289,7 @@ public class FormEntryContext {
 		map.put(this.getActiveObsGroup(), currentObsGroupMembers);
 		obsGroupStack.push(map);
 	}
-	
+
 	/**
 	 * Gets the {@see ObsGroup} that is currently active within the current Context
 	 *
@@ -299,11 +298,11 @@ public class FormEntryContext {
 	public ObsGroup getActiveObsGroup() {
 		return activeObsGroup;
 	}
-	
+
 	public void addFieldToActiveObsGroup(HtmlFormField field) {
 		getActiveObsGroup().getChildren().add(field);
 	}
-	
+
 	/**
 	 * Sets the active Obs group members to the Obs that are associated with the Obs passed as a
 	 * parameter
@@ -319,18 +318,18 @@ public class FormEntryContext {
 				currentObsGroupMembers.add(o);
 		}
 	}
-	
+
 	/**
 	 * Closes the active {@see ObsGroup} and adds it to the Html Form Schema
 	 */
 	public void endObsGroup() {
 		//remove itself
-		
+
 		if (!obsGroupStack.isEmpty()) {
 			obsGroupStack.pop();
 			currentObsGroupConcepts.pop();
 		}
-		
+
 		//set the activeObsGroup back to parent, if there is one.
 		if (!obsGroupStack.isEmpty()) {
 			Map<ObsGroup, List<Obs>> map = obsGroupStack.peek();
@@ -346,7 +345,7 @@ public class FormEntryContext {
 			activeObsGroup = null;
 		}
 	}
-	
+
 	/**
 	 * Returns the concepts associated with the active {@see ObsGroup}
 	 *
@@ -355,7 +354,7 @@ public class FormEntryContext {
 	public List<Concept> getCurrentObsGroupConcepts() {
 		return Collections.unmodifiableList(currentObsGroupConcepts);
 	}
-	
+
 	/**
 	 * Returns (and removes) the Obs from the current {@see ObsGroup} with the specified concept and
 	 * answer concept
@@ -378,7 +377,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns (and removes) the Obs from the current {@see ObsGroup} with the specified concept and
 	 * answer Drug
@@ -401,7 +400,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Sets the Patient to associate with the context
 	 *
@@ -410,7 +409,7 @@ public class FormEntryContext {
 	public void setupExistingData(Patient patient) {
 		existingPatient = patient;
 	}
-	
+
 	/**
 	 * Sets the existing Encounter to associate with the context. Also sets all the Obs associated with
 	 * this Encounter as existing Obs Also sets all the Orders associated with this Encounter as
@@ -449,7 +448,7 @@ public class FormEntryContext {
 		if (encounter != null)
 			setupExistingObsInGroups(encounter.getObsAtTopLevel(false));
 	}
-	
+
 	/**
 	 * Sets obs associated with an obs groups in existing obs groups.
 	 *
@@ -462,7 +461,7 @@ public class FormEntryContext {
 				setupExistingObsInGroups(parent.getGroupMembers());
 			}
 	}
-	
+
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Drug from existing Obs, and returns it.
 	 *
@@ -485,7 +484,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this
 	 * version for obs whose concept's datatype is not boolean.
@@ -509,7 +508,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this
 	 * version for ConceptSelect obs tags.
@@ -526,7 +525,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Finds whether there is existing obs created for the question concept and numeric answer, returns
 	 * that <obs> if any, Use this only when datatype is numeric and style="checkbox"
@@ -536,7 +535,7 @@ public class FormEntryContext {
 	 * @return the matching Obs, if any
 	 */
 	public Obs removeExistingObs(Concept question, String numericAns) {
-		
+
 		Number numVal = Double.valueOf(numericAns);
 		List<Obs> list = existingObs.get(question);
 		if (list != null) {
@@ -551,10 +550,10 @@ public class FormEntryContext {
 				}
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns the list for the
 	 * question. Use this version for obtaining the whole list of obs saved for the single Question
@@ -568,7 +567,7 @@ public class FormEntryContext {
 		existingObs.remove(question);
 		return list;
 	}
-	
+
 	/**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
 	 *
@@ -590,7 +589,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
 	 *
@@ -607,7 +606,7 @@ public class FormEntryContext {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
 	 *
@@ -630,13 +629,13 @@ public class FormEntryContext {
 							return testDrugOrder;
 						}
 					}
-					
+
 				}
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
 	 * TODO: Fix the bug where Concept.equals(Concept) doesn't always work
@@ -644,14 +643,14 @@ public class FormEntryContext {
 	private boolean equalDrug(Drug c1, Drug c2) {
 		return OpenmrsUtil.nullSafeEquals(c1 == null ? null : c1.getDrugId(), c2 == null ? null : c2.getDrugId());
 	}
-	
+
 	/**
 	 * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
 	 */
 	private boolean equalConcepts(Concept c1, Concept c2) {
 		return OpenmrsUtil.nullSafeEquals(c1 == null ? null : c1.getConceptId(), c2 == null ? null : c2.getConceptId());
 	}
-	
+
 	/**
 	 * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs.
 	 * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
@@ -679,7 +678,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	public Obs getNextUnmatchedObsGroup(String path) {
 		Obs ret = null;
 		int unmatchedContenterCount = 0;
@@ -700,14 +699,14 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	public int getExistingObsInGroupsCount() {
 		if (existingObsInGroups != null) {
 			return existingObsInGroups.size();
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Finds the best matching obsGroup at the right obsGroup hierarchy level
 	 * <p/>
@@ -723,24 +722,24 @@ public class FormEntryContext {
 		// first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are
 		// saved as contenders
 		for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet()) {
-			
+
 			log.debug("Comparing obsVal " + ObsGroupComponent.getObsGroupPath(e.getKey()) + " to xmlval " + path);
-			
+
 			if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey()))) {
 				contenders.add(e.getKey());
 			}
 		}
-		
+
 		Obs ret = null;
-		
+
 		if (contenders.size() > 0) {
 			List<Obs> rankTable = new ArrayList<Obs>();
 			int topRanking = 0;
-			
+
 			for (Obs parentObs : contenders) {
 				int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs,
 				    existingObsInGroups.get(parentObs));
-				
+
 				if (rank > 0) {
 					if (rank > topRanking) {
 						topRanking = rank;
@@ -751,7 +750,7 @@ public class FormEntryContext {
 					}
 				}
 			}
-			
+
 			if (rankTable.size() == 0 || rankTable.size() > 1) {
 				/* No unique matching obsGroup found; returning null obsGroup.  This will
 				 * trigger the creation of an <unmatched id={} /> tag which will be replaced on
@@ -763,7 +762,7 @@ public class FormEntryContext {
 				ret = rankTable.get(0);
 			}
 		}
-		
+
 		if (ret != null) {
 			existingObsInGroups.remove(ret);
 			existingObs.remove(ret);
@@ -772,21 +771,21 @@ public class FormEntryContext {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Returns the patient currently associated with the context
 	 */
 	public Patient getExistingPatient() {
 		return existingPatient;
 	}
-	
+
 	/**
 	 * Returns the encounter currently associated with the context
 	 */
 	public Encounter getExistingEncounter() {
 		return existingEncounter;
 	}
-	
+
 	/**
 	 * Returns the translator currently associated with the context
 	 *
@@ -795,7 +794,7 @@ public class FormEntryContext {
 	public Translator getTranslator() {
 		return translator;
 	}
-	
+
 	/**
 	 * Return the HTML Form schema currently associated with the context
 	 *
@@ -804,23 +803,23 @@ public class FormEntryContext {
 	public HtmlFormSchema getSchema() {
 		return schema;
 	}
-	
+
 	public void setHttpSession(HttpSession httpSession) {
 		this.httpSession = httpSession;
 	}
-	
+
 	public HttpSession getHttpSession() {
 		return httpSession;
 	}
-	
+
 	public void pushToStack(Object object) {
 		stack.push(object);
 	}
-	
+
 	public Object popFromStack() {
 		return stack.pop();
 	}
-	
+
 	public <T> T getHighestOnStack(Class<T> clazz) {
 		for (int i = stack.size() - 1; i >= 0; --i) {
 			Object candidate = stack.get(i);
@@ -830,7 +829,7 @@ public class FormEntryContext {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Modes associated with the HTML Form context
 	 */
@@ -842,23 +841,23 @@ public class FormEntryContext {
 		/** A saved form in view-only mode */
 		VIEW
 	}
-	
+
 	public Map<Widget, String> getFieldNames() {
 		return fieldNames;
 	}
-	
+
 	public Map<Concept, List<Obs>> getExistingObs() {
 		return existingObs;
 	}
-	
+
 	public Map<Obs, Set<Obs>> getExistingObsInGroups() {
 		return existingObsInGroups;
 	}
-	
+
 	public Map<Concept, List<Order>> getExistingOrders() {
 		return existingOrders;
 	}
-	
+
 	/**
 	 * Sets up the necessary information so that the javascript getField, getValue and setValue
 	 * functions can work.
@@ -906,52 +905,52 @@ public class FormEntryContext {
 		}
 		javascriptFieldAccessorInfo.put(property, val.toString());
 	}
-	
+
 	/**
 	 * @return the javascriptFieldAccessors
 	 */
 	public Map<String, String> getJavascriptFieldAccessorInfo() {
 		return javascriptFieldAccessorInfo;
 	}
-	
+
 	/**
 	 * @return the defaultLocation
 	 */
 	public Location getDefaultLocation() {
 		return defaultLocation;
 	}
-	
+
 	/**
 	 * @param defaultLocation the defaultLocation to set
 	 */
 	public void setDefaultLocation(Location defaultLocation) {
 		this.defaultLocation = defaultLocation;
 	}
-	
+
 	public boolean isGuessingInd() {
 		return guessingInd;
 	}
-	
+
 	public void setGuessingInd(boolean guessingInd) {
 		this.guessingInd = guessingInd;
 	}
-	
+
 	public String getGuessingInd() {
 		return guessingInd ? "true" : "false";
 	}
-	
+
 	public Date getPreviousEncounterDate() {
 		return previousEncounterDate;
 	}
-	
+
 	public void setPreviousEncounterDate(Date previousEncounterDate) {
 		this.previousEncounterDate = previousEncounterDate;
 	}
-	
+
 	public boolean hasUnmatchedObsGroupEntities() {
 		return unmatchedObsGroupEntities != null && unmatchedObsGroupEntities.size() > 0 ? true : false;
 	}
-	
+
 	public int addUnmatchedObsGroupEntities(ObsGroupEntity obsGroupEntity) {
 		if (unmatchedObsGroupEntities == null)
 			unmatchedObsGroupEntities = new ArrayList<ObsGroupEntity>();
@@ -960,51 +959,51 @@ public class FormEntryContext {
 		unmatchedObsGroupEntities.add(obsGroupEntity);
 		return id;
 	}
-	
+
 	public List<ObsGroupEntity> getUnmatchedObsGroupEntities() {
 		return unmatchedObsGroupEntities;
 	}
-	
+
 	public void setUnmatchedObsGroupEntities(List<ObsGroupEntity> unmatchedObsGroupEntities) {
 		this.unmatchedObsGroupEntities = unmatchedObsGroupEntities;
 	}
-	
+
 	public boolean isUnmatchedMode() {
 		return unmatchedMode;
 	}
-	
+
 	public void setUnmatchedMode(boolean unmatchedMode) {
 		this.unmatchedMode = unmatchedMode;
 	}
-	
+
 	public boolean isAutomaticClientSideValidation() {
 		return automaticClientSideValidation;
 	}
-	
+
 	public void setAutomaticClientSideValidation(boolean automaticClientSideValidation) {
 		this.automaticClientSideValidation = automaticClientSideValidation;
 	}
-	
+
 	public boolean isClientSideValidationHints() {
 		return clientSideValidationHints;
 	}
-	
+
 	public void setClientSideValidationHints(boolean clientSideValidationHints) {
 		this.clientSideValidationHints = clientSideValidationHints;
 	}
-	
+
 	public Visit getVisit() {
 		return visit;
 	}
-	
+
 	public void setVisit(Visit visit) {
 		this.visit = visit;
 	}
-	
+
 	public Date getDefaultEncounterDate() {
 		return defaultEncounterDate;
 	}
-	
+
 	public void setDefaultEncounterDate(Date defaultEncounterDate) {
 		this.defaultEncounterDate = defaultEncounterDate;
 	}
