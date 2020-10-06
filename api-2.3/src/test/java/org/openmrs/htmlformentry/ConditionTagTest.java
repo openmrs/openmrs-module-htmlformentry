@@ -46,15 +46,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			protected String getStatusWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
 				return add(conceptSearchWidget, wasAdditionDetails ? 3 : 2);
 			}
-			
-			protected String getOnsetDateWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
-				return add(conceptSearchWidget, wasAdditionDetails ? 5 : 4);
-			}
-			
-			protected String getEndDateWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
-				return add(conceptSearchWidget, wasAdditionDetails ? 6 : 5);
-			}
-			
+
 			@Override
 			public String getFormName() {
 				return "conditionForm";
@@ -84,7 +76,6 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(getAdditionalDetailWidget(widgets.get("Optional Coded Condition:")),
 				    "Additional detail");
 				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:"), true), "active");
-				request.addParameter(getOnsetDateWidget(widgets.get("Optional Coded Condition:"), true), "2014-02-11");
 				
 				// filling the required coded condition tag
 				request.addParameter(widgets.get("Required Coded Condition:"), "Indigestion");
@@ -92,18 +83,13 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(getAdditionalDetailWidget(widgets.get("Required Coded Condition:")),
 				    "Additional detail");
 				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:"), true), "active");
-				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:"), true), "2014-02-11");
 				
 				// filling the required non-coded condition tag
 				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
 				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:"), false), "inactive");
-				request.addParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:"), false), "2013-02-11");
-				request.addParameter(getEndDateWidget(widgets.get("Required Non-coded Condition:"), false), "2019-04-11");
 				
 				// filling up the preset condition tag
 				request.addParameter(getStatusWidget(widgets.get("Preset Condition:"), false), "history-of");
-				request.addParameter(getOnsetDateWidget(widgets.get("Preset Condition:"), false), "2014-02-11");
-				request.addParameter(getEndDateWidget(widgets.get("Preset Condition:"), false), "2020-04-11");
 			}
 			
 			@Override
@@ -120,7 +106,6 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
 					    actualCondition.getCondition().getCoded());
-					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
@@ -128,23 +113,18 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Indigestion"),
 					    actualCondition.getCondition().getCoded());
-					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
 					actualCondition = conditions.get("required_noncoded_condition");
 					Assert.assertEquals(INACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
-					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
-					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
 					actualCondition = conditions.get("optional_preset_condition");
 					Assert.assertEquals(HISTORY_OF, actualCondition.getClinicalStatus());
 					assertThat(actualCondition.getCondition().getCoded().getId(), is(22));
-					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
-					Assert.assertEquals("2020-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 			}
@@ -163,12 +143,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				// filling for the first time in EDIT mode the optional non-coded condition tag 
 				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Sneezy cold (non-coded)");
 				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:"), false), "inactive");
-				request.addParameter(getOnsetDateWidget(widgets.get("Optional Non-coded Condition:"), false), "2013-02-11");
-				request.addParameter(getEndDateWidget(widgets.get("Optional Non-coded Condition:"), false), "2019-04-11");
-				
-				// changing the onset date of the required non-coded condition tag
-				request.setParameter(getOnsetDateWidget(widgets.get("Required Non-coded Condition:"), false), "2014-02-11");
-				
+
 				// removing the status of the preset condition tag
 				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:"), false));
 			}
@@ -187,23 +162,18 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Indigestion"),
 					    actualCondition.getCondition().getCoded());
-					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
 					actualCondition = conditions.get("optional_noncoded_condition");
 					Assert.assertEquals(INACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals("Sneezy cold (non-coded)", actualCondition.getCondition().getNonCoded());
-					Assert.assertEquals("2013-02-11", dateAsString(actualCondition.getOnsetDate()));
-					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
 					actualCondition = conditions.get("required_noncoded_condition");
 					Assert.assertEquals(INACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals("Anemia (non-coded)", actualCondition.getCondition().getNonCoded());
-					Assert.assertEquals("2014-02-11", dateAsString(actualCondition.getOnsetDate()));
-					Assert.assertEquals("2019-04-11", dateAsString(actualCondition.getEndDate()));
 					Assert.assertNotNull(actualCondition.getId());
 				}
 			}
@@ -231,10 +201,6 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				assertTrue(html.contains("Condition: <span class=\"value\">Edema</span>"));
 				// Verify for condition status
 				assertTrue(html.contains("Status: <span class=\"value\">inactive</span>"));
-				// Verify for onset date
-				assertTrue(html.contains("Onset Date: <span class=\"value\">12/01/2017</span>"));
-				// Verify for end date
-				assertTrue(html.contains("End Date: <span class=\"value\">15/01/2019</span>"));
 				
 			}
 			
@@ -252,17 +218,11 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			public void testEditFormHtml(String html) {
 				// Verify the condition default value - 'Edema'
 				assertTrue(html.contains(
-				    "<input type=\"text\"  id=\"w23\" name=\"w23\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
+				    "<input type=\"text\"  id=\"w17\" name=\"w17\"  onfocus=\"setupAutocomplete(this, 'conceptSearch.form','null','Diagnosis','null');\"class=\"autoCompleteText\"onchange=\"setValWhenAutocompleteFieldBlanked(this)\" onblur=\"onBlurAutocomplete(this)\" value=\"Edema\"/>"));
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
-				    "<input type=\"radio\" id=\"w25_1\" name=\"w25\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
-				// Verify the onset date - '2017-01-12'
-				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w27-display', '#w27', '2017-01-12')</script>"));
-				// Verify the end date - '2019-01-15'
-				assertTrue(html.contains(
-				    "<script>setupDatePicker('dd/mm/yy', '110,20','en-GB', '#w28-display', '#w28', '2019-01-15')</script>"));
-				
+				    "<input type=\"radio\" id=\"w19_1\" name=\"w19\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
+
 			}
 			
 		}.run();

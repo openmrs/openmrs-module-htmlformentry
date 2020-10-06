@@ -43,7 +43,6 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.element.ConditionElement;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -81,15 +80,9 @@ public class ConditionElementTest {
 	
 	@Mock
 	private TextFieldWidget additionalDetailWidget;
-
+	
 	@Mock
 	private RadioButtonsWidget conditionStatusesWidget;
-	
-	@Mock
-	private DateWidget endDateWidget;
-	
-	@Mock
-	private DateWidget onsetDateWidget;
 	
 	private Encounter encounter;
 	
@@ -128,16 +121,11 @@ public class ConditionElementTest {
 		when(session.getContext()).thenReturn(context);
 		when(session.getEncounter()).thenReturn(new Encounter());
 		when(session.getPatient()).thenReturn(new Patient(1));
-		
-		when(onsetDateWidget.getValue(context, request))
-		        .thenReturn(new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime());
-		
+
 		// setup condition element
 		element = spy(new ConditionElement());
 		element.setConditionSearchWidget(conditionSearchWidget);
 		element.setConditionStatusesWidget(conditionStatusesWidget);
-		element.setOnSetDateWidget(onsetDateWidget);
-		element.setEndDateWidget(endDateWidget);
 		element.setAdditionalDetailWidget(additionalDetailWidget);
 		encounter = session.getEncounter();
 	}
@@ -165,8 +153,6 @@ public class ConditionElementTest {
 	public void handleSubmission_shouldCreateInactiveCondition() {
 		// setup
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
-		GregorianCalendar endDate = new GregorianCalendar(2018, Calendar.DECEMBER, 1);
-		when(endDateWidget.getValue(context, request)).thenReturn(endDate.getTime());
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("inactive");
 		
 		// replay
@@ -178,7 +164,6 @@ public class ConditionElementTest {
 		
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals(ConditionClinicalStatus.INACTIVE, condition.getClinicalStatus());
-		Assert.assertEquals(endDate.getTime(), condition.getEndDate());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 	}
 	
@@ -188,19 +173,19 @@ public class ConditionElementTest {
 		when(additionalDetailWidget.getValue(context, request)).thenReturn("Additional detail");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
-
+		
 		// replay
 		element.setShowAdditionalDetail(true);
 		element.handleSubmission(session, request);
-
+		
 		// verify
 		Set<Condition> conditions = encounter.getConditions();
 		Assert.assertEquals(1, conditions.size());
-
+		
 		Condition condition = conditions.iterator().next();
 		Assert.assertEquals("Additional detail", condition.getAdditionalDetail());
 	}
-
+	
 	@Test
 	public void handleSubmission_shouldSupportNonCodedValues() {
 		// setup
@@ -289,22 +274,7 @@ public class ConditionElementTest {
 		// verify
 		Assert.assertEquals("A condition is required", errors.get(0).getError());
 	}
-	
-	@Test
-	public void validateSubmission_shouldFailValidationWhenOnsetDateIsGreaterThanEnddate() {
-		// setup
-		when(endDateWidget.getValue(context, request))
-		        .thenReturn(new GregorianCalendar(2012, Calendar.DECEMBER, 8).getTime());
-		when(messageSourceService.getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error"))
-		        .thenReturn("The end date cannot be ealier than the onset date.");
-		
-		// replay
-		List<FormSubmissionError> errors = (List<FormSubmissionError>) element.validateSubmission(context, request);
-		
-		// verify
-		Assert.assertEquals("The end date cannot be ealier than the onset date.", errors.get(0).getError());
-	}
-	
+
 	@Test
 	public void htmlForConditionSearchWidget_shouldGetConceptSourceClassesFromGP() {
 		// setup

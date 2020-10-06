@@ -5,7 +5,6 @@ import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -27,7 +26,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
@@ -55,23 +53,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	// widgets
 	private ConceptSearchAutocompleteWidget conceptSearchWidget;
 	
-	private DateWidget onsetDateWidget;
-	
-	private DateWidget endDateWidget;
-	
 	private TextFieldWidget additionalDetailWidget;
 	
 	private RadioButtonsWidget conditionStatusesWidget;
-	
-	private ErrorWidget endDateErrorWidget;
 	
 	private ErrorWidget conditionSearchErrorWidget;
 	
 	private ErrorWidget conditionStatusesErrorWidget;
 	
 	private String wrapperDivId;
-	
-	private String endDatePickerWrapperId;
 	
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
@@ -100,12 +90,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			condition.setAdditionalDetail(additionalDetailWidget.getValue(context, submission));
 		}
 		
-		condition.setOnsetDate(onsetDateWidget.getValue(context, submission));
-		
-		if (status != ConditionClinicalStatus.ACTIVE) {
-			condition.setEndDate(endDateWidget.getValue(context, submission));
-		}
-		
 		condition.setPatient(session.getPatient());
 		
 		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
@@ -123,8 +107,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<>();
-		Date givenOnsetDate = onsetDateWidget.getValue(context, submission);
-		Date givenEndDate = endDateWidget.getValue(context, submission);
 		String condition = StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))
 		        ? (String) conceptSearchWidget.getValue(context, submission)
 		        : submission.getParameter(context.getFieldName(conceptSearchWidget));
@@ -135,12 +117,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			if (StringUtils.isBlank(condition) && required) {
 				ret.add(new FormSubmissionError(context.getFieldName(conceptSearchWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.condition.required")));
-			}
-			if (givenOnsetDate != null && givenEndDate != null) {
-				if (givenOnsetDate.after(givenEndDate)) {
-					ret.add(new FormSubmissionError(context.getFieldName(endDateWidget), Context.getMessageSourceService()
-					        .getMessage("htmlformentry.conditionui.endDate.before.onsetDate.error")));
-				}
 			}
 			if (status == null && required) {
 				ret.add(new FormSubmissionError(context.getFieldName(conditionStatusesWidget),
@@ -153,7 +129,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		wrapperDivId = "htmlformentry-condition-" + controlId;
-		endDatePickerWrapperId = "condition-end-date-" + controlId;
 		if (mss == null) {
 			mss = Context.getMessageSourceService();
 		}
@@ -170,9 +145,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
-		
-		// Show condition dates
-		ret.append(htmlForConditionDatesWidget(context));
 		
 		ret.append("</div>");
 		return ret.toString();
@@ -369,12 +341,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.VIEW) {
 			sb.append(conditionStatusesErrorWidget.generateHtml(context));
 			sb.append(conditionStatusesWidget.generateHtml(context));
-			sb.append("<script>");
-			sb.append("jq(\"input[name='" + radioGroupName + "']\").change(function(e){\n"
-			        + "    if($(this).val() == 'active') {\n" + "		document.getElementById('" + endDatePickerWrapperId
-			        + "').style.visibility=\"hidden\"; \n" + "    } else {\n" + "		document.getElementById('"
-			        + endDatePickerWrapperId + "').style.visibility=\"visible\";\n" + "    }\n" + "\n" + "});");
-			sb.append("</script>");
 			sb.append("<style>");
 			sb.append("#" + conditionStatusDivId + " input {\n" + "    display: inline;\n" + "    float: none;\n" + "}\n"
 			        + "#" + conditionStatusDivId + " label {\n" + "    display: inline;\n" + "}");
@@ -391,61 +357,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		}
 		sb.append("</div>");
 		return sb.toString();
-	}
-	
-	private String htmlForConditionDatesWidget(FormEntryContext context) {
-		onsetDateWidget = new DateWidget();
-		endDateWidget = new DateWidget();
-		String onsetDateLabel = mss.getMessage("htmlformentry.conditionui.onsetdate.label");
-		String endDateLabel = mss.getMessage("htmlformentry.conditionui.endDate.label");
-		
-		if (existingCondition != null && context.getMode() != Mode.ENTER) {
-			Date initialOnsetDate = existingCondition.getOnsetDate();
-			Date initialEndDate = existingCondition.getEndDate();
-			
-			if (initialOnsetDate != null) {
-				onsetDateWidget.setInitialValue(initialOnsetDate);
-			}
-			if (initialEndDate != null) {
-				endDateWidget.setInitialValue(initialEndDate);
-			}
-		}
-		String onsetDateTextInputId = context.registerWidget(onsetDateWidget) + "-display";
-		endDateErrorWidget = new ErrorWidget();
-		String endDateTextInputId = context.registerWidget(endDateWidget) + "-display";
-		context.registerErrorWidget(endDateWidget, endDateErrorWidget);
-		
-		StringBuilder ret = new StringBuilder();
-		ret.append("<ul>");
-		ret.append("<li>");
-		if (context.getMode() == Mode.VIEW) {
-			// if in view mode, append label
-			ret.append(onsetDateLabel + ": ");
-		}
-		ret.append(onsetDateWidget.generateHtml(context));
-		ret.append("</li> <li>");
-		ret.append("<span id=\"" + endDatePickerWrapperId + "\">");
-		if (context.getMode() == Mode.VIEW) {
-			// if in view mode, append label
-			ret.append(endDateLabel + ": ");
-		}
-		ret.append(endDateWidget.generateHtml(context));
-		ret.append("</span>");
-		ret.append("</li>");
-		if (context.getMode() != Mode.VIEW) {
-			ret.append(endDateErrorWidget.generateHtml(context));
-		}
-		ret.append("</ul> <br/>");
-		ret.append("<script> jq('#" + onsetDateTextInputId + "').attr('placeholder',");
-		ret.append(" '" + onsetDateLabel + "');");
-		ret.append("jq('#" + endDateTextInputId + "').attr('placeholder',");
-		ret.append(" '" + endDateLabel + "');");
-		ret.append("</script>");
-		ret.append("<style>");
-		ret.append("#" + wrapperDivId + " li {\n" + "	width:30%;\n" + "   float: left;\n" + "}");
-		ret.append("#" + wrapperDivId + " ul {\n" + "	display:flow-root;\n" + "   width:85%" + "}");
-		ret.append("</style>");
-		return ret.toString();
 	}
 	
 	private String htmlForAdditionalDetailWidget(FormEntryContext context) {
@@ -497,22 +408,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	public ConceptSearchAutocompleteWidget getConditionSearchWidget() {
 		return conceptSearchWidget;
-	}
-	
-	public void setOnSetDateWidget(DateWidget onSetDateWidget) {
-		this.onsetDateWidget = onSetDateWidget;
-	}
-	
-	public DateWidget getOnSetDateWidget() {
-		return onsetDateWidget;
-	}
-	
-	public void setEndDateWidget(DateWidget endDateWidget) {
-		this.endDateWidget = endDateWidget;
-	}
-	
-	public DateWidget getEndDateWidget() {
-		return endDateWidget;
 	}
 	
 	public TextFieldWidget getAdditionalDetailWidget() {
