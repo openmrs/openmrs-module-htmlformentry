@@ -39,7 +39,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				return "w" + (Integer.parseInt(widget.substring(1)) + offset);
 			}
 			
-			protected String getAdditionalDetailsWidget(String conceptSearchWidget) {
+			protected String getAdditionalDetailWidget(String conceptSearchWidget) {
 				return add(conceptSearchWidget, 2);
 			}
 			
@@ -81,16 +81,16 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				// filling the optional coded condition tag
 				request.addParameter(widgets.get("Optional Coded Condition:"), "Epilepsy");
 				request.addParameter(widgets.get("Optional Coded Condition:") + "_hid", "3476");
-				request.addParameter(getAdditionalDetailsWidget(widgets.get("Optional Coded Condition:")),
-				    "Additional details");
+				request.addParameter(getAdditionalDetailWidget(widgets.get("Optional Coded Condition:")),
+				    "Additional detail");
 				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:"), true), "active");
 				request.addParameter(getOnsetDateWidget(widgets.get("Optional Coded Condition:"), true), "2014-02-11");
 				
 				// filling the required coded condition tag
 				request.addParameter(widgets.get("Required Coded Condition:"), "Indigestion");
 				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3475");
-				request.addParameter(getAdditionalDetailsWidget(widgets.get("Required Coded Condition:")),
-				    "Additional details");
+				request.addParameter(getAdditionalDetailWidget(widgets.get("Required Coded Condition:")),
+				    "Additional detail");
 				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:"), true), "active");
 				request.addParameter(getOnsetDateWidget(widgets.get("Required Coded Condition:"), true), "2014-02-11");
 				

@@ -3,12 +3,10 @@ package org.openmrs.module.htmlformentry.handler;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openmrs.annotation.OpenmrsProfile;
 import org.openmrs.module.htmlformentry.element.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.element.ConditionElement;
 
 public class ConditionTagHandler extends SubstitutionTagHandler {
 	
@@ -37,7 +35,7 @@ public class ConditionTagHandler extends SubstitutionTagHandler {
 		// Fill show additional detail attribute
 		String showAdditionalDetail = attributes.get("showAdditionalDetail");
 		if (StringUtils.equals("true", showAdditionalDetail)) {
-			conditionElement.setShowAdditionalDetails(true);
+			conditionElement.setShowAdditionalDetail(true);
 		}
 		
 		session.getSubmissionController().addAction(conditionElement);

@@ -80,7 +80,7 @@ public class ConditionElementTest {
 	private ConceptSearchAutocompleteWidget conditionSearchWidget;
 	
 	@Mock
-	private TextFieldWidget additionalDetailsWidget;
+	private TextFieldWidget additionalDetailWidget;
 
 	@Mock
 	private RadioButtonsWidget conditionStatusesWidget;
@@ -138,7 +138,7 @@ public class ConditionElementTest {
 		element.setConditionStatusesWidget(conditionStatusesWidget);
 		element.setOnSetDateWidget(onsetDateWidget);
 		element.setEndDateWidget(endDateWidget);
-		element.setAdditionalDetailsWidget(additionalDetailsWidget);
+		element.setAdditionalDetailWidget(additionalDetailWidget);
 		encounter = session.getEncounter();
 	}
 	
@@ -183,14 +183,14 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldCreateNewConditionWithAdditionalDetails() {
+	public void handleSubmission_shouldCreateNewConditionWithAdditionalDetail() {
 		// setup
-		when(additionalDetailsWidget.getValue(context, request)).thenReturn("Additional details");
+		when(additionalDetailWidget.getValue(context, request)).thenReturn("Additional detail");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
 
 		// replay
-		element.setShowAdditionalDetails(true);
+		element.setShowAdditionalDetail(true);
 		element.handleSubmission(session, request);
 
 		// verify
@@ -198,7 +198,7 @@ public class ConditionElementTest {
 		Assert.assertEquals(1, conditions.size());
 
 		Condition condition = conditions.iterator().next();
-		Assert.assertEquals("Additional details", condition.getAdditionalDetail());
+		Assert.assertEquals("Additional detail", condition.getAdditionalDetail());
 	}
 
 	@Test

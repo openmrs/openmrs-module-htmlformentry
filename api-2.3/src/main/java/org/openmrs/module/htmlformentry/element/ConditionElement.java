@@ -50,7 +50,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private Concept presetConcept;
 	
-	private boolean showAdditionalDetails;
+	private boolean showAdditionalDetail;
 	
 	// widgets
 	private ConceptSearchAutocompleteWidget conceptSearchWidget;
@@ -59,7 +59,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private DateWidget endDateWidget;
 	
-	private TextFieldWidget additionalDetailsWidget;
+	private TextFieldWidget additionalDetailWidget;
 	
 	private RadioButtonsWidget conditionStatusesWidget;
 	
@@ -96,8 +96,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ConditionClinicalStatus status = getStatus(context, submission);
 		condition.setClinicalStatus(status);
 		
-		if (showAdditionalDetails) {
-			condition.setAdditionalDetail(additionalDetailsWidget.getValue(context, submission));
+		if (showAdditionalDetail) {
+			condition.setAdditionalDetail(additionalDetailWidget.getValue(context, submission));
 		}
 		
 		condition.setOnsetDate(onsetDateWidget.getValue(context, submission));
@@ -163,9 +163,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		// Show condition search
 		ret.append(htmlForConditionSearchWidget(context));
 		
-		// Show additional details
-		if (showAdditionalDetails) {
-			ret.append(htmlForAdditionalDetailsWidget(context));
+		// Show additional detail
+		if (showAdditionalDetail) {
+			ret.append(htmlForAdditionalDetailWidget(context));
 		}
 		
 		// Show condition state
@@ -448,25 +448,25 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return ret.toString();
 	}
 	
-	private String htmlForAdditionalDetailsWidget(FormEntryContext context) {
+	private String htmlForAdditionalDetailWidget(FormEntryContext context) {
 		
 		// Create wrapper id
-		String additionalDetailsWrapperId = "condition-additional-details-" + controlId;
+		String additionalDetailWrapperId = "condition-additional-detail-" + controlId;
 		
 		// Register widget
-		setAdditionalDetailsWidget(new TextFieldWidget());
-		context.registerWidget(getAdditionalDetailsWidget());
+		setAdditionalDetailWidget(new TextFieldWidget());
+		context.registerWidget(getAdditionalDetailWidget());
 		
 		// Fill value for Edit/View
 		if (context.getMode() != Mode.ENTER && existingCondition != null) {
-			getAdditionalDetailsWidget().setInitialValue(existingCondition.getAdditionalDetail());
+			getAdditionalDetailWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
 		
 		// Generate html
 		StringBuilder ret = new StringBuilder();
-		ret.append("<div id=\"" + additionalDetailsWrapperId + "\">");
-		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetails.label") + "</label>");
-		ret.append(getAdditionalDetailsWidget().generateHtml(context));
+		ret.append("<div id=\"" + additionalDetailWrapperId + "\">");
+		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetail.label") + "</label>");
+		ret.append(getAdditionalDetailWidget().generateHtml(context));
 		ret.append("</div>");
 		
 		return ret.toString();
@@ -515,12 +515,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return endDateWidget;
 	}
 	
-	public TextFieldWidget getAdditionalDetailsWidget() {
-		return additionalDetailsWidget;
+	public TextFieldWidget getAdditionalDetailWidget() {
+		return additionalDetailWidget;
 	}
 	
-	public void setAdditionalDetailsWidget(TextFieldWidget additionalDetailsWidget) {
-		this.additionalDetailsWidget = additionalDetailsWidget;
+	public void setAdditionalDetailWidget(TextFieldWidget additionalDetailWidget) {
+		this.additionalDetailWidget = additionalDetailWidget;
 	}
 	
 	public void setConditionStatusesWidget(RadioButtonsWidget conditionStatusesWidget) {
@@ -559,12 +559,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		this.presetConcept = presetConcept;
 	}
 	
-	public boolean isShowAdditionalDetails() {
-		return showAdditionalDetails;
+	public boolean isShowAdditionalDetail() {
+		return showAdditionalDetail;
 	}
 	
-	public void setShowAdditionalDetails(boolean showAdditionalDetails) {
-		this.showAdditionalDetails = showAdditionalDetails;
+	public void setShowAdditionalDetail(boolean showAdditionalDetail) {
+		this.showAdditionalDetail = showAdditionalDetail;
 	}
 	
 	// available for testing purposes only
