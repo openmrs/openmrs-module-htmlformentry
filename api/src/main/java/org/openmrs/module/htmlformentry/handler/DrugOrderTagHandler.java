@@ -7,9 +7,12 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
+import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
+import org.openmrs.module.htmlformentry.tag.DrugOrderTag;
 
 /**
  * Handles the {@code <drugOrder>} tag
@@ -26,10 +29,16 @@ public class DrugOrderTagHandler extends SubstitutionTagHandler {
 	}
 	
 	@Override
-	public String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
-	        Map<String, String> parameters) {
-		DrugOrderSubmissionElement element = new DrugOrderSubmissionElement(session.getContext(), parameters);
-		session.getSubmissionController().addAction(element);
-		return element.generateHtml(session.getContext());
+	public String getSubstitution(FormEntrySession session, FormSubmissionController fsc, Map<String, String> parameters) {
+		FormEntryContext context = session.getContext();
+		DrugOrderTag tag = new DrugOrderTag(parameters);
+		StringBuilder html = new StringBuilder();
+		for (DrugOrderAnswer d : tag.getDrugOrderField().getDrugOrderAnswers()) {
+			DrugOrderSubmissionElement element = new DrugOrderSubmissionElement(context, tag, d);
+			session.getSubmissionController().addAction(element);
+			html.append(element.generateHtml(session.getContext()));
+			html.append("<br/>");
+		}
+		return html.toString();
 	}
 }

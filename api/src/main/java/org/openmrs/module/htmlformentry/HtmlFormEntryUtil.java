@@ -43,6 +43,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
@@ -555,22 +556,60 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Find Drug by UUID
-	 *
-	 * @param uuid
-	 * @return
+	 * Find drug by uuid, name, or id
 	 */
-	public static Drug getDrug(String uuid) {
+	public static Drug getDrug(String uuidOrIdOrName) {
 		Drug drug = null;
-		if (StringUtils.isNotBlank(uuid)) {
+		if (StringUtils.isNotBlank(uuidOrIdOrName)) {
+			uuidOrIdOrName = uuidOrIdOrName.trim();
 			try {
-				drug = Context.getConceptService().getDrugByUuid(uuid);
+				drug = Context.getConceptService().getDrugByUuid(uuidOrIdOrName);
+				if (drug == null) {
+					drug = Context.getConceptService().getDrug(uuidOrIdOrName);
+				}
 			}
 			catch (Exception e) {
 				log.error("Failed to find drug: ", e);
 			}
 		}
 		return drug;
+	}
+	
+	/**
+	 * Find exact care setting by uuid, name, or id. If not found, but lookup corresponds to a care
+	 * setting type, return first matching one found
+	 */
+	public static CareSetting getCareSetting(String lookup) {
+		CareSetting ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			lookup = lookup.trim();
+			ret = Context.getOrderService().getCareSettingByUuid(lookup);
+			if (ret == null) {
+				ret = Context.getOrderService().getCareSettingByName(lookup);
+			}
+			if (ret == null) {
+				try {
+					ret = Context.getOrderService().getCareSetting(Integer.parseInt(lookup));
+				}
+				catch (Exception e) {
+					
+				}
+			}
+			if (ret == null) {
+				try {
+					CareSetting.CareSettingType type = CareSetting.CareSettingType.valueOf(lookup);
+					if (type != null) {
+						for (CareSetting cs : Context.getOrderService().getCareSettings(false)) {
+							if (cs.getCareSettingType().equals(type)) {
+								return cs;
+							}
+						}
+					}
+				}
+				catch (Exception e) {}
+			}
+		}
+		return ret;
 	}
 	
 	/**

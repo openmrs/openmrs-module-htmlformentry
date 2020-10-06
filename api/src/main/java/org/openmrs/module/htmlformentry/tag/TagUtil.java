@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.EncounterRole;
@@ -70,6 +71,8 @@ public class TagUtil {
 				ret = (T) HtmlFormEntryUtil.getConcept(valueToParse);
 			} else if (type == Drug.class) {
 				ret = (T) HtmlFormEntryUtil.getDrug(valueToParse);
+			} else if (type == CareSetting.class) {
+				ret = (T) HtmlFormEntryUtil.getCareSetting(valueToParse);
 			} else if (type == EncounterRole.class) {
 				ret = (T) HtmlFormEntryUtil.getEncounterRole(valueToParse);
 			} else if (type == Provider.class) {
