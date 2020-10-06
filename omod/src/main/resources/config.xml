@@ -92,11 +92,6 @@
 		<defaultValue>False</defaultValue>
 		<description>Set to True if you want to archive the submitted html forms and False otherwise</description>
 	</globalProperty>
-    <globalProperty>
-        <property>htmlformentry.restrictEncounterLocationToCurrentVisitLocation</property>
-        <defaultValue>false</defaultValue>
-        <description>When set to true and an encounter is being entered in the context of a visit, the encounter location will be restricted to the current visit location (and it's descendents)</description>
-    </globalProperty>
 	<!-- /Required Global Properties -->
 
 	<dwr>

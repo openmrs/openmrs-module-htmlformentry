@@ -1,5 +1,17 @@
 package org.openmrs.module.htmlformentry.element;
 
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -16,7 +28,6 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.MetadataMappingResolver;
@@ -39,62 +50,50 @@ import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
  * HtmlGeneratorElement and the FormSubmissionControllerAction for Encounter details.
  */
 public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
-
+	
 	protected final Log log = LogFactory.getLog(getClass());
-
+	
 	private String id;
-
+	
 	private DateWidget dateWidget;
-
+	
 	private ErrorWidget dateErrorWidget;
-
+	
 	private TimeWidget timeWidget;
-
+	
 	private ErrorWidget timeErrorWidget;
-
+	
 	private SingleOptionWidget providerWidget;
-
+	
 	private ErrorWidget providerErrorWidget;
-
+	
 	private SingleOptionWidget locationWidget;
-
+	
 	private ErrorWidget locationErrorWidget;
-
+	
 	private ToggleWidget toggleWidget;
-
+	
 	private CheckboxWidget voidWidget;
-
+	
 	private ErrorWidget voidErrorWidget;
-
+	
 	private EncounterTypeWidget encounterTypeWidget;
-
+	
 	private ErrorWidget encounterTypeErrorWidget;
-
+	
 	boolean locationRequired = true;
-
+	
 	boolean providerRequired = true;
-
+	
 	private MetadataMappingResolver getMetadataMappingResolver() {
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
 	}
-
+	
 	/**
 	 * Construct a new EncounterDetailSubmissionElement
 	 *
@@ -102,13 +101,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	 * @param parameters <strong>Should</strong> display 'Enter' option if 'type' is set to Autocomplete
 	 */
 	public EncounterDetailSubmissionElement(FormEntryContext context, Map<String, Object> parameters) {
-
+		
 		// Register Date and Time widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("date"))) {
-
+			
 			dateWidget = new DateWidget();
 			dateErrorWidget = new ErrorWidget();
-
+			
 			if (context.getExistingEncounter() != null) {
 				dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
 			} else if (context.getDefaultEncounterDate() != null) {
@@ -116,13 +115,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			} else if (parameters.get("defaultDate") != null) {
 				dateWidget.setInitialValue(parameters.get("defaultDate"));
 			}
-
+			
 			if (parameters.get("disallowMultipleEncountersOnDate") != null
 			        && StringUtils.hasText((String) parameters.get("disallowMultipleEncountersOnDate"))) {
 				dateWidget.setOnChangeFunction(
 				    "existingEncounterOnDate(this, '" + parameters.get("disallowMultipleEncountersOnDate") + "') ");
 			}
-
+			
 			if ("true".equals(parameters.get("showTime"))) {
 				timeWidget = new TimeWidget();
 				timeErrorWidget = new ErrorWidget();
@@ -139,7 +138,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 			context.registerWidget(dateWidget);
 			context.registerErrorWidget(dateWidget, dateErrorWidget);
-
+			
 			if ("hidden".equals(parameters.get("widget"))) {
 				dateWidget.setHidden(true);
 				if (timeWidget != null) {
@@ -147,17 +146,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 			}
 		}
-
+		
 		// Register Provider widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("provider"))) {
-
+			
 			if ("autocomplete".equals(parameters.get("type"))) {
 				providerWidget = new AutocompleteWidget(Person.class);
 			} else {
 				providerWidget = new DropdownWidget();
 			}
 			providerErrorWidget = new ErrorWidget();
-
+			
 			List<Option> providerOptions = new ArrayList<Option>();
 			// If specific persons are specified, display only those persons in order
 			String personsParam = (String) parameters.get("persons");
@@ -172,13 +171,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				removeNonProviders(providerOptions);
 			}
-
+			
 			// Only if specific person ids are not passed in do we get by user Role
 			if (providerOptions.isEmpty()) {
-
+				
 				List<PersonStub> users = new ArrayList<PersonStub>();
 				List<Option> providerUsers = new ArrayList<Option>();
-
+				
 				// If the "role" attribute is passed in, limit to users with this role
 				Object roleParam = parameters.get("role");
 				if (roleParam != null) {
@@ -188,14 +187,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					if (role == null) {
 						role = Context.getUserService().getRole((String) roleParam);
 					}
-
+					
 					if (role == null) {
 						throw new RuntimeException("Cannot find role: " + roleParam);
 					} else {
 						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
 					}
 				}
-
+				
 				// Otherwise, use default options appropriate to the underlying OpenMRS version
 				else {
 					if (openmrsVersionDoesNotSupportProviders()) {
@@ -214,17 +213,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						users = getAllProvidersThatArePersonsAsPersonStubs();
 					}
 				}
-
+				
 				for (PersonStub personStub : users) {
-
+					
 					Option option = new Option(StringEscapeUtils.escapeHtml(personStub.toString()),
 					        personStub.getId().toString(), false);
 					providerUsers.add(option);
 				}
 				providerOptions.addAll(providerUsers);
-
+				
 			}
-
+			
 			// Set default values as appropriate
 			Person defaultProvider = null;
 			Option defProviderOption;
@@ -249,7 +248,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					        defaultProvider.getId().toString(), true);
 					providerOptions.add(defProviderOption);
 				}
-
+				
 			} else {
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
@@ -272,42 +271,42 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						}
 						providerOptions.add(defProviderOption);
 					}
-
+					
 				}
 			}
 			if (defaultProvider != null) {
 				providerWidget.setInitialValue(new PersonStub(defaultProvider));
 			}
 			Collections.sort(providerOptions, new OptionComparator());
-
+			
 			if (("autocomplete").equals(parameters.get("type"))) {
 				providerWidget.addOption(new Option());
 				if (!providerOptions.isEmpty()) {
 					providerWidget.setOptions(providerOptions);
 				}
-
+				
 			} else {
 				// if initialValueIsSet=false, no initial/default provider, hence this shows the 'select input' field as first option
 				boolean initialValueIsSet = !(providerWidget.getInitialValue() == null);
 				providerWidget
 				        .addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"),
 				                "", !initialValueIsSet)); // if no initial or default value
-
+				
 				if (!providerOptions.isEmpty()) {
 					for (Option option : providerOptions) {
 						providerWidget.addOption(option);
 					}
-
+					
 				}
 			}
-
+			
 			if (parameters.containsKey("required")) {
 				providerRequired = Boolean.valueOf((String) parameters.get("required"));
 			}
 			context.registerWidget(providerWidget);
 			context.registerErrorWidget(providerWidget, providerErrorWidget);
 		}
-
+		
 		if (Boolean.TRUE.equals(parameters.get("encounterType"))) {
 			encounterTypeWidget = new EncounterTypeWidget();
 			encounterTypeErrorWidget = new ErrorWidget();
@@ -321,11 +320,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					}
 					encounterTypes.add(type);
 				}
-
+				
 				encounterTypeWidget.setOptions(encounterTypes);
 			}
 			// Set default values
-
+			
 			EncounterType defaultEncounterType = null;
 			if (context.getExistingEncounter() != null) {
 				defaultEncounterType = context.getExistingEncounter().getEncounterType();
@@ -335,25 +334,25 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					defaultEncounterType = HtmlFormEntryUtil.getEncounterType(defaultTypeId);
 				}
 			}
-
+			
 			encounterTypeWidget.setInitialValue(defaultEncounterType);
 			context.registerWidget(encounterTypeWidget);
 			context.registerErrorWidget(encounterTypeWidget, encounterTypeErrorWidget);
 		}
-
+		
 		// Register Location widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("location"))) {
-
+			
 			locationErrorWidget = new ErrorWidget();
 			List<Location> locations = new ArrayList<Location>();
 			List<Option> locationOptions = new ArrayList<Option>();
-
+			
 			if ("autocomplete".equals(parameters.get("type"))) {
 				locationWidget = new AutocompleteWidget(Location.class);
 			} else {
 				locationWidget = new DropdownWidget();
 			}
-
+			
 			if (parameters.get("tags") != null && parameters.get("orders") != null) {
 				throw new RuntimeException(
 				        "Using both \"order\" and \"tags\" attribute in an encounterLocation tag is not currently supported");
@@ -362,27 +361,27 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				Set<Location> allVisitLocations = new HashSet<Location>();
 				Set<Location> traversedLocations = new HashSet<Location>();
 				Set<Location> allVisitsAndChildLocations = new HashSet<Location>();
-				if ("true".equalsIgnoreCase(parameters.get("restrictToSupportedVisitLocations").toString())) {
+				if ("true".equals(parameters.get("restrictToSupportedVisitLocations"))) {
 					LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
 					List<Location> visitLocations = Context.getLocationService().getLocationsByTag(visitLocationTag);
 					allVisitLocations.addAll(visitLocations);
 					allVisitsAndChildLocations = getAllVisitsAndChildLocations(allVisitLocations, traversedLocations);
 					locations.addAll(allVisitsAndChildLocations);
-
-				} else if (!"false".equalsIgnoreCase(parameters.get("restrictToSupportedVisitLocations").toString())) {
-
+					
+				} else if (!"false".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+					
 					throw new RuntimeException("Invalid value for restrictToSupportedVisitLocations,use true or false");
 				}
-
+				
 			}
-
+			
 			// if the "tags" attribute has been specified, load all the locations referenced by tag
 			if (parameters.get("tags") != null) {
-
+				
 				List<LocationTag> tags = new ArrayList<LocationTag>();
 				String temp[] = ((String) parameters.get("tags")).split(",");
 				for (String s : temp) {
-
+					
 					LocationTag tag = HtmlFormEntryUtil.getLocationTag(s);
 					if (tag == null) {
 						throw new RuntimeException("Cannot find tag: " + tag);
@@ -393,7 +392,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 			// If the "order" attribute is passed in, limit to the specified locations in order
 			else if (parameters.get("order") != null) {
-
+				
 				String[] temp = ((String) parameters.get("order")).split(",");
 				for (String s : temp) {
 					Location loc = HtmlFormEntryUtil.getLocation(s, context);
@@ -402,23 +401,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					}
 					locations.add(loc);
 				}
-
+				
 			}
-
+			
 			// if no locations have been specified by the order attribute, use all non-retired locations
 			if (locations.isEmpty()) {
 				locations = Context.getLocationService().getAllLocations(false);
 			}
-
-			// restrict to visit locations if necessary
-			if ((parameters.get("restrictToCurrentVisitLocation") != null
-			        && "true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation").toString())
-			        || "true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(
-			            HtmlFormEntryConstants.GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION)))
-			        && context.getVisit() != null) {
-				locations = removeLocationsNotEqualToOrDescendentOf(locations, context.getVisit().getLocation());
-			}
-
+			
 			// Set default values
 			Location defaultLocation = null;
 			if (context.getExistingEncounter() != null) {
@@ -431,26 +421,26 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
 			locationWidget.setInitialValue(defaultLocation);
-
+			
 			// if in EDIT mode, make sure that the default/selected location is one of the location options, so we don't accidentally lose it
 			if (defaultLocation != null && context.getMode().equals(Mode.EDIT)) {
 				if (!locations.contains(defaultLocation)) {
 					locations.add(defaultLocation);
 				}
 			}
-
+			
 			// now create the actual location options
 			for (Location location : locations) {
 				String label = HtmlFormEntryUtil.format(location);
 				Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
 				locationOptions.add(option);
 			}
-
+			
 			// sort options (if a specific order hasn't been specified
 			if (parameters.get("order") == null) {
 				Collections.sort(locationOptions, new OptionComparator());
 			}
-
+			
 			if ("autocomplete".equals(parameters.get("type"))) {
 				locationWidget.addOption(new Option());
 				if (!locationOptions.isEmpty()) {
@@ -466,14 +456,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						locationWidget.addOption(option);
 				}
 			}
-
+			
 			if (parameters.containsKey("required")) {
 				locationRequired = Boolean.valueOf((String) parameters.get("required"));
 			}
 			context.registerWidget(locationWidget);
 			context.registerErrorWidget(locationWidget, locationErrorWidget);
 		}
-
+		
 		if (Boolean.TRUE.equals(parameters.get("showVoidEncounter")) && context.getMode() == Mode.EDIT) { //only show void option if the encounter already exists.  And VIEW implies not voided.
 			if (parameters.get("toggle") != null) {
 				ToggleWidget toggleWidget = new ToggleWidget((String) parameters.get("toggle"));
@@ -492,14 +482,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			context.registerWidget(voidWidget);
 			context.registerErrorWidget(voidWidget, voidErrorWidget);
 		}
-
+		
 		// set the id, if it has been specified
 		if (parameters.get("id") != null) {
 			id = (String) parameters.get("id");
 		}
-
+		
 	}
-
+	
 	/**
 	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
 	 * without having to branch the module. We should remove this method when do a proper
@@ -512,7 +502,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7")
 		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.8");
 	}
-
+	
 	/**
 	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
 	 * without having to branch the module. We should remove this method when do a proper
@@ -530,7 +520,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				i.remove();
 		}
 	}
-
+	
 	/**
 	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
 	 * without having to branch the module. We should remove this method when do a proper
@@ -559,7 +549,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
 		}
 	}
-
+	
 	/**
 	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
 	 * without having to branch the module. We should remove this method when do a proper
@@ -580,7 +570,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
 		}
 	}
-
+	
 	/**
 	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
 	 * without having to branch the module. We should remove this method when do a proper
@@ -602,55 +592,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
 		}
 	}
-
-    /**
-     * Iterates through the "locations" list and removed all that are not equal to, or a descendent of, the "testLocation"
-     *
-     * @param locations
-     * @param testLocation
-     * @return
-     */
-	private List<Location> removeLocationsNotEqualToOrDescendentOf(List<Location> locations, Location testLocation) {
-
-		if (testLocation == null) {
-			return locations;
-		}
-
-		Iterator<Location> i = locations.iterator();
-
-		while (i.hasNext()) {
-			if (!isLocationEqualToOrDescendentOf(i.next(), testLocation)) {
-				i.remove();
-			}
-		}
-
-		return locations;
-	}
-
-	/**
-	 * Returns true/false whether the given location is equal to, or a descendent of, "testLocation"
-	 *
-	 * @param location
-	 * @param testLocation
-	 * @return
-	 */
-	private Boolean isLocationEqualToOrDescendentOf(Location location, Location testLocation) {
-		if (location == null) {
-			return false;
-		} else if (location.equals(testLocation)) {
-			return true;
-		} else {
-			return isLocationEqualToOrDescendentOf(location.getParentLocation(), testLocation);
-		}
-	}
-
+	
 	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
-
+		
 		if (id != null || !context.getMode().equals(Mode.VIEW)) {
 			// wrap the whole encounter element in a span tag so that we access property values via javascript
 			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
@@ -681,7 +630,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 			ret.append("<span id='" + id + "'>");
 		}
-
+		
 		if (dateWidget != null) {
 			ret.append(dateWidget.generateHtml(context));
 			if (context.getMode() != Mode.VIEW)
@@ -714,18 +663,18 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (context.getMode() == Mode.EDIT) //only show void option if the encounter already exists.
 				ret.append(voidWidget.generateHtml(context));
 		}
-
+		
 		// close out the span if we have an id tag
 		if (id != null) {
 			ret.append("</span>");
 		}
-
+		
 		return ret.toString();
 	}
-
+	
 	/**
 	 * selects the correct setter function for provider/location widgets according to its type
-	 *
+	 * 
 	 * @param widget- dropdown or autocomplete
 	 * @return
 	 */
@@ -738,10 +687,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		return null;
 	}
-
+	
 	/**
 	 * selects the correct getter function for provider/location widgets according to its type
-	 *
+	 * 
 	 * @param widget - dropdown or autocomplete
 	 * @return
 	 */
@@ -754,14 +703,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		return null;
 	}
-
+	
 	/**
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-
+		
 		try {
 			if (dateWidget != null) {
 				Date date = (Date) dateWidget.getValue(context, submission);
@@ -779,7 +728,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			ret.add(new FormSubmissionError(context.getFieldName(dateErrorWidget),
 			        Context.getMessageSourceService().getMessage(ex.getMessage())));
 		}
-
+		
 		try {
 			if (providerWidget != null) {
 				Object value = providerWidget.getValue(context, submission);
@@ -801,7 +750,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			ret.add(new FormSubmissionError(context.getFieldName(providerErrorWidget),
 			        Context.getMessageSourceService().getMessage(ex.getMessage())));
 		}
-
+		
 		try {
 			if (locationWidget != null) {
 				Object value = locationWidget.getValue(context, submission);
@@ -814,7 +763,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					if (location == null) {
 						log.debug("Location Required " + locationRequired);
 						if (locationRequired) {
-
+							
 							throw new Exception("required");
 						}
 					}
@@ -840,7 +789,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		return ret;
 	}
-
+	
 	/**
 	 * Gets provider id and obtains the Provider from it
 	 *
@@ -854,7 +803,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		return null;
 	}
-
+	
 	/**
 	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
 	 */
@@ -863,11 +812,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (dateWidget != null) {
 			Date date = (Date) dateWidget.getValue(session.getContext(), submission);
 			Date previousDate = session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime();
-
+			
 			if (previousDate == null) {
 				session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
 			}
-
+			
 			else {
 				// we don't want to lose any time information just because we edited it with a form that only collects date,
 				// so we only update the date if the date has a time component or the actual date has changed
@@ -911,33 +860,33 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 		}
 	}
-
+	
 	private boolean hasTimeComponent(Date date) {
 		return !(new DateMidnight(date).toDate().equals(date));
 	}
-
+	
 	private DateMidnight stripTimeComponent(Date date) {
 		return new DateMidnight(date);
 	}
-
+	
 	public static Set<Location> getAllVisitsAndChildLocations(Set<Location> visitLocations,
 	        Set<Location> traversedLocations) {
-
+		
 		Set<Location> locations = new HashSet<Location>();
-
+		
 		for (Location visitLocation : visitLocations) {
 			if (!traversedLocations.contains(visitLocation)) {
 				locations.add(visitLocation);
 				traversedLocations.add(visitLocation);
-
+				
 				if (visitLocation.getChildLocations() != null) {
 					locations.addAll(getAllVisitsAndChildLocations(visitLocation.getChildLocations(), traversedLocations));
-
+					
 				}
 			}
-
+			
 		}
 		return locations;
 	}
-
+	
 }
