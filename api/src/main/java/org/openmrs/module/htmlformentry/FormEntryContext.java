@@ -114,9 +114,10 @@ public class FormEntryContext {
 	
 	private Stack<Object> stack = new Stack<Object>();
 	
-	// TODO now that the Html Form Entry no longer supports older core versions that don't have visits, we should:
-	// TODO * change HtmlFormEntryController so that it correctly populates the context with the relevant visit (if available)
-	private Visit visit;
+	// TODO once Html Form Entry no longer supports older core versions that don't have visits, we should:
+	// TODO 1) change the type of this variable to visit
+	// TODO 2) change HtmlFormEntryController so that it correctly populates the context with the relevant visit (if available)
+	private Object visit;
 	
 	public FormEntryContext(Mode mode) {
 		this.mode = mode;
@@ -992,17 +993,12 @@ public class FormEntryContext {
 		this.clientSideValidationHints = clientSideValidationHints;
 	}
 	
-	public Visit getVisit() {
+	public Object getVisit() {
 		return visit;
 	}
 	
-	public void setVisit(Visit visit) {
-		this.visit = visit;
-	}
-	
-	// to maintain compatibility with earlier setter
 	public void setVisit(Object visit) {
-		this.visit = (Visit) visit;
+		this.visit = visit;
 	}
 	
 	public Date getDefaultEncounterDate() {
