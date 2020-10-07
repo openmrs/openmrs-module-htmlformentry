@@ -45,6 +45,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDoseUnits("51");
 				p.setRoute("22");
 				p.setFrequency("1");
+				p.setAsNeeded("true");
 				p.setStartDate(dateAsString(getEncounterDate()));
 				p.setDuration("10");
 				p.setDurationUnits("28");

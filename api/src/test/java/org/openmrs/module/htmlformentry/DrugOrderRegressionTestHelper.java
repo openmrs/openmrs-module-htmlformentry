@@ -95,6 +95,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			l.add("route field!!" + i);
 			l.add("frequency field!!" + i);
 			l.add("dosingInstructions field!!" + i);
+			l.add("asNeeded field!!" + i);
 			l.add("startDate field!!" + i);
 			l.add("duration field!!" + i);
 			l.add("durationUnits field!!" + i);
@@ -127,6 +128,8 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		private String route;
 		
 		private String frequency;
+
+		private String asNeeded;
 		
 		private String startDate;
 		
@@ -151,6 +154,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			request.setParameter(widgets.get("doseUnits field!!" + fieldNum), doseUnits);
 			request.setParameter(widgets.get("route field!!" + fieldNum), route);
 			request.setParameter(widgets.get("frequency field!!" + fieldNum), frequency);
+			request.setParameter(widgets.get("asNeeded field!!" + fieldNum), asNeeded);
 			request.setParameter(widgets.get("dosingInstructions field!!" + fieldNum), dosingInstructions);
 			request.setParameter(widgets.get("startDate field!!" + fieldNum), startDate);
 			request.setParameter(widgets.get("duration field!!" + fieldNum), duration);
@@ -208,7 +212,15 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		public void setFrequency(String frequency) {
 			this.frequency = frequency;
 		}
-		
+
+		public String getAsNeeded() {
+			return asNeeded;
+		}
+
+		public void setAsNeeded(String asNeeded) {
+			this.asNeeded = asNeeded;
+		}
+
 		public String getStartDate() {
 			return startDate;
 		}

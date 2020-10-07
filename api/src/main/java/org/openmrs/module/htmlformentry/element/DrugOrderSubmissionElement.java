@@ -207,6 +207,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		append(ret, context, "doseUnits", null, doseUnitsWidget, doseUnitsErrorWidget);
 		append(ret, context, "route", null, routeWidget, routeErrorWidget);
 		append(ret, context, "frequency", null, frequencyWidget, frequencyErrorWidget);
+		append(ret, context, "asNeeded", null, asNeededWidget, asNeededErrorWidget);
 		append(ret, context, "dosingInstructions", null, dosingInstructionsWidget, dosingInstructionsErrorWidget);
 		append(ret, context, "startDate", "general.dateStart", startDateWidget, startDateErrorWidget);
 		append(ret, context, "duration", "htmlformentry.general.for", durationWidget, durationErrorWidget);
@@ -235,6 +236,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			}
 		}
 		return null;
+	}
+
+	protected <T> T widgetVal(Widget w, FormEntrySession session, HttpServletRequest request, Class<T> type, T defaultVal) {
+		T val = widgetVal(w, session, request, type);
+		if (val == null) {
+			return defaultVal;
+		}
+		return val;
 	}
 	
 	protected String translate(String code) {
@@ -322,6 +331,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		drugOrder.setDoseUnits(widgetVal(doseUnitsWidget, session, request, Concept.class));
 		drugOrder.setRoute(widgetVal(routeWidget, session, request, Concept.class));
 		drugOrder.setFrequency(widgetVal(frequencyWidget, session, request, OrderFrequency.class));
+		drugOrder.setAsNeeded(widgetVal(asNeededWidget, session, request, Boolean.class, false));
 		drugOrder.setDosingInstructions(widgetVal(dosingInstructionsWidget, session, request, String.class));
 		drugOrder.setDuration(widgetVal(durationWidget, session, request, Integer.class));
 		drugOrder.setDurationUnits(widgetVal(durationUnitsWidget, session, request, Concept.class));
@@ -344,7 +354,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			Date encounterDay = HtmlFormEntryUtil.startOfDay(encDate);
 			if (startDay.before(encounterDay)) {
 				throw new IllegalStateException("Unable to start an order prior to the encounter date");
-			} else if (startDay.after(encounterDay)) {
+			}
+			else if (startDay.after(encounterDay)) {
 				drugOrder.setScheduledDate(startDate);
 				drugOrder.setUrgency(Order.Urgency.ON_SCHEDULED_DATE);
 			}
