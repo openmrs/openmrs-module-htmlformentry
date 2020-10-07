@@ -39,6 +39,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -48,7 +49,9 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
@@ -57,6 +60,8 @@ import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -555,6 +560,23 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	public static Provider getOrdererFromEncounter(Encounter e) {
+		if (e != null) {
+			Set<EncounterProvider> encounterProviders = e.getEncounterProviders();
+			for (EncounterProvider encounterProvider : encounterProviders) {
+				if (BooleanUtils.isFalse(encounterProvider.getVoided())) {
+					return encounterProvider.getProvider();
+				}
+			}
+		}
+		User u = Context.getAuthenticatedUser();
+		Collection<Provider> l = Context.getProviderService().getProvidersByPerson(u.getPerson(), false);
+		if (!l.isEmpty()) {
+			return l.iterator().next();
+		}
+		return null;
+	}
+	
 	/**
 	 * Find drug by uuid, name, or id
 	 */
@@ -573,6 +595,42 @@ public class HtmlFormEntryUtil {
 			}
 		}
 		return drug;
+	}
+	
+	public static OrderType getDrugOrderType() {
+		OrderType ot = Context.getOrderService().getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
+		if (ot == null) {
+			for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+				if (orderType.getJavaClass() == DrugOrder.class) {
+					ot = orderType;
+				}
+			}
+		}
+		return ot;
+	}
+	
+	/**
+	 * Find order frequency by uuid or id, or concept
+	 */
+	public static OrderFrequency getOrderFrequency(String lookup) {
+		OrderFrequency orderFrequency = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			lookup = lookup.trim();
+			orderFrequency = Context.getOrderService().getOrderFrequencyByUuid(lookup);
+			if (orderFrequency == null) {
+				try {
+					orderFrequency = Context.getOrderService().getOrderFrequency(Integer.parseInt(lookup));
+				}
+				catch (Exception e) {}
+			}
+			if (orderFrequency == null) {
+				Concept c = getConcept(lookup);
+				if (c != null) {
+					orderFrequency = Context.getOrderService().getOrderFrequencyByConcept(c);
+				}
+			}
+		}
+		return orderFrequency;
 	}
 	
 	/**

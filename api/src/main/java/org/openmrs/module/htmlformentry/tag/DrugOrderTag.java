@@ -27,26 +27,22 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 /**
- * Defines the configuration attributes available in the encounterProviderAndRole tag, and provides
- * parsing and validation
+ * Defines the configuration attributes available in the drugOrder tag, and provides parsing and
+ * validation
  */
 public class DrugOrderTag {
 	
-	public static final String DRUG_NAMES = "drugNames";
+	public static final String DRUG = "drug";
 	
-	public static final String DRUG_LABELS = "drugLabels";
+	public static final String DRUG_LABEL = "drugLabel";
 	
-	public static final String CHECKBOX = "checkbox";
-	
-	public static final String TOGGLE = "toggle";
+	public static final String DOSING_TYPE = "dosingType";
 	
 	public static final String CARE_SETTING = "careSetting";
 	
+	public static final String SHOW_DURATION = "showDuration";
+	
 	public static final String AS_NEEDED_LABEL = "asNeededLabel";
-	
-	public static final String SHOW_ORDER_DURATION = "showOrderDuration";
-	
-	public static final String HIDE_DOSE_AND_FREQUENCY = "hideDoseAndFrequency";
 	
 	public static final String DEFAULT_DOSE = "defaultDose";
 	
@@ -60,21 +56,17 @@ public class DrugOrderTag {
 	
 	public static final String DISCONTINUED_ANSWER_LABELS = "discontinueReasonAnswerLabels";
 	
-	private List<Drug> drugs; // The drug list to limit this to
+	private Drug drug;
 	
-	private List<String> drugLabels; // The drug labels to associate with the configured drugs
+	private String drugLabel;
 	
-	private boolean checkbox;
-	
-	private String toggle;
+	private String dosingType; // freeText or simple
 	
 	private CareSetting careSetting;
 	
+	private boolean showDuration;
+	
 	private String asNeededLabel;
-	
-	private boolean showOrderDuration; // If true, show duration and duration units, else hide
-	
-	private boolean hideDoseAndFrequency; // If true, use FreeTextDosingInstructions, else use SimpleDosingInstructions
 	
 	private Double defaultDose;
 	
@@ -92,14 +84,12 @@ public class DrugOrderTag {
 	 * @param parameters - the parameters passed in from the parsed XML of the htmlform
 	 */
 	public DrugOrderTag(Map<String, String> parameters) {
-		drugs = TagUtil.parseListParameter(parameters, DRUG_NAMES, Drug.class);
-		drugLabels = TagUtil.parseListParameter(parameters, DRUG_LABELS, String.class);
-		checkbox = TagUtil.parseParameter(parameters, CHECKBOX, Boolean.class, false);
-		toggle = TagUtil.parseParameter(parameters, TOGGLE, String.class, "");
+		drug = TagUtil.parseParameter(parameters, DRUG, Drug.class);
+		drugLabel = TagUtil.parseParameter(parameters, DRUG_LABEL, String.class);
+		dosingType = TagUtil.parseParameter(parameters, DOSING_TYPE, String.class);
 		careSetting = TagUtil.parseParameter(parameters, CARE_SETTING, CareSetting.class, null);
+		showDuration = TagUtil.parseParameter(parameters, SHOW_DURATION, Boolean.class, true);
 		asNeededLabel = TagUtil.parseParameter(parameters, AS_NEEDED_LABEL, String.class, "DrugOrder.asNeeded");
-		showOrderDuration = TagUtil.parseParameter(parameters, SHOW_ORDER_DURATION, Boolean.class, false);
-		hideDoseAndFrequency = TagUtil.parseParameter(parameters, HIDE_DOSE_AND_FREQUENCY, Boolean.class, false);
 		defaultDose = TagUtil.parseParameter(parameters, DEFAULT_DOSE, Double.class, null);
 		validateDose = TagUtil.parseParameter(parameters, VALIDATE_DOSE, Boolean.class, false);
 		instructionsLabel = TagUtil.parseParameter(parameters, INSTRUCTIONS_LABEL, String.class, "");
@@ -117,65 +107,50 @@ public class DrugOrderTag {
 	}
 	
 	public void validate() {
-		if (drugs.isEmpty()) {
-			throw new IllegalArgumentException(DRUG_NAMES + " must contain at least one valid drug reference");
-		}
-		if (drugLabels.size() > 0 && drugLabels.size() != drugs.size()) {
-			throw new IllegalArgumentException("There are a different number of drugLabels (" + drugLabels.size()
-			        + ") than drugs (" + drugs.size() + ").");
+		if (drug == null) {
+			throw new IllegalArgumentException(DRUG + " is required");
 		}
 	}
 	
 	public DrugOrderField getDrugOrderField() {
 		DrugOrderField dof = new DrugOrderField();
-		for (int i = 0; i < drugs.size(); i++) {
-			Drug drug = drugs.get(i);
-			String label = drug.getDisplayName();
-			if (getDrugLabels().size() >= (i - 1)) {
-				label = getDrugLabels().get(i);
-			}
-			dof.addDrugOrderAnswer(new DrugOrderAnswer(drug, label));
-		}
+		dof.addDrugOrderAnswer(new DrugOrderAnswer(drug, drugLabel));
 		return dof;
 	}
 	
+	public String getDrugDisplayName() {
+		return drugLabel == null ? drug.getDisplayName() : drugLabel;
+	}
+	
 	public Class<? extends DosingInstructions> getDosingInstructionsType() {
-		if (isHideDoseAndFrequency()) {
+		if ("freeText".equalsIgnoreCase(dosingType)) {
 			return FreeTextDosingInstructions.class;
 		}
 		return SimpleDosingInstructions.class;
 	}
 	
-	public List<Drug> getDrugs() {
-		return drugs;
+	public Drug getDrug() {
+		return drug;
 	}
 	
-	public void setDrugs(List<Drug> drugs) {
-		this.drugs = drugs;
+	public void setDrug(Drug drug) {
+		this.drug = drug;
 	}
 	
-	public List<String> getDrugLabels() {
-		return drugLabels;
+	public String getDrugLabel() {
+		return drugLabel;
 	}
 	
-	public void setDrugLabels(List<String> drugLabels) {
-		this.drugLabels = drugLabels;
+	public void setDrugLabel(String drugLabel) {
+		this.drugLabel = drugLabel;
 	}
 	
-	public boolean isCheckbox() {
-		return checkbox;
+	public String getDosingType() {
+		return dosingType;
 	}
 	
-	public void setCheckbox(boolean checkbox) {
-		this.checkbox = checkbox;
-	}
-	
-	public String getToggle() {
-		return toggle;
-	}
-	
-	public void setToggle(String toggle) {
-		this.toggle = toggle;
+	public void setDosingType(String dosingType) {
+		this.dosingType = dosingType;
 	}
 	
 	public CareSetting getCareSetting() {
@@ -190,24 +165,16 @@ public class DrugOrderTag {
 		return asNeededLabel;
 	}
 	
+	public boolean isShowDuration() {
+		return showDuration;
+	}
+	
+	public void setShowDuration(boolean showDuration) {
+		this.showDuration = showDuration;
+	}
+	
 	public void setAsNeededLabel(String asNeededLabel) {
 		this.asNeededLabel = asNeededLabel;
-	}
-	
-	public boolean isShowOrderDuration() {
-		return showOrderDuration;
-	}
-	
-	public void setShowOrderDuration(boolean showOrderDuration) {
-		this.showOrderDuration = showOrderDuration;
-	}
-	
-	public boolean isHideDoseAndFrequency() {
-		return hideDoseAndFrequency;
-	}
-	
-	public void setHideDoseAndFrequency(boolean hideDoseAndFrequency) {
-		this.hideDoseAndFrequency = hideDoseAndFrequency;
 	}
 	
 	public Double getDefaultDose() {

@@ -207,18 +207,23 @@ public class NumberFieldWidget implements Widget {
 	}
 	
 	@Override
-	public Double getValue(FormEntryContext context, HttpServletRequest request) {
+	public Number getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
-			Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
-			if (d != null && absoluteMinimum != null && d < absoluteMinimum)
+			Number ret = null;
+			if (isFloatingPoint()) {
+				ret = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
+			} else {
+				ret = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Integer.class);
+			}
+			if (ret != null && absoluteMinimum != null && ret.doubleValue() < absoluteMinimum)
 				throw new IllegalArgumentException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " "
 				                + absoluteMinimum);
-			if (d != null && absoluteMaximum != null && d > absoluteMaximum)
+			if (ret != null && absoluteMaximum != null && ret.doubleValue() > absoluteMaximum)
 				throw new IllegalArgumentException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " "
 				                + absoluteMaximum);
-			return d;
+			return ret;
 		}
 		catch (NumberFormatException ex) {
 			throw new IllegalArgumentException(

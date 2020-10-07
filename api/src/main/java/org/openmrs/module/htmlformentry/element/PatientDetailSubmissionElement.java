@@ -133,7 +133,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			createWidgets(context, genderWidget, genderErrorWidget,
 			    existingPatient != null ? existingPatient.getGender() : null);
 		} else if (FIELD_AGE.equalsIgnoreCase(field)) {
-			ageWidget = new NumberFieldWidget(0d, 200d, false);
+			ageWidget = new NumberFieldWidget(0d, 200d, true);
 			ageErrorWidget = new ErrorWidget();
 			createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
 		} else if (FIELD_BIRTH_DATE.equalsIgnoreCase(field)) {
@@ -142,7 +142,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			createWidgets(context, birthDateWidget, birthDateErrorWidget,
 			    existingPatient != null ? existingPatient.getBirthdate() : null);
 		} else if (FIELD_BIRTH_DATE_OR_AGE.equalsIgnoreCase(field)) {
-			ageWidget = new NumberFieldWidget(0d, 200d, false);
+			ageWidget = new NumberFieldWidget(0d, 200d, true);
 			ageErrorWidget = new ErrorWidget();
 			createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
 			

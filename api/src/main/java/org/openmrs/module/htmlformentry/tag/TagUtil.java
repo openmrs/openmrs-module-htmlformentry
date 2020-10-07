@@ -22,6 +22,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.EncounterRole;
+import org.openmrs.OrderFrequency;
 import org.openmrs.Provider;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.LocaleUtility;
@@ -73,6 +74,8 @@ public class TagUtil {
 				ret = (T) HtmlFormEntryUtil.getDrug(valueToParse);
 			} else if (type == CareSetting.class) {
 				ret = (T) HtmlFormEntryUtil.getCareSetting(valueToParse);
+			} else if (type == OrderFrequency.class) {
+				ret = (T) HtmlFormEntryUtil.getOrderFrequency(valueToParse);
 			} else if (type == EncounterRole.class) {
 				ret = (T) HtmlFormEntryUtil.getEncounterRole(valueToParse);
 			} else if (type == Provider.class) {

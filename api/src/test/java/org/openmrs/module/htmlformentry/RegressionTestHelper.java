@@ -46,6 +46,15 @@ public abstract class RegressionTestHelper {
 	 */
 	public abstract String getFormName();
 	
+	public String getFormXml() {
+		try {
+			return loadXmlFromFile(getXmlDatasetPath() + getFormName() + ".xml");
+		}
+		catch (Exception e) {
+			throw new IllegalStateException("Unable to load form xml from file " + getFormName(), e);
+		}
+	}
+	
 	/**
 	 * you probably want to override this
 	 * 
@@ -255,7 +264,7 @@ public abstract class RegressionTestHelper {
 	public void run() throws Exception {
 		// setup the blank form for the specified patient
 		Patient patient = getPatient();
-		FormEntrySession session = setupFormEntrySession(patient, getFormName());
+		FormEntrySession session = setupFormEntrySession(patient, null, Mode.ENTER, getFormXml());
 		testFormEntrySessionAttribute(session);
 		String html = session.getHtmlToDisplay();
 		testBlankFormHtml(html);
@@ -278,9 +287,10 @@ public abstract class RegressionTestHelper {
 		Patient overridePatient = getPatientToView();
 		boolean doViewPatient = overridePatient != null || doViewPatient();
 		if (doViewPatient) {
-			if (overridePatient != null)
+			if (overridePatient != null) {
 				patientToView = overridePatient;
-			session = setupFormViewSession(patientToView, null, getFormName());
+			}
+			session = setupFormEntrySession(patientToView, null, Mode.VIEW, getFormXml());
 			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingPatient(patientToView, html);
@@ -290,10 +300,10 @@ public abstract class RegressionTestHelper {
 		Encounter override = getEncounterToView();
 		boolean doViewEncounter = override != null || doViewEncounter();
 		if (doViewEncounter) {
-			if (override != null)
+			if (override != null) {
 				encounterToView = override;
-			
-			session = setupFormViewSession(patientToView, encounterToView, getFormName());
+			}
+			session = setupFormEntrySession(patientToView, encounterToView, Mode.VIEW, getFormXml());
 			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingEncounter(encounterToView, html);
@@ -315,7 +325,7 @@ public abstract class RegressionTestHelper {
 			if (overridePatient != null)
 				patientToEdit = overridePatient;
 			
-			session = setupFormEditSession(patientToEdit, toEdit, getFormName());
+			session = setupFormEntrySession(patientToEdit, toEdit, Mode.EDIT, getFormXml());
 			testFormEditSessionAttribute(session);
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
@@ -433,43 +443,12 @@ public abstract class RegressionTestHelper {
 		return null;
 	}
 	
-	private FormEntrySession setupFormEntrySession(Patient patient, String filename) throws Exception {
-		String xml = loadXmlFromFile(getXmlDatasetPath() + filename + ".xml");
-		
+	private FormEntrySession setupFormEntrySession(Patient patient, Encounter e, Mode mode, String xml) throws Exception {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
 		fakeForm.getForm().setEncounterType(new EncounterType(1));
-		FormEntrySession session = new FormEntrySession(patient, null, FormEntryContext.Mode.ENTER, fakeForm,
-		        new MockHttpSession());
-		session.setAttributes(getFormEntrySessionAttributes());
-		session.getHtmlToDisplay();
-		return session;
-	}
-	
-	private FormEntrySession setupFormViewSession(Patient patient, Encounter encounter, String filename) throws Exception {
-		String xml = loadXmlFromFile(getXmlDatasetPath() + filename + ".xml");
-		
-		HtmlForm fakeForm = new HtmlForm();
-		fakeForm.setXmlData(xml);
-		fakeForm.setForm(new Form(1));
-		fakeForm.getForm().setEncounterType(new EncounterType(1));
-		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.VIEW, fakeForm,
-		        new MockHttpSession());
-		session.setAttributes(getFormEntrySessionAttributes());
-		session.getHtmlToDisplay();
-		return session;
-	}
-	
-	private FormEntrySession setupFormEditSession(Patient patient, Encounter encounter, String filename) throws Exception {
-		String xml = loadXmlFromFile(getXmlDatasetPath() + filename + ".xml");
-		
-		HtmlForm fakeForm = new HtmlForm();
-		fakeForm.setXmlData(xml);
-		fakeForm.setForm(new Form(1));
-		fakeForm.getForm().setEncounterType(new EncounterType(1));
-		FormEntrySession session = new FormEntrySession(patient, encounter, FormEntryContext.Mode.EDIT, fakeForm,
-		        new MockHttpSession());
+		FormEntrySession session = new FormEntrySession(patient, e, mode, fakeForm, new MockHttpSession());
 		session.setAttributes(getFormEntrySessionAttributes());
 		session.getHtmlToDisplay();
 		return session;

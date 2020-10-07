@@ -178,9 +178,11 @@
 
     <concept_reference_term concept_reference_term_id="1001" concept_source_id="2" code="Test Workflow Code" name="Test Workflow Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffff34-53ad-11e1-8cb6-00248140a5eb"/>
     <concept_reference_term concept_reference_term_id="1000" concept_source_id="2" code="Test Code" name="Test Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_reference_term concept_reference_term_id="12" concept_source_id="2" code="258703001" name="Day(s)" description="Duration unit in day(s)" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="a8e71e68-23c7-5703-be43-aa74e1de2c71"/>
 
     <concept_reference_map concept_map_id="1002" concept_id="10006" concept_reference_term_id="1001" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f713-49d8-11e0-8fed-18a905e044dc"/>
     <concept_reference_map concept_map_id="1000" concept_id="10009" concept_reference_term_id="1000" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f712-49d8-11e0-8fed-18a905e044dc"/>
+    <concept_reference_map concept_map_id="10001" concept_id="28" concept_reference_term_id="12" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="947fa63c-1baa-11e4-ad81-b2227cce2b54"/>
 
     <!-- Some drugs -->
     <drug drug_id="2" concept_id="792" name="Triomune-30" combination="true" strength="1.0" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="3cfcf118-931c-46f7-8ff6-7b876f0d4202"/>
