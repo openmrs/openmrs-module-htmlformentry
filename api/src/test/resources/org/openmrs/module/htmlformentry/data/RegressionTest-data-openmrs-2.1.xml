@@ -248,6 +248,7 @@
     <location location_id="1004" name="Boston" creator="1" date_created="2008-08-15 13:46:50.0" retired="false" uuid="9356400c-a5a2-4588-8f2b-2361b3446eb8"/>
     <location location_id="1005" name="Scituate" creator="1" date_created="2008-08-15 15:28:54.0" retired="false" uuid="167ce20c-4325-4285-9119-d197268f7f4a"/>
     <location location_id="1006" name="Lacolline" creator="1" date_created="2008-08-15 15:28:54.0" retired="false" uuid="23e7bb0d-51f9-4d5f-b34b-2fbbfeea1960"/>
+    <location location_id="1007" name="Jamaica Plain" creator="1" date_created="2008-08-15 15:28:54.0" retired="false"  parent_location="1004" uuid="2acb9d48-d3e9-41a6-ad1d-d4bd2fa67892"/>
 
     <location_tag_map location_id="1001" location_tag_id="1001" />
     <location_tag_map location_id="1002" location_tag_id="1001" />
