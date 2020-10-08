@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -431,7 +432,7 @@ public class FormEntryContext {
 				list.add(obs);
 			}
 			for (Order order : encounter.getOrders()) {
-				if (!order.isVoided()) {
+				if (BooleanUtils.isNotTrue(order.getVoided())) {
 					//load subclasses for later retrieval
 					order = (Order) Context.getOrderService().getOrder(order.getOrderId());
 					List<Order> list = existingOrders.get(order.getConcept());

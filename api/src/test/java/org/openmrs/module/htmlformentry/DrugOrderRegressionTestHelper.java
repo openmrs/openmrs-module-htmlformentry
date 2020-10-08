@@ -28,7 +28,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	}
 	
 	public Date getEncounterDate() {
-		return new Date();
+		return HtmlFormEntryUtil.startOfDay(new Date());
 	}
 	
 	protected Encounter encounter;
@@ -41,7 +41,16 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	/*
 	 * The values to submit in entry
 	 */
-	public abstract List<DrugOrderRequestParams> getDrugOrderEntryRequestParams();
+	public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+		return new ArrayList<>();
+	}
+
+	/*
+	 * The values to submit in edit
+	 */
+	public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+		return new ArrayList<>();
+	}
 	
 	@Override
 	public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
@@ -52,6 +61,27 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		for (DrugOrderRequestParams params : getDrugOrderEntryRequestParams()) {
 			params.applyToRequest(request, widgets, i++);
 		}
+	}
+
+	@Override
+	public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+		request.setParameter(widgets.get("Date:"), dateAsString(getEncounterDate()));
+		request.setParameter(widgets.get("Location:"), "2");
+		request.setParameter(widgets.get("Provider:"), "502");
+		int i = 0;
+		for (DrugOrderRequestParams params : getDrugOrderEditRequestParams()) {
+			params.applyToRequest(request, widgets, i++);
+		}
+	}
+
+	@Override
+	public boolean doEditEncounter() {
+		return !getDrugOrderEditRequestParams().isEmpty();
+	}
+
+	@Override
+	public Encounter getEncounterToEdit() {
+		return doEditEncounter() ? encounter : null;
 	}
 	
 	@Override
@@ -88,7 +118,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		l.add("Location:");
 		l.add("Provider:");
 		for (int i = 0; i < getDrugOrderTags().size(); i++) {
-			l.add("orderAction field!!" + i);
+			l.add("action field!!" + i);
 			l.add("drug field!!" + i);
 			l.add("dose field!!" + i);
 			l.add("doseUnits field!!" + i);
@@ -103,10 +133,16 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			l.add("quantityUnits field!!" + i);
 			l.add("instructions field!!" + i);
 			l.add("numRefills field!!" + i);
+			l.add("discontinuedReason field!!" + i);
 		}
 		return l.toArray(new String[] {});
 	}
-	
+
+	@Override
+	public String[] widgetLabelsForEdit() {
+		return doEditEncounter() ? widgetLabels() : super.widgetLabelsForEdit();
+	}
+
 	@Override
 	public void testBlankFormHtml(String html) {
 		for (String widgetLabel : widgetLabels()) {
@@ -117,7 +153,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	
 	public static class DrugOrderRequestParams {
 		
-		private String orderAction;
+		private String action;
 		
 		private String dosingInstructions;
 		
@@ -144,12 +180,14 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		private String instructions;
 		
 		private String numRefills;
+
+		private String discontinuedReason;
 		
 		public DrugOrderRequestParams() {
 		}
 		
 		public void applyToRequest(MockHttpServletRequest request, Map<String, String> widgets, int fieldNum) {
-			request.setParameter(widgets.get("orderAction field!!" + fieldNum), orderAction);
+			request.setParameter(widgets.get("action field!!" + fieldNum), action);
 			request.setParameter(widgets.get("dose field!!" + fieldNum), dose);
 			request.setParameter(widgets.get("doseUnits field!!" + fieldNum), doseUnits);
 			request.setParameter(widgets.get("route field!!" + fieldNum), route);
@@ -163,16 +201,17 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			request.setParameter(widgets.get("quantityUnits field!!" + fieldNum), quantityUnits);
 			request.setParameter(widgets.get("instructions field!!" + fieldNum), instructions);
 			request.setParameter(widgets.get("numRefills field!!" + fieldNum), numRefills);
+			request.setParameter(widgets.get("discontinuedReason field!!" + fieldNum), discontinuedReason);
 		}
-		
-		public String getOrderAction() {
-			return orderAction;
+
+		public String getAction() {
+			return action;
 		}
-		
-		public void setOrderAction(String orderAction) {
-			this.orderAction = orderAction;
+
+		public void setAction(String action) {
+			this.action = action;
 		}
-		
+
 		public String getDosingInstructions() {
 			return dosingInstructions;
 		}
@@ -275,6 +314,14 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		
 		public void setNumRefills(String numRefills) {
 			this.numRefills = numRefills;
+		}
+
+		public String getDiscontinuedReason() {
+			return discontinuedReason;
+		}
+
+		public void setDiscontinuedReason(String discontinuedReason) {
+			this.discontinuedReason = discontinuedReason;
 		}
 	}
 	
