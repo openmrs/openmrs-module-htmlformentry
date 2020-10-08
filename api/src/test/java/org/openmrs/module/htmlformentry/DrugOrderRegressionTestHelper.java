@@ -44,7 +44,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 		return new ArrayList<>();
 	}
-
+	
 	/*
 	 * The values to submit in edit
 	 */
@@ -62,7 +62,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			params.applyToRequest(request, widgets, i++);
 		}
 	}
-
+	
 	@Override
 	public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 		request.setParameter(widgets.get("Date:"), dateAsString(getEncounterDate()));
@@ -73,12 +73,12 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			params.applyToRequest(request, widgets, i++);
 		}
 	}
-
+	
 	@Override
 	public boolean doEditEncounter() {
 		return !getDrugOrderEditRequestParams().isEmpty();
 	}
-
+	
 	@Override
 	public Encounter getEncounterToEdit() {
 		return doEditEncounter() ? encounter : null;
@@ -137,12 +137,12 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		}
 		return l.toArray(new String[] {});
 	}
-
+	
 	@Override
 	public String[] widgetLabelsForEdit() {
 		return doEditEncounter() ? widgetLabels() : super.widgetLabelsForEdit();
 	}
-
+	
 	@Override
 	public void testBlankFormHtml(String html) {
 		for (String widgetLabel : widgetLabels()) {
@@ -164,7 +164,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		private String route;
 		
 		private String frequency;
-
+		
 		private String asNeeded;
 		
 		private String startDate;
@@ -180,7 +180,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		private String instructions;
 		
 		private String numRefills;
-
+		
 		private String discontinuedReason;
 		
 		public DrugOrderRequestParams() {
@@ -203,15 +203,15 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 			request.setParameter(widgets.get("numRefills field!!" + fieldNum), numRefills);
 			request.setParameter(widgets.get("discontinuedReason field!!" + fieldNum), discontinuedReason);
 		}
-
+		
 		public String getAction() {
 			return action;
 		}
-
+		
 		public void setAction(String action) {
 			this.action = action;
 		}
-
+		
 		public String getDosingInstructions() {
 			return dosingInstructions;
 		}
@@ -251,15 +251,15 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		public void setFrequency(String frequency) {
 			this.frequency = frequency;
 		}
-
+		
 		public String getAsNeeded() {
 			return asNeeded;
 		}
-
+		
 		public void setAsNeeded(String asNeeded) {
 			this.asNeeded = asNeeded;
 		}
-
+		
 		public String getStartDate() {
 			return startDate;
 		}
@@ -315,11 +315,11 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		public void setNumRefills(String numRefills) {
 			this.numRefills = numRefills;
 		}
-
+		
 		public String getDiscontinuedReason() {
 			return discontinuedReason;
 		}
-
+		
 		public void setDiscontinuedReason(String discontinuedReason) {
 			this.discontinuedReason = discontinuedReason;
 		}

@@ -44,12 +44,18 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
 	protected final Log log = LogFactory.getLog(DrugOrderSubmissionElement.class);
-
-	public enum Action { NEW, EDIT, DISCONTINUE, DELETE }
+	
+	public enum Action {
+		NEW,
+		EDIT,
+		DISCONTINUE,
+		DELETE
+	}
 	
 	private final DrugOrderTag tag;
-
+	
 	private List<DrugOrder> existingOrdersInEncounter = new ArrayList<>();
+	
 	private DrugOrder orderAvailable;
 	
 	private RadioButtonsWidget actionWidget;
@@ -111,39 +117,42 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	private TextFieldWidget instructionsWidget;
 	
 	private final ErrorWidget instructionsErrorWidget = new ErrorWidget();
-
+	
 	private DropdownWidget discontinuedReasonWidget;
-
+	
 	private ErrorWidget discontinuedReasonErrorWidget = new ErrorWidget();
 	
 	/**
 	 * Instantiates a new Drug Order Submission Element, for the given Drug and Context
 	 */
 	public DrugOrderSubmissionElement(FormEntryContext context, DrugOrderTag tag) {
-
+		
 		this.tag = tag;
 		populateExistingOrdersForDrug(context, tag);
-
+		
 		DrugOrder latestOrder = getLatestOrderForViewOrRevision();
 		DrugOrder orderDefaults = null;
 		DrugOrder discontinueDefaults = null;
 		if (latestOrder != null) {
 			if (latestOrder.getAction() == Order.Action.DISCONTINUE) {
-				orderDefaults = (DrugOrder)latestOrder.getPreviousOrder();
+				orderDefaults = (DrugOrder) latestOrder.getPreviousOrder();
 				discontinueDefaults = latestOrder;
-			}
-			else {
+			} else {
 				orderDefaults = latestOrder;
 			}
 		}
 		if (orderDefaults == null) {
 			orderDefaults = orderAvailable;
 		}
-
+		
 		// Action Widget
 		actionWidget = new RadioButtonsWidget();
-		for (Action action : Action.values()) {
-			actionWidget.addOption(new Option(action.name(), action.name(), false));
+		if (orderDefaults != null) {
+			actionWidget.addOption(new Option(Action.EDIT.name(), Action.EDIT.name(), false));
+			actionWidget.addOption(new Option(Action.DISCONTINUE.name(), Action.DISCONTINUE.name(), false));
+			actionWidget.addOption(new Option(Action.DELETE.name(), Action.DELETE.name(), false));
+		} else {
+			actionWidget.addOption(new Option(Action.NEW.name(), Action.NEW.name(), false));
 		}
 		registerWidgets(context, actionWidget, actionErrorWidget);
 		
@@ -178,7 +187,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		registerWidgets(context, dosingInstructionsWidget, dosingInstructionsErrorWidget);
 		
 		// As-Needed Widget
-		asNeededWidget = new CheckboxWidget("true", translate(tag.getAsNeededLabel()));
+		asNeededWidget = new CheckboxWidget(translate(tag.getAsNeededLabel()), "true");
 		asNeededWidget.setInitialValue(orderDefaults == null ? null : orderDefaults.getAsNeeded());
 		registerWidgets(context, asNeededWidget, asNeededErrorWidget);
 		
@@ -215,14 +224,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		numRefillsWidget = new NumberFieldWidget(0d, 9999999d, false);
 		numRefillsWidget.setInitialValue(orderDefaults == null ? null : orderDefaults.getNumRefills());
 		registerWidgets(context, numRefillsWidget, numRefillsErrorWidget);
-
+		
 		// Discontinued Reason Widgets
 		discontinuedReasonWidget = new ConceptDropdownWidget(tag.getDiscontinueAnswers());
 		if (discontinueDefaults != null) {
 			discontinuedReasonWidget.setInitialValue(discontinueDefaults.getOrderReason());
 		}
 		registerWidgets(context, discontinuedReasonWidget, discontinuedReasonErrorWidget);
-
+		
 		context.addFieldToActiveSection(tag.getDrugOrderField());
 	}
 	
@@ -250,7 +259,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		append(ret, context, "quantityUnits", null, quantityUnitsWidget, quantityUnitsErrorWidget);
 		append(ret, context, "instructions", tag.getInstructionsLabel(), instructionsWidget, instructionsErrorWidget);
 		append(ret, context, "numRefills", "htmlformentry.drugOrder.numRefills", numRefillsWidget, numRefillsErrorWidget);
-		append(ret, context, "discontinuedReason", "general.discontinuedReason", discontinuedReasonWidget, discontinuedReasonErrorWidget);
+		append(ret, context, "discontinuedReason", "general.discontinuedReason", discontinuedReasonWidget,
+		    discontinuedReasonErrorWidget);
 		endSpan(ret);
 		return ret.toString();
 	}
@@ -284,12 +294,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 					throw new IllegalStateException("Cannot DISCONTINUE order since existing Drug Order is not found");
 				}
 				handleDiscontinueOrder(session, request);
-			}
-			else if (action == Action.DELETE) {
+			} else if (action == Action.DELETE) {
 				DrugOrder orderToVoid = getLatestOrderForViewOrRevision();
 				voidOrder(orderToVoid);
-			}
-			else {
+			} else {
 				throw new IllegalStateException("Only START, EDIT, STOP, and DELETE actions are supported");
 			}
 		}
@@ -313,7 +321,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		voidOrder(previousOrder);
 		handleNewOrder(session, request);
 	}
-
+	
 	/**
 	 * Responsible for stopping/discontinuing an existing DrugOrder
 	 */
@@ -324,7 +332,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		log.debug("Discontinuing order " + newOrder.getDrug().getDisplayName());
 		session.getSubmissionActions().getCurrentEncounter().addOrder(newOrder);
 	}
-
+	
 	/**
 	 * Responsible for voiding an Order
 	 */
@@ -335,7 +343,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		drugOrder.setVoidReason("Voided by htmlformentry due to edited Order details");
 		log.debug("Voided previous Drug Order for " + drugOrder.getDrug().getDisplayName());
 	}
-
+	
 	protected DrugOrder populateDrugOrderFromRequest(FormEntrySession session, HttpServletRequest request, DrugOrder o) {
 		o.setPatient(session.getPatient());
 		o.setEncounter(session.getEncounter());
@@ -357,13 +365,13 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		o.setInstructions(widgetVal(instructionsWidget, session, request, String.class));
 		o.setNumRefills(widgetVal(numRefillsWidget, session, request, Integer.class));
 		o.setVoided(false);
-
+		
 		// The dateActivated of an order must not be in the future or after the date of the associated encounter
 		// This means we always need to set the dateActivated to the encounterDatetime
 		Date encDate = session.getEncounter().getEncounterDatetime();
 		o.setDateActivated(encDate);
 		o.setUrgency(Order.Urgency.ROUTINE);
-
+		
 		// If the startDate indicated on the orderTag is after the encounterDatetime, then make this a future order
 		Date startDate = widgetVal(startDateWidget, session, request, Date.class);
 		if (startDate != null) {
@@ -371,15 +379,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			Date encounterDay = HtmlFormEntryUtil.startOfDay(encDate);
 			if (startDay.before(encounterDay)) {
 				throw new IllegalStateException("Unable to start an order prior to the encounter date");
-			}
-			else if (startDay.after(encounterDay)) {
+			} else if (startDay.after(encounterDay)) {
 				o.setScheduledDate(startDate);
 				o.setUrgency(Order.Urgency.ON_SCHEDULED_DATE);
 			}
 		}
 		return o;
 	}
-
+	
 	protected void populateExistingOrdersForDrug(FormEntryContext context, DrugOrderTag tag) {
 		Encounter currentEnc = context.getExistingEncounter();
 		List<Order> existingOrders = Context.getOrderService().getAllOrdersByPatient(context.getExistingPatient());
@@ -401,7 +408,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			}
 		}
 	}
-
+	
 	protected DrugOrder getLatestOrderForViewOrRevision() {
 		Set<Order> revisedOrders = new HashSet<>();
 		for (Order drugOrder : getExistingOrdersInEncounter()) {
@@ -424,22 +431,21 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				}
 			}
 			return latestEntered;
-		}
-		else if (nonRevisedOrders.size() == 1) {
+		} else if (nonRevisedOrders.size() == 1) {
 			return nonRevisedOrders.get(0);
 		}
 		return null;
 	}
-
+	
 	public List<DrugOrder> getExistingOrdersInEncounter() {
 		return existingOrdersInEncounter;
 	}
-
+	
 	protected void registerWidgets(FormEntryContext context, Widget fieldWidget, ErrorWidget errorWidget) {
 		context.registerWidget(fieldWidget);
 		context.registerErrorWidget(fieldWidget, errorWidget);
 	}
-
+	
 	protected <T> T widgetVal(Widget w, FormEntrySession session, HttpServletRequest request, Class<T> type) {
 		if (w != null) {
 			Object o = w.getValue(session.getContext(), request);
@@ -452,7 +458,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		}
 		return null;
 	}
-
+	
 	protected <T> T widgetVal(Widget w, FormEntrySession session, HttpServletRequest request, Class<T> type, T defaultVal) {
 		T val = widgetVal(w, session, request, type);
 		if (val == null) {
@@ -460,11 +466,11 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		}
 		return val;
 	}
-
+	
 	protected String translate(String code) {
 		return Context.getMessageSourceService().getMessage(code);
 	}
-
+	
 	protected String append(StringBuilder html, FormEntryContext ctx, String cssClass, String label, Widget w, Widget ew) {
 		if (w != null) {
 			if (label != null) {
@@ -482,15 +488,15 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		}
 		return html.toString();
 	}
-
+	
 	protected void startSpan(StringBuilder html, String cssClass) {
 		html.append("<span class=\"").append(cssClass).append("\">");
 	}
-
+	
 	protected void endSpan(StringBuilder html) {
 		html.append("</span>\r\n");
 	}
-
+	
 	/**
 	 * <strong>Should</strong> return validation errors if any data is invalid
 	 * 
