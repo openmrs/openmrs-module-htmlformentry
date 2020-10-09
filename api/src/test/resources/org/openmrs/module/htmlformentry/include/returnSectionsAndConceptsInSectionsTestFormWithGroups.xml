@@ -30,9 +30,8 @@
 	</section>
 	
 	<section>
-		<drugOrder drug="2" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
-		<drugOrder drug="3" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
-		<drugOrder drug="11" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
+		<drugOrder drugNames="2,3" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
+		<drugOrder drugNames="11" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
 	</section>
 	
 	<submit/>

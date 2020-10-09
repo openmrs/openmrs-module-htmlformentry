@@ -164,8 +164,6 @@
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
 	</properties>
 
-	<!-- different profiles for building/testing against different version of 
-		openmrs -->
 	<profiles>
 		<profile>
 			<id>deploy-web</id>
@@ -182,7 +180,8 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy todir="${deploy.path}/WEB-INF/view/module/${project.parent.artifactId}">
+										<!-- eg. mvn clean install -DskipTests -Pdeploy-web -DserverId=butaro2x -->
+										<copy todir="${user.home}/openmrs/${serverId}/tmp/openmrs/WEB-INF/view/module/${project.parent.artifactId}">
 											<fileset dir="src/main/webapp" includes="**/*" />
 										</copy>
 									</tasks>

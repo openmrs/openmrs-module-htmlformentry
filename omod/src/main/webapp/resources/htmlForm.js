@@ -101,6 +101,16 @@
         $('input').attr("autocomplete", "new-password")
     };
 
+    htmlForm.initializeDrugOrderWidget = function(config) {
+        console.log("Initializing drug order widget with config: " + JSON.stringify(config));
+        var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
+        var encDate = $encDateHidden.val();
+        $encDateHidden.change(function() {
+            encDate = $encDateHidden.val();
+            console.log('Got enc date ' + encDate);
+        });
+    }
+
     // any users of this library should call this function during page load to make sure that all elements are properly initialized
     // if new functionality is added that requires setup, the setup function should be called from here
     htmlForm.initialize = function() {

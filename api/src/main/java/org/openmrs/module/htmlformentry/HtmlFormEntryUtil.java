@@ -85,7 +85,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
+import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -1472,9 +1472,11 @@ public class HtmlFormEntryUtil {
 						matchedObs.add(oga.getExistingGroup());
 					}
 				}
-				if (lfca instanceof DrugOrderSubmissionElement) {
-					DrugOrderSubmissionElement dse = (DrugOrderSubmissionElement) lfca;
-					matchedOrders.addAll(dse.getExistingOrdersInEncounter());
+				if (lfca instanceof GettingExistingOrder) {
+					GettingExistingOrder dse = (GettingExistingOrder) lfca;
+					if (dse.getExistingOrder() != null) {
+						matchedOrders.add(dse.getExistingOrder());
+					}
 				}
 			}
 			

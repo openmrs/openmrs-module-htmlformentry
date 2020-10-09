@@ -12,6 +12,11 @@
 <openmrs:htmlInclude file="/moduleResources/htmlformentry/jquery-ui-1.9.2.custom.min.js" />
 <openmrs:htmlInclude file="/dwr/util.js" />
 
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlForm.js" />
+<openmrs:htmlInclude file="/moduleResources/htmlformentry/handlebars.min.js" />
+
 <br />
 <spring:message code="htmlformentry.previewFile.message" />
 <br />

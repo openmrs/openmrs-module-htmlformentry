@@ -2,8 +2,8 @@
 	Date: <encounterDate/>
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
-	    <section headerLabel="Drug Section">
-			<drugOrder drug="2"/> <!-- Triomune-30" -->
-        </section>
+	<section headerLabel="2. Test Section">
+		<drugOrder drugNames="2,3"/>
+	</section>
 	<submit/>
 </htmlform>

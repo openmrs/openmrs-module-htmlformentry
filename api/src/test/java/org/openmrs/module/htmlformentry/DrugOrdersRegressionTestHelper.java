@@ -20,7 +20,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * testing the DrugOrder tag and to make it easy to test multiple variations of this tag without
  * having to maintain lots of duplicate code and test htmlform resources.
  */
-public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper {
+public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelper {
 	
 	@Override
 	public Patient getPatient() {
