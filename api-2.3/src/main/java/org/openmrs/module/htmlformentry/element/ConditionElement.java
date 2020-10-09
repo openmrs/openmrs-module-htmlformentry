@@ -97,8 +97,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
 			// incomplete optional conditions are not submitted or are removed in EDIT mode
 			if (context.getMode() == Mode.EDIT) {
-				condition.setClinicalStatus(ConditionClinicalStatus.HISTORY_OF);
-				condition.setVoided(true);
 				session.getEncounter().removeCondition(condition);
 			}
 		} else {
@@ -183,7 +181,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	 */
 	private void initializeExistingCondition(FormEntryContext context) {
 		if (context.getMode() != Mode.ENTER) {
-			Set<Condition> conditions = context.getExistingEncounter().getConditions();
+			Set<Condition> conditions = context.getExistingEncounter().getActiveConditions();
 			for (Condition candidate : conditions) {
 				
 				// Get candidate control id
@@ -194,7 +192,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				}
 				
 				// Verify if it is a valid candidate for the condition
-				if (StringUtils.equals(candidateControlId, controlId) && !candidate.getVoided()) {
+				if (StringUtils.equals(candidateControlId, controlId)) {
 					this.existingCondition = candidate;
 					return;
 				}

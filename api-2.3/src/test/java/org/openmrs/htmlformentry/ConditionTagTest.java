@@ -46,7 +46,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			protected String getStatusWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
 				return add(conceptSearchWidget, wasAdditionDetails ? 3 : 2);
 			}
-
+			
 			@Override
 			public String getFormName() {
 				return "conditionForm";
@@ -94,7 +94,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
+				final Map<String, Condition> conditions = results.getEncounterCreated().getActiveConditions().stream()
 				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
@@ -143,14 +143,14 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				// filling for the first time in EDIT mode the optional non-coded condition tag 
 				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Sneezy cold (non-coded)");
 				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:"), false), "inactive");
-
+				
 				// removing the status of the preset condition tag
 				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:"), false));
 			}
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
-				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
+				final Map<String, Condition> conditions = results.getEncounterCreated().getActiveConditions().stream()
 				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
@@ -222,7 +222,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
 				    "<input type=\"radio\" id=\"w19_1\" name=\"w19\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
-
+				
 			}
 			
 		}.run();
