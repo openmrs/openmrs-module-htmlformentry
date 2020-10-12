@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -23,11 +11,13 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.MetadataMappingResolver;
@@ -49,6 +39,18 @@ import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -361,14 +363,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				Set<Location> allVisitLocations = new HashSet<Location>();
 				Set<Location> traversedLocations = new HashSet<Location>();
 				Set<Location> allVisitsAndChildLocations = new HashSet<Location>();
-				if ("true".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+				if ("true".equalsIgnoreCase(parameters.get("restrictToSupportedVisitLocations").toString())) {
 					LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
 					List<Location> visitLocations = Context.getLocationService().getLocationsByTag(visitLocationTag);
 					allVisitLocations.addAll(visitLocations);
 					allVisitsAndChildLocations = getAllVisitsAndChildLocations(allVisitLocations, traversedLocations);
 					locations.addAll(allVisitsAndChildLocations);
 					
-				} else if (!"false".equals(parameters.get("restrictToSupportedVisitLocations"))) {
+				} else if (!"false".equalsIgnoreCase(parameters.get("restrictToSupportedVisitLocations").toString())) {
 					
 					throw new RuntimeException("Invalid value for restrictToSupportedVisitLocations,use true or false");
 				}
@@ -407,6 +409,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			// if no locations have been specified by the order attribute, use all non-retired locations
 			if (locations.isEmpty()) {
 				locations = Context.getLocationService().getAllLocations(false);
+			}
+			
+			// restrict to visit locations if necessary
+			if ((parameters.get("restrictToCurrentVisitLocation") != null
+			        && "true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation").toString())
+			        || "true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(
+			            HtmlFormEntryConstants.GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION)))
+			        && context.getVisit() != null) {
+				locations = removeLocationsNotEqualToOrDescendentOf(locations, ((Visit) context.getVisit()).getLocation());
 			}
 			
 			// Set default values
@@ -594,6 +605,48 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	}
 	
 	/**
+	 * Iterates through the "locations" list and removed all that are not equal to, or a descendent of,
+	 * the "testLocation"
+	 *
+	 * @param locations
+	 * @param testLocation
+	 * @return
+	 */
+	private List<Location> removeLocationsNotEqualToOrDescendentOf(List<Location> locations, Location testLocation) {
+		
+		if (testLocation == null) {
+			return locations;
+		}
+		
+		Iterator<Location> i = locations.iterator();
+		
+		while (i.hasNext()) {
+			if (!isLocationEqualToOrDescendentOf(i.next(), testLocation)) {
+				i.remove();
+			}
+		}
+		
+		return locations;
+	}
+	
+	/**
+	 * Returns true/false whether the given location is equal to, or a descendent of, "testLocation"
+	 *
+	 * @param location
+	 * @param testLocation
+	 * @return
+	 */
+	private Boolean isLocationEqualToOrDescendentOf(Location location, Location testLocation) {
+		if (location == null) {
+			return false;
+		} else if (location.equals(testLocation)) {
+			return true;
+		} else {
+			return isLocationEqualToOrDescendentOf(location.getParentLocation(), testLocation);
+		}
+	}
+	
+	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
 	@Override
@@ -674,7 +727,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	/**
 	 * selects the correct setter function for provider/location widgets according to its type
-	 * 
+	 *
 	 * @param widget- dropdown or autocomplete
 	 * @return
 	 */
@@ -690,7 +743,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	/**
 	 * selects the correct getter function for provider/location widgets according to its type
-	 * 
+	 *
 	 * @param widget - dropdown or autocomplete
 	 * @return
 	 */
