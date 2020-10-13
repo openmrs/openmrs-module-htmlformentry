@@ -6,6 +6,7 @@ import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -77,8 +78,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			if (concept != null) {
 				codedOrFreeText.setCoded(concept);
 			} else {
-				String inputText = submission.getParameter(context.getFieldName(conceptSearchWidget));
-				codedOrFreeText.setNonCoded(inputText);
+				Optional<String> optionalInput = Optional.ofNullable(context.getFieldName(conceptSearchWidget));
+				optionalInput.ifPresent(i -> codedOrFreeText.setNonCoded(submission.getParameter(i)));
 			}
 		}
 		condition.setCondition(codedOrFreeText);
@@ -97,7 +98,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
 			// incomplete optional conditions are not submitted or are removed in EDIT mode
 			if (context.getMode() == Mode.EDIT) {
-				session.getEncounter().removeCondition(condition);
+				Condition conditionToRemove = Context.getConditionService().getConditionByUuid(condition.getUuid());
+				session.getEncounter().removeCondition(conditionToRemove);
 			}
 		} else {
 			session.getEncounter().addCondition(condition);
@@ -107,9 +109,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<>();
-		String condition = StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))
-		        ? (String) conceptSearchWidget.getValue(context, submission)
-		        : submission.getParameter(context.getFieldName(conceptSearchWidget));
+
+		String condition = null;
+		if (StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))){
+			condition = (String) conceptSearchWidget.getValue(context, submission);
+		}else{
+			condition = context.getFieldName(conceptSearchWidget) != null ? submission.getParameter(context.getFieldName(conceptSearchWidget)) : "";
+		}
+
 		ConditionClinicalStatus status = getStatus(context, submission);
 		
 		if (context.getMode() != Mode.VIEW) {
@@ -181,7 +188,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	 */
 	private void initializeExistingCondition(FormEntryContext context) {
 		if (context.getMode() != Mode.ENTER) {
-			Set<Condition> conditions = context.getExistingEncounter().getActiveConditions();
+			Set<Condition> conditions = context.getExistingEncounter().getConditions();
 			for (Condition candidate : conditions) {
 				
 				// Get candidate control id

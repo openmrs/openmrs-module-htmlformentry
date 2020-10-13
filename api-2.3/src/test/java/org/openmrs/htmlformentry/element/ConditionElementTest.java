@@ -12,8 +12,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Set;
 
@@ -121,7 +119,7 @@ public class ConditionElementTest {
 		when(session.getContext()).thenReturn(context);
 		when(session.getEncounter()).thenReturn(new Encounter());
 		when(session.getPatient()).thenReturn(new Patient(1));
-
+		
 		// setup condition element
 		element = spy(new ConditionElement());
 		element.setConditionSearchWidget(conditionSearchWidget);
@@ -274,7 +272,7 @@ public class ConditionElementTest {
 		// verify
 		Assert.assertEquals("A condition is required", errors.get(0).getError());
 	}
-
+	
 	@Test
 	public void htmlForConditionSearchWidget_shouldGetConceptSourceClassesFromGP() {
 		// setup

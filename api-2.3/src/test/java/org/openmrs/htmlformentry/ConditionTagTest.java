@@ -94,7 +94,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				final Map<String, Condition> conditions = results.getEncounterCreated().getActiveConditions().stream()
+				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
 				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
@@ -150,7 +150,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
-				final Map<String, Condition> conditions = results.getEncounterCreated().getActiveConditions().stream()
+				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
 				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
 				
 				results.assertNoErrors();

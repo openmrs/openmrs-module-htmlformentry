@@ -13,7 +13,7 @@
 
     <!-- default property values, required for eclipse build path configuration -->
     <properties>
-        <openMRSVersion>2.1.0</openMRSVersion>
+        <openMRSVersion>2.3.3-SNAPSHOT</openMRSVersion>
         <openMRSMinorVersion>2.1</openMRSMinorVersion>
         <legacyuiVersion>1.7.0</legacyuiVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
