@@ -109,14 +109,16 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<>();
-
+		
 		String condition = null;
-		if (StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))){
+		if (StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))) {
 			condition = (String) conceptSearchWidget.getValue(context, submission);
-		}else{
-			condition = context.getFieldName(conceptSearchWidget) != null ? submission.getParameter(context.getFieldName(conceptSearchWidget)) : "";
+		} else {
+			condition = context.getFieldName(conceptSearchWidget) != null
+			        ? submission.getParameter(context.getFieldName(conceptSearchWidget))
+			        : "";
 		}
-
+		
 		ConditionClinicalStatus status = getStatus(context, submission);
 		
 		if (context.getMode() != Mode.VIEW) {
