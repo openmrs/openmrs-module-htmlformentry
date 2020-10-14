@@ -1,0 +1,54 @@
+<htmlform>
+	<style>
+		.section {
+		border: 1px solid #8FABC7; width:99%; padding:2px; text-align:left; margin-bottom:10px;
+		}
+		.sectionHeader {
+		background-color: #8FABC7; color: white; display: block; padding: 2px; font-weight:bold;
+		}
+	</style>
+
+	<table border="2" cellspacing="0" cellpadding="6" width="100%">
+		<tr>
+
+			<td>Date: <encounterDate /></td>
+			<td>Clinique / Clinic: <encounterLocation /></td>
+			<td>Clinician Nom/ Signature: <encounterProvider/></td>
+		</tr>
+	</table>
+
+	<drugOrders>
+		<orderTemplate>
+			<b><orderProperty name="drug" showLabel="true" /></b>
+			<orderProperty name="dosingType" widgetType="hidden" value="org.openmrs.SimpleDosingInstructions"/>
+			<orderProperty name="careSetting" widgetType="hidden" value="OUTPATIENT"/>
+			<orderProperty name="quantity" widgetType="hidden" value="0"/>
+			<orderProperty name="quantityUnits" widgetType="hidden" value="50"/>
+			<orderProperty name="numRefills" widgetType="hidden" value="0"/>
+			<br/>
+			<orderProperty name="dose" />
+			<orderProperty name="doseUnits" />
+			<orderProperty name="route" />
+			<orderProperty name="frequency" />
+			<br/>
+			Start on <orderProperty name="scheduledDate"/>
+			for <orderProperty name="duration" />
+			<orderProperty name="durationUnits" />
+		</orderTemplate>
+		<drugOptions format="display">
+			<drugOption drug="2" label="TRIOMUNE LABEL" />
+			<drugOption drug="3" label="ASPIRIN LABEL" />
+			<drugOption drug="11" label="NYQUIL LABEL" />
+		</drugOptions>
+		<discontinueReasons label="discontinueReason" format="select">
+			<discontinueReasonOption concept="c43c0462-be15-435b-9a1a-2a3fa450247d" label="6 semaines complétée"/>
+			<discontinueReasonOption concept="3cccecdc-26fe-102b-80cb-0017a47871b2" label="Toxicité"/>
+			<discontinueReasonOption concept="3cdd5176-26fe-102b-80cb-0017a47871b2" label="Abandonné"/>
+			<discontinueReasonOption concept="3cde143a-26fe-102b-80cb-0017a47871b2" label="Rupture de stock"/>
+			<discontinueReasonOption concept="3cde67c8-26fe-102b-80cb-0017a47871b2" label="Changement de poids"/>
+			<discontinueReasonOption concept="3cee7fb4-26fe-102b-80cb-0017a47871b2" label="Autre"/>
+		</discontinueReasons>
+	</drugOrders>
+
+	<submit />
+</htmlform>

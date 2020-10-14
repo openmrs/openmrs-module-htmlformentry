@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,18 +25,20 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	
 	protected final Log log = LogFactory.getLog(DrugOrdersSubmissionElement.class);
 	
-	private DrugOrdersWidget drugOrderWidget;
+	private DrugOrdersWidget drugOrdersWidget;
 	
-	private ErrorWidget drugOrderErrorWidget;
+	private ErrorWidget drugOrdersErrorWidget;
 	
 	/**
 	 * Instantiates a new Drug Order Submission Element, for the given Drug and Context
 	 */
-	public DrugOrdersSubmissionElement(FormEntryContext context, Map<String, String> parameters, DrugOrderField field) {
-		drugOrderWidget = new DrugOrdersWidget(parameters, field);
-		drugOrderErrorWidget = new ErrorWidget();
-		context.registerWidget(drugOrderWidget);
-		context.registerErrorWidget(drugOrderWidget, drugOrderErrorWidget);
+	public DrugOrdersSubmissionElement(FormEntryContext context, DrugOrdersWidget drugOrdersWidget) {
+		this.drugOrdersWidget = drugOrdersWidget;
+		DrugOrderField field = drugOrdersWidget.getDrugOrderField();
+		drugOrdersWidget.setInitialValue(context.removeExistingDrugOrders(field));
+		drugOrdersErrorWidget = new ErrorWidget();
+		context.registerWidget(drugOrdersWidget);
+		context.registerErrorWidget(drugOrdersWidget, drugOrdersErrorWidget);
 		context.addFieldToActiveSection(field);
 	}
 	
@@ -49,9 +50,9 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		StringBuilder html = new StringBuilder();
-		html.append(drugOrderWidget.generateHtml(context));
+		html.append(drugOrdersWidget.generateHtml(context));
 		if (context.getMode() != Mode.VIEW) {
-			html.append(drugOrderErrorWidget.generateHtml(context));
+			html.append(drugOrdersErrorWidget.generateHtml(context));
 		}
 		return html.toString();
 	}
@@ -64,7 +65,7 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest request) {
-		DrugOrder drugOrder = (DrugOrder) drugOrderWidget.getValue(session.getContext(), request);
+		DrugOrder drugOrder = (DrugOrder) drugOrdersWidget.getValue(session.getContext(), request);
 		// TODO: Handle submission
 	}
 	
@@ -78,5 +79,21 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		// TODO: Compare with master
 		return ret;
+	}
+	
+	public DrugOrdersWidget getDrugOrdersWidget() {
+		return drugOrdersWidget;
+	}
+	
+	public void setDrugOrdersWidget(DrugOrdersWidget drugOrdersWidget) {
+		this.drugOrdersWidget = drugOrdersWidget;
+	}
+	
+	public ErrorWidget getDrugOrdersErrorWidget() {
+		return drugOrdersErrorWidget;
+	}
+	
+	public void setDrugOrdersErrorWidget(ErrorWidget drugOrdersErrorWidget) {
+		this.drugOrdersErrorWidget = drugOrdersErrorWidget;
 	}
 }

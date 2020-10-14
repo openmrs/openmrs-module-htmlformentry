@@ -19,9 +19,10 @@ import org.junit.Test;
 import org.openmrs.DrugOrder;
 import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
+import org.openmrs.Patient;
 import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.context.Context;
 
-@Ignore
 public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	
 	private static Log log = LogFactory.getLog(DrugOrdersTagTest.class);
@@ -30,6 +31,28 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	public void setupDatabase() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/drugOrderElement.xml");
+	}
+	
+	@Test
+	public void testDrugOrdersTag_shouldLoadHtmlCorrectly() throws Exception {
+		final RegressionTestHelper helper = new RegressionTestHelper() {
+			
+			@Override
+			public Patient getPatient() {
+				return Context.getPatientService().getPatient(8);
+			}
+			
+			@Override
+			public String getFormName() {
+				return "drugOrdersTestForm";
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				System.out.println(html);
+			}
+		};
+		helper.run();
 	}
 	
 	@Test

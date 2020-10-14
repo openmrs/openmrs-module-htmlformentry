@@ -28,6 +28,8 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
+import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
+import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
@@ -592,6 +594,37 @@ public class FormEntryContext {
 	}
 	
 	/**
+	 * Removes all DrugOrders of the relevant Drug from existingOrders, and returns it.
+	 * 
+	 * @return
+	 */
+	public List<DrugOrder> removeExistingDrugOrders(DrugOrderField drugOrderField) {
+		List<DrugOrder> ret = new ArrayList<>();
+		if (drugOrderField.getDrugOrderAnswers() != null) {
+			for (DrugOrderAnswer doa : drugOrderField.getDrugOrderAnswers()) {
+				Drug drug = doa.getDrug();
+				List<Order> list = existingOrders.get(drug.getConcept());
+				if (list != null) {
+					for (Iterator<Order> iter = list.iterator(); iter.hasNext();) {
+						Order order = iter.next();
+						if (order instanceof DrugOrder) {
+							DrugOrder drugOrder = (DrugOrder) order;
+							if (equalDrug(drug, drugOrder.getDrug())) {
+								iter.remove();
+								if (list.size() == 0) {
+									existingOrders.remove(drug.getConcept());
+								}
+								ret.add(drugOrder);
+							}
+						}
+					}
+				}
+			}
+		}
+		return ret;
+	}
+	
+	/**
 	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
 	 * 
 	 * @return the list of orders
@@ -712,9 +745,9 @@ public class FormEntryContext {
 	 * Finds the best matching obsGroup at the right obsGroup hierarchy level
 	 * <p/>
 	 * 
-	 * @param groupConcept the grouping concept associated with the {@see ObsGroups}
-	 * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
-	 * @param obsGroupDepth the depth level of the obsGroup in the xml
+	 * @param xmlObsGroupConcept the grouping concept associated with the {@see ObsGroups}
+	 * @param questionsAndAnswers the questions and answered associate with the {@see ObsGroup}
+	 * @param path the depth level of the obsGroup in the xml
 	 * @return the first matching {@see ObsGroup}
 	 */
 	public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept,
