@@ -13,12 +13,14 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openmrs.Concept;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 
 /**
  * Widget that lets you choose a {@link Concept} from a dropdown
@@ -48,7 +50,8 @@ public class ConceptDropdownWidget extends DropdownWidget {
 		}
 	}
 	
-	public Concept getConceptValue(String id) {
-		return conceptVals.get(id);
+	public Concept getConceptValue(FormEntryContext context, HttpServletRequest request) {
+		Object value = getValue(context, request);
+		return value == null ? null : conceptVals.get(value.toString());
 	}
 }

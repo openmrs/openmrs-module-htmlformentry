@@ -34,11 +34,6 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 	protected Encounter encounter;
 	
 	/*
-	 * The tag(s) to test on this particular test case
-	 */
-	public abstract List<Map<String, String>> getDrugOrderTags();
-	
-	/*
 	 * The values to submit in entry
 	 */
 	public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
@@ -86,29 +81,7 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 	
 	@Override
 	public String getFormName() {
-		return null;
-	}
-	
-	@Override
-	public String getFormXml() {
-		StringBuilder sb = new StringBuilder();
-		String newLine = System.getProperty("line.separator");
-		sb.append("<htmlform>").append(newLine);
-		sb.append("     Date: <encounterDate/>").append(newLine);
-		sb.append("     Location: <encounterLocation/>").append(newLine);
-		sb.append("     Provider: <encounterProvider role=\"Provider\"/>").append(newLine);
-		sb.append("     <section headerLabel=\"Drug Section\">").append(newLine);
-		for (Map<String, String> tag : getDrugOrderTags()) {
-			sb.append("         <drugOrder").append(newLine);
-			for (String attr : tag.keySet()) {
-				sb.append(" ").append(attr).append("=\"").append(tag.get(attr)).append("\"");
-			}
-			sb.append(" />").append(newLine);
-		}
-		sb.append("     </section>").append(newLine);
-		sb.append("     <submit/>").append(newLine);
-		sb.append("</htmlform>").append(newLine);
-		return sb.toString();
+		return "drugOrdersTestForm";
 	}
 	
 	@Override
@@ -117,23 +90,27 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 		l.add("Date:");
 		l.add("Location:");
 		l.add("Provider:");
-		for (int i = 0; i < getDrugOrderTags().size(); i++) {
-			l.add("action field!!" + i);
-			l.add("drug field!!" + i);
-			l.add("dose field!!" + i);
-			l.add("doseUnits field!!" + i);
-			l.add("route field!!" + i);
-			l.add("frequency field!!" + i);
-			l.add("dosingInstructions field!!" + i);
-			l.add("asNeeded field!!" + i);
-			l.add("startDate field!!" + i);
-			l.add("duration field!!" + i);
-			l.add("durationUnits field!!" + i);
-			l.add("quantity field!!" + i);
-			l.add("quantityUnits field!!" + i);
-			l.add("instructions field!!" + i);
-			l.add("numRefills field!!" + i);
-			l.add("discontinuedReason field!!" + i);
+		for (int i = 0; i < 3; i++) {
+			l.add("Drug:!!" + i);
+			l.add("Action:!!" + i);
+			l.add("Care Setting:!!" + i);
+			l.add("Dosing Type:!!" + i);
+			l.add("Order Type:!!" + i);
+			l.add("Dosing Instructions");
+			l.add("Dose:!!" + i);
+			l.add("Dose Units:!!" + i);
+			l.add("Route:!!" + i);
+			l.add("Frequency:!!" + i);
+			l.add("As Needed:!!" + i);
+			l.add("Instructions:!!" + i);
+			l.add("Urgency:!!" + i);
+			l.add("Date Activated:!!" + i);
+			l.add("Scheduled Date:!!" + i);
+			l.add("Duration:!!" + i);
+			l.add("Duration Units:!!" + i);
+			l.add("Quantity:!!" + i);
+			l.add("Quantity Units:!!" + i);
+			l.add("Num Refills:!!" + i);
 		}
 		return l.toArray(new String[] {});
 	}
@@ -152,176 +129,238 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 	}
 	
 	public static class DrugOrderRequestParams {
-		
+
+		private String drug;
+
 		private String action;
-		
+
+		private String careSetting;
+
+		private String dosingType;
+
+		private String orderType;
+
 		private String dosingInstructions;
-		
+
 		private String dose;
-		
+
 		private String doseUnits;
-		
+
 		private String route;
-		
+
 		private String frequency;
-		
+
 		private String asNeeded;
-		
-		private String startDate;
-		
-		private String duration;
-		
-		private String durationUnits;
-		
-		private String quantity;
-		
-		private String quantityUnits;
-		
+
 		private String instructions;
-		
+
+		private String urgency;
+
+		private String dateActivated;
+
+		private String scheduledDate;
+
+		private String duration;
+
+		private String durationUnits;
+
+		private String quantity;
+
+		private String quantityUnits;
+
 		private String numRefills;
-		
-		private String discontinuedReason;
-		
+
 		public DrugOrderRequestParams() {
 		}
-		
+
 		public void applyToRequest(MockHttpServletRequest request, Map<String, String> widgets, int fieldNum) {
-			request.setParameter(widgets.get("action field!!" + fieldNum), action);
-			request.setParameter(widgets.get("dose field!!" + fieldNum), dose);
-			request.setParameter(widgets.get("doseUnits field!!" + fieldNum), doseUnits);
-			request.setParameter(widgets.get("route field!!" + fieldNum), route);
-			request.setParameter(widgets.get("frequency field!!" + fieldNum), frequency);
-			request.setParameter(widgets.get("asNeeded field!!" + fieldNum), asNeeded);
-			request.setParameter(widgets.get("dosingInstructions field!!" + fieldNum), dosingInstructions);
-			request.setParameter(widgets.get("startDate field!!" + fieldNum), startDate);
-			request.setParameter(widgets.get("duration field!!" + fieldNum), duration);
-			request.setParameter(widgets.get("durationUnits field!!" + fieldNum), durationUnits);
-			request.setParameter(widgets.get("quantity field!!" + fieldNum), quantity);
-			request.setParameter(widgets.get("quantityUnits field!!" + fieldNum), quantityUnits);
-			request.setParameter(widgets.get("instructions field!!" + fieldNum), instructions);
-			request.setParameter(widgets.get("numRefills field!!" + fieldNum), numRefills);
-			request.setParameter(widgets.get("discontinuedReason field!!" + fieldNum), discontinuedReason);
+			applyIfNotNull(request, widgets, "Drug:", fieldNum, drug);
+			applyIfNotNull(request, widgets, "Action:", fieldNum, action);
+			applyIfNotNull(request, widgets, "Care Setting:", fieldNum, careSetting);
+			applyIfNotNull(request, widgets, "Dosing Type:", fieldNum, dosingType);
+			applyIfNotNull(request, widgets, "Order Type:", fieldNum, orderType);
+			applyIfNotNull(request, widgets, "Dosing Instructions:", fieldNum, dosingInstructions);
+			applyIfNotNull(request, widgets, "Dose:", fieldNum, dose);
+			applyIfNotNull(request, widgets, "Dose Units:", fieldNum, doseUnits);
+			applyIfNotNull(request, widgets, "Route:", fieldNum, route);
+			applyIfNotNull(request, widgets, "Frequency:", fieldNum, frequency);
+			applyIfNotNull(request, widgets, "As Needed:", fieldNum, asNeeded);
+			applyIfNotNull(request, widgets, "Instructions:", fieldNum, instructions);
+			applyIfNotNull(request, widgets, "Urgency:", fieldNum, urgency);
+			applyIfNotNull(request, widgets, "Date Activated:", fieldNum, dateActivated);
+			applyIfNotNull(request, widgets, "Scheduled Date:", fieldNum, scheduledDate);
+			applyIfNotNull(request, widgets, "Duration:", fieldNum, duration);
+			applyIfNotNull(request, widgets, "Duration Units:", fieldNum, durationUnits);
+			applyIfNotNull(request, widgets, "Quantity:", fieldNum, quantity);
+			applyIfNotNull(request, widgets, "Quantity Units:", fieldNum, quantityUnits);
+			applyIfNotNull(request, widgets, "Num Refills:", fieldNum, numRefills);
 		}
-		
+
+		protected void applyIfNotNull(MockHttpServletRequest request, Map<String, String> widgets, String label,
+				int fieldNum, String value) {
+			if (value != null) {
+				request.setParameter(widgets.get(label + "!!" + fieldNum), value);
+			}
+		}
+
+		public String getDrug() {
+			return drug;
+		}
+
+		public void setDrug(String drug) {
+			this.drug = drug;
+		}
+
 		public String getAction() {
 			return action;
 		}
-		
+
 		public void setAction(String action) {
 			this.action = action;
 		}
-		
+
+		public String getCareSetting() {
+			return careSetting;
+		}
+
+		public void setCareSetting(String careSetting) {
+			this.careSetting = careSetting;
+		}
+
+		public String getDosingType() {
+			return dosingType;
+		}
+
+		public void setDosingType(String dosingType) {
+			this.dosingType = dosingType;
+		}
+
+		public String getOrderType() {
+			return orderType;
+		}
+
+		public void setOrderType(String orderType) {
+			this.orderType = orderType;
+		}
+
 		public String getDosingInstructions() {
 			return dosingInstructions;
 		}
-		
+
 		public void setDosingInstructions(String dosingInstructions) {
 			this.dosingInstructions = dosingInstructions;
 		}
-		
+
 		public String getDose() {
 			return dose;
 		}
-		
+
 		public void setDose(String dose) {
 			this.dose = dose;
 		}
-		
+
 		public String getDoseUnits() {
 			return doseUnits;
 		}
-		
+
 		public void setDoseUnits(String doseUnits) {
 			this.doseUnits = doseUnits;
 		}
-		
+
 		public String getRoute() {
 			return route;
 		}
-		
+
 		public void setRoute(String route) {
 			this.route = route;
 		}
-		
+
 		public String getFrequency() {
 			return frequency;
 		}
-		
+
 		public void setFrequency(String frequency) {
 			this.frequency = frequency;
 		}
-		
+
 		public String getAsNeeded() {
 			return asNeeded;
 		}
-		
+
 		public void setAsNeeded(String asNeeded) {
 			this.asNeeded = asNeeded;
 		}
-		
-		public String getStartDate() {
-			return startDate;
-		}
-		
-		public void setStartDate(String startDate) {
-			this.startDate = startDate;
-		}
-		
-		public String getDuration() {
-			return duration;
-		}
-		
-		public void setDuration(String duration) {
-			this.duration = duration;
-		}
-		
-		public String getDurationUnits() {
-			return durationUnits;
-		}
-		
-		public void setDurationUnits(String durationUnits) {
-			this.durationUnits = durationUnits;
-		}
-		
-		public String getQuantity() {
-			return quantity;
-		}
-		
-		public void setQuantity(String quantity) {
-			this.quantity = quantity;
-		}
-		
-		public String getQuantityUnits() {
-			return quantityUnits;
-		}
-		
-		public void setQuantityUnits(String quantityUnits) {
-			this.quantityUnits = quantityUnits;
-		}
-		
+
 		public String getInstructions() {
 			return instructions;
 		}
-		
+
 		public void setInstructions(String instructions) {
 			this.instructions = instructions;
 		}
-		
+
+		public String getUrgency() {
+			return urgency;
+		}
+
+		public void setUrgency(String urgency) {
+			this.urgency = urgency;
+		}
+
+		public String getDateActivated() {
+			return dateActivated;
+		}
+
+		public void setDateActivated(String dateActivated) {
+			this.dateActivated = dateActivated;
+		}
+
+		public String getScheduledDate() {
+			return scheduledDate;
+		}
+
+		public void setScheduledDate(String scheduledDate) {
+			this.scheduledDate = scheduledDate;
+		}
+
+		public String getDuration() {
+			return duration;
+		}
+
+		public void setDuration(String duration) {
+			this.duration = duration;
+		}
+
+		public String getDurationUnits() {
+			return durationUnits;
+		}
+
+		public void setDurationUnits(String durationUnits) {
+			this.durationUnits = durationUnits;
+		}
+
+		public String getQuantity() {
+			return quantity;
+		}
+
+		public void setQuantity(String quantity) {
+			this.quantity = quantity;
+		}
+
+		public String getQuantityUnits() {
+			return quantityUnits;
+		}
+
+		public void setQuantityUnits(String quantityUnits) {
+			this.quantityUnits = quantityUnits;
+		}
+
 		public String getNumRefills() {
 			return numRefills;
 		}
-		
+
 		public void setNumRefills(String numRefills) {
 			this.numRefills = numRefills;
-		}
-		
-		public String getDiscontinuedReason() {
-			return discontinuedReason;
-		}
-		
-		public void setDiscontinuedReason(String discontinuedReason) {
-			this.discontinuedReason = discontinuedReason;
 		}
 	}
 	

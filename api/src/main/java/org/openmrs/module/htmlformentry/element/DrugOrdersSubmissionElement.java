@@ -8,10 +8,12 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
@@ -65,8 +67,14 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest request) {
-		DrugOrder drugOrder = (DrugOrder) drugOrdersWidget.getValue(session.getContext(), request);
-		// TODO: Handle submission
+		Encounter encounter = session.getSubmissionActions().getCurrentEncounter();
+		List<DrugOrder> drugOrders = (List<DrugOrder>) drugOrdersWidget.getValue(session.getContext(), request);
+		for (DrugOrder drugOrder : drugOrders) {
+			if (drugOrder.getOrderer() == null) {
+				drugOrder.setOrderer(HtmlFormEntryUtil.getOrdererFromEncounter(encounter));
+			}
+			encounter.addOrder(drugOrder);
+		}
 	}
 	
 	/**

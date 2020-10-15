@@ -12,28 +12,36 @@
 		<tr>
 
 			<td>Date: <encounterDate /></td>
-			<td>Clinique / Clinic: <encounterLocation /></td>
-			<td>Clinician Nom/ Signature: <encounterProvider/></td>
+			<td>Location: <encounterLocation /></td>
+			<td>Provider: <encounterProvider/></td>
 		</tr>
 	</table>
 
 	<drugOrders>
 		<orderTemplate>
-			<b><orderProperty name="drug" showLabel="true" /></b>
-			<orderProperty name="dosingType" widgetType="hidden" value="org.openmrs.SimpleDosingInstructions"/>
-			<orderProperty name="careSetting" widgetType="hidden" value="OUTPATIENT"/>
-			<orderProperty name="quantity" widgetType="hidden" value="0"/>
-			<orderProperty name="quantityUnits" widgetType="hidden" value="50"/>
-			<orderProperty name="numRefills" widgetType="hidden" value="0"/>
+			Drug: <b><orderProperty name="drug" showLabel="true" /></b>
+			Action: <orderProperty name="action" /><br/>
+			Care Setting: <orderProperty name="careSetting" value="OUTPATIENT"/><br/>
+			Dosing Type: <orderProperty name="dosingType" value="org.openmrs.SimpleDosingInstructions"/><br/>
+			Order Type: <orderProperty name="orderType" value=""/><br/>
 			<br/>
-			<orderProperty name="dose" />
-			<orderProperty name="doseUnits" />
-			<orderProperty name="route" />
-			<orderProperty name="frequency" />
+			Dosing Instructions: <orderProperty name="dosingInstructions" /><br/>
+			Dose: <orderProperty name="dose" /><br/>
+			Dose Units: <orderProperty name="doseUnits" /><br/>
+			Route: <orderProperty name="route" /><br/>
+			Frequency: <orderProperty name="frequency" /><br/>
+			As Needed: <orderProperty name="asNeeded" /><br/>
 			<br/>
-			Start on <orderProperty name="scheduledDate"/>
-			for <orderProperty name="duration" />
-			<orderProperty name="durationUnits" />
+			Instructions: <orderProperty name="instructions"/><br/>
+			Urgency: <orderProperty name="urgency"/><br/>
+			Date Activated: <orderProperty name="dateActivated"/><br/>
+			Scheduled Date: <orderProperty name="scheduledDate"/><br/>
+			Duration: <orderProperty name="duration" /><br/>
+			Duration Units: <orderProperty name="durationUnits" /><br/>
+			<br/>
+			Quantity: <orderProperty name="quantity" value="0"/><br/>
+			Quantity Units: <orderProperty name="quantityUnits" value="50"/><br/>
+			Num Refills: <orderProperty name="numRefills" value="0"/><br/>
 		</orderTemplate>
 		<drugOptions format="display">
 			<drugOption drug="2" label="TRIOMUNE LABEL" />

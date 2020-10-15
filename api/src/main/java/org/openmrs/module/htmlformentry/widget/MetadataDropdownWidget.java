@@ -13,12 +13,14 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openmrs.OpenmrsMetadata;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 
 /**
  * Widget that lets you choose a {@link OpenmrsMetadata} from a dropdown
@@ -47,8 +49,9 @@ public class MetadataDropdownWidget<T extends OpenmrsMetadata> extends DropdownW
 			setInitialValue(m.getId().toString());
 		}
 	}
-	
-	public T getMetadataValue(String id) {
-		return metadataVals.get(id);
+
+	public T getMetadataValue(FormEntryContext context, HttpServletRequest request) {
+		Object value = getValue(context, request);
+		return value == null ? null : metadataVals.get(value.toString());
 	}
 }

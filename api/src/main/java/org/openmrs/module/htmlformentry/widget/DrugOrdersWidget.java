@@ -137,7 +137,9 @@ public class DrugOrdersWidget implements Widget {
 		List<DrugOrder> drugOrders = new ArrayList<>();
 		for (DrugOrderWidget widget : getDrugOrderWidgets()) {
 			DrugOrder drugOrder = (DrugOrder) widget.getValue(context, request);
-			drugOrders.add(drugOrder);
+			if (drugOrder != null) {
+				drugOrders.add(drugOrder);
+			}
 		}
 		return drugOrders;
 	}

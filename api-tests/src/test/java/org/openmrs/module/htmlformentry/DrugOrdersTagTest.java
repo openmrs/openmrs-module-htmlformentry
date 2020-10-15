@@ -8,20 +8,16 @@ import static org.hamcrest.Matchers.nullValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.DrugOrder;
 import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
-import org.openmrs.Patient;
 import org.openmrs.SimpleDosingInstructions;
-import org.openmrs.api.context.Context;
 
 public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	
@@ -35,18 +31,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void testDrugOrdersTag_shouldLoadHtmlCorrectly() throws Exception {
-		final RegressionTestHelper helper = new RegressionTestHelper() {
-			
-			@Override
-			public Patient getPatient() {
-				return Context.getPatientService().getPatient(8);
-			}
-			
-			@Override
-			public String getFormName() {
-				return "drugOrdersTestForm";
-			}
-			
+		final DrugOrdersRegressionTestHelper helper = new DrugOrdersRegressionTestHelper() {
 			@Override
 			public void testBlankFormHtml(String html) {
 				System.out.println(html);
@@ -60,20 +45,18 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
 			
 			@Override
-			public List<Map<String, String>> getDrugOrderTags() {
-				return Arrays.asList(toMap("drug", "2"));
-			}
-			
-			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
-				//p.setAction(Action.NEW.name());
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("OUTPATIENT");
+				p.setDosingType(SimpleDosingInstructions.class.getName());
 				p.setDose("2");
 				p.setDoseUnits("51");
 				p.setRoute("22");
 				p.setFrequency("1");
 				p.setAsNeeded("true");
-				p.setStartDate(dateAsString(getEncounterDate()));
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDateActivated(dateAsString(getEncounterDate()));
 				p.setDuration("10");
 				p.setDurationUnits("28");
 				p.setQuantity("20");
@@ -119,16 +102,12 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
 			
 			@Override
-			public List<Map<String, String>> getDrugOrderTags() {
-				return Arrays.asList(toMap("drug", "2", "dosingType", "freeText", "careSetting", "INPATIENT"));
-			}
-			
-			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
 				//p.setAction(Action.NEW.name());
 				p.setDosingInstructions("My dose instructions");
-				p.setStartDate(dateAsString(daysAfterEncounterDate(7)));
+				p.setUrgency("ON_SCHEDULED_DATE");
+				p.setScheduledDate(dateAsString(daysAfterEncounterDate(7)));
 				return Arrays.asList(p);
 			}
 			
@@ -167,16 +146,11 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
 			
 			@Override
-			public List<Map<String, String>> getDrugOrderTags() {
-				return Arrays.asList(toMap("drug", "2", "dosingType", "freeText", "careSetting", "INPATIENT"));
-			}
-			
-			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
 				//p.setAction(Action.NEW.name());
 				p.setDosingInstructions("My dose instructions");
-				p.setStartDate(dateAsString(getEncounterDate()));
+				p.setDateActivated(dateAsString(getEncounterDate()));
 				return Arrays.asList(p);
 			}
 			
@@ -199,7 +173,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
 				//p.setAction(Action.EDIT.name());
 				p.setDosingInstructions("My revised dose instructions");
-				p.setStartDate(dateAsString(getEncounterDate()));
+				p.setDateActivated(dateAsString(getEncounterDate()));
 				return Arrays.asList(p);
 			}
 			
@@ -230,16 +204,11 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
 			
 			@Override
-			public List<Map<String, String>> getDrugOrderTags() {
-				return Arrays.asList(toMap("drug", "2", "dosingType", "freeText", "careSetting", "INPATIENT"));
-			}
-			
-			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
 				//p.setAction(Action.NEW.name());
 				p.setDosingInstructions("My dose instructions");
-				p.setStartDate(dateAsString(getEncounterDate()));
+				p.setDateActivated(dateAsString(getEncounterDate()));
 				return Arrays.asList(p);
 			}
 			
@@ -261,7 +230,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
 				//p.setAction(Action.DISCONTINUE.name());
-				p.setDiscontinuedReason("556");
+				//p.setDiscontinuedReason("556");
 				return Arrays.asList(p);
 			}
 			
@@ -289,18 +258,13 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void testDeleteDrugOrder_shouldVoid() throws Exception {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
-			
-			@Override
-			public List<Map<String, String>> getDrugOrderTags() {
-				return Arrays.asList(toMap("drug", "2", "dosingType", "freeText", "careSetting", "INPATIENT"));
-			}
-			
+
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
 				//p.setAction(Action.NEW.name());
 				p.setDosingInstructions("My dose instructions");
-				p.setStartDate(dateAsString(getEncounterDate()));
+				p.setDateActivated(dateAsString(getEncounterDate()));
 				return Arrays.asList(p);
 			}
 			

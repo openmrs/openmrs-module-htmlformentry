@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Encounter;
@@ -76,6 +78,7 @@ public class HtmlFormEntryController {
 	        /*@RequestParam(value="personId", required=false) Integer personId,*/
 	        @RequestParam(value = "formId", required = false) Integer formId,
 	        @RequestParam(value = "htmlformId", required = false) Integer htmlFormId,
+	        @RequestParam(value = "overrideXmlPath", required = false) String overrideXmlPath,
 	        @RequestParam(value = "returnUrl", required = false) String returnUrl,
 	        @RequestParam(value = "formModifiedTimestamp", required = false) Long formModifiedTimestamp,
 	        @RequestParam(value = "encounterModifiedTimestamp", required = false) Long encounterModifiedTimestamp,
@@ -169,6 +172,17 @@ public class HtmlFormEntryController {
 				} else {
 					throw new IllegalArgumentException("which must be 'first' or 'last'");
 				}
+			}
+		}
+		
+		if (overrideXmlPath != null) {
+			try {
+				File overrideXmlFile = new File(overrideXmlPath);
+				String overrideXml = FileUtils.readFileToString(overrideXmlFile, "UTF-8");
+				htmlForm.setXmlData(overrideXml);
+			}
+			catch (Exception e) {
+				throw new IllegalStateException("Unable to load override xml from file at " + overrideXmlPath, e);
 			}
 		}
 		
