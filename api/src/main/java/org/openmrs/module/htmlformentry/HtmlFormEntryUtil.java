@@ -597,11 +597,51 @@ public class HtmlFormEntryUtil {
 		return drug;
 	}
 	
+	/**
+	 * Find drug by uuid, name, or id
+	 */
+	public static OrderType getOrderType(String uuidOrIdOrName) {
+		OrderType ret = null;
+		if (StringUtils.isNotBlank(uuidOrIdOrName)) {
+			uuidOrIdOrName = uuidOrIdOrName.trim();
+			ret = Context.getOrderService().getOrderTypeByUuid(uuidOrIdOrName);
+			if (ret == null) {
+				try {
+					ret = Context.getOrderService().getOrderType(Integer.parseInt(uuidOrIdOrName));
+				}
+				catch (Exception e) {}
+			}
+			if (ret == null) {
+				ret = Context.getOrderService().getOrderTypeByName(uuidOrIdOrName);
+			}
+		}
+		return ret;
+	}
+	
+	public static boolean isADrugOrderType(OrderType orderType) {
+		try {
+			return orderType.getJavaClass() == DrugOrder.class;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public static List<OrderType> getDrugOrderTypes() {
+		List<OrderType> ret = new ArrayList<>();
+		for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+			if (isADrugOrderType(orderType)) {
+				ret.add(orderType);
+			}
+		}
+		return ret;
+	}
+	
 	public static OrderType getDrugOrderType() {
 		OrderType ot = Context.getOrderService().getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
 		if (ot == null) {
 			for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
-				if (orderType.getJavaClass() == DrugOrder.class) {
+				if (isADrugOrderType(orderType)) {
 					ot = orderType;
 				}
 			}

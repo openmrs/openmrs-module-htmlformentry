@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -20,7 +21,6 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
-import org.openmrs.module.htmlformentry.widget.HiddenFieldWidget;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -32,6 +32,8 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	public static final String ORDER_TEMPLATE_TAG = "orderTemplate";
 	
 	public static final String ORDER_PROPERTY_TAG = "orderProperty";
+	
+	public static final String NAME_ATTRIBUTE = "name";
 	
 	public static final String DRUG_OPTIONS_TAG = "drugOptions";
 	
@@ -135,12 +137,16 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	 * Provides a means to recurse through the nodes in <orderTemplate> and either process normally
 	 * using the HtmlFormEntryGenerator, or render order property widgets
 	 */
-	protected void processTemplateNode(FormEntrySession session, DrugOrdersWidget widget, Node pn, Node n, PrintWriter w) {
+	protected void processTemplateNode(FormEntrySession session, DrugOrdersWidget widget, Node pn, Node n, PrintWriter w)
+	        throws BadFormDesignException {
 		if (n.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_TAG)) {
 			Map<String, String> attributes = new TreeMap<>(getAttributes(n));
-			String orderPropertyKey = attributes.toString();
-			widget.addTemplateWidget(orderPropertyKey, attributes);
-			w.print(orderPropertyKey);
+			String name = attributes.get(NAME_ATTRIBUTE);
+			if (StringUtils.isBlank(name)) {
+				throw new BadFormDesignException(NAME_ATTRIBUTE + " is required for " + ORDER_PROPERTY_TAG + " tag");
+			}
+			widget.addTemplateWidget(name, attributes);
+			w.print(attributes.toString());
 		} else {
 			boolean isOrderTemplateTag = (n.getNodeName().equalsIgnoreCase(ORDER_TEMPLATE_TAG));
 			boolean handleContents = isOrderTemplateTag;

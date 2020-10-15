@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
@@ -14,6 +15,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 public class HiddenFieldWidget implements Widget {
 	
 	private String initialValue;
+	
+	private String label;
 	
 	private Map<String, String> attributes;
 	
@@ -48,6 +51,9 @@ public class HiddenFieldWidget implements Widget {
 			}
 			sb.append("/>");
 		}
+		if (StringUtils.isNotBlank(label)) {
+			sb.append(label);
+		}
 		return sb.toString();
 	}
 	
@@ -65,5 +71,9 @@ public class HiddenFieldWidget implements Widget {
 	
 	public void addAttribute(String key, String value) {
 		getAttributes().put(key, value);
+	}
+	
+	public void setLabel(String label) {
+		this.label = label;
 	}
 }

@@ -14,7 +14,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Concept;
 
@@ -22,6 +24,8 @@ import org.openmrs.Concept;
  * Widget that lets you choose a {@link Concept} from a dropdown
  */
 public class ConceptDropdownWidget extends DropdownWidget {
+	
+	private Map<String, Concept> conceptVals = new LinkedHashMap<>();
 	
 	public ConceptDropdownWidget(List<Concept> optionConcepts, String emptyLabel) {
 		super();
@@ -31,7 +35,20 @@ public class ConceptDropdownWidget extends DropdownWidget {
 		}
 		for (Concept concept : optionConcepts) {
 			options.add(new Option(concept.getDisplayString(), concept.getId().toString(), false));
+			conceptVals.put(concept.getId().toString(), concept);
 		}
 		setOptions(options);
+	}
+	
+	public void setInitialConceptValue(Concept concept) {
+		if (concept == null) {
+			setInitialValue(null);
+		} else {
+			setInitialValue(concept.getId().toString());
+		}
+	}
+	
+	public Concept getConceptValue(String id) {
+		return conceptVals.get(id);
 	}
 }

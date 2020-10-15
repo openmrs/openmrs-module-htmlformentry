@@ -14,25 +14,41 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.OpenmrsMetadata;
 
 /**
  * Widget that lets you choose a {@link OpenmrsMetadata} from a dropdown
  */
-public class MetadataDropdownWidget extends DropdownWidget {
+public class MetadataDropdownWidget<T extends OpenmrsMetadata> extends DropdownWidget {
 	
-	public MetadataDropdownWidget(List<? extends OpenmrsMetadata> metadataOptions, String emptyLabel) {
+	private Map<String, T> metadataVals = new LinkedHashMap<>();
+	
+	public MetadataDropdownWidget(List<T> metadataOptions, String emptyLabel) {
 		super();
 		List<Option> options = new ArrayList<Option>();
 		if (emptyLabel != null) {
 			options.add(new Option(emptyLabel, "", false));
 		}
-		for (OpenmrsMetadata m : metadataOptions) {
+		for (T m : metadataOptions) {
 			options.add(new Option(m.getName(), m.getId().toString(), false));
+			metadataVals.put(m.getId().toString(), m);
 		}
 		setOptions(options);
 	}
 	
+	public void setInitialMetadataValue(T m) {
+		if (m == null) {
+			setInitialValue(null);
+		} else {
+			setInitialValue(m.getId().toString());
+		}
+	}
+	
+	public T getMetadataValue(String id) {
+		return metadataVals.get(id);
+	}
 }
