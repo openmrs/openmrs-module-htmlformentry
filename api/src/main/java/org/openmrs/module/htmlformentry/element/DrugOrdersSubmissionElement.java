@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.Order;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -18,6 +21,7 @@ import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.util.OpenmrsUtil;
 
 /**
  * Holds the widgets used to represent drug orders for a configured set of drugs, and serves as both
@@ -78,17 +82,76 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	}
 	
 	/**
-	 * <strong>Should</strong> return validation errors if any data is invalid
-	 * 
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-		// TODO: Compare with master
+		List<DrugOrder> drugOrders = (List<DrugOrder>) drugOrdersWidget.getValue(context, submission);
+		for (DrugOrder drugOrder : drugOrders) {
+			Order.Action action = drugOrder.getAction();
+			DrugOrder previousOrder = (DrugOrder) drugOrder.getPreviousOrder();
+			if (action == Order.Action.NEW) {
+				// TODO: Add any necessary validation for NEW orders here
+			}
+			else {
+				// If not a new Order, then this must have a previousOrder to operate on
+				if (previousOrder == null) {
+					addError(ret, drugOrder, "htmlformentry.drugOrderError.invalidAction");
+				}
+				if (!isSameDrug(drugOrder, previousOrder) && BooleanUtils.isNotTrue(drugOrder.getVoided())) {
+					addError(ret, drugOrder, "htmlformentry.drugOrderError.drugChangedForRevision");
+				}
+				if (action == Order.Action.RENEW) {
+					if (dosingInstructionsChanged(drugOrder, previousOrder)) {
+						addError(ret, drugOrder, "htmlformentry.drugOrderError.dosingChangedForRenew");
+					}
+				}
+			}
+			// TODO: Consider running the DrugOrderValidator here.  Need an Errors implementation to use with it.
+		}
 		return ret;
 	}
-	
+
+	protected boolean isSameDrug(DrugOrder current, DrugOrder previous) {
+		boolean ret = false;
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDrug(), previous.getDrug());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDrugNonCoded(), previous.getDrugNonCoded());
+		return ret;
+	}
+
+	protected boolean dosingInstructionsChanged(DrugOrder current, DrugOrder previous) {
+		boolean ret = false;
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDosingType(), previous.getDosingType());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDosingInstructions(), previous.getDosingInstructions());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDose(), previous.getDose());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDoseUnits(), previous.getDoseUnits());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getRoute(), previous.getRoute());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getFrequency(), previous.getFrequency());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getInstructions(), previous.getInstructions());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getAsNeeded(), previous.getAsNeeded());
+		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getAsNeededCondition(), previous.getAsNeededCondition());
+		return ret;
+	}
+
+	protected void addError(List<FormSubmissionError> errorList, DrugOrder drugOrder, String message) {
+		String translatedMessage = Context.getMessageSourceService().getMessage(message);
+		FormSubmissionError error = new FormSubmissionError(drugOrder.getDrug().getDisplayName(), translatedMessage);
+		errorList.add(error);
+	}
+
+	public void validateReviseOrder(List<FormSubmissionError> errors, DrugOrder drugOrder) {
+
+	}
+
+	public void validateRenewOrder(List<FormSubmissionError> errors, DrugOrder drugOrder) {
+
+	}
+
+	public void validateDiscontinueOrder(List<FormSubmissionError> errors, DrugOrder drugOrder) {
+
+	}
+
 	public DrugOrdersWidget getDrugOrdersWidget() {
 		return drugOrdersWidget;
 	}
