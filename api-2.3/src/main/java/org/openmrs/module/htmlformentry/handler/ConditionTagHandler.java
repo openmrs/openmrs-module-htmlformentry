@@ -3,10 +3,10 @@ package org.openmrs.module.htmlformentry.handler;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openmrs.module.htmlformentry.element.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.element.ConditionElement;
 
 public class ConditionTagHandler extends SubstitutionTagHandler {
 	
@@ -23,9 +23,10 @@ public class ConditionTagHandler extends SubstitutionTagHandler {
 		
 		String controlId = attributes.get("controlId");
 		if (StringUtils.isBlank(controlId)) {
-			throw new IllegalArgumentException("Attribute controlId cannot be blank");
+			throw new IllegalArgumentException(
+			        "The condition tage attribute 'controlId' is mandatory and cannot be left blank.");
 		}
-		conditionElement.setControlId(controlId);
+		conditionElement.setTagControlId(controlId);
 		
 		String conceptId = attributes.get("conceptId");
 		if (!StringUtils.isEmpty(conceptId)) {
