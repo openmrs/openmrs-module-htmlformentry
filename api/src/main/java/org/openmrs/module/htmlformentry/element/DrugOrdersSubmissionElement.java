@@ -140,18 +140,6 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 		errorList.add(error);
 	}
 
-	public void validateReviseOrder(List<FormSubmissionError> errors, DrugOrder drugOrder) {
-
-	}
-
-	public void validateRenewOrder(List<FormSubmissionError> errors, DrugOrder drugOrder) {
-
-	}
-
-	public void validateDiscontinueOrder(List<FormSubmissionError> errors, DrugOrder drugOrder) {
-
-	}
-
 	public DrugOrdersWidget getDrugOrdersWidget() {
 		return drugOrdersWidget;
 	}
