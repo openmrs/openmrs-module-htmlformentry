@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.DrugOrder;
@@ -19,6 +20,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.util.OpenmrsUtil;
@@ -73,9 +75,23 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	public void handleSubmission(FormEntrySession session, HttpServletRequest request) {
 		Encounter encounter = session.getSubmissionActions().getCurrentEncounter();
 		List<DrugOrder> drugOrders = (List<DrugOrder>) drugOrdersWidget.getValue(session.getContext(), request);
+		DrugOrderWidgetConfig widgetConfig = drugOrdersWidget.getWidgetConfig();
 		for (DrugOrder drugOrder : drugOrders) {
+			// Set orderer if needed from encounter
 			if (drugOrder.getOrderer() == null) {
 				drugOrder.setOrderer(HtmlFormEntryUtil.getOrdererFromEncounter(encounter));
+			}
+			// Set dateActivated if needed from encounter
+			if (drugOrder.getDateActivated() == null) {
+				String defaultDateActivated = widgetConfig.getTemplateConfig("dateActivated").get("value");
+				if (StringUtils.isNotBlank(defaultDateActivated)) {
+					if ("encounterDate".equalsIgnoreCase(defaultDateActivated)) {
+						drugOrder.setDateActivated(encounter.getEncounterDatetime());
+					}
+					else {
+						throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultDateActivated);
+					}
+				}
 			}
 			encounter.addOrder(drugOrder);
 		}

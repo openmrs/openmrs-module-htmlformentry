@@ -96,7 +96,7 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 			l.add("Care Setting:!!" + i);
 			l.add("Dosing Type:!!" + i);
 			l.add("Order Type:!!" + i);
-			l.add("Dosing Instructions");
+			l.add("Dosing Instructions:!!" + i);
 			l.add("Dose:!!" + i);
 			l.add("Dose Units:!!" + i);
 			l.add("Route:!!" + i);
@@ -111,6 +111,8 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 			l.add("Quantity:!!" + i);
 			l.add("Quantity Units:!!" + i);
 			l.add("Num Refills:!!" + i);
+			l.add("Voided:!!" + i);
+			l.add("Discontinue Reason:!!" + i);
 		}
 		return l.toArray(new String[] {});
 	}
@@ -170,6 +172,10 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 
 		private String numRefills;
 
+		private String voided;
+
+		private String discontinueReason;
+
 		public DrugOrderRequestParams() {
 		}
 
@@ -194,6 +200,8 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 			applyIfNotNull(request, widgets, "Quantity:", fieldNum, quantity);
 			applyIfNotNull(request, widgets, "Quantity Units:", fieldNum, quantityUnits);
 			applyIfNotNull(request, widgets, "Num Refills:", fieldNum, numRefills);
+			applyIfNotNull(request, widgets, "Voided:", fieldNum, voided);
+			applyIfNotNull(request, widgets, "Discontinue Reason:", fieldNum, discontinueReason);
 		}
 
 		protected void applyIfNotNull(MockHttpServletRequest request, Map<String, String> widgets, String label,
@@ -361,6 +369,22 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 
 		public void setNumRefills(String numRefills) {
 			this.numRefills = numRefills;
+		}
+
+		public String getVoided() {
+			return voided;
+		}
+
+		public void setVoided(String voided) {
+			this.voided = voided;
+		}
+
+		public String getDiscontinueReason() {
+			return discontinueReason;
+		}
+
+		public void setDiscontinueReason(String discontinueReason) {
+			this.discontinueReason = discontinueReason;
 		}
 	}
 	

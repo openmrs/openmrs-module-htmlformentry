@@ -34,7 +34,7 @@
 			<br/>
 			Instructions: <orderProperty name="instructions"/><br/>
 			Urgency: <orderProperty name="urgency"/><br/>
-			Date Activated: <orderProperty name="dateActivated"/><br/>
+			Date Activated: <orderProperty name="dateActivated" value="encounterDate"/><br/>
 			Scheduled Date: <orderProperty name="scheduledDate"/><br/>
 			Duration: <orderProperty name="duration" /><br/>
 			Duration Units: <orderProperty name="durationUnits" /><br/>
@@ -42,6 +42,9 @@
 			Quantity: <orderProperty name="quantity" value="0"/><br/>
 			Quantity Units: <orderProperty name="quantityUnits" value="50"/><br/>
 			Num Refills: <orderProperty name="numRefills" value="0"/><br/>
+			<br/>
+			Voided: <orderProperty name="voided"/><br/>
+			Discontinue Reason: <orderProperty name="discontinueReason"/>
 		</orderTemplate>
 		<drugOptions format="display">
 			<drugOption drug="2" label="TRIOMUNE LABEL" />
@@ -49,12 +52,9 @@
 			<drugOption drug="11" label="NYQUIL LABEL" />
 		</drugOptions>
 		<discontinueReasons label="discontinueReason" format="select">
-			<discontinueReasonOption concept="c43c0462-be15-435b-9a1a-2a3fa450247d" label="6 semaines complétée"/>
-			<discontinueReasonOption concept="3cccecdc-26fe-102b-80cb-0017a47871b2" label="Toxicité"/>
-			<discontinueReasonOption concept="3cdd5176-26fe-102b-80cb-0017a47871b2" label="Abandonné"/>
-			<discontinueReasonOption concept="3cde143a-26fe-102b-80cb-0017a47871b2" label="Rupture de stock"/>
-			<discontinueReasonOption concept="3cde67c8-26fe-102b-80cb-0017a47871b2" label="Changement de poids"/>
-			<discontinueReasonOption concept="3cee7fb4-26fe-102b-80cb-0017a47871b2" label="Autre"/>
+			<discontinueReasonOption concept="556" label="Drug Toxicity"/>
+			<discontinueReasonOption concept="557" label="Patient Transferred Out"/>
+			<discontinueReasonOption concept="4202" label="Patient Died"/>
 		</discontinueReasons>
 	</drugOrders>
 

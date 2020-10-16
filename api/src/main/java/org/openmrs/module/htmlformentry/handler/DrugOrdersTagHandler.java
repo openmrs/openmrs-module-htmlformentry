@@ -69,9 +69,11 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 		
 		FormEntryContext context = session.getContext();
 		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget();
-		DrugOrderField f = new DrugOrderField();
-		drugOrdersWidget.setDrugOrderField(f);
-		DrugOrderWidgetConfig widgetConfig = drugOrdersWidget.getWidgetConfig();
+		DrugOrderField drugOrderField = new DrugOrderField();
+		drugOrdersWidget.setDrugOrderField(drugOrderField);
+		DrugOrderWidgetConfig widgetConfig = new DrugOrderWidgetConfig();
+		widgetConfig.setDrugOrderField(drugOrderField);
+		drugOrdersWidget.setWidgetConfig(widgetConfig);
 		
 		// <drugOrders>
 		NodeList childNodes = node.getChildNodes();
@@ -98,7 +100,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 							Drug drug = HtmlFormEntryUtil.getDrug(attrs.get(DRUG_ATTRIBUTE));
 							String label = attrs.get(LABEL_ATTRIBUTE);
 							DrugOrderAnswer doa = new DrugOrderAnswer(drug, label);
-							f.addDrugOrderAnswer(doa);
+							drugOrderField.addDrugOrderAnswer(doa);
 							widgetConfig.setDrugOrderAnswer(doa);
 							// </drugOption>
 						}
@@ -116,9 +118,13 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 							// <discontinueReasonOption concept="" label="">
 							Map<String, String> attrs = getAttributes(drNodes.item(j));
 							widgetConfig.addDiscontinueReasonOption(attrs);
-							Concept reason = HtmlFormEntryUtil.getConcept(attrs.get(CONCEPT_ATTRIBUTE));
+							String lookup = attrs.get(CONCEPT_ATTRIBUTE);
+							Concept reason = HtmlFormEntryUtil.getConcept(lookup);
+							if (reason == null && StringUtils.isNotBlank(lookup)) {
+								throw new BadFormDesignException("Unable to find concept " + lookup);
+							}
 							String label = attrs.get(LABEL_ATTRIBUTE);
-							f.addDiscontinuedReasonAnswer(new ObsFieldAnswer(label, reason));
+							drugOrderField.addDiscontinuedReasonAnswer(new ObsFieldAnswer(label, reason));
 							// </discontinueReasonOption>
 						}
 					}

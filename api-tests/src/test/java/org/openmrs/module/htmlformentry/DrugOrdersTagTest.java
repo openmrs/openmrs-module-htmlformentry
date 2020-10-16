@@ -63,6 +63,8 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 				p.setQuantityUnits("51");
 				p.setInstructions("Take with water");
 				p.setNumRefills("2");
+				p.setVoided("");
+				p.setDiscontinueReason("");
 				return Arrays.asList(p);
 			}
 			
@@ -104,7 +106,9 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams();
-				//p.setAction(Action.NEW.name());
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
 				p.setDosingInstructions("My dose instructions");
 				p.setUrgency("ON_SCHEDULED_DATE");
 				p.setScheduledDate(dateAsString(daysAfterEncounterDate(7)));

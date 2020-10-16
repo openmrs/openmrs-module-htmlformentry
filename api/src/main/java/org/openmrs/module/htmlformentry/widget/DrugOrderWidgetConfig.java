@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
+import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 /**
  * Holds the configuration for a DrugOrderWidget
  */
 public class DrugOrderWidgetConfig {
+
+	private DrugOrderField drugOrderField;
 
 	private DrugOrderAnswer drugOrderAnswer;
 
@@ -30,8 +33,20 @@ public class DrugOrderWidgetConfig {
 	public DrugOrderWidgetConfig() {
 	}
 
-	public Map<String, String> getWidgetConfig(String configKey) {
-		return templateWidgets.getOrDefault(configKey, new HashMap<>());
+	// INSTANCE METHODS
+
+	public Map<String, String> getTemplateConfig(String property) {
+		return templateWidgets.getOrDefault(property, new HashMap<>());
+	}
+
+	// PROPERTY ACCESSORS
+
+	public DrugOrderField getDrugOrderField() {
+		return drugOrderField;
+	}
+
+	public void setDrugOrderField(DrugOrderField drugOrderField) {
+		this.drugOrderField = drugOrderField;
 	}
 
 	public DrugOrderAnswer getDrugOrderAnswer() {

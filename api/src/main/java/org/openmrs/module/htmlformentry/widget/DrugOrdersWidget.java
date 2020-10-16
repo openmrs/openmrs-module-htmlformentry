@@ -18,11 +18,11 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 public class DrugOrdersWidget implements Widget {
 
+	private DrugOrderField drugOrderField;
+
 	private DrugOrderWidgetConfig widgetConfig;
 
 	private List<Map<String, String>> drugOrderOptions;
-
-	private DrugOrderField drugOrderField;
 	
 	private List<DrugOrderWidget> drugOrderWidgets;
 	
@@ -132,11 +132,20 @@ public class DrugOrdersWidget implements Widget {
 		return drugOrders;
 	}
 
+	public DrugOrderField getDrugOrderField() {
+		return drugOrderField;
+	}
+
+	public void setDrugOrderField(DrugOrderField drugOrderField) {
+		this.drugOrderField = drugOrderField;
+	}
+
 	public DrugOrderWidgetConfig getWidgetConfig() {
-		if (widgetConfig == null) {
-			widgetConfig = new DrugOrderWidgetConfig();
-		}
 		return widgetConfig;
+	}
+
+	public void setWidgetConfig(DrugOrderWidgetConfig widgetConfig) {
+		this.widgetConfig = widgetConfig;
 	}
 
 	public List<Map<String, String>> getDrugOrderOptions() {
@@ -148,14 +157,6 @@ public class DrugOrdersWidget implements Widget {
 	
 	public void addDrugOrderOption(Map<String, String> drugOrderOption) {
 		getDrugOrderOptions().add(drugOrderOption);
-	}
-	
-	public DrugOrderField getDrugOrderField() {
-		return drugOrderField;
-	}
-	
-	public void setDrugOrderField(DrugOrderField drugOrderField) {
-		this.drugOrderField = drugOrderField;
 	}
 	
 	public List<DrugOrderWidget> getDrugOrderWidgets() {

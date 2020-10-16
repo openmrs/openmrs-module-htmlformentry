@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 
 /**
  * Widget that lets you choose a {@link Concept} from a dropdown
@@ -31,15 +32,31 @@ public class ConceptDropdownWidget extends DropdownWidget {
 	
 	public ConceptDropdownWidget(List<Concept> optionConcepts, String emptyLabel) {
 		super();
-		List<Option> options = new ArrayList<Option>();
+		setOptions(new ArrayList<>());
 		if (emptyLabel != null) {
-			options.add(new Option(emptyLabel, "", false));
+			addOption(null, emptyLabel);
 		}
 		for (Concept concept : optionConcepts) {
-			options.add(new Option(concept.getDisplayString(), concept.getId().toString(), false));
-			conceptVals.put(concept.getId().toString(), concept);
+			addOption(concept, concept.getDisplayString());
 		}
-		setOptions(options);
+	}
+
+	public ConceptDropdownWidget(List<ObsFieldAnswer> answers) {
+		super();
+		setOptions(new ArrayList<>());
+		if (answers != null) {
+			for (ObsFieldAnswer answer : answers) {
+				addOption(answer.getConcept(), answer.getDisplayName());
+			}
+		}
+	}
+
+	protected void addOption(Concept c, String label) {
+		String id = (c == null ? "" : c.getId().toString());
+		getOptions().add(new Option(label, id, false));
+		if (c != null) {
+			conceptVals.put(id, c);
+		}
 	}
 	
 	public void setInitialConceptValue(Concept concept) {
