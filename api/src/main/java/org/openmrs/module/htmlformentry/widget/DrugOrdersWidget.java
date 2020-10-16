@@ -5,7 +5,6 @@ import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.ON_S
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,21 +17,11 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 public class DrugOrdersWidget implements Widget {
-	
-	private Map<String, String> templateAttributes;
-	
-	private String templateContent;
-	
-	private Map<String, Map<String, String>> templateWidgets;
-	
-	private Map<String, String> drugOrderAttributes;
-	
+
+	private DrugOrderWidgetConfig widgetConfig;
+
 	private List<Map<String, String>> drugOrderOptions;
-	
-	private Map<String, String> discontinueReasonAttributes;
-	
-	private List<Map<String, String>> discontinueReasonOptions;
-	
+
 	private DrugOrderField drugOrderField;
 	
 	private List<DrugOrderWidget> drugOrderWidgets;
@@ -62,7 +51,7 @@ public class DrugOrdersWidget implements Widget {
 		writer.println();
 		
 		// If the format is onselect, hide all of the drug sections (unless already in the encounter) and show select widget
-		boolean onSelect = ON_SELECT.equals(getDrugOrderAttributes().getOrDefault(FORMAT_ATTRIBUTE, ""));
+		boolean onSelect = ON_SELECT.equals(widgetConfig.getDrugOrderAttributes().getOrDefault(FORMAT_ATTRIBUTE, ""));
 		startTag(writer, "span", "drugSelectorSection", fieldName, (onSelect ? "" : "display:none"));
 		writer.println();
 		
@@ -91,7 +80,7 @@ public class DrugOrdersWidget implements Widget {
 			startTag(writer, "div", "drugOrderSection", idPrefix, sectionStyle);
 			writer.println();
 			
-			DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, a, getTemplateContent(), getTemplateWidgets());
+			DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, widgetConfig);
 			if (initialValueForDrug != null) {
 				drugOrderWidget.setInitialValue(initialValueForDrug);
 			}
@@ -110,15 +99,14 @@ public class DrugOrdersWidget implements Widget {
 		return writer.getContent();
 	}
 	
-	protected void startTag(CapturingPrintWriter writer, String tagName, String classId, String elementPrefix,
-	        String cssStyle) {
-		writer.print("<" + tagName);
-		writer.print(" id=\"" + elementPrefix + classId + "\"");
-		writer.print(" class=\"" + classId + "\"");
+	protected void startTag(CapturingPrintWriter w, String tagName, String classId, String elementPrefix, String cssStyle) {
+		w.print("<" + tagName);
+		w.print(" id=\"" + elementPrefix + classId + "\"");
+		w.print(" class=\"" + classId + "\"");
 		if (StringUtils.isNotBlank(cssStyle)) {
-			writer.print(" style=\"" + cssStyle + "\"");
+			w.print(" style=\"" + cssStyle + "\"");
 		}
-		writer.print(">");
+		w.print(">");
 	}
 	
 	public DrugOrder getInitialValueForDrug(Drug drug) {
@@ -143,45 +131,14 @@ public class DrugOrdersWidget implements Widget {
 		}
 		return drugOrders;
 	}
-	
-	public Map<String, String> getTemplateAttributes() {
-		return templateAttributes;
-	}
-	
-	public void setTemplateAttributes(Map<String, String> templateAttributes) {
-		this.templateAttributes = templateAttributes;
-	}
-	
-	public String getTemplateContent() {
-		return templateContent;
-	}
-	
-	public void setTemplateContent(String templateContent) {
-		this.templateContent = templateContent;
-	}
-	
-	public Map<String, Map<String, String>> getTemplateWidgets() {
-		if (templateWidgets == null) {
-			templateWidgets = new LinkedHashMap<>();
+
+	public DrugOrderWidgetConfig getWidgetConfig() {
+		if (widgetConfig == null) {
+			widgetConfig = new DrugOrderWidgetConfig();
 		}
-		return templateWidgets;
+		return widgetConfig;
 	}
-	
-	public void addTemplateWidget(String key, Map<String, String> attributes) {
-		getTemplateWidgets().put(key, attributes);
-	}
-	
-	public Map<String, String> getDrugOrderAttributes() {
-		if (drugOrderAttributes == null) {
-			drugOrderAttributes = new LinkedHashMap<>();
-		}
-		return drugOrderAttributes;
-	}
-	
-	public void setDrugOrderAttributes(Map<String, String> drugOrderAttributes) {
-		this.drugOrderAttributes = drugOrderAttributes;
-	}
-	
+
 	public List<Map<String, String>> getDrugOrderOptions() {
 		if (drugOrderOptions == null) {
 			drugOrderOptions = new ArrayList<>();
@@ -191,25 +148,6 @@ public class DrugOrdersWidget implements Widget {
 	
 	public void addDrugOrderOption(Map<String, String> drugOrderOption) {
 		getDrugOrderOptions().add(drugOrderOption);
-	}
-	
-	public Map<String, String> getDiscontinueReasonAttributes() {
-		return discontinueReasonAttributes;
-	}
-	
-	public void setDiscontinueReasonAttributes(Map<String, String> discontinueReasonAttributes) {
-		this.discontinueReasonAttributes = discontinueReasonAttributes;
-	}
-	
-	public List<Map<String, String>> getDiscontinueReasonOptions() {
-		if (discontinueReasonOptions == null) {
-			discontinueReasonOptions = new ArrayList<>();
-		}
-		return discontinueReasonOptions;
-	}
-	
-	public void addDiscontinueReasonOption(Map<String, String> discontinueReasonOption) {
-		getDiscontinueReasonOptions().add(discontinueReasonOption);
 	}
 	
 	public DrugOrderField getDrugOrderField() {

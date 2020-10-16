@@ -20,6 +20,7 @@ import org.openmrs.module.htmlformentry.element.DrugOrdersSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -70,6 +71,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget();
 		DrugOrderField f = new DrugOrderField();
 		drugOrdersWidget.setDrugOrderField(f);
+		DrugOrderWidgetConfig widgetConfig = drugOrdersWidget.getWidgetConfig();
 		
 		// <drugOrders>
 		NodeList childNodes = node.getChildNodes();
@@ -77,14 +79,14 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			Node childNode = childNodes.item(i);
 			if (childNode.getNodeName().equalsIgnoreCase(ORDER_TEMPLATE_TAG)) {
 				// <orderTemplate>
-				drugOrdersWidget.setTemplateAttributes(getAttributes(childNode));
+				widgetConfig.setTemplateAttributes(getAttributes(childNode));
 				CapturingPrintWriter writer = new CapturingPrintWriter();
 				processTemplateNode(session, drugOrdersWidget, node, childNode, writer);
-				drugOrdersWidget.setTemplateContent(writer.getContent());
+				widgetConfig.setTemplateContent(writer.getContent());
 				// </orderTemplate>
 			} else if (childNode.getNodeName().equalsIgnoreCase(DRUG_OPTIONS_TAG)) {
 				// <drugOptions>
-				drugOrdersWidget.setDrugOrderAttributes(getAttributes(childNode));
+				widgetConfig.setDrugOrderAttributes(getAttributes(childNode));
 				NodeList drugOptionNodes = childNode.getChildNodes();
 				if (drugOptionNodes != null) {
 					for (int j = 0; j < drugOptionNodes.getLength(); j++) {
@@ -95,7 +97,9 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 							drugOrdersWidget.addDrugOrderOption(attrs);
 							Drug drug = HtmlFormEntryUtil.getDrug(attrs.get(DRUG_ATTRIBUTE));
 							String label = attrs.get(LABEL_ATTRIBUTE);
-							f.addDrugOrderAnswer(new DrugOrderAnswer(drug, label));
+							DrugOrderAnswer doa = new DrugOrderAnswer(drug, label);
+							f.addDrugOrderAnswer(doa);
+							widgetConfig.setDrugOrderAnswer(doa);
 							// </drugOption>
 						}
 					}
@@ -103,7 +107,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				// </drugOptions>
 			} else if (childNode.getNodeName().equalsIgnoreCase(DISCONTINUE_REASONS_TAG)) {
 				// <discontinueReasons>
-				drugOrdersWidget.setDiscontinueReasonAttributes(getAttributes(childNode));
+				widgetConfig.setDiscontinueReasonAttributes(getAttributes(childNode));
 				NodeList drNodes = childNode.getChildNodes();
 				if (drNodes != null) {
 					for (int j = 0; j < drNodes.getLength(); j++) {
@@ -111,7 +115,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 						if (drNode.getNodeName().equalsIgnoreCase(DISCONTINUE_REASON_OPTION_TAG)) {
 							// <discontinueReasonOption concept="" label="">
 							Map<String, String> attrs = getAttributes(drNodes.item(j));
-							drugOrdersWidget.addDiscontinueReasonOption(attrs);
+							widgetConfig.addDiscontinueReasonOption(attrs);
 							Concept reason = HtmlFormEntryUtil.getConcept(attrs.get(CONCEPT_ATTRIBUTE));
 							String label = attrs.get(LABEL_ATTRIBUTE);
 							f.addDiscontinuedReasonAnswer(new ObsFieldAnswer(label, reason));
@@ -145,7 +149,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			if (StringUtils.isBlank(name)) {
 				throw new BadFormDesignException(NAME_ATTRIBUTE + " is required for " + ORDER_PROPERTY_TAG + " tag");
 			}
-			widget.addTemplateWidget(name, attributes);
+			widget.getWidgetConfig().addTemplateWidget(name, attributes);
 			w.print(attributes.toString());
 		} else {
 			boolean isOrderTemplateTag = (n.getNodeName().equalsIgnoreCase(ORDER_TEMPLATE_TAG));

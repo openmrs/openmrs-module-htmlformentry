@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
-import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.util.OpenmrsClassLoader;
 
 /**
@@ -32,16 +32,12 @@ public class DrugOrderWidget implements Widget {
 	
 	protected final Log log = LogFactory.getLog(DrugOrderWidget.class);
 	
-	private final DrugOrderAnswer drugOrderAnswer;
-	
-	private final String template;
-	
-	private final Map<String, Map<String, String>> widgetConfig;
+	private final DrugOrderWidgetConfig widgetConfig;
 	
 	private final Map<String, Widget> widgetReplacements = new HashMap<>();
 	
 	private DrugOrder initialValue;
-	
+
 	private Widget drugWidget;
 	
 	private Widget actionWidget;
@@ -81,11 +77,12 @@ public class DrugOrderWidget implements Widget {
 	private Widget quantityUnitsWidget;
 	
 	private Widget numRefillsWidget;
+
+	private Widget voidedWidget;
+
+	private Widget discontinueReasonWidget;
 	
-	public DrugOrderWidget(FormEntryContext context, DrugOrderAnswer drugOrderAnswer, String template,
-	    Map<String, Map<String, String>> widgetConfig) {
-		this.drugOrderAnswer = drugOrderAnswer;
-		this.template = template;
+	public DrugOrderWidget(FormEntryContext context, DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
 		configureDrugWidget(context);
 		configureActionWidget(context);
@@ -107,13 +104,15 @@ public class DrugOrderWidget implements Widget {
 		configureQuantityWidget(context);
 		configureQuantityUnitsWidget(context);
 		configureNumRefillsWidget(context);
+		configureVoidedWidget(context);
+		configureDiscontinueReasonWidget(context);
 	}
 	
 	protected void configureDrugWidget(FormEntryContext context) {
 		HiddenFieldWidget w = new HiddenFieldWidget();
 		w.addAttribute("class", "order-property drug");
-		w.setInitialValue(drugOrderAnswer.getDrug().getId().toString());
-		w.setLabel(drugOrderAnswer.getDisplayName());
+		w.setInitialValue(widgetConfig.getDrugOrderAnswer().getDrug().getId().toString());
+		w.setLabel(widgetConfig.getDrugOrderAnswer().getDisplayName());
 		drugWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "drug");
 	}
@@ -123,7 +122,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureActionWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("action", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("action");
 		DropdownWidget w = new DropdownWidget();
 		w.addOption(new Option("", "", true));
 		for (Order.Action a : Order.Action.values()) {
@@ -140,7 +139,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureCareSettingWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("careSetting", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("careSetting");
 		List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
 		MetadataDropdownWidget<CareSetting> w = new MetadataDropdownWidget<>(careSettings, "");
 		w.setInitialValue(HtmlFormEntryUtil.getCareSetting(config.get("value")));
@@ -153,7 +152,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureDosingTypeWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("dosingType", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("dosingType");
 		DropdownWidget w = new DropdownWidget();
 		w.addOption(new Option("", "", true));
 		Class[] arr = { SimpleDosingInstructions.class, FreeTextDosingInstructions.class };
@@ -179,7 +178,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureOrderTypeWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("orderType", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("orderType");
 		List<OrderType> orderTypes = HtmlFormEntryUtil.getDrugOrderTypes();
 		MetadataDropdownWidget<OrderType> w = new MetadataDropdownWidget<>(orderTypes, null);
 		String defaultVal = config.get("value");
@@ -213,7 +212,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureDoseUnitsWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("doseUnits", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("doseUnits");
 		List<Concept> concepts = Context.getOrderService().getDrugDosingUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
 		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
@@ -226,7 +225,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureRouteWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("route", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("route");
 		List<Concept> concepts = Context.getOrderService().getDrugRoutes();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
 		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
@@ -239,7 +238,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureFrequencyWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("frequency", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("frequency");
 		List<OrderFrequency> frequencies = Context.getOrderService().getOrderFrequencies(false);
 		MetadataDropdownWidget<OrderFrequency> w = new MetadataDropdownWidget<>(frequencies, "");
 		w.setInitialMetadataValue(HtmlFormEntryUtil.getOrderFrequency(config.get("value")));
@@ -252,7 +251,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureAsNeededWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("asNeeded", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("asNeeded");
 		String checkboxValue = config.getOrDefault("value", "true");
 		CheckboxWidget w = new CheckboxWidget(config.get("label"), checkboxValue);
 		asNeededWidget = w;
@@ -261,7 +260,7 @@ public class DrugOrderWidget implements Widget {
 
 	protected Boolean getAsNeededWidgetValue(FormEntryContext context, HttpServletRequest request) {
 		Object val = asNeededWidget.getValue(context, request);
-		return (val == null || val.equals("")) ? null : true;
+		return (val != null && !val.equals(""));
 	}
 	
 	protected void configureInstructionsWidget(FormEntryContext context) {
@@ -273,7 +272,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureUrgencyWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("urgency", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("urgency");
 		DropdownWidget w = new DropdownWidget();
 		w.addOption(new Option("", "", true));
 		for (Order.Urgency u : Order.Urgency.values()) {
@@ -290,7 +289,7 @@ public class DrugOrderWidget implements Widget {
 	}
 
 	protected void configureDateActivatedWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("dateActivated", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("dateActivated");
 		DateWidget w = new DateWidget();
 		dateActivatedWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "dateActivated");
@@ -301,7 +300,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureScheduledDateWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("scheduledDate", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("scheduledDate");
 		DateWidget w = new DateWidget();
 		scheduledDateWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "scheduledDate");
@@ -320,7 +319,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureDurationUnitsWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("durationUnits", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("durationUnits");
 		List<Concept> concepts = Context.getOrderService().getDurationUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
 		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
@@ -341,7 +340,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected void configureQuantityUnitsWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getOrDefault("quantityUnits", new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig("quantityUnits");
 		List<Concept> concepts = Context.getOrderService().getDrugDispensingUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
 		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
@@ -361,6 +360,32 @@ public class DrugOrderWidget implements Widget {
 	protected Integer getNumRefillsWidgetValue(FormEntryContext context, HttpServletRequest request) {
 		return (Integer)numRefillsWidget.getValue(context, request);
 	}
+
+	protected void configureVoidedWidget(FormEntryContext context) {
+		Map<String, String> config = widgetConfig.getWidgetConfig("voided");
+		String checkboxValue = config.getOrDefault("value", "true");
+		CheckboxWidget w = new CheckboxWidget(config.get("label"), checkboxValue);
+		voidedWidget = w;
+		registerWidget(context, w, new ErrorWidget(), "voided");
+	}
+
+	protected Boolean getVoidedWidgetValue(FormEntryContext context, HttpServletRequest request) {
+		Object val = voidedWidget.getValue(context, request);
+		return (val != null && !val.equals(""));
+	}
+
+	protected void configureDiscontinueReasonWidget(FormEntryContext context) {
+		Map<String, String> config = widgetConfig.getWidgetConfig("discontinueReason");
+		List<Concept> concepts = new ArrayList<>(); // TODO: Populate this from widgetConfig
+		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
+		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		discontinueReasonWidget = w;
+		registerWidget(context, w, new ErrorWidget(), "discontinueReason");
+	}
+
+	protected Concept getDiscontinueReasonWidgetValue(FormEntryContext context, HttpServletRequest request) {
+		return ((ConceptDropdownWidget)discontinueReasonWidget).getConceptValue(context, request);
+	}
 	
 	protected String registerWidget(FormEntryContext context, Widget widget, ErrorWidget errorWidget, String propertyName) {
 		String widgetId = context.registerWidget(widget);
@@ -370,7 +395,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Widget configureTextWidget(FormEntryContext context, String property) {
-		Map<String, String> config = widgetConfig.getOrDefault(property, new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig(property);
 		TextFieldWidget w = new TextFieldWidget();
 		w.setInitialValue(config.get("value"));
 		if (config.get("textArea") != null) {
@@ -396,7 +421,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Widget configureNumericWidget(FormEntryContext context, String property, boolean allowDecimal) {
-		Map<String, String> config = widgetConfig.getOrDefault(property, new HashMap<>());
+		Map<String, String> config = widgetConfig.getWidgetConfig(property);
 		NumberFieldWidget w = new NumberFieldWidget(0d, null, allowDecimal);
 		String defaultVal = config.get("value");
 		if (defaultVal != null) {
@@ -412,10 +437,10 @@ public class DrugOrderWidget implements Widget {
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		String ret = template;
+		String ret = getWidgetConfig().getTemplateContent();
 		for (String property : widgetReplacements.keySet()) {
 			Widget w = widgetReplacements.get(property);
-			Map<String, String> c = widgetConfig.get(property);
+			Map<String, String> c = widgetConfig.getWidgetConfig(property);
 			if (c != null) {
 				String key = c.toString();
 				ret = ret.replace(key, w.generateHtml(context));
@@ -426,7 +451,7 @@ public class DrugOrderWidget implements Widget {
 	
 	@Override
 	public void setInitialValue(Object initialValue) {
-		this.initialValue = (DrugOrder) initialValue;
+		this.initialValue = ((DrugOrder) initialValue);
 		// TODO: Populate initial values for various widgets using properties of initialValue if non-null
 	}
 	
@@ -435,7 +460,7 @@ public class DrugOrderWidget implements Widget {
 		Order.Action action = getActionWidgetValue(context, request);
 		if (action != null) {
 			DrugOrder drugOrder = new DrugOrder();
-			drugOrder.setDrug(drugOrderAnswer.getDrug());
+			drugOrder.setDrug(widgetConfig.getDrugOrderAnswer().getDrug());
 			drugOrder.setPreviousOrder(initialValue);
 			drugOrder.setAction(action);
 			drugOrder.setCareSetting(getCareSettingWidgetValue(context, request));
@@ -460,19 +485,11 @@ public class DrugOrderWidget implements Widget {
 		}
 		return null;
 	}
-	
-	public DrugOrderAnswer getDrugOrderAnswer() {
-		return drugOrderAnswer;
-	}
-	
-	public String getTemplate() {
-		return template;
-	}
-	
-	public Map<String, Map<String, String>> getWidgetConfig() {
+
+	public DrugOrderWidgetConfig getWidgetConfig() {
 		return widgetConfig;
 	}
-	
+
 	public Map<String, Widget> getWidgetReplacements() {
 		return widgetReplacements;
 	}
@@ -528,6 +545,10 @@ public class DrugOrderWidget implements Widget {
 	public Widget getUrgencyWidget() {
 		return urgencyWidget;
 	}
+
+	public Widget getDateActivatedWidget() {
+		return dateActivatedWidget;
+	}
 	
 	public Widget getScheduledDateWidget() {
 		return scheduledDateWidget;
@@ -551,5 +572,13 @@ public class DrugOrderWidget implements Widget {
 	
 	public Widget getNumRefillsWidget() {
 		return numRefillsWidget;
+	}
+
+	public Widget getVoidedWidget() {
+		return voidedWidget;
+	}
+
+	public Widget getDiscontinueReasonWidget() {
+		return discontinueReasonWidget;
 	}
 }
