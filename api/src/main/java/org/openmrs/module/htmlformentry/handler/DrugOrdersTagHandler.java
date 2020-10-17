@@ -68,12 +68,9 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node p, Node node) throws BadFormDesignException {
 		
 		FormEntryContext context = session.getContext();
-		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget();
 		DrugOrderField drugOrderField = new DrugOrderField();
-		drugOrdersWidget.setDrugOrderField(drugOrderField);
 		DrugOrderWidgetConfig widgetConfig = new DrugOrderWidgetConfig();
 		widgetConfig.setDrugOrderField(drugOrderField);
-		drugOrdersWidget.setWidgetConfig(widgetConfig);
 		
 		// <drugOrders>
 		NodeList childNodes = node.getChildNodes();
@@ -83,7 +80,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				// <orderTemplate>
 				widgetConfig.setTemplateAttributes(getAttributes(childNode));
 				CapturingPrintWriter writer = new CapturingPrintWriter();
-				processTemplateNode(session, drugOrdersWidget, node, childNode, writer);
+				processTemplateNode(session, widgetConfig, node, childNode, writer);
 				widgetConfig.setTemplateContent(writer.getContent());
 				// </orderTemplate>
 			} else if (childNode.getNodeName().equalsIgnoreCase(DRUG_OPTIONS_TAG)) {
@@ -96,12 +93,10 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 						if (drugOptionNode.getNodeName().equalsIgnoreCase(DRUG_OPTION_TAG)) {
 							// <drugOption drug="" label="">
 							Map<String, String> attrs = getAttributes(drugOptionNode);
-							drugOrdersWidget.addDrugOrderOption(attrs);
 							Drug drug = HtmlFormEntryUtil.getDrug(attrs.get(DRUG_ATTRIBUTE));
 							String label = attrs.get(LABEL_ATTRIBUTE);
 							DrugOrderAnswer doa = new DrugOrderAnswer(drug, label);
 							drugOrderField.addDrugOrderAnswer(doa);
-							widgetConfig.setDrugOrderAnswer(doa);
 							// </drugOption>
 						}
 					}
@@ -137,6 +132,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			}
 		}
 		
+		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget(context, drugOrderField, widgetConfig);
 		DrugOrdersSubmissionElement element = new DrugOrdersSubmissionElement(context, drugOrdersWidget);
 		session.getSubmissionController().addAction(element);
 		out.print(element.generateHtml(context));
@@ -147,7 +143,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	 * Provides a means to recurse through the nodes in <orderTemplate> and either process normally
 	 * using the HtmlFormEntryGenerator, or render order property widgets
 	 */
-	protected void processTemplateNode(FormEntrySession session, DrugOrdersWidget widget, Node pn, Node n, PrintWriter w)
+	protected void processTemplateNode(FormEntrySession session, DrugOrderWidgetConfig c, Node pn, Node n, PrintWriter w)
 	        throws BadFormDesignException {
 		if (n.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_TAG)) {
 			Map<String, String> attributes = new TreeMap<>(getAttributes(n));
@@ -155,7 +151,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			if (StringUtils.isBlank(name)) {
 				throw new BadFormDesignException(NAME_ATTRIBUTE + " is required for " + ORDER_PROPERTY_TAG + " tag");
 			}
-			widget.getWidgetConfig().addTemplateWidget(name, attributes);
+			c.addTemplateWidget(name, attributes);
 			w.print(attributes.toString());
 		} else {
 			boolean isOrderTemplateTag = (n.getNodeName().equalsIgnoreCase(ORDER_TEMPLATE_TAG));
@@ -167,7 +163,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				NodeList childNodes = n.getChildNodes();
 				for (int i = 0; i < childNodes.getLength(); i++) {
 					Node childNode = childNodes.item(i);
-					processTemplateNode(session, widget, n, childNode, w);
+					processTemplateNode(session, c, n, childNode, w);
 				}
 			}
 			if (!isOrderTemplateTag) {

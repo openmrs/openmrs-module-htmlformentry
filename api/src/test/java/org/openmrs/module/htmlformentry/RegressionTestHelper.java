@@ -20,7 +20,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
+import org.junit.platform.commons.util.StringUtils;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterType;
@@ -40,6 +43,8 @@ import org.springframework.mock.web.MockMultipartHttpServletRequest;
 public abstract class RegressionTestHelper {
 	
 	private static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
+	
+	private static Log log = LogFactory.getLog(RegressionTestHelper.class);
 	
 	/**
 	 * @return will be used to look up the file test/.../include/{formName}.xml
@@ -372,6 +377,10 @@ public abstract class RegressionTestHelper {
 					// discards unchecked radios
 					continue;
 				}
+				if (element.contains("type=\"checkbox\"") && !element.contains("checked=\"true\"")) {
+					// discards unchecked checkboxes
+					continue;
+				}
 				String name = matcher.group(1);
 				Matcher lookForValue = forValue.matcher(element);
 				if (lookForValue.find()) {
@@ -500,6 +509,7 @@ public abstract class RegressionTestHelper {
 	private Map<String, String> getLabeledWidgets(String html, String... labels) {
 		Map<String, String> ret = new HashMap<String, String>();
 		for (String label : labels) {
+			String val = null;
 			int toSkip = 0;
 			// something like EncounterAndRole!!1 means the *second* widget after "EncounterAndRole"
 			String origLabel = label;
@@ -507,6 +517,17 @@ public abstract class RegressionTestHelper {
 				String[] temp = label.split("!!");
 				toSkip = Integer.valueOf(temp[1]);
 				label = temp[0];
+			}
+			// something like Frequency##1 means the widget following the *second* instance of "Frequency" in the html
+			if (label.indexOf("##") > 0) {
+				String[] temp = label.split("##");
+				label = temp[0];
+				int num = Integer.valueOf(temp[1]);
+				int startIndex = 0;
+				for (int i = 0; i < num; i++) {
+					startIndex = html.indexOf(label, startIndex) + label.length();
+					html = html.substring(startIndex);
+				}
 			}
 			int index = html.indexOf(label);
 			if (index < 0)
@@ -516,12 +537,17 @@ public abstract class RegressionTestHelper {
 					index = html.indexOf("name=\"w", index);
 					index = html.indexOf('"', index) + 1;
 				}
-				String val = html.substring(index, html.indexOf('"', index + 1));
-				ret.put(origLabel, val);
+				val = html.substring(index, html.indexOf('"', index + 1));
 			}
 			catch (Exception ex) {
 				// do nothing
 			}
+			if (StringUtils.isBlank(val)) {
+				log.warn("No widget found for " + origLabel);
+			} else {
+				log.trace(origLabel + "->" + val);
+			}
+			ret.put(origLabel, val);
 		}
 		return ret;
 	}

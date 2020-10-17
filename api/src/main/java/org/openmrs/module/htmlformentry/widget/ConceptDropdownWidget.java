@@ -40,7 +40,7 @@ public class ConceptDropdownWidget extends DropdownWidget {
 			addOption(concept, concept.getDisplayString());
 		}
 	}
-
+	
 	public ConceptDropdownWidget(List<ObsFieldAnswer> answers) {
 		super();
 		setOptions(new ArrayList<>());
@@ -50,7 +50,7 @@ public class ConceptDropdownWidget extends DropdownWidget {
 			}
 		}
 	}
-
+	
 	protected void addOption(Concept c, String label) {
 		String id = (c == null ? "" : c.getId().toString());
 		getOptions().add(new Option(label, id, false));

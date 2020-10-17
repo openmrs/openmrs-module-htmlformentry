@@ -32,7 +32,7 @@
 			Frequency: <orderProperty name="frequency" /><br/>
 			As Needed: <orderProperty name="asNeeded" /><br/>
 			<br/>
-			Instructions: <orderProperty name="instructions"/><br/>
+			Order Instructions: <orderProperty name="instructions"/><br/>
 			Urgency: <orderProperty name="urgency"/><br/>
 			Date Activated: <orderProperty name="dateActivated" value="encounterDate"/><br/>
 			Scheduled Date: <orderProperty name="scheduledDate"/><br/>

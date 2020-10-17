@@ -49,7 +49,7 @@ public class MetadataDropdownWidget<T extends OpenmrsMetadata> extends DropdownW
 			setInitialValue(m.getId().toString());
 		}
 	}
-
+	
 	public T getMetadataValue(FormEntryContext context, HttpServletRequest request) {
 		Object value = getValue(context, request);
 		return value == null ? null : metadataVals.get(value.toString());

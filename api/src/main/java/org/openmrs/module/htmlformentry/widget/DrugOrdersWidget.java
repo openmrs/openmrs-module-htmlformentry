@@ -5,6 +5,7 @@ import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.ON_S
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,23 +18,35 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 public class DrugOrdersWidget implements Widget {
-
+	
 	private DrugOrderField drugOrderField;
-
+	
 	private DrugOrderWidgetConfig widgetConfig;
-
-	private List<Map<String, String>> drugOrderOptions;
 	
-	private List<DrugOrderWidget> drugOrderWidgets;
+	private Map<Drug, DrugOrderWidget> drugOrderWidgets;
 	
-	private List<DrugOrder> initialValue;
+	private Map<Drug, DrugOrder> initialValue;
 	
-	public DrugOrdersWidget() {
+	public DrugOrdersWidget(FormEntryContext context, DrugOrderField drugOrderField, DrugOrderWidgetConfig widgetConfig) {
+		this.drugOrderField = drugOrderField;
+		this.widgetConfig = widgetConfig;
+		for (DrugOrderAnswer answer : drugOrderField.getDrugOrderAnswers()) {
+			DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, answer, widgetConfig);
+			getDrugOrderWidgets().put(answer.getDrug(), drugOrderWidget);
+		}
 	}
 	
 	@Override
-	public void setInitialValue(Object initialValue) {
-		this.initialValue = (List<DrugOrder>) initialValue;
+	public void setInitialValue(Object v) {
+		this.initialValue = (Map<Drug, DrugOrder>) v;
+		if (initialValue != null) {
+			for (Drug d : initialValue.keySet()) {
+				DrugOrderWidget w = drugOrderWidgets.get(d);
+				if (w != null) {
+					w.setInitialValue(initialValue.get(d));
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -70,23 +83,15 @@ public class DrugOrdersWidget implements Widget {
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		
-		for (DrugOrderAnswer a : drugOrderField.getDrugOrderAnswers()) {
-			DrugOrder initialValueForDrug = getInitialValueForDrug(a.getDrug());
-			
+		for (Drug drug : getDrugOrderWidgets().keySet()) {
+			DrugOrderWidget drugOrderWidget = getDrugOrderWidgets().get(drug);
 			// All elements for a given drug will have an id prefix like "fieldName_drugId"
-			String idPrefix = fieldName + "_" + a.getDrug().getId();
-			String sectionStyle = (onSelect && initialValueForDrug == null ? "display:none" : "");
+			String idPrefix = fieldName + "_" + drug.getId();
+			String sectionStyle = (onSelect && drugOrderWidget.getInitialValue() == null ? "display:none" : "");
 			
 			startTag(writer, "div", "drugOrderSection", idPrefix, sectionStyle);
 			writer.println();
-			
-			DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, widgetConfig);
-			if (initialValueForDrug != null) {
-				drugOrderWidget.setInitialValue(initialValueForDrug);
-			}
-			getDrugOrderWidgets().add(drugOrderWidget);
 			writer.print(drugOrderWidget.generateHtml(context));
-			
 			writer.println();
 			writer.println("</div>");
 			writer.println("<script type=\"text/javascript\">");
@@ -109,59 +114,35 @@ public class DrugOrdersWidget implements Widget {
 		w.print(">");
 	}
 	
-	public DrugOrder getInitialValueForDrug(Drug drug) {
-		if (initialValue != null) {
-			for (DrugOrder drugOrder : initialValue) {
-				if (drugOrder.getDrug().equals(drug)) {
-					return drugOrder;
-				}
-			}
+	@Override
+	public List<DrugOrderWidgetValue> getValue(FormEntryContext context, HttpServletRequest request) {
+		List<DrugOrderWidgetValue> ret = new ArrayList<>();
+		for (DrugOrderWidget widget : getDrugOrderWidgets().values()) {
+			DrugOrderWidgetValue drugOrder = widget.getValue(context, request);
+			ret.add(drugOrder);
 		}
-		return null;
+		return ret;
 	}
 	
-	@Override
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
-		List<DrugOrder> drugOrders = new ArrayList<>();
-		for (DrugOrderWidget widget : getDrugOrderWidgets()) {
-			DrugOrder drugOrder = (DrugOrder) widget.getValue(context, request);
-			if (drugOrder != null) {
-				drugOrders.add(drugOrder);
-			}
-		}
-		return drugOrders;
-	}
-
 	public DrugOrderField getDrugOrderField() {
 		return drugOrderField;
 	}
-
+	
 	public void setDrugOrderField(DrugOrderField drugOrderField) {
 		this.drugOrderField = drugOrderField;
 	}
-
+	
 	public DrugOrderWidgetConfig getWidgetConfig() {
 		return widgetConfig;
 	}
-
+	
 	public void setWidgetConfig(DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
 	}
-
-	public List<Map<String, String>> getDrugOrderOptions() {
-		if (drugOrderOptions == null) {
-			drugOrderOptions = new ArrayList<>();
-		}
-		return drugOrderOptions;
-	}
 	
-	public void addDrugOrderOption(Map<String, String> drugOrderOption) {
-		getDrugOrderOptions().add(drugOrderOption);
-	}
-	
-	public List<DrugOrderWidget> getDrugOrderWidgets() {
+	public Map<Drug, DrugOrderWidget> getDrugOrderWidgets() {
 		if (drugOrderWidgets == null) {
-			drugOrderWidgets = new ArrayList<>();
+			drugOrderWidgets = new LinkedHashMap<>();
 		}
 		return drugOrderWidgets;
 	}

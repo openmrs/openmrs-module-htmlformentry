@@ -32,6 +32,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void testDrugOrdersTag_shouldLoadHtmlCorrectly() throws Exception {
 		final DrugOrdersRegressionTestHelper helper = new DrugOrdersRegressionTestHelper() {
+			
 			@Override
 			public void testBlankFormHtml(String html) {
 				System.out.println(html);
@@ -46,7 +47,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
 				p.setAction(Order.Action.NEW.name());
 				p.setCareSetting("OUTPATIENT");
 				p.setDosingType(SimpleDosingInstructions.class.getName());
@@ -93,19 +94,18 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 				assertThat(order.getInstructions(), is("Take with water"));
 				assertThat(order.getNumRefills(), is(2));
 			}
-			
 		};
 		
 		test.run();
 	}
 	
 	@Test
-	public void testNewDrugOrder_freeTextDosingScheduledInpatient() throws Exception {
+	public void testNewDrugOrder_freeTextDosingScheduledInpatientDefaultToEncounterDate() throws Exception {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
 				p.setAction(Order.Action.NEW.name());
 				p.setCareSetting("INPATIENT");
 				p.setDosingType(FreeTextDosingInstructions.class.getName());
@@ -146,15 +146,17 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testEditDrugOrder_shouldVoidAndRecreateIfChangedInSameEncounter() throws Exception {
+	public void testEditDrugOrder_shouldReviseExistingOrderAndCreateNewOrder() throws Exception {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
-				//p.setAction(Action.NEW.name());
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
 				p.setDosingInstructions("My dose instructions");
-				p.setDateActivated(dateAsString(getEncounterDate()));
 				return Arrays.asList(p);
 			}
 			
@@ -174,11 +176,18 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
-				//p.setAction(Action.EDIT.name());
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.REVISE.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
 				p.setDosingInstructions("My revised dose instructions");
-				p.setDateActivated(dateAsString(getEncounterDate()));
 				return Arrays.asList(p);
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				log.trace(html);
 			}
 			
 			@Override
@@ -190,11 +199,10 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 				assertThat(originalOrder.getAction(), is(Order.Action.NEW));
 				assertThat(originalOrder.getDateActivated(), is(getEncounterDate()));
 				assertThat(originalOrder.getDosingInstructions(), is("My dose instructions"));
-				assertThat(originalOrder.getVoided(), is(true));
-				assertThat(originalOrder.getVoidReason(), notNullValue());
+				assertThat(originalOrder.getDateStopped(), is(adjustMillis(getEncounterDate(), -1000)));
 				DrugOrder newOrder = (DrugOrder) orders.get(1);
-				assertThat(newOrder.getAction(), is(Order.Action.NEW));
-				assertThat(newOrder.getDateActivated(), is(is(ymdToDate(dateAsString(getEncounterDate())))));
+				assertThat(newOrder.getAction(), is(Order.Action.REVISE));
+				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
 				assertThat(newOrder.getDosingInstructions(), is("My revised dose instructions"));
 				assertThat(newOrder.getEffectiveStopDate(), nullValue());
 			}
@@ -209,7 +217,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
 				//p.setAction(Action.NEW.name());
 				p.setDosingInstructions("My dose instructions");
 				p.setDateActivated(dateAsString(getEncounterDate()));
@@ -232,7 +240,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
 				//p.setAction(Action.DISCONTINUE.name());
 				//p.setDiscontinuedReason("556");
 				return Arrays.asList(p);
@@ -262,10 +270,10 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void testDeleteDrugOrder_shouldVoid() throws Exception {
 		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
 				//p.setAction(Action.NEW.name());
 				p.setDosingInstructions("My dose instructions");
 				p.setDateActivated(dateAsString(getEncounterDate()));
@@ -288,7 +296,7 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams();
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
 				//p.setAction(Action.DELETE.name());
 				return Arrays.asList(p);
 			}

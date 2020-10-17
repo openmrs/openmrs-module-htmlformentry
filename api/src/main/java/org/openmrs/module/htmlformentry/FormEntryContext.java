@@ -598,25 +598,31 @@ public class FormEntryContext {
 	 * 
 	 * @return
 	 */
-	public List<DrugOrder> removeExistingDrugOrders(DrugOrderField drugOrderField) {
-		List<DrugOrder> ret = new ArrayList<>();
+	public Map<Drug, DrugOrder> removeLatestDrugOrderForDrug(DrugOrderField drugOrderField) {
+		Map<Drug, DrugOrder> ret = new HashMap<>();
 		if (drugOrderField.getDrugOrderAnswers() != null) {
 			for (DrugOrderAnswer doa : drugOrderField.getDrugOrderAnswers()) {
 				Drug drug = doa.getDrug();
-				List<Order> list = existingOrders.get(drug.getConcept());
-				if (list != null) {
-					for (Iterator<Order> iter = list.iterator(); iter.hasNext();) {
-						Order order = iter.next();
+				DrugOrder latestDrugOrder = null;
+				List<Order> orderList = existingOrders.get(drug.getConcept());
+				if (orderList != null) {
+					for (Order order : orderList) {
 						if (order instanceof DrugOrder) {
 							DrugOrder drugOrder = (DrugOrder) order;
-							if (equalDrug(drug, drugOrder.getDrug())) {
-								iter.remove();
-								if (list.size() == 0) {
-									existingOrders.remove(drug.getConcept());
+							if (drugOrder.getDrug().equals(drug)) {
+								if (latestDrugOrder == null || drugOrder.getEffectiveStartDate()
+								        .after(latestDrugOrder.getEffectiveStartDate())) {
+									latestDrugOrder = drugOrder;
 								}
-								ret.add(drugOrder);
 							}
 						}
+					}
+					if (latestDrugOrder != null) {
+						orderList.remove(latestDrugOrder);
+						if (orderList.isEmpty()) {
+							existingOrders.remove(drug.getConcept());
+						}
+						ret.put(drug, latestDrugOrder);
 					}
 				}
 			}
