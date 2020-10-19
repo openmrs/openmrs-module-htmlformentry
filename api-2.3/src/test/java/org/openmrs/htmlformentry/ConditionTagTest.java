@@ -33,7 +33,9 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldRecordAndEditCondition() throws Exception {
-		new RegressionTestHelper() {
+		new
+		
+		RegressionTestHelper() {
 			
 			protected String add(String widget, int offset) {
 				return "w" + (Integer.parseInt(widget.substring(1)) + offset);
@@ -191,7 +193,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			@Override
-			public Encounter getEncounterToView() throws Exception {
+			public Encounter getEncounterToView() {
 				return Context.getEncounterService().getEncounter(101);
 			}
 			
@@ -211,7 +213,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public Encounter getEncounterToEdit() {
-				return Context.getEncounterService().getEncounter(101);
+				return getEncounterToView();
 			}
 			
 			@Override

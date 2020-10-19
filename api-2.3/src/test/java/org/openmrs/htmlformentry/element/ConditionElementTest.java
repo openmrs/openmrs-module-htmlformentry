@@ -1,6 +1,7 @@
 package org.openmrs.htmlformentry.element;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -126,6 +127,7 @@ public class ConditionElementTest {
 		element.setConditionStatusesWidget(conditionStatusesWidget);
 		element.setAdditionalDetailWidget(additionalDetailWidget);
 		encounter = session.getEncounter();
+		element.setTagControlId("my_condition_tag");
 	}
 	
 	@Test
@@ -219,7 +221,7 @@ public class ConditionElementTest {
 	@Test
 	public void handleSubmission_shouldSupportFormField() {
 		// setup
-		element.setControlId("my_condition_tag");
+		element.setTagControlId("my_condition_tag");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
 		
@@ -301,27 +303,30 @@ public class ConditionElementTest {
 		
 	}
 	
-	@Test(expected = IllegalStateException.class)
-	public void generateHtml_shouldShouldThrowWhenFormPathIsMissing() {
+	@Test
+	public void generateHtml_shouldThrowWhenMultipleConditionsWithSameControlId() {
 		// setup
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
 		when(context.getMode()).thenReturn(Mode.VIEW);
 		
-		// Mock context
+		// an encounter with two conditions located with the same control id
 		Encounter encounter = new Encounter();
-		Condition condition = new Condition();
-		encounter.addCondition(condition);
-		when(context.getExistingEncounter()).thenReturn(encounter);
-		when(context.getMode()).thenReturn(Mode.VIEW);
+		Condition c1 = new Condition();
+		c1.setFormField("HtmlFormEntry", "MyForm.1.0/my_condition_tag-0");
+		Condition c2 = new Condition();
+		c2.setFormField("HtmlFormEntry", "MyForm.1.0/my_condition_tag-0");
 		
-		// Mock session
+		encounter.addCondition(c1);
+		encounter.addCondition(c2);
+		when(context.getExistingEncounter()).thenReturn(encounter);
+		
 		Form form = new Form();
 		form.setName("MyForm");
 		form.setVersion("1.0");
 		when(session.getForm()).thenReturn(form);
 		
 		// replay
-		element.generateHtml(context);
+		assertThrows(IllegalStateException.class, () -> element.generateHtml(context));
 	}
 }

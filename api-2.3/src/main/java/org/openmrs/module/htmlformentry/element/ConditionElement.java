@@ -1,13 +1,15 @@
 package org.openmrs.module.htmlformentry.element;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.getControlId;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -17,6 +19,7 @@ import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.Condition;
 import org.openmrs.ConditionClinicalStatus;
+import org.openmrs.Encounter;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -24,7 +27,6 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
@@ -50,20 +52,20 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	private Concept presetConcept;
 	
 	private boolean showAdditionalDetail;
-	
+
 	// widgets
 	private ConceptSearchAutocompleteWidget conceptSearchWidget;
 	
 	private TextFieldWidget additionalDetailWidget;
 	
 	private RadioButtonsWidget conditionStatusesWidget;
-	
+
 	private ErrorWidget conditionSearchErrorWidget;
 	
 	private ErrorWidget conditionStatusesErrorWidget;
 	
 	private String wrapperDivId;
-	
+
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
@@ -93,7 +95,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		condition.setPatient(session.getPatient());
 		
-		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(controlId, 0));
+		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(getTagControlId(), 0));
 		
 		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
 			// incomplete optional conditions are not submitted or are removed in EDIT mode
@@ -109,7 +111,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<>();
-		
+
 		String condition = null;
 		if (StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))) {
 			condition = (String) conceptSearchWidget.getValue(context, submission);
@@ -118,7 +120,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			        ? submission.getParameter(context.getFieldName(conceptSearchWidget))
 			        : "";
 		}
-		
+
 		ConditionClinicalStatus status = getStatus(context, submission);
 		
 		if (context.getMode() != Mode.VIEW) {
@@ -137,75 +139,60 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		wrapperDivId = "htmlformentry-condition-" + controlId;
+		wrapperDivId = "htmlformentry-condition-" + getTagControlId();
 		if (mss == null) {
 			mss = Context.getMessageSourceService();
 		}
-		initializeExistingCondition(context);
+		setExistingCondition(context);
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
 		// Show condition search
 		ret.append(htmlForConditionSearchWidget(context));
-		
+
 		// Show additional detail
 		if (showAdditionalDetail) {
 			ret.append(htmlForAdditionalDetailWidget(context));
 		}
-		
+
 		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
-		
+
 		ret.append("</div>");
 		return ret.toString();
 	}
 	
 	/**
-	 * Bootstraps a new condition instance.
-	 * <p>
-	 * While in edit or view mode, it returns the existing condition
+	 * Bootstraps the condition to work with
 	 *
 	 * @param context - the current FormEntryContext
-	 * @return condition - the condition to edit or fill
+	 * @return condition - the condition to fill or edit
+	 * @return the existing condition in VIEW or EDIT modes.
 	 */
 	private Condition bootstrap(FormEntryContext context) {
-		Condition ret = null;
-		if (context.getMode() != Mode.ENTER) {
-			if (existingCondition == null) {
-				initializeExistingCondition(context);
-			}
-			ret = existingCondition;
-		}
-		if (ret == null) {
-			ret = new Condition();
-		}
-		return ret;
+		setExistingCondition(context);
+		return this.existingCondition == null ? new Condition() : this.existingCondition;
 	}
 	
 	/**
-	 * Looks up the existing condition from the encounter to be edited or viewed.
-	 * <p>
-	 * It uses the {@code formFieldPath} to map the widget on the form to the target condition
+	 * Sets the existing condition as provided by the form entry context. Sets the existing condition to
+	 * null if no condition in the context's existing encounter could be matched by control id.
 	 *
-	 * @param context - the current FormEntryContext
+	 * @param context The form entry context
 	 */
-	private void initializeExistingCondition(FormEntryContext context) {
-		if (context.getMode() != Mode.ENTER) {
-			Set<Condition> conditions = context.getExistingEncounter().getConditions();
-			for (Condition candidate : conditions) {
-				
-				// Get candidate control id
-				String candidateControlId = HtmlFormEntryUtil2_3.getControlId(candidate);
-				if (candidateControlId == null) {
-					throw new IllegalStateException(
-					        "A form recordable object was found to have no form namespace and path set, its control id in the form could not be determined.");
-				}
-				
-				// Verify if it is a valid candidate for the condition
-				if (StringUtils.equals(candidateControlId, controlId)) {
-					this.existingCondition = candidate;
-					return;
-				}
-			}
+	private void setExistingCondition(FormEntryContext context) {
+		if (StringUtils.isBlank(getTagControlId())) {
+			throw new IllegalStateException("A condition tag has not control id set.");
+		}
+
+		this.existingCondition = null;
+		final Encounter encounter = context.getExistingEncounter();
+		if (encounter != null) {
+			this.existingCondition = Optional.of(encounter.getConditions()).orElse(Collections.emptySet()).stream()
+			        .filter(c -> StringUtils.equals(getControlId(c), getTagControlId()))
+			        .collect(Collectors.reducing((c1, c2) -> {
+				        throw new IllegalStateException(
+				                "Mutliple conditions are matching the control id '" + controlId + "'.");
+			        })).orElse(null);
 		}
 	}
 	
@@ -372,11 +359,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		// Create wrapper id
 		String additionalDetailWrapperId = "condition-additional-detail-" + controlId;
-		
+
 		// Register widget
 		setAdditionalDetailWidget(new TextFieldWidget());
 		context.registerWidget(getAdditionalDetailWidget());
-		
+
 		// Fill value for Edit/View
 		if (context.getMode() != Mode.ENTER && existingCondition != null) {
 			getAdditionalDetailWidget().setInitialValue(existingCondition.getAdditionalDetail());
@@ -388,7 +375,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetail.label") + "</label>");
 		ret.append(getAdditionalDetailWidget().generateHtml(context));
 		ret.append("</div>");
-		
+
 		return ret.toString();
 	}
 	
@@ -439,11 +426,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		this.required = required;
 	}
 	
-	public String getControlId() {
+	public String getTagControlId() {
 		return controlId;
 	}
 	
-	public void setControlId(String controlId) {
+	public void setTagControlId(String controlId) {
 		this.controlId = controlId;
 	}
 	
@@ -466,11 +453,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	public boolean isShowAdditionalDetail() {
 		return showAdditionalDetail;
 	}
-	
+
 	public void setShowAdditionalDetail(boolean showAdditionalDetail) {
 		this.showAdditionalDetail = showAdditionalDetail;
 	}
-	
+
 	// available for testing purposes only
 	public void setMessageSourceService(MessageSourceService mms) {
 		this.mss = mms;
