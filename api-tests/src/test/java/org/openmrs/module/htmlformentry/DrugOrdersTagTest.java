@@ -376,4 +376,64 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 
 		test.run();
 	}
+
+	@Test
+	public void testEditDrugOrder_shouldDiscontinueOrder() throws Exception {
+		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				DrugOrder order = (DrugOrder) orders.get(0);
+				assertThat(order.getAction(), is(Order.Action.NEW));
+				assertThat(order.getDateActivated(), is(getEncounterDate()));
+				assertThat(order.getDosingInstructions(), is("My dose instructions"));
+				assertThat(order.getEffectiveStopDate(), nullValue());
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.DISCONTINUE.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDiscontinueReason("556");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				DrugOrder originalOrder = (DrugOrder) orders.get(0);
+				assertThat(originalOrder.getAction(), is(Order.Action.NEW));
+				assertThat(originalOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(originalOrder.getDosingInstructions(), is("My dose instructions"));
+				assertThat(originalOrder.getDateStopped(), is(adjustMillis(getEncounterDate(), -1000)));
+				DrugOrder newOrder = (DrugOrder) orders.get(1);
+				assertThat(newOrder.getAction(), is(Order.Action.DISCONTINUE));
+				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(newOrder.getOrderReason().getConceptId(), is(556));
+				assertThat(newOrder.getEffectiveStopDate(), is(getEncounterDate()));
+			}
+		};
+
+		test.run();
+	}
 }

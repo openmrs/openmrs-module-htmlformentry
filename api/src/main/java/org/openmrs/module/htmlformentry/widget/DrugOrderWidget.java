@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
@@ -169,8 +170,8 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Class<? extends DosingInstructions> getDosingTypeWidgetValue(FormEntryContext ctx, HttpServletRequest req) {
-		Object val = dosingTypeWidget.getValue(ctx, req);
-		if (val == null) {
+		String val = (String)dosingTypeWidget.getValue(ctx, req);
+		if (StringUtils.isBlank(val)) {
 			return null;
 		}
 		try {
@@ -288,8 +289,8 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Order.Urgency getUrgencyWidgetValue(FormEntryContext context, HttpServletRequest request) {
-		Object val = urgencyWidget.getValue(context, request);
-		return (val == null ? null : Order.Urgency.valueOf(val.toString()));
+		String val = (String)urgencyWidget.getValue(context, request);
+		return (StringUtils.isBlank(val) ? null : Order.Urgency.valueOf(val));
 	}
 	
 	protected void configureDateActivatedWidget(FormEntryContext context) {
