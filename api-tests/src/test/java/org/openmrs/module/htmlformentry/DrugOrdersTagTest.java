@@ -208,4 +208,172 @@ public class DrugOrdersTagTest extends BaseHtmlFormEntryTest {
 		
 		test.run();
 	}
+
+	@Test
+	public void testEditDrugOrder_voidPreviousShouldCreateNew() throws Exception {
+		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				DrugOrder order = (DrugOrder) orders.get(0);
+				assertThat(order.getAction(), is(Order.Action.NEW));
+				assertThat(order.getDateActivated(), is(getEncounterDate()));
+				assertThat(order.getDosingInstructions(), is("My dose instructions"));
+				assertThat(order.getEffectiveStopDate(), nullValue());
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.REVISE.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My revised dose instructions");
+				p.setVoided("true");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditFormHtml(String html) {
+				log.trace(html);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				DrugOrder originalOrder = (DrugOrder) orders.get(0);
+				assertThat(originalOrder.getVoided(), is(true));
+				DrugOrder newOrder = (DrugOrder) orders.get(1);
+				assertThat(newOrder.getAction(), is(Order.Action.NEW));
+				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(newOrder.getDosingInstructions(), is("My revised dose instructions"));
+				assertThat(newOrder.getEffectiveStopDate(), nullValue());
+			}
+		};
+
+		test.run();
+	}
+
+	@Test
+	public void testEditDrugOrder_shouldNotAllowRenewIfFreeTextDosingInstructionsChanged() throws Exception {
+		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.RENEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My revised dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertErrors(1);
+			}
+		};
+
+		test.run();
+	}
+
+	@Test
+	public void testEditDrugOrder_shouldRenewNoDosingInstructionsChanged() throws Exception {
+		final DrugOrdersRegressionTestHelper test = new DrugOrdersRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("OUTPATIENT");
+				p.setDosingType(SimpleDosingInstructions.class.getName());
+				p.setDose("2");
+				p.setDoseUnits("51");
+				p.setRoute("22");
+				p.setFrequency("1");
+				p.setAsNeeded("true");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDateActivated(dateAsString(getEncounterDate()));
+				p.setDuration("10");
+				p.setDurationUnits("28");
+				p.setQuantity("20");
+				p.setQuantityUnits("51");
+				p.setInstructions("Take with water");
+				p.setNumRefills("2");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.RENEW.name());
+				p.setCareSetting("OUTPATIENT");
+				p.setDosingType(SimpleDosingInstructions.class.getName());
+				p.setDose("2");
+				p.setDoseUnits("51");
+				p.setRoute("22");
+				p.setFrequency("1");
+				p.setAsNeeded("true");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDateActivated(dateAsString(getEncounterDate()));
+				p.setDuration("10");
+				p.setDurationUnits("28");
+				p.setQuantity("50");
+				p.setQuantityUnits("51");
+				p.setInstructions("Take with water");
+				p.setNumRefills("3");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				DrugOrder order = (DrugOrder) orders.get(0);
+				assertThat(order.getAction(), is(Order.Action.NEW));
+				assertThat(order.getQuantity(), is(20.0));
+				assertThat(order.getNumRefills(), is(2));
+				DrugOrder renewOrder = (DrugOrder) orders.get(1);
+				assertThat(renewOrder.getAction(), is(Order.Action.RENEW));
+				assertThat(renewOrder.getQuantity(), is(50.0));
+				assertThat(renewOrder.getNumRefills(), is(3));
+			}
+		};
+
+		test.run();
+	}
 }

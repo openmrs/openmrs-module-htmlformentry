@@ -23,7 +23,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  * having to maintain lots of duplicate code and test htmlform resources.
  */
 public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelper {
-
+	
 	private static Log log = LogFactory.getLog(DrugOrdersRegressionTestHelper.class);
 	
 	@Override
@@ -420,7 +420,7 @@ public abstract class DrugOrdersRegressionTestHelper extends RegressionTestHelpe
 		calendar.set(Calendar.MILLISECOND, 0);
 		return calendar.getTime();
 	}
-
+	
 	protected Date adjustMillis(Date d, int millis) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(d);
