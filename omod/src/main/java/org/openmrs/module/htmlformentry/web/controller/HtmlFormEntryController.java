@@ -79,6 +79,7 @@ public class HtmlFormEntryController {
 	        @RequestParam(value = "formId", required = false) Integer formId,
 	        @RequestParam(value = "htmlformId", required = false) Integer htmlFormId,
 	        @RequestParam(value = "overrideXmlPath", required = false) String overrideXmlPath,
+	        @RequestParam(value = "saveOverride", required = false) boolean saveOverride,
 	        @RequestParam(value = "returnUrl", required = false) String returnUrl,
 	        @RequestParam(value = "formModifiedTimestamp", required = false) Long formModifiedTimestamp,
 	        @RequestParam(value = "encounterModifiedTimestamp", required = false) Long encounterModifiedTimestamp,
@@ -180,6 +181,9 @@ public class HtmlFormEntryController {
 				File overrideXmlFile = new File(overrideXmlPath);
 				String overrideXml = FileUtils.readFileToString(overrideXmlFile, "UTF-8");
 				htmlForm.setXmlData(overrideXml);
+				if (saveOverride) {
+					htmlForm = HtmlFormEntryUtil.getService().saveHtmlForm(htmlForm);
+				}
 			}
 			catch (Exception e) {
 				throw new IllegalStateException("Unable to load override xml from file at " + overrideXmlPath, e);

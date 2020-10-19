@@ -139,8 +139,8 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Order.Action getActionWidgetValue(FormEntryContext context, HttpServletRequest request) {
-		Object val = actionWidget.getValue(context, request);
-		return (val == null ? null : Order.Action.valueOf(val.toString()));
+		String val = (String) actionWidget.getValue(context, request);
+		return (StringUtils.isBlank(val) ? null : Order.Action.valueOf(val.toString()));
 	}
 	
 	protected void configureCareSettingWidget(FormEntryContext context) {
@@ -170,7 +170,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Class<? extends DosingInstructions> getDosingTypeWidgetValue(FormEntryContext ctx, HttpServletRequest req) {
-		String val = (String)dosingTypeWidget.getValue(ctx, req);
+		String val = (String) dosingTypeWidget.getValue(ctx, req);
 		if (StringUtils.isBlank(val)) {
 			return null;
 		}
@@ -289,7 +289,7 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected Order.Urgency getUrgencyWidgetValue(FormEntryContext context, HttpServletRequest request) {
-		String val = (String)urgencyWidget.getValue(context, request);
+		String val = (String) urgencyWidget.getValue(context, request);
 		return (StringUtils.isBlank(val) ? null : Order.Urgency.valueOf(val));
 	}
 	
