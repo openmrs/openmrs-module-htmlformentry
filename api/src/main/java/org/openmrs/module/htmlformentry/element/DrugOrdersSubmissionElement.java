@@ -113,18 +113,18 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 		Encounter encounter = session.getSubmissionActions().getCurrentEncounter();
 		DrugOrderWidgetConfig widgetConfig = drugOrdersWidget.getWidgetConfig();
 		for (DrugOrderWidgetValue v : drugOrdersWidget.getValue(session.getContext(), request)) {
-
+			
 			if (v.isVoidPreviousOrder()) {
 				DrugOrder previousOrder = v.getPreviousDrugOrder();
 				previousOrder.setVoided(true);
 				previousOrder.setDateVoided(new Date());
 				previousOrder.setVoidReason("Voided by htmlformentry");
 			}
-
+			
 			DrugOrder newOrder = v.getNewDrugOrder();
 			if (newOrder != null) {
 				Order.Action action = newOrder.getAction();
-
+				
 				// Set orderer if needed from encounter
 				if (newOrder.getOrderer() == null) {
 					newOrder.setOrderer(HtmlFormEntryUtil.getOrdererFromEncounter(encounter));
@@ -140,14 +140,14 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 						}
 					}
 				}
-
+				
 				// Order Service does not allow a REVISE operation on a voided order, so ensure this is set to NEW
 				if (v.isVoidPreviousOrder()) {
 					if (action == Order.Action.REVISE) {
 						newOrder.setAction(Order.Action.NEW);
 					}
 				}
-
+				
 				encounter.addOrder(newOrder);
 			}
 		}

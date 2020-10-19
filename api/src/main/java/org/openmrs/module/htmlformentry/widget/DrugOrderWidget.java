@@ -15,6 +15,7 @@ import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.FreeTextDosingInstructions;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
@@ -197,7 +198,11 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	protected OrderType getOrderTypeWidgetValue(FormEntryContext context, HttpServletRequest request) {
-		return HtmlFormEntryUtil.getOrderType((String) orderTypeWidget.getValue(context, request));
+		OrderType orderType = HtmlFormEntryUtil.getOrderType((String) orderTypeWidget.getValue(context, request));
+		if (orderType == null) {
+			orderType = HtmlFormEntryUtil.getDrugOrderType();
+		}
+		return orderType;
 	}
 	
 	protected void configureDosingInstructionsWidget(FormEntryContext context) {
@@ -455,8 +460,54 @@ public class DrugOrderWidget implements Widget {
 	
 	@Override
 	public void setInitialValue(Object initialValue) {
-		this.initialValue = ((DrugOrder) initialValue);
-		// TODO: Populate initial values for various widgets using properties of initialValue if non-null
+		DrugOrder d = (DrugOrder) initialValue;
+		this.initialValue = d;
+		setInitialValue(drugWidget, d.getDrug());
+		setInitialValue(actionWidget, d.getAction());
+		setInitialValue(careSettingWidget, d.getCareSetting());
+		setInitialValue(dosingTypeWidget, d.getDosingType());
+		setInitialValue(orderTypeWidget, d.getOrderType());
+		setInitialValue(dosingInstructionsWidget, d.getDosingInstructions());
+		setInitialValue(doseWidget, d.getDose());
+		setInitialValue(doseUnitsWidget, d.getDoseUnits());
+		setInitialValue(routeWidget, d.getRoute());
+		setInitialValue(frequencyWidget, d.getFrequency());
+		setInitialValue(asNeededWidget, d.getAsNeeded());
+		setInitialValue(instructionsWidget, d.getInstructions());
+		setInitialValue(urgencyWidget, d.getUrgency());
+		setInitialValue(dateActivatedWidget, d.getDateActivated());
+		setInitialValue(scheduledDateWidget, d.getScheduledDate());
+		setInitialValue(durationWidget, d.getDuration());
+		setInitialValue(durationUnitsWidget, d.getDurationUnits());
+		setInitialValue(quantityWidget, d.getQuantity());
+		setInitialValue(quantityUnitsWidget, d.getQuantityUnits());
+		setInitialValue(numRefillsWidget, d.getNumRefills());
+		setInitialValue(voidedWidget, d.getVoided());
+		setInitialValue(discontinueReasonWidget, d.getOrderReason());
+	}
+	
+	protected void setInitialValue(Widget widget, Object value) {
+		if (value == null) {
+			widget.setInitialValue(null);
+		} else {
+			if (value instanceof Date || value instanceof String) {
+				widget.setInitialValue(value);
+			} else if (value instanceof Number) {
+				if (widget instanceof NumberFieldWidget) {
+					widget.setInitialValue(value);
+				} else {
+					widget.setInitialValue(value.toString());
+				}
+			} else if (value instanceof OpenmrsObject) {
+				widget.setInitialValue(((OpenmrsObject) value).getId().toString());
+			} else if (value.getClass().isEnum()) {
+				widget.setInitialValue(((Enum) value).name());
+			} else if (value instanceof Class) {
+				widget.setInitialValue(((Class) value).getName());
+			} else {
+				widget.setInitialValue(value.toString());
+			}
+		}
 	}
 	
 	public DrugOrder getInitialValue() {
