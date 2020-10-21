@@ -44,6 +44,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
@@ -2193,6 +2194,16 @@ public class HtmlFormEntryUtil {
 			return value;
 		}
 		return null;
+	}
+	
+	public static String serializeToJson(Object o) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(o);
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException("Unable to serialize object to json", e);
+		}
 	}
 	
 	/**

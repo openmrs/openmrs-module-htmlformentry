@@ -514,6 +514,10 @@ public class DrugOrderWidget implements Widget {
 		return initialValue;
 	}
 	
+	public DrugOrderAnswer getDrugOrderAnswer() {
+		return drugOrderAnswer;
+	}
+	
 	@Override
 	public DrugOrderWidgetValue getValue(FormEntryContext context, HttpServletRequest request) {
 		DrugOrderWidgetValue ret = new DrugOrderWidgetValue();

@@ -15,6 +15,8 @@ public class DrugOrderWidgetConfig {
 	
 	private DrugOrderField drugOrderField;
 	
+	private Map<String, String> attributes;
+	
 	private Map<String, String> templateAttributes;
 	
 	private String templateContent;
@@ -44,6 +46,14 @@ public class DrugOrderWidgetConfig {
 	
 	public void setDrugOrderField(DrugOrderField drugOrderField) {
 		this.drugOrderField = drugOrderField;
+	}
+	
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+	
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
 	}
 	
 	public Map<String, String> getTemplateAttributes() {

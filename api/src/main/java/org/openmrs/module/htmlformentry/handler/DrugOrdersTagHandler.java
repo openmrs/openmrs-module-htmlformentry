@@ -71,6 +71,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 		DrugOrderField drugOrderField = new DrugOrderField();
 		DrugOrderWidgetConfig widgetConfig = new DrugOrderWidgetConfig();
 		widgetConfig.setDrugOrderField(drugOrderField);
+		widgetConfig.setAttributes(getAttributes(node));
 		
 		// <drugOrders>
 		NodeList childNodes = node.getChildNodes();
