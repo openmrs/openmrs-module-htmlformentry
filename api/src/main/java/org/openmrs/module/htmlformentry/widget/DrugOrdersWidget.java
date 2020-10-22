@@ -15,9 +15,9 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.util.JsonObject;
 
 public class DrugOrdersWidget implements Widget {
 	
@@ -94,83 +94,74 @@ public class DrugOrdersWidget implements Widget {
 		}
 		
 		// Establish a json config that can be used to initialize a Javascript function
-		Map<String, Object> jsonConfig = new LinkedHashMap<>();
-		jsonConfig.put("fieldName", fieldName);
-		jsonConfig.put("mode", context.getMode().name());
-		List<Map<String, Object>> jsonDrugs = new ArrayList<>();
-		jsonConfig.put("drugs", jsonDrugs);
+		JsonObject jsonConfig = new JsonObject();
+		jsonConfig.addString("fieldName", fieldName);
+		jsonConfig.addString("mode", context.getMode().name());
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		for (Drug drug : getDrugOrderWidgets().keySet()) {
 			DrugOrderWidget drugOrderWidget = getDrugOrderWidgets().get(drug);
+			
 			// All elements for a given drug will have an id prefix like "fieldName_drugId"
 			String drugOrderSectionId = fieldName + "_" + drug.getId();
 			String sectionStyle = (onSelect && drugOrderWidget.getInitialValue() == null ? "display:none" : "");
 			startTag(writer, "div", drugOrderSectionId, "drugOrderSection", sectionStyle);
 			
-			DrugOrder orderInEncounter = getInitialValueForDrugInEncounter(context.getExistingEncounter(), drug);
-			
-			// For view mode, render the latest order in the encounter
-			if (viewMode) {
-				drugOrderWidget.setInitialValue(orderInEncounter);
-				writer.print(drugOrderWidget.generateHtml(context));
-			}
-			// For enter/edit mode, render the history of orders for this drug in VIEW mode, followed by an edit widget
-			else {
-				FormEntryContext viewContext = new FormEntryContext(FormEntryContext.Mode.VIEW);
-				for (DrugOrder orderInHistory : getInitialValueForDrug(drug)) {
-					String orderHistoryId = drugOrderSectionId + "_" + orderInHistory.getOrderId();
-					String cssClass = "drugOrderHistory";
-					String style = "display:none";
-					if (orderInHistory.equals(orderInEncounter)) {
-						cssClass = "existingOrder";
-						style = "";
-					}
-					startTag(writer, "div", orderHistoryId, cssClass, style);
-					drugOrderWidget.setInitialValue(orderInHistory);
-					writer.print(drugOrderWidget.generateHtml(viewContext));
-					writer.println("</div>");
-				}
-				// Clone the last order and use it's details to render the edit widget
-				DrugOrder newOrderTemplate = null;
-				if (orderInEncounter != null) {
-					newOrderTemplate = orderInEncounter.cloneForRevision();
-				}
-				String entryId = drugOrderSectionId + "_entry";
-				startTag(writer, "div", entryId, "drugOrderEntry", "display:none;");
-				drugOrderWidget.setInitialValue(newOrderTemplate);
-				writer.print(drugOrderWidget.generateHtml(context));
-				writer.println();
-				writer.println("</div>");
-			}
+			String entryId = drugOrderSectionId + "_entry";
+			startTag(writer, "div", entryId, "drugOrderEntry", "display:none;");
+			writer.print(drugOrderWidget.generateHtml(context));
+			writer.println();
+			writer.println("</div>");
 			
 			writer.println("</div>");
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
-			Map<String, Object> jsonDrug = new LinkedHashMap<>();
-			jsonDrugs.add(jsonDrug);
-			jsonDrug.put("drugId", drug.getId());
-			jsonDrug.put("drugLabel", drugOrderWidget.getDrugOrderAnswer().getDisplayName());
-			jsonDrug.put("sectionId", drugOrderSectionId);
+			JsonObject jsonDrug = jsonConfig.addObjectToArray("drugs");
+			jsonDrug.addString("drugId", drug.getId().toString());
+			jsonDrug.addString("drugLabel", drugOrderWidget.getDrugOrderAnswer().getDisplayName());
+			jsonDrug.addString("sectionId", drugOrderSectionId);
 			
-			Map<String, String> widgetIds = new LinkedHashMap<>();
-			jsonDrug.put("widgetIds", widgetIds);
-			
+			JsonObject jsonDrugWidgets = jsonDrug.addObject("widgets");
 			for (String key : drugOrderWidget.getWidgetReplacements().keySet()) {
-				widgetIds.put(key, context.getFieldName(drugOrderWidget.getWidgetReplacements().get(key)));
+				jsonDrugWidgets.addString(key, context.getFieldName(drugOrderWidget.getWidgetReplacements().get(key)));
+			}
+			
+			for (DrugOrder d : getInitialValueForDrug(drug)) {
+				JsonObject jho = jsonDrug.addObjectToArray("history");
+				jho.addIdAndLabel("orderId", "value", "display", d);
+				jho.addIdAndLabel("previousOrderId", "value", "display", d.getPreviousOrder());
+				jho.addIdAndLabel("action", "value", "display", d.getAction());
+				jho.addIdAndLabel("drug", "value", "display", d.getDrug());
+				jho.addIdAndLabel("careSetting", "value", "display", d.getCareSetting());
+				jho.addIdAndLabel("dosingType", "value", "display", d.getDosingType());
+				jho.addIdAndLabel("orderType", "value", "display", d.getOrderType());
+				jho.addIdAndLabel("dosingInstructions", "value", "display", d.getDosingInstructions());
+				jho.addIdAndLabel("dose", "value", "display", d.getDose());
+				jho.addIdAndLabel("doseUnits", "value", "display", d.getDoseUnits());
+				jho.addIdAndLabel("route", "value", "display", d.getRoute());
+				jho.addIdAndLabel("frequency", "value", "display", d.getFrequency());
+				jho.addIdAndLabel("asNeeded", "value", "display", d.getAsNeeded());
+				jho.addIdAndLabel("instructions", "value", "display", d.getInstructions());
+				jho.addIdAndLabel("urgency", "value", "display", d.getUrgency());
+				jho.addIdAndLabel("dateActivated", "value", "display", d.getDateActivated());
+				jho.addIdAndLabel("scheduledDate", "value", "display", d.getScheduledDate());
+				jho.addIdAndLabel("duration", "value", "display", d.getDuration());
+				jho.addIdAndLabel("durationUnits", "value", "display", d.getDurationUnits());
+				jho.addIdAndLabel("quantity", "value", "display", d.getQuantity());
+				jho.addIdAndLabel("quantityUnits", "value", "display", d.getQuantityUnits());
+				jho.addIdAndLabel("numRefills", "value", "display", d.getNumRefills());
+				jho.addIdAndLabel("orderReason", "value", "display", d.getOrderReason());
 			}
 		}
 		
-		if (!viewMode) {
-			// Add javascript function to initialize widget as appropriate
-			String onLoadFn = widgetConfig.getAttributes().get("onLoadFunction");
-			if (StringUtils.isNotBlank(onLoadFn)) {
-				writer.println("<script type=\"text/javascript\">");
-				writer.println("jQuery(function() { " + onLoadFn + "(");
-				writer.println(HtmlFormEntryUtil.serializeToJson(jsonConfig));
-				writer.println(")});");
-				writer.println("</script>");
-			}
+		// Add javascript function to initialize widget as appropriate
+		String onLoadFn = widgetConfig.getAttributes().get("onLoadFunction");
+		if (StringUtils.isNotBlank(onLoadFn)) {
+			writer.println("<script type=\"text/javascript\">");
+			writer.println("jQuery(function() { " + onLoadFn + "(");
+			writer.println(jsonConfig.toJson());
+			writer.println(")});");
+			writer.println("</script>");
 		}
 		
 		writer.println("</div>");

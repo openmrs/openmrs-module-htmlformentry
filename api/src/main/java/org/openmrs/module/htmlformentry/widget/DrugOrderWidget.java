@@ -122,7 +122,11 @@ public class DrugOrderWidget implements Widget {
 			Map<String, String> c = widgetConfig.getTemplateConfig(property);
 			if (c != null) {
 				String key = c.toString();
-				ret = ret.replace(key, w.generateHtml(context));
+				StringBuilder replacement = new StringBuilder();
+				replacement.append("<span class=\"order-field " + key + "\">");
+				replacement.append(w.generateHtml(context));
+				replacement.append("</span>");
+				ret = ret.replace(key, replacement.toString());
 			}
 		}
 		return ret;

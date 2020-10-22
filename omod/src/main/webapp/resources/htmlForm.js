@@ -101,10 +101,15 @@
         $('input').attr("autocomplete", "new-password")
     };
 
-    htmlForm.registerEncounterDateChangeFunction = function(changeFunction) {
+    htmlForm.initializeDrugOrdersWidgets = function(config) {
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
-        var encDate = $encDateHidden.val();
-        $encDateHidden.change(changeFunction(encDate));
+        $encDateHidden.change(function() {
+            var encDate = $(this).val();
+            console.log('Encounter Date changed to: ' + encDate);
+        });
+        console.log("Setting up drug order widget in htmlForm.js");
+        console.log(config);
+        jQuery(".drugOrderEntry").show(); // Show all of the drug order entry widgets
     }
 
     // any users of this library should call this function during page load to make sure that all elements are properly initialized
