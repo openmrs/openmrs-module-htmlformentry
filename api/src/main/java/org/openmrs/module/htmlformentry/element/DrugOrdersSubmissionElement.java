@@ -4,15 +4,21 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Order;
+import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -20,6 +26,7 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
@@ -45,7 +52,7 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	public DrugOrdersSubmissionElement(FormEntryContext context, DrugOrdersWidget drugOrdersWidget) {
 		this.drugOrdersWidget = drugOrdersWidget;
 		DrugOrderField field = drugOrdersWidget.getDrugOrderField();
-		drugOrdersWidget.setInitialValue(context.removeLatestDrugOrderForDrug(field));
+		drugOrdersWidget.setInitialValue(getDrugOrders(context.getExistingPatient(), field));
 		drugOrdersErrorWidget = new ErrorWidget();
 		context.registerWidget(drugOrdersWidget);
 		context.registerErrorWidget(drugOrdersWidget, drugOrdersErrorWidget);
@@ -151,6 +158,23 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 				encounter.addOrder(newOrder);
 			}
 		}
+	}
+	
+	/**
+	 * Removes all DrugOrders of the relevant Drug from existingOrders, and returns it.
+	 *
+	 * @return
+	 */
+	public Map<Drug, List<DrugOrder>> getDrugOrders(Patient patient, DrugOrderField drugOrderField) {
+		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
+		if (patient != null && drugOrderField.getDrugOrderAnswers() != null) {
+			Set<Drug> drugs = new HashSet<>();
+			for (DrugOrderAnswer doa : drugOrderField.getDrugOrderAnswers()) {
+				drugs.add(doa.getDrug());
+			}
+			ret = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, drugs);
+		}
+		return ret;
 	}
 	
 	protected boolean isSameDrug(DrugOrder current, DrugOrder previous) {

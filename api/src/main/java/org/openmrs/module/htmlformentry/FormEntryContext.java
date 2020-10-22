@@ -28,8 +28,6 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
-import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
-import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
@@ -591,43 +589,6 @@ public class FormEntryContext {
 			}
 		}
 		return null;
-	}
-	
-	/**
-	 * Removes all DrugOrders of the relevant Drug from existingOrders, and returns it.
-	 * 
-	 * @return
-	 */
-	public Map<Drug, DrugOrder> removeLatestDrugOrderForDrug(DrugOrderField drugOrderField) {
-		Map<Drug, DrugOrder> ret = new HashMap<>();
-		if (drugOrderField.getDrugOrderAnswers() != null) {
-			for (DrugOrderAnswer doa : drugOrderField.getDrugOrderAnswers()) {
-				Drug drug = doa.getDrug();
-				DrugOrder latestDrugOrder = null;
-				List<Order> orderList = existingOrders.get(drug.getConcept());
-				if (orderList != null) {
-					for (Order order : orderList) {
-						if (order instanceof DrugOrder) {
-							DrugOrder drugOrder = (DrugOrder) order;
-							if (drugOrder.getDrug().equals(drug)) {
-								if (latestDrugOrder == null || drugOrder.getEffectiveStartDate()
-								        .after(latestDrugOrder.getEffectiveStartDate())) {
-									latestDrugOrder = drugOrder;
-								}
-							}
-						}
-					}
-					if (latestDrugOrder != null) {
-						orderList.remove(latestDrugOrder);
-						if (orderList.isEmpty()) {
-							existingOrders.remove(drug.getConcept());
-						}
-						ret.put(drug, latestDrugOrder);
-					}
-				}
-			}
-		}
-		return ret;
 	}
 	
 	/**

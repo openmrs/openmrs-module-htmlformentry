@@ -7,14 +7,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.OpenmrsData;
 import org.openmrs.OpenmrsMetadata;
-import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.api.db.hibernate.HibernateUtil;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,22 +25,19 @@ public class DrugOrderSearchController {
 	
 	@RequestMapping("/module/htmlformentry/activeDrugOrders")
 	@ResponseBody
-	public Object getDrugOrders(@RequestParam(value = "patient") Patient patient,
-	        @RequestParam(value = "asOfDate", required = false) String asOfDateParam) throws Exception {
+	public Object getDrugOrders(@RequestParam(value = "patient") Patient patient) throws Exception {
 		
-		List<Map<String, Map<String, String>>> drugOrders = new ArrayList<>();
-		Date asOfDate = null;
-		if (StringUtils.isNotBlank(asOfDateParam)) {
-			asOfDate = new SimpleDateFormat("yyyy-MM-dd").parse(asOfDateParam);
-		}
-		List<Order> orders = Context.getOrderService().getActiveOrders(patient, null, null, asOfDate);
-		for (Order order : orders) {
-			order = HibernateUtil.getRealObjectFromProxy(order);
-			if (order instanceof DrugOrder) {
-				DrugOrder d = (DrugOrder) order;
+		Map<String, List<Map<String, Map<String, String>>>> ret = new LinkedHashMap<>();
+		Map<Drug, List<DrugOrder>> drugOrders = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, null);
+		for (Drug drug : drugOrders.keySet()) {
+			List<DrugOrder> ordersForDrug = drugOrders.get(drug);
+			List<Map<String, Map<String, String>>> drugList = new ArrayList<>();
+			for (DrugOrder d : ordersForDrug) {
 				Map<String, Map<String, String>> m = new LinkedHashMap<>();
-				addProperties(m, "drug", d.getDrug());
+				addProperties(m, "orderId", d);
+				addProperties(m, "previousOrderId", d.getPreviousOrder());
 				addProperties(m, "action", d.getAction());
+				addProperties(m, "drug", d.getDrug());
 				addProperties(m, "careSetting", d.getCareSetting());
 				addProperties(m, "dosingType", d.getDosingType());
 				addProperties(m, "orderType", d.getOrderType());
@@ -60,10 +57,11 @@ public class DrugOrderSearchController {
 				addProperties(m, "quantityUnits", d.getQuantityUnits());
 				addProperties(m, "numRefills", d.getNumRefills());
 				addProperties(m, "orderReason", d.getOrderReason());
-				drugOrders.add(m);
+				drugList.add(m);
 			}
+			ret.put(drug.getDrugId().toString(), drugList);
 		}
-		return drugOrders;
+		return ret;
 	}
 	
 	protected void addProperties(Map<String, Map<String, String>> m, String property, Object val) throws Exception {
@@ -75,6 +73,10 @@ public class DrugOrderSearchController {
 				OpenmrsMetadata metadata = (OpenmrsMetadata) val;
 				value = metadata.getId().toString();
 				display = metadata.getName();
+			} else if (val instanceof OpenmrsData) {
+				OpenmrsData data = (OpenmrsData) val;
+				value = data.getId().toString();
+				display = data.getId().toString();
 			} else if (val instanceof Concept) {
 				Concept conceptVal = (Concept) val;
 				value = conceptVal.getId().toString();

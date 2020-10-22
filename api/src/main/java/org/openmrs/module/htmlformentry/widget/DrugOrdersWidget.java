@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.Encounter;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -26,7 +27,7 @@ public class DrugOrdersWidget implements Widget {
 	
 	private Map<Drug, DrugOrderWidget> drugOrderWidgets;
 	
-	private Map<Drug, DrugOrder> initialValue;
+	private Map<Drug, List<DrugOrder>> initialValue;
 	
 	public DrugOrdersWidget(FormEntryContext context, DrugOrderField drugOrderField, DrugOrderWidgetConfig widgetConfig) {
 		this.drugOrderField = drugOrderField;
@@ -39,19 +40,29 @@ public class DrugOrdersWidget implements Widget {
 	
 	@Override
 	public void setInitialValue(Object v) {
-		this.initialValue = (Map<Drug, DrugOrder>) v;
-		if (initialValue != null) {
-			for (Drug d : initialValue.keySet()) {
-				DrugOrderWidget w = drugOrderWidgets.get(d);
-				if (w != null) {
-					w.setInitialValue(initialValue.get(d));
+		this.initialValue = (Map<Drug, List<DrugOrder>>) v;
+	}
+	
+	public List<DrugOrder> getInitialValueForDrug(Drug drug) {
+		return initialValue == null ? new ArrayList<>() : initialValue.getOrDefault(drug, new ArrayList<>());
+	}
+	
+	public DrugOrder getInitialValueForDrugInEncounter(Encounter encounter, Drug drug) {
+		DrugOrder ret = null;
+		if (encounter != null && drug != null) {
+			// These are ordered by effectiveStartDate asc, so return the latest drug order in the list
+			for (DrugOrder drugOrder : getInitialValueForDrug(drug)) {
+				if (drugOrder.getEncounter().equals(encounter)) {
+					ret = drugOrder;
 				}
 			}
 		}
+		return ret;
 	}
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
+		
 		CapturingPrintWriter writer = new CapturingPrintWriter();
 		String fieldName = context.getFieldName(this);
 		boolean viewMode = (context.getMode() == FormEntryContext.Mode.VIEW);
@@ -94,14 +105,45 @@ public class DrugOrdersWidget implements Widget {
 			// All elements for a given drug will have an id prefix like "fieldName_drugId"
 			String drugOrderSectionId = fieldName + "_" + drug.getId();
 			String sectionStyle = (onSelect && drugOrderWidget.getInitialValue() == null ? "display:none" : "");
-			
 			startTag(writer, "div", drugOrderSectionId, "drugOrderSection", sectionStyle);
-			writer.println();
 			
-			// First we render the drugOrder widget with any existing or active drug order in VIEW mode
+			DrugOrder orderInEncounter = getInitialValueForDrugInEncounter(context.getExistingEncounter(), drug);
 			
-			writer.print(drugOrderWidget.generateHtml(context));
-			writer.println();
+			// For view mode, render the latest order in the encounter
+			if (viewMode) {
+				drugOrderWidget.setInitialValue(orderInEncounter);
+				writer.print(drugOrderWidget.generateHtml(context));
+			}
+			// For enter/edit mode, render the history of orders for this drug in VIEW mode, followed by an edit widget
+			else {
+				FormEntryContext viewContext = new FormEntryContext(FormEntryContext.Mode.VIEW);
+				for (DrugOrder orderInHistory : getInitialValueForDrug(drug)) {
+					String orderHistoryId = drugOrderSectionId + "_" + orderInHistory.getOrderId();
+					String cssClass = "drugOrderHistory";
+					String style = "display:none";
+					if (orderInHistory.equals(orderInEncounter)) {
+						cssClass = "existingOrder";
+						style = "";
+					}
+					startTag(writer, "div", orderHistoryId, cssClass, style);
+					drugOrderWidget.setInitialValue(orderInHistory);
+					writer.print(drugOrderWidget.generateHtml(viewContext));
+					writer.println("</div>");
+				}
+				// Clone the last order and use it's details to render the edit widget
+				DrugOrder newOrderTemplate = null;
+				if (orderInEncounter != null) {
+					newOrderTemplate = orderInEncounter.cloneForRevision();
+					newOrderTemplate.setAction(null);
+				}
+				String entryId = drugOrderSectionId + "_entry";
+				startTag(writer, "div", entryId, "drugOrderEntry", null);
+				drugOrderWidget.setInitialValue(newOrderTemplate);
+				writer.print(drugOrderWidget.generateHtml(context));
+				writer.println();
+				writer.println("</div>");
+			}
+			
 			writer.println("</div>");
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
@@ -119,14 +161,16 @@ public class DrugOrdersWidget implements Widget {
 			}
 		}
 		
-		// Add javascript function to initialize widget as appropriate
-		String onLoadFn = widgetConfig.getAttributes().get("onLoadFunction");
-		if (StringUtils.isNotBlank(onLoadFn)) {
-			writer.println("<script type=\"text/javascript\">");
-			writer.println("jQuery(function() { " + onLoadFn + "(");
-			writer.println(HtmlFormEntryUtil.serializeToJson(jsonConfig));
-			writer.println(")});");
-			writer.println("</script>");
+		if (!viewMode) {
+			// Add javascript function to initialize widget as appropriate
+			String onLoadFn = widgetConfig.getAttributes().get("onLoadFunction");
+			if (StringUtils.isNotBlank(onLoadFn)) {
+				writer.println("<script type=\"text/javascript\">");
+				writer.println("jQuery(function() { " + onLoadFn + "(");
+				writer.println(HtmlFormEntryUtil.serializeToJson(jsonConfig));
+				writer.println(")});");
+				writer.println("</script>");
+			}
 		}
 		
 		writer.println("</div>");

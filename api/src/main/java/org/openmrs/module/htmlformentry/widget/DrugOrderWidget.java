@@ -114,6 +114,87 @@ public class DrugOrderWidget implements Widget {
 		configureDiscontinueReasonWidget(context);
 	}
 	
+	@Override
+	public String generateHtml(FormEntryContext context) {
+		String ret = getWidgetConfig().getTemplateContent();
+		for (String property : widgetReplacements.keySet()) {
+			Widget w = widgetReplacements.get(property);
+			Map<String, String> c = widgetConfig.getTemplateConfig(property);
+			if (c != null) {
+				String key = c.toString();
+				ret = ret.replace(key, w.generateHtml(context));
+			}
+		}
+		return ret;
+	}
+	
+	@Override
+	public void setInitialValue(Object initialValue) {
+		DrugOrder d = (DrugOrder) initialValue;
+		this.initialValue = d;
+		if (d != null) {
+			setInitialValue(drugWidget, d.getDrug());
+			setInitialValue(actionWidget, d.getAction());
+			setInitialValue(careSettingWidget, d.getCareSetting());
+			setInitialValue(dosingTypeWidget, d.getDosingType());
+			setInitialValue(orderTypeWidget, d.getOrderType());
+			setInitialValue(dosingInstructionsWidget, d.getDosingInstructions());
+			setInitialValue(doseWidget, d.getDose());
+			setInitialValue(doseUnitsWidget, d.getDoseUnits());
+			setInitialValue(routeWidget, d.getRoute());
+			setInitialValue(frequencyWidget, d.getFrequency());
+			setInitialValue(asNeededWidget, d.getAsNeeded());
+			setInitialValue(instructionsWidget, d.getInstructions());
+			setInitialValue(urgencyWidget, d.getUrgency());
+			setInitialValue(dateActivatedWidget, d.getDateActivated());
+			setInitialValue(scheduledDateWidget, d.getScheduledDate());
+			setInitialValue(durationWidget, d.getDuration());
+			setInitialValue(durationUnitsWidget, d.getDurationUnits());
+			setInitialValue(quantityWidget, d.getQuantity());
+			setInitialValue(quantityUnitsWidget, d.getQuantityUnits());
+			setInitialValue(numRefillsWidget, d.getNumRefills());
+			setInitialValue(voidedWidget, d.getVoided());
+			setInitialValue(discontinueReasonWidget, d.getOrderReason());
+		}
+	}
+	
+	@Override
+	public DrugOrderWidgetValue getValue(FormEntryContext context, HttpServletRequest request) {
+		DrugOrderWidgetValue ret = new DrugOrderWidgetValue();
+		ret.setPreviousDrugOrder(initialValue);
+		Order.Action action = getActionWidgetValue(context, request);
+		if (action != null) {
+			DrugOrder drugOrder = new DrugOrder();
+			drugOrder.setDrug(drugOrderAnswer.getDrug());
+			drugOrder.setPreviousOrder(initialValue);
+			drugOrder.setAction(action);
+			drugOrder.setCareSetting(getCareSettingWidgetValue(context, request));
+			drugOrder.setDosingType(getDosingTypeWidgetValue(context, request));
+			drugOrder.setOrderType(getOrderTypeWidgetValue(context, request));
+			drugOrder.setDosingInstructions(getDosingInstructionsWidgetValue(context, request));
+			drugOrder.setDose(getDoseWidgetValue(context, request));
+			drugOrder.setDoseUnits(getDoseUnitsWidgetValue(context, request));
+			drugOrder.setRoute(getRouteWidgetValue(context, request));
+			drugOrder.setFrequency(getFrequencyWidgetValue(context, request));
+			drugOrder.setAsNeeded(getAsNeededWidgetValue(context, request));
+			drugOrder.setInstructions(getInstructionsWidgetValue(context, request));
+			drugOrder.setUrgency(getUrgencyWidgetValue(context, request));
+			drugOrder.setDateActivated(getDateActivatedWidgetValue(context, request));
+			drugOrder.setScheduledDate(getScheduledDateWidgetValue(context, request));
+			drugOrder.setDuration(getDurationWidgetValue(context, request));
+			drugOrder.setDurationUnits(getDurationUnitsWidgetValue(context, request));
+			drugOrder.setQuantity(getQuantityWidgetValue(context, request));
+			drugOrder.setQuantityUnits(getQuantityUnitsWidgetValue(context, request));
+			drugOrder.setNumRefills(getNumRefillsWidgetValue(context, request));
+			if (action == Order.Action.DISCONTINUE) {
+				drugOrder.setOrderReason(getDiscontinueReasonWidgetValue(context, request));
+			}
+			ret.setNewDrugOrder(drugOrder);
+		}
+		ret.setVoidPreviousOrder(getVoidedWidgetValue(context, request));
+		return ret;
+	}
+	
 	protected void configureDrugWidget(FormEntryContext context) {
 		HiddenFieldWidget w = new HiddenFieldWidget();
 		w.addAttribute("class", "order-property drug");
@@ -134,7 +215,9 @@ public class DrugOrderWidget implements Widget {
 		for (Order.Action a : Order.Action.values()) {
 			w.addOption(new Option(a.name(), a.name(), false));
 		}
-		w.setInitialValue(config.get("value"));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialValue(config.get("value"));
+		}
 		actionWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "action");
 	}
@@ -148,7 +231,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("careSetting");
 		List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
 		MetadataDropdownWidget<CareSetting> w = new MetadataDropdownWidget<>(careSettings, "");
-		w.setInitialValue(HtmlFormEntryUtil.getCareSetting(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialValue(HtmlFormEntryUtil.getCareSetting(config.get("value")));
+		}
 		careSettingWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "careSetting");
 	}
@@ -165,7 +250,9 @@ public class DrugOrderWidget implements Widget {
 		for (Class c : arr) {
 			w.addOption(new Option(c.getSimpleName(), c.getName(), false));
 		}
-		w.setInitialValue(config.get("value"));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialValue(config.get("value"));
+		}
 		dosingTypeWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "dosingType");
 	}
@@ -225,7 +312,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("doseUnits");
 		List<Concept> concepts = Context.getOrderService().getDrugDosingUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		}
 		doseUnitsWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "doseUnits");
 	}
@@ -238,7 +327,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("route");
 		List<Concept> concepts = Context.getOrderService().getDrugRoutes();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		}
 		routeWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "route");
 	}
@@ -251,7 +342,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("frequency");
 		List<OrderFrequency> frequencies = Context.getOrderService().getOrderFrequencies(false);
 		MetadataDropdownWidget<OrderFrequency> w = new MetadataDropdownWidget<>(frequencies, "");
-		w.setInitialMetadataValue(HtmlFormEntryUtil.getOrderFrequency(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialMetadataValue(HtmlFormEntryUtil.getOrderFrequency(config.get("value")));
+		}
 		frequencyWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "frequency");
 	}
@@ -288,7 +381,9 @@ public class DrugOrderWidget implements Widget {
 		for (Order.Urgency u : Order.Urgency.values()) {
 			w.addOption(new Option(u.name(), u.name(), false));
 		}
-		w.setInitialValue(config.get("value"));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialValue(config.get("value"));
+		}
 		urgencyWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "urgency");
 	}
@@ -331,7 +426,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("durationUnits");
 		List<Concept> concepts = Context.getOrderService().getDurationUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		}
 		durationUnitsWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "durationUnits");
 	}
@@ -352,7 +449,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("quantityUnits");
 		List<Concept> concepts = Context.getOrderService().getDrugDispensingUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		}
 		quantityUnitsWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "quantityUnits");
 	}
@@ -387,7 +486,9 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("discontinueReason");
 		List<ObsFieldAnswer> reasons = widgetConfig.getDrugOrderField().getDiscontinuedReasonAnswers();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(reasons);
-		w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
+		}
 		discontinueReasonWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "discontinueReason");
 	}
@@ -406,7 +507,9 @@ public class DrugOrderWidget implements Widget {
 	protected Widget configureTextWidget(FormEntryContext context, String property) {
 		Map<String, String> config = widgetConfig.getTemplateConfig(property);
 		TextFieldWidget w = new TextFieldWidget();
-		w.setInitialValue(config.get("value"));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			w.setInitialValue(config.get("value"));
+		}
 		if (config.get("textArea") != null) {
 			w.setTextArea(Boolean.parseBoolean(config.get("textArea")));
 		}
@@ -432,58 +535,18 @@ public class DrugOrderWidget implements Widget {
 	protected Widget configureNumericWidget(FormEntryContext context, String property, boolean allowDecimal) {
 		Map<String, String> config = widgetConfig.getTemplateConfig(property);
 		NumberFieldWidget w = new NumberFieldWidget(0d, null, allowDecimal);
-		String defaultVal = config.get("value");
-		if (defaultVal != null) {
-			if (allowDecimal) {
-				w.setInitialValue(Double.parseDouble(defaultVal));
-			} else {
-				w.setInitialValue(Integer.parseInt(defaultVal));
+		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+			String defaultVal = config.get("value");
+			if (defaultVal != null) {
+				if (allowDecimal) {
+					w.setInitialValue(Double.parseDouble(defaultVal));
+				} else {
+					w.setInitialValue(Integer.parseInt(defaultVal));
+				}
 			}
 		}
 		registerWidget(context, w, new ErrorWidget(), property);
 		return w;
-	}
-	
-	@Override
-	public String generateHtml(FormEntryContext context) {
-		String ret = getWidgetConfig().getTemplateContent();
-		for (String property : widgetReplacements.keySet()) {
-			Widget w = widgetReplacements.get(property);
-			Map<String, String> c = widgetConfig.getTemplateConfig(property);
-			if (c != null) {
-				String key = c.toString();
-				ret = ret.replace(key, w.generateHtml(context));
-			}
-		}
-		return ret;
-	}
-	
-	@Override
-	public void setInitialValue(Object initialValue) {
-		DrugOrder d = (DrugOrder) initialValue;
-		this.initialValue = d;
-		setInitialValue(drugWidget, d.getDrug());
-		setInitialValue(actionWidget, d.getAction());
-		setInitialValue(careSettingWidget, d.getCareSetting());
-		setInitialValue(dosingTypeWidget, d.getDosingType());
-		setInitialValue(orderTypeWidget, d.getOrderType());
-		setInitialValue(dosingInstructionsWidget, d.getDosingInstructions());
-		setInitialValue(doseWidget, d.getDose());
-		setInitialValue(doseUnitsWidget, d.getDoseUnits());
-		setInitialValue(routeWidget, d.getRoute());
-		setInitialValue(frequencyWidget, d.getFrequency());
-		setInitialValue(asNeededWidget, d.getAsNeeded());
-		setInitialValue(instructionsWidget, d.getInstructions());
-		setInitialValue(urgencyWidget, d.getUrgency());
-		setInitialValue(dateActivatedWidget, d.getDateActivated());
-		setInitialValue(scheduledDateWidget, d.getScheduledDate());
-		setInitialValue(durationWidget, d.getDuration());
-		setInitialValue(durationUnitsWidget, d.getDurationUnits());
-		setInitialValue(quantityWidget, d.getQuantity());
-		setInitialValue(quantityUnitsWidget, d.getQuantityUnits());
-		setInitialValue(numRefillsWidget, d.getNumRefills());
-		setInitialValue(voidedWidget, d.getVoided());
-		setInitialValue(discontinueReasonWidget, d.getOrderReason());
 	}
 	
 	protected void setInitialValue(Widget widget, Object value) {
@@ -516,43 +579,6 @@ public class DrugOrderWidget implements Widget {
 	
 	public DrugOrderAnswer getDrugOrderAnswer() {
 		return drugOrderAnswer;
-	}
-	
-	@Override
-	public DrugOrderWidgetValue getValue(FormEntryContext context, HttpServletRequest request) {
-		DrugOrderWidgetValue ret = new DrugOrderWidgetValue();
-		ret.setPreviousDrugOrder(initialValue);
-		Order.Action action = getActionWidgetValue(context, request);
-		if (action != null) {
-			DrugOrder drugOrder = new DrugOrder();
-			drugOrder.setDrug(drugOrderAnswer.getDrug());
-			drugOrder.setPreviousOrder(initialValue);
-			drugOrder.setAction(action);
-			drugOrder.setCareSetting(getCareSettingWidgetValue(context, request));
-			drugOrder.setDosingType(getDosingTypeWidgetValue(context, request));
-			drugOrder.setOrderType(getOrderTypeWidgetValue(context, request));
-			drugOrder.setDosingInstructions(getDosingInstructionsWidgetValue(context, request));
-			drugOrder.setDose(getDoseWidgetValue(context, request));
-			drugOrder.setDoseUnits(getDoseUnitsWidgetValue(context, request));
-			drugOrder.setRoute(getRouteWidgetValue(context, request));
-			drugOrder.setFrequency(getFrequencyWidgetValue(context, request));
-			drugOrder.setAsNeeded(getAsNeededWidgetValue(context, request));
-			drugOrder.setInstructions(getInstructionsWidgetValue(context, request));
-			drugOrder.setUrgency(getUrgencyWidgetValue(context, request));
-			drugOrder.setDateActivated(getDateActivatedWidgetValue(context, request));
-			drugOrder.setScheduledDate(getScheduledDateWidgetValue(context, request));
-			drugOrder.setDuration(getDurationWidgetValue(context, request));
-			drugOrder.setDurationUnits(getDurationUnitsWidgetValue(context, request));
-			drugOrder.setQuantity(getQuantityWidgetValue(context, request));
-			drugOrder.setQuantityUnits(getQuantityUnitsWidgetValue(context, request));
-			drugOrder.setNumRefills(getNumRefillsWidgetValue(context, request));
-			if (action == Order.Action.DISCONTINUE) {
-				drugOrder.setOrderReason(getDiscontinueReasonWidgetValue(context, request));
-			}
-			ret.setNewDrugOrder(drugOrder);
-		}
-		ret.setVoidPreviousOrder(getVoidedWidgetValue(context, request));
-		return ret;
 	}
 	
 	public DrugOrderWidgetConfig getWidgetConfig() {
