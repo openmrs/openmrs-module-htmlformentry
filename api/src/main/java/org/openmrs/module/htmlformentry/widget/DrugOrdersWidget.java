@@ -96,6 +96,7 @@ public class DrugOrdersWidget implements Widget {
 		// Establish a json config that can be used to initialize a Javascript function
 		Map<String, Object> jsonConfig = new LinkedHashMap<>();
 		jsonConfig.put("fieldName", fieldName);
+		jsonConfig.put("mode", context.getMode().name());
 		List<Map<String, Object>> jsonDrugs = new ArrayList<>();
 		jsonConfig.put("drugs", jsonDrugs);
 		
@@ -134,10 +135,9 @@ public class DrugOrdersWidget implements Widget {
 				DrugOrder newOrderTemplate = null;
 				if (orderInEncounter != null) {
 					newOrderTemplate = orderInEncounter.cloneForRevision();
-					newOrderTemplate.setAction(null);
 				}
 				String entryId = drugOrderSectionId + "_entry";
-				startTag(writer, "div", entryId, "drugOrderEntry", null);
+				startTag(writer, "div", entryId, "drugOrderEntry", "display:none;");
 				drugOrderWidget.setInitialValue(newOrderTemplate);
 				writer.print(drugOrderWidget.generateHtml(context));
 				writer.println();

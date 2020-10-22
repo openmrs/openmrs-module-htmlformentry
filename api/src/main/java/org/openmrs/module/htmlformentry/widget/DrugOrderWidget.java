@@ -215,7 +215,7 @@ public class DrugOrderWidget implements Widget {
 		for (Order.Action a : Order.Action.values()) {
 			w.addOption(new Option(a.name(), a.name(), false));
 		}
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(config.get("value"));
 		}
 		actionWidget = w;
@@ -231,7 +231,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("careSetting");
 		List<CareSetting> careSettings = Context.getOrderService().getCareSettings(false);
 		MetadataDropdownWidget<CareSetting> w = new MetadataDropdownWidget<>(careSettings, "");
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(HtmlFormEntryUtil.getCareSetting(config.get("value")));
 		}
 		careSettingWidget = w;
@@ -250,7 +250,7 @@ public class DrugOrderWidget implements Widget {
 		for (Class c : arr) {
 			w.addOption(new Option(c.getSimpleName(), c.getName(), false));
 		}
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(config.get("value"));
 		}
 		dosingTypeWidget = w;
@@ -312,7 +312,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("doseUnits");
 		List<Concept> concepts = Context.getOrderService().getDrugDosingUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
 		}
 		doseUnitsWidget = w;
@@ -327,7 +327,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("route");
 		List<Concept> concepts = Context.getOrderService().getDrugRoutes();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
 		}
 		routeWidget = w;
@@ -342,7 +342,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("frequency");
 		List<OrderFrequency> frequencies = Context.getOrderService().getOrderFrequencies(false);
 		MetadataDropdownWidget<OrderFrequency> w = new MetadataDropdownWidget<>(frequencies, "");
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialMetadataValue(HtmlFormEntryUtil.getOrderFrequency(config.get("value")));
 		}
 		frequencyWidget = w;
@@ -381,7 +381,7 @@ public class DrugOrderWidget implements Widget {
 		for (Order.Urgency u : Order.Urgency.values()) {
 			w.addOption(new Option(u.name(), u.name(), false));
 		}
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(config.get("value"));
 		}
 		urgencyWidget = w;
@@ -426,7 +426,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("durationUnits");
 		List<Concept> concepts = Context.getOrderService().getDurationUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
 		}
 		durationUnitsWidget = w;
@@ -449,7 +449,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("quantityUnits");
 		List<Concept> concepts = Context.getOrderService().getDrugDispensingUnits();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(concepts, "");
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
 		}
 		quantityUnitsWidget = w;
@@ -486,7 +486,7 @@ public class DrugOrderWidget implements Widget {
 		Map<String, String> config = widgetConfig.getTemplateConfig("discontinueReason");
 		List<ObsFieldAnswer> reasons = widgetConfig.getDrugOrderField().getDiscontinuedReasonAnswers();
 		ConceptDropdownWidget w = new ConceptDropdownWidget(reasons);
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialConceptValue(HtmlFormEntryUtil.getConcept(config.get("value")));
 		}
 		discontinueReasonWidget = w;
@@ -507,7 +507,7 @@ public class DrugOrderWidget implements Widget {
 	protected Widget configureTextWidget(FormEntryContext context, String property) {
 		Map<String, String> config = widgetConfig.getTemplateConfig(property);
 		TextFieldWidget w = new TextFieldWidget();
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(config.get("value"));
 		}
 		if (config.get("textArea") != null) {
@@ -535,7 +535,7 @@ public class DrugOrderWidget implements Widget {
 	protected Widget configureNumericWidget(FormEntryContext context, String property, boolean allowDecimal) {
 		Map<String, String> config = widgetConfig.getTemplateConfig(property);
 		NumberFieldWidget w = new NumberFieldWidget(0d, null, allowDecimal);
-		if (context.getMode() == FormEntryContext.Mode.ENTER) {
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			String defaultVal = config.get("value");
 			if (defaultVal != null) {
 				if (allowDecimal) {
