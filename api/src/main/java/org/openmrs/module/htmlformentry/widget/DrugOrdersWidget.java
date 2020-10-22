@@ -101,24 +101,26 @@ public class DrugOrdersWidget implements Widget {
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		for (Drug drug : getDrugOrderWidgets().keySet()) {
 			DrugOrderWidget drugOrderWidget = getDrugOrderWidgets().get(drug);
+			String drugLabel = drugOrderWidget.getDrugOrderAnswer().getDisplayName();
 			
 			// All elements for a given drug will have an id prefix like "fieldName_drugId"
 			String drugOrderSectionId = fieldName + "_" + drug.getId();
 			String sectionStyle = (onSelect && drugOrderWidget.getInitialValue() == null ? "display:none" : "");
 			startTag(writer, "div", drugOrderSectionId, "drugOrderSection", sectionStyle);
 			
+			writer.append("<span class=\"drugOrdersDrugName\">").append(drugLabel).append("</span>");
 			String entryId = drugOrderSectionId + "_entry";
-			startTag(writer, "div", entryId, "drugOrderEntry", "display:none;");
+			startTag(writer, "span", entryId, "drugOrderEntry", "display:none;");
 			writer.print(drugOrderWidget.generateHtml(context));
 			writer.println();
-			writer.println("</div>");
+			writer.println("</span>");
 			
 			writer.println("</div>");
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
 			JsonObject jsonDrug = jsonConfig.addObjectToArray("drugs");
 			jsonDrug.addString("drugId", drug.getId().toString());
-			jsonDrug.addString("drugLabel", drugOrderWidget.getDrugOrderAnswer().getDisplayName());
+			jsonDrug.addString("drugLabel", drugLabel);
 			jsonDrug.addString("sectionId", drugOrderSectionId);
 			
 			JsonObject jsonDrugWidgets = jsonDrug.addObject("widgets");

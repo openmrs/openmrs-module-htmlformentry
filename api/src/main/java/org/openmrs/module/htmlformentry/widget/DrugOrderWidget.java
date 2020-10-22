@@ -123,7 +123,7 @@ public class DrugOrderWidget implements Widget {
 			if (c != null) {
 				String key = c.toString();
 				StringBuilder replacement = new StringBuilder();
-				replacement.append("<span class=\"order-field " + key + "\">");
+				replacement.append("<span class=\"order-field " + property + "\">");
 				replacement.append(w.generateHtml(context));
 				replacement.append("</span>");
 				ret = ret.replace(key, replacement.toString());
@@ -201,9 +201,7 @@ public class DrugOrderWidget implements Widget {
 	
 	protected void configureDrugWidget(FormEntryContext context) {
 		HiddenFieldWidget w = new HiddenFieldWidget();
-		w.addAttribute("class", "order-property drug");
 		w.setInitialValue(drugOrderAnswer.getDrug().getId().toString());
-		w.setLabel(drugOrderAnswer.getDisplayName());
 		drugWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "drug");
 	}

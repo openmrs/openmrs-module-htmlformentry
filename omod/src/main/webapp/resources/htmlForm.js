@@ -101,15 +101,31 @@
         $('input').attr("autocomplete", "new-password")
     };
 
+    /*
+        Default function called by the <drugOrders> tag tag to initialize and render the contents in all modes
+        Primary purpose is to ensure each configured drug section is re-rendered on load and on encounter date change
+     */
     htmlForm.initializeDrugOrdersWidgets = function(config) {
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
-        $encDateHidden.change(function() {
-            var encDate = $(this).val();
-            console.log('Encounter Date changed to: ' + encDate);
+        var encDate = $encDateHidden.val();
+        config.drugs.forEach(function(drug) {
+            htmlForm.configureDrugOrderWidget(config.mode, null, encDate, drug);
+            $encDateHidden.change(function() {
+                htmlForm.configureDrugOrderWidget(config.mode, null, $(this).val(), drug);
+            });
         });
-        console.log("Setting up drug order widget in htmlForm.js");
         console.log(config);
-        jQuery(".drugOrderEntry").show(); // Show all of the drug order entry widgets
+    }
+
+    /**
+     * The purpose of this function is to re-initialize a given drug order section, in response to the mode
+     * and to interactions on the form (encounter date changes, action changes, etc).
+     */
+    htmlForm.configureDrugOrderWidget = function(mode, action, encDate, drugConfig) {
+        var $drugSection = $('#'+drugConfig.sectionId);
+        var $entrySection = $drugSection.find('.drugOrderEntry');
+
+        $entrySection.show();
     }
 
     // any users of this library should call this function during page load to make sure that all elements are properly initialized

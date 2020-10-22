@@ -164,6 +164,11 @@
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
 	</properties>
 
+	<!--
+		The deploy-web profile is a convenience to copy web files over to an SDK server's working code
+		Another option that works would be to set up a watch on a file of interest that you are working on
+		eg:  inotify-hookable -f htmlForm.js -c 'cp htmlForm.js /path-to-server/tmp/openmrs/WEB-INF/view/module/htmlformentry/resources/htmlForm.js'
+	-->
 	<profiles>
 		<profile>
 			<id>deploy-web</id>
