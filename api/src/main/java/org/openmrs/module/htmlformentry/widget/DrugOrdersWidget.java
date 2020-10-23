@@ -4,7 +4,9 @@ import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.FORM
 import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.ON_SELECT;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.Order;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
@@ -93,9 +96,15 @@ public class DrugOrdersWidget implements Widget {
 			writer.println("</span>");
 		}
 		
+		Integer patId = context.getExistingPatient().getPatientId();
+		Integer encId = context.getExistingEncounter() == null ? null : context.getExistingEncounter().getEncounterId();
+		
 		// Establish a json config that can be used to initialize a Javascript function
 		JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addString("fieldName", fieldName);
+		jsonConfig.addString("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		jsonConfig.addString("patientId", patId.toString());
+		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
@@ -109,6 +118,7 @@ public class DrugOrdersWidget implements Widget {
 			startTag(writer, "div", drugOrderSectionId, "drugOrderSection", sectionStyle);
 			
 			writer.append("<span class=\"drugOrdersDrugName\">").append(drugLabel).append("</span>");
+			writer.append("<span class=\"drugOrdersHistory\"></span>");
 			String entryId = drugOrderSectionId + "_entry";
 			startTag(writer, "span", entryId, "drugOrderEntry", "display:none;");
 			writer.print(drugOrderWidget.generateHtml(context));
@@ -129,9 +139,11 @@ public class DrugOrdersWidget implements Widget {
 			}
 			
 			for (DrugOrder d : getInitialValueForDrug(drug)) {
+				Order pd = d.getPreviousOrder();
 				JsonObject jho = jsonDrug.addObjectToArray("history");
-				jho.addIdAndLabel("orderId", "value", "display", d);
-				jho.addIdAndLabel("previousOrderId", "value", "display", d.getPreviousOrder());
+				jho.addString("orderId", d.getOrderId().toString());
+				jho.addString("encounterId", d.getEncounter().getEncounterId().toString());
+				jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
 				jho.addIdAndLabel("action", "value", "display", d.getAction());
 				jho.addIdAndLabel("drug", "value", "display", d.getDrug());
 				jho.addIdAndLabel("careSetting", "value", "display", d.getCareSetting());
@@ -147,8 +159,12 @@ public class DrugOrdersWidget implements Widget {
 				jho.addIdAndLabel("urgency", "value", "display", d.getUrgency());
 				jho.addIdAndLabel("dateActivated", "value", "display", d.getDateActivated());
 				jho.addIdAndLabel("scheduledDate", "value", "display", d.getScheduledDate());
+				jho.addIdAndLabel("effectiveStartDate", "value", "display", d.getEffectiveStartDate());
 				jho.addIdAndLabel("duration", "value", "display", d.getDuration());
 				jho.addIdAndLabel("durationUnits", "value", "display", d.getDurationUnits());
+				jho.addIdAndLabel("autoExpireDate", "value", "display", d.getAutoExpireDate());
+				jho.addIdAndLabel("dateStopped", "value", "display", d.getDateStopped());
+				jho.addIdAndLabel("effectiveStopDate", "value", "display", d.getEffectiveStopDate());
 				jho.addIdAndLabel("quantity", "value", "display", d.getQuantity());
 				jho.addIdAndLabel("quantityUnits", "value", "display", d.getQuantityUnits());
 				jho.addIdAndLabel("numRefills", "value", "display", d.getNumRefills());

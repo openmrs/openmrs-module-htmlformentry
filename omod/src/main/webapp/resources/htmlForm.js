@@ -109,9 +109,9 @@
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         var encDate = $encDateHidden.val();
         config.drugs.forEach(function(drug) {
-            htmlForm.configureDrugOrderWidget(config.mode, null, encDate, drug);
+            htmlForm.configureDrugOrderWidget(config, null, encDate, drug);
             $encDateHidden.change(function() {
-                htmlForm.configureDrugOrderWidget(config.mode, null, $(this).val(), drug);
+                htmlForm.configureDrugOrderWidget(config, null, $(this).val(), drug);
             });
         });
         console.log(config);
@@ -121,11 +121,94 @@
      * The purpose of this function is to re-initialize a given drug order section, in response to the mode
      * and to interactions on the form (encounter date changes, action changes, etc).
      */
-    htmlForm.configureDrugOrderWidget = function(mode, action, encDate, drugConfig) {
+    htmlForm.configureDrugOrderWidget = function(config, action, encDate, drugConfig) {
         var $drugSection = $('#'+drugConfig.sectionId);
-        var $entrySection = $drugSection.find('.drugOrderEntry');
+        encDate = (encDate === "" ? config.today : encDate);
 
-        $entrySection.show();
+        var $historySection = $drugSection.find(".drugOrdersHistory");
+        $historySection.empty(); // Remove all of the elements
+
+        // If there are existing orders in the encounter, start out by rendering those, including previous order details
+        var anyRendered = false;
+        drugConfig.history.forEach(function(drugOrder) {
+            var inEncounter = (config.encounterId === drugOrder.encounterId);
+            if (inEncounter) {
+                if (drugOrder.previousOrderId !== '') {
+                    var previousOrder = htmlForm.getOrder(drugOrder.previousOrderId, drugConfig.history);
+                    if (previousOrder.encounterId !== config.encounterId) {
+                        var $prevOrderElement = htmlForm.formatDrugOrder(previousOrder, 'order-not-in-encounter');
+                        $historySection.append($prevOrderElement);
+                    }
+                }
+                var $orderElement = htmlForm.formatDrugOrder(drugOrder, 'order-in-encounter');
+                $historySection.append($orderElement);
+                anyRendered = true
+            }
+        });
+
+        // If none were rendered, and mode is view, indicate no oders
+        // If none were rendered, and mode is not view, render based on any active orders not in the current encounter
+        if (!anyRendered) {
+            if (config.mode === 'VIEW') {
+                $historySection.append('<span>No Orders</span>'); // TODO: Translate this
+            }
+            else {
+                // If there are any active orders on this date, render them
+                var lastActiveOrder = null;
+                drugConfig.history.forEach(function(drugOrder) {
+                    if (htmlForm.isOrderActive(drugOrder, encDate)) {
+                        lastActiveOrder = drugOrder;
+                    }
+                });
+                if (lastActiveOrder != null) {
+                    var $lastActiveElement = htmlForm.formatDrugOrder(lastActiveOrder, 'order-not-in-encounter');
+                    $historySection.append($lastActiveElement);
+                }
+            }
+        }
+    }
+
+    htmlForm.getOrder = function(orderId, history) {
+        var ret = null;
+        history.forEach(function(drugOrder) {
+            if (drugOrder.orderId === orderId) {
+                ret =  drugOrder;
+            }
+        });
+        return ret;
+    }
+
+    htmlForm.formatDrugOrder = function(d, cssClass) {
+        var $ret = $('<div class="' + cssClass + '"></div>');
+        var $dateSection = $('<span class="drug-order-view-dates"></span>');
+        $dateSection.append('<span class="drugOrderStartDateView">' + d.effectiveStartDate.display + '</span>');
+        if (d.effectiveStopDate.display !== "") {
+            $dateSection.append(' - <span class="drugOrderStopDateView">' + d.effectiveStopDate.display + '</span>');
+        }
+        $ret.append($dateSection);
+        if (d.dose.display !== '') {
+            $ret.append('<span class="drugOrderDoseView">' + d.dose.display + " " + d.doseUnits.display + "</span>");
+        }
+        if (d.route.display !== "") {
+            $ret.append(' -- <span class="drugOrderRouteView">' + d.route.display + '</span>');
+        }
+        if (d.frequency.display !== "") {
+            $ret.append(' -- <span class="drugOrderFrequencyView">' + d.frequency.display + '</span>');
+        }
+        return $ret;
+    }
+
+    /**
+     * Helper method which returns true if the given order is active on the given date
+     */
+    htmlForm.isOrderActive = function(drugOrder, onDate) {
+        if (drugOrder.dateActivated.value > onDate) {
+            return false;
+        }
+        if (drugOrder.effectiveStopDate.value !== '' && drugOrder.effectiveStopDate.value <= onDate) {
+            return false;
+        }
+        return true;
     }
 
     // any users of this library should call this function during page load to make sure that all elements are properly initialized
