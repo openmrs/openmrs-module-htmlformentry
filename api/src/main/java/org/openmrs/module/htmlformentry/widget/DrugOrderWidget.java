@@ -569,6 +569,8 @@ public class DrugOrderWidget implements Widget {
 				widget.setInitialValue(((Enum) value).name());
 			} else if (value instanceof Class) {
 				widget.setInitialValue(((Class) value).getName());
+			} else if (value instanceof Boolean && widget instanceof CheckboxWidget) {
+				widget.setInitialValue((Boolean) value ? "true" : null);
 			} else {
 				widget.setInitialValue(value.toString());
 			}

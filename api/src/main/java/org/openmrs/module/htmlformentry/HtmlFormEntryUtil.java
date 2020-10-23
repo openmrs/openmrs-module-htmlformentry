@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -651,6 +650,9 @@ public class HtmlFormEntryUtil {
 		return ot;
 	}
 	
+	/**
+	 * @return all drug orders for a patient, ordered by date, accounting for previous orders
+	 */
 	public static Map<Drug, List<DrugOrder>> getDrugOrdersForPatient(Patient patient, Set<Drug> drugs) {
 		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
 		List<Order> orders = Context.getOrderService().getAllOrdersByPatient(patient);
@@ -669,9 +671,39 @@ public class HtmlFormEntryUtil {
 			}
 		}
 		for (List<DrugOrder> l : ret.values()) {
-			Collections.sort(l, new BeanComparator("effectiveStartDate"));
+			sortDrugOrders(l);
 		}
 		return ret;
+	}
+	
+	public static void sortDrugOrders(List<DrugOrder> drugOrders) {
+		if (drugOrders != null && drugOrders.size() > 1) {
+			Collections.sort(drugOrders, new Comparator<DrugOrder>() {
+				
+				@Override
+				public int compare(DrugOrder d1, DrugOrder d2) {
+					// Get all of the previous orders for d1.  If any are d2, then d1 is later
+					for (Order d1Prev = d1.getPreviousOrder(); d1Prev != null; d1Prev = d1Prev.getPreviousOrder()) {
+						if (d1Prev.equals(d2)) {
+							return 1;
+						}
+					}
+					// Get all of the previous orders for d2.  If any are d1, then d2 is later
+					for (Order d2Prev = d2.getPreviousOrder(); d2Prev != null; d2Prev = d2Prev.getPreviousOrder()) {
+						if (d2Prev.equals(d1)) {
+							return -1;
+						}
+					}
+					// If neither is a revision of the other, then compare based on effective start date
+					int dateCompare = d1.getEffectiveStartDate().compareTo(d2.getEffectiveStartDate());
+					if (dateCompare != 0) {
+						return dateCompare;
+					}
+					// If they are still the same, then order based on end date
+					return OpenmrsUtil.compareWithNullAsLatest(d1.getEffectiveStopDate(), d2.getEffectiveStopDate());
+				}
+			});
+		}
 	}
 	
 	/**

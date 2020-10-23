@@ -6,11 +6,13 @@ import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.ON_S
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
@@ -18,6 +20,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Order;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.util.JsonObject;
@@ -43,7 +46,19 @@ public class DrugOrdersWidget implements Widget {
 	
 	@Override
 	public void setInitialValue(Object v) {
-		this.initialValue = (Map<Drug, List<DrugOrder>>) v;
+		initialValue = (Map<Drug, List<DrugOrder>>) v;
+		if (initialValue != null) {
+			for (Drug drug : initialValue.keySet()) {
+				List<DrugOrder> drugOrders = initialValue.get(drug);
+				HtmlFormEntryUtil.sortDrugOrders(drugOrders);
+				if (drugOrders != null && drugOrders.size() > 0) {
+					DrugOrderWidget w = getDrugOrderWidgets().get(drug);
+					if (w != null) {
+						w.setInitialValue(drugOrders.get(drugOrders.size() - 1));
+					}
+				}
+			}
+		}
 	}
 	
 	public List<DrugOrder> getInitialValueForDrug(Drug drug) {

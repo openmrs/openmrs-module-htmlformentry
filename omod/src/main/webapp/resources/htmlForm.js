@@ -128,44 +128,169 @@
         var $historySection = $drugSection.find(".drugOrdersHistory");
         $historySection.empty(); // Remove all of the elements
 
-        // If there are existing orders in the encounter, start out by rendering those, including previous order details
-        var anyRendered = false;
-        drugConfig.history.forEach(function(drugOrder) {
-            var inEncounter = (config.encounterId === drugOrder.encounterId);
-            if (inEncounter) {
+        // If there are existing orders in the encounter, start out by rendering those
+        // Also render any order from a previous encounter that was revised by an order in the current encounter
+        var lastRenderedOrder = null;
+        var lastOrderInEncounter = null;
+
+        var drugHistory = drugConfig.history ? drugConfig.history : new Array();
+
+        drugHistory.forEach(function(drugOrder) {
+            if (htmlForm.isOrderInCurrentEncounter(drugOrder, config)) {
                 if (drugOrder.previousOrderId !== '') {
-                    var previousOrder = htmlForm.getOrder(drugOrder.previousOrderId, drugConfig.history);
-                    if (previousOrder.encounterId !== config.encounterId) {
-                        var $prevOrderElement = htmlForm.formatDrugOrder(previousOrder, 'order-not-in-encounter');
+                    var prevOrder = htmlForm.getOrder(drugOrder.previousOrderId, drugConfig.history);
+                    if (!htmlForm.isOrderInCurrentEncounter(prevOrder, config)) {
+                        var $prevOrderElement = htmlForm.formatDrugOrder(prevOrder, encDate, config);
                         $historySection.append($prevOrderElement);
                     }
                 }
-                var $orderElement = htmlForm.formatDrugOrder(drugOrder, 'order-in-encounter');
+                var $orderElement = htmlForm.formatDrugOrder(drugOrder, encDate, config);
                 $historySection.append($orderElement);
-                anyRendered = true
+                lastRenderedOrder = drugOrder;
+                lastOrderInEncounter = drugOrder;
             }
         });
 
-        // If none were rendered, and mode is view, indicate no oders
-        // If none were rendered, and mode is not view, render based on any active orders not in the current encounter
-        if (!anyRendered) {
+        // If none were rendered, and mode is view, indicate no orders
+        // If none were rendered, and mode is not view, render the active order that is available for revision
+        if (lastRenderedOrder == null) {
             if (config.mode === 'VIEW') {
                 $historySection.append('<span>No Orders</span>'); // TODO: Translate this
             }
             else {
                 // If there are any active orders on this date, render them
-                var lastActiveOrder = null;
-                drugConfig.history.forEach(function(drugOrder) {
+                var activeOrder = null;
+                drugHistory.forEach(function(drugOrder) {
                     if (htmlForm.isOrderActive(drugOrder, encDate)) {
-                        lastActiveOrder = drugOrder;
+                        activeOrder = drugOrder;
                     }
                 });
-                if (lastActiveOrder != null) {
-                    var $lastActiveElement = htmlForm.formatDrugOrder(lastActiveOrder, 'order-not-in-encounter');
+                if (activeOrder != null) {
+                    var $lastActiveElement = htmlForm.formatDrugOrder(activeOrder, encDate, config);
                     $historySection.append($lastActiveElement);
+                    lastRenderedOrder = activeOrder;
                 }
             }
         }
+
+        if (config.mode !== 'VIEW') {
+            var $editWidgetSection = $('#' + config.fieldName + '_' + drugConfig.drugId + '_entry');
+            // Show edit section, hide all widgets
+            $editWidgetSection.find('.order-field').hide();
+            $editWidgetSection.show();
+
+            var $actionSection = $editWidgetSection.find('.order-field.action');
+            var $actionWidget = $actionSection.find('select');
+            $actionWidget.find('option').remove();
+
+            var d = lastRenderedOrder;
+            var lastStart = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStartDate.value : '');
+            var lastStop = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStopDate.value : '');
+
+            // Initially, we support a limited set of actions due to complexity of retrospective data entry of orders
+
+            // Allow drugs to be ordered NEW if there are no orders active on or after the encounter date
+            if (lastStart === '' || (lastStop !== '' && lastStop <= encDate)) {
+                htmlForm.addOrderAction($actionWidget, 'NEW', d, encDate, config);
+            }
+
+            // Only RENEW, REVISE, or DISCONTINUE are possible with existing orders
+            if (lastStart !== '') {
+                // Don't allow any further revisions to a DISCONTINUE order
+                if (lastRenderedOrder.action.value !== 'DISCONTINUE') {
+                    // Allow REVISION operations if operating on an order with the same or an earlier start date
+                    if (lastStart <= encDate) {
+                        htmlForm.addOrderAction($actionWidget, 'REVISE', d, encDate, config);
+                        htmlForm.addOrderAction($actionWidget, 'RENEW', d, encDate, config);
+                        htmlForm.addOrderAction($actionWidget, 'DISCONTINUE', d, encDate, config);
+                    }
+                }
+            }
+
+            if ($actionWidget.find('option').length > 0) {
+                $actionWidget.change(function() {
+                   var action = this.value;
+                    $editWidgetSection.find('.order-field').hide();
+                    $editWidgetSection.find('.order-field.action').show();
+                   if (action !== '') {
+                       var $dateActivatedWidget = $editWidgetSection.find('.order-field.dateActivated');
+                       setDatePickerValue($dateActivatedWidget.find('input[type=text]'), (encDate));
+                       $dateActivatedWidget.show();
+                   }
+                   if (action === 'DISCONTINUE') {
+                       $editWidgetSection.find('.order-field.discontinueReason').show();
+                   }
+                   else if (action === 'RENEW') {
+                       $editWidgetSection.find('.order-field.duration').show();
+                       $editWidgetSection.find('.order-field.durationUnits').show();
+                       $editWidgetSection.find('.order-field.quantity').show();
+                       $editWidgetSection.find('.order-field.quantityUnits').show();
+                       $editWidgetSection.find('.order-field.numRefills').show();
+                   }
+                   else if (action === 'REVISE' || action === 'NEW') {
+                       $editWidgetSection.find('.order-field.dose').show();
+                       $editWidgetSection.find('.order-field.doseUnits').show();
+                       $editWidgetSection.find('.order-field.frequency').show();
+                       $editWidgetSection.find('.order-field.route').show();
+                       $editWidgetSection.find('.order-field.asNeeded').show();
+                       $editWidgetSection.find('.order-field.instructions').show();
+                       $editWidgetSection.find('.order-field.dosingType').show();
+                       $editWidgetSection.find('.order-field.urgency').show();
+                       $editWidgetSection.find('.order-field.duration').show();
+                       $editWidgetSection.find('.order-field.durationUnits').show();
+                       $editWidgetSection.find('.order-field.quantity').show();
+                       $editWidgetSection.find('.order-field.quantityUnits').show();
+                       $editWidgetSection.find('.order-field.numRefills').show();
+                   }
+                });
+                $actionSection.show();
+            }
+        }
+    }
+
+    // TODO: Use a view template from the htmlform configuration, and populate based on cssClass
+    htmlForm.formatDrugOrder = function(d, encDate, config) {
+        var $ret = $('<div class="order-history-item"></div>');
+
+        var $existingActionSection = $('<span class="drugOrderActionView"></span>');
+        var inCurrentEncounter = htmlForm.isOrderInCurrentEncounter(d, config);
+        if (!inCurrentEncounter) {
+            $ret.addClass('order-not-in-encounter');
+            $existingActionSection.append('Previous Order'); // TODO: Translate this
+        }
+        else {
+            $existingActionSection.append(d.action.display);
+        }
+        var isActive = htmlForm.isOrderActive(d, encDate);
+        $ret.addClass(isActive ? "order-active" : "order-inactive")
+        $ret.append($existingActionSection);
+
+        var $dateSection = $('<span class="drug-order-view-dates"></span>');
+        $dateSection.append('<span class="drugOrderStartDateView">' + d.effectiveStartDate.display + '</span>');
+        var endDate = (d.effectiveStopDate.display === "" ? 'Present' : d.effectiveStopDate.display); // TODO: Translate
+        $dateSection.append(' - <span class="drugOrderStopDateView">' + endDate + '</span>');
+        $ret.append($dateSection);
+
+        if (d.dose.display !== '') {
+            $ret.append('<span class="drugOrderDoseView">' + d.dose.display + " " + d.doseUnits.display + "</span>");
+        }
+        if (d.route.display !== "") {
+            $ret.append(' -- <span class="drugOrderRouteView">' + d.route.display + '</span>');
+        }
+        if (d.frequency.display !== "") {
+            $ret.append(' -- <span class="drugOrderFrequencyView">' + d.frequency.display + '</span>');
+        }
+        if (d.asNeeded.value === "true") {
+            $ret.append(' -- <span class="drugOrderAsNeededView">As Needed</span>'); // TODO: Translate
+        }
+        return $ret;
+    }
+
+    htmlForm.addOrderAction = function($actionSelect, actionType, d, encDate, config) {
+        if ($actionSelect.find('option').length === 0) {
+            $actionSelect.append($('<option value="">Action...</option>')); // TODO: Translate
+        }
+        $actionSelect.append($('<option value="' + actionType + '">' + actionType + '</option>'));
     }
 
     htmlForm.getOrder = function(orderId, history) {
@@ -178,24 +303,8 @@
         return ret;
     }
 
-    htmlForm.formatDrugOrder = function(d, cssClass) {
-        var $ret = $('<div class="' + cssClass + '"></div>');
-        var $dateSection = $('<span class="drug-order-view-dates"></span>');
-        $dateSection.append('<span class="drugOrderStartDateView">' + d.effectiveStartDate.display + '</span>');
-        if (d.effectiveStopDate.display !== "") {
-            $dateSection.append(' - <span class="drugOrderStopDateView">' + d.effectiveStopDate.display + '</span>');
-        }
-        $ret.append($dateSection);
-        if (d.dose.display !== '') {
-            $ret.append('<span class="drugOrderDoseView">' + d.dose.display + " " + d.doseUnits.display + "</span>");
-        }
-        if (d.route.display !== "") {
-            $ret.append(' -- <span class="drugOrderRouteView">' + d.route.display + '</span>');
-        }
-        if (d.frequency.display !== "") {
-            $ret.append(' -- <span class="drugOrderFrequencyView">' + d.frequency.display + '</span>');
-        }
-        return $ret;
+    htmlForm.isOrderInCurrentEncounter = function(order, config) {
+        return order.encounterId === config.encounterId
     }
 
     /**

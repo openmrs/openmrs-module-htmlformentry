@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -33,6 +34,7 @@ import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.util.OpenmrsUtil;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Holds the widgets used to represent drug orders for a configured set of drugs, and serves as both
@@ -103,7 +105,6 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 						}
 					}
 				}
-				// TODO: Consider running the DrugOrderValidator here.  Need an Errors implementation to use with it.
 			}
 		}
 		return ret;
@@ -153,6 +154,14 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 					if (action == Order.Action.REVISE) {
 						newOrder.setAction(Order.Action.NEW);
 					}
+				}
+				
+				// Order Service does not support RENEW, so we have to try to do that here
+				if (action == Order.Action.RENEW) {
+					DrugOrder previousOrder = v.getPreviousDrugOrder();
+					Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+					dateStoppedField.setAccessible(true);
+					ReflectionUtils.setField(dateStoppedField, previousOrder, newOrder.getDateActivated());
 				}
 				
 				encounter.addOrder(newOrder);
