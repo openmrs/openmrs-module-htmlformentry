@@ -127,7 +127,7 @@
 
         // Render drug name details
         var $drugDetailsSection = $drugSection.find(".drugorders-drug-details");
-        $drugDetailsSection.append(drugConfig.drugLabel);
+        $drugDetailsSection.html(drugConfig.drugLabel);
 
         var $historySection = $drugSection.find(".drugorders-order-history");
         $historySection.empty(); // Remove all of the elements
@@ -159,7 +159,7 @@
         // If none were rendered, and mode is not view, render the active order that is available for revision
         if (lastRenderedOrder == null) {
             if (config.mode === 'VIEW') {
-                $historySection.append('<span>No Orders</span>'); // TODO: Translate this
+                $historySection.append('<div class="order-view-section drugorders-order-history-none">No Orders</div>'); // TODO: Translate this
             }
             else {
                 // If there are any active orders on this date, render them
@@ -180,8 +180,12 @@
         if (config.mode !== 'VIEW') {
             var $editWidgetSection = $('#' + config.fieldName + '_' + drugConfig.drugId + '_entry');
             // Show edit section, hide all widgets
+            $editWidgetSection.find('.order-field-label').hide();
             $editWidgetSection.find('.order-field').hide();
             $editWidgetSection.show();
+
+            // Set up allowed actions
+            // Initially, we support a limited set of actions due to complexity of retrospective data entry of orders
 
             var $actionSection = $editWidgetSection.find('.order-field.action');
             var $actionWidget = $actionSection.find('select');
@@ -190,8 +194,6 @@
             var d = lastRenderedOrder;
             var lastStart = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStartDate.value : '');
             var lastStop = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStopDate.value : '');
-
-            // Initially, we support a limited set of actions due to complexity of retrospective data entry of orders
 
             // Allow drugs to be ordered NEW if there are no orders active on or after the encounter date
             if (lastStart === '' || (lastStop !== '' && lastStop <= encDate)) {
@@ -213,43 +215,68 @@
 
             if ($actionWidget.find('option').length > 0) {
                 $actionWidget.change(function() {
-                   var action = this.value;
+                    var action = this.value;
                     $editWidgetSection.find('.order-field').hide();
                     $editWidgetSection.find('.order-field.action').show();
-                   if (action !== '') {
-                       var $dateActivatedWidget = $editWidgetSection.find('.order-field.dateActivated');
-                       setDatePickerValue($dateActivatedWidget.find('input[type=text]'), (encDate));
-                       $dateActivatedWidget.show();
-                   }
-                   if (action === 'DISCONTINUE') {
-                       $editWidgetSection.find('.order-field.discontinueReason').show();
-                   }
-                   else if (action === 'RENEW') {
-                       $editWidgetSection.find('.order-field.duration').show();
-                       $editWidgetSection.find('.order-field.durationUnits').show();
-                       $editWidgetSection.find('.order-field.quantity').show();
-                       $editWidgetSection.find('.order-field.quantityUnits').show();
-                       $editWidgetSection.find('.order-field.numRefills').show();
-                   }
-                   else if (action === 'REVISE' || action === 'NEW') {
-                       $editWidgetSection.find('.order-field.dose').show();
-                       $editWidgetSection.find('.order-field.doseUnits').show();
-                       $editWidgetSection.find('.order-field.frequency').show();
-                       $editWidgetSection.find('.order-field.route').show();
-                       $editWidgetSection.find('.order-field.asNeeded').show();
-                       $editWidgetSection.find('.order-field.instructions').show();
-                       $editWidgetSection.find('.order-field.dosingType').show();
-                       $editWidgetSection.find('.order-field.urgency').show();
-                       $editWidgetSection.find('.order-field.duration').show();
-                       $editWidgetSection.find('.order-field.durationUnits').show();
-                       $editWidgetSection.find('.order-field.quantity').show();
-                       $editWidgetSection.find('.order-field.quantityUnits').show();
-                       $editWidgetSection.find('.order-field.numRefills').show();
-                   }
+                    if (action !== '') {
+                        var $dateActivatedWidget = $editWidgetSection.find('.dateActivated');
+                        setDatePickerValue($dateActivatedWidget.find('input[type=text]'), (encDate));
+                        $dateActivatedWidget.show();
+                    }
+                    if (action === 'DISCONTINUE') {
+                        $editWidgetSection.find('.discontinueReason').show();
+                    }
+                    else if (action === 'RENEW') {
+                        htmlForm.enableDrugOrderDurationWidgets($editWidgetSection);
+                    }
+                    else if (action === 'REVISE' || action === 'NEW') {
+                        htmlForm.enableDrugOrderDoseWidgets($editWidgetSection);
+                        $editWidgetSection.find('.urgency').show();
+                        htmlForm.enableDrugOrderDurationWidgets($editWidgetSection);
+                    }
                 });
                 $actionSection.show();
+                $actionSection.children().show();
             }
+
+            // Set up ability to toggle between free-text and simple dosing instructions
+
+            $editWidgetSection.find('.dosingType').find('input:radio').change(function() {
+                htmlForm.enableDrugOrderDoseWidgets($editWidgetSection);
+            });
         }
+    }
+
+    htmlForm.enableDrugOrderDoseWidgets = function($editWidgetSection) {
+        var $dosingTypeSection = $editWidgetSection.find('.dosingType');
+        var dosingTypeVal = $dosingTypeSection.find('input:checked').val();
+        if (dosingTypeVal === 'org.openmrs.FreeTextDosingInstructions') {
+            $editWidgetSection.find('.dose').hide();
+            $editWidgetSection.find('.doseUnits').hide();
+            $editWidgetSection.find('.frequency').hide();
+            $editWidgetSection.find('.route').hide();
+            $editWidgetSection.find('.asNeeded').hide();
+            $editWidgetSection.find('.instructions').hide();
+            $editWidgetSection.find('.dosingInstructions').show();
+        }
+        else {
+            $editWidgetSection.find('.dose').show();
+            $editWidgetSection.find('.doseUnits').show();
+            $editWidgetSection.find('.frequency').show();
+            $editWidgetSection.find('.route').show();
+            $editWidgetSection.find('.asNeeded').show();
+            $editWidgetSection.find('.instructions').show();
+            $editWidgetSection.find('.dosingInstructions').hide();
+        }
+        $dosingTypeSection.show();
+    }
+
+    htmlForm.enableDrugOrderDurationWidgets = function($editWidgetSection) {
+        $editWidgetSection.find('.duration').show();
+        $editWidgetSection.find('.durationUnits').show();
+        $editWidgetSection.find('.quantity').show();
+        $editWidgetSection.find('.quantityUnits').show();
+        $editWidgetSection.find('.numRefills').show();
     }
 
     // TODO: Use a view template from the htmlform configuration, and populate based on cssClass

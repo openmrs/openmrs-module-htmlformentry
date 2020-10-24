@@ -82,3 +82,32 @@ div.loading {
 .order-view-different-encounter {
 	color: grey;
 }
+
+.drugorders-order-form {
+	padding-left: 20px;
+	display: table;
+}
+
+.instructions {
+	font-size: 1.0em;
+}
+
+.order-field {
+	display: table-row;
+	padding: 10px;
+	margin: 5px;
+}
+
+.order-field-label {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.order-field-label:after {
+	content: ": ";
+	white-space: pre;
+}
+
+.order-field-widget {
+	display: table-cell;
+}

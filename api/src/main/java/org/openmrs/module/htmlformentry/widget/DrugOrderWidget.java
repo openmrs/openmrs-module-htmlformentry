@@ -123,9 +123,13 @@ public class DrugOrderWidget implements Widget {
 			if (c != null) {
 				String key = c.toString();
 				StringBuilder replacement = new StringBuilder();
-				replacement.append("<span class=\"order-field " + property + "\">");
+				String label = translate("htmlformentry.drugOrder." + property);
+				replacement.append("<div class=\"order-field " + property + "\">");
+				replacement.append("<div class=\"order-field-label " + property + "\">").append(label).append("</div>");
+				replacement.append("<div class=\"order-field-widget " + property + "\">");
 				replacement.append(w.generateHtml(context));
-				replacement.append("</span>");
+				replacement.append("</div>");
+				replacement.append("</div>");
 				ret = ret.replace(key, replacement.toString());
 			}
 		}
@@ -246,12 +250,15 @@ public class DrugOrderWidget implements Widget {
 	
 	protected void configureDosingTypeWidget(FormEntryContext context) {
 		Map<String, String> config = widgetConfig.getTemplateConfig("dosingType");
-		DropdownWidget w = new DropdownWidget();
-		w.addOption(new Option("", "", true));
-		Class[] arr = { SimpleDosingInstructions.class, FreeTextDosingInstructions.class };
-		for (Class c : arr) {
-			w.addOption(new Option(c.getSimpleName(), c.getName(), false));
-		}
+		RadioButtonsWidget w = new RadioButtonsWidget();
+		Option simpleOption = new Option();
+		simpleOption.setValue(SimpleDosingInstructions.class.getName());
+		simpleOption.setLabel(translate("htmlformentry.drugOrder.dosingType.simple"));
+		w.addOption(simpleOption);
+		Option freeTextOption = new Option();
+		freeTextOption.setValue(FreeTextDosingInstructions.class.getName());
+		freeTextOption.setLabel(translate("htmlformentry.drugOrder.dosingType.freetext"));
+		w.addOption(freeTextOption);
 		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(config.get("value"));
 		}
@@ -575,6 +582,10 @@ public class DrugOrderWidget implements Widget {
 				widget.setInitialValue(value.toString());
 			}
 		}
+	}
+	
+	protected String translate(String code) {
+		return Context.getMessageSourceService().getMessage(code);
 	}
 	
 	public DrugOrder getInitialValue() {

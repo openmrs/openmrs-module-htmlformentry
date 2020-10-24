@@ -87,18 +87,18 @@ public class DrugOrdersWidget implements Widget {
 		boolean onSelect = ON_SELECT.equals(widgetConfig.getDrugOrderAttributes().getOrDefault(FORMAT_ATTRIBUTE, ""));
 		
 		// Wrap the entire widget in a div
-		startTag(writer, "div", fieldName, "drugOrdersSection", null);
+		startTag(writer, "div", fieldName, "drugorders-element", null);
 		writer.println();
 		
 		// Render a widget to choose a drug, if mode is not VIEW, and if configured to do so
 		if (!viewMode) {
 			String sectionId = fieldName + "DrugSelectorSection";
-			startTag(writer, "span", sectionId, "drugSelectorSection", (onSelect ? "" : "display:none"));
+			startTag(writer, "span", sectionId, "drugorders-drug-selector-section", (onSelect ? "" : "display:none"));
 			writer.println();
 			
 			// Add a drug selector to the section.  This will only be visible if the section is visible
 			String selectorId = fieldName + "DrugSelector";
-			startTag(writer, "select", selectorId, "drugSelector", null);
+			startTag(writer, "select", selectorId, "drugorders-drug-selector", null);
 			writer.println();
 			for (DrugOrderAnswer a : drugOrderField.getDrugOrderAnswers()) {
 				Integer id = a.getDrug().getId();
