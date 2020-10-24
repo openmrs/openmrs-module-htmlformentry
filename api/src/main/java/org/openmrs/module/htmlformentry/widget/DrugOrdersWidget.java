@@ -130,15 +130,14 @@ public class DrugOrdersWidget implements Widget {
 			// All elements for a given drug will have an id prefix like "fieldName_drugId"
 			String drugOrderSectionId = fieldName + "_" + drug.getId();
 			String sectionStyle = (onSelect && drugOrderWidget.getInitialValue() == null ? "display:none" : "");
-			startTag(writer, "div", drugOrderSectionId, "drugOrderSection", sectionStyle);
-			
-			writer.append("<span class=\"drugOrdersDrugName\">").append(drugLabel).append("</span>");
-			writer.append("<span class=\"drugOrdersHistory\"></span>");
+			startTag(writer, "div", drugOrderSectionId, "drugorders-drug-section", sectionStyle);
+			writer.append("<div class=\"drugorders-drug-details\">").append("</div>");
+			writer.append("<div class=\"drugorders-order-history\"></div>");
 			String entryId = drugOrderSectionId + "_entry";
-			startTag(writer, "span", entryId, "drugOrderEntry", "display:none;");
+			startTag(writer, "div", entryId, "drugorders-order-form", "display:none;");
 			writer.print(drugOrderWidget.generateHtml(context));
 			writer.println();
-			writer.println("</span>");
+			writer.println("</div>");
 			
 			writer.println("</div>");
 			

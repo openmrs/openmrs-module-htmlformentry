@@ -125,7 +125,11 @@
         var $drugSection = $('#'+drugConfig.sectionId);
         encDate = (encDate === "" ? config.today : encDate);
 
-        var $historySection = $drugSection.find(".drugOrdersHistory");
+        // Render drug name details
+        var $drugDetailsSection = $drugSection.find(".drugorders-drug-details");
+        $drugDetailsSection.append(drugConfig.drugLabel);
+
+        var $historySection = $drugSection.find(".drugorders-order-history");
         $historySection.empty(); // Remove all of the elements
 
         // If there are existing orders in the encounter, start out by rendering those
@@ -250,39 +254,50 @@
 
     // TODO: Use a view template from the htmlform configuration, and populate based on cssClass
     htmlForm.formatDrugOrder = function(d, encDate, config) {
-        var $ret = $('<div class="order-history-item"></div>');
+        var $ret = $('<div class="drugorders-order-history-item"></div>');
 
-        var $existingActionSection = $('<span class="drugOrderActionView"></span>');
+        var $existingActionSection = $('<div class="order-view-section order-view-action"></div>');
         var inCurrentEncounter = htmlForm.isOrderInCurrentEncounter(d, config);
         if (!inCurrentEncounter) {
-            $ret.addClass('order-not-in-encounter');
+            $ret.addClass('order-view-different-encounter');
             $existingActionSection.append('Previous Order'); // TODO: Translate this
         }
         else {
+            $ret.addClass('order-view-current-encounter');
+            $ret.addClass('value');
             $existingActionSection.append(d.action.display);
         }
         var isActive = htmlForm.isOrderActive(d, encDate);
-        $ret.addClass(isActive ? "order-active" : "order-inactive")
+        $ret.addClass(isActive ? "order-view-active" : "order-view-inactive")
         $ret.append($existingActionSection);
 
-        var $dateSection = $('<span class="drug-order-view-dates"></span>');
-        $dateSection.append('<span class="drugOrderStartDateView">' + d.effectiveStartDate.display + '</span>');
+        var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
+        $dateSection.append('<div class="order-view-field order-view-start-date">' + d.effectiveStartDate.display + '</div>');
         var endDate = (d.effectiveStopDate.display === "" ? 'Present' : d.effectiveStopDate.display); // TODO: Translate
-        $dateSection.append(' - <span class="drugOrderStopDateView">' + endDate + '</span>');
+        $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + endDate + '</div>');
         $ret.append($dateSection);
 
-        if (d.dose.display !== '') {
-            $ret.append('<span class="drugOrderDoseView">' + d.dose.display + " " + d.doseUnits.display + "</span>");
+        var $doseSection = $('<div class="order-view-section order-view-dosing"></div>');
+        if (d.dosingType.value === 'org.openmrs.FreeTextDosingInstructions') {
+            $doseSection.append('<div class="order-view-field order-view-dosing-instructions">' + d.dosingInstructions.display + "</div>");
+        } else {
+            if (d.dose.display !== '') {
+                $doseSection.append('<div class="order-view-field order-view-dose">' + d.dose.display + " " + d.doseUnits.display + "</div>");
+            }
+            if (d.route.display !== "") {
+                $doseSection.append(' -- <div class="order-view-field order-view-route">' + d.route.display + '</div>');
+            }
+            if (d.frequency.display !== "") {
+                $doseSection.append(' -- <div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
+            }
+            if (d.asNeeded.value === "true") {
+                $doseSection.append(' -- <div class="order-view-field order-view-as-needed">As Needed</div>'); // TODO: Translate
+            }
+            if (d.instructions.value !== "") {
+                $doseSection.append(' -- <div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
+            }
         }
-        if (d.route.display !== "") {
-            $ret.append(' -- <span class="drugOrderRouteView">' + d.route.display + '</span>');
-        }
-        if (d.frequency.display !== "") {
-            $ret.append(' -- <span class="drugOrderFrequencyView">' + d.frequency.display + '</span>');
-        }
-        if (d.asNeeded.value === "true") {
-            $ret.append(' -- <span class="drugOrderAsNeededView">As Needed</span>'); // TODO: Translate
-        }
+        $ret.append($doseSection);
         return $ret;
     }
 
