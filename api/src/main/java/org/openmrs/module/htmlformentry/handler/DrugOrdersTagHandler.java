@@ -44,10 +44,6 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	
 	public static final String DISCONTINUE_REASON_OPTION_TAG = "discontinueReasonOption";
 	
-	public static final String FORMAT_ATTRIBUTE = "format";
-	
-	public static final String ON_SELECT = "onselect";
-	
 	public static final String DRUG_ATTRIBUTE = "drug";
 	
 	public static final String CONCEPT_ATTRIBUTE = "concept";

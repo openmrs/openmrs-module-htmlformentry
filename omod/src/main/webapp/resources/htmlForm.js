@@ -108,6 +108,34 @@
     htmlForm.initializeDrugOrdersWidgets = function(config) {
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         var encDate = $encDateHidden.val();
+
+        var $widgetField = $('#' + config.fieldName);
+
+        // Hide all drug sections by default
+        $widgetField.find('.drugorders-drug-section').hide();
+
+        // If config format is select, render a drop down widget of drugs to display appropriate one when selected
+        if (config.format && config.format === 'select') {
+            var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
+            var label = (config.selectLabel ? config.selectLabel : 'Choose Drug...');
+            $drugSelector.append('<option value="">' + label + '</option>');
+            config.drugs.forEach(function(drug) {
+               $drugSelector.append('<option value="' + drug.sectionId + '">' + drug.drugLabel + '</option>');
+            });
+            $drugSelector.change(function() {
+                var drugSection = $(this).val();
+                if (drugSection !== '') {
+                    $('#' + drugSection).show();
+                    $(this).val('');
+                }
+            });
+            $widgetField.find('.drugorders-header-section').append($drugSelector);
+        }
+        // Otherwise, just render all drug sections
+        else {
+            $widgetField.find('.drugorders-drug-section').show();
+        }
+
         config.drugs.forEach(function(drug) {
             htmlForm.configureDrugOrderWidget(config, null, encDate, drug);
             $encDateHidden.change(function() {

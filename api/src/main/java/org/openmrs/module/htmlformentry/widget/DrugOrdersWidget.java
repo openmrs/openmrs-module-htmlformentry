@@ -1,22 +1,16 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.FORMAT_ATTRIBUTE;
-import static org.openmrs.module.htmlformentry.handler.DrugOrdersTagHandler.ON_SELECT;
-
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
-import org.openmrs.Encounter;
 import org.openmrs.Order;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -65,62 +59,34 @@ public class DrugOrdersWidget implements Widget {
 		return initialValue == null ? new ArrayList<>() : initialValue.getOrDefault(drug, new ArrayList<>());
 	}
 	
-	public DrugOrder getInitialValueForDrugInEncounter(Encounter encounter, Drug drug) {
-		DrugOrder ret = null;
-		if (encounter != null && drug != null) {
-			// These are ordered by effectiveStartDate asc, so return the latest drug order in the list
-			for (DrugOrder drugOrder : getInitialValueForDrug(drug)) {
-				if (drugOrder.getEncounter().equals(encounter)) {
-					ret = drugOrder;
-				}
-			}
-		}
-		return ret;
-	}
-	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		
 		CapturingPrintWriter writer = new CapturingPrintWriter();
 		String fieldName = context.getFieldName(this);
-		boolean viewMode = (context.getMode() == FormEntryContext.Mode.VIEW);
-		boolean onSelect = ON_SELECT.equals(widgetConfig.getDrugOrderAttributes().getOrDefault(FORMAT_ATTRIBUTE, ""));
 		
 		// Wrap the entire widget in a div
 		startTag(writer, "div", fieldName, "drugorders-element", null);
 		writer.println();
 		
-		// Render a widget to choose a drug, if mode is not VIEW, and if configured to do so
-		if (!viewMode) {
-			String sectionId = fieldName + "DrugSelectorSection";
-			startTag(writer, "span", sectionId, "drugorders-drug-selector-section", (onSelect ? "" : "display:none"));
-			writer.println();
-			
-			// Add a drug selector to the section.  This will only be visible if the section is visible
-			String selectorId = fieldName + "DrugSelector";
-			startTag(writer, "select", selectorId, "drugorders-drug-selector", null);
-			writer.println();
-			for (DrugOrderAnswer a : drugOrderField.getDrugOrderAnswers()) {
-				Integer id = a.getDrug().getId();
-				writer.print("<option value=\"" + id + "\"" + ">");
-				writer.print(a.getDisplayName());
-				writer.println("</option>");
-			}
-			writer.println("</select>");
-			
-			writer.println("</span>");
-		}
+		// Add a section prior to the various drug widgets
+		writer.println("<div id=\"" + fieldName + "_header\" class=\"drugorders-header-section\"></div>");
 		
+		// Establish a json config that initializes the javascript-based widget
 		Integer patId = context.getExistingPatient().getPatientId();
 		Integer encId = context.getExistingEncounter() == null ? null : context.getExistingEncounter().getEncounterId();
 		
-		// Establish a json config that can be used to initialize a Javascript function
 		JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addString("fieldName", fieldName);
 		jsonConfig.addString("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
 		jsonConfig.addString("patientId", patId.toString());
 		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());
+		if (widgetConfig.getAttributes() != null) {
+			for (String att : widgetConfig.getAttributes().keySet()) {
+				jsonConfig.addString(att, widgetConfig.getAttributes().get(att));
+			}
+		}
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		for (Drug drug : getDrugOrderWidgets().keySet()) {
@@ -129,7 +95,7 @@ public class DrugOrdersWidget implements Widget {
 			
 			// All elements for a given drug will have an id prefix like "fieldName_drugId"
 			String drugOrderSectionId = fieldName + "_" + drug.getId();
-			String sectionStyle = (onSelect && drugOrderWidget.getInitialValue() == null ? "display:none" : "");
+			String sectionStyle = (drugOrderWidget.getInitialValue() == null ? "display:none" : "");
 			startTag(writer, "div", drugOrderSectionId, "drugorders-drug-section", sectionStyle);
 			writer.append("<div class=\"drugorders-drug-details\">").append("</div>");
 			writer.append("<div class=\"drugorders-order-history\"></div>");
@@ -187,14 +153,13 @@ public class DrugOrdersWidget implements Widget {
 		}
 		
 		// Add javascript function to initialize widget as appropriate
-		String onLoadFn = widgetConfig.getAttributes().get("onLoadFunction");
-		if (StringUtils.isNotBlank(onLoadFn)) {
-			writer.println("<script type=\"text/javascript\">");
-			writer.println("jQuery(function() { " + onLoadFn + "(");
-			writer.println(jsonConfig.toJson());
-			writer.println(")});");
-			writer.println("</script>");
-		}
+		String defaultLoadFn = "htmlForm.initializeDrugOrdersWidgets";
+		String onLoadFn = widgetConfig.getAttributes().getOrDefault("onLoadFunction", defaultLoadFn);
+		writer.println("<script type=\"text/javascript\">");
+		writer.println("jQuery(function() { " + onLoadFn + "(");
+		writer.println(jsonConfig.toJson());
+		writer.println(")});");
+		writer.println("</script>");
 		
 		writer.println("</div>");
 		

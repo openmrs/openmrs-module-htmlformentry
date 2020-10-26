@@ -83,6 +83,10 @@ div.loading {
 	color: grey;
 }
 
+.drugorders-header-section {
+	padding-left: 10px;
+}
+
 .drugorders-order-form {
 	padding-left: 20px;
 	display: table;
