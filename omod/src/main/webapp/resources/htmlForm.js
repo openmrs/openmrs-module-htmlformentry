@@ -114,22 +114,24 @@
         // Hide all drug sections by default
         $widgetField.find('.drugorders-drug-section').hide();
 
-        // If config format is select, render a drop down widget of drugs to display appropriate one when selected
+        // If config format is select and mode is not VIEW, render a drop down widget of drugs
         if (config.format && config.format === 'select') {
-            var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
-            var label = (config.selectLabel ? config.selectLabel : 'Choose Drug...');
-            $drugSelector.append('<option value="">' + label + '</option>');
-            config.drugs.forEach(function(drug) {
-               $drugSelector.append('<option value="' + drug.sectionId + '">' + drug.drugLabel + '</option>');
-            });
-            $drugSelector.change(function() {
-                var drugSection = $(this).val();
-                if (drugSection !== '') {
-                    $('#' + drugSection).show();
-                    $(this).val('');
-                }
-            });
-            $widgetField.find('.drugorders-header-section').append($drugSelector);
+            if (config.mode !== 'VIEW') {
+                var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
+                var label = (config.selectLabel ? config.selectLabel : 'Choose Drug...');
+                $drugSelector.append('<option value="">' + label + '</option>');
+                config.drugs.forEach(function (drug) {
+                    $drugSelector.append('<option value="' + drug.sectionId + '">' + drug.drugLabel + '</option>');
+                });
+                $drugSelector.change(function () {
+                    var drugSection = $(this).val();
+                    if (drugSection !== '') {
+                        $('#' + drugSection).show();
+                        $(this).val('');
+                    }
+                });
+                $widgetField.find('.drugorders-header-section').append($drugSelector);
+            }
         }
         // Otherwise, just render all drug sections
         else {
@@ -180,6 +182,9 @@
                 $historySection.append($orderElement);
                 lastRenderedOrder = drugOrder;
                 lastOrderInEncounter = drugOrder;
+
+                // If we are rendering the drugorder, ensure this section is visible
+                $drugSection.show();
             }
         });
 

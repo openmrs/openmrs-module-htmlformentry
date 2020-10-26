@@ -561,6 +561,10 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	public static String translate(String message) {
+		return Context.getMessageSourceService().getMessage(message);
+	}
+	
 	public static Provider getOrdererFromEncounter(Encounter e) {
 		if (e != null) {
 			Set<EncounterProvider> encounterProviders = e.getEncounterProviders();

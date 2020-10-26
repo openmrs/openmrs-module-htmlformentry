@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
@@ -21,6 +24,8 @@ import org.openmrs.module.htmlformentry.util.JsonObject;
 
 public class DrugOrdersWidget implements Widget {
 	
+	private static Log log = LogFactory.getLog(DrugOrdersWidget.class);
+	
 	private DrugOrderField drugOrderField;
 	
 	private DrugOrderWidgetConfig widgetConfig;
@@ -30,12 +35,20 @@ public class DrugOrdersWidget implements Widget {
 	private Map<Drug, List<DrugOrder>> initialValue;
 	
 	public DrugOrdersWidget(FormEntryContext context, DrugOrderField drugOrderField, DrugOrderWidgetConfig widgetConfig) {
+		
+		StopWatch sw = new StopWatch();
+		sw.start();
+		log.trace("In DrugOrdersWidget.constructor");
+		
 		this.drugOrderField = drugOrderField;
 		this.widgetConfig = widgetConfig;
+		
 		for (DrugOrderAnswer answer : drugOrderField.getDrugOrderAnswers()) {
 			DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, answer, widgetConfig);
 			getDrugOrderWidgets().put(answer.getDrug(), drugOrderWidget);
 		}
+		sw.stop();
+		log.trace("DrugOrdersWidget.constructor: " + sw.toString());
 	}
 	
 	@Override
@@ -61,6 +74,10 @@ public class DrugOrdersWidget implements Widget {
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
+		
+		StopWatch sw = new StopWatch();
+		sw.start();
+		log.trace("In DrugOrdersWidget.generateHtml");
 		
 		CapturingPrintWriter writer = new CapturingPrintWriter();
 		String fieldName = context.getFieldName(this);
@@ -170,6 +187,9 @@ public class DrugOrdersWidget implements Widget {
 		writer.println("</script>");
 		
 		writer.println("</div>");
+		
+		sw.stop();
+		log.trace("DrugOrdersWidget.generateHtml: " + sw.toString());
 		
 		return writer.getContent();
 	}

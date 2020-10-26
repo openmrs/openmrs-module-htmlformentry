@@ -139,7 +139,7 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 				}
 				// Set dateActivated if needed from encounter
 				if (newOrder.getDateActivated() == null) {
-					String defaultDateActivated = widgetConfig.getTemplateConfig("dateActivated").get("value");
+					String defaultDateActivated = widgetConfig.getAttributes("dateActivated").get("value");
 					if (StringUtils.isNotBlank(defaultDateActivated)) {
 						if ("encounterDate".equalsIgnoreCase(defaultDateActivated)) {
 							newOrder.setDateActivated(encounter.getEncounterDatetime());

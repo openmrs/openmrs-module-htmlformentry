@@ -8,8 +8,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.Order;
+import org.openmrs.api.OrderService;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -19,7 +25,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.DrugOrdersSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
-import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.w3c.dom.Node;
@@ -30,9 +35,13 @@ import org.w3c.dom.NodeList;
  */
 public class DrugOrdersTagHandler extends AbstractTagHandler {
 	
+	private static Log log = LogFactory.getLog(DrugOrdersTagHandler.class);
+	
 	public static final String ORDER_TEMPLATE_TAG = "orderTemplate";
 	
 	public static final String ORDER_PROPERTY_TAG = "orderProperty";
+	
+	public static final String ORDER_PROPERTY_OPTION_TAG = "option";
 	
 	public static final String NAME_ATTRIBUTE = "name";
 	
@@ -50,6 +59,8 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	
 	public static final String LABEL_ATTRIBUTE = "label";
 	
+	public static final String VALUE_ATTRIBUTE = "value";
+	
 	private HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
 	
 	@Override
@@ -62,6 +73,10 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node p, Node node) throws BadFormDesignException {
+		
+		StopWatch sw = new StopWatch();
+		sw.start();
+		log.trace("In DrugOrdersTagHandler.doStartTag");
 		
 		FormEntryContext context = session.getContext();
 		DrugOrderField drugOrderField = new DrugOrderField();
@@ -99,29 +114,6 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 					}
 				}
 				// </drugOptions>
-			} else if (childNode.getNodeName().equalsIgnoreCase(DISCONTINUE_REASONS_TAG)) {
-				// <discontinueReasons>
-				widgetConfig.setDiscontinueReasonAttributes(getAttributes(childNode));
-				NodeList drNodes = childNode.getChildNodes();
-				if (drNodes != null) {
-					for (int j = 0; j < drNodes.getLength(); j++) {
-						Node drNode = drNodes.item(j);
-						if (drNode.getNodeName().equalsIgnoreCase(DISCONTINUE_REASON_OPTION_TAG)) {
-							// <discontinueReasonOption concept="" label="">
-							Map<String, String> attrs = getAttributes(drNodes.item(j));
-							widgetConfig.addDiscontinueReasonOption(attrs);
-							String lookup = attrs.get(CONCEPT_ATTRIBUTE);
-							Concept reason = HtmlFormEntryUtil.getConcept(lookup);
-							if (reason == null && StringUtils.isNotBlank(lookup)) {
-								throw new BadFormDesignException("Unable to find concept " + lookup);
-							}
-							String label = attrs.get(LABEL_ATTRIBUTE);
-							drugOrderField.addDiscontinuedReasonAnswer(new ObsFieldAnswer(label, reason));
-							// </discontinueReasonOption>
-						}
-					}
-				}
-				// <discontinueReasons>
 			}
 			// By default, just output node as written for whatever html formatting is in the form
 			else {
@@ -129,10 +121,28 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			}
 		}
 		
+		// Ensure all property options are configured appropriately, including with default values configured
+		OrderService os = Context.getOrderService();
+		widgetConfig.configureEnumPropertyOptions("action", Order.Action.values());
+		widgetConfig.configureMetadataPropertyOptions("careSetting", os.getCareSettings(false));
+		widgetConfig.configureMetadataPropertyOptions("orderType", os.getOrderTypes(false));
+		widgetConfig.configureConceptPropertyOptions("doseUnits", os.getDrugDosingUnits());
+		widgetConfig.configureConceptPropertyOptions("route", os.getDrugRoutes());
+		widgetConfig.configureMetadataPropertyOptions("frequency", os.getOrderFrequencies(false));
+		widgetConfig.configureEnumPropertyOptions("urgency", Order.Urgency.values());
+		widgetConfig.configureConceptPropertyOptions("durationUnits", os.getDurationUnits());
+		widgetConfig.configureConceptPropertyOptions("quantityUnits", os.getDrugDispensingUnits());
+		widgetConfig.configureConceptPropertyOptions("discontinueReason", new ArrayList<>());
+		widgetConfig.toggleDefaultOptions();
+		
 		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget(context, drugOrderField, widgetConfig);
 		DrugOrdersSubmissionElement element = new DrugOrdersSubmissionElement(context, drugOrdersWidget);
 		session.getSubmissionController().addAction(element);
 		out.print(element.generateHtml(context));
+		
+		sw.stop();
+		log.trace("DrugOrdersTagHandler.doStartTag: " + sw.toString());
+		
 		return false; // skip contents/children
 	}
 	
@@ -143,13 +153,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	protected void processTemplateNode(FormEntrySession session, DrugOrderWidgetConfig c, Node pn, Node n, PrintWriter w)
 	        throws BadFormDesignException {
 		if (n.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_TAG)) {
-			Map<String, String> attributes = new TreeMap<>(getAttributes(n));
-			String name = attributes.get(NAME_ATTRIBUTE);
-			if (StringUtils.isBlank(name)) {
-				throw new BadFormDesignException(NAME_ATTRIBUTE + " is required for " + ORDER_PROPERTY_TAG + " tag");
-			}
-			c.addTemplateWidget(name, attributes);
-			w.print(attributes.toString());
+			processOrderPropertyTag(session, c, pn, n, w);
 		} else {
 			boolean isOrderTemplateTag = (n.getNodeName().equalsIgnoreCase(ORDER_TEMPLATE_TAG));
 			boolean handleContents = isOrderTemplateTag;
@@ -165,6 +169,34 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			}
 			if (!isOrderTemplateTag) {
 				generator.doEndTag(session, w, pn, n);
+			}
+		}
+	}
+	
+	protected void processOrderPropertyTag(FormEntrySession session, DrugOrderWidgetConfig c, Node pn, Node n, PrintWriter w)
+	        throws BadFormDesignException {
+		Map<String, String> attributes = new TreeMap<>(getAttributes(n));
+		String name = attributes.get(NAME_ATTRIBUTE);
+		if (StringUtils.isBlank(name)) {
+			throw new BadFormDesignException(NAME_ATTRIBUTE + " is required for " + ORDER_PROPERTY_TAG + " tag");
+		}
+		c.setOrderPropertyAttributes(name, attributes);
+		w.print(attributes.toString()); // This writes to the template, which is used for replacement later on
+		
+		// For properties with discrete options, determine which of these options to include
+		
+		// First, determine if there are any explicit options configured as child nodes
+		NodeList childNodes = n.getChildNodes();
+		for (int i = 0; i < childNodes.getLength(); i++) {
+			Node childNode = childNodes.item(i);
+			if (childNode.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_OPTION_TAG)) {
+				Map<String, String> optionAttributes = getAttributes(childNode);
+				String value = optionAttributes.get("value");
+				if (StringUtils.isBlank(value)) {
+					String msg = ORDER_PROPERTY_OPTION_TAG + " must have a " + VALUE_ATTRIBUTE + " attribute";
+					throw new BadFormDesignException(msg);
+				}
+				c.addOrderPropertyOption(name, value, optionAttributes.get(LABEL_ATTRIBUTE));
 			}
 		}
 	}
