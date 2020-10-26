@@ -88,6 +88,14 @@ public class DrugOrdersWidget implements Widget {
 			}
 		}
 		
+		// Add any translations needed by the default views
+		String prefix = "htmlformentry.drugOrder.";
+		JsonObject translations = jsonConfig.addObject("translations");
+		translations.addTranslation(prefix, "asNeeded");
+		translations.addTranslation(prefix, "previousOrder");
+		translations.addTranslation(prefix, "present");
+		translations.addTranslation(prefix, "noOrders");
+		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		for (Drug drug : getDrugOrderWidgets().keySet()) {
 			DrugOrderWidget drugOrderWidget = getDrugOrderWidgets().get(drug);

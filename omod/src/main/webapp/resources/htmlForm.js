@@ -187,7 +187,7 @@
         // If none were rendered, and mode is not view, render the active order that is available for revision
         if (lastRenderedOrder == null) {
             if (config.mode === 'VIEW') {
-                $historySection.append('<div class="order-view-section drugorders-order-history-none">No Orders</div>'); // TODO: Translate this
+                $historySection.append('<div class="order-view-section drugorders-order-history-none">' + config.translations.noOrders + '</div>');
             }
             else {
                 // If there are any active orders on this date, render them
@@ -217,15 +217,18 @@
 
             var $actionSection = $editWidgetSection.find('.order-field.action');
             var $actionWidget = $actionSection.find('select');
-            $actionWidget.find('option').remove();
+            $actionWidget.find('option').hide();
 
             var d = lastRenderedOrder;
             var lastStart = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStartDate.value : '');
             var lastStop = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStopDate.value : '');
 
+            var allowedActions = new Array();
+            allowedActions.push("");
+
             // Allow drugs to be ordered NEW if there are no orders active on or after the encounter date
             if (lastStart === '' || (lastStop !== '' && lastStop <= encDate)) {
-                htmlForm.addOrderAction($actionWidget, 'NEW', d, encDate, config);
+                allowedActions.push("NEW");
             }
 
             // Only RENEW, REVISE, or DISCONTINUE are possible with existing orders
@@ -234,12 +237,18 @@
                 if (lastRenderedOrder.action.value !== 'DISCONTINUE') {
                     // Allow REVISION operations if operating on an order with the same or an earlier start date
                     if (lastStart <= encDate) {
-                        htmlForm.addOrderAction($actionWidget, 'REVISE', d, encDate, config);
-                        htmlForm.addOrderAction($actionWidget, 'RENEW', d, encDate, config);
-                        htmlForm.addOrderAction($actionWidget, 'DISCONTINUE', d, encDate, config);
+                        allowedActions.push("REVISE");
+                        allowedActions.push("RENEW");
+                        allowedActions.push("DISCONTINUE");
                     }
                 }
             }
+
+            allowedActions.forEach(function(action) {
+                var $optionElement = $actionWidget.find('option[value="' + action + '"]');
+                $optionElement.attr('selected', false);
+                $optionElement.show();
+            });
 
             if ($actionWidget.find('option').length > 0) {
                 $actionWidget.change(function() {
@@ -247,9 +256,7 @@
                     $editWidgetSection.find('.order-field').hide();
                     $editWidgetSection.find('.order-field.action').show();
                     if (action !== '') {
-                        var $dateActivatedWidget = $editWidgetSection.find('.dateActivated');
-                        setDatePickerValue($dateActivatedWidget.find('input[type=text]'), (encDate));
-                        $dateActivatedWidget.show();
+                        htmlForm.enableDateWidgets($editWidgetSection, encDate);
                     }
                     if (action === 'DISCONTINUE') {
                         $editWidgetSection.find('.discontinueReason').show();
@@ -272,8 +279,37 @@
             $editWidgetSection.find('.dosingType').find('input:radio').change(function() {
                 htmlForm.enableDrugOrderDoseWidgets($editWidgetSection);
             });
+
+            // Set up ability to toggle between scheduled and non-scheduled urgencies
+            $editWidgetSection.find('.urgency').find('input:radio').change(function() {
+                htmlForm.enableDateWidgets($editWidgetSection, encDate);
+            });
         }
     }
+
+    htmlForm.enableDateWidgets = function($editWidgetSection, encDate) {
+
+        // Do not allow editing date activated, and always inherit encounter date.
+        $editWidgetSection.find('.dateActivated').show();
+        var $dateActivatedSection = $editWidgetSection.find('.order-field.dateActivated');
+        var $dateActivatedWidget = $dateActivatedSection.find('.order-field-widget.dateActivated');
+        var $dateActivatedTextField = $dateActivatedWidget.find('input[type=text]');
+        setDatePickerValue($dateActivatedTextField, (encDate));
+        $dateActivatedWidget.hide();
+        $dateActivatedSection.find('.value').remove();
+        $dateActivatedSection.append('<span class="value">' + $dateActivatedTextField.val() + '</span>')
+        $dateActivatedSection.show();
+
+        // Allow scheduled date to be set
+        var $urgencySection = $editWidgetSection.find('.urgency');
+        var urgencyVal = $urgencySection.find('input:checked').val();
+        if (urgencyVal === 'ON_SCHEDULED_DATE') {
+            $editWidgetSection.find('.scheduledDate').show();
+        }
+        else {
+            $editWidgetSection.find('.scheduledDate').hide();
+        }
+    };
 
     htmlForm.enableDrugOrderDoseWidgets = function($editWidgetSection) {
         var $dosingTypeSection = $editWidgetSection.find('.dosingType');
@@ -307,7 +343,6 @@
         $editWidgetSection.find('.numRefills').show();
     }
 
-    // TODO: Use a view template from the htmlform configuration, and populate based on cssClass
     htmlForm.formatDrugOrder = function(d, encDate, config) {
         var $ret = $('<div class="drugorders-order-history-item"></div>');
 
@@ -315,7 +350,7 @@
         var inCurrentEncounter = htmlForm.isOrderInCurrentEncounter(d, config);
         if (!inCurrentEncounter) {
             $ret.addClass('order-view-different-encounter');
-            $existingActionSection.append('Previous Order'); // TODO: Translate this
+            $existingActionSection.append(config.translations.previousOrder);
         }
         else {
             $ret.addClass('order-view-current-encounter');
@@ -328,7 +363,7 @@
 
         var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
         $dateSection.append('<div class="order-view-field order-view-start-date">' + d.effectiveStartDate.display + '</div>');
-        var endDate = (d.effectiveStopDate.display === "" ? 'Present' : d.effectiveStopDate.display); // TODO: Translate
+        var endDate = (d.effectiveStopDate.display === "" ? config.translations.present : d.effectiveStopDate.display);
         $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + endDate + '</div>');
         $ret.append($dateSection);
 
@@ -346,7 +381,7 @@
                 $doseSection.append(' -- <div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
             }
             if (d.asNeeded.value === "true") {
-                $doseSection.append(' -- <div class="order-view-field order-view-as-needed">As Needed</div>'); // TODO: Translate
+                $doseSection.append(' -- <div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
             }
             if (d.instructions.value !== "") {
                 $doseSection.append(' -- <div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
@@ -354,13 +389,6 @@
         }
         $ret.append($doseSection);
         return $ret;
-    }
-
-    htmlForm.addOrderAction = function($actionSelect, actionType, d, encDate, config) {
-        if ($actionSelect.find('option').length === 0) {
-            $actionSelect.append($('<option value="">Action...</option>')); // TODO: Translate
-        }
-        $actionSelect.append($('<option value="' + actionType + '">' + actionType + '</option>'));
     }
 
     htmlForm.getOrder = function(orderId, history) {

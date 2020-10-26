@@ -219,7 +219,8 @@ public class DrugOrderWidget implements Widget {
 		DropdownWidget w = new DropdownWidget();
 		w.addOption(new Option("", "", true));
 		for (Order.Action a : Order.Action.values()) {
-			w.addOption(new Option(a.name(), a.name(), false));
+			String label = translate("htmlformentry.drugOrder.action." + a.name().toLowerCase());
+			w.addOption(new Option(label, a.name(), false));
 		}
 		if (context.getMode() != FormEntryContext.Mode.VIEW) {
 			w.setInitialValue(config.get("value"));
@@ -230,7 +231,7 @@ public class DrugOrderWidget implements Widget {
 	
 	protected Order.Action getActionWidgetValue(FormEntryContext context, HttpServletRequest request) {
 		String val = (String) actionWidget.getValue(context, request);
-		return (StringUtils.isBlank(val) ? null : Order.Action.valueOf(val.toString()));
+		return (StringUtils.isBlank(val) ? null : Order.Action.valueOf(val));
 	}
 	
 	protected void configureCareSettingWidget(FormEntryContext context) {
@@ -385,13 +386,13 @@ public class DrugOrderWidget implements Widget {
 	
 	protected void configureUrgencyWidget(FormEntryContext context) {
 		Map<String, String> config = widgetConfig.getTemplateConfig("urgency");
-		DropdownWidget w = new DropdownWidget();
-		w.addOption(new Option("", "", true));
+		RadioButtonsWidget w = new RadioButtonsWidget();
 		for (Order.Urgency u : Order.Urgency.values()) {
-			w.addOption(new Option(u.name(), u.name(), false));
+			String label = translate("htmlformentry.drugOrder.urgency." + u.name().toLowerCase());
+			w.addOption(new Option(label, u.name(), false));
 		}
 		if (context.getMode() != FormEntryContext.Mode.VIEW) {
-			w.setInitialValue(config.get("value"));
+			w.setInitialValue(config.getOrDefault("value", Order.Urgency.ROUTINE.name()));
 		}
 		urgencyWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "urgency");

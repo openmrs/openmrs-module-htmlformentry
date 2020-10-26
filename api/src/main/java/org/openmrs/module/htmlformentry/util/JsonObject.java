@@ -86,6 +86,10 @@ public class JsonObject extends LinkedHashMap<String, Object> {
 		}
 	}
 	
+	public void addTranslation(String prefix, String key) {
+		addString(key, Context.getMessageSourceService().getMessage(prefix + key));
+	}
+	
 	public JsonObject addObjectToArray(String key) {
 		List<JsonObject> l = getObjectArray(key);
 		JsonObject o = new JsonObject();
