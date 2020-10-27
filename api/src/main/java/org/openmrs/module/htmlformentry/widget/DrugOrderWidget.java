@@ -524,7 +524,9 @@ public class DrugOrderWidget implements Widget {
 				singleOption.setSelected(true);
 				w.addOption(singleOption);
 			} else {
-				w.addOption(new Option("", "", false));
+				if (w instanceof DropdownWidget) {
+					w.addOption(new Option("", "", false));
+				}
 				for (Option o : widgetConfig.getOrderPropertyOptions(property)) {
 					w.addOption(o);
 				}
