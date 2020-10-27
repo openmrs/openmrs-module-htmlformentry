@@ -28,8 +28,6 @@ public class DrugOrderWidgetConfig {
 	
 	private Map<String, List<Option>> orderPropertyOptions;
 	
-	private Map<String, String> drugOrderAttributes;
-	
 	public DrugOrderWidgetConfig() {
 	}
 	
@@ -97,16 +95,5 @@ public class DrugOrderWidgetConfig {
 	
 	public void addOrderPropertyOptions(String property, List<Option> options) {
 		getOrderPropertyOptions().put(property, options);
-	}
-	
-	public Map<String, String> getDrugOrderAttributes() {
-		if (drugOrderAttributes == null) {
-			drugOrderAttributes = new LinkedHashMap<>();
-		}
-		return drugOrderAttributes;
-	}
-	
-	public void setDrugOrderAttributes(Map<String, String> drugOrderAttributes) {
-		this.drugOrderAttributes = drugOrderAttributes;
 	}
 }

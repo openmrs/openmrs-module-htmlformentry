@@ -51,12 +51,6 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	
 	public static final String NAME_ATTRIBUTE = "name";
 	
-	public static final String DRUG_OPTIONS_TAG = "drugOptions";
-	
-	public static final String DRUG_OPTION_TAG = "drugOption";
-	
-	public static final String DRUG_ATTRIBUTE = "drug";
-	
 	public static final String LABEL_ATTRIBUTE = "label";
 	
 	public static final String VALUE_ATTRIBUTE = "value";
@@ -97,25 +91,6 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				processTemplateNode(session, widgetConfig, node, childNode, writer);
 				widgetConfig.setTemplateContent(writer.getContent());
 				// </orderTemplate>
-			} else if (childNode.getNodeName().equalsIgnoreCase(DRUG_OPTIONS_TAG)) {
-				// <drugOptions>
-				widgetConfig.setDrugOrderAttributes(getAttributes(childNode));
-				NodeList drugOptionNodes = childNode.getChildNodes();
-				if (drugOptionNodes != null) {
-					for (int j = 0; j < drugOptionNodes.getLength(); j++) {
-						Node drugOptionNode = drugOptionNodes.item(j);
-						if (drugOptionNode.getNodeName().equalsIgnoreCase(DRUG_OPTION_TAG)) {
-							// <drugOption drug="" label="">
-							Map<String, String> attrs = getAttributes(drugOptionNode);
-							Drug drug = HtmlFormEntryUtil.getDrug(attrs.get(DRUG_ATTRIBUTE));
-							String label = attrs.get(LABEL_ATTRIBUTE);
-							DrugOrderAnswer doa = new DrugOrderAnswer(drug, label);
-							drugOrderField.addDrugOrderAnswer(doa);
-							// </drugOption>
-						}
-					}
-				}
-				// </drugOptions>
 			}
 			// By default, just output node as written for whatever html formatting is in the form
 			else {
@@ -195,9 +170,13 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			}
 		}
 		
-		List<Option> options = getOptions(name, optionVals, attributes.get(VALUE_ATTRIBUTE));
-		if (options != null) {
-			c.addOrderPropertyOptions(name, options);
+		if ("drug".equalsIgnoreCase(name)) {
+			c.getDrugOrderField().setDrugOrderAnswers(getDrugOrderAnswers(optionVals));
+		} else {
+			List<Option> options = getOptions(name, optionVals, attributes.get(VALUE_ATTRIBUTE));
+			if (options != null) {
+				c.addOrderPropertyOptions(name, options);
+			}
 		}
 	}
 	
@@ -241,14 +220,42 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	}
 	
 	/**
+	 * Convenience method to get the available drugs for use by the tag
+	 */
+	protected List<DrugOrderAnswer> getDrugOrderAnswers(Map<String, String> optionVals) throws BadFormDesignException {
+		List<DrugOrderAnswer> ret = new ArrayList<>();
+		if (optionVals.isEmpty()) {
+			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
+				ret.add(new DrugOrderAnswer(d, d.getDisplayName()));
+			}
+		} else {
+			for (String val : optionVals.keySet()) {
+				Drug d = HtmlFormEntryUtil.getDrug(val);
+				if (d == null) {
+					throw new BadFormDesignException("Unable to find Drug option value: " + val);
+				}
+				String label = optionVals.get(val);
+				if (StringUtils.isBlank(label)) {
+					label = d.getDisplayName();
+				}
+				ret.add(new DrugOrderAnswer(d, label));
+			}
+		}
+		return ret;
+	}
+	
+	/**
 	 * Convenience method to get the available value options for a given enum property
 	 */
 	protected List<Option> getEnumOptions(String property, Map<String, String> options, Enum[] vals, String selected) {
 		List<Option> l = new ArrayList<>();
 		for (Enum e : vals) {
 			if (options.isEmpty() || options.containsKey(e.name())) {
-				String messageCode = "htmlformentry.drugOrder." + property + "." + e.name().toLowerCase();
-				String label = HtmlFormEntryUtil.translate(messageCode);
+				String labelCode = options.get(e.name());
+				if (StringUtils.isBlank(labelCode)) {
+					labelCode = "htmlformentry.drugOrder." + property + "." + e.name().toLowerCase();
+				}
+				String label = HtmlFormEntryUtil.translate(labelCode);
 				boolean isSelected = selected != null && e.name().equalsIgnoreCase(selected);
 				l.add(new Option(label, e.name(), isSelected));
 			}
@@ -268,16 +275,18 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				throw new BadFormDesignException("Unable to find care setting default value: " + defaultValue);
 			}
 		}
-		List<CareSetting> careSettingList = new ArrayList<>();
+		Map<CareSetting, String> careSettingList = new LinkedHashMap<>();
 		if (optionVals.isEmpty()) {
-			careSettingList = getOrderService().getCareSettings(false);
+			for (CareSetting cs : getOrderService().getCareSettings(false)) {
+				careSettingList.put(cs, cs.getName());
+			}
 		} else {
 			for (String val : optionVals.keySet()) {
 				CareSetting cs = HtmlFormEntryUtil.getCareSetting(val);
 				if (cs == null) {
 					throw new BadFormDesignException("Unable to find care setting option value: " + defaultValue);
 				}
-				careSettingList.add(cs);
+				careSettingList.put(cs, getLabel(optionVals.get(val), cs.getName()));
 			}
 		}
 		return getMetadataOptions(careSettingList, defaultCareSetting);
@@ -297,16 +306,18 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 		} else {
 			defaultOrderType = HtmlFormEntryUtil.getDrugOrderType();
 		}
-		List<OrderType> orderTypeList = new ArrayList<>();
+		Map<OrderType, String> orderTypeList = new LinkedHashMap<>();
 		if (optionVals.isEmpty()) {
-			orderTypeList = getOrderService().getOrderTypes(false);
+			for (OrderType ot : getOrderService().getOrderTypes(false)) {
+				orderTypeList.put(ot, ot.getName());
+			}
 		} else {
 			for (String val : optionVals.keySet()) {
 				OrderType cs = HtmlFormEntryUtil.getOrderType(val);
 				if (cs == null) {
 					throw new BadFormDesignException("Unable to find order type option value: " + defaultValue);
 				}
-				orderTypeList.add(cs);
+				orderTypeList.put(cs, getLabel(optionVals.get(val), cs.getName()));
 			}
 		}
 		return getMetadataOptions(orderTypeList, defaultOrderType);
@@ -324,16 +335,18 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				throw new BadFormDesignException("Unable to find frequency default value: " + defaultValue);
 			}
 		}
-		List<OrderFrequency> frequencyList = new ArrayList<>();
+		Map<OrderFrequency, String> frequencyList = new LinkedHashMap<>();
 		if (optionVals.isEmpty()) {
-			frequencyList = getOrderService().getOrderFrequencies(false);
+			for (OrderFrequency f : getOrderService().getOrderFrequencies(false)) {
+				frequencyList.put(f, f.getName());
+			}
 		} else {
 			for (String val : optionVals.keySet()) {
 				OrderFrequency cs = HtmlFormEntryUtil.getOrderFrequency(val);
 				if (cs == null) {
 					throw new BadFormDesignException("Unable to find frequency option value: " + defaultValue);
 				}
-				frequencyList.add(cs);
+				frequencyList.put(cs, getLabel(optionVals.get(val), cs.getName()));
 			}
 		}
 		return getMetadataOptions(frequencyList, defaultOrderFrequency);
@@ -342,11 +355,11 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	/**
 	 * Convenience method to configure options from a list of metadata
 	 */
-	protected List<Option> getMetadataOptions(List<? extends OpenmrsMetadata> vals, OpenmrsMetadata selected) {
+	protected List<Option> getMetadataOptions(Map<? extends OpenmrsMetadata, String> vals, OpenmrsMetadata selected) {
 		List<Option> l = new ArrayList<>();
-		for (OpenmrsMetadata m : vals) {
+		for (OpenmrsMetadata m : vals.keySet()) {
 			String val = m.getId().toString();
-			String label = m.getName();
+			String label = vals.get(m);
 			boolean isSelected = selected != null && val.equalsIgnoreCase(selected.getId().toString());
 			l.add(new Option(label, val, isSelected));
 		}
@@ -377,9 +390,11 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			fullList = getOrderService().getDrugDispensingUnits();
 		}
 		
-		List<Concept> configuredList = new ArrayList<>();
+		Map<Concept, String> configuredList = new LinkedHashMap<>();
 		if (optionVals == null || optionVals.isEmpty()) {
-			configuredList = fullList;
+			for (Concept c : fullList) {
+				configuredList.put(c, c.getDisplayString());
+			}
 		} else {
 			for (String val : optionVals.keySet()) {
 				Concept c = HtmlFormEntryUtil.getConcept(val);
@@ -389,18 +404,25 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 				if (!fullList.isEmpty() && !fullList.contains(c)) {
 					throw new BadFormDesignException(val + " does not refer to a valid concept for " + property);
 				}
-				configuredList.add(c);
+				configuredList.put(c, getLabel(optionVals.get(val), c.getDisplayString()));
 			}
 		}
 		
 		List<Option> ret = new ArrayList<>();
-		for (Concept c : configuredList) {
+		for (Concept c : configuredList.keySet()) {
 			String val = c.getId().toString();
-			String label = c.getDisplayString();
+			String label = configuredList.get(c);
 			boolean selected = defaultConcept != null && defaultConcept.getId().equals(c.getId());
 			ret.add(new Option(label, val, selected));
 		}
 		return ret;
+	}
+	
+	private String getLabel(String configuredLabel, String defaultLabel) {
+		if (StringUtils.isNotBlank(configuredLabel)) {
+			return HtmlFormEntryUtil.translate(configuredLabel);
+		}
+		return defaultLabel;
 	}
 	
 	private OrderService getOrderService() {

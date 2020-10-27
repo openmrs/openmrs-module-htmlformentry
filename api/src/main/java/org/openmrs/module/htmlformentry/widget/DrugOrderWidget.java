@@ -523,8 +523,7 @@ public class DrugOrderWidget implements Widget {
 				Option singleOption = options.get(0);
 				singleOption.setSelected(true);
 				w.addOption(singleOption);
-			}
-			else {
+			} else {
 				w.addOption(new Option("", "", false));
 				for (Option o : widgetConfig.getOrderPropertyOptions(property)) {
 					w.addOption(o);
