@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.widget;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -511,11 +512,24 @@ public class DrugOrderWidget implements Widget {
 		return w;
 	}
 	
-	protected Widget configureOptionWidget(FormEntryContext context, String property, String type) {
-		SingleOptionWidget w = ("radio".equalsIgnoreCase(type) ? new RadioButtonsWidget() : new DropdownWidget());
-		w.addOption(new Option("", "", false));
-		for (Option o : widgetConfig.getOrderPropertyOptions(property)) {
-			w.addOption(o);
+	protected Widget configureOptionWidget(FormEntryContext context, String property, String defaultType) {
+		Map<String, String> attrs = widgetConfig.getOrderPropertyAttributes().getOrDefault(property, new HashMap<>());
+		String style = attrs.getOrDefault("style", defaultType);
+		SingleOptionWidget w = ("radio".equalsIgnoreCase(style) ? new RadioButtonsWidget() : new DropdownWidget());
+		List<Option> options = widgetConfig.getOrderPropertyOptions(property);
+		if (options != null) {
+			// If only one option is configured, do not add an empty option, and select by default
+			if (options.size() == 1) {
+				Option singleOption = options.get(0);
+				singleOption.setSelected(true);
+				w.addOption(singleOption);
+			}
+			else {
+				w.addOption(new Option("", "", false));
+				for (Option o : widgetConfig.getOrderPropertyOptions(property)) {
+					w.addOption(o);
+				}
+			}
 		}
 		return w;
 	}
