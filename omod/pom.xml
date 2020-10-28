@@ -167,7 +167,7 @@
 	<!--
 		The deploy-web profile is a convenience to copy web files over to an SDK server's working code
 		Another option that works would be to set up a watch on a file of interest that you are working on
-		eg:  inotify-hookable -f htmlForm.js -c 'cp htmlForm.js /path-to-server/tmp/openmrs/WEB-INF/view/module/htmlformentry/resources/htmlForm.js'
+		eg:  inotify-hookable -w omod/src/main/webapp/resources/ -c 'cp -R omod/src/main/webapp/resources/* /path-to-server/tmp/openmrs/WEB-INF/view/module/htmlformentry/resources/'
 	-->
 	<profiles>
 		<profile>

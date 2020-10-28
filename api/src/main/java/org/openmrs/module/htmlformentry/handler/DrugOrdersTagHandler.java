@@ -98,7 +98,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 			}
 		}
 		
-		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget(context, drugOrderField, widgetConfig);
+		DrugOrdersWidget drugOrdersWidget = new DrugOrdersWidget(context, widgetConfig);
 		DrugOrdersSubmissionElement element = new DrugOrdersSubmissionElement(context, drugOrdersWidget);
 		session.getSubmissionController().addAction(element);
 		out.print(element.generateHtml(context));

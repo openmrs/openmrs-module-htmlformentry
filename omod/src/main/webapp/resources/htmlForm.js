@@ -101,72 +101,131 @@
         $('input').attr("autocomplete", "new-password")
     };
 
-    /*
-        Default function called by the <drugOrders> tag tag to initialize and render the contents in all modes
-        Primary purpose is to ensure each configured drug section is re-rendered on load and on encounter date change
-     */
-    htmlForm.initializeDrugOrdersWidgets = function(config) {
+    htmlForm.getEncounterDate = function(defaultDate) {
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         var encDate = $encDateHidden.val();
+        if (!encDate || encDate === '') {
+            encDate = defaultDate;
+        }
+        return encDate;
+    }
 
+    htmlForm.isSelectDrugs = function(config) {
+        return config.format && config.format === 'select';
+    }
+
+    /**
+     * Default function called by the <drugOrders> tag tag to initialize and render the contents in all modes
+     * Primary purpose is to ensure each configured drug section is re-rendered on load and on encounter date change
+     */
+    htmlForm.initializeDrugOrdersWidgets = function(config) {
+
+        console.log(config);
+
+        // Get the section containing the html for this section
         var $widgetField = $('#' + config.fieldName);
 
-        // Hide all drug sections by default
-        $widgetField.find('.drugorders-drug-section').hide();
-
         // If config format is select and mode is not VIEW, render a drop down widget of drugs
-        if (config.format && config.format === 'select') {
+        if (htmlForm.isSelectDrugs(config)) {
             if (config.mode !== 'VIEW') {
-                var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
-                var label = (config.selectLabel ? config.selectLabel : 'Choose Drug...');
-                $drugSelector.append('<option value="">' + label + '</option>');
-                config.drugs.forEach(function (drug) {
-                    $drugSelector.append('<option value="' + drug.sectionId + '">' + drug.drugLabel + '</option>');
-                });
-                $drugSelector.change(function () {
-                    var drugSection = $(this).val();
-                    if (drugSection !== '') {
-                        $('#' + drugSection).show();
-                        $(this).val('');
-                    }
-                });
+                var $drugSelector = htmlForm.buildDrugSelector(config);
                 $widgetField.find('.drugorders-header-section').append($drugSelector);
             }
-        }
-        // Otherwise, just render all drug sections
-        else {
-            $widgetField.find('.drugorders-drug-section').show();
-        }
-
-        config.drugs.forEach(function(drug) {
-            htmlForm.configureDrugOrderWidget(config, null, encDate, drug);
-            $encDateHidden.change(function() {
-                htmlForm.configureDrugOrderWidget(config, null, $(this).val(), drug);
+            // For any drugs with existing orders, render these
+            htmlForm.getDrugsToRender(config).forEach(function(drug) {
+                htmlForm.configureDrugOrderWidget(config, null, drug);
             });
+        }
+        // Otherwise, render sections for all configured drugs
+        else {
+            config.drugs.forEach(function(drug) {
+                htmlForm.configureDrugOrderWidget(config, null, drug);
+            });
+        }
+    }
+
+    /**
+     * The purpose of this function is to construct a select list of drugs that will
+     * add a configured drug section to the form when a drug is selected
+     */
+    htmlForm.buildDrugSelector = function(config) {
+        var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
+        var label = (config.selectLabel ? config.selectLabel : config.translations.chooseDrug + "...");
+        $drugSelector.append('<option value="">' + label + '</option>');
+        config.drugs.forEach(function (drug) {
+            $drugSelector.append('<option value="' + drug.drugId + '">' + drug.drugLabel + '</option>');
         });
-        console.log(config);
+        $drugSelector.change(function () {
+            var drugId = $(this).val();
+            if (drugId !== '') {
+                var drug = htmlForm.getDrugConfig(config, drugId);
+                if (!htmlForm.drugAlreadyAdded(config, drugId)) {
+                    htmlForm.configureDrugOrderWidget(config, null, drug);
+                }
+                $(this).val('');
+            }
+        });
+        return $drugSelector;
+    }
+
+    /**
+     * The purpose of this function is to determine what drugs should be rendered when the widget is reloaded,
+     * either as a result of an initial page load or as a result of an encounter date change
+     * It returns all configured drugs, if the widget is configured to display all drugs by default
+     * Otherwise it returns those drugs that have existing drugOrders within the current encounter
+     */
+    htmlForm.getDrugsToRender = function(config) {
+        var ret = new Array();
+        config.drugs.forEach(function(drugConfig) {
+            if (htmlForm.isSelectDrugs(config)) {
+                var drugHistory = drugConfig.history ? drugConfig.history : new Array();
+                var renderDrug = false;
+                drugHistory.forEach(function(drugOrder) {
+                    if (htmlForm.isOrderInCurrentEncounter(drugOrder, config)) {
+                        renderDrug = true;
+                    }
+                });
+                if (renderDrug) {
+                    ret.push(drugConfig);
+                }
+            }
+            else {
+                ret.push(drugConfig);
+            }
+        });
+        return ret;
     }
 
     /**
      * The purpose of this function is to re-initialize a given drug order section, in response to the mode
      * and to interactions on the form (encounter date changes, action changes, etc).
      */
-    htmlForm.configureDrugOrderWidget = function(config, action, encDate, drugConfig) {
-        var $drugSection = $('#'+drugConfig.sectionId);
-        encDate = (encDate === "" ? config.today : encDate);
+    htmlForm.configureDrugOrderWidget = function(config, action, drugConfig) {
+        var $elementSection = $('#' + config.fieldName);
+        var $ordersSection = $elementSection.find('.drugorders-order-section');
+
+        var $drugSection = $('<div id="drugorders-drug-section-' + drugConfig.drugId + '" class="drugorders-drug-section"></div>');
+        var $drugDetailsSection = $('<div class="drugorders-drug-details"></div>');
+        var $historySection = $('<div class="drugorders-drug-history"></div>');
+
+        $ordersSection.append($drugSection);
+        $drugSection.append($drugDetailsSection);
+        $drugSection.append($historySection);
 
         // Render drug name details
-        var $drugDetailsSection = $drugSection.find(".drugorders-drug-details");
         $drugDetailsSection.html(drugConfig.drugLabel);
 
-        var $historySection = $drugSection.find(".drugorders-order-history");
-        $historySection.empty(); // Remove all of the elements
+        // Render drug history details
 
-        // If there are existing orders in the encounter, start out by rendering those
+        // Start by removing all of the existing elements
+        $historySection.empty();
+
+        // If there are existing orders in the encounter, render
         // Also render any order from a previous encounter that was revised by an order in the current encounter
         var lastRenderedOrder = null;
         var lastOrderInEncounter = null;
 
+        var encDate = htmlForm.getEncounterDate(config.today);
         var drugHistory = drugConfig.history ? drugConfig.history : new Array();
 
         drugHistory.forEach(function(drugOrder) {
@@ -183,7 +242,7 @@
                 lastRenderedOrder = drugOrder;
                 lastOrderInEncounter = drugOrder;
 
-                // If we are rendering the drugorder, ensure this section is visible
+                // Ensure this section is visible
                 $drugSection.show();
             }
         });
@@ -210,17 +269,36 @@
             }
         }
 
+        // If the form is in entry or edit mode, add the option to enter orders
+
         if (config.mode !== 'VIEW') {
-            var $editWidgetSection = $('#' + config.fieldName + '_' + drugConfig.drugId + '_entry');
+
+            // Clone the order form template, ensuring ids and names of widgets are configured for this specific drug
+
+            var $orderForm = $('#' + config.fieldName + '_template').clone();
+            var idSuffix = '_' + drugConfig.drugId;
+            $orderForm.find("[id]").add($orderForm).each(function() {
+                this.id = this.id + idSuffix;
+            });
+            $orderForm.find("[name]").add($orderForm).each(function() {
+                this.name = this.name + idSuffix;
+            });
+            $drugSection.append($orderForm);
+
+            // Pre-populate the order form with the last rendered order if applicable
+            if (lastRenderedOrder) {
+                htmlForm.populateOrderForm(config, $orderForm, lastRenderedOrder);
+            }
+
             // Show edit section, hide all widgets
-            $editWidgetSection.find('.order-field-label').hide();
-            $editWidgetSection.find('.order-field').hide();
-            $editWidgetSection.show();
+            $orderForm.find('.order-field-label').hide();
+            $orderForm.find('.order-field').hide();
+            $orderForm.show();
 
             // Set up allowed actions
             // Initially, we support a limited set of actions due to complexity of retrospective data entry of orders
 
-            var $actionSection = $editWidgetSection.find('.order-field.action');
+            var $actionSection = $orderForm.find('.order-field.action');
             var $actionWidget = $actionSection.find('select');
             $actionWidget.find('option').hide();
 
@@ -228,7 +306,7 @@
             var lastStart = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStartDate.value : '');
             var lastStop = (lastRenderedOrder != null ? lastRenderedOrder.effectiveStopDate.value : '');
 
-            var allowedActions = new Array();
+            var allowedActions = [];
             allowedActions.push("");
 
             // Allow drugs to be ordered NEW if there are no orders active on or after the encounter date
@@ -258,21 +336,21 @@
             if ($actionWidget.find('option').length > 0) {
                 $actionWidget.change(function() {
                     var action = this.value;
-                    $editWidgetSection.find('.order-field').hide();
-                    $editWidgetSection.find('.order-field.action').show();
+                    $orderForm.find('.order-field').hide();
+                    $orderForm.find('.order-field.action').show();
                     if (action !== '') {
-                        htmlForm.enableDateWidgets($editWidgetSection, encDate);
+                        htmlForm.enableDateWidgets(config, $orderForm, encDate);
                     }
                     if (action === 'DISCONTINUE') {
-                        $editWidgetSection.find('.discontinueReason').show();
+                        $orderForm.find('.discontinueReason').show();
                     }
                     else if (action === 'RENEW') {
-                        htmlForm.enableDrugOrderDurationWidgets($editWidgetSection);
+                        htmlForm.enableDrugOrderDurationWidgets($orderForm);
                     }
                     else if (action === 'REVISE' || action === 'NEW') {
-                        htmlForm.enableDrugOrderDoseWidgets($editWidgetSection);
-                        $editWidgetSection.find('.urgency').show();
-                        htmlForm.enableDrugOrderDurationWidgets($editWidgetSection);
+                        htmlForm.enableDrugOrderDoseWidgets($orderForm);
+                        $orderForm.find('.urgency').show();
+                        htmlForm.enableDrugOrderDurationWidgets($orderForm);
                     }
                 });
                 $actionSection.show();
@@ -281,22 +359,37 @@
 
             // Set up ability to toggle between free-text and simple dosing instructions
 
-            $editWidgetSection.find('.dosingType').find('input:radio').change(function() {
-                htmlForm.enableDrugOrderDoseWidgets($editWidgetSection);
+            $orderForm.find('.dosingType').find('input:radio').change(function() {
+                htmlForm.enableDrugOrderDoseWidgets($orderForm);
             });
 
             // Set up ability to toggle between scheduled and non-scheduled urgencies
-            $editWidgetSection.find('.urgency').find('input:radio').change(function() {
-                htmlForm.enableDateWidgets($editWidgetSection, encDate);
+            $orderForm.find('.urgency').find('input:radio').change(function() {
+                htmlForm.enableDateWidgets(config, $orderForm, encDate);
+            });
+
+            // Set up watch for an encounter date change.  If date changes, rebuild this widget
+            var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
+            $encDateHidden.change(function() {
+                htmlForm.configureDrugOrderWidget(config, null, drug);
             });
         }
     }
 
-    htmlForm.enableDateWidgets = function($editWidgetSection, encDate) {
+    htmlForm.enableDateWidgets = function(config, $orderForm, encDate) {
+
+        // Because the form was cloned, date picker widgets need to be re-enabled
+        $orderForm.find('.hasDatepicker').each(function() {
+            var dispId = '#' + this.id;
+            var valId = '#' + this.id.replace('-display', '');
+            $(this).removeClass('hasDatepicker').removeData('datepicker').unbind();  // Reset cloned datepicker
+            var dateConfig = config.dateWidgetConfig;
+            setupDatePicker(dateConfig.dateFormat, dateConfig.yearsRange, dateConfig.locale, dispId, valId, '');
+        });
 
         // Do not allow editing date activated, and always inherit encounter date.
-        $editWidgetSection.find('.dateActivated').show();
-        var $dateActivatedSection = $editWidgetSection.find('.order-field.dateActivated');
+        $orderForm.find('.dateActivated').show();
+        var $dateActivatedSection = $orderForm.find('.order-field.dateActivated');
         var $dateActivatedWidget = $dateActivatedSection.find('.order-field-widget.dateActivated');
         var $dateActivatedTextField = $dateActivatedWidget.find('input[type=text]');
         setDatePickerValue($dateActivatedTextField, (encDate));
@@ -306,46 +399,61 @@
         $dateActivatedSection.show();
 
         // Allow scheduled date to be set
-        var $urgencySection = $editWidgetSection.find('.urgency');
+        var $urgencySection = $orderForm.find('.urgency');
         var urgencyVal = $urgencySection.find('input:checked').val();
         if (urgencyVal === 'ON_SCHEDULED_DATE') {
-            $editWidgetSection.find('.scheduledDate').show();
+            $orderForm.find('.scheduledDate').show();
         }
         else {
-            $editWidgetSection.find('.scheduledDate').hide();
+            $orderForm.find('.scheduledDate').hide();
         }
     };
 
-    htmlForm.enableDrugOrderDoseWidgets = function($editWidgetSection) {
-        var $dosingTypeSection = $editWidgetSection.find('.dosingType');
+    htmlForm.enableDrugOrderDoseWidgets = function($orderForm) {
+        var $dosingTypeSection = $orderForm.find('.dosingType');
         var dosingTypeVal = $dosingTypeSection.find('input:checked').val();
         if (dosingTypeVal === 'org.openmrs.FreeTextDosingInstructions') {
-            $editWidgetSection.find('.dose').hide();
-            $editWidgetSection.find('.doseUnits').hide();
-            $editWidgetSection.find('.frequency').hide();
-            $editWidgetSection.find('.route').hide();
-            $editWidgetSection.find('.asNeeded').hide();
-            $editWidgetSection.find('.instructions').hide();
-            $editWidgetSection.find('.dosingInstructions').show();
+            $orderForm.find('.dose').hide();
+            $orderForm.find('.doseUnits').hide();
+            $orderForm.find('.frequency').hide();
+            $orderForm.find('.route').hide();
+            $orderForm.find('.asNeeded').hide();
+            $orderForm.find('.instructions').hide();
+            $orderForm.find('.dosingInstructions').show();
         }
         else {
-            $editWidgetSection.find('.dose').show();
-            $editWidgetSection.find('.doseUnits').show();
-            $editWidgetSection.find('.frequency').show();
-            $editWidgetSection.find('.route').show();
-            $editWidgetSection.find('.asNeeded').show();
-            $editWidgetSection.find('.instructions').show();
-            $editWidgetSection.find('.dosingInstructions').hide();
+            $orderForm.find('.dose').show();
+            $orderForm.find('.doseUnits').show();
+            $orderForm.find('.frequency').show();
+            $orderForm.find('.route').show();
+            $orderForm.find('.asNeeded').show();
+            $orderForm.find('.instructions').show();
+            $orderForm.find('.dosingInstructions').hide();
         }
         $dosingTypeSection.show();
     }
 
-    htmlForm.enableDrugOrderDurationWidgets = function($editWidgetSection) {
-        $editWidgetSection.find('.duration').show();
-        $editWidgetSection.find('.durationUnits').show();
-        $editWidgetSection.find('.quantity').show();
-        $editWidgetSection.find('.quantityUnits').show();
-        $editWidgetSection.find('.numRefills').show();
+    htmlForm.enableDrugOrderDurationWidgets = function($orderForm) {
+        $orderForm.find('.duration').show();
+        $orderForm.find('.durationUnits').show();
+        $orderForm.find('.quantity').show();
+        $orderForm.find('.quantityUnits').show();
+        $orderForm.find('.numRefills').show();
+    }
+
+    htmlForm.populateOrderForm = function(config, $orderForm, drugOrder) {
+        $orderForm.find('.order-field-widget.careSetting').find(':input').val(drugOrder.careSetting.value);
+        $orderForm.find('.order-field-widget.dosingType').find(':input').val(drugOrder.dosingType.value);
+        $orderForm.find('.order-field-widget.orderType').find(':input').val(drugOrder.orderType.value);
+        $orderForm.find('.order-field-widget.dosingInstructions').find(':input').val(drugOrder.dosingInstructions.value);
+        $orderForm.find('.order-field-widget.dose').find(':input').val(drugOrder.dose.value);
+        $orderForm.find('.order-field-widget.doseUnits').find(':input').val(drugOrder.doseUnits.value);
+        $orderForm.find('.order-field-widget.route').find(':input').val(drugOrder.route.value);
+        $orderForm.find('.order-field-widget.frequency').find(':input').val(drugOrder.frequency.value);
+        if (drugOrder.asNeeded.value == 'true') {
+            $orderForm.find('.order-field-widget.asNeeded').find(':input').attr('checked', 'true');
+        }
+        $orderForm.find('.order-field-widget.instructions').find(':input').val(drugOrder.instructions.value);
     }
 
     htmlForm.formatDrugOrder = function(d, encDate, config) {
@@ -404,6 +512,20 @@
             }
         });
         return ret;
+    }
+
+    htmlForm.getDrugConfig = function(config, drugId) {
+        var ret = null;
+        config.drugs.forEach(function(drug) {
+            if (drug.drugId === drugId) {
+                ret = drug;
+            }
+        });
+        return ret;
+    }
+
+    htmlForm.drugAlreadyAdded = function(config, drugId) {
+        return $('#drugorders-drug-section-' + drugId).length > 0;
     }
 
     htmlForm.isOrderInCurrentEncounter = function(order, config) {

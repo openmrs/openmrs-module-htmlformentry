@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,55 +16,28 @@ import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.util.JsonObject;
 
 public class DrugOrdersWidget implements Widget {
 	
-	private static Log log = LogFactory.getLog(DrugOrdersWidget.class);
-	
-	private DrugOrderField drugOrderField;
+	private static final Log log = LogFactory.getLog(DrugOrdersWidget.class);
 	
 	private DrugOrderWidgetConfig widgetConfig;
 	
-	private Map<Drug, DrugOrderWidget> drugOrderWidgets;
+	private final DrugOrderWidget drugOrderWidget;
 	
 	private Map<Drug, List<DrugOrder>> initialValue;
 	
-	public DrugOrdersWidget(FormEntryContext context, DrugOrderField drugOrderField, DrugOrderWidgetConfig widgetConfig) {
-		
-		StopWatch sw = new StopWatch();
-		sw.start();
-		log.trace("In DrugOrdersWidget.constructor");
-		
-		this.drugOrderField = drugOrderField;
+	public DrugOrdersWidget(FormEntryContext context, DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
-		
-		for (DrugOrderAnswer answer : drugOrderField.getDrugOrderAnswers()) {
-			DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, answer, widgetConfig);
-			getDrugOrderWidgets().put(answer.getDrug(), drugOrderWidget);
-		}
-		sw.stop();
-		log.trace("DrugOrdersWidget.constructor: " + sw.toString());
+		this.drugOrderWidget = new DrugOrderWidget(context, widgetConfig);
 	}
 	
 	@Override
 	public void setInitialValue(Object v) {
 		initialValue = (Map<Drug, List<DrugOrder>>) v;
-		if (initialValue != null) {
-			for (Drug drug : initialValue.keySet()) {
-				List<DrugOrder> drugOrders = initialValue.get(drug);
-				HtmlFormEntryUtil.sortDrugOrders(drugOrders);
-				if (drugOrders != null && drugOrders.size() > 0) {
-					DrugOrderWidget w = getDrugOrderWidgets().get(drug);
-					if (w != null) {
-						w.setInitialValue(drugOrders.get(drugOrders.size() - 1));
-					}
-				}
-			}
-		}
 	}
 	
 	public List<DrugOrder> getInitialValueForDrug(Drug drug) {
@@ -86,8 +58,16 @@ public class DrugOrdersWidget implements Widget {
 		startTag(writer, "div", fieldName, "drugorders-element", null);
 		writer.println();
 		
-		// Add a section prior to the various drug widgets
+		// Add a section to the orders section
 		writer.println("<div id=\"" + fieldName + "_header\" class=\"drugorders-header-section\"></div>");
+		
+		// Add a section that will contain the selected drug orders
+		writer.println("<div id=\"" + fieldName + "_orders\" class=\"drugorders-order-section\"></div>");
+		
+		// Add a section that contains the order form template to use for entering orders
+		writer.println("<div id=\"" + fieldName + "_template\" class=\"drugorders-order-form\" style=\"display:none;\">");
+		writer.println(drugOrderWidget.generateHtml(context));
+		writer.println("</div>");
 		
 		// Establish a json config that initializes the javascript-based widget
 		Integer patId = context.getExistingPatient().getPatientId();
@@ -105,6 +85,18 @@ public class DrugOrdersWidget implements Widget {
 			}
 		}
 		
+		// In order to re-configure date widgets, add some additional configuration
+		DateWidget w = (DateWidget) drugOrderWidget.getDateActivatedWidget();
+		JsonObject dateConfig = jsonConfig.addObject("dateWidgetConfig");
+		dateConfig.addString("dateFormat", w.jsDateFormat());
+		dateConfig.addString("yearsRange", w.getYearsRange());
+		dateConfig.addString("locale", w.getLocaleForJquery());
+		
+		JsonObject jsonDrugWidgets = jsonConfig.addObject("widgets");
+		for (String key : drugOrderWidget.getWidgetReplacements().keySet()) {
+			jsonDrugWidgets.addString(key, context.getFieldName(drugOrderWidget.getWidgetReplacements().get(key)));
+		}
+		
 		// Add any translations needed by the default views
 		String prefix = "htmlformentry.drugOrder.";
 		JsonObject translations = jsonConfig.addObject("translations");
@@ -112,36 +104,19 @@ public class DrugOrdersWidget implements Widget {
 		translations.addTranslation(prefix, "previousOrder");
 		translations.addTranslation(prefix, "present");
 		translations.addTranslation(prefix, "noOrders");
+		translations.addTranslation(prefix, "chooseDrug");
+		
+		DrugOrderField field = widgetConfig.getDrugOrderField();
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
-		for (Drug drug : getDrugOrderWidgets().keySet()) {
-			DrugOrderWidget drugOrderWidget = getDrugOrderWidgets().get(drug);
-			String drugLabel = drugOrderWidget.getDrugOrderAnswer().getDisplayName();
-			
-			// All elements for a given drug will have an id prefix like "fieldName_drugId"
-			String drugOrderSectionId = fieldName + "_" + drug.getId();
-			String sectionStyle = (drugOrderWidget.getInitialValue() == null ? "display:none" : "");
-			startTag(writer, "div", drugOrderSectionId, "drugorders-drug-section", sectionStyle);
-			writer.append("<div class=\"drugorders-drug-details\">").append("</div>");
-			writer.append("<div class=\"drugorders-order-history\"></div>");
-			String entryId = drugOrderSectionId + "_entry";
-			startTag(writer, "div", entryId, "drugorders-order-form", "display:none;");
-			writer.print(drugOrderWidget.generateHtml(context));
-			writer.println();
-			writer.println("</div>");
-			
-			writer.println("</div>");
+		for (DrugOrderAnswer doa : field.getDrugOrderAnswers()) {
+			Drug drug = doa.getDrug();
+			String drugLabel = doa.getDisplayName();
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
 			JsonObject jsonDrug = jsonConfig.addObjectToArray("drugs");
 			jsonDrug.addString("drugId", drug.getId().toString());
 			jsonDrug.addString("drugLabel", drugLabel);
-			jsonDrug.addString("sectionId", drugOrderSectionId);
-			
-			JsonObject jsonDrugWidgets = jsonDrug.addObject("widgets");
-			for (String key : drugOrderWidget.getWidgetReplacements().keySet()) {
-				jsonDrugWidgets.addString(key, context.getFieldName(drugOrderWidget.getWidgetReplacements().get(key)));
-			}
 			
 			for (DrugOrder d : getInitialValueForDrug(drug)) {
 				Order pd = d.getPreviousOrder();
@@ -207,19 +182,12 @@ public class DrugOrdersWidget implements Widget {
 	@Override
 	public List<DrugOrderWidgetValue> getValue(FormEntryContext context, HttpServletRequest request) {
 		List<DrugOrderWidgetValue> ret = new ArrayList<>();
-		for (DrugOrderWidget widget : getDrugOrderWidgets().values()) {
-			DrugOrderWidgetValue drugOrder = widget.getValue(context, request);
-			ret.add(drugOrder);
-		}
+		// TODO: Figure out how to retrieve the drug oders from the request
 		return ret;
 	}
 	
 	public DrugOrderField getDrugOrderField() {
-		return drugOrderField;
-	}
-	
-	public void setDrugOrderField(DrugOrderField drugOrderField) {
-		this.drugOrderField = drugOrderField;
+		return widgetConfig.getDrugOrderField();
 	}
 	
 	public DrugOrderWidgetConfig getWidgetConfig() {
@@ -228,12 +196,5 @@ public class DrugOrdersWidget implements Widget {
 	
 	public void setWidgetConfig(DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
-	}
-	
-	public Map<Drug, DrugOrderWidget> getDrugOrderWidgets() {
-		if (drugOrderWidgets == null) {
-			drugOrderWidgets = new LinkedHashMap<>();
-		}
-		return drugOrderWidgets;
 	}
 }

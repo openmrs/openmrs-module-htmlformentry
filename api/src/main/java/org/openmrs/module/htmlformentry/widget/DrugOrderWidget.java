@@ -22,30 +22,28 @@ import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
 import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
-import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.util.OpenmrsClassLoader;
 
 /**
- * Holds the widgets used to represent a specific drug order
+ * Holds the widgets used to represent a Drug Order submission
  */
 public class DrugOrderWidget implements Widget {
 	
 	protected final Log log = LogFactory.getLog(DrugOrderWidget.class);
 	
-	private final DrugOrderAnswer drugOrderAnswer;
-	
 	private final DrugOrderWidgetConfig widgetConfig;
 	
 	private final Map<String, Widget> widgetReplacements = new HashMap<>();
 	
-	private DrugOrder initialValue;
-	
 	private Widget drugWidget;
 	
 	private Widget actionWidget;
+	
+	private Widget previousOrderWidget;
 	
 	private Widget careSettingWidget;
 	
@@ -87,16 +85,11 @@ public class DrugOrderWidget implements Widget {
 	
 	private Widget discontinueReasonWidget;
 	
-	public DrugOrderWidget(FormEntryContext context, DrugOrderAnswer drugOrderAnswer, DrugOrderWidgetConfig widgetConfig) {
-		
-		StopWatch sw = new StopWatch();
-		sw.start();
-		log.trace("In DrugOrderWidget.constructor");
-		
-		this.drugOrderAnswer = drugOrderAnswer;
+	public DrugOrderWidget(FormEntryContext context, DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
 		configureDrugWidget(context);
 		configureActionWidget(context);
+		configurePreviousOrderWidget(context);
 		configureCareSettingWidget(context);
 		configureDosingTypeWidget(context);
 		configureOrderTypeWidget(context);
@@ -117,9 +110,6 @@ public class DrugOrderWidget implements Widget {
 		configureNumRefillsWidget(context);
 		configureVoidedWidget(context);
 		configureDiscontinueReasonWidget(context);
-		
-		sw.stop();
-		log.trace("DrugOrderWidget.constructor: " + sw.toString());
 	}
 	
 	@Override
@@ -135,9 +125,11 @@ public class DrugOrderWidget implements Widget {
 				String key = c.toString();
 				StringBuilder replacement = new StringBuilder();
 				String label = translate("htmlformentry.drugOrder." + property);
-				replacement.append("<div class=\"order-field " + property + "\">");
-				replacement.append("<div class=\"order-field-label " + property + "\">").append(label).append("</div>");
-				replacement.append("<div class=\"order-field-widget " + property + "\">");
+				replacement.append("<div class=\"order-field ").append(property).append("\">");
+				replacement.append("<div class=\"order-field-label ").append(property).append("\">");
+				replacement.append(label);
+				replacement.append("</div>");
+				replacement.append("<div class=\"order-field-widget ").append(property).append("\">");
 				replacement.append(w.generateHtml(context));
 				replacement.append("</div>");
 				replacement.append("</div>");
@@ -152,10 +144,10 @@ public class DrugOrderWidget implements Widget {
 	@Override
 	public void setInitialValue(Object initialValue) {
 		DrugOrder d = (DrugOrder) initialValue;
-		this.initialValue = d;
 		if (d != null) {
 			setInitialValue(drugWidget, d.getDrug());
 			setInitialValue(actionWidget, d.getAction());
+			setInitialValue(previousOrderWidget, d.getPreviousOrder());
 			setInitialValue(careSettingWidget, d.getCareSetting());
 			setInitialValue(dosingTypeWidget, d.getDosingType());
 			setInitialValue(orderTypeWidget, d.getOrderType());
@@ -182,12 +174,12 @@ public class DrugOrderWidget implements Widget {
 	@Override
 	public DrugOrderWidgetValue getValue(FormEntryContext context, HttpServletRequest request) {
 		DrugOrderWidgetValue ret = new DrugOrderWidgetValue();
-		ret.setPreviousDrugOrder(initialValue);
+		ret.setPreviousDrugOrder(getPreviousOrderWidgetValue(context, request));
 		Order.Action action = getActionWidgetValue(context, request);
 		if (action != null) {
 			DrugOrder drugOrder = new DrugOrder();
-			drugOrder.setDrug(drugOrderAnswer.getDrug());
-			drugOrder.setPreviousOrder(initialValue);
+			drugOrder.setDrug(getDrugWidgetValue(context, request));
+			drugOrder.setPreviousOrder(ret.getPreviousDrugOrder());
 			drugOrder.setAction(action);
 			drugOrder.setCareSetting(getCareSettingWidgetValue(context, request));
 			drugOrder.setDosingType(getDosingTypeWidgetValue(context, request));
@@ -218,7 +210,6 @@ public class DrugOrderWidget implements Widget {
 	
 	protected void configureDrugWidget(FormEntryContext context) {
 		HiddenFieldWidget w = new HiddenFieldWidget();
-		w.setInitialValue(drugOrderAnswer.getDrug().getId().toString());
 		drugWidget = w;
 		registerWidget(context, w, new ErrorWidget(), "drug");
 	}
@@ -236,6 +227,18 @@ public class DrugOrderWidget implements Widget {
 	protected Order.Action getActionWidgetValue(FormEntryContext context, HttpServletRequest request) {
 		String val = (String) actionWidget.getValue(context, request);
 		return (StringUtils.isBlank(val) ? null : Order.Action.valueOf(val));
+	}
+	
+	protected void configurePreviousOrderWidget(FormEntryContext context) {
+		HiddenFieldWidget w = new HiddenFieldWidget();
+		previousOrderWidget = w;
+		registerWidget(context, w, new ErrorWidget(), "previousOrder");
+	}
+	
+	protected DrugOrder getPreviousOrderWidgetValue(FormEntryContext context, HttpServletRequest request) {
+		Integer orderId = (Integer) previousOrderWidget.getValue(context, request);
+		Order order = Context.getOrderService().getOrder(orderId);
+		return (DrugOrder) HibernateUtil.getRealObjectFromProxy(order);
 	}
 	
 	protected void configureCareSettingWidget(FormEntryContext context) {
@@ -563,14 +566,6 @@ public class DrugOrderWidget implements Widget {
 	
 	protected String translate(String code) {
 		return Context.getMessageSourceService().getMessage(code);
-	}
-	
-	public DrugOrder getInitialValue() {
-		return initialValue;
-	}
-	
-	public DrugOrderAnswer getDrugOrderAnswer() {
-		return drugOrderAnswer;
 	}
 	
 	public DrugOrderWidgetConfig getWidgetConfig() {
