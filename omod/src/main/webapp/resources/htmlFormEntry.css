@@ -79,6 +79,11 @@ div.loading {
 .order-view-field.order-view-dose {
 	font-weight:bold; padding-left:20px;
 }
+
+.order-view-field.order-view-discontinue-reason {
+	font-weight:bold; padding-left:20px;
+}
+
 .order-view-different-encounter {
 	color: grey;
 }

@@ -371,7 +371,7 @@
             // Set up watch for an encounter date change.  If date changes, rebuild this widget
             var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
             $encDateHidden.change(function() {
-                htmlForm.configureDrugOrderWidget(config, null, drug);
+                htmlForm.configureDrugOrderWidget(config, null, drugConfig);
             });
         }
     }
@@ -442,6 +442,7 @@
     }
 
     htmlForm.populateOrderForm = function(config, $orderForm, drugOrder) {
+        $orderForm.find('.order-field-widget.previousOrder').find(':input').val(drugOrder.orderId);
         $orderForm.find('.order-field-widget.careSetting').find(':input').val(drugOrder.careSetting.value);
         $orderForm.find('.order-field-widget.dosingType').find(':input').val(drugOrder.dosingType.value);
         $orderForm.find('.order-field-widget.orderType').find(':input').val(drugOrder.orderType.value);
@@ -450,7 +451,7 @@
         $orderForm.find('.order-field-widget.doseUnits').find(':input').val(drugOrder.doseUnits.value);
         $orderForm.find('.order-field-widget.route').find(':input').val(drugOrder.route.value);
         $orderForm.find('.order-field-widget.frequency').find(':input').val(drugOrder.frequency.value);
-        if (drugOrder.asNeeded.value == 'true') {
+        if (drugOrder.asNeeded.value === 'true') {
             $orderForm.find('.order-field-widget.asNeeded').find(':input').attr('checked', 'true');
         }
         $orderForm.find('.order-field-widget.instructions').find(':input').val(drugOrder.instructions.value);
@@ -480,27 +481,34 @@
         $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + endDate + '</div>');
         $ret.append($dateSection);
 
-        var $doseSection = $('<div class="order-view-section order-view-dosing"></div>');
-        if (d.dosingType.value === 'org.openmrs.FreeTextDosingInstructions') {
-            $doseSection.append('<div class="order-view-field order-view-dosing-instructions">' + d.dosingInstructions.display + "</div>");
-        } else {
-            if (d.dose.display !== '') {
-                $doseSection.append('<div class="order-view-field order-view-dose">' + d.dose.display + " " + d.doseUnits.display + "</div>");
-            }
-            if (d.route.display !== "") {
-                $doseSection.append(' -- <div class="order-view-field order-view-route">' + d.route.display + '</div>');
-            }
-            if (d.frequency.display !== "") {
-                $doseSection.append(' -- <div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
-            }
-            if (d.asNeeded.value === "true") {
-                $doseSection.append(' -- <div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
-            }
-            if (d.instructions.value !== "") {
-                $doseSection.append(' -- <div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
-            }
+        if (d.action.value === 'DISCONTINUE') {
+            var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
+            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.orderReason.display + '</div>');
+            $ret.append($discontinueSection);
         }
-        $ret.append($doseSection);
+        else {
+            var $doseSection = $('<div class="order-view-section order-view-dosing"></div>');
+            if (d.dosingType.value === 'org.openmrs.FreeTextDosingInstructions') {
+                $doseSection.append('<div class="order-view-field order-view-dosing-instructions">' + d.dosingInstructions.display + "</div>");
+            } else {
+                if (d.dose.display !== '') {
+                    $doseSection.append('<div class="order-view-field order-view-dose">' + d.dose.display + " " + d.doseUnits.display + "</div>");
+                }
+                if (d.route.display !== "") {
+                    $doseSection.append(' -- <div class="order-view-field order-view-route">' + d.route.display + '</div>');
+                }
+                if (d.frequency.display !== "") {
+                    $doseSection.append(' -- <div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
+                }
+                if (d.asNeeded.value === "true") {
+                    $doseSection.append(' -- <div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
+                }
+                if (d.instructions.value !== "") {
+                    $doseSection.append(' -- <div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
+                }
+            }
+            $ret.append($doseSection);
+        }
         return $ret;
     }
 
