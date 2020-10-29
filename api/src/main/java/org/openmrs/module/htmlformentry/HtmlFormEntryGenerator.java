@@ -14,9 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.openmrs.Role;
 import org.openmrs.User;
 import org.openmrs.api.context.Context;
@@ -35,8 +32,6 @@ import org.w3c.dom.NodeList;
  * and replace tags like {@code <obs/>}.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
-	
-	private static Log log = LogFactory.getLog(HtmlFormEntryGenerator.class);
 	
 	/**
 	 * @see #applyMacros(FormEntrySession, String) This method simply delegates to the
@@ -587,15 +582,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * @throws Exception
 	 */
 	public String applyTags(FormEntrySession session, String xml) throws Exception {
-		StopWatch sw = new StopWatch();
-		sw.start();
-		log.trace("In ApplyTags");
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		Node content = HtmlFormEntryUtil.findChild(doc, "htmlform");
 		StringWriter out = new StringWriter();
 		applyTagsHelper(session, new PrintWriter(out), null, content, null);
-		sw.stop();
-		log.trace("ApplyTags: " + sw.toString());
 		return out.toString();
 	}
 	
