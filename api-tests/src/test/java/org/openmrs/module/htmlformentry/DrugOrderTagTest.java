@@ -142,7 +142,6 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
 			}
 		};
-		executeVersionedDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
 		//Test viewing edited drug order
@@ -271,7 +270,6 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
 			}
 		};
-		executeVersionedDataSet("otherConceptMappings.xml");
 		createAndEditEncounterTest.run();
 		
 		//Test viewing edited drug order
