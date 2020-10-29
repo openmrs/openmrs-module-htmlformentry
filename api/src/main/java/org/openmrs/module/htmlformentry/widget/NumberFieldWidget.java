@@ -1,15 +1,15 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmrs.ConceptNumeric;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -29,7 +29,7 @@ public class NumberFieldWidget implements Widget {
 	/**
 	 * Creates a widget with certain absolute maximum and minimum values. Floating point numbers are
 	 * allowed if floatingPoint=true.
-	 * 
+	 *
 	 * @param absoluteMinimum
 	 * @param absoluteMaximum
 	 * @param floatingPoint
@@ -43,7 +43,7 @@ public class NumberFieldWidget implements Widget {
 	/**
 	 * Creates a widget with certain absolute maximum and minimum values as defined by a specific
 	 * numeric Concept
-	 * 
+	 *
 	 * @param concept
 	 * @param size, the size of the text field to render
 	 */
@@ -78,7 +78,7 @@ public class NumberFieldWidget implements Widget {
 	
 	/**
 	 * Returns whether or not this widget accepts floating point values
-	 * 
+	 *
 	 * @return true/false
 	 */
 	public boolean isFloatingPoint() {
@@ -87,7 +87,7 @@ public class NumberFieldWidget implements Widget {
 	
 	/**
 	 * Sets whether or not this widget accepts floating point values
-	 * 
+	 *
 	 * @param floatingPoint
 	 */
 	public void setFloatingPoint(boolean floatingPoint) {
@@ -96,7 +96,7 @@ public class NumberFieldWidget implements Widget {
 	
 	/**
 	 * Gets the absolute minimum value allowed for this widget
-	 * 
+	 *
 	 * @return absoluteMinimum
 	 */
 	public Double getAbsoluteMinimum() {
@@ -105,7 +105,7 @@ public class NumberFieldWidget implements Widget {
 	
 	/**
 	 * Sets the absolute minimum value allowed for this widget
-	 * 
+	 *
 	 * @param minimum
 	 */
 	public void setAbsoluteMinimum(Double minimum) {
@@ -114,7 +114,7 @@ public class NumberFieldWidget implements Widget {
 	
 	/**
 	 * Gets the absolute maximum value allowed for this widget
-	 * 
+	 *
 	 * @return absoluteMaximum
 	 */
 	public Double getAbsoluteMaximum() {
@@ -123,7 +123,7 @@ public class NumberFieldWidget implements Widget {
 	
 	/**
 	 * Sets the absolute maximum value allows for this widget
-	 * 
+	 *
 	 * @param maximum
 	 */
 	public void setAbsoluteMaximum(Double maximum) {
@@ -207,23 +207,24 @@ public class NumberFieldWidget implements Widget {
 	}
 	
 	@Override
-	public Number getValue(FormEntryContext context, HttpServletRequest request) {
+	public Double getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
-			Number ret = null;
-			if (isFloatingPoint()) {
-				ret = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
-			} else {
-				ret = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Integer.class);
-			}
-			if (ret != null && absoluteMinimum != null && ret.doubleValue() < absoluteMinimum)
+			Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
+			if (d != null && absoluteMinimum != null && d < absoluteMinimum) {
 				throw new IllegalArgumentException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " "
 				                + absoluteMinimum);
-			if (ret != null && absoluteMaximum != null && ret.doubleValue() > absoluteMaximum)
+			}
+			if (d != null && absoluteMaximum != null && d > absoluteMaximum) {
 				throw new IllegalArgumentException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " "
 				                + absoluteMaximum);
-			return ret;
+			}
+			if (d != null && floatingPoint == false && Math.floor(d) != d) {
+				throw new IllegalArgumentException(
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.notAnInteger"));
+			}
+			return d;
 		}
 		catch (NumberFormatException ex) {
 			throw new IllegalArgumentException(

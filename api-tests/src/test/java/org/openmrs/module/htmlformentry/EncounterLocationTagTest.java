@@ -13,9 +13,6 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -24,8 +21,20 @@ import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.GlobalProperty;
 import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class EncounterLocationTagTest extends BaseHtmlFormEntryTest {
 	
@@ -96,7 +105,7 @@ public class EncounterLocationTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void encounterLocationTag_shouldSupportDefaultSelectByDeafultLocation() throws Exception {
+	public void encounterLocationTag_shouldSupportDefaultSelectByDefaultLocation() throws Exception {
 		
 		String htmlform = "<htmlform><encounterLocation default=\"SystemDefault\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
@@ -192,6 +201,58 @@ public class EncounterLocationTagTest extends BaseHtmlFormEntryTest {
 		
 		Assert.assertTrue(htmlToDisplay.indexOf("Mirebalais") < htmlToDisplay.indexOf("Indianapolis"));
 		Assert.assertTrue(htmlToDisplay.indexOf("Indianapolis") < htmlToDisplay.indexOf("Boston"));
+	}
+	
+	@Test
+	public void shouldRestrictToVisitLocationAndChildrenIfRestrictToVisitLocationEnabledAndVisitInContext()
+	        throws Exception {
+		
+		// create mock visit with Location = Boston
+		Visit visit = new Visit();
+		visit.setLocation(Context.getLocationService().getLocationByUuid("9356400c-a5a2-4588-8f2b-2361b3446eb8"));
+		
+		String htmlform = "<htmlform><encounterLocation restrictToCurrentVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+		session.getContext().setVisit(visit);
+		
+		String htmlToDisplay = session.getHtmlToDisplay();
+		
+		TestUtil.assertFuzzyContains("Boston", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Jamaica Plain", htmlToDisplay);
+		
+		TestUtil.assertFuzzyDoesNotContain("Kigali", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Mirebalais", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Scituate", htmlToDisplay);
+	}
+	
+	@Test
+	public void shouldRestrictToVisitLocationAndChildrenIfRestrictToVisitLocationEnabledButNoVisitInContext()
+	        throws Exception {
+		
+		String htmlform = "<htmlform><encounterLocation restrictToCurrentVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+		
+		String htmlToDisplay = session.getHtmlToDisplay();
+		
+		TestUtil.assertFuzzyContains("Kigali", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Mirebalais", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Boston", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Scituate", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Jamaica Plain", htmlToDisplay);
+	}
+	
+	@Test
+	public void getAllVisitsAndChildLocations_shouldReturnAllVisitsAndTheirChildLocations() throws Exception {
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
+		Set<Location> traversedLocations = new HashSet<Location>();
+		Set<Location> allVisitLocations = new HashSet<Location>();
+		LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
+		List<Location> visitLocations = Context.getLocationService().getLocationsByTag(visitLocationTag);
+		allVisitLocations.addAll(visitLocations);
+		assertThat(
+		    EncounterDetailSubmissionElement.getAllVisitsAndChildLocations(allVisitLocations, traversedLocations).size(),
+		    is(10));
+		
 	}
 	
 }
