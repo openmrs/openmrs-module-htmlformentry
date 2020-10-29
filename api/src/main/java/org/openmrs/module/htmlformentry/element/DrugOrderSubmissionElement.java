@@ -504,7 +504,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	
 	/**
 	 * Be aware it's called by the constructor.
-	 * 
+	 *
 	 * @param context
 	 * @param usingDurationField
 	 */
@@ -611,7 +611,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	
 	/**
 	 * Be aware it's called by the constructor.
-	 * 
+	 *
 	 * @param context
 	 * @param mss
 	 */
@@ -640,7 +640,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	/**
 	 * Static helper method to parse frequency string <strong>Should</strong> return times per day which
 	 * is part of frequency string
-	 * 
+	 *
 	 * @param frequency (format "x/d y d/w")
 	 * @return x
 	 */
@@ -652,7 +652,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	/**
 	 * Static helper method to parse frequency string <strong>Should</strong> return number of days per
 	 * weeks which is part of frequency string
-	 * 
+	 *
 	 * @param frequency (format "x/d y d/w")
 	 * @return y
 	 */
@@ -664,8 +664,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	
 	/**
 	 * <strong>Should</strong> return HTML snippet
-	 * 
-	 * @see HtmlGeneratorElement#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
+	 *
+	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
 	@Override
 	public String generateHtml(FormEntryContext context) {
@@ -782,9 +782,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	
 	/**
 	 * handleSubmission saves a drug order if in ENTER or EDIT-mode
-	 * 
-	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#handleSubmission(org.openmrs.module.htmlformentry.FormEntrySession,
-	 *      javax.servlet.http.HttpServletRequest)
+	 *
+	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
@@ -863,17 +862,14 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			orderTag.doseUnits = Context.getConceptService().getConcept(Integer.valueOf(doseUnitsValue));
 		}
 		
-		orderTag.quantity = quantityWidget.getValue(session.getContext(), submission);
+		orderTag.quantity = (Double) quantityWidget.getValue(session.getContext(), submission);
 		
 		String quantityUnitsValue = (String) quantityUnitsWidget.getValue(session.getContext(), submission);
 		if (quantityUnitsValue != null) {
 			orderTag.quantityUnits = Context.getConceptService().getConcept(Integer.valueOf(quantityUnitsValue));
 		}
 		
-		Double drugOrderDuration = durationWidget.getValue(session.getContext(), submission);
-		if (drugOrderDuration != null) {
-			orderTag.duration = drugOrderDuration.intValue();
-		}
+		orderTag.duration = (Integer) durationWidget.getValue(session.getContext(), submission);
 		
 		String durationUnitsValue = (String) durationUnitsWidget.getValue(session.getContext(), submission);
 		if (durationUnitsValue != null) {
@@ -890,14 +886,11 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			orderTag.route = Context.getConceptService().getConcept(Integer.valueOf(routeValue));
 		}
 		
-		Double refillsValue = numRefillsWidget.getValue(session.getContext(), submission);
-		if (refillsValue != null) {
-			orderTag.numRefills = refillsValue.intValue();
-		}
+		orderTag.numRefills = (Integer) numRefillsWidget.getValue(session.getContext(), submission);
 	}
 	
 	protected void voidOrder(FormEntrySession session) {
-		//void order 
+		//void order
 		existingOrder.setVoided(true);
 		existingOrder.setVoidedBy(Context.getAuthenticatedUser());
 		existingOrder.setVoidReason("Drug De-selected in " + session.getForm().getName());
@@ -1054,9 +1047,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	/**
 	 * <strong>Should</strong> return validation errors if doseWidget, startDateWidget or
 	 * discontinuedDateWidget is invalid
-	 * 
-	 * @see org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction#validateSubmission(org.openmrs.module.htmlformentry.FormEntryContext,
-	 *      javax.servlet.http.HttpServletRequest)
+	 *
+	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
