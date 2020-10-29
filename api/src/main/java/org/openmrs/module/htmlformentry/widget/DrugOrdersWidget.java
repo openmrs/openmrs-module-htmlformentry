@@ -23,12 +23,12 @@ import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
 import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.api.context.Context;
-import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.JsonObject;
 
 public class DrugOrdersWidget implements Widget {
@@ -299,47 +299,7 @@ public class DrugOrdersWidget implements Widget {
 		if (StringUtils.isBlank(value)) {
 			return defaultValue;
 		}
-		try {
-			Object ret = null;
-			if (type == String.class) {
-				ret = (T) value;
-			} else if (type == Boolean.class) {
-				ret = StringUtils.isNotBlank(value);
-			} else if (type == Concept.class) {
-				ret = HtmlFormEntryUtil.getConcept(value);
-			} else if (type == Drug.class) {
-				ret = HtmlFormEntryUtil.getDrug(value);
-			} else if (type == OrderFrequency.class) {
-				ret = HtmlFormEntryUtil.getOrderFrequency(value);
-			} else if (type == OrderType.class) {
-				ret = HtmlFormEntryUtil.getOrderType(value);
-			} else if (type == CareSetting.class) {
-				ret = HtmlFormEntryUtil.getCareSetting(value);
-			} else if (type == Date.class) {
-				ret = new SimpleDateFormat("yyyy-MM-dd").parse(value);
-			} else if (type == Double.class) {
-				ret = Double.valueOf(value);
-			} else if (type == Integer.class) {
-				ret = Integer.valueOf(value);
-			} else if (type == Order.Action.class) {
-				ret = Order.Action.valueOf(value);
-			} else if (type == Order.Urgency.class) {
-				ret = Order.Urgency.valueOf(value);
-			} else if (type == Class.class) {
-				ret = Context.loadClass(value);
-			} else if (type == DrugOrder.class) {
-				Integer orderId = Integer.parseInt(value);
-				Order order = Context.getOrderService().getOrder(orderId);
-				ret = HibernateUtil.getRealObjectFromProxy(order);
-			}
-			if (ret == null) {
-				throw new IllegalArgumentException("Unable to get " + type + " with value: " + value);
-			}
-			return (T) ret;
-		}
-		catch (Exception e) {
-			throw new IllegalArgumentException("Unable to get value from request", e);
-		}
+		return TagUtil.parseValue(value, type);
 	}
 	
 	protected String registerWidget(FormEntryContext context, Widget widget, ErrorWidget errorWidget, String propertyName) {
