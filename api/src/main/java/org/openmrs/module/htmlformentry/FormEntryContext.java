@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -727,7 +712,7 @@ public class FormEntryContext {
 	/**
 	 * Finds the best matching obsGroup at the right obsGroup hierarchy level
 	 * <p/>
-	 * 
+	 *
 	 * @param xmlObsGroupConcept the grouping concept associated with the {@see ObsGroups}
 	 * @param questionsAndAnswers the questions and answered associate with the {@see ObsGroup}
 	 * @param path the depth level of the obsGroup in the xml

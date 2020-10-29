@@ -166,8 +166,11 @@
 
 	<!--
 		The deploy-web profile is a convenience to copy web files over to an SDK server's working code
-		Another option that works would be to set up a watch on a file of interest that you are working on
-		eg:  inotify-hookable -w omod/src/main/webapp/resources/ -c 'cp -R omod/src/main/webapp/resources/* /path-to-server/tmp/openmrs/WEB-INF/view/module/htmlformentry/resources/'
+		You would execute this by running:  mvn clean install -DskipTests -Pdeploy-web -DserverId=mysdkserver
+		If you are doing a lot of development, a more efficient alternative would be to set up a filesystem watch such as:
+		eg:
+		inotify-hookable -w omod/src/main/webapp/resources/ -c \
+		'cp -R omod/src/main/webapp/resources/* /path-to-server/tmp/openmrs/WEB-INF/view/module/htmlformentry/resources/'
 	-->
 	<profiles>
 		<profile>
@@ -185,9 +188,8 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<!-- eg. mvn clean install -DskipTests -Pdeploy-web -DserverId=butaro2x -->
 										<copy todir="${user.home}/openmrs/${serverId}/tmp/openmrs/WEB-INF/view/module/${project.parent.artifactId}">
-											<fileset dir="src/main/webapp" includes="**/*" />
+										<fileset dir="src/main/webapp" includes="**/*" />
 										</copy>
 									</tasks>
 								</configuration>
