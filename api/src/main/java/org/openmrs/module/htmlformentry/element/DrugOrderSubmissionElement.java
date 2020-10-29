@@ -863,14 +863,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			orderTag.doseUnits = Context.getConceptService().getConcept(Integer.valueOf(doseUnitsValue));
 		}
 		
-		orderTag.quantity = (Double) quantityWidget.getValue(session.getContext(), submission);
+		orderTag.quantity = quantityWidget.getValue(session.getContext(), submission);
 		
 		String quantityUnitsValue = (String) quantityUnitsWidget.getValue(session.getContext(), submission);
 		if (quantityUnitsValue != null) {
 			orderTag.quantityUnits = Context.getConceptService().getConcept(Integer.valueOf(quantityUnitsValue));
 		}
 		
-		orderTag.duration = (Integer) durationWidget.getValue(session.getContext(), submission);
+		Double drugOrderDuration = durationWidget.getValue(session.getContext(), submission);
+		if (drugOrderDuration != null) {
+			orderTag.duration = drugOrderDuration.intValue();
+		}
 		
 		String durationUnitsValue = (String) durationUnitsWidget.getValue(session.getContext(), submission);
 		if (durationUnitsValue != null) {
@@ -887,7 +890,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			orderTag.route = Context.getConceptService().getConcept(Integer.valueOf(routeValue));
 		}
 		
-		orderTag.numRefills = (Integer) numRefillsWidget.getValue(session.getContext(), submission);
+		Double refillsValue = numRefillsWidget.getValue(session.getContext(), submission);
+		if (refillsValue != null) {
+			orderTag.numRefills = refillsValue.intValue();
+		}
 	}
 	
 	protected void voidOrder(FormEntrySession session) {
