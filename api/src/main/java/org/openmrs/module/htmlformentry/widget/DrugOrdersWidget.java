@@ -35,13 +35,13 @@ public class DrugOrdersWidget implements Widget {
 	
 	private static final Log log = LogFactory.getLog(DrugOrdersWidget.class);
 	
-	private DrugOrderWidgetConfig widgetConfig;
+	private DrugOrdersWidgetConfig widgetConfig;
 	
 	private final Map<String, Widget> widgets = new LinkedHashMap<>();
 	
 	private Map<Drug, List<DrugOrder>> initialValue;
 	
-	public DrugOrdersWidget(FormEntryContext context, DrugOrderWidgetConfig widgetConfig) {
+	public DrugOrdersWidget(FormEntryContext context, DrugOrdersWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
 		registerWidget(context, new HiddenFieldWidget(), new ErrorWidget(), "drug");
 		configureOptionWidget(context, "action", "dropdown");
@@ -221,8 +221,8 @@ public class DrugOrdersWidget implements Widget {
 	}
 	
 	@Override
-	public List<DrugOrderWidgetValue> getValue(FormEntryContext c, HttpServletRequest r) {
-		List<DrugOrderWidgetValue> ret = new ArrayList<>();
+	public List<DrugOrdersWidgetValue> getValue(FormEntryContext c, HttpServletRequest r) {
+		List<DrugOrdersWidgetValue> ret = new ArrayList<>();
 		OrderType defOrderType = HtmlFormEntryUtil.getDrugOrderType();
 		for (DrugOrderAnswer doa : getDrugOrderField().getDrugOrderAnswers()) {
 			Drug d = doa.getDrug();
@@ -230,7 +230,7 @@ public class DrugOrdersWidget implements Widget {
 			DrugOrder previousOrder = parseValue(getValue(c, r, d, "previousOrder"), DrugOrder.class);
 			boolean voidPrevious = parseValue(getValue(c, r, d, "voided"), Boolean.class, false);
 			if (action != null || voidPrevious) {
-				DrugOrderWidgetValue v = new DrugOrderWidgetValue();
+				DrugOrdersWidgetValue v = new DrugOrdersWidgetValue();
 				v.setPreviousDrugOrder(previousOrder);
 				if (voidPrevious) {
 					v.setVoidPreviousOrder(true);
@@ -412,11 +412,11 @@ public class DrugOrdersWidget implements Widget {
 		return widgetConfig.getDrugOrderField();
 	}
 	
-	public DrugOrderWidgetConfig getWidgetConfig() {
+	public DrugOrdersWidgetConfig getWidgetConfig() {
 		return widgetConfig;
 	}
 	
-	public void setWidgetConfig(DrugOrderWidgetConfig widgetConfig) {
+	public void setWidgetConfig(DrugOrdersWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
 	}
 }

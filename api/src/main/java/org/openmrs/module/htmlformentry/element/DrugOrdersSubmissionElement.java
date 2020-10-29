@@ -29,8 +29,8 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
-import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
-import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
+import org.openmrs.module.htmlformentry.widget.DrugOrdersWidgetConfig;
+import org.openmrs.module.htmlformentry.widget.DrugOrdersWidgetValue;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.util.OpenmrsUtil;
@@ -82,8 +82,8 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-		List<DrugOrderWidgetValue> drugOrders = drugOrdersWidget.getValue(context, submission);
-		for (DrugOrderWidgetValue v : drugOrders) {
+		List<DrugOrdersWidgetValue> drugOrders = drugOrdersWidget.getValue(context, submission);
+		for (DrugOrdersWidgetValue v : drugOrders) {
 			DrugOrder drugOrder = v.getNewDrugOrder();
 			if (drugOrder != null) {
 				Order.Action action = drugOrder.getAction();
@@ -119,8 +119,8 @@ public class DrugOrdersSubmissionElement implements HtmlGeneratorElement, FormSu
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest request) {
 		Encounter encounter = session.getSubmissionActions().getCurrentEncounter();
-		DrugOrderWidgetConfig widgetConfig = drugOrdersWidget.getWidgetConfig();
-		for (DrugOrderWidgetValue v : drugOrdersWidget.getValue(session.getContext(), request)) {
+		DrugOrdersWidgetConfig widgetConfig = drugOrdersWidget.getWidgetConfig();
+		for (DrugOrdersWidgetValue v : drugOrdersWidget.getValue(session.getContext(), request)) {
 			
 			if (v.isVoidPreviousOrder()) {
 				DrugOrder previousOrder = v.getPreviousDrugOrder();

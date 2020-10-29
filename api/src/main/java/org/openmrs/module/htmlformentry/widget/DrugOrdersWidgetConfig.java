@@ -9,12 +9,12 @@ import java.util.Map;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 /**
- * Holds the configuration for a DrugOrderWidget This mainly serves as an object into which the
+ * Holds the configuration for a DrugOrdersWidget This mainly serves as an object into which the
  * DrugOrdersTagHandler can store the configuration following parsing, validating, and processing
  * all of the xml tag configuration in the htmlform, and enables passing this configuration to the
  * various widgets that are used to appropriately render the controls
  */
-public class DrugOrderWidgetConfig {
+public class DrugOrdersWidgetConfig {
 	
 	private DrugOrderField drugOrderField;
 	
@@ -28,7 +28,7 @@ public class DrugOrderWidgetConfig {
 	
 	private Map<String, List<Option>> orderPropertyOptions;
 	
-	public DrugOrderWidgetConfig() {
+	public DrugOrdersWidgetConfig() {
 	}
 	
 	// INSTANCE METHODS

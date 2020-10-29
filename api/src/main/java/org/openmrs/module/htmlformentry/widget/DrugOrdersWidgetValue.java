@@ -6,7 +6,7 @@ import org.openmrs.DrugOrder;
  * Encapsulates a given widget value that has a reference to previous and new orders, and other
  * information
  */
-public class DrugOrderWidgetValue {
+public class DrugOrdersWidgetValue {
 	
 	private DrugOrder previousDrugOrder;
 	
@@ -14,7 +14,7 @@ public class DrugOrderWidgetValue {
 	
 	private boolean voidPreviousOrder;
 	
-	public DrugOrderWidgetValue() {
+	public DrugOrdersWidgetValue() {
 	}
 	
 	public DrugOrder getPreviousDrugOrder() {

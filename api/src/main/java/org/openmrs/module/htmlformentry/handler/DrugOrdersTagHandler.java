@@ -30,7 +30,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.DrugOrdersSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
-import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
+import org.openmrs.module.htmlformentry.widget.DrugOrdersWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrdersWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.w3c.dom.Node;
@@ -76,7 +76,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 		
 		FormEntryContext context = session.getContext();
 		DrugOrderField drugOrderField = new DrugOrderField();
-		DrugOrderWidgetConfig widgetConfig = new DrugOrderWidgetConfig();
+		DrugOrdersWidgetConfig widgetConfig = new DrugOrdersWidgetConfig();
 		widgetConfig.setDrugOrderField(drugOrderField);
 		widgetConfig.setAttributes(getAttributes(node));
 		
@@ -113,7 +113,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	 * Provides a means to recurse through the nodes in <orderTemplate> and either process normally
 	 * using the HtmlFormEntryGenerator, or render order property widgets
 	 */
-	protected void processTemplateNode(FormEntrySession session, DrugOrderWidgetConfig c, Node pn, Node n, PrintWriter w)
+	protected void processTemplateNode(FormEntrySession session, DrugOrdersWidgetConfig c, Node pn, Node n, PrintWriter w)
 	        throws BadFormDesignException {
 		if (n.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_TAG)) {
 			// <orderProperty>
@@ -144,7 +144,7 @@ public class DrugOrdersTagHandler extends AbstractTagHandler {
 	 * numeric and text widgets, or to toggle input types) These tags may also have nested
 	 * <option value="" label=""/> tags for single option property configuration
 	 */
-	protected void processOrderPropertyTag(FormEntrySession session, DrugOrderWidgetConfig c, Node pn, Node n, PrintWriter w)
+	protected void processOrderPropertyTag(FormEntrySession session, DrugOrdersWidgetConfig c, Node pn, Node n, PrintWriter w)
 	        throws BadFormDesignException {
 		Map<String, String> attributes = new TreeMap<>(getAttributes(n));
 		String name = attributes.get(NAME_ATTRIBUTE);
