@@ -42,9 +42,9 @@ public class NumberFieldWidgetTest {
 	FormEntryContext context;
 	
 	MessageSourceService messageSourceService;
-
+	
 	NumberFieldWidget doubleWidget;
-
+	
 	NumberFieldWidget integerWidget;
 	
 	@Before
@@ -56,7 +56,7 @@ public class NumberFieldWidgetTest {
 		messageSourceService = mock(MessageSourceService.class);
 		mockStatic(Context.class);
 		when(Context.getMessageSourceService()).thenReturn(messageSourceService);
-
+		
 		doubleWidget = new NumberFieldWidget(null, null, true);
 		integerWidget = new NumberFieldWidget(null, null, false);
 		when(context.getFieldName(doubleWidget)).thenReturn("doubleWidget");
@@ -101,7 +101,7 @@ public class NumberFieldWidgetTest {
 		String html = widget.generateHtml(context);
 		assertThat(getAttribute(html, "value"), is("100"));
 	}
-
+	
 	@Test
 	public void testReturnDoubleIfFloatingPointTrue() throws Exception {
 		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
@@ -111,7 +111,7 @@ public class NumberFieldWidgetTest {
 		assertThat(val.getClass(), is(Double.class));
 		assertThat(val, is(1.2d));
 	}
-
+	
 	@Test
 	public void testThrowsExceptionIfInvalidFloatingPointConfigured() throws Exception {
 		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
@@ -127,7 +127,7 @@ public class NumberFieldWidgetTest {
 		}
 		assertThat(foundException, notNullValue());
 	}
-
+	
 	@Test
 	public void testReturnIntegerIfFloatingPointFalse() throws Exception {
 		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
@@ -137,7 +137,7 @@ public class NumberFieldWidgetTest {
 		assertThat(val.getClass(), is(Integer.class));
 		assertThat(val, is(12));
 	}
-
+	
 	@Test
 	public void testThrowsExceptionIfInvalidIntegerConfigured() throws Exception {
 		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
@@ -166,5 +166,5 @@ public class NumberFieldWidgetTest {
 		int endingQuote = html.indexOf("\"", startIndex);
 		return html.substring(startIndex, endingQuote);
 	}
-
+	
 }
