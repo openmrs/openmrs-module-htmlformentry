@@ -208,27 +208,34 @@ public class NumberFieldWidget implements Widget {
 	
 	@Override
 	public Number getValue(FormEntryContext context, HttpServletRequest request) {
-		try {
-			Number ret;
-			if (isFloatingPoint()) {
-				ret = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
-			} else {
-				ret = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Integer.class);
+		Number ret;
+		String paramName = context.getFieldName(this);
+		if (isFloatingPoint()) {
+			try {
+				ret = (Double) HtmlFormEntryUtil.getParameterAsType(request, paramName, Double.class);
 			}
-			if (ret != null && absoluteMinimum != null && ret.doubleValue() < absoluteMinimum)
+			catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException(
-				        Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " "
-				                + absoluteMinimum);
-			if (ret != null && absoluteMaximum != null && ret.doubleValue() > absoluteMaximum)
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber"));
+			}
+		} else {
+			try {
+				ret = (Integer) HtmlFormEntryUtil.getParameterAsType(request, paramName, Integer.class);
+			}
+			catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException(
-				        Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " "
-				                + absoluteMaximum);
-			return ret;
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.notAnInteger"));
+			}
 		}
-		catch (NumberFormatException ex) {
+		if (ret != null && absoluteMinimum != null && ret.doubleValue() < absoluteMinimum)
 			throw new IllegalArgumentException(
-			        Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber"));
-		}
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " "
+			                + absoluteMinimum);
+		if (ret != null && absoluteMaximum != null && ret.doubleValue() > absoluteMaximum)
+			throw new IllegalArgumentException(
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " "
+			                + absoluteMaximum);
+		return ret;
 	}
 	
 	public void setNumberFieldSize(Integer numberFieldSize) {

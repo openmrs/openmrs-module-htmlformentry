@@ -14,9 +14,10 @@
 
 package org.openmrs.module.htmlformentry.widget;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -29,6 +30,7 @@ import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  *
@@ -40,6 +42,10 @@ public class NumberFieldWidgetTest {
 	FormEntryContext context;
 	
 	MessageSourceService messageSourceService;
+
+	NumberFieldWidget doubleWidget;
+
+	NumberFieldWidget integerWidget;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -50,6 +56,11 @@ public class NumberFieldWidgetTest {
 		messageSourceService = mock(MessageSourceService.class);
 		mockStatic(Context.class);
 		when(Context.getMessageSourceService()).thenReturn(messageSourceService);
+
+		doubleWidget = new NumberFieldWidget(null, null, true);
+		integerWidget = new NumberFieldWidget(null, null, false);
+		when(context.getFieldName(doubleWidget)).thenReturn("doubleWidget");
+		when(context.getFieldName(integerWidget)).thenReturn("integerWidget");
 	}
 	
 	@Test
@@ -90,6 +101,58 @@ public class NumberFieldWidgetTest {
 		String html = widget.generateHtml(context);
 		assertThat(getAttribute(html, "value"), is("100"));
 	}
+
+	@Test
+	public void testReturnDoubleIfFloatingPointTrue() throws Exception {
+		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("doubleWidget", "1.2");
+		Number val = doubleWidget.getValue(context, request);
+		assertThat(val.getClass(), is(Double.class));
+		assertThat(val, is(1.2d));
+	}
+
+	@Test
+	public void testThrowsExceptionIfInvalidFloatingPointConfigured() throws Exception {
+		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("doubleWidget", "one");
+		Exception foundException = null;
+		try {
+			doubleWidget.getValue(context, request);
+		}
+		catch (Exception e) {
+			assertThat(e.getClass(), is(IllegalArgumentException.class));
+			foundException = e;
+		}
+		assertThat(foundException, notNullValue());
+	}
+
+	@Test
+	public void testReturnIntegerIfFloatingPointFalse() throws Exception {
+		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("integerWidget", "12");
+		Number val = integerWidget.getValue(context, request);
+		assertThat(val.getClass(), is(Integer.class));
+		assertThat(val, is(12));
+	}
+
+	@Test
+	public void testThrowsExceptionIfInvalidIntegerConfigured() throws Exception {
+		when(context.getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("integerWidget", "3.2");
+		Exception foundException = null;
+		try {
+			integerWidget.getValue(context, request);
+		}
+		catch (Exception e) {
+			assertThat(e.getClass(), is(IllegalArgumentException.class));
+			foundException = e;
+		}
+		assertThat(foundException, notNullValue());
+	}
 	
 	/**
 	 * Hacky, incomplete, but good enough for these tests
@@ -103,5 +166,5 @@ public class NumberFieldWidgetTest {
 		int endingQuote = html.indexOf("\"", startIndex);
 		return html.substring(startIndex, endingQuote);
 	}
-	
+
 }
