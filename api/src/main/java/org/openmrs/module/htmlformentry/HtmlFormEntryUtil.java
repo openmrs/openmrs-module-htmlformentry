@@ -39,15 +39,20 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
@@ -56,6 +61,8 @@ import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -504,7 +511,7 @@ public class HtmlFormEntryUtil {
 		return demo;
 	}
 	
-	public static HtmlFormSchema getHtmlFormSchema(HtmlForm htmlForm, FormEntryContext.Mode mode) {
+	public static HtmlFormSchema getHtmlFormSchema(HtmlForm htmlForm, Mode mode) {
 		try {
 			Patient patient = HtmlFormEntryUtil.getFakePerson();
 			FormEntrySession fes = new FormEntrySession(patient, null, mode, htmlForm, null);
@@ -555,22 +562,235 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Find Drug by UUID
-	 *
-	 * @param uuid
-	 * @return
+	 * Convenience method to translate a given code
 	 */
-	public static Drug getDrug(String uuid) {
+	public static String translate(String message) {
+		return Context.getMessageSourceService().getMessage(message);
+	}
+	
+	/**
+	 * If an encounter has any non-voided providers, return the first listed Otherwise, if the current
+	 * user has any provider accounts, return the first listed Otherwise, return null
+	 */
+	public static Provider getOrdererFromEncounter(Encounter e) {
+		if (e != null) {
+			Set<EncounterProvider> encounterProviders = e.getEncounterProviders();
+			for (EncounterProvider encounterProvider : encounterProviders) {
+				if (BooleanUtils.isNotTrue(encounterProvider.getVoided())) {
+					return encounterProvider.getProvider();
+				}
+			}
+		}
+		User u = Context.getAuthenticatedUser();
+		Collection<Provider> l = Context.getProviderService().getProvidersByPerson(u.getPerson(), false);
+		if (!l.isEmpty()) {
+			return l.iterator().next();
+		}
+		return null;
+	}
+	
+	/**
+	 * Find drug by uuid, name, or id
+	 */
+	public static Drug getDrug(String uuidOrIdOrName) {
 		Drug drug = null;
-		if (StringUtils.isNotBlank(uuid)) {
+		if (StringUtils.isNotBlank(uuidOrIdOrName)) {
+			uuidOrIdOrName = uuidOrIdOrName.trim();
 			try {
-				drug = Context.getConceptService().getDrugByUuid(uuid);
+				drug = Context.getConceptService().getDrugByUuid(uuidOrIdOrName);
+				if (drug == null) {
+					drug = Context.getConceptService().getDrug(uuidOrIdOrName);
+				}
 			}
 			catch (Exception e) {
 				log.error("Failed to find drug: ", e);
 			}
 		}
 		return drug;
+	}
+	
+	/**
+	 * Find order type by uuid, name, or id
+	 */
+	public static OrderType getOrderType(String uuidOrIdOrName) {
+		OrderType ret = null;
+		if (StringUtils.isNotBlank(uuidOrIdOrName)) {
+			uuidOrIdOrName = uuidOrIdOrName.trim();
+			ret = Context.getOrderService().getOrderTypeByUuid(uuidOrIdOrName);
+			if (ret == null) {
+				try {
+					ret = Context.getOrderService().getOrderType(Integer.parseInt(uuidOrIdOrName));
+				}
+				catch (Exception e) {}
+			}
+			if (ret == null) {
+				ret = Context.getOrderService().getOrderTypeByName(uuidOrIdOrName);
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * @return true if a given Order Type represents a Drug Order
+	 */
+	public static boolean isADrugOrderType(OrderType orderType) {
+		try {
+			return orderType.getJavaClass() == DrugOrder.class;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * @return all of the Order Types in the system that represent Drug Orders
+	 */
+	public static List<OrderType> getDrugOrderTypes() {
+		List<OrderType> ret = new ArrayList<>();
+		for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+			if (isADrugOrderType(orderType)) {
+				ret.add(orderType);
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * If the implementation has the standard drug order type referenced by a core constant, return that
+	 * Otherwise, return the first Order Type in the system that is a Drug Order type
+	 */
+	public static OrderType getDrugOrderType() {
+		OrderType ot = Context.getOrderService().getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
+		if (ot == null) {
+			for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+				if (isADrugOrderType(orderType)) {
+					ot = orderType;
+				}
+			}
+		}
+		return ot;
+	}
+	
+	/**
+	 * @return all drug orders for a patient, ordered by date, accounting for previous orders
+	 */
+	public static Map<Drug, List<DrugOrder>> getDrugOrdersForPatient(Patient patient, Set<Drug> drugs) {
+		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
+		List<Order> orders = Context.getOrderService().getAllOrdersByPatient(patient);
+		for (Order order : orders) {
+			order = HibernateUtil.getRealObjectFromProxy(order);
+			if (order instanceof DrugOrder) {
+				DrugOrder drugOrder = (DrugOrder) order;
+				if (drugs == null || drugs.contains(drugOrder.getDrug())) {
+					List<DrugOrder> existing = ret.get(drugOrder.getDrug());
+					if (existing == null) {
+						existing = new ArrayList<>();
+						ret.put(drugOrder.getDrug(), existing);
+					}
+					existing.add(drugOrder);
+				}
+			}
+		}
+		for (List<DrugOrder> l : ret.values()) {
+			sortDrugOrders(l);
+		}
+		return ret;
+	}
+	
+	/**
+	 * Sorts the given drug orders in place. This first determines if a given order is a revision of an
+	 * order, if so it is later Otherwise, it compares effectiveStartDate Otherwise, it compares
+	 * effectiveStopDate, where a null stop date is later than a non-null one
+	 */
+	public static void sortDrugOrders(List<DrugOrder> drugOrders) {
+		if (drugOrders != null && drugOrders.size() > 1) {
+			Collections.sort(drugOrders, new Comparator<DrugOrder>() {
+				
+				@Override
+				public int compare(DrugOrder d1, DrugOrder d2) {
+					// Get all of the previous orders for d1.  If any are d2, then d1 is later
+					for (Order d1Prev = d1.getPreviousOrder(); d1Prev != null; d1Prev = d1Prev.getPreviousOrder()) {
+						if (d1Prev.equals(d2)) {
+							return 1;
+						}
+					}
+					// Get all of the previous orders for d2.  If any are d1, then d2 is later
+					for (Order d2Prev = d2.getPreviousOrder(); d2Prev != null; d2Prev = d2Prev.getPreviousOrder()) {
+						if (d2Prev.equals(d1)) {
+							return -1;
+						}
+					}
+					// If neither is a revision of the other, then compare based on effective start date
+					int dateCompare = d1.getEffectiveStartDate().compareTo(d2.getEffectiveStartDate());
+					if (dateCompare != 0) {
+						return dateCompare;
+					}
+					// If they are still the same, then order based on end date
+					return OpenmrsUtil.compareWithNullAsLatest(d1.getEffectiveStopDate(), d2.getEffectiveStopDate());
+				}
+			});
+		}
+	}
+	
+	/**
+	 * Find order frequency by uuid or id, or concept
+	 */
+	public static OrderFrequency getOrderFrequency(String lookup) {
+		OrderFrequency orderFrequency = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			lookup = lookup.trim();
+			orderFrequency = Context.getOrderService().getOrderFrequencyByUuid(lookup);
+			if (orderFrequency == null) {
+				try {
+					orderFrequency = Context.getOrderService().getOrderFrequency(Integer.parseInt(lookup));
+				}
+				catch (Exception e) {}
+			}
+			if (orderFrequency == null) {
+				Concept c = getConcept(lookup);
+				if (c != null) {
+					orderFrequency = Context.getOrderService().getOrderFrequencyByConcept(c);
+				}
+			}
+		}
+		return orderFrequency;
+	}
+	
+	/**
+	 * Find exact care setting by uuid, name, or id. If not found, but lookup corresponds to a care
+	 * setting type, return first matching one found
+	 */
+	public static CareSetting getCareSetting(String lookup) {
+		CareSetting ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			lookup = lookup.trim();
+			ret = Context.getOrderService().getCareSettingByUuid(lookup);
+			if (ret == null) {
+				ret = Context.getOrderService().getCareSettingByName(lookup);
+			}
+			if (ret == null) {
+				try {
+					ret = Context.getOrderService().getCareSetting(Integer.parseInt(lookup));
+				}
+				catch (Exception e) {
+					
+				}
+			}
+			if (ret == null) {
+				try {
+					CareSetting.CareSettingType type = CareSetting.CareSettingType.valueOf(lookup);
+					if (type != null) {
+						for (CareSetting cs : Context.getOrderService().getCareSettings(false)) {
+							if (cs.getCareSettingType().equals(type)) {
+								return cs;
+							}
+						}
+					}
+				}
+				catch (Exception e) {}
+			}
+		}
+		return ret;
 	}
 	
 	/**
@@ -1625,12 +1845,12 @@ public class HtmlFormEntryUtil {
 	 * @return Date on success; null for an invalid value
 	 * @throws IllegalArgumentException if a date string cannot be parsed with the format string you
 	 *             provided
-	 * @see java.text.SimpleDateFormat <strong>Should</strong> return a Date object with current date
-	 *      and time for "now" <strong>Should</strong> return a Date with current date, but time of
-	 *      00:00:00:00, for "today" <strong>Should</strong> return a Date object matching the value
-	 *      param if a format is specified <strong>Should</strong> return null for null value
-	 *      <strong>Should</strong> return null if format is null and value not in [ null, "now",
-	 *      "today" ] <strong>Should</strong> fail if date parsing fails
+	 * @see SimpleDateFormat <strong>Should</strong> return a Date object with current date and time for
+	 *      "now" <strong>Should</strong> return a Date with current date, but time of 00:00:00:00, for
+	 *      "today" <strong>Should</strong> return a Date object matching the value param if a format is
+	 *      specified <strong>Should</strong> return null for null value <strong>Should</strong> return
+	 *      null if format is null and value not in [ null, "now", "today" ] <strong>Should</strong>
+	 *      fail if date parsing fails
 	 */
 	public static Date translateDatetimeParam(String value, String format) {
 		if (value == null)
@@ -2056,6 +2276,19 @@ public class HtmlFormEntryUtil {
 			return value;
 		}
 		return null;
+	}
+	
+	/**
+	 * Convenience method to serialize a given object to a json string
+	 */
+	public static String serializeToJson(Object o) {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			return mapper.writeValueAsString(o);
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException("Unable to serialize object to json", e);
+		}
 	}
 	
 	/**
