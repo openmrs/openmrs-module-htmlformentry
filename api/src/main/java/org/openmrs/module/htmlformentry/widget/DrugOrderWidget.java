@@ -72,6 +72,17 @@ public class DrugOrderWidget implements Widget {
 		initialValue = (Map<Drug, List<DrugOrder>>) v;
 	}
 	
+	public List<DrugOrder> getInitialValueForDrug(String drugId) {
+		if (initialValue != null) {
+			for (Drug d : initialValue.keySet()) {
+				if (d.getId().toString().equalsIgnoreCase(drugId)) {
+					return initialValue.get(d);
+				}
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		
@@ -90,25 +101,32 @@ public class DrugOrderWidget implements Widget {
 		// Add a section that contains the order form template to use for entering orders
 		writer.println("<div id=\"" + fieldName + "_template\" class=\"drugorders-order-form\" style=\"display:none;\">");
 		String templateContent = getWidgetConfig().getTemplateContent();
+		StringBuilder defaultContent = new StringBuilder();
 		for (String property : widgets.keySet()) {
 			Widget w = widgets.get(property);
 			Map<String, String> c = widgetConfig.getAttributes(property);
 			if (c != null) {
 				String key = c.toString();
-				StringBuilder replacement = new StringBuilder();
-				String label = translate("htmlformentry.drugOrder." + property);
-				replacement.append("<div class=\"order-field ").append(property).append("\">");
-				replacement.append("<div class=\"order-field-label ").append(property).append("\">");
-				replacement.append(label);
-				replacement.append("</div>");
-				replacement.append("<div class=\"order-field-widget ").append(property).append("\">");
-				replacement.append(w.generateHtml(context));
-				replacement.append("</div>");
-				replacement.append("</div>");
-				templateContent = templateContent.replace(key, replacement.toString());
+				String widgetHtml = generateHtmlForWidget(property, w, context);
+				// If no template was supplied, or if the template does not contain this widget, add to the default section
+				if (StringUtils.isBlank(templateContent) || !templateContent.contains(key)) {
+					defaultContent.append(widgetHtml);
+				}
+				// Otherwise, replace the widget configuration with the widget html in the template
+				else {
+					templateContent = templateContent.replace(key, widgetHtml);
+				}
 			}
 		}
-		writer.println(templateContent);
+		if (StringUtils.isNotBlank(templateContent)) {
+			writer.println(templateContent);
+		}
+		if (!templateContent.isEmpty()) {
+			writer.println("<div class=\"non-template-field\" style=\"display:none;\">");
+			writer.println(templateContent);
+			writer.println("</div>");
+		}
+		
 		writer.println("</div>");
 		
 		// Establish a json config that initializes the javascript-based widget
@@ -148,21 +166,19 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
 		
-		DrugOrderField field = widgetConfig.getDrugOrderField();
-		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
-		for (DrugOrderAnswer doa : field.getDrugOrderAnswers()) {
-			Drug drug = doa.getDrug();
-			String drugLabel = doa.getDisplayName();
+		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
+			String drugId = drugOption.getValue();
+			String drugLabel = drugOption.getLabel();
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
 			JsonObject jsonDrug = jsonConfig.addObjectToArray("drugs");
-			jsonDrug.addString("drugId", drug.getId().toString());
+			jsonDrug.addString("drugId", drugId);
 			jsonDrug.addString("drugLabel", drugLabel);
 			List<JsonObject> history = jsonDrug.getObjectArray("history");
 			
 			if (initialValue != null) {
-				for (DrugOrder d : initialValue.getOrDefault(drug, new ArrayList<>())) {
+				for (DrugOrder d : initialValue.getOrDefault(getInitialValueForDrug(drugId), new ArrayList<>())) {
 					Order pd = d.getPreviousOrder();
 					JsonObject jho = new JsonObject();
 					jho.addString("orderId", d.getOrderId().toString());
@@ -210,6 +226,23 @@ public class DrugOrderWidget implements Widget {
 		writer.println("</div>");
 		
 		return writer.getContent();
+	}
+	
+	/**
+	 * @return the html to render for each found property widget
+	 */
+	public String generateHtmlForWidget(String property, Widget w, FormEntryContext context) {
+		StringBuilder ret = new StringBuilder();
+		String label = translate("htmlformentry.drugOrder." + property);
+		ret.append("<div class=\"order-field ").append(property).append("\">");
+		ret.append("<div class=\"order-field-label ").append(property).append("\">");
+		ret.append(label);
+		ret.append("</div>");
+		ret.append("<div class=\"order-field-widget ").append(property).append("\">");
+		ret.append(w.generateHtml(context));
+		ret.append("</div>");
+		ret.append("</div>");
+		return ret.toString();
 	}
 	
 	@Override

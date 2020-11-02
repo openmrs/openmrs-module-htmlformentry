@@ -34,7 +34,7 @@ public class DrugOrderWidgetConfig {
 	// INSTANCE METHODS
 	
 	public Map<String, String> getAttributes(String orderProperty) {
-		return orderPropertyAttributes.getOrDefault(orderProperty, new HashMap<>());
+		return getOrderPropertyAttributes().getOrDefault(orderProperty, new HashMap<>());
 	}
 	
 	// PROPERTY ACCESSORS

@@ -62,7 +62,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	/**
@@ -299,6 +299,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
 	public void getConcept_shouldFindAConceptWithNonStandardUuid() throws Exception {
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		// concept from HtmlFormEntryTest-data.xml
 		String id = "1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
@@ -311,8 +312,8 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
 	public void getConcept_shouldNotFindAConceptWithInvalidUuid() throws Exception {
-		// concept from HtmlFormEntryTest-data.xml
-		String id = "1000";
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
+		String id = "abcde-12345";
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
 	
@@ -393,6 +394,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should find a program by its name", method = "getPatientIdentifierType(String)")
 	public void getPatientIdentifierType_shouldFindAPatientIdentifierTypeByItsName() throws Exception {
+		org.openmrs.test.TestUtil.printOutTableContents(getConnection(), "patient_identifier_type");
 		Assert.assertEquals("1a339fe9-38bc-4ab3-b180-320988c0b968",
 		    HtmlFormEntryUtil.getPatientIdentifierType("OpenMRS Identification Number").getUuid());
 	}
@@ -814,7 +816,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
+		    HtmlFormEntryUtil.getWorkflow("XYZ: Test Workflow Code").getUuid());
 	}
 	
 	/**
@@ -847,8 +849,8 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil
-		        .getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getState("XYZ: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
 	
 	/**
@@ -888,9 +890,9 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
-		ProgramWorkflow wf = pws.getWorkflowByUuid("8343cfae-53a7-11e1-8cb6-00248140a5eb");
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getState("SNOMED CT: Test Code", wf).getUuid());
+		ProgramWorkflow wf = pws.getWorkflowByUuid("7c3e071a-53a7-11e1-8cb6-00248140a5eb");
+		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getState("XYZ: Test Code", wf).getUuid());
 	}
 	
 	/**
@@ -947,7 +949,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		PatientProgram pp = pws.getPatientProgram(1);
 		
 		Calendar cal = Calendar.getInstance();
-		cal.set(2008, 6, 31);
+		cal.set(2004, 6, 31);
 		Date newEnrollmentDate = cal.getTime();
 		Assert.assertTrue(newEnrollmentDate.before(pp.getDateEnrolled()));//sanity check
 		Assert.assertFalse(HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, newEnrollmentDate));

@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
@@ -18,7 +19,7 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	/**
@@ -27,7 +28,6 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuids() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
 		
@@ -40,7 +40,7 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 		TestUtil.assertFuzzyContains("<encounterLocation default=\"9356400c-a5a2-4532-8f2b-2361b3446eb8\" order=\""
 		        + location1.getUuid() + ",9356400c-a5a2-4532-8f2b-2361b3446eb8,Never Never Land\"",
 		    form.getXmlData());
-		TestUtil.assertFuzzyContains("<encounterProvider role=\"Provider\" default=\"c04ee3c8-b68f-43cc-bff3-5a831ee7225f\"",
+		TestUtil.assertFuzzyContains("<encounterProvider default=\"c04ee3c8-b68f-43cc-bff3-5a831ee7225f\" role=\"Provider\"",
 		    form.getXmlData());
 		
 		// test to make sure that underlying matcher is case-insensitive
@@ -50,16 +50,14 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 		TestUtil.assertFuzzyContains(
 		    "answerConceptIds=\"32296060-03aa-102d-b0e3-001ec94a0cc5,XYZ:HT,32296060-03aa-102d-b0e3-001ec94a0cc6,32296060-03aa-102d-b0e3-001ec94a0cc7\"",
 		    form.getXmlData());
-		TestUtil.assertFuzzyContains("programId=\"da4a0391-ba62-4fad-ad66-1e3722d16380\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("programId=\"67bad8f4-5140-11e1-a3e3-00248140a5eb\"", form.getXmlData());
 		TestUtil.assertFuzzyContains(
-		    "stateIds=\"92584cdc-6a20-4c84-a659-e035e45d36b0,e938129e-248a-482a-acea-f85127251472,860b3a13-d4b1-4f0a-b526-278652fa1809\"",
-		    form.getXmlData());
+		    "stateIds=\"67337cdc-53ad-11e1-8cb6-00248140a5eb,6de7ed10-53ad-11e1-8cb6-00248140a5eb\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("workflowId=\"72a90efc-5140-11e1-a3e3-00248140a5eb\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("stateId=\"8ef66ca8-5140-11e1-a3e3-00248140a5eb\"", form.getXmlData());
+		TestUtil.assertFuzzyContains("stateId=\"89d1a292-5140-11e1-a3e3-00248140a5eb\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("identifierTypeId=\"1a339fe9-38bc-4ab3-b180-320988c0b968\"", form.getXmlData());
 		TestUtil.assertFuzzyContains("conceptId=\"aa52296060-03-102d-b0e3-001ec94a0cc1\"", form.getXmlData());
-		TestUtil.assertFuzzyContains("stateIds=\"67337cdc-53ad-11e1-8cb6-00248140a5eb,SNOMED CT: Test Code\"",
-		    form.getXmlData());
+		TestUtil.assertFuzzyContains("stateIds=\"67337cdc-53ad-11e1-8cb6-00248140a5eb,XYZ: Test Code\"", form.getXmlData());
 	}
 	
 	/**

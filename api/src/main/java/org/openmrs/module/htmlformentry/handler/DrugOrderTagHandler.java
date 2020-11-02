@@ -3,7 +3,7 @@ package org.openmrs.module.htmlformentry.handler;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
-import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
@@ -27,8 +27,12 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryGenerator;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
+import org.openmrs.module.htmlformentry.schema.CareSettingAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
+import org.openmrs.module.htmlformentry.schema.OrderFrequencyAnswer;
+import org.openmrs.module.htmlformentry.schema.OrderTypeAnswer;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.Option;
@@ -62,11 +66,26 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	
 	public static final String VALUE_ATTRIBUTE = "value";
 	
+	public static final Map<String, Class<? extends OpenmrsObject>> PROPERTIES = new HashMap<>();
+	
+	static {
+		PROPERTIES.put("drug", Drug.class);
+		PROPERTIES.put("careSetting", CareSetting.class);
+		PROPERTIES.put("orderType", OrderType.class);
+		PROPERTIES.put("doseUnits", Concept.class);
+		PROPERTIES.put("route", Concept.class);
+		PROPERTIES.put("orderFrequency", OrderFrequency.class);
+		PROPERTIES.put("durationUnits", Concept.class);
+		PROPERTIES.put("quantityUnits", Concept.class);
+		PROPERTIES.put("discontinueReason", Concept.class);
+	}
+	
 	private final HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
 	
 	@Override
 	public List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+		attributeDescriptors.add(new DrugOrderTagAttributeDescriptor());
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
@@ -82,7 +101,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		widgetConfig.setDrugOrderField(drugOrderField);
 		widgetConfig.setAttributes(getAttributes(node));
 		
-		// <drugOrders>
+		// <drugOrder>
 		NodeList childNodes = node.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
@@ -100,8 +119,21 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 		}
 		
-		DrugOrderWidget drugOrdersWidget = new DrugOrderWidget(context, widgetConfig);
-		DrugOrderSubmissionElement element = new DrugOrderSubmissionElement(context, drugOrdersWidget);
+		// For each property, ensure all options are validated and defaults are configured
+		processDrugOptions(widgetConfig);
+		processEnumOptions(widgetConfig, "action", Order.Action.values(), null);
+		processCareSettingOptions(widgetConfig);
+		processOrderTypeOptions(widgetConfig);
+		processConceptOptions(widgetConfig, "doseUnits");
+		processConceptOptions(widgetConfig, "route");
+		processOrderFrequencyOptions(widgetConfig);
+		processEnumOptions(widgetConfig, "urgency", Order.Urgency.values(), Order.Urgency.ROUTINE);
+		processConceptOptions(widgetConfig, "durationUnits");
+		processConceptOptions(widgetConfig, "quantityUnits");
+		processConceptOptions(widgetConfig, "discontinueReason");
+		
+		DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, widgetConfig);
+		DrugOrderSubmissionElement element = new DrugOrderSubmissionElement(context, drugOrderWidget);
 		session.getSubmissionController().addAction(element);
 		out.print(element.generateHtml(context));
 		
@@ -154,119 +186,86 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		w.print(attributes.toString()); // This writes to the template, which is used for replacement later on
 		
 		// Determine if there are any explicit options configured for this property
-		Map<String, String> optionVals = new LinkedHashMap<>();
+		List<Option> optionVals = new ArrayList<>();
 		NodeList childNodes = n.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
 			if (childNode.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_OPTION_TAG)) {
 				Map<String, String> optionAttributes = getAttributes(childNode);
-				String value = optionAttributes.get("value");
+				String value = optionAttributes.get(VALUE_ATTRIBUTE);
 				if (StringUtils.isBlank(value)) {
 					String msg = ORDER_PROPERTY_OPTION_TAG + " must have a " + VALUE_ATTRIBUTE + " attribute";
 					throw new BadFormDesignException(msg);
 				}
-				optionVals.put(value, optionAttributes.get(LABEL_ATTRIBUTE));
+				optionVals.add(new Option(optionAttributes.get(LABEL_ATTRIBUTE), value, false));
 			}
 		}
-		
-		if ("drug".equalsIgnoreCase(name)) {
-			c.getDrugOrderField().setDrugOrderAnswers(getDrugOrderAnswers(optionVals));
-		} else {
-			List<Option> options = getOptions(name, optionVals, attributes.get(VALUE_ATTRIBUTE));
-			if (options != null) {
-				c.addOrderPropertyOptions(name, options);
-			}
-		}
+		c.addOrderPropertyOptions(name, optionVals);
 	}
 	
 	/**
-	 * Convenience method to get the available value options for a given property and configuration
+	 * Processes drug option by populating default labels if not supplied, validating drug value inputs,
+	 * and populating the DrugOrderField
 	 */
-	private List<Option> getOptions(String property, Map<String, String> optionVals, String defaultValue)
-	        throws BadFormDesignException {
-		if ("action".equalsIgnoreCase(property)) {
-			return getEnumOptions(property, optionVals, Order.Action.values(), defaultValue);
-		}
-		if ("careSetting".equalsIgnoreCase(property)) {
-			return getCareSettingOptions(optionVals, defaultValue);
-		}
-		if ("orderType".equalsIgnoreCase(property)) {
-			return getOrderTypeOptions(optionVals, defaultValue);
-		}
-		if ("doseUnits".equalsIgnoreCase(property)) {
-			return getConceptOptions(property, optionVals, defaultValue);
-		}
-		if ("route".equalsIgnoreCase(property)) {
-			return getConceptOptions(property, optionVals, defaultValue);
-		}
-		if ("frequency".equalsIgnoreCase(property)) {
-			return getOrderFrequencyOptions(optionVals, defaultValue);
-		}
-		if ("urgency".equalsIgnoreCase(property)) {
-			defaultValue = (StringUtils.isBlank(defaultValue) ? Order.Urgency.ROUTINE.name() : defaultValue);
-			return getEnumOptions(property, optionVals, Order.Urgency.values(), defaultValue);
-		}
-		if ("durationUnits".equalsIgnoreCase(property)) {
-			return getConceptOptions(property, optionVals, defaultValue);
-		}
-		if ("quantityUnits".equalsIgnoreCase(property)) {
-			return getConceptOptions(property, optionVals, defaultValue);
-		}
-		if ("discontinueReason".equalsIgnoreCase(property)) {
-			return getConceptOptions(property, optionVals, defaultValue);
-		}
-		return null;
-	}
-	
-	/**
-	 * Convenience method to get the available drugs for use by the tag
-	 */
-	protected List<DrugOrderAnswer> getDrugOrderAnswers(Map<String, String> optionVals) throws BadFormDesignException {
-		List<DrugOrderAnswer> ret = new ArrayList<>();
-		if (optionVals.isEmpty()) {
+	protected void processDrugOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
+		List<Option> options = config.getOrderPropertyOptions("drug");
+		if (options.isEmpty()) {
 			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
-				ret.add(new DrugOrderAnswer(d, d.getDisplayName()));
+				options.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
 			}
 		} else {
-			for (String val : optionVals.keySet()) {
-				Drug d = HtmlFormEntryUtil.getDrug(val);
+			for (Option option : options) {
+				Drug d = HtmlFormEntryUtil.getDrug(option.getValue());
 				if (d == null) {
-					throw new BadFormDesignException("Unable to find Drug option value: " + val);
+					throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
 				}
-				String label = optionVals.get(val);
+				String label = option.getLabel();
 				if (StringUtils.isBlank(label)) {
-					label = d.getDisplayName();
+					option.setLabel(d.getDisplayName());
 				}
-				ret.add(new DrugOrderAnswer(d, label));
+				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, label));
 			}
 		}
-		return ret;
+		config.addOrderPropertyOptions("drug", options);
 	}
 	
 	/**
-	 * Convenience method to get the available value options for a given enum property
+	 * Processes option by populating default labels if not supplied, validating value inputs, and
+	 * populating the DrugOrderField
 	 */
-	protected List<Option> getEnumOptions(String property, Map<String, String> options, Enum[] vals, String selected) {
-		List<Option> l = new ArrayList<>();
-		for (Enum e : vals) {
-			if (options.isEmpty() || options.containsKey(e.name())) {
-				String labelCode = options.get(e.name());
-				if (StringUtils.isBlank(labelCode)) {
-					labelCode = "htmlformentry.drugOrder." + property + "." + e.name().toLowerCase();
+	protected void processEnumOptions(DrugOrderWidgetConfig config, String property, Enum[] vals, Enum defVal) {
+		List<Option> options = config.getOrderPropertyOptions(property);
+		String msgPrefix = "htmlformentry.drugOrder." + property + ".";
+		if (options.isEmpty()) {
+			for (Enum e : vals) {
+				String label = HtmlFormEntryUtil.translate(msgPrefix + e.name().toLowerCase());
+				options.add(new Option(label, e.name(), false));
+			}
+		} else {
+			for (Option option : options) {
+				if (StringUtils.isBlank(option.getLabel())) {
+					option.setLabel(HtmlFormEntryUtil.translate(msgPrefix + option.getValue().toLowerCase()));
 				}
-				String label = HtmlFormEntryUtil.translate(labelCode);
-				boolean isSelected = selected != null && e.name().equalsIgnoreCase(selected);
-				l.add(new Option(label, e.name(), isSelected));
 			}
 		}
-		return l;
+		String selectedVal = config.getAttributes(property).get(VALUE_ATTRIBUTE);
+		if (StringUtils.isNotBlank(selectedVal) && defVal != null) {
+			selectedVal = defVal.name();
+		}
+		for (Option option : options) {
+			option.setSelected(option.getValue().equalsIgnoreCase(selectedVal));
+		}
+		config.addOrderPropertyOptions(property, options);
 	}
 	
 	/**
-	 * Convenience method to get the available value options for the Care Setting property
+	 * Processes option by populating default labels if not supplied, validating value inputs, and
+	 * populating the DrugOrderField
 	 */
-	protected List<Option> getCareSettingOptions(Map<String, String> optionVals, String defaultValue)
-	        throws BadFormDesignException {
+	protected void processCareSettingOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
+		String property = "careSetting";
+		List<Option> options = config.getOrderPropertyOptions(property);
+		String defaultValue = config.getAttributes(property).get(VALUE_ATTRIBUTE);
 		CareSetting defaultCareSetting = null;
 		if (StringUtils.isNotBlank(defaultValue)) {
 			defaultCareSetting = HtmlFormEntryUtil.getCareSetting(defaultValue);
@@ -274,28 +273,36 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				throw new BadFormDesignException("Unable to find care setting default value: " + defaultValue);
 			}
 		}
-		Map<CareSetting, String> careSettingList = new LinkedHashMap<>();
-		if (optionVals.isEmpty()) {
+		if (options.isEmpty()) {
 			for (CareSetting cs : getOrderService().getCareSettings(false)) {
-				careSettingList.put(cs, cs.getName());
+				options.add(new Option(cs.getName(), cs.getId().toString(), false));
 			}
 		} else {
-			for (String val : optionVals.keySet()) {
-				CareSetting cs = HtmlFormEntryUtil.getCareSetting(val);
+			for (Option option : options) {
+				CareSetting cs = HtmlFormEntryUtil.getCareSetting(option.getValue());
 				if (cs == null) {
 					throw new BadFormDesignException("Unable to find care setting option value: " + defaultValue);
 				}
-				careSettingList.put(cs, getLabel(optionVals.get(val), cs.getName()));
+				option.setLabel(getLabel(option.getLabel(), cs.getName()));
+				config.getDrugOrderField().addCareSettingAnswer(new CareSettingAnswer(cs, option.getLabel()));
 			}
 		}
-		return getMetadataOptions(careSettingList, defaultCareSetting);
+		if (defaultCareSetting != null) {
+			for (Option option : options) {
+				option.setSelected(option.getValue().equalsIgnoreCase(defaultCareSetting.getId().toString()));
+			}
+		}
+		config.addOrderPropertyOptions(property, options);
 	}
 	
 	/**
-	 * Convenience method to get the available value options for the Order Type property
+	 * Processes option by populating default labels if not supplied, validating value inputs, and
+	 * populating the DrugOrderField
 	 */
-	protected List<Option> getOrderTypeOptions(Map<String, String> optionVals, String defaultValue)
-	        throws BadFormDesignException {
+	protected void processOrderTypeOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
+		String property = "orderType";
+		List<Option> options = config.getOrderPropertyOptions(property);
+		String defaultValue = config.getAttributes(property).get(VALUE_ATTRIBUTE);
 		OrderType defaultOrderType;
 		if (StringUtils.isNotBlank(defaultValue)) {
 			defaultOrderType = HtmlFormEntryUtil.getOrderType(defaultValue);
@@ -305,28 +312,36 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		} else {
 			defaultOrderType = HtmlFormEntryUtil.getDrugOrderType();
 		}
-		Map<OrderType, String> orderTypeList = new LinkedHashMap<>();
-		if (optionVals.isEmpty()) {
+		if (options.isEmpty()) {
 			for (OrderType ot : getOrderService().getOrderTypes(false)) {
-				orderTypeList.put(ot, ot.getName());
+				options.add(new Option(ot.getName(), ot.getId().toString(), false));
 			}
 		} else {
-			for (String val : optionVals.keySet()) {
-				OrderType cs = HtmlFormEntryUtil.getOrderType(val);
-				if (cs == null) {
+			for (Option option : options) {
+				OrderType ot = HtmlFormEntryUtil.getOrderType(option.getValue());
+				if (ot == null) {
 					throw new BadFormDesignException("Unable to find order type option value: " + defaultValue);
 				}
-				orderTypeList.put(cs, getLabel(optionVals.get(val), cs.getName()));
+				option.setLabel(getLabel(option.getLabel(), ot.getName()));
+				config.getDrugOrderField().addOrderTypeAnswer(new OrderTypeAnswer(ot, option.getLabel()));
 			}
 		}
-		return getMetadataOptions(orderTypeList, defaultOrderType);
+		if (defaultOrderType != null) {
+			for (Option option : options) {
+				option.setSelected(option.getValue().equalsIgnoreCase(defaultOrderType.getId().toString()));
+			}
+		}
+		config.addOrderPropertyOptions(property, options);
 	}
 	
 	/**
-	 * Convenience method to get the available value options for the frequency property
+	 * Processes option by populating default labels if not supplied, validating value inputs, and
+	 * populating the DrugOrderField
 	 */
-	protected List<Option> getOrderFrequencyOptions(Map<String, String> optionVals, String defaultValue)
-	        throws BadFormDesignException {
+	protected void processOrderFrequencyOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
+		String property = "orderFrequency";
+		List<Option> options = config.getOrderPropertyOptions(property);
+		String defaultValue = config.getAttributes(property).get(VALUE_ATTRIBUTE);
 		OrderFrequency defaultOrderFrequency = null;
 		if (StringUtils.isNotBlank(defaultValue)) {
 			defaultOrderFrequency = HtmlFormEntryUtil.getOrderFrequency(defaultValue);
@@ -334,42 +349,34 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				throw new BadFormDesignException("Unable to find frequency default value: " + defaultValue);
 			}
 		}
-		Map<OrderFrequency, String> frequencyList = new LinkedHashMap<>();
-		if (optionVals.isEmpty()) {
+		if (options.isEmpty()) {
 			for (OrderFrequency f : getOrderService().getOrderFrequencies(false)) {
-				frequencyList.put(f, f.getName());
+				options.add(new Option(f.getConcept().getDisplayString(), f.getId().toString(), false));
 			}
 		} else {
-			for (String val : optionVals.keySet()) {
-				OrderFrequency cs = HtmlFormEntryUtil.getOrderFrequency(val);
-				if (cs == null) {
+			for (Option option : options) {
+				OrderFrequency freq = HtmlFormEntryUtil.getOrderFrequency(option.getValue());
+				if (freq == null) {
 					throw new BadFormDesignException("Unable to find frequency option value: " + defaultValue);
 				}
-				frequencyList.put(cs, getLabel(optionVals.get(val), cs.getName()));
+				option.setLabel(getLabel(option.getLabel(), freq.getConcept().getDisplayString()));
+				config.getDrugOrderField().addOrderFrequencyAnswer(new OrderFrequencyAnswer(freq, option.getLabel()));
 			}
 		}
-		return getMetadataOptions(frequencyList, defaultOrderFrequency);
-	}
-	
-	/**
-	 * Convenience method to configure options from a list of metadata
-	 */
-	protected List<Option> getMetadataOptions(Map<? extends OpenmrsMetadata, String> vals, OpenmrsMetadata selected) {
-		List<Option> l = new ArrayList<>();
-		for (OpenmrsMetadata m : vals.keySet()) {
-			String val = m.getId().toString();
-			String label = vals.get(m);
-			boolean isSelected = selected != null && val.equalsIgnoreCase(selected.getId().toString());
-			l.add(new Option(label, val, isSelected));
+		if (defaultOrderFrequency != null) {
+			for (Option option : options) {
+				option.setSelected(option.getValue().equalsIgnoreCase(defaultOrderFrequency.getId().toString()));
+			}
 		}
-		return l;
+		config.addOrderPropertyOptions(property, options);
 	}
 	
 	/**
 	 * Convenience method to get the available value options for a given concept property
 	 */
-	protected List<Option> getConceptOptions(String property, Map<String, String> optionVals, String defaultValue)
-	        throws BadFormDesignException {
+	protected void processConceptOptions(DrugOrderWidgetConfig config, String prop) throws BadFormDesignException {
+		List<Option> options = config.getOrderPropertyOptions(prop);
+		String defaultValue = config.getAttributes(prop).get(VALUE_ATTRIBUTE);
 		Concept defaultConcept = null;
 		if (StringUtils.isNotBlank(defaultValue)) {
 			defaultConcept = HtmlFormEntryUtil.getConcept(defaultValue);
@@ -377,44 +384,52 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				throw new BadFormDesignException("Unable to find Concept default value: " + defaultValue);
 			}
 		}
-		
 		List<Concept> fullList = new ArrayList<>();
-		if ("doseUnits".equalsIgnoreCase(property)) {
+		if ("doseUnits".equalsIgnoreCase(prop)) {
 			fullList = getOrderService().getDrugDosingUnits();
-		} else if ("route".equalsIgnoreCase(property)) {
+		} else if ("route".equalsIgnoreCase(prop)) {
 			fullList = getOrderService().getDrugRoutes();
-		} else if ("durationUnits".equalsIgnoreCase(property)) {
+		} else if ("durationUnits".equalsIgnoreCase(prop)) {
 			fullList = getOrderService().getDurationUnits();
-		} else if ("quantityUnits".equalsIgnoreCase(property)) {
+		} else if ("quantityUnits".equalsIgnoreCase(prop)) {
 			fullList = getOrderService().getDrugDispensingUnits();
 		}
 		
-		Map<Concept, String> configuredList = new LinkedHashMap<>();
-		if (optionVals == null || optionVals.isEmpty()) {
+		if (options.isEmpty()) {
 			for (Concept c : fullList) {
-				configuredList.put(c, c.getDisplayString());
+				options.add(new Option(c.getDisplayString(), c.getId().toString(), false));
 			}
 		} else {
-			for (String val : optionVals.keySet()) {
-				Concept c = HtmlFormEntryUtil.getConcept(val);
+			for (Option option : options) {
+				Concept c = HtmlFormEntryUtil.getConcept(option.getValue());
 				if (c == null) {
 					throw new BadFormDesignException("Unable to find concept option value: " + defaultValue);
 				}
 				if (!fullList.isEmpty() && !fullList.contains(c)) {
-					throw new BadFormDesignException(val + " does not refer to a valid concept for " + property);
+					throw new BadFormDesignException(option.getValue() + " does not refer to a valid concept for " + prop);
 				}
-				configuredList.put(c, getLabel(optionVals.get(val), c.getDisplayString()));
+				option.setLabel(getLabel(option.getLabel(), c.getDisplayString()));
+				
+				ObsFieldAnswer a = new ObsFieldAnswer(option.getLabel(), c);
+				if ("doseUnits".equalsIgnoreCase(prop)) {
+					config.getDrugOrderField().addDoseUnitAnswer(a);
+				} else if ("route".equalsIgnoreCase(prop)) {
+					config.getDrugOrderField().addRouteAnswer(a);
+				} else if ("durationUnits".equalsIgnoreCase(prop)) {
+					config.getDrugOrderField().addDurationUnitAnswer(a);
+				} else if ("quantityUnits".equalsIgnoreCase(prop)) {
+					config.getDrugOrderField().addQuantityUnitAnswer(a);
+				} else if ("discontinueReason".equalsIgnoreCase(prop)) {
+					config.getDrugOrderField().addDiscontinuedReasonAnswer(a);
+				}
 			}
 		}
-		
-		List<Option> ret = new ArrayList<>();
-		for (Concept c : configuredList.keySet()) {
-			String val = c.getId().toString();
-			String label = configuredList.get(c);
-			boolean selected = defaultConcept != null && defaultConcept.getId().equals(c.getId());
-			ret.add(new Option(label, val, selected));
+		if (defaultConcept != null) {
+			for (Option option : options) {
+				option.setSelected(option.getValue().equalsIgnoreCase(defaultConcept.getId().toString()));
+			}
 		}
-		return ret;
+		config.addOrderPropertyOptions(prop, options);
 	}
 	
 	private String getLabel(String configuredLabel, String defaultLabel) {

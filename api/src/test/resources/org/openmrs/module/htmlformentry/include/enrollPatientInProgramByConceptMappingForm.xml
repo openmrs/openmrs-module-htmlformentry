@@ -1,5 +1,5 @@
 <htmlform>
-	Enrollment Date: <enrollInProgram programId="10" showDate="true" stateIds="SNOMED CT: Test Code" />
+	Enrollment Date: <enrollInProgram programId="10" showDate="true" stateIds="XYZ: Test Code" />
 	
 	Encounter Date: <encounterDate/>
     Encounter Location: <encounterLocation/>

@@ -60,6 +60,7 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
@@ -86,7 +87,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
+import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -588,6 +589,46 @@ public class HtmlFormEntryUtil {
 		}
 		return null;
 	}
+	
+	public static <T extends OpenmrsObject> T getOpenmrsObject(String lookup, Class<T> type) {
+		if (type == Concept.class) {
+			return (T) getConcept(lookup);
+		}
+		if (type == Drug.class) {
+			return (T) getDrug(lookup);
+		}
+		if (type == OrderType.class) {
+			return (T) getOrderType(lookup);
+		}
+		if (type == OrderFrequency.class) {
+			return (T) getOrderFrequency(lookup);
+		}
+		if (type == CareSetting.class) {
+			return (T) getCareSetting(lookup);
+		}
+		if (type == Location.class) {
+			return (T) getLocation(lookup);
+		}
+		if (type == Program.class) {
+			return (T) getProgram(lookup);
+		}
+		if (type == PatientIdentifierType.class) {
+			return (T) getPatientIdentifierType(lookup);
+		}
+		if (type == ProgramWorkflow.class) {
+			return (T) getWorkflow(lookup);
+		}
+		if (type == LocationTag.class) {
+			return (T) getLocationTag(lookup);
+		}
+		if (type == ProviderRole.class) {
+			return (T) getProviderRole(lookup);
+		}
+		if (type == Provider.class) {
+			return (T) getProvider(lookup);
+		}
+		throw new IllegalArgumentException("Not able to lookup OpenMRS object of type: " + type);
+	};
 	
 	/**
 	 * Find drug by uuid, name, or id
@@ -1595,11 +1636,9 @@ public class HtmlFormEntryUtil {
 						matchedObs.add(oga.getExistingGroup());
 					}
 				}
-				if (lfca instanceof GettingExistingOrder) {
-					GettingExistingOrder dse = (GettingExistingOrder) lfca;
-					if (dse.getExistingOrder() != null) {
-						matchedOrders.add(dse.getExistingOrder());
-					}
+				if (lfca instanceof DrugOrderSubmissionElement) {
+					DrugOrderSubmissionElement dse = (DrugOrderSubmissionElement) lfca;
+					matchedOrders.addAll(dse.getExistingOrders());
 				}
 			}
 			

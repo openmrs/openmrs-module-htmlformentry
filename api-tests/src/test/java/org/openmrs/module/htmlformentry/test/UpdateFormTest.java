@@ -10,16 +10,22 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * This class exists to facilitate updating a form in a database for testing from an xml file on the filesystem
+ * This class exists to facilitate updating a form in a database for testing from an xml file on the
+ * filesystem
  */
 @Ignore
 public class UpdateFormTest {
-
+	
 	String filePath = "src/test/resources/testForm.xml";
+	
 	Integer htmlFormId = 35;
+	
 	String dbUser = "root";
+	
 	String dbPass = "password";
+	
 	String dbUrl = "jdbc:mysql://localhost:3308/openmrs";
+	
 	String dbDriver = "com.mysql.jdbc.Driver";
 	
 	@Test

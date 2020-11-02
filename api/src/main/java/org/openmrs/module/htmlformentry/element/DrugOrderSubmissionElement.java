@@ -29,9 +29,9 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
-import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.ReflectionUtils;
@@ -48,6 +48,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	
 	private ErrorWidget drugOrderErrorWidget;
 	
+	private List<DrugOrder> existingOrders;
+	
 	/**
 	 * Instantiates a new Drug Order Submission Element
 	 */
@@ -59,6 +61,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		context.registerWidget(drugOrderWidget);
 		context.registerErrorWidget(drugOrderWidget, drugOrderErrorWidget);
 		context.addFieldToActiveSection(field);
+		populateExistingOrders(context);
 	}
 	
 	/**
@@ -74,6 +77,21 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			html.append(drugOrderErrorWidget.generateHtml(context));
 		}
 		return html.toString();
+	}
+	
+	/**
+	 * Populate the list of existing orders that are associated with the context and the drugs
+	 * configured in this tag
+	 */
+	protected void populateExistingOrders(FormEntryContext context) {
+		existingOrders = new ArrayList<>();
+		for (DrugOrderAnswer doa : drugOrderWidget.getDrugOrderField().getDrugOrderAnswers()) {
+			DrugOrder o = context.removeExistingDrugOrder(doa.getDrug());
+			while (o != null) {
+				existingOrders.add(o);
+				o = context.removeExistingDrugOrder(doa.getDrug());
+			}
+		}
 	}
 	
 	/**
@@ -228,5 +246,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	
 	public void setDrugOrderErrorWidget(ErrorWidget drugOrderErrorWidget) {
 		this.drugOrderErrorWidget = drugOrderErrorWidget;
+	}
+	
+	public List<DrugOrder> getExistingOrders() {
+		return existingOrders;
 	}
 }

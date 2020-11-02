@@ -312,9 +312,8 @@ public class HtmlFormEntryExportUtilTest extends BaseHtmlFormEntryTest {
 		    new Locale("en"), pitList);
 		
 		//System.out.println("HEADER " + ret.toString());
-		Assert.assertTrue(ret.toString().contains(",\"Old Identification Number\",\"Test Identifier Type\","));
+		Assert.assertTrue(ret.toString().contains(",\"Old Identification Number\",\"OpenMRS Identification Number\","));
 		Assert.assertTrue(ret.toString().contains(",\"101\",\"a-D\","));
-		
 	}
 	
 	@Test

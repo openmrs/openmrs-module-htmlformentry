@@ -1,0 +1,48 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<drugOrder>
+		<orderTemplate>
+			Drug: <b><orderProperty name="drug" showLabel="true" /></b>
+			Action: <orderProperty name="action" /><br/>
+			Care Setting: <orderProperty name="careSetting" value="OUTPATIENT"/><br/>
+			Dosing Type: <orderProperty name="dosingType" value="org.openmrs.SimpleDosingInstructions"/><br/>
+			Order Type: <orderProperty name="orderType" value=""/><br/>
+			<br/>
+			Dosing Instructions: <orderProperty name="dosingInstructions" /><br/>
+			Dose: <orderProperty name="dose" /><br/>
+			Dose Units: <orderProperty name="doseUnits" /><br/>
+			Route: <orderProperty name="route" /><br/>
+			Frequency: <orderProperty name="frequency" /><br/>
+			As Needed: <orderProperty name="asNeeded" /><br/>
+			<br/>
+			Order Instructions: <orderProperty name="instructions"/><br/>
+			Urgency: <orderProperty name="urgency"/><br/>
+			Date Activated: <orderProperty name="dateActivated" value="encounterDate"/><br/>
+			Scheduled Date: <orderProperty name="scheduledDate"/><br/>
+			Duration: <orderProperty name="duration" /><br/>
+			Duration Units: <orderProperty name="durationUnits" /><br/>
+			<br/>
+			Quantity: <orderProperty name="quantity" value="0"/><br/>
+			Quantity Units: <orderProperty name="quantityUnits" value="50"/><br/>
+			Num Refills: <orderProperty name="numRefills" value="0"/><br/>
+			<br/>
+			Voided: <orderProperty name="voided"/><br/>
+			Discontinue Reason: <orderProperty name="discontinueReason"/>
+		</orderTemplate>
+		<drugOptions format="display">
+			<drugOption drug="2" label="TRIOMUNE LABEL" />
+			<drugOption drug="3" label="ASPIRIN LABEL" />
+			<drugOption drug="11" label="NYQUIL LABEL" />
+		</drugOptions>
+		<discontinueReasons label="discontinueReason" format="select">
+			<discontinueReasonOption concept="556" label="Drug Toxicity"/>
+			<discontinueReasonOption concept="557" label="Patient Transferred Out"/>
+			<discontinueReasonOption concept="4202" label="Patient Died"/>
+		</discontinueReasons>
+	</drugOrder>
+
+	<submit/>
+</htmlform>
