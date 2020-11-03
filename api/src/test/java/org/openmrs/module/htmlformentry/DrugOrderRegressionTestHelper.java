@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
@@ -36,6 +37,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	}
 	
 	protected Encounter encounter;
+	protected DrugOrder initialOrder;
 	
 	/*
 	 * The values to submit in entry
@@ -84,7 +86,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	
 	@Override
 	public String getFormName() {
-		return "drugOrdersTestForm";
+		return "drugOrderTestForm";
 	}
 	
 	@Override
@@ -94,28 +96,29 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		l.add("Location:");
 		l.add("Provider:");
 		for (int i = 0; i < 3; i++) {
-			l.add("Drug:##" + i);
-			l.add("Action:##" + i);
-			l.add("Care Setting:##" + i);
-			l.add("Dosing Type:##" + i);
-			l.add("Order Type:##" + i);
-			l.add("Dosing Instructions:##" + i);
-			l.add("Dose:##" + i);
-			l.add("Dose Units:##" + i);
-			l.add("Route:##" + i);
-			l.add("Frequency:##" + i);
-			l.add("As Needed:##" + i);
-			l.add("Order Instructions:##" + i);
-			l.add("Urgency:##" + i);
-			l.add("Date Activated:##" + i);
-			l.add("Scheduled Date:##" + i);
-			l.add("Duration:##" + i);
-			l.add("Duration Units:##" + i);
-			l.add("Quantity:##" + i);
-			l.add("Quantity Units:##" + i);
-			l.add("Num Refills:##" + i);
-			l.add("Voided:##" + i);
-			l.add("Discontinue Reason:##" + i);
+			l.add(">Drug<##" + i);
+			l.add(">Order Action<##" + i);
+			l.add(">Previous Order<##" + i);
+			l.add(">Care Setting<##" + i);
+			l.add(">Dosing Type<##" + i);
+			l.add(">Order Type<##" + i);
+			l.add(">Dosing Instructions<##" + i);
+			l.add(">Dose<##" + i);
+			l.add(">Dose Units<##" + i);
+			l.add(">Route<##" + i);
+			l.add(">Frequency<##" + i);
+			l.add(">As Needed<##" + i);
+			l.add(">Instructions<##" + i);
+			l.add(">Urgency<##" + i);
+			l.add(">Order Date<##" + i);
+			l.add(">Scheduled Date<##" + i);
+			l.add(">Duration<##" + i);
+			l.add(">Duration Units<##" + i);
+			l.add(">Quantity<##" + i);
+			l.add(">Quantity Units<##" + i);
+			l.add(">Number of Refills<##" + i);
+			l.add(">Voided<##" + i);
+			l.add(">Discontinue Reason<##" + i);
 		}
 		return l.toArray(new String[] {});
 	}
@@ -138,6 +141,8 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		private int fieldNum;
 		
 		private String drug;
+
+		private String previousOrder;
 		
 		private String action;
 		
@@ -186,34 +191,35 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		}
 		
 		public void applyToRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-			applyIfNotNull(request, widgets, "Drug:", fieldNum, drug);
-			applyIfNotNull(request, widgets, "Action:", fieldNum, action);
-			applyIfNotNull(request, widgets, "Care Setting:", fieldNum, careSetting);
-			applyIfNotNull(request, widgets, "Dosing Type:", fieldNum, dosingType);
-			applyIfNotNull(request, widgets, "Order Type:", fieldNum, orderType);
-			applyIfNotNull(request, widgets, "Dosing Instructions:", fieldNum, dosingInstructions);
-			applyIfNotNull(request, widgets, "Dose:", fieldNum, dose);
-			applyIfNotNull(request, widgets, "Dose Units:", fieldNum, doseUnits);
-			applyIfNotNull(request, widgets, "Route:", fieldNum, route);
-			applyIfNotNull(request, widgets, "Frequency:", fieldNum, frequency);
-			applyIfNotNull(request, widgets, "As Needed:", fieldNum, asNeeded);
-			applyIfNotNull(request, widgets, "Order Instructions:", fieldNum, instructions);
-			applyIfNotNull(request, widgets, "Urgency:", fieldNum, urgency);
-			applyIfNotNull(request, widgets, "Date Activated:", fieldNum, dateActivated);
-			applyIfNotNull(request, widgets, "Scheduled Date:", fieldNum, scheduledDate);
-			applyIfNotNull(request, widgets, "Duration:", fieldNum, duration);
-			applyIfNotNull(request, widgets, "Duration Units:", fieldNum, durationUnits);
-			applyIfNotNull(request, widgets, "Quantity:", fieldNum, quantity);
-			applyIfNotNull(request, widgets, "Quantity Units:", fieldNum, quantityUnits);
-			applyIfNotNull(request, widgets, "Num Refills:", fieldNum, numRefills);
-			applyIfNotNull(request, widgets, "Voided:", fieldNum, voided);
-			applyIfNotNull(request, widgets, "Discontinue Reason:", fieldNum, discontinueReason);
+			applyIfNotNull(request, widgets, ">Drug<", fieldNum, drug);
+			applyIfNotNull(request, widgets, ">Previous Order<", fieldNum, previousOrder);
+			applyIfNotNull(request, widgets, ">Order Action<", fieldNum, action);
+			applyIfNotNull(request, widgets, ">Care Setting<", fieldNum, careSetting);
+			applyIfNotNull(request, widgets, ">Dosing Type<", fieldNum, dosingType);
+			applyIfNotNull(request, widgets, ">Order Type<", fieldNum, orderType);
+			applyIfNotNull(request, widgets, ">Dosing Instructions<", fieldNum, dosingInstructions);
+			applyIfNotNull(request, widgets, ">Dose<", fieldNum, dose);
+			applyIfNotNull(request, widgets, ">Dose Units<", fieldNum, doseUnits);
+			applyIfNotNull(request, widgets, ">Route<", fieldNum, route);
+			applyIfNotNull(request, widgets, ">Frequency<", fieldNum, frequency);
+			applyIfNotNull(request, widgets, ">As Needed<", fieldNum, asNeeded);
+			applyIfNotNull(request, widgets, ">Instructions<", fieldNum, instructions);
+			applyIfNotNull(request, widgets, ">Urgency<", fieldNum, urgency);
+			applyIfNotNull(request, widgets, ">Order Date<", fieldNum, dateActivated);
+			applyIfNotNull(request, widgets, ">Scheduled Date<", fieldNum, scheduledDate);
+			applyIfNotNull(request, widgets, ">Duration<", fieldNum, duration);
+			applyIfNotNull(request, widgets, ">Duration Units<", fieldNum, durationUnits);
+			applyIfNotNull(request, widgets, ">Quantity<", fieldNum, quantity);
+			applyIfNotNull(request, widgets, ">Quantity Units<", fieldNum, quantityUnits);
+			applyIfNotNull(request, widgets, ">Number of Refills<", fieldNum, numRefills);
+			applyIfNotNull(request, widgets, ">Voided<", fieldNum, voided);
+			applyIfNotNull(request, widgets, ">Discontinue Reason<", fieldNum, discontinueReason);
 		}
 		
 		protected void applyIfNotNull(MockHttpServletRequest request, Map<String, String> widgets, String label,
 		        int fieldNum, String value) {
 			if (value != null) {
-				request.setParameter(widgets.get(label + "##" + fieldNum), value);
+				request.setParameter(widgets.get(label + "##" + fieldNum) + "_" + drug, value);
 			}
 		}
 		
@@ -232,7 +238,15 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		public void setDrug(String drug) {
 			this.drug = drug;
 		}
-		
+
+		public String getPreviousOrder() {
+			return previousOrder;
+		}
+
+		public void setPreviousOrder(String previousOrder) {
+			this.previousOrder = previousOrder;
+		}
+
 		public String getAction() {
 			return action;
 		}

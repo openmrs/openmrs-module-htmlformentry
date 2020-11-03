@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
 import org.openmrs.Drug;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
@@ -54,6 +55,14 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	
 	private static final Log log = LogFactory.getLog(DrugOrderTagHandler.class);
 	
+	public static final String DRUG_NAMES_ATTRIBUTE = "drugNames"; // Supports legacy attribute, csv drug lookups
+	
+	public static final String DRUG_LABELS_ATTRIBUTE = "drugLabels"; // Supports legacy attribute, csv labels for lookups
+	
+	public static final String DISCONTINUE_REASON_QUESTION_ATTRIBUTE = "discontinuedReasonConceptId"; // Legacy
+	
+	public static final String DISCONTINUE_REASON_ANSWERS_ATTRIBUTE = "discontinueReasonAnswers"; // Legacy
+	
 	public static final String ORDER_TEMPLATE_TAG = "orderTemplate";
 	
 	public static final String ORDER_PROPERTY_TAG = "orderProperty";
@@ -85,6 +94,9 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	@Override
 	public List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<>();
+		attributeDescriptors.add(new AttributeDescriptor("drugNames", Drug.class));
+		attributeDescriptors.add(new AttributeDescriptor("discontinuedReasonConceptId", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("discontinueReasonAnswers", Concept.class));
 		attributeDescriptors.add(new DrugOrderTagAttributeDescriptor());
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
@@ -100,6 +112,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		DrugOrderWidgetConfig widgetConfig = new DrugOrderWidgetConfig();
 		widgetConfig.setDrugOrderField(drugOrderField);
 		widgetConfig.setAttributes(getAttributes(node));
+		processLegacyDrugOrderAttributes(widgetConfig);
 		
 		// <drugOrder>
 		NodeList childNodes = node.getChildNodes();
@@ -138,6 +151,64 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		out.print(element.generateHtml(context));
 		
 		return false; // skip contents/children
+	}
+	
+	/**
+	 * The purpose of this method is to support the legacy attributes for configuring the drug order tag
+	 * 
+	 * @param widgetConfig
+	 */
+	protected void processLegacyDrugOrderAttributes(DrugOrderWidgetConfig widgetConfig) throws BadFormDesignException {
+		
+		// Configure drugs via the drugNames and drugLabels attributes
+		String drugNameConfig = widgetConfig.getAttribute(DRUG_NAMES_ATTRIBUTE);
+		String drugLabelConfig = widgetConfig.getAttribute(DRUG_LABELS_ATTRIBUTE);
+		String[] drugsNames = StringUtils.isBlank(drugNameConfig) ? null : drugNameConfig.split(",");
+		String[] drugLabels = StringUtils.isBlank(drugLabelConfig) ? null : drugLabelConfig.split(",");
+		if (drugsNames == null) {
+			if (drugLabels != null) {
+				throw new BadFormDesignException("You must specify drugNames if you specify drugLabels");
+			}
+		} else {
+			if (drugLabels != null && drugLabels.length != drugsNames.length) {
+				throw new BadFormDesignException("If drugLabels are configured, they must be configured for each drugName");
+			}
+			for (int i = 0; i < drugsNames.length; i++) {
+				String drug = drugsNames[i];
+				String label = (drugLabels == null ? "" : drugLabels[i]);
+				widgetConfig.addOrderPropertyOption("drug", new Option(label, drug, false));
+			}
+		}
+		
+		// Configure discontinueReasons via attributes
+		String discontinuedQuestionConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_QUESTION_ATTRIBUTE);
+		if (StringUtils.isNotBlank(discontinuedQuestionConfig)) {
+			Concept q = HtmlFormEntryUtil.getConcept(discontinuedQuestionConfig);
+			if (q == null) {
+				throw new BadFormDesignException("Unable to find concept: " + discontinuedQuestionConfig);
+			}
+			if (q.getAnswers() == null || q.getAnswers().isEmpty()) {
+				throw new BadFormDesignException(DISCONTINUE_REASON_QUESTION_ATTRIBUTE + " does not have any answers");
+			}
+			for (ConceptAnswer ca : q.getAnswers()) {
+				String caLabel = ca.getAnswerConcept().getDisplayString();
+				String caName = ca.getAnswerConcept().getUuid();
+				widgetConfig.addOrderPropertyOption("discontineReason", new Option(caLabel, caName, false));
+			}
+		}
+		
+		String discontinuedAnswerConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWERS_ATTRIBUTE);
+		if (StringUtils.isNotBlank(discontinuedAnswerConfig)) {
+			for (String answerConcept : discontinuedAnswerConfig.split(",")) {
+				Concept q = HtmlFormEntryUtil.getConcept(answerConcept);
+				if (q == null) {
+					throw new BadFormDesignException("Unable to find concept: " + discontinuedQuestionConfig);
+				}
+				String caLabel = q.getDisplayString();
+				String caName = q.getUuid();
+				widgetConfig.addOrderPropertyOption("discontinueReason", new Option(caLabel, caName, false));
+			}
+		}
 	}
 	
 	/**

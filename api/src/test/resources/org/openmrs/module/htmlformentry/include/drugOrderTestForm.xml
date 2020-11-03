@@ -3,7 +3,11 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 	    <section headerLabel="2. Test Section">
-            <drugOrder drugNames="2,3"/>
+            <drugOrder drugNames="2,3">
+				<orderTemplate>
+					<orderProperty name="dateActivated" value="encounterDate"/>
+				</orderTemplate>
+			</drugOrder>
         </section>
 	<submit/>
 </htmlform>

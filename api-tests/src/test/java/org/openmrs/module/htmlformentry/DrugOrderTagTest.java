@@ -1,440 +1,476 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.lang.time.DateUtils;
-import org.hamcrest.MatcherAssert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.Drug;
-import org.openmrs.Encounter;
+import org.openmrs.DrugOrder;
+import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
-import org.openmrs.Patient;
-import org.openmrs.api.context.Context;
-import org.springframework.mock.web.MockHttpServletRequest;
+import org.openmrs.SimpleDosingInstructions;
 
 public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
-	
+
+	private static Log log = LogFactory.getLog(DrugOrderTagTest.class);
+
 	@Before
 	public void setupDatabase() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
-	
+
 	@Test
-	public void testDrugOrderTag_shouldCreateAndDiscontinueDrugOrder() throws Exception {
-		final RegressionTestHelper createAndEditEncounterTest = new RegressionTestHelper() {
-			
-			final Date date = new Date();
-			
-			private Encounter encounter;
-			
-			@Override
-			public Patient getPatient() {
-				return Context.getPatientService().getPatient(8);
-			}
-			
-			@Override
-			public String getFormName() {
-				return "drugOrderTestForm";
-			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:" };
-				
-			}
-			
+	public void testDrugOrdersTag_shouldLoadHtmlCorrectly() throws Exception {
+		final DrugOrderRegressionTestHelper helper = new DrugOrderRegressionTestHelper() {
+
 			@Override
 			public void testBlankFormHtml(String html) {
 				System.out.println(html);
 			}
-			
+		};
+		helper.run();
+	}
+
+	@Test
+	public void testNewDrugOrder_simpleDosingRoutineOutpatient() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
 			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Date:"), dateAsString(date));
-				request.setParameter(widgets.get("Location:"), "2");
-				request.setParameter(widgets.get("Provider:"), "502");
-				//drug
-				request.setParameter("w7", "2");
-				//start date
-				request.setParameter("w9", dateAsString(date));
-				//dosing type
-				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
-				//dose
-				request.setParameter("w11", "1");
-				request.setParameter("w18", "51");
-				//care setting
-				request.setParameter("w26", "2");
-				//route
-				request.setParameter("w25", "22");
-				//frequency
-				request.setParameter("w13", "1");
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("OUTPATIENT");
+				p.setDosingType(SimpleDosingInstructions.class.getName());
+				p.setDose("1");
+				p.setDoseUnits("51");
+				p.setRoute("22");
+				p.setFrequency("1");
+				p.setAsNeeded("true");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDateActivated(dateAsString(getEncounterDate()));
+				p.setDuration("10");
+				p.setDurationUnits("28");
+				p.setQuantity("20");
+				p.setQuantityUnits("51");
+				p.setInstructions("Take with water");
+				p.setNumRefills("2");
+				p.setVoided("");
+				p.setDiscontinueReason("");
+				return Arrays.asList(p);
 			}
-			
+
+			@Override
+			public void testResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				DrugOrder order = (DrugOrder) orders.get(0);
+				assertThat(order.getDrug().getId(), is(2));
+				assertThat(order.getDateActivated(), is(getEncounterDate()));
+				assertThat(order.getAction(), is(Order.Action.NEW));
+				assertThat(order.getUrgency(), is(Order.Urgency.ROUTINE));
+				assertThat(order.getScheduledDate(), nullValue());
+				assertThat(order.getDosingType(), is(SimpleDosingInstructions.class));
+				assertThat(order.getDosingInstructions(), nullValue());
+				assertThat(order.getDose(), is(1.0));
+				assertThat(order.getDoseUnits().getConceptId(), is(51));
+				assertThat(order.getRoute().getConceptId(), is(22));
+				assertThat(order.getFrequency().getOrderFrequencyId(), is(1));
+				assertThat(order.getDuration(), is(10));
+				assertThat(order.getDurationUnits().getConceptId(), is(28));
+				assertThat(order.getQuantity(), is(20.0));
+				assertThat(order.getQuantityUnits().getConceptId(), is(51));
+				assertThat(order.getInstructions(), is("Take with water"));
+				assertThat(order.getNumRefills(), is(2));
+			}
+		};
+
+		test.run();
+	}
+
+	@Test
+	public void testNewDrugOrder_freeTextDosingScheduledInpatientDefaultToEncounterDate() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				p.setUrgency("ON_SCHEDULED_DATE");
+				p.setScheduledDate(dateAsString(daysAfterEncounterDate(7)));
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				DrugOrder order = (DrugOrder) orders.get(0);
+				assertThat(order.getDateActivated(), is(getEncounterDate()));
+				assertThat(order.getAction(), is(Order.Action.NEW));
+				assertThat(order.getUrgency(), is(Order.Urgency.ON_SCHEDULED_DATE));
+				assertThat(order.getScheduledDate(), is(daysAfterEncounterDate(7)));
+				assertThat(order.getDosingType(), is(FreeTextDosingInstructions.class));
+				assertThat(order.getDosingInstructions(), is("My dose instructions"));
+				assertThat(order.getDose(), nullValue());
+				assertThat(order.getDoseUnits(), nullValue());
+				assertThat(order.getRoute(), nullValue());
+				assertThat(order.getFrequency(), nullValue());
+				assertThat(order.getDuration(), nullValue());
+				assertThat(order.getDurationUnits(), nullValue());
+				assertThat(order.getQuantity(), nullValue());
+				assertThat(order.getQuantityUnits(), nullValue());
+				assertThat(order.getNumRefills(), nullValue());
+			}
+
+		};
+
+		test.run();
+	}
+
+	@Test
+	public void testEditDrugOrder_shouldReviseExistingOrderAndCreateNewOrder() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				initialOrder = (DrugOrder) orders.get(0);
+				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
+				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
+				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.REVISE.name());
+				p.setPreviousOrder(initialOrder.getOrderId().toString());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My revised dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditFormHtml(String html) {
+				log.trace(html);
+			}
+
+			@Override
+			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				initialOrder = (DrugOrder) orders.get(0);
+				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
+				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
+				assertThat(initialOrder.getDateStopped(), is(adjustMillis(getEncounterDate(), -1000)));
+				DrugOrder newOrder = (DrugOrder) orders.get(1);
+				assertThat(newOrder.getAction(), is(Order.Action.REVISE));
+				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(newOrder.getDosingInstructions(), is("My revised dose instructions"));
+				assertThat(newOrder.getEffectiveStopDate(), nullValue());
+			}
+		};
+
+		test.run();
+	}
+
+	@Test
+	public void testEditDrugOrder_voidPreviousShouldCreateNew() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				initialOrder = (DrugOrder) orders.get(0);
+				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
+				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
+				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setAction(Order.Action.REVISE.name());
+				p.setPreviousOrder(initialOrder.getOrderId().toString());
+				p.setDrug("2");
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My revised dose instructions");
+				p.setVoided("true");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditFormHtml(String html) {
+				log.trace(html);
+			}
+
+			@Override
+			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				DrugOrder originalOrder = (DrugOrder) orders.get(0);
+				assertThat(originalOrder.getVoided(), is(true));
+				DrugOrder newOrder = (DrugOrder) orders.get(1);
+				assertThat(newOrder.getAction(), is(Order.Action.NEW));
+				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(newOrder.getDosingInstructions(), is("My revised dose instructions"));
+				assertThat(newOrder.getEffectiveStopDate(), nullValue());
+			}
+		};
+
+		test.run();
+	}
+
+	@Test
+	public void testEditDrugOrder_shouldNotAllowRenewIfFreeTextDosingInstructionsChanged() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				encounter = results.getEncounterCreated();
-				
-				List<Order> orders = getOrderList(encounter);
-				
-				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, containsInAnyOrder(allOf(hasProperty("drug", is(drug)),
-				    hasProperty("dose", is(1.0)), hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				initialOrder = (DrugOrder) orders.get(0);
 			}
-			
+
 			@Override
-			public Encounter getEncounterToEdit() {
-				return encounter;
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.RENEW.name());
+				p.setPreviousOrder(initialOrder.getOrderId().toString());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My revised dose instructions");
+				return Arrays.asList(p);
 			}
-			
+
 			@Override
-			public void testEditFormHtml(String html) {
-				System.out.println(html);
-			}
-			
-			@Override
-			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				//drug
-				request.setParameter("w7", "2");
-				//start date
-				request.setParameter("w9", dateAsString(date));
-				//dosing type
-				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
-				//dose
-				request.setParameter("w11", "2");
-				request.setParameter("w18", "51");
-				//care setting
-				request.setParameter("w26", "2");
-				//route
-				request.setParameter("w25", "22");
-				//frequency
-				request.setParameter("w13", "1");
-				//discontinue date
-				request.setParameter("w15", dateAsString(date));
-			}
-			
-			public void testEditedResults(SubmissionResults results) {
-				Encounter editedEncounter = results.getEncounterCreated();
-				
-				List<Order> orders = getOrderList(editedEncounter);
-				
-				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders,
-				    containsInAnyOrder(
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)),
-				            hasProperty("action", is(Order.Action.REVISE))),
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
-				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
+			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertErrors(1);
 			}
 		};
-		createAndEditEncounterTest.run();
-		
-		//Test viewing edited drug order
-		new RegressionTestHelper() {
-			
-			@Override
-			public String getFormName() {
-				return "drugOrderTestForm";
-			}
-			
-			public Encounter getEncounterToView() {
-				return createAndEditEncounterTest.getEncounterToEdit();
-			}
-			
-			public void testViewingEncounter(Encounter encounter, String html) {
-				MatcherAssert.assertThat(html, containsString("DrugOrder.dose <span class=\"value\">2</span>"));
-			}
-		}.run();
+
+		test.run();
 	}
-	
+
 	@Test
-	public void testDrugOrderTag_shouldCreateAndEditDrugOrder() throws Exception {
-		final RegressionTestHelper createAndEditEncounterTest = new RegressionTestHelper() {
-			
-			final Date date = new Date();
-			
-			private Encounter encounter;
-			
+	public void testEditDrugOrder_shouldRenewNoDosingInstructionsChanged() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
 			@Override
-			public Patient getPatient() {
-				return Context.getPatientService().getPatient(8);
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("OUTPATIENT");
+				p.setDosingType(SimpleDosingInstructions.class.getName());
+				p.setDose("2");
+				p.setDoseUnits("51");
+				p.setRoute("22");
+				p.setFrequency("1");
+				p.setAsNeeded("true");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDateActivated(dateAsString(getEncounterDate()));
+				p.setDuration("10");
+				p.setDurationUnits("28");
+				p.setQuantity("20");
+				p.setQuantityUnits("51");
+				p.setInstructions("Take with water");
+				p.setNumRefills("2");
+				return Arrays.asList(p);
 			}
-			
+
 			@Override
-			public String getFormName() {
-				return "drugOrderTestForm";
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.RENEW.name());
+				p.setPreviousOrder(initialOrder.getOrderId().toString());
+				p.setCareSetting("OUTPATIENT");
+				p.setDosingType(SimpleDosingInstructions.class.getName());
+				p.setDose("2");
+				p.setDoseUnits("51");
+				p.setRoute("22");
+				p.setFrequency("1");
+				p.setAsNeeded("true");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDateActivated(dateAsString(getEncounterDate()));
+				p.setDuration("10");
+				p.setDurationUnits("28");
+				p.setQuantity("50");
+				p.setQuantityUnits("51");
+				p.setInstructions("Take with water");
+				p.setNumRefills("3");
+				return Arrays.asList(p);
 			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:" };
-				
-			}
-			
-			@Override
-			public void testBlankFormHtml(String html) {
-				System.out.println(html);
-			}
-			
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Date:"), dateAsString(date));
-				request.setParameter(widgets.get("Location:"), "2");
-				request.setParameter(widgets.get("Provider:"), "502");
-				//drug
-				request.setParameter("w7", "2");
-				//start date
-				request.setParameter("w9", dateAsString(date));
-				//dosing type
-				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
-				//dose
-				request.setParameter("w11", "1");
-				request.setParameter("w18", "51");
-				//care setting
-				request.setParameter("w26", "2");
-				//route
-				request.setParameter("w25", "22");
-				//frequency
-				request.setParameter("w13", "1");
-			}
-			
+
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				encounter = results.getEncounterCreated();
-				
-				List<Order> orders = getOrderList(encounter);
-				
-				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders, contains(allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
-				    hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				initialOrder = (DrugOrder) orders.get(0);
 			}
-			
+
 			@Override
-			public Encounter getEncounterToEdit() {
-				return encounter;
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				System.out.println(html);
-			}
-			
-			@Override
-			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				//drug
-				request.setParameter("w7", "2");
-				//start date
-				request.setParameter("w9", dateAsString(date));
-				//dosing type
-				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
-				//dose
-				request.setParameter("w11", "2");
-				request.setParameter("w18", "51");
-				//care setting
-				request.setParameter("w26", "2");
-				//route
-				request.setParameter("w25", "22");
-				//frequency
-				request.setParameter("w13", "1");
-			}
-			
-			public void testEditedResults(SubmissionResults results) {
-				Encounter editedEncounter = results.getEncounterCreated();
-				
-				List<Order> orders = getOrderList(editedEncounter);
-				
-				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders,
-				    containsInAnyOrder(
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(2.0)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))),
-				            hasProperty("action", is(Order.Action.REVISE))),
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date)))))));
-			}
-		};
-		createAndEditEncounterTest.run();
-		
-		//Test viewing edited drug order
-		new RegressionTestHelper() {
-			
-			@Override
-			public String getFormName() {
-				return "drugOrderTestForm";
-			}
-			
-			public Encounter getEncounterToView() {
-				return createAndEditEncounterTest.getEncounterToEdit();
-			}
-			
-			public void testViewingEncounter(Encounter encounter, String html) {
-				MatcherAssert.assertThat(html, containsString("DrugOrder.dose <span class=\"value\">2</span>"));
-			}
-		}.run();
-	}
-	
-	@Test
-	public void testDrugOrderTag_shouldEditDiscontinueDrugOrder() throws Exception {
-		final RegressionTestHelper createAndEditEncounterTest = new RegressionTestHelper() {
-			
-			final Date date = DateUtils.addDays(new Date(), -4);
-			
-			final Date discontinueDate = DateUtils.addDays(new Date(), -2);
-			
-			final Date newDiscontinueDate = DateUtils.addDays(new Date(), -3);
-			
-			private Encounter encounter;
-			
-			@Override
-			public Patient getPatient() {
-				return Context.getPatientService().getPatient(8);
-			}
-			
-			@Override
-			public String getFormName() {
-				return "drugOrderTestForm";
-			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:" };
-				
-			}
-			
-			@Override
-			public void testBlankFormHtml(String html) {
-				System.out.println(html);
-			}
-			
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Date:"), dateAsString(date));
-				request.setParameter(widgets.get("Location:"), "2");
-				request.setParameter(widgets.get("Provider:"), "502");
-				//drug
-				request.setParameter("w7", "2");
-				//start date
-				request.setParameter("w9", dateAsString(date));
-				//dosing type
-				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
-				//dose
-				request.setParameter("w11", "1");
-				request.setParameter("w18", "51");
-				//care setting
-				request.setParameter("w26", "2");
-				//route
-				request.setParameter("w25", "22");
-				//frequency
-				request.setParameter("w13", "1");
-				
-				//discontinue date
-				request.setParameter("w15", dateAsString(discontinueDate));
-			}
-			
-			@Override
-			public void testResults(SubmissionResults results) {
+			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				encounter = results.getEncounterCreated();
-				
-				List<Order> orders = getOrderList(encounter);
-				
-				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders,
-				    containsInAnyOrder(
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
-				        allOf(hasProperty("drug", is(drug)), hasProperty("action", is(Order.Action.DISCONTINUE)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate)))))));
-			}
-			
-			@Override
-			public Encounter getEncounterToEdit() {
-				return encounter;
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				System.out.println(html);
-			}
-			
-			@Override
-			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				//drug
-				request.setParameter("w7", "2");
-				//start date
-				request.setParameter("w9", dateAsString(date));
-				//dosing type
-				request.setParameter("w17", "org.openmrs.SimpleDosingInstructions");
-				//dose
-				request.setParameter("w11", "2"); //changes to dose should not be persisted
-				request.setParameter("w18", "51");
-				//care setting
-				request.setParameter("w26", "2");
-				//route
-				request.setParameter("w25", "22");
-				//frequency
-				request.setParameter("w13", "1");
-				
-				//discontinue date
-				request.setParameter("w15", dateAsString(newDiscontinueDate));
-			}
-			
-			public void testEditedResults(SubmissionResults results) {
-				Encounter editedEncounter = results.getEncounterCreated();
-				
-				List<Order> orders = getOrderList(editedEncounter);
-				
-				Drug drug = Context.getConceptService().getDrug(2);
-				MatcherAssert.assertThat(orders,
-				    containsInAnyOrder(
-				        allOf(hasProperty("drug", is(drug)), hasProperty("dose", is(1.0)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(date))))),
-				        allOf(hasProperty("drug", is(drug)), hasProperty("voided", is(true)),
-				            hasProperty("action", is(Order.Action.DISCONTINUE)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(discontinueDate))))),
-				        allOf(hasProperty("drug", is(drug)),
-				            hasProperty("dateActivated", is(ymdToDate(dateAsString(newDiscontinueDate)))),
-				            hasProperty("action", is(Order.Action.DISCONTINUE)))));
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				DrugOrder order = (DrugOrder) orders.get(0);
+				assertThat(order.getAction(), is(Order.Action.NEW));
+				assertThat(order.getQuantity(), is(20.0));
+				assertThat(order.getNumRefills(), is(2));
+				DrugOrder renewOrder = (DrugOrder) orders.get(1);
+				assertThat(renewOrder.getAction(), is(Order.Action.RENEW));
+				assertThat(renewOrder.getQuantity(), is(50.0));
+				assertThat(renewOrder.getNumRefills(), is(3));
 			}
 		};
-		createAndEditEncounterTest.run();
-		
-		//Test viewing edited drug order
-		new RegressionTestHelper() {
-			
-			@Override
-			public String getFormName() {
-				return "drugOrderTestForm";
-			}
-			
-			public Encounter getEncounterToView() {
-				return createAndEditEncounterTest.getEncounterToEdit();
-			}
-			
-			public void testViewingEncounter(Encounter encounter, String html) {
-				MatcherAssert.assertThat(html, containsString("DrugOrder.dose <span class=\"value\">1</span>"));
-			}
-		}.run();
+
+		test.run();
 	}
-	
-	private List<Order> getOrderList(Encounter encounter) {
-		return new ArrayList<>(encounter.getOrders());
+
+	@Test
+	public void testEditDrugOrder_shouldDiscontinueOrder() throws Exception {
+		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.NEW.name());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDosingType(FreeTextDosingInstructions.class.getName());
+				p.setDosingInstructions("My dose instructions");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				encounter = results.getEncounterCreated();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(1));
+				initialOrder = (DrugOrder) orders.get(0);
+				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
+				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
+				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
+			}
+
+			@Override
+			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
+				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
+				p.setDrug("2");
+				p.setAction(Order.Action.DISCONTINUE.name());
+				p.setPreviousOrder(initialOrder.getOrderId().toString());
+				p.setCareSetting("INPATIENT");
+				p.setUrgency(Order.Urgency.ROUTINE.name());
+				p.setDiscontinueReason("556");
+				return Arrays.asList(p);
+			}
+
+			@Override
+			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
+				results.assertNoErrors();
+				List<Order> orders = new ArrayList<>(encounter.getOrders());
+				assertThat(orders.size(), is(2));
+				DrugOrder originalOrder = (DrugOrder) orders.get(0);
+				assertThat(originalOrder.getAction(), is(Order.Action.NEW));
+				assertThat(originalOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(originalOrder.getDosingInstructions(), is("My dose instructions"));
+				assertThat(originalOrder.getDateStopped(), is(adjustMillis(getEncounterDate(), -1000)));
+				DrugOrder newOrder = (DrugOrder) orders.get(1);
+				assertThat(newOrder.getAction(), is(Order.Action.DISCONTINUE));
+				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
+				assertThat(newOrder.getOrderReason().getConceptId(), is(556));
+				assertThat(newOrder.getEffectiveStopDate(), is(getEncounterDate()));
+			}
+		};
+
+		test.run();
 	}
 }

@@ -121,11 +121,9 @@ public class DrugOrderWidget implements Widget {
 		if (StringUtils.isNotBlank(templateContent)) {
 			writer.println(templateContent);
 		}
-		if (!templateContent.isEmpty()) {
-			writer.println("<div class=\"non-template-field\" style=\"display:none;\">");
-			writer.println(templateContent);
-			writer.println("</div>");
-		}
+		writer.println("<div class=\"non-template-field\" style=\"display:none;\">");
+		writer.println(defaultContent.toString());
+		writer.println("</div>");
 		
 		writer.println("</div>");
 		

@@ -51,6 +51,10 @@ public class DrugOrderWidgetConfig {
 		return attributes;
 	}
 	
+	public String getAttribute(String attribute) {
+		return attributes == null ? null : attributes.get(attribute);
+	}
+	
 	public void setAttributes(Map<String, String> attributes) {
 		this.attributes = attributes;
 	}
@@ -90,10 +94,19 @@ public class DrugOrderWidgetConfig {
 	}
 	
 	public List<Option> getOrderPropertyOptions(String property) {
-		return getOrderPropertyOptions().getOrDefault(property, new ArrayList<>());
+		List<Option> l = getOrderPropertyOptions().get(property);
+		if (l == null) {
+			l = new ArrayList<>();
+			getOrderPropertyOptions().put(property, l);
+		}
+		return l;
 	}
 	
 	public void addOrderPropertyOptions(String property, List<Option> options) {
-		getOrderPropertyOptions().put(property, options);
+		getOrderPropertyOptions(property).addAll(options);
+	}
+	
+	public void addOrderPropertyOption(String property, Option option) {
+		getOrderPropertyOptions(property).add(option);
 	}
 }
