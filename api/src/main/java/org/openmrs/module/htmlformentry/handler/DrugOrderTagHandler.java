@@ -62,6 +62,8 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	public static final String DISCONTINUE_REASON_QUESTION_ATTRIBUTE = "discontinuedReasonConceptId"; // Legacy
 	
 	public static final String DISCONTINUE_REASON_ANSWERS_ATTRIBUTE = "discontinueReasonAnswers"; // Legacy
+
+	public static final String DISCONTINUE_REASON_ANSWER_LABELS_ATTRIBUTE = "discontinueReasonAnswerLabels"; // Legacy
 	
 	public static final String ORDER_TEMPLATE_TAG = "orderTemplate";
 	
@@ -196,17 +198,25 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				widgetConfig.addOrderPropertyOption("discontineReason", new Option(caLabel, caName, false));
 			}
 		}
-		
-		String discontinuedAnswerConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWERS_ATTRIBUTE);
-		if (StringUtils.isNotBlank(discontinuedAnswerConfig)) {
-			for (String answerConcept : discontinuedAnswerConfig.split(",")) {
-				Concept q = HtmlFormEntryUtil.getConcept(answerConcept);
-				if (q == null) {
-					throw new BadFormDesignException("Unable to find concept: " + discontinuedQuestionConfig);
-				}
-				String caLabel = q.getDisplayString();
-				String caName = q.getUuid();
-				widgetConfig.addOrderPropertyOption("discontinueReason", new Option(caLabel, caName, false));
+
+		String answerConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWERS_ATTRIBUTE);
+		String labelConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWER_LABELS_ATTRIBUTE);
+		String[] discontinuedAnswers = StringUtils.isBlank(answerConfig) ? null : answerConfig.split(",");
+		String[] discontinuedLabels = StringUtils.isBlank(labelConfig) ? null : labelConfig.split(",");
+		if (discontinuedAnswers == null) {
+			if (discontinuedLabels != null) {
+				String msg = "You must specify discontinueReasonAnswers if you specify discontinueReasonAnswerLabels";
+				throw new BadFormDesignException(msg);
+			}
+		} else {
+			if (discontinuedLabels != null && discontinuedLabels.length != discontinuedAnswers.length) {
+				String msg = "discontinueReasonAnswerLabels must be configured for each discontinueReasonAnswer";
+				throw new BadFormDesignException(msg);
+			}
+			for (int i = 0; i < discontinuedAnswers.length; i++) {
+				String answer = discontinuedAnswers[i];
+				String label = (discontinuedLabels == null ? "" : discontinuedLabels[i]);
+				widgetConfig.addOrderPropertyOption("discontinueReason", new Option(label, answer, false));
 			}
 		}
 	}

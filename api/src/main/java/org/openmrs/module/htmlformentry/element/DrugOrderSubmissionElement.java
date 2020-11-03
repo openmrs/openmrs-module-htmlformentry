@@ -158,14 +158,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				}
 				// Set dateActivated if needed from encounter
 				if (newOrder.getDateActivated() == null) {
+					// By default, set the dateActivated to be the encounter date, but allow this to be customized
+					Date dateActivated = encounter.getEncounterDatetime();
 					String defaultDateActivated = widgetConfig.getAttributes("dateActivated").get("value");
 					if (StringUtils.isNotBlank(defaultDateActivated)) {
-						if ("encounterDate".equalsIgnoreCase(defaultDateActivated)) {
-							newOrder.setDateActivated(encounter.getEncounterDatetime());
+						if ("entryDate".equalsIgnoreCase(defaultDateActivated)) {
+							dateActivated = new Date();
 						} else {
 							throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultDateActivated);
 						}
 					}
+					newOrder.setDateActivated(dateActivated);
 				}
 				
 				// Order Service does not allow a REVISE operation on a voided order, so ensure this is set to NEW
