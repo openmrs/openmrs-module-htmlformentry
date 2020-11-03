@@ -37,6 +37,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 	}
 	
 	protected Encounter encounter;
+	
 	protected DrugOrder initialOrder;
 	
 	/*
@@ -141,7 +142,7 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		private int fieldNum;
 		
 		private String drug;
-
+		
 		private String previousOrder;
 		
 		private String action;
@@ -238,15 +239,15 @@ public abstract class DrugOrderRegressionTestHelper extends RegressionTestHelper
 		public void setDrug(String drug) {
 			this.drug = drug;
 		}
-
+		
 		public String getPreviousOrder() {
 			return previousOrder;
 		}
-
+		
 		public void setPreviousOrder(String previousOrder) {
 			this.previousOrder = previousOrder;
 		}
-
+		
 		public String getAction() {
 			return action;
 		}

@@ -18,18 +18,18 @@ import org.openmrs.Order;
 import org.openmrs.SimpleDosingInstructions;
 
 public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
-
+	
 	private static Log log = LogFactory.getLog(DrugOrderTagTest.class);
-
+	
 	@Before
 	public void setupDatabase() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
-
+	
 	@Test
 	public void testDrugOrdersTag_shouldLoadHtmlCorrectly() throws Exception {
 		final DrugOrderRegressionTestHelper helper = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public void testBlankFormHtml(String html) {
 				System.out.println(html);
@@ -37,11 +37,11 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 		};
 		helper.run();
 	}
-
+	
 	@Test
 	public void testNewDrugOrder_simpleDosingRoutineOutpatient() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -66,7 +66,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDiscontinueReason("");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -94,14 +94,14 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(order.getNumRefills(), is(2));
 			}
 		};
-
+		
 		test.run();
 	}
-
+	
 	@Test
 	public void testNewDrugOrder_freeTextDosingScheduledInpatientDefaultToEncounterDate() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -114,7 +114,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setScheduledDate(dateAsString(daysAfterEncounterDate(7)));
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -139,16 +139,16 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(order.getQuantityUnits(), nullValue());
 				assertThat(order.getNumRefills(), nullValue());
 			}
-
+			
 		};
-
+		
 		test.run();
 	}
-
+	
 	@Test
 	public void testEditDrugOrder_shouldReviseExistingOrderAndCreateNewOrder() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -160,7 +160,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDosingInstructions("My dose instructions");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -174,7 +174,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
 				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
 			}
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -187,12 +187,12 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDosingInstructions("My revised dose instructions");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testEditFormHtml(String html) {
 				log.trace(html);
 			}
-
+			
 			@Override
 			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -210,14 +210,14 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(newOrder.getEffectiveStopDate(), nullValue());
 			}
 		};
-
+		
 		test.run();
 	}
-
+	
 	@Test
 	public void testEditDrugOrder_voidPreviousShouldCreateNew() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -229,7 +229,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDosingInstructions("My dose instructions");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -243,7 +243,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
 				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
 			}
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -257,12 +257,12 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setVoided("true");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testEditFormHtml(String html) {
 				log.trace(html);
 			}
-
+			
 			@Override
 			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -277,14 +277,14 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(newOrder.getEffectiveStopDate(), nullValue());
 			}
 		};
-
+		
 		test.run();
 	}
-
+	
 	@Test
 	public void testEditDrugOrder_shouldNotAllowRenewIfFreeTextDosingInstructionsChanged() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -296,7 +296,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDosingInstructions("My dose instructions");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -306,7 +306,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(orders.size(), is(1));
 				initialOrder = (DrugOrder) orders.get(0);
 			}
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -319,20 +319,20 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDosingInstructions("My revised dose instructions");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertErrors(1);
 			}
 		};
-
+		
 		test.run();
 	}
-
+	
 	@Test
 	public void testEditDrugOrder_shouldRenewNoDosingInstructionsChanged() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -355,7 +355,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setNumRefills("2");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -379,7 +379,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setNumRefills("3");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(SubmissionResults results) {
 				results.assertNoErrors();
@@ -389,7 +389,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(orders.size(), is(1));
 				initialOrder = (DrugOrder) orders.get(0);
 			}
-
+			
 			@Override
 			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -407,14 +407,14 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(renewOrder.getNumRefills(), is(3));
 			}
 		};
-
+		
 		test.run();
 	}
-
+	
 	@Test
 	public void testEditDrugOrder_shouldDiscontinueOrder() throws Exception {
 		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -426,7 +426,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDosingInstructions("My dose instructions");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -440,7 +440,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
 				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
 			}
-
+			
 			@Override
 			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
 				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
@@ -452,7 +452,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				p.setDiscontinueReason("556");
 				return Arrays.asList(p);
 			}
-
+			
 			@Override
 			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
 				results.assertNoErrors();
@@ -470,7 +470,7 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 				assertThat(newOrder.getEffectiveStopDate(), is(getEncounterDate()));
 			}
 		};
-
+		
 		test.run();
 	}
 }

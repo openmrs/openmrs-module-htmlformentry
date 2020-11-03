@@ -16,11 +16,9 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
-import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
-import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -46,7 +44,7 @@ public class DrugOrderWidget implements Widget {
 		configureOptionWidget(context, "action", "dropdown");
 		registerWidget(context, new HiddenFieldWidget(), new ErrorWidget(), "previousOrder");
 		configureOptionWidget(context, "careSetting", "dropdown");
-		configureDosingTypeWidget(context);
+		configureOptionWidget(context, "dosingType", "radio");
 		configureOptionWidget(context, "orderType", "dropdown");
 		configureTextWidget(context, "dosingInstructions");
 		configureNumericWidget(context, "dose", true);
@@ -73,14 +71,15 @@ public class DrugOrderWidget implements Widget {
 	}
 	
 	public List<DrugOrder> getInitialValueForDrug(String drugId) {
+		List<DrugOrder> ret = null;
 		if (initialValue != null) {
 			for (Drug d : initialValue.keySet()) {
 				if (d.getId().toString().equalsIgnoreCase(drugId)) {
-					return initialValue.get(d);
+					ret = initialValue.get(d);
 				}
 			}
 		}
-		return null;
+		return (ret == null ? new ArrayList<>() : ret);
 	}
 	
 	@Override
@@ -121,7 +120,10 @@ public class DrugOrderWidget implements Widget {
 		if (StringUtils.isNotBlank(templateContent)) {
 			writer.println(templateContent);
 		}
-		writer.println("<div class=\"non-template-field\" style=\"display:none;\">");
+		
+		// If a template was configured, then hide the non-template fields by default, otherwise show them
+		String nonTemplateStyle = StringUtils.isBlank(templateContent) ? "" : "display:none;";
+		writer.println("<div class=\"non-template-field\" style=\"" + nonTemplateStyle + "\">");
 		writer.println(defaultContent.toString());
 		writer.println("</div>");
 		
@@ -137,9 +139,13 @@ public class DrugOrderWidget implements Widget {
 		jsonConfig.addString("patientId", patId.toString());
 		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());
+		jsonConfig.addString("hasTemplate", Boolean.toString(StringUtils.isNotBlank(widgetConfig.getTemplateContent())));
+		
+		// Add all of the attributes configured on the top level drugOrder tag, for use as needed by the widget
+		JsonObject tagAttributes = jsonConfig.addObject("tagAttributes");
 		if (widgetConfig.getAttributes() != null) {
 			for (String att : widgetConfig.getAttributes().keySet()) {
-				jsonConfig.addString(att, widgetConfig.getAttributes().get(att));
+				tagAttributes.addString(att, widgetConfig.getAttributes().get(att));
 			}
 		}
 		
@@ -166,7 +172,8 @@ public class DrugOrderWidget implements Widget {
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
-			String drugId = drugOption.getValue();
+			Drug drug = HtmlFormEntryUtil.getDrug(drugOption.getValue());
+			String drugId = drug.getId().toString();
 			String drugLabel = drugOption.getLabel();
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
@@ -176,7 +183,7 @@ public class DrugOrderWidget implements Widget {
 			List<JsonObject> history = jsonDrug.getObjectArray("history");
 			
 			if (initialValue != null) {
-				for (DrugOrder d : initialValue.getOrDefault(getInitialValueForDrug(drugId), new ArrayList<>())) {
+				for (DrugOrder d : getInitialValueForDrug(drugId)) {
 					Order pd = d.getPreviousOrder();
 					JsonObject jho = new JsonObject();
 					jho.addString("orderId", d.getOrderId().toString());
@@ -406,24 +413,6 @@ public class DrugOrderWidget implements Widget {
 			}
 		}
 		registerWidget(context, w, new ErrorWidget(), property);
-		return w;
-	}
-	
-	protected RadioButtonsWidget configureDosingTypeWidget(FormEntryContext context) {
-		Map<String, String> config = widgetConfig.getAttributes("dosingType");
-		RadioButtonsWidget w = new RadioButtonsWidget();
-		Option simpleOption = new Option();
-		simpleOption.setValue(SimpleDosingInstructions.class.getName());
-		simpleOption.setLabel(translate("htmlformentry.drugOrder.dosingType.simple"));
-		w.addOption(simpleOption);
-		Option freeTextOption = new Option();
-		freeTextOption.setValue(FreeTextDosingInstructions.class.getName());
-		freeTextOption.setLabel(translate("htmlformentry.drugOrder.dosingType.freetext"));
-		w.addOption(freeTextOption);
-		if (context.getMode() != FormEntryContext.Mode.VIEW) {
-			w.setInitialValue(config.get("value"));
-		}
-		registerWidget(context, w, new ErrorWidget(), "dosingType");
 		return w;
 	}
 	

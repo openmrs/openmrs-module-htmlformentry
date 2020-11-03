@@ -102,8 +102,8 @@ public class DrugOrderWidgetConfig {
 		return l;
 	}
 	
-	public void addOrderPropertyOptions(String property, List<Option> options) {
-		getOrderPropertyOptions(property).addAll(options);
+	public void setOrderPropertyOptions(String property, List<Option> options) {
+		getOrderPropertyOptions().put(property, options);
 	}
 	
 	public void addOrderPropertyOption(String property, Option option) {

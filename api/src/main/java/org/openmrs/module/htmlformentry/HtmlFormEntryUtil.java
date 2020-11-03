@@ -49,6 +49,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
@@ -698,14 +699,18 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * If the implementation has the standard drug order type referenced by a core constant, return that
-	 * Otherwise, return the first Order Type in the system that is a Drug Order type
+	 * Next, try to find an Order Type named "Drug Order" Otherwise, return the first Order Type in the
+	 * system that is a Drug Order type
 	 */
 	public static OrderType getDrugOrderType() {
 		OrderType ot = Context.getOrderService().getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
 		if (ot == null) {
-			for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
-				if (isADrugOrderType(orderType)) {
-					ot = orderType;
+			ot = Context.getOrderService().getOrderTypeByName("Drug Order");
+			if (ot == null) {
+				for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+					if (isADrugOrderType(orderType)) {
+						ot = orderType;
+					}
 				}
 			}
 		}
@@ -795,6 +800,21 @@ public class HtmlFormEntryUtil {
 			}
 		}
 		return orderFrequency;
+	}
+	
+	/**
+	 * Find order frequency by uuid or id, or concept
+	 */
+	public static Class<? extends DosingInstructions> getDosingType(String lookup) {
+		if (StringUtils.isNotBlank(lookup)) {
+			try {
+				return (Class<? extends DosingInstructions>) Context.loadClass(lookup);
+			}
+			catch (Exception e) {
+				log.warn("Unable to load dosing type with name: " + lookup);
+			}
+		}
+		return null;
 	}
 	
 	/**

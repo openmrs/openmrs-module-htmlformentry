@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,11 +15,14 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
+import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
+import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
+import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -62,7 +66,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	public static final String DISCONTINUE_REASON_QUESTION_ATTRIBUTE = "discontinuedReasonConceptId"; // Legacy
 	
 	public static final String DISCONTINUE_REASON_ANSWERS_ATTRIBUTE = "discontinueReasonAnswers"; // Legacy
-
+	
 	public static final String DISCONTINUE_REASON_ANSWER_LABELS_ATTRIBUTE = "discontinueReasonAnswerLabels"; // Legacy
 	
 	public static final String ORDER_TEMPLATE_TAG = "orderTemplate";
@@ -85,7 +89,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		PROPERTIES.put("orderType", OrderType.class);
 		PROPERTIES.put("doseUnits", Concept.class);
 		PROPERTIES.put("route", Concept.class);
-		PROPERTIES.put("orderFrequency", OrderFrequency.class);
+		PROPERTIES.put("frequency", OrderFrequency.class);
 		PROPERTIES.put("durationUnits", Concept.class);
 		PROPERTIES.put("quantityUnits", Concept.class);
 		PROPERTIES.put("discontinueReason", Concept.class);
@@ -142,6 +146,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		processConceptOptions(widgetConfig, "doseUnits");
 		processConceptOptions(widgetConfig, "route");
 		processOrderFrequencyOptions(widgetConfig);
+		processDosingTypeOptions(widgetConfig);
 		processEnumOptions(widgetConfig, "urgency", Order.Urgency.values(), Order.Urgency.ROUTINE);
 		processConceptOptions(widgetConfig, "durationUnits");
 		processConceptOptions(widgetConfig, "quantityUnits");
@@ -198,7 +203,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				widgetConfig.addOrderPropertyOption("discontineReason", new Option(caLabel, caName, false));
 			}
 		}
-
+		
 		String answerConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWERS_ATTRIBUTE);
 		String labelConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWER_LABELS_ATTRIBUTE);
 		String[] discontinuedAnswers = StringUtils.isBlank(answerConfig) ? null : answerConfig.split(",");
@@ -281,7 +286,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				optionVals.add(new Option(optionAttributes.get(LABEL_ATTRIBUTE), value, false));
 			}
 		}
-		c.addOrderPropertyOptions(name, optionVals);
+		c.setOrderPropertyOptions(name, optionVals);
 	}
 	
 	/**
@@ -307,7 +312,43 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, label));
 			}
 		}
-		config.addOrderPropertyOptions("drug", options);
+		config.setOrderPropertyOptions("drug", options);
+	}
+	
+	/**
+	 * Processes dosing type options
+	 */
+	protected void processDosingTypeOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
+		String property = "dosingType";
+		List<Option> options = config.getOrderPropertyOptions(property);
+		Map<Class<? extends DosingInstructions>, String> m = new LinkedHashMap<>();
+		m.put(SimpleDosingInstructions.class, "htmlformentry.drugOrder.dosingType.simple");
+		m.put(FreeTextDosingInstructions.class, "htmlformentry.drugOrder.dosingType.freetext");
+		if (options.isEmpty()) {
+			for (Map.Entry<Class<? extends DosingInstructions>, String> e : m.entrySet()) {
+				options.add(new Option(e.getValue(), e.getKey().getName(), false));
+			}
+		} else {
+			for (Option option : options) {
+				Class<? extends DosingInstructions> dosingType = HtmlFormEntryUtil.getDosingType(option.getValue());
+				if (dosingType == null) {
+					throw new BadFormDesignException("Unable to find dosing type value: " + option.getValue());
+				}
+				String label = option.getLabel();
+				if (StringUtils.isBlank(label)) {
+					option.setLabel(m.get(dosingType));
+				}
+			}
+		}
+		String selectedVal = config.getAttributes(property).get(VALUE_ATTRIBUTE);
+		if (StringUtils.isBlank(selectedVal)) {
+			selectedVal = SimpleDosingInstructions.class.getName();
+		}
+		for (Option option : options) {
+			option.setLabel(HtmlFormEntryUtil.translate(option.getLabel()));
+			option.setSelected(option.getValue().equalsIgnoreCase(selectedVal));
+		}
+		config.setOrderPropertyOptions(property, options);
 	}
 	
 	/**
@@ -330,13 +371,13 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 		}
 		String selectedVal = config.getAttributes(property).get(VALUE_ATTRIBUTE);
-		if (StringUtils.isNotBlank(selectedVal) && defVal != null) {
+		if (StringUtils.isBlank(selectedVal) && defVal != null) {
 			selectedVal = defVal.name();
 		}
 		for (Option option : options) {
 			option.setSelected(option.getValue().equalsIgnoreCase(selectedVal));
 		}
-		config.addOrderPropertyOptions(property, options);
+		config.setOrderPropertyOptions(property, options);
 	}
 	
 	/**
@@ -373,7 +414,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				option.setSelected(option.getValue().equalsIgnoreCase(defaultCareSetting.getId().toString()));
 			}
 		}
-		config.addOrderPropertyOptions(property, options);
+		config.setOrderPropertyOptions(property, options);
 	}
 	
 	/**
@@ -394,7 +435,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			defaultOrderType = HtmlFormEntryUtil.getDrugOrderType();
 		}
 		if (options.isEmpty()) {
-			for (OrderType ot : getOrderService().getOrderTypes(false)) {
+			for (OrderType ot : HtmlFormEntryUtil.getDrugOrderTypes()) {
 				options.add(new Option(ot.getName(), ot.getId().toString(), false));
 			}
 		} else {
@@ -412,7 +453,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				option.setSelected(option.getValue().equalsIgnoreCase(defaultOrderType.getId().toString()));
 			}
 		}
-		config.addOrderPropertyOptions(property, options);
+		config.setOrderPropertyOptions(property, options);
 	}
 	
 	/**
@@ -420,7 +461,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	 * populating the DrugOrderField
 	 */
 	protected void processOrderFrequencyOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
-		String property = "orderFrequency";
+		String property = "frequency";
 		List<Option> options = config.getOrderPropertyOptions(property);
 		String defaultValue = config.getAttributes(property).get(VALUE_ATTRIBUTE);
 		OrderFrequency defaultOrderFrequency = null;
@@ -449,7 +490,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				option.setSelected(option.getValue().equalsIgnoreCase(defaultOrderFrequency.getId().toString()));
 			}
 		}
-		config.addOrderPropertyOptions(property, options);
+		config.setOrderPropertyOptions(property, options);
 	}
 	
 	/**
@@ -510,7 +551,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				option.setSelected(option.getValue().equalsIgnoreCase(defaultConcept.getId().toString()));
 			}
 		}
-		config.addOrderPropertyOptions(prop, options);
+		config.setOrderPropertyOptions(prop, options);
 	}
 	
 	private String getLabel(String configuredLabel, String defaultLabel) {
