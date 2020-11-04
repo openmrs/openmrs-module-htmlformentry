@@ -725,7 +725,7 @@ public class HtmlFormEntryUtil {
 		List<Order> orders = Context.getOrderService().getAllOrdersByPatient(patient);
 		for (Order order : orders) {
 			order = HibernateUtil.getRealObjectFromProxy(order);
-			if (order instanceof DrugOrder) {
+			if (order instanceof DrugOrder && BooleanUtils.isNotTrue(order.getVoided())) {
 				DrugOrder drugOrder = (DrugOrder) order;
 				if (drugs == null || drugs.contains(drugOrder.getDrug())) {
 					List<DrugOrder> existing = ret.get(drugOrder.getDrug());

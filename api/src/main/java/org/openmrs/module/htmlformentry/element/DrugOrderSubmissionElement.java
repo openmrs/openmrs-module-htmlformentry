@@ -99,17 +99,15 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+		List<FormSubmissionError> ret = new ArrayList<>();
 		List<DrugOrderWidgetValue> drugOrders = drugOrderWidget.getValue(context, submission);
 		for (DrugOrderWidgetValue v : drugOrders) {
 			DrugOrder drugOrder = v.getNewDrugOrder();
 			if (drugOrder != null) {
 				Order.Action action = drugOrder.getAction();
 				DrugOrder previousOrder = (DrugOrder) drugOrder.getPreviousOrder();
-				if (action == Order.Action.NEW) {
-					// No validation for new orders as of now
-				} else {
-					// If not a new Order, then this must have a previousOrder to operate on
+				// If not a new Order, then this must have a previousOrder to operate on
+				if (action != Order.Action.NEW) {
 					if (previousOrder == null) {
 						addError(ret, drugOrder, "htmlformentry.drugOrderError.previousOrderRequired");
 					} else {
@@ -141,24 +139,20 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		DrugOrderWidgetConfig widgetConfig = drugOrderWidget.getWidgetConfig();
 		for (DrugOrderWidgetValue v : drugOrderWidget.getValue(session.getContext(), request)) {
 			
-			if (v.isVoidPreviousOrder()) {
-				DrugOrder previousOrder = v.getPreviousDrugOrder();
-				previousOrder.setVoided(true);
-				previousOrder.setDateVoided(new Date());
-				previousOrder.setVoidReason("Voided by htmlformentry");
-			}
-			
 			DrugOrder newOrder = v.getNewDrugOrder();
+			DrugOrder previousOrder = v.getPreviousDrugOrder();
+			boolean voidPrevious = v.isVoidPreviousOrder();
+			
+			// First we set some defaults on the new order
+			
 			if (newOrder != null) {
-				Order.Action action = newOrder.getAction();
-				
-				// Set orderer if needed from encounter
+				// Set orderer if not specified to the provider on the encounter
 				if (newOrder.getOrderer() == null) {
 					newOrder.setOrderer(HtmlFormEntryUtil.getOrdererFromEncounter(encounter));
 				}
-				// Set dateActivated if needed from encounter
+				
+				// By default, set the dateActivated to be the encounter date, if not specified
 				if (newOrder.getDateActivated() == null) {
-					// By default, set the dateActivated to be the encounter date, but allow this to be customized
 					Date dateActivated = encounter.getEncounterDatetime();
 					String defaultDateActivated = widgetConfig.getAttributes("dateActivated").get("value");
 					if (StringUtils.isNotBlank(defaultDateActivated)) {
@@ -171,30 +165,49 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 					newOrder.setDateActivated(dateActivated);
 				}
 				
-				// Order Service does not allow a REVISE operation on a voided order, so ensure this is set to NEW
-				if (v.isVoidPreviousOrder()) {
-					if (action == Order.Action.REVISE) {
-						newOrder.setAction(Order.Action.NEW);
+				// Next, determine if this is a revision that should really be a void operation
+				// We do this by determining if the new order is a revision within the same encounter, with same date activated
+				if (!voidPrevious && previousOrder != null) {
+					if (encounter.equals(previousOrder.getEncounter())) { // Same encounter
+						if (newOrder.getDrug().equals(previousOrder.getDrug())) { // Same drug
+							if (newOrder.getDateActivated().equals(previousOrder.getDateActivated())) { // Same date activated
+								voidPrevious = true;
+							}
+						}
 					}
 				}
-				
-				// Order Service does not support RENEW, so we have to try to do that here
-				if (action == Order.Action.RENEW) {
-					DrugOrder previousOrder = v.getPreviousDrugOrder();
-					Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
-					dateStoppedField.setAccessible(true);
-					ReflectionUtils.setField(dateStoppedField, previousOrder, newOrder.getDateActivated());
+			}
+			
+			// If we have determined that this is a void operation,
+			// then set the previous order to voided and set the new order to be a NEW order
+			
+			if (voidPrevious) {
+				if (newOrder != null) {
+					// Order Service does not allow a REVISE operation on a voided order, so ensure this is set to NEW
+					newOrder.setAction(Order.Action.NEW);
+					newOrder.setPreviousOrder(null);
 				}
-				
+				previousOrder.setVoided(true);
+				previousOrder.setDateVoided(new Date());
+				previousOrder.setVoidReason("Voided by htmlformentry");
+			}
+			
+			// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
+			if (newOrder != null && newOrder.getAction() == Order.Action.RENEW) {
+				Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+				dateStoppedField.setAccessible(true);
+				ReflectionUtils.setField(dateStoppedField, previousOrder, newOrder.getDateActivated());
+			}
+			
+			// Finally, add the new order to the encounter if not null
+			if (newOrder != null) {
 				encounter.addOrder(newOrder);
 			}
 		}
 	}
 	
 	/**
-	 * Removes all DrugOrders of the relevant Drug from existingOrders, and returns it.
-	 *
-	 * @return
+	 * Retrieves the drug orders for the patient for the specified drugs
 	 */
 	public Map<Drug, List<DrugOrder>> getDrugOrders(Patient patient, DrugOrderField drugOrderField) {
 		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
@@ -209,8 +222,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	}
 	
 	protected boolean isSameDrug(DrugOrder current, DrugOrder previous) {
-		boolean ret = true;
-		ret = ret && OpenmrsUtil.nullSafeEquals(current.getDrug(), previous.getDrug());
+		boolean ret = OpenmrsUtil.nullSafeEquals(current.getDrug(), previous.getDrug());
 		ret = ret && OpenmrsUtil.nullSafeEquals(current.getDrugNonCoded(), previous.getDrugNonCoded());
 		return ret;
 	}
