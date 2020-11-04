@@ -2113,6 +2113,17 @@ public class HtmlFormEntryUtil {
 		return cal.getTime();
 	}
 	
+	public static Date increment(Date date, int months, int days, int hours, int minutes, int seconds) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.MONTH, months);
+		cal.add(Calendar.DATE, days);
+		cal.add(Calendar.HOUR, hours);
+		cal.add(Calendar.MINUTE, minutes);
+		cal.add(Calendar.SECOND, seconds);
+		return cal.getTime();
+	}
+	
 	/**
 	 * @param s the string to conver to camelcase
 	 * @return should return the passed in string in the camelcase format

@@ -1,7 +1,6 @@
 package org.openmrs.module.htmlformentry.element;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -34,7 +33,6 @@ import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.util.OpenmrsUtil;
-import org.springframework.util.ReflectionUtils;
 
 /**
  * Holds the widgets used to represent drug orders for a configured set of drugs, and serves as both
@@ -178,30 +176,11 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				}
 			}
 			
-			// If we have determined that this is a void operation,
-			// then set the previous order to voided and set the new order to be a NEW order
-			
 			if (voidPrevious) {
-				if (newOrder != null) {
-					// Order Service does not allow a REVISE operation on a voided order, so ensure this is set to NEW
-					newOrder.setAction(Order.Action.NEW);
-					newOrder.setPreviousOrder(null);
-				}
-				previousOrder.setVoided(true);
-				previousOrder.setDateVoided(new Date());
-				previousOrder.setVoidReason("Voided by htmlformentry");
+				session.getSubmissionActions().getOrdersToVoid().add(previousOrder);
 			}
-			
-			// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
-			if (newOrder != null && newOrder.getAction() == Order.Action.RENEW) {
-				Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
-				dateStoppedField.setAccessible(true);
-				ReflectionUtils.setField(dateStoppedField, previousOrder, newOrder.getDateActivated());
-			}
-			
-			// Finally, add the new order to the encounter if not null
 			if (newOrder != null) {
-				encounter.addOrder(newOrder);
+				session.getSubmissionActions().getOrdersToCreate().add(newOrder);
 			}
 		}
 	}

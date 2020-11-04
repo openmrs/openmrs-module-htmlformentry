@@ -273,11 +273,14 @@
             if (lastStart !== '') {
                 // Don't allow any further revisions to a DISCONTINUE order
                 if (lastRenderedOrder.action.value !== 'DISCONTINUE') {
-                    // Allow REVISION operations if operating on an order with the same or an earlier start date
+                    // Allow REVISION and DISCONTINUE if operating on an order with the same or an earlier start date
                     if (lastStart <= encDate) {
                         allowedActions.push("REVISE");
-                        allowedActions.push("RENEW");
                         allowedActions.push("DISCONTINUE");
+                    }
+                    // Allow RENEW if operating on an order with an earlier start date
+                    else if (lastStart < encDate) {
+                        allowedActions.push("RENEW");
                     }
                 }
             }
@@ -312,6 +315,15 @@
                 $actionSection.show();
                 $actionSection.children().show();
             }
+
+            // If there is only one action configured (in addition to empty action), toggle it by default
+            if (allowedActions.length === 2) {
+                $actionWidget.val(allowedActions[1]);
+            }
+            else {
+                $actionWidget.val(allowedActions[0]);
+            }
+            $actionWidget.change();
 
             // Set up ability to toggle between free-text and simple dosing instructions
 

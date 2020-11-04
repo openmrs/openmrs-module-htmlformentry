@@ -54,6 +54,8 @@ public class FormSubmissionActions {
 	
 	private List<Order> ordersToCreate = new Vector<Order>();
 	
+	private List<Order> ordersToVoid = new Vector<>();
+	
 	private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
 	
 	private List<PatientProgram> patientProgramsToComplete = new Vector<PatientProgram>();
@@ -82,7 +84,7 @@ public class FormSubmissionActions {
 	 * Add a Person to the submission stack. A Person must be the first object added to the submission
 	 * stack.
 	 *
-	 * @param Person person to add
+	 * @param person Person to add
 	 * @throws InvalidActionException
 	 */
 	public void beginPerson(Person person) throws InvalidActionException {
@@ -692,6 +694,14 @@ public class FormSubmissionActions {
 	 */
 	public void setOrdersToCreate(List<Order> ordersToCreate) {
 		this.ordersToCreate = ordersToCreate;
+	}
+	
+	public List<Order> getOrdersToVoid() {
+		return ordersToVoid;
+	}
+	
+	public void setOrdersToVoid(List<Order> ordersToVoid) {
+		this.ordersToVoid = ordersToVoid;
 	}
 	
 	/**
