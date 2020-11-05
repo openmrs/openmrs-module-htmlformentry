@@ -82,7 +82,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void shouldCreateRoutineOrderWithDefaultDateActivated() {
+	public void shouldCreateRoutineOrderWithDefaultDateActivatedAndOrderer() {
 		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
 		FormSessionTester formSessionTester = formTester.openNewForm(6);
 		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
@@ -93,6 +93,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
 		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
 		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+		assertThat(order.getOrderer().getPerson().getId(), is(502));
 	}
 	
 	@Test

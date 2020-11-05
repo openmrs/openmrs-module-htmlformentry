@@ -61,10 +61,10 @@ public class FormSessionTester {
 		return htmlToDisplay;
 	}
 	
-	public FormSessionTester setEncounterFields(String encounterDate, String location, String provider) {
+	public FormSessionTester setEncounterFields(String encounterDate, String location, String providerPersonId) {
 		setFieldWithLabel("Date:", encounterDate);
 		setFieldWithLabel("Location:", location);
-		setFieldWithLabel("Provider:", provider);
+		setFieldWithLabel("Provider:", providerPersonId);
 		return this;
 	}
 	
