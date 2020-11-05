@@ -286,9 +286,13 @@ public class DrugOrderWidget implements Widget {
 					drugOrder.setDateActivated(parseValue(getValue(c, r, d, "dateActivated"), Date.class));
 					drugOrder.setScheduledDate(parseValue(getValue(c, r, d, "scheduledDate"), Date.class));
 					drugOrder.setDuration(parseValue(getValue(c, r, d, "duration"), Integer.class));
-					drugOrder.setDurationUnits(parseValue(getValue(c, r, d, "durationUnits"), Concept.class));
+					if (drugOrder.getDuration() != null) {
+						drugOrder.setDurationUnits(parseValue(getValue(c, r, d, "durationUnits"), Concept.class));
+					}
 					drugOrder.setQuantity(parseValue(getValue(c, r, d, "quantity"), Double.class));
-					drugOrder.setQuantityUnits(parseValue(getValue(c, r, d, "quantityUnits"), Concept.class));
+					if (drugOrder.getQuantity() != null) {
+						drugOrder.setQuantityUnits(parseValue(getValue(c, r, d, "quantityUnits"), Concept.class));
+					}
 					drugOrder.setNumRefills(parseValue(getValue(c, r, d, "numRefills"), Integer.class));
 					if (action == Order.Action.DISCONTINUE) {
 						drugOrder.setOrderReason(parseValue(getValue(c, r, d, "discontinueReason"), Concept.class));

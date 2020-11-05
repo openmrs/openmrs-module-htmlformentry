@@ -4,22 +4,21 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.DrugOrder;
-import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
-import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.tester.DrugOrderFieldTester;
+import org.openmrs.module.htmlformentry.tester.FormResultsTester;
+import org.openmrs.module.htmlformentry.tester.FormSessionTester;
+import org.openmrs.module.htmlformentry.tester.FormTester;
 
 public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 	
-	private static Log log = LogFactory.getLog(DrugOrderTagTest.class);
+	private static final Log log = LogFactory.getLog(DrugOrderTagTest.class);
 	
 	@Before
 	public void setupDatabase() throws Exception {
@@ -27,450 +26,261 @@ public class DrugOrderTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testDrugOrdersTag_shouldLoadHtmlCorrectly() throws Exception {
-		final DrugOrderRegressionTestHelper helper = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public void testBlankFormHtml(String html) {
-				System.out.println(html);
-			}
-		};
-		helper.run();
+	public void testDrugOrdersTag_htmlShouldRenderCorrectlyWithDefaultFormValues() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(2);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		formSessionTester.assertHtmlContains("drugorders-element");
+		formSessionTester.assertHtmlContains("drugorders-order-section");
+		formSessionTester.assertHtmlContains("drugorders-selector-section");
+		formSessionTester.assertHtmlContains("drugorders-order-form");
+		formSessionTester.assertStartingFormValue("order-field-label orderType", "1");
+		log.trace(formSessionTester.getHtmlToDisplay());
 	}
 	
 	@Test
-	public void testNewDrugOrder_simpleDosingRoutineOutpatient() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("OUTPATIENT");
-				p.setDosingType(SimpleDosingInstructions.class.getName());
-				p.setDose("1");
-				p.setDoseUnits("51");
-				p.setRoute("22");
-				p.setFrequency("1");
-				p.setAsNeeded("true");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDateActivated(dateAsString(getEncounterDate()));
-				p.setDuration("10");
-				p.setDurationUnits("28");
-				p.setQuantity("20");
-				p.setQuantityUnits("51");
-				p.setInstructions("Take with water");
-				p.setNumRefills("2");
-				p.setVoided("");
-				p.setDiscontinueReason("");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				DrugOrder order = (DrugOrder) orders.get(0);
-				assertThat(order.getDrug().getId(), is(2));
-				assertThat(order.getDateActivated(), is(getEncounterDate()));
-				assertThat(order.getAction(), is(Order.Action.NEW));
-				assertThat(order.getUrgency(), is(Order.Urgency.ROUTINE));
-				assertThat(order.getScheduledDate(), nullValue());
-				assertThat(order.getDosingType(), is(SimpleDosingInstructions.class));
-				assertThat(order.getDosingInstructions(), nullValue());
-				assertThat(order.getDose(), is(1.0));
-				assertThat(order.getDoseUnits().getConceptId(), is(51));
-				assertThat(order.getRoute().getConceptId(), is(22));
-				assertThat(order.getFrequency().getOrderFrequencyId(), is(1));
-				assertThat(order.getDuration(), is(10));
-				assertThat(order.getDurationUnits().getConceptId(), is(28));
-				assertThat(order.getQuantity(), is(20.0));
-				assertThat(order.getQuantityUnits().getConceptId(), is(51));
-				assertThat(order.getInstructions(), is("Take with water"));
-				assertThat(order.getNumRefills(), is(2));
-			}
-		};
-		
-		test.run();
+	public void testDrugOrdersTag_shouldCreateNewInpatientAndOutpatientOrders() {
+		for (String careSettingId : new String[] { "1", "2" }) {
+			FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting(careSettingId).urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			triomuneField.quantity("10").quantityUnits("51").numRefills("1");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+			DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
+			assertThat(order.getCareSetting().getId().toString(), is(careSettingId));
+		}
 	}
 	
 	@Test
-	public void testNewDrugOrder_freeTextDosingScheduledInpatientDefaultToEncounterDate() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("INPATIENT");
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My dose instructions");
-				p.setUrgency("ON_SCHEDULED_DATE");
-				p.setScheduledDate(dateAsString(daysAfterEncounterDate(7)));
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				DrugOrder order = (DrugOrder) orders.get(0);
-				assertThat(order.getDateActivated(), is(getEncounterDate()));
-				assertThat(order.getAction(), is(Order.Action.NEW));
-				assertThat(order.getUrgency(), is(Order.Urgency.ON_SCHEDULED_DATE));
-				assertThat(order.getScheduledDate(), is(daysAfterEncounterDate(7)));
-				assertThat(order.getDosingType(), is(FreeTextDosingInstructions.class));
-				assertThat(order.getDosingInstructions(), is("My dose instructions"));
-				assertThat(order.getDose(), nullValue());
-				assertThat(order.getDoseUnits(), nullValue());
-				assertThat(order.getRoute(), nullValue());
-				assertThat(order.getFrequency(), nullValue());
-				assertThat(order.getDuration(), nullValue());
-				assertThat(order.getDurationUnits(), nullValue());
-				assertThat(order.getQuantity(), nullValue());
-				assertThat(order.getQuantityUnits(), nullValue());
-				assertThat(order.getNumRefills(), nullValue());
-			}
-			
-		};
-		
-		test.run();
+	public void testDrugOrdersTag_shouldCreateNewFreeTextOrder() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
+		results.assertFreeTextDosing(order, "Triomune instructions");
+		results.assertSimpleDosingFieldsAreNull(order);
+		results.assertDurationFieldsNull(order);
+		results.assertDispensingFieldsNull(order);
 	}
 	
 	@Test
-	public void testEditDrugOrder_shouldReviseExistingOrderAndCreateNewOrder() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My dose instructions");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				initialOrder = (DrugOrder) orders.get(0);
-				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
-				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
-				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
-			}
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.REVISE.name());
-				p.setPreviousOrder(initialOrder.getOrderId().toString());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My revised dose instructions");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				log.trace(html);
-			}
-			
-			@Override
-			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(2));
-				initialOrder = (DrugOrder) orders.get(0);
-				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
-				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
-				assertThat(initialOrder.getDateStopped(), is(adjustMillis(getEncounterDate(), -1000)));
-				DrugOrder newOrder = (DrugOrder) orders.get(1);
-				assertThat(newOrder.getAction(), is(Order.Action.REVISE));
-				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(newOrder.getDosingInstructions(), is("My revised dose instructions"));
-				assertThat(newOrder.getEffectiveStopDate(), nullValue());
-			}
-		};
-		
-		test.run();
+	public void testDrugOrdersTag_shouldCreateNewSimpleOrder() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.simpleDosing("2", "51", "1", "22");
+		triomuneField.asNeeded("true").instructions("TBD");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
+		results.assertSimpleDosing(order, 2.0, 51, 1, 22, true, "TBD");
+		results.assertFreeTextDosingFieldsNull(order);
+		results.assertDurationFieldsNull(order);
+		results.assertDispensingFieldsNull(order);
 	}
 	
 	@Test
-	public void testEditDrugOrder_voidPreviousShouldCreateNew() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My dose instructions");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				initialOrder = (DrugOrder) orders.get(0);
-				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
-				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
-				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
-			}
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setAction(Order.Action.REVISE.name());
-				p.setPreviousOrder(initialOrder.getOrderId().toString());
-				p.setDrug("2");
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My revised dose instructions");
-				p.setVoided("true");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testEditFormHtml(String html) {
-				log.trace(html);
-			}
-			
-			@Override
-			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(2));
-				DrugOrder originalOrder = (DrugOrder) orders.get(0);
-				assertThat(originalOrder.getVoided(), is(true));
-				DrugOrder newOrder = (DrugOrder) orders.get(1);
-				assertThat(newOrder.getAction(), is(Order.Action.NEW));
-				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(newOrder.getDosingInstructions(), is("My revised dose instructions"));
-				assertThat(newOrder.getEffectiveStopDate(), nullValue());
-			}
-		};
-		
-		test.run();
+	public void testDrugOrdersTag_shouldCreateRoutineOrderWithDefaultDateActivated() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
+		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
 	}
 	
 	@Test
-	public void testEditDrugOrder_shouldNotAllowRenewIfFreeTextDosingInstructionsChanged() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My dose instructions");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				initialOrder = (DrugOrder) orders.get(0);
-			}
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.RENEW.name());
-				p.setPreviousOrder(initialOrder.getOrderId().toString());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My revised dose instructions");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertErrors(1);
-			}
-		};
-		
-		test.run();
+	public void testDrugOrdersTag_shouldCreateRoutineOrderWithSpecificDateActivated() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.dateActivated("2020-04-15");
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
+		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-04-15 00:00:00");
 	}
 	
 	@Test
-	public void testEditDrugOrder_shouldRenewNoDosingInstructionsChanged() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("OUTPATIENT");
-				p.setDosingType(SimpleDosingInstructions.class.getName());
-				p.setDose("2");
-				p.setDoseUnits("51");
-				p.setRoute("22");
-				p.setFrequency("1");
-				p.setAsNeeded("true");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDateActivated(dateAsString(getEncounterDate()));
-				p.setDuration("10");
-				p.setDurationUnits("28");
-				p.setQuantity("20");
-				p.setQuantityUnits("51");
-				p.setInstructions("Take with water");
-				p.setNumRefills("2");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.RENEW.name());
-				p.setPreviousOrder(initialOrder.getOrderId().toString());
-				p.setCareSetting("OUTPATIENT");
-				p.setDosingType(SimpleDosingInstructions.class.getName());
-				p.setDose("2");
-				p.setDoseUnits("51");
-				p.setRoute("22");
-				p.setFrequency("1");
-				p.setAsNeeded("true");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDateActivated(dateAsString(getEncounterDate()));
-				p.setDuration("10");
-				p.setDurationUnits("28");
-				p.setQuantity("50");
-				p.setQuantityUnits("51");
-				p.setInstructions("Take with water");
-				p.setNumRefills("3");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				initialOrder = (DrugOrder) orders.get(0);
-			}
-			
-			@Override
-			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(2));
-				DrugOrder order = (DrugOrder) orders.get(0);
-				assertThat(order.getAction(), is(Order.Action.NEW));
-				assertThat(order.getQuantity(), is(20.0));
-				assertThat(order.getNumRefills(), is(2));
-				DrugOrder renewOrder = (DrugOrder) orders.get(1);
-				assertThat(renewOrder.getAction(), is(Order.Action.RENEW));
-				assertThat(renewOrder.getQuantity(), is(50.0));
-				assertThat(renewOrder.getNumRefills(), is(3));
-			}
-		};
-		
-		test.run();
+	public void testDrugOrdersTag_shouldCreateScheduledOrder() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2");
+		triomuneField.urgency(Order.Urgency.ON_SCHEDULED_DATE.name()).scheduledDate("2020-05-02");
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
+		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+		TestUtil.assertDate(order.getScheduledDate(), "yyyy-MM-dd HH:mm:ss", "2020-05-02 00:00:00");
+		assertThat(order.getUrgency(), is(Order.Urgency.ON_SCHEDULED_DATE));
 	}
 	
 	@Test
-	public void testEditDrugOrder_shouldDiscontinueOrder() throws Exception {
-		final DrugOrderRegressionTestHelper test = new DrugOrderRegressionTestHelper() {
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEntryRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.NEW.name());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDosingType(FreeTextDosingInstructions.class.getName());
-				p.setDosingInstructions("My dose instructions");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				results.assertEncounterCreated();
-				encounter = results.getEncounterCreated();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(1));
-				initialOrder = (DrugOrder) orders.get(0);
-				assertThat(initialOrder.getAction(), is(Order.Action.NEW));
-				assertThat(initialOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(initialOrder.getDosingInstructions(), is("My dose instructions"));
-				assertThat(initialOrder.getEffectiveStopDate(), nullValue());
-			}
-			
-			@Override
-			public List<DrugOrderRequestParams> getDrugOrderEditRequestParams() {
-				DrugOrderRequestParams p = new DrugOrderRequestParams(0);
-				p.setDrug("2");
-				p.setAction(Order.Action.DISCONTINUE.name());
-				p.setPreviousOrder(initialOrder.getOrderId().toString());
-				p.setCareSetting("INPATIENT");
-				p.setUrgency(Order.Urgency.ROUTINE.name());
-				p.setDiscontinueReason("556");
-				return Arrays.asList(p);
-			}
-			
-			@Override
-			public void testEditedResults(RegressionTestHelper.SubmissionResults results) {
-				results.assertNoErrors();
-				List<Order> orders = new ArrayList<>(encounter.getOrders());
-				assertThat(orders.size(), is(2));
-				DrugOrder originalOrder = (DrugOrder) orders.get(0);
-				assertThat(originalOrder.getAction(), is(Order.Action.NEW));
-				assertThat(originalOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(originalOrder.getDosingInstructions(), is("My dose instructions"));
-				assertThat(originalOrder.getDateStopped(), is(adjustMillis(getEncounterDate(), -1000)));
-				DrugOrder newOrder = (DrugOrder) orders.get(1);
-				assertThat(newOrder.getAction(), is(Order.Action.DISCONTINUE));
-				assertThat(newOrder.getDateActivated(), is(getEncounterDate()));
-				assertThat(newOrder.getOrderReason().getConceptId(), is(556));
-				assertThat(newOrder.getEffectiveStopDate(), is(getEncounterDate()));
-			}
-		};
+	public void testDrugOrdersTag_reviseShouldVoidIfWithinSameEncounterForSameDate() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
 		
-		test.run();
+		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, reviseTester);
+		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
+		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
+		FormResultsTester revisedResults = reviseTester.submitForm();
+		
+		// Since it was voided, then this should not be a revise with previous order, but void with new order
+		revisedResults.assertNoErrors().assertOrderCreatedCount(2).assertNonVoidedOrderCount(1).assertVoidedOrderCount(1);
+		DrugOrder revisedOrder = results.assertDrugOrder(Order.Action.NEW, 2);
+		assertThat(revisedOrder.getPreviousOrder(), nullValue());
+		assertThat(revisedOrder.getDosingInstructions(), is("Revised Triomune instructions"));
+		
+		Order originalOrderRetrieved = Context.getOrderService().getOrder(originalOrder.getId());
+		assertThat(originalOrderRetrieved.getVoided(), is(true));
+		assertThat(originalOrderRetrieved.getVoidReason(), is("Voided by htmlformentry"));
+	}
+	
+	@Test
+	public void testDrugOrdersTag_reviseShouldCloseAndLinkPrevious() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		
+		Integer initialOrderId;
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+			TestUtil.assertDate(o1.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+			assertThat(o1.getDosingInstructions(), is("Triomune instructions"));
+			assertThat(o1.getDateStopped(), nullValue());
+			initialOrderId = o1.getOrderId();
+		}
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-05-15", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.orderAction("REVISE").previousOrder(initialOrderId.toString());
+			triomuneField.freeTextDosing("Revised Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o2 = results.assertDrugOrder(Order.Action.REVISE, 2);
+			TestUtil.assertDate(o2.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-05-15 00:00:00");
+			assertThat(o2.getDateStopped(), nullValue());
+			
+			DrugOrder o1 = (DrugOrder) Context.getOrderService().getOrder(initialOrderId);
+			assertThat(o2.getPreviousOrder(), is(o1));
+			TestUtil.assertDate(o1.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-05-14 23:59:59");
+			assertThat(o1.getDosingInstructions(), is("Triomune instructions"));
+			assertThat(o2.getDosingInstructions(), is("Revised Triomune instructions"));
+		}
+	}
+	
+	@Test
+	public void testDrugOrdersTag_renewShouldCloseAndLinkPrevious() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		
+		Integer initialOrderId;
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("1").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			triomuneField.quantity("30").quantityUnits("51").numRefills("2");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+			TestUtil.assertDate(o1.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+			results.assertDispensing(o1, 30.0, 51, 2);
+			assertThat(o1.getDateStopped(), nullValue());
+			initialOrderId = o1.getOrderId();
+		}
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-05-15", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.careSetting("1").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.orderAction("RENEW").previousOrder(initialOrderId.toString());
+			triomuneField.freeTextDosing("Triomune instructions");
+			triomuneField.quantity("50").quantityUnits("51").numRefills("3");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o2 = results.assertDrugOrder(Order.Action.RENEW, 2);
+			TestUtil.assertDate(o2.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-05-15 00:00:00");
+			assertThat(o2.getDateStopped(), nullValue());
+			
+			DrugOrder o1 = (DrugOrder) Context.getOrderService().getOrder(initialOrderId);
+			assertThat(o2.getPreviousOrder(), is(o1));
+			TestUtil.assertDate(o1.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-05-14 23:59:59");
+			assertThat(o2.getDosingInstructions(), is(o1.getDosingInstructions()));
+			results.assertDispensing(o2, 50.0, 51, 3);
+		}
+	}
+	
+	@Test
+	public void testDrugOrdersTag_discontinueShouldCloseAndLinkPrevious() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		
+		Integer initialOrderId;
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+			TestUtil.assertDate(o1.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+			assertThat(o1.getDateStopped(), nullValue());
+			initialOrderId = o1.getOrderId();
+		}
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-05-15", "2", "502");
+			DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.orderAction("DISCONTINUE").previousOrder(initialOrderId.toString());
+			triomuneField.discontinueReason("556");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o2 = results.assertDrugOrder(Order.Action.DISCONTINUE, 2);
+			TestUtil.assertDate(o2.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-05-15 00:00:00");
+			assertThat(o2.getDateStopped(), nullValue());
+			
+			DrugOrder o1 = (DrugOrder) Context.getOrderService().getOrder(initialOrderId);
+			assertThat(o2.getPreviousOrder(), is(o1));
+			TestUtil.assertDate(o1.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-05-14 23:59:59");
+		}
 	}
 }

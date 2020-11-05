@@ -17,8 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -363,73 +361,8 @@ public abstract class RegressionTestHelper {
 	private MockHttpServletRequest createEditRequest(String html, HttpSession httpSession) {
 		MockHttpServletRequest ret = new MockHttpServletRequest();
 		ret.setSession(httpSession);
-		
-		// used for input and for select option
-		Pattern forValue = Pattern.compile("value=\"(.*?)\"");
-		
-		// <input ... name="something" ...>
-		{
-			Pattern forInput = Pattern.compile("<input.*?name=\"(.*?)\".*?>");
-			Matcher matcher = forInput.matcher(html);
-			while (matcher.find()) {
-				String element = matcher.group();
-				if (element.contains("type=\"radio\"") && !element.contains("checked=\"true\"")) {
-					// discards unchecked radios
-					continue;
-				}
-				if (element.contains("type=\"checkbox\"") && !element.contains("checked=\"true\"")) {
-					// discards unchecked checkboxes
-					continue;
-				}
-				String name = matcher.group(1);
-				Matcher lookForValue = forValue.matcher(element);
-				if (lookForValue.find()) {
-					String value = lookForValue.group(1);
-					ret.addParameter(name, value);
-				}
-			}
-		}
-		
-		// <textarea ... name="something" ...>value</textarea>
-		{
-			Pattern forTextarea = Pattern.compile("<textarea.*?name=\"(.*?)\".*?>(.*?)</textarea>");
-			Matcher matcher = forTextarea.matcher(html);
-			while (matcher.find()) {
-				String name = matcher.group(1);
-				String value = matcher.group(2);
-				ret.addParameter(name, value);
-			}
-		}
-		
-		// <select ... name="something" ...>(options)</select> (DOTALL makes . match line terminator too)
-		{
-			Pattern forSelect = Pattern.compile("<select.*?name=\"(.*?)\".*?>.*?(<option[^>]*selected[^>]*>).*?</select>",
-			    Pattern.DOTALL);
-			Matcher matcher = forSelect.matcher(html);
-			while (matcher.find()) {
-				String name = matcher.group(1);
-				String selectedOption = matcher.group(2);
-				Matcher lookForValue = forValue.matcher(selectedOption);
-				if (lookForValue.find()) {
-					String value = lookForValue.group(1);
-					ret.addParameter(name, value);
-				} else {
-					ret.addParameter(name, "");
-				}
-			}
-		}
-		
-		// setupDatePicker(jsDateFormat, jsLocale, displaySelector, '#something', '2012-01-30')
-		{
-			Pattern forDatePicker = Pattern.compile("setupDatePicker\\(.*?, .*?, .*?, '#(.+?)', '(.+?)'\\)");
-			Matcher matcher = forDatePicker.matcher(html);
-			while (matcher.find()) {
-				String name = matcher.group(1);
-				String value = matcher.group(2);
-				ret.addParameter(name, value);
-			}
-		}
-		
+		Map<String, String> requestParams = TestUtil.getFormValues(html);
+		ret.addParameters(requestParams);
 		return ret;
 	}
 	
@@ -985,11 +918,11 @@ public abstract class RegressionTestHelper {
 			Collection<Obs> temp = encounterCreated.getAllObs();
 			Assert.assertNotNull(temp);
 			
-			List<ObsValue> expected = new ArrayList<ObsValue>();
+			List<TestObsValue> expected = new ArrayList<TestObsValue>();
 			for (int i = 0; i < conceptIdsAndValues.length; i += 2) {
 				int conceptId = (Integer) conceptIdsAndValues[i];
 				Object value = conceptIdsAndValues[i + 1];
-				expected.add(new ObsValue(conceptId, value));
+				expected.add(new TestObsValue(conceptId, value));
 			}
 			
 			for (Obs o : temp) {
@@ -1007,37 +940,6 @@ public abstract class RegressionTestHelper {
 			Assert.fail("Cannot find an obs group matching " + expected);
 		}
 		
-	}
-	
-	public class ObsValue {
-		
-		public Integer conceptId; // required
-		
-		public Object value; // can be null
-		
-		public ObsValue(Integer cId, Object val) {
-			conceptId = cId;
-			value = val;
-		}
-		
-		@Override
-		public String toString() {
-			return conceptId + "->" + value;
-		}
-		
-		public boolean matches(Obs obs) {
-			
-			if (!obs.getConcept().getConceptId().equals(conceptId)) {
-				return false;
-			}
-			String valueAsString = null;
-			if (value instanceof Date) {
-				valueAsString = formatObsValueDate((Date) value);
-			} else {
-				valueAsString = TestUtil.valueAsStringHelper(value);
-			}
-			return OpenmrsUtil.nullSafeEquals(valueAsString, obs.getValueAsString(Context.getLocale()));
-		}
 	}
 	
 	// helper workaround method now that as of platform 2.x, Encounter does not have a getProvider method
