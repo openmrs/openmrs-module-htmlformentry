@@ -5,7 +5,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -15,6 +17,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.TestUtil;
+import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
@@ -59,6 +62,16 @@ public class FormSessionTester {
 	
 	public String getHtmlToDisplay() {
 		return htmlToDisplay;
+	}
+
+	public <T extends FormSubmissionControllerAction> List<T> getSubmissionAction(Class<T> type) {
+		List<T> ret = new ArrayList<>();
+		for (FormSubmissionControllerAction action : formEntrySession.getSubmissionController().getActions()) {
+			if (type.isAssignableFrom(action.getClass())) {
+				ret.add((T)action);
+			}
+		}
+		return ret;
 	}
 	
 	public FormSessionTester setEncounterFields(String encounterDate, String location, String providerPersonId) {

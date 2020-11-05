@@ -28,6 +28,7 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.TestObsValue;
 import org.openmrs.module.htmlformentry.TestUtil;
 
@@ -52,18 +53,20 @@ public class FormResultsTester {
 		fes.prepareForSubmit();
 		FormSubmissionController fsc = fes.getSubmissionController();
 		List<FormSubmissionError> validationErrors = fsc.validateSubmission(fes.getContext(), request);
-		if (fes.getContext().getMode() == Mode.ENTER && fes.hasEncouterTag()) {
-			List<Encounter> toCreate = fes.getSubmissionActions().getEncountersToCreate();
-			if (toCreate == null || toCreate.size() == 0) {
-				throw new IllegalArgumentException("This form is not going to create an encounter");
+		if (validationErrors.isEmpty()) {
+			if (fes.getContext().getMode() == Mode.ENTER && fes.hasEncouterTag()) {
+				List<Encounter> toCreate = fes.getSubmissionActions().getEncountersToCreate();
+				if (toCreate == null || toCreate.size() == 0) {
+					throw new IllegalArgumentException("This form is not going to create an encounter");
+				}
 			}
-		}
-		try {
-			fsc.handleFormSubmission(fes, request);
-			Context.getService(HtmlFormEntryService.class).applyActions(fes);
-		}
-		catch (Exception e) {
-			throw new IllegalArgumentException("Error submitting form", e);
+			try {
+				fsc.handleFormSubmission(fes, request);
+				Context.getService(HtmlFormEntryService.class).applyActions(fes);
+			}
+			catch (Exception e) {
+				throw new IllegalArgumentException("Error submitting form", e);
+			}
 		}
 		return new FormResultsTester(validationErrors, fes);
 	}
@@ -102,6 +105,18 @@ public class FormResultsTester {
 	
 	public void assertErrors(int numberOfErrors) {
 		Assert.assertTrue(validationErrors != null && validationErrors.size() == numberOfErrors);
+	}
+
+	public void assertErrorMessage(String expectedMessage) {
+		boolean found = false;
+		if (validationErrors != null) {
+			for (FormSubmissionError error : validationErrors) {
+				if (error.getError().equals(HtmlFormEntryUtil.translate(expectedMessage))) {
+					found = true;
+				}
+			}
+		}
+		Assert.assertTrue(found);
 	}
 	
 	public void printErrors() {

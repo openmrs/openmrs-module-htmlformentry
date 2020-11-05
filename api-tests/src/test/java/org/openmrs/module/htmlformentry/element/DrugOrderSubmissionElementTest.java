@@ -4,10 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Date;
+import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.DrugOrder;
@@ -21,12 +19,51 @@ import org.openmrs.module.htmlformentry.tester.FormSessionTester;
 import org.openmrs.module.htmlformentry.tester.FormTester;
 
 public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
-	
-	private static final Log log = LogFactory.getLog(DrugOrderSubmissionElementTest.class);
-	
+
 	@Before
 	public void setupDatabase() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+	}
+
+	@Test
+	public void shouldPopulateExistingOrders() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openExistingToView(3);
+		DrugOrderSubmissionElement e = formSessionTester.getSubmissionAction(DrugOrderSubmissionElement.class).get(0);
+		List<DrugOrder> existingOrders = e.getExistingOrders();
+		assertThat(existingOrders.size(), is(2));
+	}
+
+	@Test
+	public void shouldFailValidationIfMissingPreviousOrder() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		revisedTriomuneField.orderAction("REVISE");
+		revisedTriomuneField.freeTextDosing("My instructions");
+		FormResultsTester revisedResults = formSessionTester.submitForm();
+		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.previousOrderRequired");
+	}
+
+	@Test
+	public void shouldFailValidationIfDrugChangedOnRevision() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openExistingToEdit(3);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		revisedTriomuneField.orderAction("REVISE").previousOrder("111"); // This has drug 3, which is different
+		FormResultsTester revisedResults = formSessionTester.submitForm();
+		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.drugChangedForRevision");
+	}
+
+	@Test
+	public void shouldFailValidationIfDosingChangedOnRenew() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openExistingToEdit(3);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(3, formSessionTester);
+		revisedTriomuneField.orderAction("RENEW").previousOrder("111");
+		revisedTriomuneField.freeTextDosing("My instructions");
+		FormResultsTester revisedResults = formSessionTester.submitForm();
+		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.dosingChangedForRenew");
 	}
 	
 	@Test
@@ -140,35 +177,6 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
 		TestUtil.assertDate(order.getScheduledDate(), "yyyy-MM-dd HH:mm:ss", "2020-05-02 00:00:00");
 		assertThat(order.getUrgency(), is(Order.Urgency.ON_SCHEDULED_DATE));
-	}
-	
-	@Test
-	public void reviseShouldVoidIfWithinSameEncounterForSameDate() {
-		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
-		FormSessionTester formSessionTester = formTester.openNewForm(6);
-		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
-		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
-		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
-		triomuneField.freeTextDosing("Triomune instructions");
-		FormResultsTester results = formSessionTester.submitForm();
-		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
-		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
-		
-		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
-		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, reviseTester);
-		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
-		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
-		FormResultsTester revisedResults = reviseTester.submitForm();
-		
-		// Since it was voided, then this should not be a revise with previous order, but void with new order
-		revisedResults.assertNoErrors().assertOrderCreatedCount(2).assertNonVoidedOrderCount(1).assertVoidedOrderCount(1);
-		DrugOrder revisedOrder = results.assertDrugOrder(Order.Action.NEW, 2);
-		assertThat(revisedOrder.getPreviousOrder(), nullValue());
-		assertThat(revisedOrder.getDosingInstructions(), is("Revised Triomune instructions"));
-		
-		Order originalOrderRetrieved = Context.getOrderService().getOrder(originalOrder.getId());
-		assertThat(originalOrderRetrieved.getVoided(), is(true));
-		assertThat(originalOrderRetrieved.getVoidReason(), is("Voided by htmlformentry"));
 	}
 	
 	@Test
@@ -288,5 +296,73 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 			assertThat(o2.getPreviousOrder(), is(o1));
 			TestUtil.assertDate(o1.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-05-14 23:59:59");
 		}
+	}
+
+	@Test
+	public void reviseShouldVoidIfWithinSameEncounterForSameDate() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
+
+		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, reviseTester);
+		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
+		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
+		FormResultsTester revisedResults = reviseTester.submitForm();
+
+		// Since it was voided, then this should not be a revise with previous order, but void with new order
+		revisedResults.assertNoErrors().assertOrderCreatedCount(2).assertNonVoidedOrderCount(1).assertVoidedOrderCount(1);
+		DrugOrder revisedOrder = results.assertDrugOrder(Order.Action.NEW, 2);
+		assertThat(revisedOrder.getPreviousOrder(), nullValue());
+		assertThat(revisedOrder.getDosingInstructions(), is("Revised Triomune instructions"));
+
+		Order originalOrderRetrieved = Context.getOrderService().getOrder(originalOrder.getId());
+		assertThat(originalOrderRetrieved.getVoided(), is(true));
+		assertThat(originalOrderRetrieved.getVoidReason(), is("Voided by htmlformentry"));
+	}
+
+	@Test
+	public void reviseShouldVoidAndAssumePreviousOrderIfApplicable() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+
+		// Here, we revise on order in an earlier encounter
+
+		FormSessionTester editSession1 = formTester.openNewForm(2); // Patient has an open order for drug 2
+		editSession1.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester revision1 = DrugOrderFieldTester.forDrug(2, editSession1);
+		revision1.urgency("ROUTINE").careSetting("1").orderAction("REVISE").previousOrder("3");
+		revision1.freeTextDosing("My revision").quantity("1").quantityUnits("51").numRefills("0");
+		FormResultsTester results1 = editSession1.submitForm();
+		results1.assertNoErrors().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+		DrugOrder order1 = results1.assertDrugOrder(Order.Action.REVISE, 2);
+		assertThat(order1.getPreviousOrder().getOrderId(), is(3));
+
+		// Then, we revise this above revision
+
+		FormSessionTester editSession2 = editSession1.reopenForEditing(results1);
+		DrugOrderFieldTester revision2 = DrugOrderFieldTester.forDrug(2, editSession2);
+		revision2.orderAction("REVISE").previousOrder(order1.getId().toString());
+		revision2.freeTextDosing("My revision revision");
+		FormResultsTester results2 = editSession2.submitForm();
+
+		// Since we are revising a matching order (encounter, drug, dateActivated match), this should void previous
+		// But since the one we are voiding was itself a revision, this should be a REVISION of that order's previous
+		Order voidedOrder = Context.getOrderService().getOrder(order1.getId());
+		assertThat(voidedOrder.getVoided(), is(true));
+		assertThat(voidedOrder.getVoidReason(), is("Voided by htmlformentry"));
+
+		results2.assertNoErrors().assertOrderCreatedCount(2).assertNonVoidedOrderCount(1).assertVoidedOrderCount(1);
+		DrugOrder order2 = results2.assertDrugOrder(Order.Action.REVISE, 2);
+		assertThat(order2.getPreviousOrder().getOrderId(), is(3));
+		assertThat(order2.getDosingInstructions(), is("My revision revision"));
+
+		DrugOrder originalOrder = (DrugOrder)Context.getOrderService().getOrder(3);
+		TestUtil.assertDate(originalOrder.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-03-29 23:59:59");
 	}
 }
