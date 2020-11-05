@@ -3,7 +3,6 @@ package org.openmrs.module.htmlformentry.element;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Drug;
@@ -151,16 +149,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				
 				// By default, set the dateActivated to be the encounter date, if not specified
 				if (newOrder.getDateActivated() == null) {
-					Date dateActivated = encounter.getEncounterDatetime();
-					String defaultDateActivated = widgetConfig.getAttributes("dateActivated").get("value");
-					if (StringUtils.isNotBlank(defaultDateActivated)) {
-						if ("entryDate".equalsIgnoreCase(defaultDateActivated)) {
-							dateActivated = new Date();
-						} else {
-							throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultDateActivated);
-						}
-					}
-					newOrder.setDateActivated(dateActivated);
+					newOrder.setDateActivated(encounter.getEncounterDatetime());
 				}
 				
 				// Next, determine if this is a revision that should really be a void operation

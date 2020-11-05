@@ -1,0 +1,13 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<drugOrder drugNames="2,3">
+		<orderTemplate>
+			<orderProperty name="dateActivated" value="entryDate"/>
+		</orderTemplate>
+	</drugOrder>
+
+	<submit/>
+</htmlform>

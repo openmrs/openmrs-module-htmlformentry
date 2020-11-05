@@ -283,7 +283,7 @@ public class DrugOrderWidget implements Widget {
 					drugOrder.setAsNeeded(parseValue(getValue(c, r, d, "asNeeded"), Boolean.class, false));
 					drugOrder.setInstructions(getValue(c, r, d, "instructions"));
 					drugOrder.setUrgency(parseValue(getValue(c, r, d, "urgency"), Order.Urgency.class));
-					drugOrder.setDateActivated(parseValue(getValue(c, r, d, "dateActivated"), Date.class));
+					drugOrder.setDateActivated(getDateActivatedValue(c, r, d));
 					drugOrder.setScheduledDate(parseValue(getValue(c, r, d, "scheduledDate"), Date.class));
 					drugOrder.setDuration(parseValue(getValue(c, r, d, "duration"), Integer.class));
 					if (drugOrder.getDuration() != null) {
@@ -315,6 +315,23 @@ public class DrugOrderWidget implements Widget {
 		catch (Exception e) {
 			throw new IllegalArgumentException("Unable to get value from request", e);
 		}
+	}
+	
+	protected Date getDateActivatedValue(FormEntryContext context, HttpServletRequest req, Drug drug) {
+		String property = "dateActivated";
+		Date val = parseValue(getValue(context, req, drug, property), Date.class);
+		if (val == null) {
+			Map<String, String> attrs = widgetConfig.getAttributes(property);
+			String defaultVal = attrs.get("value");
+			if (StringUtils.isNotBlank(defaultVal)) {
+				if ("entryDate".equals(defaultVal)) {
+					val = new Date();
+				} else {
+					throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultVal);
+				}
+			}
+		}
+		return val;
 	}
 	
 	/**
