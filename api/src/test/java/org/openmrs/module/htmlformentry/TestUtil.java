@@ -17,10 +17,10 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
-import org.junit.platform.commons.util.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.Encounter;
@@ -283,6 +283,18 @@ public class TestUtil {
 	
 	public static String formatYmd(Date date) {
 		return (date == null ? null : new SimpleDateFormat("yyyy-MM-dd").format(date));
+	}
+
+	public static Date parseYmd(String ymd) {
+		if (StringUtils.isNotBlank(ymd)) {
+			try {
+				return new SimpleDateFormat("yyyy-MM-dd").parse(ymd);
+			}
+			catch (Exception e) {
+				throw new IllegalArgumentException("Unable to parse from yyyy-MM-dd to Date: " + ymd, e);
+			}
+		}
+		return null;
 	}
 	
 	/**
