@@ -414,7 +414,7 @@
     drugOrderWidget.populateOrderForm = function(config, $orderForm, drugOrder) {
         $orderForm.find('.order-field-widget.previousOrder').find(':input').val(drugOrder.orderId);
         $orderForm.find('.order-field-widget.careSetting').find(':input').val(drugOrder.careSetting.value);
-        $orderForm.find('.order-field-widget.dosingType').find(':input').val(drugOrder.dosingType.value);
+        $orderForm.find('.order-field-widget.dosingType').find(':input[value="' + drugOrder.dosingType.value + '"]').click();
         $orderForm.find('.order-field-widget.orderType').find(':input').val(drugOrder.orderType.value);
         $orderForm.find('.order-field-widget.dosingInstructions').find(':input').val(drugOrder.dosingInstructions.value);
         $orderForm.find('.order-field-widget.dose').find(':input').val(drugOrder.dose.value);
