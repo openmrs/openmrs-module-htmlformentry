@@ -245,6 +245,10 @@ public class DrugOrderWidget implements Widget {
 		ret.append("</div>");
 		ret.append("<div class=\"order-field-widget ").append(property).append("\">");
 		ret.append(w.generateHtml(context));
+		ErrorWidget ew = context.getErrorWidget(w);
+		if (ew != null) {
+			ret.append(ew.generateHtml(context));
+		}
 		ret.append("</div>");
 		ret.append("</div>");
 		return ret.toString();

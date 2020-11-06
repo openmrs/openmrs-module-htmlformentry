@@ -238,6 +238,20 @@
             $orderForm.find("[name]").add($orderForm).each(function () {
                 this.name = this.name + idSuffix;
             });
+
+            // This is necessary to ensure each NumberFieldWidget interacts with the associated, cloned errorWidget
+            $orderForm.find('input[onblur*=checkNumber]').attr('onblur', function(index, currentValue) {
+                var split = currentValue.split(/(checkNumber\(this,')(w\d*)('*)/);
+                var newFn = '';
+                split.forEach(function(val) {
+                    if (RegExp(/w\d*/).test(val)) {
+                        val = val + idSuffix;
+                    }
+                    newFn += val;
+                })
+                return newFn;
+            });
+
             $drugSection.append($orderForm);
 
             // Pre-populate the order form with the last rendered order if applicable

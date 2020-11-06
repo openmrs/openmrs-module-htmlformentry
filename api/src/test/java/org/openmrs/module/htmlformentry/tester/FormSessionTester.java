@@ -63,12 +63,12 @@ public class FormSessionTester {
 	public String getHtmlToDisplay() {
 		return htmlToDisplay;
 	}
-
+	
 	public <T extends FormSubmissionControllerAction> List<T> getSubmissionAction(Class<T> type) {
 		List<T> ret = new ArrayList<>();
 		for (FormSubmissionControllerAction action : formEntrySession.getSubmissionController().getActions()) {
 			if (type.isAssignableFrom(action.getClass())) {
-				ret.add((T)action);
+				ret.add((T) action);
 			}
 		}
 		return ret;

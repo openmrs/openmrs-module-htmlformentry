@@ -106,7 +106,7 @@ public class FormResultsTester {
 	public void assertErrors(int numberOfErrors) {
 		Assert.assertTrue(validationErrors != null && validationErrors.size() == numberOfErrors);
 	}
-
+	
 	public void assertErrorMessage(String expectedMessage) {
 		boolean found = false;
 		if (validationErrors != null) {

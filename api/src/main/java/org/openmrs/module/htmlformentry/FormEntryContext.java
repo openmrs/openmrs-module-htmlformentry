@@ -214,6 +214,10 @@ public class FormEntryContext {
 		return null;
 	}
 	
+	public ErrorWidget getErrorWidget(Widget widget) {
+		return errorWidgets.get(widget);
+	}
+	
 	/**
 	 * Gets the field id used to identify a specific error widget within the HTML Form
 	 *

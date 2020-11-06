@@ -284,7 +284,7 @@ public class TestUtil {
 	public static String formatYmd(Date date) {
 		return (date == null ? null : new SimpleDateFormat("yyyy-MM-dd").format(date));
 	}
-
+	
 	public static Date parseYmd(String ymd) {
 		if (StringUtils.isNotBlank(ymd)) {
 			try {

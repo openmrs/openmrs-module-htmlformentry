@@ -1157,7 +1157,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void evaluateStaticConstant_shouldThrowExceptionForNonExistentConstant() {
 		HtmlFormEntryUtil.evaluateStaticConstant("xxx.yyy.ZZZ");
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#translate(String)
 	 */
@@ -1165,7 +1165,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void translation_shouldReturnMessageIfFound() throws Exception {
 		Assert.assertEquals("HTML", HtmlFormEntryUtil.translate("htmlformentry.HtmlForm.html"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#translate(String)
 	 */
@@ -1173,7 +1173,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void translation_shouldReturnMessageCodeIfNotFound() throws Exception {
 		Assert.assertEquals("this.is.not.valid", HtmlFormEntryUtil.translate("this.is.not.valid"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getOrderType(String)
 	 */
@@ -1185,7 +1185,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderType("Test order"));
 		Assert.assertNull(HtmlFormEntryUtil.getOrderType("Gibberish"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getOrderType(String)
 	 */
@@ -1194,7 +1194,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertTrue(HtmlFormEntryUtil.isADrugOrderType(Context.getOrderService().getOrderType(1)));
 		Assert.assertFalse(HtmlFormEntryUtil.isADrugOrderType(Context.getOrderService().getOrderType(2)));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getDrugOrderTypes()
 	 */
@@ -1204,7 +1204,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(1, found.size());
 		Assert.assertEquals(1, found.get(0).getId().intValue());
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getDrugOrderTypes()
 	 */
@@ -1212,7 +1212,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void getDrugOrderType_shouldReturnMatchBasedOnName() throws Exception {
 		Assert.assertEquals(1, HtmlFormEntryUtil.getDrugOrderType().getId().intValue());
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getOrderFrequency(String)
 	 */
@@ -1226,7 +1226,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderFrequency("113"));
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderFrequency("7e02d1a0-7869-11e3-981f-0800200c9a66"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getCareSetting(String) (String)
 	 */
@@ -1238,7 +1238,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getCareSetting("Some care setting"));
 		Assert.assertEquals(1, HtmlFormEntryUtil.getCareSetting("OUTPATIENT").getId().intValue());
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getDrug(String) (String)
 	 */
@@ -1249,7 +1249,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("3cfcf118-931c-46f7-8ff6-7b876f0d4202"));
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("Triomune-30"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getOrdererFromEncounter(Encounter)
 	 */
@@ -1259,7 +1259,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Provider p = HtmlFormEntryUtil.getOrdererFromEncounter(e);
 		Assert.assertEquals(1, p.getId().intValue());
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getDrugOrdersForPatient(Patient, Set)
 	 */
@@ -1275,7 +1275,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(3, m.get(drug3).size());
 		Assert.assertEquals(1, m.get(drug11).size());
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getDrugOrdersForPatient(Patient, Set)
 	 */
@@ -1283,23 +1283,23 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void sortDrugOrders_shouldSortByDateAndPrevious() throws Exception {
 		DrugOrder o1 = new DrugOrder(1);
 		o1.setDateActivated(TestUtil.parseYmd("2000-01-01"));
-
+		
 		DrugOrder o2 = new DrugOrder(2);
 		o2.setDateActivated(TestUtil.parseYmd("2000-01-01"));
 		o2.setUrgency(ON_SCHEDULED_DATE);
 		o2.setScheduledDate(TestUtil.parseYmd("2000-02-01"));
-
+		
 		DrugOrder o3 = new DrugOrder(3);
 		o3.setDateActivated(TestUtil.parseYmd("2000-01-01"));
 		o3.setAutoExpireDate(TestUtil.parseYmd("2000-01-15"));
-
+		
 		DrugOrder o4 = new DrugOrder(4);
 		o4.setDateActivated(TestUtil.parseYmd("2000-01-01"));
 		o1.setPreviousOrder(o4);
-
+		
 		List<DrugOrder> orders = Arrays.asList(o1, o2, o3, o4);
 		HtmlFormEntryUtil.sortDrugOrders(orders);
-
+		
 		for (DrugOrder order : orders) {
 			Integer prevId = (order.getPreviousOrder() == null ? null : order.getPreviousOrder().getId());
 			StringBuilder sb = new StringBuilder("Order: ").append(order.getId());
@@ -1307,13 +1307,13 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 			sb.append("; ").append(order.getEffectiveStartDate()).append(" - ").append(order.getEffectiveStopDate());
 			log.trace(sb.toString());
 		}
-
+		
 		Assert.assertEquals(o3, orders.get(0));
 		Assert.assertEquals(o4, orders.get(1));
 		Assert.assertEquals(o1, orders.get(2));
 		Assert.assertEquals(o2, orders.get(3));
 	}
-
+	
 	protected void checkBooleanObsValue(Obs obs, boolean expected) {
 		if (OpenmrsConstants.OPENMRS_VERSION_SHORT.equals("1.6")) {
 			Double expectedValue = expected ? 1.0 : 0.0;
