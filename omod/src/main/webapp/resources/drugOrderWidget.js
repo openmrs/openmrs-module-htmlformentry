@@ -11,7 +11,7 @@
     }
 
     drugOrderWidget.isCheckbox = function(config) {
-        return config.attributes && !config.attributes.checkbox && config.attributes.checkbox === 'checkbox';
+        return config.tagAttributes && config.tagAttributes.checkbox && config.tagAttributes.checkbox === 'true';
     }
 
     drugOrderWidget.isSelectDrugs = function(config) {
@@ -331,13 +331,14 @@
             }
 
             // If there is only one action configured (in addition to empty action), toggle it by default
-            if (allowedActions.length === 2) {
-                $actionWidget.val(allowedActions[1]);
+            if (!drugOrderWidget.isCheckbox(config)) {
+                if (allowedActions.length === 2) {
+                    $actionWidget.val(allowedActions[1]);
+                } else {
+                    $actionWidget.val(allowedActions[0]);
+                }
+                $actionWidget.change();
             }
-            else {
-                $actionWidget.val(allowedActions[0]);
-            }
-            $actionWidget.change();
 
             // Set up ability to toggle between free-text and simple dosing instructions
 
@@ -439,6 +440,11 @@
             $orderForm.find('.order-field-widget.asNeeded').find(':input').attr('checked', 'true');
         }
         $orderForm.find('.order-field-widget.instructions').find(':input').val(drugOrder.instructions.value);
+        $orderForm.find('.order-field-widget.duration').find(':input').val(drugOrder.duration.value);
+        $orderForm.find('.order-field-widget.durationUnits').find(':input').val(drugOrder.durationUnits.value);
+        $orderForm.find('.order-field-widget.quantity').find(':input').val(drugOrder.quantity.value);
+        $orderForm.find('.order-field-widget.quantityUnits').find(':input').val(drugOrder.quantityUnits.value);
+        $orderForm.find('.order-field-widget.numRefills').find(':input').val(drugOrder.numRefills.value);
     }
 
     drugOrderWidget.formatDrugOrder = function(d, encDate, config) {
