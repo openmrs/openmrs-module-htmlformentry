@@ -1,0 +1,70 @@
+
+.drugorders-drug-section {
+	margin: 10px;
+}
+
+.drugorders-drug-details {
+	font-weight: bold;
+}
+
+.drugorders-drug-history {
+	display: table;
+}
+
+.drugorders-order-history-item {
+	display: table-row;
+}
+
+.order-view-section {
+	display: table-cell;
+	padding-left: 20px;
+}
+
+.order-view-field {
+	display: inline;
+}
+
+.order-view-field.order-view-dose {
+	font-weight:bold; padding-left:20px;
+}
+
+.order-view-field.order-view-discontinue-reason {
+	font-weight:bold; padding-left:20px;
+}
+
+.order-view-different-encounter {
+	color: grey;
+}
+
+.drugorders-selector-section {
+	padding-left: 10px;
+}
+
+.drugorders-order-form {
+	padding-left: 20px;
+	display: table;
+}
+
+.instructions {
+	font-size: 1.0em;
+}
+
+.order-field {
+	display: table-row;
+	padding: 10px;
+	margin: 5px;
+}
+
+.order-field-label {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.order-field-label:after {
+	content: ": ";
+	white-space: pre;
+}
+
+.order-field-widget {
+	display: table-cell;
+}

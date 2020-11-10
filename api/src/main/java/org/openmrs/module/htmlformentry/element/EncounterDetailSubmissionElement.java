@@ -181,19 +181,21 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				List<Option> providerUsers = new ArrayList<Option>();
 				
 				// If the "role" attribute is passed in, limit to users with this role
-				Object roleParam = parameters.get("role");
+				String roleParam = (String) parameters.get("role");
 				if (roleParam != null) {
-					Role role = null;
-					MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
-					role = metadataMappingResolver.getMetadataItem(Role.class, roleParam.toString());
+					Role role = Context.getUserService().getRoleByUuid(roleParam);
 					if (role == null) {
-						role = Context.getUserService().getRole((String) roleParam);
-					}
-					
-					if (role == null) {
-						throw new RuntimeException("Cannot find role: " + roleParam);
-					} else {
-						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+						MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
+						role = metadataMappingResolver.getMetadataItem(Role.class, roleParam);
+						if (role == null) {
+							role = Context.getUserService().getRole((String) roleParam);
+						}
+						
+						if (role == null) {
+							throw new RuntimeException("Cannot find role: " + roleParam);
+						} else {
+							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+						}
 					}
 				}
 				
