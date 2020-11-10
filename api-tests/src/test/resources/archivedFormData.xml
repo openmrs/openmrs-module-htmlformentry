@@ -162,7 +162,7 @@
         <entry>
             <string>w5</string>
             <string-array>
-                <string>1</string>
+                <string>502</string>
             </string-array>
         </entry>
         <entry>
@@ -345,36 +345,36 @@
         &lt;/tr&gt;&#xd;
         &lt;tr&gt;&#xd;
         &lt;td&gt;Platelets/mm3&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;   &#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;   &#xd;
         &lt;td&gt;Hgb g/dL&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;2&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;/tr&gt;&#xd;
         &#xd;
         &lt;tr&gt;&#xd;
         &lt;td&gt;Creatinine mmol/L&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;td&gt;WBC/mm3&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;/tr&gt;&#xd;
         &lt;tr&gt;&#xd;
         &lt;td&gt;Sputum Gene xpert&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;td&gt;VDRL&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;/tr&gt;&#xd;
         &#xd;
         &lt;tr&gt;&#xd;
         &lt;td&gt;Sputum  AFB Smear&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;td&gt;ALC/ mm3&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;/tr&gt;&#xd;
         &#xd;
         &lt;tr&gt;&#xd;
         &lt;td&gt;Sputum  Culture&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;td&gt;CD4&lt;/td&gt;&#xd;
-        &lt;td&gt;&lt;obs conceptId=&quot;1&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
+        &lt;td&gt;&lt;obs conceptId=&quot;5089&quot; showDate=&quot;true&quot; dateLabel=&quot;Date&quot;/&gt;&lt;/td&gt;&#xd;
         &lt;/tr&gt;&#xd;
         &lt;/table&gt;	&#xd;
         &lt;submit/&gt;&#xd;

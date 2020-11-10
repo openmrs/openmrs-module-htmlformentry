@@ -310,7 +310,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
 	public void getConcept_shouldFindAConceptWithNonStandardUuid() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		// concept from HtmlFormEntryTest-data.xml
 		String id = "1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
@@ -323,7 +322,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
 	public void getConcept_shouldNotFindAConceptWithInvalidUuid() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		String id = "abcde-12345";
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
@@ -405,7 +403,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should find a program by its name", method = "getPatientIdentifierType(String)")
 	public void getPatientIdentifierType_shouldFindAPatientIdentifierTypeByItsName() throws Exception {
-		org.openmrs.test.TestUtil.printOutTableContents(getConnection(), "patient_identifier_type");
 		Assert.assertEquals("1a339fe9-38bc-4ab3-b180-320988c0b968",
 		    HtmlFormEntryUtil.getPatientIdentifierType("OpenMRS Identification Number").getUuid());
 	}

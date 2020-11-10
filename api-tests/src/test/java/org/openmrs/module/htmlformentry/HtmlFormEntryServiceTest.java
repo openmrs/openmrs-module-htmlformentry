@@ -21,7 +21,7 @@ public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryService-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		service = Context.getService(HtmlFormEntryService.class);
 		service.clearConceptMappingCache();
 	}
@@ -107,7 +107,7 @@ public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void getConceptByMapping_shouldRetrieveConceptByMapping() throws Exception {
 		Concept concept = service.getConceptByMapping("XYZ:HT");
-		Assert.assertEquals(3, concept.getConceptId().intValue());
+		Assert.assertEquals(5090, concept.getConceptId().intValue());
 	}
 	
 	@Test

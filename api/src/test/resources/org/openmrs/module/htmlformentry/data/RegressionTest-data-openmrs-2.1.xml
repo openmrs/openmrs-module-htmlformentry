@@ -69,6 +69,10 @@
     <concept concept_id="3475" creator="1" date_created="2020-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" class_id="4" uuid="aa3ed8cb-0f52-4307-9015-748da97efe78"/>
     <concept concept_id="3476" creator="1" date_created="2020-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" class_id="4" uuid="ac38bd8b-b122-4442-9da9-d3a01668c8df"/>
 
+    <!-- concepts for non-standard uuid tests -->
+    <concept concept_id="9820" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"/>
+    <concept concept_id="9830" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="abcde-12345"/>
+
     <concept_complex concept_id="6100" handler="ImageHandler" />
     <concept_complex concept_id="6101" handler="TextHandler" />
 
@@ -126,6 +130,8 @@
     <concept_name concept_name_id="20008" concept_id="10008" name="TEST STATE7" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="3fcf5d3c-53ad-11e1-8cb6-00248140a5eb"/>
     <concept_name concept_name_id="20009" concept_id="10009" name="TEST STATE8" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
     <concept_name concept_name_id="20010" concept_id="10010" name="TEST STATE9" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="50ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_name concept_name_id="9820" concept_id="9820" name="Non-Standard UUID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32291163-0370-222d-b0e3-123456789014" locale_preferred="true"/>
+    <concept_name concept_name_id="9830" concept_id="9830" name="Invalid UUID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32296063-1170-222d-b0e3-123456789014" locale_preferred="true"/>
 
     <!-- Put two concepts DOSE and UNIT in a set -->
     <concept_set concept_set_id="10000" concept_id="50000" concept_set="40000" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
@@ -207,6 +213,10 @@
 
     <!-- A form and its fields -->
     <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+    <form form_id="2" name="Form two" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+
+    <htmlformentry_html_form id="1" form_id="1" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="12e41146-e162-11df-9195-001e378eb67e"/>
+    <htmlformentry_html_form id="2" form_id="2" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="16914264-e162-11df-9195-001e378eb67e"/>
 
     <field field_id="5" name="Current weight" description="" field_type="1" concept_id="5089" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
     <field field_id="1" name="PATIENT" description="Patient section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
