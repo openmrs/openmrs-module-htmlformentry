@@ -3,13 +3,17 @@ package org.openmrs.module.htmlformentry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -17,6 +21,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Location;
@@ -37,6 +42,7 @@ import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
@@ -518,6 +524,43 @@ public class FormEntrySession {
 				}
 				if (o.hasGroupMembers())
 					toCheck.addAll(o.getGroupMembers());
+			}
+		}
+		
+		// Handle orders
+		
+		// First, we void any of the previous orders that are indicated, and keep track of which are voided
+		Set<Integer> voidedOrders = new HashSet<>();
+		if (submissionActions.getOrdersToVoid() != null) {
+			for (Order orderToVoid : submissionActions.getOrdersToVoid()) {
+				Context.getOrderService().voidOrder(orderToVoid, "Voided by htmlformentry");
+				voidedOrders.add(orderToVoid.getOrderId());
+			}
+		}
+		
+		// Next, we handle any new and revised orders
+		if (submissionActions.getOrdersToCreate() != null) {
+			for (Order order : submissionActions.getOrdersToCreate()) {
+				Order previousOrder = order.getPreviousOrder();
+				// If the previousOrder was just voided, then set the previous order to that order's previous order
+				if (previousOrder != null && voidedOrders.contains(previousOrder.getOrderId())) {
+					previousOrder = previousOrder.getPreviousOrder();
+				}
+				// If at this point there is no previous order, then set the action to NEW
+				if (previousOrder == null) {
+					order.setAction(Order.Action.NEW);
+				}
+				// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
+				if (order.getAction() == Order.Action.RENEW) {
+					Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+					dateStoppedField.setAccessible(true);
+					// To be consistent with OrderService, set this to the second prior to the order activation date
+					Date dateStopped = DateUtils.addSeconds(order.getDateActivated(), -1);
+					ReflectionUtils.setField(dateStoppedField, previousOrder, dateStopped);
+				}
+				order.setPreviousOrder(previousOrder);
+				order.setEncounter(encounter);
+				encounter.addOrder(order);
 			}
 		}
 		

@@ -13,6 +13,7 @@ import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.DrugOrderTagAttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 
 public class HtmlFormSubstitutionUtils {
@@ -74,17 +75,24 @@ public class HtmlFormSubstitutionUtils {
 			
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
-					// we only need to deal with descriptors that have an associated class
-					if (attributeDescriptor.getClazz() != null) {
-						// build the attribute string we are searching for
-						// pattern matches <tagName .* attribute
-						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference
-						// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
-						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
-						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName();
-						HtmlFormEntryUtil.log.debug("substitution pattern: " + pattern);
-						form.setXmlData(HtmlFormSubstitutionUtils.performSubstitutionHelper(form.getXmlData(), pattern,
-						    attributeDescriptor.getClazz(), substituter, substitutionMap, true));
+					
+					// Special case handling DrugOrderTagAttributeDescriptor, which has more complex property nesting
+					if (attributeDescriptor instanceof DrugOrderTagAttributeDescriptor) {
+						DrugOrderTagAttributeDescriptor dtad = (DrugOrderTagAttributeDescriptor) attributeDescriptor;
+						dtad.performSubstitutions(form, substituter, substitutionMap);
+					} else {
+						// we only need to deal with descriptors that have an associated class
+						if (attributeDescriptor.getClazz() != null) {
+							// build the attribute string we are searching for
+							// pattern matches <tagName .* attribute
+							// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference
+							// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
+							// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
+							String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName();
+							HtmlFormEntryUtil.log.debug("substitution pattern: " + pattern);
+							form.setXmlData(HtmlFormSubstitutionUtils.performSubstitutionHelper(form.getXmlData(), pattern,
+							    attributeDescriptor.getClazz(), substituter, substitutionMap, true));
+						}
 					}
 				}
 			}

@@ -30,8 +30,22 @@
 	</section>
 	
 	<section>
-		<drugOrder drugNames="2,3" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
-		<drugOrder drugNames="11" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
+		<drugOrder>
+			<orderTemplate>
+				<orderProperty name="drug">
+					<option value="2" />
+					<option value="3" />
+				</orderProperty>
+			</orderTemplate>
+		</drugOrder>
+		<drugOrder>
+			<orderTemplate>
+				<orderProperty name="drug">
+					<option value="11" />
+				</orderProperty>
+			</orderTemplate>
+		</drugOrder>
+
 	</section>
 	
 	<submit/>

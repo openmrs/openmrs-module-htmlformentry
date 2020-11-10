@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <dataset>
 
-    <concept concept_id="5090" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
+    <concept concept_id="5090" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1" uuid="44d3611a-6699-4d52-823f-b4b788bac3e3"/>
     <concept concept_id="40000" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="true" datatype_id="10"/>
     <concept concept_id="50000" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="1"/>
     <concept concept_id="60000" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3"/>
@@ -54,6 +54,7 @@
     <concept concept_id="10007" datatype_id="4" class_id="17" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="d5e83970-53a7-11e1-8cb6-00248140a5eb"/>
     <concept concept_id="10008" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="3ac056a2-53ad-11e1-8cb6-00248140a5eb"/>
     <concept concept_id="10009" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="450dd72e-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept concept_id="10010" datatype_id="4" class_id="18" is_set="false" creator="1" date_created="2008-08-15 15:27:51.0" retired="false" uuid="500dd72e-53ad-11e1-8cb6-00248140a5eb"/>
     <concept concept_id="4200" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-bb7e-001ec4ec0334"/>
     <concept concept_id="4201" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b0e3-001ec93a0cc7"/>
     <concept concept_id="4202" creator="1" date_created="2012-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" uuid="32296060-03aa-102d-b1e3-001ec94a0cc7"/>
@@ -67,6 +68,10 @@
     <concept concept_id="3474" creator="1" date_created="2020-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" class_id="4" uuid="bb9ad4bc-9a73-42ce-b4ef-db906fb2a212"/>
     <concept concept_id="3475" creator="1" date_created="2020-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" class_id="4" uuid="aa3ed8cb-0f52-4307-9015-748da97efe78"/>
     <concept concept_id="3476" creator="1" date_created="2020-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="2" class_id="4" uuid="ac38bd8b-b122-4442-9da9-d3a01668c8df"/>
+
+    <!-- concepts for non-standard uuid tests -->
+    <concept concept_id="9820" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"/>
+    <concept concept_id="9830" retired="false" datatype_id="4" class_id="11" is_set="false" creator="1" date_created="2008-08-15 15:51:57.0" version="" uuid="abcde-12345"/>
 
     <concept_complex concept_id="6100" handler="ImageHandler" />
     <concept_complex concept_id="6101" handler="TextHandler" />
@@ -124,6 +129,9 @@
     <concept_name concept_name_id="20007" concept_id="10007" name="TEST WORKFLOW2" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="db36a0ce-53a7-11e1-8cb6-00248140a5eb"/>
     <concept_name concept_name_id="20008" concept_id="10008" name="TEST STATE7" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="3fcf5d3c-53ad-11e1-8cb6-00248140a5eb"/>
     <concept_name concept_name_id="20009" concept_id="10009" name="TEST STATE8" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_name concept_name_id="20010" concept_id="10010" name="TEST STATE9" locale="en" creator="1" date_created="2008-08-15 13:57:57.0" concept_name_type="FULLY_SPECIFIED" locale_preferred="1" voided="false" uuid="50ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_name concept_name_id="9820" concept_id="9820" name="Non-Standard UUID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32291163-0370-222d-b0e3-123456789014" locale_preferred="true"/>
+    <concept_name concept_name_id="9830" concept_id="9830" name="Invalid UUID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32296063-1170-222d-b0e3-123456789014" locale_preferred="true"/>
 
     <!-- Put two concepts DOSE and UNIT in a set -->
     <concept_set concept_set_id="10000" concept_id="50000" concept_set="40000" sort_weight="1" creator="1" date_created="2005-01-01 00:00:00.0"/>
@@ -176,11 +184,17 @@
     <concept_answer concept_answer_id="3003" concept_id="4300" answer_concept="4301" creator="1" date_created="2012-01-01 00:00:00.0"/>
     <concept_answer concept_answer_id="3004" concept_id="4300" answer_concept="4302" creator="1" date_created="2012-01-01 00:00:00.0" />
 
-    <concept_reference_term concept_reference_term_id="1001" concept_source_id="2" code="Test Workflow Code" name="Test Workflow Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffff34-53ad-11e1-8cb6-00248140a5eb"/>
-    <concept_reference_term concept_reference_term_id="1000" concept_source_id="2" code="Test Code" name="Test Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_reference_source concept_source_id="10" uuid="931abfea-b2ca-49e7-b7ff-7420055f0ea1" name="XYZ" description="XYZ" date_Created="2010-07-09 11:00:38" retired="false" creator="1" />
+
+    <concept_reference_term concept_reference_term_id="1001" concept_source_id="10" code="Test Workflow Code" name="Test Workflow Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffff34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_reference_term concept_reference_term_id="1000" concept_source_id="10" code="Test Code" name="Test Code" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="49ffdf34-53ad-11e1-8cb6-00248140a5eb"/>
+    <concept_reference_term concept_reference_term_id="12" concept_source_id="2" code="258703001" name="Day(s)" description="Duration unit in day(s)" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="a8e71e68-23c7-5703-be43-aa74e1de2c71"/>
+    <concept_reference_term concept_reference_term_id="15" concept_source_id="10" code="HT" name="height term" description="A person's height in kilograms" retired="0" creator="1" date_created="2004-08-12 00:00:00.0" uuid="26755d29-9cc3-43bc-bc86-1c1df20f6987" />
 
     <concept_reference_map concept_map_id="1002" concept_id="10006" concept_reference_term_id="1001" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f713-49d8-11e0-8fed-18a905e044dc"/>
-    <concept_reference_map concept_map_id="1000" concept_id="10009" concept_reference_term_id="1000" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f712-49d8-11e0-8fed-18a905e044dc"/>
+    <concept_reference_map concept_map_id="1000" concept_id="10010" concept_reference_term_id="1000" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="23b6f712-49d8-11e0-8fed-18a905e044dc"/>
+    <concept_reference_map concept_map_id="10001" concept_id="28" concept_reference_term_id="12" concept_map_type_id="2" creator="1" date_created="2004-08-12 00:00:00.0" uuid="947fa63c-1baa-11e4-ad81-b2227cce2b54"/>
+    <concept_reference_map concept_map_id="10002" concept_map_type_id="1" concept_reference_term_id="15" uuid="26755d29-9cc3-43bc-bc86-1c1df20f698f" concept_id="5090" creator="1"  date_created="2010-07-09 11:00:38"/>
 
     <!-- Some drugs -->
     <drug drug_id="2" concept_id="792" name="Triomune-30" combination="true" strength="1.0" creator="1" date_created="2005-02-24 00:00:00.0" retired="false" uuid="3cfcf118-931c-46f7-8ff6-7b876f0d4202"/>
@@ -188,7 +202,7 @@
     <drug drug_id="11" concept_id="3" name="NyQuil" combination="true" creator="1" date_created="2008-08-15 15:34:03.0" retired="true" uuid="7e2323fa-0fa0-461f-9b59-6765997d849e"/>
     <drug drug_id="6" concept_id="113" name="Paracetamol" combination="0" retired="false" creator="1" date_created="2004-08-12 00:00:00.0" uuid="4d6fb6e0-4950-426c-9a9b-1f97e6037893"/>
 
-    <patient_identifier_type patient_identifier_type_id="1" name="Test Identifier Type" description="Test description" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
+    <patient_identifier_type patient_identifier_type_id="10" name="Test Identifier Type" description="Test description" creator="1" date_created="2005-01-01 00:00:00.0" required="false" retired="false" />
     <encounter_type encounter_type_id="1" name="Initial Visit" description="The first visit for a patient" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" />
 
     <field_type field_type_id="1" creator="1" date_created="2005-01-01 00:00:00.0" name="Concept" is_set="false" />
@@ -199,6 +213,10 @@
 
     <!-- A form and its fields -->
     <form form_id="1" name="Test form" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+    <form form_id="2" name="Form two" version="1.0" build="1" published="true" description="A form for testing" encounter_type="1" creator="1" date_created="2005-01-01 00:00:00.0" retired="false"/>
+
+    <htmlformentry_html_form id="1" form_id="1" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="12e41146-e162-11df-9195-001e378eb67e"/>
+    <htmlformentry_html_form id="2" form_id="2" xml_data="junk" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="16914264-e162-11df-9195-001e378eb67e"/>
 
     <field field_id="5" name="Current weight" description="" field_type="1" concept_id="5089" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
     <field field_id="1" name="PATIENT" description="Patient section of form" field_type="5" table_name="" attribute_name="" default_value="" select_multiple="0" creator="1" date_created="2006-07-18 11:04:36" retired="0" />
@@ -269,6 +287,7 @@
     <program_workflow_state program_workflow_state_id="203" program_workflow_id="100" concept_id="10005" initial="false" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="true" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="91f66ca8-5140-11e1-a3e3-00248140a5eb"/>
     <program_workflow_state program_workflow_state_id="207" program_workflow_id="107" concept_id="10008" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11e1-8cb6-00248140a5eb"/>
     <program_workflow_state program_workflow_state_id="208" program_workflow_id="108" concept_id="10009" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="6de7ed10-53ad-11e1-8cb6-00248140a5eb"/>
+    <program_workflow_state program_workflow_state_id="209" program_workflow_id="107" concept_id="10010" initial="true" terminal="false" creator="1" date_created="2008-08-15 17:04:02.0" retired="false" changed_by="1" date_changed="2008-08-15 17:04:50.0" uuid="67337cdc-53ad-11a1-8cb6-00248140a5eb"/>
 
     <patient_identifier patient_identifier_id="2" patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="a-D" identifier_type="1" preferred="1" voided="false" location_id="1" />
 
@@ -288,5 +307,8 @@
     <obs obs_id="2" person_id="2" concept_id="5090" obs_datetime="2005-01-01 00:00:00.0" value_numeric="170.0" status="FINAL" location_id="1" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="a870c76a-e200-11df-9195-001e378eb67e" />
     <obs obs_id="44" person_id="2" concept_id="6100" obs_datetime="2008-02-09 00:00:00.0" status="FINAL" location_id="1" value_complex="gif image |openmrs_logo_small.gif" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="9b6639b2-5785-4603-a364-075c2d61cd51"/>
     <obs obs_id="45" person_id="2" concept_id="6101" obs_datetime="2008-02-09 00:00:00.0" status="FINAL" location_id="1" value_complex="txt image |sometext.txt" creator="1" date_created="2006-02-10 15:57:35.0" voided="false" uuid="95732bf6-0e08-4b95-844d-c396709b0286"/>
+
+    <role role="System Administrator" description="Blah" uuid="92b70b00-58b1-11e0-80e3-0800200c9a66"/>
+    <role role="Data Clerk" description="Blah" uuid="a238c500-58b1-11e0-80e3-0800200c9a66"/>
 
 </dataset>
