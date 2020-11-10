@@ -511,7 +511,7 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 				Set<PatientState> states = pps.get(0).getStates();
 				Assert.assertEquals(1, states.size());
 				Assert.assertTrue(((PatientState) states.toArray()[0]).getState()
-				        .equals(Context.getProgramWorkflowService().getStateByUuid("6de7ed10-53ad-11e1-8cb6-00248140a5eb")));
+				        .equals(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11a1-8cb6-00248140a5eb")));
 			}
 		}.run();
 	}

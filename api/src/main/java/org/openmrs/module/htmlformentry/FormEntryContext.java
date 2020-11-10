@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -211,6 +212,10 @@ public class FormEntryContext {
 				return e.getKey();
 		}
 		return null;
+	}
+	
+	public ErrorWidget getErrorWidget(Widget widget) {
+		return errorWidgets.get(widget);
 	}
 	
 	/**
@@ -432,7 +437,7 @@ public class FormEntryContext {
 				list.add(obs);
 			}
 			for (Order order : encounter.getOrders()) {
-				if (!order.isVoided()) {
+				if (BooleanUtils.isNotTrue(order.getVoided())) {
 					//load subclasses for later retrieval
 					order = (Order) Context.getOrderService().getOrder(order.getOrderId());
 					List<Order> list = existingOrders.get(order.getConcept());
@@ -712,9 +717,9 @@ public class FormEntryContext {
 	 * Finds the best matching obsGroup at the right obsGroup hierarchy level
 	 * <p/>
 	 *
-	 * @param groupConcept the grouping concept associated with the {@see ObsGroups}
-	 * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
-	 * @param obsGroupDepth the depth level of the obsGroup in the xml
+	 * @param xmlObsGroupConcept the grouping concept associated with the {@see ObsGroups}
+	 * @param questionsAndAnswers the questions and answered associate with the {@see ObsGroup}
+	 * @param path the depth level of the obsGroup in the xml
 	 * @return the first matching {@see ObsGroup}
 	 */
 	public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept,

@@ -23,7 +23,6 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 	@Before
 	public void setupDatabase() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/drugOrderElement.xml");
 	}
 	
 	private void setupMappings() {
@@ -65,9 +64,6 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should create cloned form to export with appropriate dependencies using mappings", method = "createCloneForExport(HtmlForm)")
 	public void createCloneForExport_shouldCreateCloneWithDependencies_withMapping() throws Exception {
 		
-		// include this set so that we get the mapping concept
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
-		
 		setupMappings();
 		
 		HtmlForm form = new HtmlForm();
@@ -104,7 +100,7 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 		
 		// make sure the programs have been added to the dependencies
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getProgramByUuid("da4a0391-ba62-4fad-ad66-1e3722d16380")));
+		        .contains(Context.getProgramWorkflowService().getProgramByUuid("67bad8f4-5140-11e1-a3e3-00248140a5eb")));
 		Assert.assertTrue(dependencies
 		        .contains(Context.getProgramWorkflowService().getProgramByUuid("71779c39-d289-4dfe-91b5-e7cfaa27c78b")));
 		
@@ -116,21 +112,16 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 		
 		// make sure the program workflow states have been added to the dependencies
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("92584cdc-6a20-4c84-a659-e035e45d36b0")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("89d1a292-5140-11e1-a3e3-00248140a5eb"))); // 200
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("e938129e-248a-482a-acea-f85127251472")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("6de7ed10-53ad-11e1-8cb6-00248140a5eb"))); // As specified
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("860b3a13-d4b1-4f0a-b526-278652fa1809")));
-		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("8ef66ca8-5140-11e1-a3e3-00248140a5eb")));
-		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb"))); // 207
 		
 		// note this this assertion fails--currently, the exporter WILL NOT be able to pick up states referenced concept map
 		// (this is because the exporter considers each attribute separately, and to you can't get a state referenced by concept map without knowing the corresponding program or workflow)
 		// however, this should not be a problem because the state should be included by MDS when it's parent program or workflow is exported
-		//Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
-		//"6de7ed10-53ad-11e1-8cb6-00248140a5eb")));
+		//Assert.assertTrue(dependencies .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11a1-8cb6-00248140a5eb"))); // Test Code
 		
 		// make sure the drugs have been added to the dependencies
 		Assert.assertTrue(
@@ -171,9 +162,6 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should create cloned form to export with appropriate dependencies", method = "createCloneForExport(HtmlForm)")
 	public void createCloneForExport_shouldCreateCloneWithDependencies() throws Exception {
 		
-		// include this set so that we get the mapping concept
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
-		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(
 		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
@@ -206,7 +194,7 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 		
 		// make sure the programs have been added to the dependencies
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getProgramByUuid("da4a0391-ba62-4fad-ad66-1e3722d16380")));
+		        .contains(Context.getProgramWorkflowService().getProgramByUuid("67bad8f4-5140-11e1-a3e3-00248140a5eb")));
 		Assert.assertTrue(dependencies
 		        .contains(Context.getProgramWorkflowService().getProgramByUuid("71779c39-d289-4dfe-91b5-e7cfaa27c78b")));
 		
@@ -217,22 +205,18 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 		        .contains(Context.getProgramWorkflowService().getWorkflowByUuid("7c3e071a-53a7-11e1-8cb6-00248140a5eb")));
 		
 		// make sure the program workflow states have been added to the dependencies
+		
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("92584cdc-6a20-4c84-a659-e035e45d36b0")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("89d1a292-5140-11e1-a3e3-00248140a5eb"))); // 200
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("e938129e-248a-482a-acea-f85127251472")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("6de7ed10-53ad-11e1-8cb6-00248140a5eb"))); // As specified
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("860b3a13-d4b1-4f0a-b526-278652fa1809")));
-		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("8ef66ca8-5140-11e1-a3e3-00248140a5eb")));
-		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb"))); // 207
 		
 		// note this this assertion fails--currently, the exporter WILL NOT be able to pick up states referenced concept map
 		// (this is because the exporter considers each attribute separately, and to you can't get a state referenced by concept map without knowing the corresponding program or workflow)
 		// however, this should not be a problem because the state should be included by MDS when it's parent program or workflow is exported
-		//Assert.assertTrue(dependencies.contains(Context.getProgramWorkflowService().getStateByUuid(
-		//"6de7ed10-53ad-11e1-8cb6-00248140a5eb")));
+		//Assert.assertTrue(dependencies .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11a1-8cb6-00248140a5eb"))); // Test Code
 		
 		// make sure the drugs have been added to the dependencies
 		Assert.assertTrue(
@@ -271,8 +255,6 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void shouldRespectClassesNotToExportGlobalProperty() throws Exception {
 		
-		// include this set so that we get the mapping concept
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		Context.getAdministrationService().saveGlobalProperty(
 		    new GlobalProperty(HtmlFormEntryConstants.GP_CLASSES_NOT_TO_EXPORT_WITH_MDS, "org.openmrs.Program"));
 		
@@ -320,15 +302,16 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 		
 		// make sure the program workflow states have been added to the dependencies
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("92584cdc-6a20-4c84-a659-e035e45d36b0")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("89d1a292-5140-11e1-a3e3-00248140a5eb"))); // 200
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("e938129e-248a-482a-acea-f85127251472")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("6de7ed10-53ad-11e1-8cb6-00248140a5eb"))); // As specified
 		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("860b3a13-d4b1-4f0a-b526-278652fa1809")));
-		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("8ef66ca8-5140-11e1-a3e3-00248140a5eb")));
-		Assert.assertTrue(dependencies
-		        .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb")));
+		        .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11e1-8cb6-00248140a5eb"))); // 207
+		
+		// note this this assertion fails--currently, the exporter WILL NOT be able to pick up states referenced concept map
+		// (this is because the exporter considers each attribute separately, and to you can't get a state referenced by concept map without knowing the corresponding program or workflow)
+		// however, this should not be a problem because the state should be included by MDS when it's parent program or workflow is exported
+		//Assert.assertTrue(dependencies .contains(Context.getProgramWorkflowService().getStateByUuid("67337cdc-53ad-11a1-8cb6-00248140a5eb"))); // Test Code
 		
 		// make sure the drugs have been added to the dependencies
 		Assert.assertTrue(
@@ -364,9 +347,6 @@ public class HtmlFormExporterTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should create cloned form without locations, providers, and patient identifiers", method = "createCloneForExport(HtmlForm)")
 	public void createCloneForExport_shouldCreateCloneButSkipLocationsAndProviders() throws Exception {
-		
-		// include this set so that we get the mapping concept
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
 		
 		HtmlForm form = new HtmlForm();
 		form.setXmlData(

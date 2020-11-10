@@ -13,15 +13,24 @@
  */
 package org.openmrs.module.htmlformentry.tag;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.EncounterRole;
+import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
+import org.openmrs.OrderType;
 import org.openmrs.Provider;
+import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.util.LocaleUtility;
 
@@ -70,6 +79,30 @@ public class TagUtil {
 				ret = (T) HtmlFormEntryUtil.getConcept(valueToParse);
 			} else if (type == Drug.class) {
 				ret = (T) HtmlFormEntryUtil.getDrug(valueToParse);
+			} else if (type == CareSetting.class) {
+				ret = (T) HtmlFormEntryUtil.getCareSetting(valueToParse);
+			} else if (type == OrderFrequency.class) {
+				ret = (T) HtmlFormEntryUtil.getOrderFrequency(valueToParse);
+			} else if (type == OrderType.class) {
+				ret = (T) HtmlFormEntryUtil.getOrderType(valueToParse);
+			} else if (type == Date.class) {
+				try {
+					ret = (T) new SimpleDateFormat("yyyy-MM-dd").parse(valueToParse);
+				}
+				catch (Exception e) {
+					throw new IllegalArgumentException("Unable to parse date value in format yyyy-MM-dd: " + valueToParse);
+				}
+			} else if (type == Class.class) {
+				try {
+					ret = (T) Context.loadClass(valueToParse);
+				}
+				catch (Exception e) {
+					throw new IllegalArgumentException("Unable to parse value as class: " + valueToParse);
+				}
+			} else if (type == DrugOrder.class) {
+				Integer orderId = Integer.parseInt(valueToParse);
+				Order order = Context.getOrderService().getOrder(orderId);
+				ret = (T) HibernateUtil.getRealObjectFromProxy(order);
 			} else if (type == EncounterRole.class) {
 				ret = (T) HtmlFormEntryUtil.getEncounterRole(valueToParse);
 			} else if (type == Provider.class) {

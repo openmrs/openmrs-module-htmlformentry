@@ -43,7 +43,7 @@ public class DateWidget implements Widget {
 		return Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE, "110,20");
 	}
 	
-	private String jsDateFormat() {
+	public String jsDateFormat() {
 		String ret = dateFormat().toPattern();
 		if (ret.contains("yyyy"))
 			ret = ret.replaceAll("yyyy", "yy"); // jquery uses yy for 4-digit years
@@ -60,7 +60,7 @@ public class DateWidget implements Widget {
 		return ret;
 	}
 	
-	private String getLocaleForJquery() {
+	public String getLocaleForJquery() {
 		Locale loc = Context.getLocale();
 		String ret = loc.getLanguage();
 		if (StringUtils.hasText(loc.getCountry())) {

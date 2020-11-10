@@ -7,22 +7,31 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.RegressionTestHelper.ObsValue;
 import org.openmrs.util.Format;
 
 public class TestUtil {
+	
+	private static Log log = LogFactory.getLog(TestUtil.class);
 	
 	public String loadXmlFromFile(String filename) throws Exception {
 		InputStream fileInInputStreamFormat = null;
@@ -54,7 +63,7 @@ public class TestUtil {
 	 * @param expected
 	 * @return
 	 */
-	public static boolean isMatchingObsGroup(Obs group, List<ObsValue> expected) {
+	public static boolean isMatchingObsGroup(Obs group, List<TestObsValue> expected) {
 		if (!group.isObsGrouping())
 			return false;
 		
@@ -164,6 +173,32 @@ public class TestUtil {
 		}
 	}
 	
+	public static void assertIdEquals(OpenmrsObject object, Integer expectedId) {
+		if (expectedId == null) {
+			Assert.assertNull(object);
+		} else {
+			Assert.assertNotNull(object);
+			Assert.assertEquals(expectedId, object.getId());
+		}
+	}
+	
+	public static void assertFalseOrNull(Boolean booleanObj) {
+		Assert.assertTrue(booleanObj == null || !booleanObj);
+	}
+	
+	public static void assertDate(Date date, String expectedYmd) {
+		assertDate(date, "yyyy-MM-dd", expectedYmd);
+	}
+	
+	public static void assertDate(Date date, String format, String expectedValue) {
+		if (expectedValue == null) {
+			Assert.assertNull(date);
+		} else {
+			Assert.assertNotNull(date);
+			Assert.assertEquals(expectedValue, new SimpleDateFormat(format).format(date));
+		}
+	}
+	
 	private static String stripTagsAndWhitespace(String string) {
 		string = string.toLowerCase();
 		string = string.replaceAll("<span class=\"value\">(.*)</span>", "$1");
@@ -246,6 +281,22 @@ public class TestUtil {
 		return clearTimeComponent(date1).equals(clearTimeComponent(date2));
 	}
 	
+	public static String formatYmd(Date date) {
+		return (date == null ? null : new SimpleDateFormat("yyyy-MM-dd").format(date));
+	}
+	
+	public static Date parseYmd(String ymd) {
+		if (StringUtils.isNotBlank(ymd)) {
+			try {
+				return new SimpleDateFormat("yyyy-MM-dd").parse(ymd);
+			}
+			catch (Exception e) {
+				throw new IllegalArgumentException("Unable to parse from yyyy-MM-dd to Date: " + ymd, e);
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Given a Date object, returns a Date object for the same date but with the time component (hours,
 	 * minutes, seconds & milliseconds) removed
@@ -264,4 +315,110 @@ public class TestUtil {
 		return cal.getTime();
 	}
 	
+	public static Map<String, String> getFormValues(String html) {
+		Map<String, String> ret = new LinkedHashMap<>();
+		
+		// used for input and for select option
+		Pattern forValue = Pattern.compile("value=\"(.*?)\"");
+		
+		// <input ... name="something" ...>
+		{
+			Pattern forInput = Pattern.compile("<input.*?name=\"(.*?)\".*?>");
+			Matcher matcher = forInput.matcher(html);
+			while (matcher.find()) {
+				String element = matcher.group();
+				if (element.contains("type=\"radio\"") && !element.contains("checked=\"true\"")) {
+					// discards unchecked radios
+					continue;
+				}
+				if (element.contains("type=\"checkbox\"") && !element.contains("checked=\"true\"")) {
+					// discards unchecked checkboxes
+					continue;
+				}
+				String name = matcher.group(1);
+				Matcher lookForValue = forValue.matcher(element);
+				if (lookForValue.find()) {
+					String value = lookForValue.group(1);
+					ret.put(name, value);
+				}
+			}
+		}
+		
+		// <textarea ... name="something" ...>value</textarea>
+		{
+			Pattern forTextarea = Pattern.compile("<textarea.*?name=\"(.*?)\".*?>(.*?)</textarea>");
+			Matcher matcher = forTextarea.matcher(html);
+			while (matcher.find()) {
+				String name = matcher.group(1);
+				String value = matcher.group(2);
+				ret.put(name, value);
+			}
+		}
+		
+		// <select ... name="something" ...>(options)</select> (DOTALL makes . match line terminator too)
+		{
+			String selectPattern = "<select.*?name=\"(.*?)\".*?>.*?(<option[^>]*selected[^>]*>).*?</select>";
+			Pattern forSelect = Pattern.compile(selectPattern, Pattern.DOTALL);
+			Matcher matcher = forSelect.matcher(html);
+			while (matcher.find()) {
+				String name = matcher.group(1);
+				String selectedOption = matcher.group(2);
+				Matcher lookForValue = forValue.matcher(selectedOption);
+				if (lookForValue.find()) {
+					String value = lookForValue.group(1);
+					ret.put(name, value);
+				} else {
+					ret.put(name, "");
+				}
+			}
+		}
+		
+		// setupDatePicker(jsDateFormat, jsLocale, displaySelector, '#something', '2012-01-30')
+		{
+			Pattern forDatePicker = Pattern.compile("setupDatePicker\\(.*?, .*?, .*?, '#(.+?)', '(.+?)'\\)");
+			Matcher matcher = forDatePicker.matcher(html);
+			while (matcher.find()) {
+				String name = matcher.group(1);
+				String value = matcher.group(2);
+				ret.put(name, value);
+			}
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * Finds the name of the first widget found after the given label. I.e. the first name="w#". If
+	 * widgetsToSkip is > 0, then it will skip over that number of widgets after the first instance of
+	 * the label is found If labelsToSkip is > 0, then it will skip over that number of labels found
+	 * before matching
+	 */
+	public static String getFormFieldName(String html, String label, int widgetsToSkip, int labelsToSkip) {
+		String val = null;
+		
+		if (labelsToSkip > 0) {
+			int startIndex = 0;
+			for (int i = 0; i < labelsToSkip; i++) {
+				startIndex = html.indexOf(label, startIndex) + label.length();
+				html = html.substring(startIndex);
+			}
+		}
+		
+		int index = html.indexOf(label);
+		if (index >= 0) {
+			for (int i = 0; i < widgetsToSkip + 1; ++i) {
+				index = html.indexOf("name=\"w", index);
+				index = html.indexOf('"', index) + 1;
+			}
+			val = html.substring(index, html.indexOf('"', index + 1));
+		}
+		
+		if (StringUtils.isBlank(val)) {
+			log.warn("No widget found for " + label + " ");
+		} else {
+			log.trace(label + "->" + val);
+		}
+		
+		return val;
+	}
 }

@@ -58,7 +58,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	public static final String DIFFERENT_PROGRAM_WORKFLOW_STATE = "67337cdc-53ad-11e1-8cb6-00248140a5eb";
 	
-	public static final String MAPPED_STATE = "6de7ed10-53ad-11e1-8cb6-00248140a5eb";
+	public static final String MAPPED_STATE = "67337cdc-53ad-11a1-8cb6-00248140a5eb";
 	
 	public static final Date TODAY = HtmlFormEntryUtil.clearTimeComponent(new Date());
 	
@@ -207,8 +207,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/HtmlFormEntryTest-data-openmrs-2.1.xml");
-		String htmlform = "<htmlform><workflowState workflowId=\"108\" stateId=\"SNOMED CT:Test Code\"/></htmlform>";
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		String htmlform = "<htmlform><workflowState workflowId=\"107\" stateId=\"XYZ:Test Code\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, MAPPED_STATE);
 	}
