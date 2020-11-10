@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collections;
@@ -7,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,14 +19,13 @@ import org.openmrs.api.APIAuthenticationException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.compatibility.EncounterServiceCompatibility;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.ValidationException;
+import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.OpenmrsUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -62,9 +60,6 @@ public class HtmlFormEntryController {
 	// A place to store data that will persist longer than a session, but won't
 	// persist beyond application restart
 	private static Map<User, Map<String, Object>> volatileUserData = new WeakHashMap<User, Map<String, Object>>();
-	
-	@Autowired
-	private EncounterServiceCompatibility encounterServiceCompatibility;
 	
 	@RequestMapping(method = RequestMethod.GET, value = FORM_PATH)
 	public void showForm() {
@@ -161,10 +156,12 @@ public class HtmlFormEntryController {
 			
 			String which = request.getParameter("which");
 			if (StringUtils.hasText(which)) {
-				if (patient == null)
+				if (patient == null) {
 					throw new IllegalArgumentException("Cannot specify 'which' without specifying a person/patient");
-				List<Encounter> encs = encounterServiceCompatibility.getEncounters(patient, null, null, null,
-				    Collections.singleton(form), null, null, null, null, false);
+				}
+				EncounterSearchCriteriaBuilder b = new EncounterSearchCriteriaBuilder();
+				b.setPatient(patient).setEnteredViaForms(Collections.singleton(form)).setIncludeVoided(false);
+				List<Encounter> encs = Context.getEncounterService().getEncounters(b.createEncounterSearchCriteria());
 				if (which.equals("first")) {
 					encounter = encs.get(0);
 				} else if (which.equals("last")) {

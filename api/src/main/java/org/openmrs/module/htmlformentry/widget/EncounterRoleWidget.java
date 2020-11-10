@@ -13,16 +13,16 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
 import org.openmrs.EncounterRole;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * Widget that lets you choose an {@link EncounterRole} from a dropdown.

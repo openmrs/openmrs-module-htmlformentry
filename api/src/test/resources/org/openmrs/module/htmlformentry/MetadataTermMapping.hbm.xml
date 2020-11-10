@@ -7,7 +7,9 @@
 
     <class name="MetadataTermMapping" table="metadata_term_mapping">
         <id name="MetadataTermMappingId" type="int" column="metadata_term_mapping_id">
-            <generator class="native" />
+			<generator class="native">
+				<param name="sequence">metadata_term_mapping_metadata_term_mapping_id_seq</param>
+			</generator>
         </id>
         <many-to-one name="metadataSource" class="org.openmrs.module.metadatamapping.MetadataTermMapping"/>
         <property name="metadataUuid" type="java.lang.String"/>

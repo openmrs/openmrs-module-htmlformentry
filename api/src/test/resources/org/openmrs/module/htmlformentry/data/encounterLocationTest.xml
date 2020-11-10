@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <location_tag location_tag_id="1001" name="Visit Location" retired="false" creator="1" date_created="2008-08-15 15:51:57.0" uuid="321c1f44-0459-4201-bf70-0b90535ba362"/>
+  <location_tag location_tag_id="1002" name="Admission Location" retired="false" creator="1" date_created="2008-08-15 15:51:57.6" uuid="321c1f44-0459-4201-bf70-0b90575ba312"/>
+  <location location_id="1001" name="amani hospital" creator="1" date_created="2005-09-22 00:00:00.0" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba362"/>
+  <location location_id="1002" name="out patient" creator="1" date_created="2005-09-22 00:00:00.1" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba368" parent_location="1001"/>
+  <location location_id="1003" name="in patient" creator="1" date_created="2005-09-22 00:00:00.2" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba367" parent_location="1001"/>
+  <location location_id="1004" name="opd" creator="1" date_created="2005-09-22 00:00:00.3" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba366" parent_location="1001"/>
+  <location location_id="1005" name="pharmacy" creator="1" date_created="2005-09-24 00:00:00.4" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba316" parent_location="1002"/>
+  <location location_id="1006" name="dentist room" creator="1" date_created="2005-09-23 00:00:00.5" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90535ba336" parent_location="1002"/>
+  <location location_id="1007" name="nurse's room" creator="1" date_created="2005-09-21 00:00:00.4" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90735ba316" parent_location="1006"/>
+  <location location_id="1008" name="dispensary" creator="1" date_created="2005-09-22 00:00:30.5" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90835ba336" parent_location="1006"/>
+  <location location_id="1009" name="casuality" creator="1" date_created="2005-09-22 00:00:20.4" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90705ba316" parent_location="1003"/>
+  <location location_id="1010" name="intensive care" creator="1" date_created="2005-09-22 00:00:10.5" retired="false" uuid="321c1fcc-0459-4201-bf70-0b90815ba336" parent_location="1003"/>
+  <location_tag_map location_id="1001" location_tag_id="1001" />
+  <location_tag_map location_id="1002" location_tag_id="1001" />
+  <location_tag_map location_id="1003" location_tag_id="1001" />
+  <location_tag_map location_id="1004" location_tag_id="1001" />
+  <location_tag_map location_id="1005" location_tag_id="1001" />
+  <location_tag_map location_id="1006" location_tag_id="1001" />
+  <location_tag_map location_id="1007" location_tag_id="1001" />
+  <location_tag_map location_id="1008" location_tag_id="1001" />
+  <location_tag_map location_id="1009" location_tag_id="1001" />
+  <location_tag_map location_id="1010" location_tag_id="1002" />
+</dataset>

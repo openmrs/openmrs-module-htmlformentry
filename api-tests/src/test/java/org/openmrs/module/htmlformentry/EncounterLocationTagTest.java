@@ -13,76 +13,76 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.GlobalProperty;
 import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
-import org.openmrs.logic.util.LogicUtil;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
+import org.openmrs.module.htmlformentry.element.EncounterDetailSubmissionElement;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public class EncounterLocationTagTest extends BaseHtmlFormEntryTest {
 	
 	private static Log log = LogFactory.getLog(EncounterLocationTagTest.class);
 	
-	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
-	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		LogicUtil.registerDefaultRules();
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldDisplaySelectInputIfTypeIsNotSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
+		Assert.assertTrue(
+		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">Choose a Location...</option>"));
+		Assert.assertFalse(session.getHtmlToDisplay().contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldDisplayEnterOptionIfTypeIsSetToAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") == -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") > -1);
+		Assert.assertFalse(
+		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">Choose a Location...</option>"));
+		Assert.assertTrue(session.getHtmlToDisplay().contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldDisplaySelectInputByDefaultIfAnIvalidTypeValueIsEntered() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"invalid\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(session.getHtmlToDisplay()
-		        .indexOf("<option value=\"\" selected=\"true\">htmlformentry.chooseALocation</option>") > -1);
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("placeholder=\"htmlformentry.form.value.placeholder\"") == -1);
+		Assert.assertTrue(
+		    session.getHtmlToDisplay().contains("<option value=\"\" selected=\"true\">Choose a Location...</option>"));
+		Assert.assertFalse(session.getHtmlToDisplay().contains("placeholder=\"Enter......\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldSupportDefaultFieldWithAutocomplete() throws Exception {
 		String htmlform = "<htmlform><encounterLocation type=\"autocomplete\" default=\"1\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		Assert.assertTrue(
-		    session.getHtmlToDisplay().indexOf("<input type=\"text\" id=\"w1\" value=\"Unknown Location\"") > -1);
+		Assert.assertTrue(session.getHtmlToDisplay().contains("<input type=\"text\" id=\"w1\" value=\"Unknown Location\""));
 	}
 	
 	@Test
 	public void encounterLocationTag_shouldNotSelectAnythingByDefaultIfNothingIsSpecified() throws Exception {
 		String htmlform = "<htmlform><encounterLocation /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
-		
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>")
 		        .matcher(session.getHtmlToDisplay());
 		Assert.assertFalse(matcher.find());
@@ -101,14 +101,11 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		Matcher matcher = Pattern.compile("<option.+?value=\"(.+?)\".+?selected=\"true\".*?>")
 		        .matcher(session.getHtmlToDisplay());
 		Assert.assertTrue(matcher.find());
-		Assert.assertTrue(session.getHtmlToDisplay().indexOf("<option value=\"2\" selected=\"true\">Xanadu</option>") > -1);
-		
-		//String selectedId = matcher.group(1);
-		//Assert.assertEquals("2", selectedId);
+		Assert.assertTrue(session.getHtmlToDisplay().contains("<option value=\"2\" selected=\"true\">Xanadu</option>"));
 	}
 	
 	@Test
-	public void encounterLocationTag_shouldSupportDefaultSelectByDeafultLocation() throws Exception {
+	public void encounterLocationTag_shouldSupportDefaultSelectByDefaultLocation() throws Exception {
 		
 		String htmlform = "<htmlform><encounterLocation default=\"SystemDefault\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
@@ -204,6 +201,58 @@ public class EncounterLocationTagTest extends BaseModuleContextSensitiveTest {
 		
 		Assert.assertTrue(htmlToDisplay.indexOf("Mirebalais") < htmlToDisplay.indexOf("Indianapolis"));
 		Assert.assertTrue(htmlToDisplay.indexOf("Indianapolis") < htmlToDisplay.indexOf("Boston"));
+	}
+	
+	@Test
+	public void shouldRestrictToVisitLocationAndChildrenIfRestrictToVisitLocationEnabledAndVisitInContext()
+	        throws Exception {
+		
+		// create mock visit with Location = Boston
+		Visit visit = new Visit();
+		visit.setLocation(Context.getLocationService().getLocationByUuid("9356400c-a5a2-4588-8f2b-2361b3446eb8"));
+		
+		String htmlform = "<htmlform><encounterLocation restrictToCurrentVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+		session.getContext().setVisit(visit);
+		
+		String htmlToDisplay = session.getHtmlToDisplay();
+		
+		TestUtil.assertFuzzyContains("Boston", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Jamaica Plain", htmlToDisplay);
+		
+		TestUtil.assertFuzzyDoesNotContain("Kigali", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Mirebalais", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Scituate", htmlToDisplay);
+	}
+	
+	@Test
+	public void shouldRestrictToVisitLocationAndChildrenIfRestrictToVisitLocationEnabledButNoVisitInContext()
+	        throws Exception {
+		
+		String htmlform = "<htmlform><encounterLocation restrictToCurrentVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+		
+		String htmlToDisplay = session.getHtmlToDisplay();
+		
+		TestUtil.assertFuzzyContains("Kigali", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Mirebalais", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Boston", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Scituate", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Jamaica Plain", htmlToDisplay);
+	}
+	
+	@Test
+	public void getAllVisitsAndChildLocations_shouldReturnAllVisitsAndTheirChildLocations() throws Exception {
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
+		Set<Location> traversedLocations = new HashSet<Location>();
+		Set<Location> allVisitLocations = new HashSet<Location>();
+		LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
+		List<Location> visitLocations = Context.getLocationService().getLocationsByTag(visitLocationTag);
+		allVisitLocations.addAll(visitLocations);
+		assertThat(
+		    EncounterDetailSubmissionElement.getAllVisitsAndChildLocations(allVisitLocations, traversedLocations).size(),
+		    is(10));
+		
 	}
 	
 }

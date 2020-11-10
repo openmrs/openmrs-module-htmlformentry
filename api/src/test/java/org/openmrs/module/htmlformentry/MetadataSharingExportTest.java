@@ -13,23 +13,22 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.Collection;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-
-import java.util.Collection;
 
 /**
  * Test finding dependencies when doing a Metadata Sharing export of a form with this module's tags
  */
-public class MetadataSharingExportTest extends BaseModuleContextSensitiveTest {
+public class MetadataSharingExportTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/encounterProviderAndRole.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterProviderAndRole.xml");
 		new HtmlFormEntryActivator().started();
 	}
 	

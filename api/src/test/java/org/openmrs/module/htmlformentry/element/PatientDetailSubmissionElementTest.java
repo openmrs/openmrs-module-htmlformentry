@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
+import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class PatientDetailSubmissionElementTest extends BaseModuleContextSensitiveTest {
+public class PatientDetailSubmissionElementTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void testPatientIdentifierValidation() throws Exception {

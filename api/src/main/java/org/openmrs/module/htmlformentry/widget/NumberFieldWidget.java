@@ -1,16 +1,15 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.openmrs.ConceptNumeric;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
 import org.openmrs.util.OpenmrsUtil;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A widget that implements an input field that takes a numeric answer.
@@ -62,13 +61,10 @@ public class NumberFieldWidget implements Widget {
 	public NumberFieldWidget(ConceptNumeric concept, String size, Double absoluteMinimum, Double absoluteMaximum) {
 		if (concept != null) {
 			
-			ConceptCompatibility conceptCompatibility = Context.getRegisteredComponent("htmlformentry.ConceptCompatibility",
-			    ConceptCompatibility.class);
-			
 			setAbsoluteMaximum(absoluteMaximum != null ? absoluteMaximum : concept.getHiAbsolute());
 			setAbsoluteMinimum(absoluteMinimum != null ? absoluteMinimum : concept.getLowAbsolute());
 			
-			setFloatingPoint(conceptCompatibility.isAllowDecimal(concept));
+			setFloatingPoint(concept.getAllowDecimal());
 			if (size != null && !size.equals("")) {
 				try {
 					setNumberFieldSize(Integer.valueOf(size));
@@ -211,23 +207,35 @@ public class NumberFieldWidget implements Widget {
 	}
 	
 	@Override
-	public Double getValue(FormEntryContext context, HttpServletRequest request) {
-		try {
-			Double d = (Double) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Double.class);
-			if (d != null && absoluteMinimum != null && d < absoluteMinimum)
+	public Number getValue(FormEntryContext context, HttpServletRequest request) {
+		Number ret;
+		String paramName = context.getFieldName(this);
+		if (isFloatingPoint()) {
+			try {
+				ret = (Double) HtmlFormEntryUtil.getParameterAsType(request, paramName, Double.class);
+			}
+			catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException(
-				        Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " "
-				                + absoluteMinimum);
-			if (d != null && absoluteMaximum != null && d > absoluteMaximum)
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber"));
+			}
+		} else {
+			try {
+				ret = (Integer) HtmlFormEntryUtil.getParameterAsType(request, paramName, Integer.class);
+			}
+			catch (NumberFormatException nfe) {
 				throw new IllegalArgumentException(
-				        Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " "
-				                + absoluteMaximum);
-			return d;
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.notAnInteger"));
+			}
 		}
-		catch (NumberFormatException ex) {
+		if (ret != null && absoluteMinimum != null && ret.doubleValue() < absoluteMinimum)
 			throw new IllegalArgumentException(
-			        Context.getMessageSourceService().getMessage("htmlformentry.error.notANumber"));
-		}
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.mustBeAtLeast") + " "
+			                + absoluteMinimum);
+		if (ret != null && absoluteMaximum != null && ret.doubleValue() > absoluteMaximum)
+			throw new IllegalArgumentException(
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.notGreaterThan") + " "
+			                + absoluteMaximum);
+		return ret;
 	}
 	
 	public void setNumberFieldSize(Integer numberFieldSize) {

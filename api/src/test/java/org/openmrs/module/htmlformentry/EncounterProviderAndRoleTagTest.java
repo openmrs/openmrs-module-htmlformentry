@@ -13,6 +13,11 @@
  */
 package org.openmrs.module.htmlformentry;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,22 +26,16 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterRole;
 import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Integration test for the <encounterProviderAndRole/> tag
  */
-public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveTest {
+public class EncounterProviderAndRoleTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/include/encounterProviderAndRole.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterProviderAndRole.xml");
 		new HtmlFormEntryActivator().started();
 	}
 	
@@ -44,11 +43,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 	public void encounterProviderAndRole_testPlainTag() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {
@@ -88,11 +82,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 		new RegressionTestHelper() {
 			
 			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
-			
-			@Override
 			public String getFormName() {
 				return "requiredEncounterProviderAndRoleTag";
 			}
@@ -130,11 +119,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 		new RegressionTestHelper() {
 			
 			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
-			
-			@Override
 			public String getFormName() {
 				return "requiredEncounterProviderAndRoleTag";
 			}
@@ -170,11 +154,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 		new RegressionTestHelper() {
 			
 			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
-			
-			@Override
 			public String getFormName() {
 				return "encounterProviderAndRoleTagWithDefault";
 			}
@@ -189,11 +168,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 	@Test
 	public void encounterProviderAndRole_WithMultipleDropdownsOnlySetsOneToDefault() throws Exception {
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {
@@ -212,11 +186,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 	public void encounterProviderAndRole_testTagSpecifyingEncounterProviderTwiceWithDifferentRoles() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {
@@ -270,11 +239,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 	public void encounterProviderAndRole_testTagSpecifyingEncounterProviderTwiceWithSameRole() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {
@@ -336,11 +300,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 		new RegressionTestHelper() {
 			
 			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
-			
-			@Override
 			public String getFormName() {
 				return "specifyingEncounterRoleTwiceWithSameRole";
 			}
@@ -389,11 +348,6 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 	public void encounterProviderAndRole_testRemovingProviderFromEncounter() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {
@@ -457,15 +411,10 @@ public class EncounterProviderAndRoleTagTest extends BaseModuleContextSensitiveT
 	public void encounterProviderAndRole_testWithProviderRoleAttribute() throws Exception {
 		
 		// load the provider role specific test dataset
-		executeDataSet("org/openmrs/module/htmlformentry/include/providerRoles-dataset.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
 		
 		final Date date = new Date();
 		new RegressionTestHelper() {
-			
-			@Override
-			protected String getXmlDatasetPath() {
-				return "org/openmrs/module/htmlformentry/include/";
-			}
 			
 			@Override
 			public String getFormName() {

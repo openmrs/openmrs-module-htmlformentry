@@ -1,94 +1,131 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.openmrs.module</groupId>
-	<artifactId>htmlformentry</artifactId>
-	<version>3.12.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>HTML Form Entry</name>
-	<description>Parent project for HTML Form Entry</description>
+    <groupId>org.openmrs.module</groupId>
+    <artifactId>htmlformentry</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>HTML Form Entry</name>
+    <description>Parent project for HTML Form Entry</description>
 
-	<url>http://openmrs.org</url>
+    <url>http://openmrs.org</url>
 
-	<scm>
-		<connection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</connection>
-		<developerConnection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</developerConnection>
-		<url>https://github.com/openmrs/openmrs-module-htmlformentry/</url>
-                <tag>3.1</tag>
-        </scm>
+    <!-- default property values, required for eclipse build path configuration -->
+    <properties>
+        <openMRSVersion>2.1.0</openMRSVersion>
+        <openMRSMinorVersion>2.1</openMRSMinorVersion>
+        <legacyuiVersion>1.7.0</legacyuiVersion>
+        <jacksonVersion>1.5.0</jacksonVersion>
+        <junitJupiterVersion>5.7.0</junitJupiterVersion>
+        <mockitoVersion>3.5.11</mockitoVersion>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-	<distributionManagement>
-		<repository>
-			<id>openmrs-repo-modules</id>
-			<name>Modules</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules/</url>
-		</repository>
+    <modules>
+        <module>api</module>
+        <module>api-2.3</module>
+        <module>api-tests</module>
+        <module>omod</module>
+    </modules>
+
+    <scm>
+        <connection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</connection>
+        <developerConnection>scm:git:git@github.com:openmrs/openmrs-module-htmlformentry.git</developerConnection>
+        <url>https://github.com/openmrs/openmrs-module-htmlformentry/</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>openmrs-repo-modules</id>
+            <name>Modules</name>
+            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules/</url>
+        </repository>
         <snapshotRepository>
             <id>openmrs-repo-snapshots</id>
             <name>OpenMRS Snapshots</name>
             <url>http://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
-	</distributionManagement>
+    </distributionManagement>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.openmrs.api</groupId>
-				<artifactId>openmrs-api</artifactId>
-				<version>${openMRSBuildVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.api</groupId>
-				<artifactId>openmrs-api</artifactId>
-				<version>${openMRSBuildVersion}</version>
-				<classifier>tests</classifier>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.module</groupId>
-				<artifactId>metadatamapping-api</artifactId>
-				<version>1.1.0-alpha1</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.test</groupId>
-				<artifactId>openmrs-test</artifactId>
-				<type>pom</type>
-				<version>${openMRSBuildVersion}</version>
-				<scope>test</scope>
-				<exclusions>
-					<exclusion>
-						<artifactId>mockito-all</artifactId>
-						<groupId>org.mockito</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.web</groupId>
-				<artifactId>openmrs-web</artifactId>
-				<version>${openMRSBuildVersion}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.web</groupId>
-				<artifactId>openmrs-web</artifactId>
-				<version>${openMRSBuildVersion}</version>
-				<type>test-jar</type>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.module</groupId>
-				<artifactId>logic</artifactId>
-				<version>0.5</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.openmrs.module</groupId>
-				<artifactId>providermanagement-api</artifactId>
-				<version>2.0</version>
-				<scope>provided</scope>
-			</dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.openmrs.api</groupId>
+                <artifactId>openmrs-api</artifactId>
+                <version>${openMRSVersion}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.api</groupId>
+                <artifactId>openmrs-api</artifactId>
+                <version>${openMRSVersion}</version>
+                <classifier>tests</classifier>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>metadatamapping-api</artifactId>
+                <version>1.3.4</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.test</groupId>
+                <artifactId>openmrs-test</artifactId>
+                <type>pom</type>
+                <version>${openMRSVersion}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>mockito-all</artifactId>
+                        <groupId>org.mockito</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.mockito</groupId>
+                        <artifactId>mockito-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.powermock</groupId>
+                        <artifactId>powermock-module-junit4</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.powermock</groupId>
+                        <artifactId>powermock-api-mockito</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-library</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.web</groupId>
+                <artifactId>openmrs-web</artifactId>
+                <version>${openMRSVersion}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.web</groupId>
+                <artifactId>openmrs-web</artifactId>
+                <version>${openMRSVersion}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>providermanagement-api</artifactId>
+                <version>2.11.0</version>
+                <scope>provided</scope>
+            </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
@@ -103,24 +140,24 @@
                 <type>jar</type>
                 <scope>provided</scope>
             </dependency>
-			<dependency>
-				<groupId>org.codehaus.groovy</groupId>
-				<artifactId>groovy</artifactId>
-				<version>1.8.3</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>cglib</groupId>
-				<artifactId>cglib</artifactId>
-				<version>2.2.2</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>xalan</groupId>
-				<artifactId>xalan</artifactId>
-				<version>2.7.1</version>
-				<scope>test</scope>
-			</dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>1.8.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib</artifactId>
+                <version>2.2.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>2.7.1</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
@@ -131,156 +168,174 @@
                 <artifactId>joda-convert</artifactId>
                 <version>1.2</version>
             </dependency>
-			<dependency>
-				<groupId>net.anotheria</groupId>
-				<artifactId>ano-web</artifactId>
-				<version>2.1.0</version>
-			</dependency>
-
-			<!-- We want to use the same versions of test libraries regardless of OpenMRS version -->
             <dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.11</version>
-				<scope>test</scope>
-			</dependency>
-            <dependency>
-				<groupId>org.mockito</groupId>
-				<artifactId>mockito-core</artifactId>
-				<version>1.9.5</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-module-junit4</artifactId>
-				<version>1.5</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.powermock</groupId>
-				<artifactId>powermock-api-mockito</artifactId>
-				<version>1.5</version>
-				<scope>test</scope>
-				<exclusions>
-					<exclusion>
-						<artifactId>mockito-all</artifactId>
-						<groupId>org.mockito</groupId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-core</artifactId>
-                <version>1.3</version>
-                <scope>test</scope>
+                <groupId>net.anotheria</groupId>
+                <artifactId>ano-web</artifactId>
+                <version>2.1.0</version>
             </dependency>
             <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>hamcrest-library</artifactId>
-                <version>1.3</version>
-                <scope>test</scope>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>legacyui-api</artifactId>
+                <version>${legacyuiVersion}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
-				<groupId>org.openmrs.module</groupId>
-				<artifactId>legacyui-api</artifactId>
-				<version>0.1</version>
-				<scope>provided</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+                <groupId>org.openmrs.module</groupId>
+                <artifactId>legacyui-omod</artifactId>
+                <version>${legacyuiVersion}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.1.0</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
-	<!-- default property values, required for eclipse build path configuration -->
-	<properties>
-		<openMRSVersion>1.9.9</openMRSVersion>
-		<openMRSBuildVersion>1.9.9</openMRSBuildVersion>
-		<openMRSMinorVersion>1.9</openMRSMinorVersion>
-        <jacksonVersion>1.5.0</jacksonVersion>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+    <dependencies>
+        <!-- Test Libraries:  We want to use the same versions of test libraries regardless of OpenMRS version -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junitJupiterVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junitJupiterVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junitJupiterVersion}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junitJupiterVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockitoVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockitoVersion}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>2.0.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito2</artifactId>
+            <version>2.0.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>2.2</version>
+        </dependency>
+    </dependencies>
 
-	<modules>
-		<module>api</module>
-		<module>api-1.9</module>
-		<module>api-1.10</module>
-		<module>api-2.0</module>
-		<module>api-2.3</module>
-		<module>api-tests</module>
-		<module>omod</module>
-	</modules>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>net.revelc.code.formatter</groupId>
-				<artifactId>formatter-maven-plugin</artifactId>
-				<version>2.10.0</version>
-				<executions>
-					<execution>
-						<phase>compile</phase>
-						<goals>
-							<goal>format</goal>
-						</goals>
-						<configuration>
-							<directories>
-								<directory>.</directory>
-							</directories>
-							<configFile>eclipse/OpenMRSFormatter.xml</configFile>
-							<includes>
-								<include>**/*.java</include>
-							</includes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>net.revelc.code.formatter</groupId>
-					<artifactId>formatter-maven-plugin</artifactId>
-					<dependencies>
-						<dependency>
-							<groupId>org.openmrs.tools</groupId>
-							<artifactId>openmrs-tools</artifactId>
-							<version>${openMRSBuildVersion}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<configuration>
-						<target>1.6</target>
-						<source>1.6</source>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.10.0</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                        <configuration>
+                            <directories>
+                                <directory>.</directory>
+                            </directories>
+                            <configFile>eclipse/OpenMRSFormatter.xml</configFile>
+                            <includes>
+                                <include>**/*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>net.revelc.code.formatter</groupId>
+                    <artifactId>formatter-maven-plugin</artifactId>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.openmrs.tools</groupId>
+                            <artifactId>openmrs-tools</artifactId>
+                            <version>${openMRSVersion}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <target>1.8</target>
+                        <source>1.8</source>
                         <encoding>UTF-8</encoding>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.openmrs.maven.plugins</groupId>
-					<artifactId>maven-openmrs-plugin</artifactId>
-					<version>1.0.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.11</version>
-					<configuration>
-						<failIfNoTests>false</failIfNoTests>
-						<forkMode>never</forkMode>
-						<argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<executions>
-						<execution>
-							<goals>
-								<goal>test-jar</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.openmrs.maven.plugins</groupId>
+                    <artifactId>maven-openmrs-plugin</artifactId>
+                    <version>1.0.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.11</version>
+                    <configuration>
+                        <failIfNoTests>false</failIfNoTests>
+                        <forkMode>never</forkMode>
+                        <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>test-jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -300,78 +355,80 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.9.1</version>
                 </plugin>
-				<plugin>
-					<groupId>com.googlecode.maven-java-formatter-plugin</groupId>
-					<artifactId>maven-java-formatter-plugin</artifactId>
-					<version>0.3</version>
-					<configuration>
-						<compilerSource>${javaCompilerVersion}</compilerSource>
-						<compilerCompliance>${javaCompilerVersion}</compilerCompliance>
-						<compilerTargetPlatform>${javaCompilerVersion}</compilerTargetPlatform>
-						<configFile>eclipse/OpenMRSFormatter.xml</configFile>
-						<overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
-						<lineEnding>CRLF</lineEnding>
-					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>org.openmrs.tools</groupId>
-							<artifactId>openmrs-tools</artifactId>
-							<version>${project.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+                <plugin>
+                    <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
+                    <artifactId>maven-java-formatter-plugin</artifactId>
+                    <version>0.3</version>
+                    <configuration>
+                        <compilerSource>1.8</compilerSource>
+                        <compilerCompliance>1.8</compilerCompliance>
+                        <compilerTargetPlatform>1.8</compilerTargetPlatform>
+                        <configFile>eclipse/OpenMRSFormatter.xml</configFile>
+                        <overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
+                        <lineEnding>CRLF</lineEnding>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.openmrs.tools</groupId>
+                            <artifactId>openmrs-tools</artifactId>
+                            <version>2.3.2-SNAPSHOT</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
-	<repositories>
-		<repository>
-			<id>openmrs-repo</id>
-			<name>OpenMRS Nexus Repository</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
-		</repository>
-	</repositories>
+    <repositories>
+        <repository>
+            <id>openmrs-repo</id>
+            <name>OpenMRS Nexus Repository</name>
+            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+        </repository>
+    </repositories>
 
-	<pluginRepositories>
-		<pluginRepository>
-			<id>openmrs-repo</id>
-			<name>OpenMRS Nexus Repository</name>
-			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>openmrs-repo</id>
+            <name>OpenMRS Nexus Repository</name>
+            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
 
 
-	<!-- different profiles for building/testing against different version of 
-		openmrs -->
-	<profiles>
-		<profile>
-			<id>openmrs-1.9</id>
+    <!-- different profiles for building/testing against different version of openmrs -->
+    <profiles>
+        <profile>
+            <id>2.2</id>
+            <properties>
+                <openMRSVersion>2.2.0</openMRSVersion>
+                <openMRSMinorVersion>2.2</openMRSMinorVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>2.3</id>
+            <properties>
+                <openMRSVersion>2.3.0</openMRSVersion>
+                <openMRSMinorVersion>2.3</openMRSMinorVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>2.4</id>
+            <properties>
+                <openMRSVersion>2.4.0-alpha</openMRSVersion>
+                <openMRSMinorVersion>2.4</openMRSMinorVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>release-tests</id>
+            <modules>
+                <module>release-tests</module>
+            </modules>
+        </profile>
 
-			<properties>
-				<openMRSVersion>1.9.9</openMRSVersion>
-				<openMRSMinorVersion>1.9</openMRSMinorVersion>
-			</properties>
-		</profile>
-		
-		<profile>
-			<id>openmrs-1.10</id>
-
-			<properties>
-				<openMRSVersion>1.10.5</openMRSVersion>
-				<openMRSMinorVersion>1.10</openMRSMinorVersion>
-			</properties>
-		</profile>
-
-		<profile>
-			<id>release-tests</id>
-			<modules>
-				<module>release-tests</module>
-			</modules>
-		</profile>
-
-	</profiles>
+    </profiles>
 
 </project>

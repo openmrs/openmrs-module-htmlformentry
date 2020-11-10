@@ -23,8 +23,8 @@ import org.openmrs.RelationshipType;
 import org.openmrs.Role;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.compatibility.RegimenSuggestionCompatibility;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.DrugOrderTagAttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 
@@ -107,111 +107,125 @@ public class HtmlFormExporter {
 			
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
-					if (attributeDescriptor.getClazz() != null
-					        && !classesNotToExport.contains(attributeDescriptor.getClazz())) {
+					
+					// Special case handling for Schema attribute descriptors
+					if (attributeDescriptor instanceof DrugOrderTagAttributeDescriptor) {
+						DrugOrderTagAttributeDescriptor dtad = (DrugOrderTagAttributeDescriptor) attributeDescriptor;
+						Map<Class<? extends OpenmrsObject>, Set<OpenmrsObject>> deps = dtad.getDependencies(formToExport);
+						for (Class<? extends OpenmrsObject> c : deps.keySet()) {
+							if (!classesNotToExport.contains(c)) {
+								dependencies.addAll(deps.get(c));
+							}
+						}
+					} else {
 						
-						// build the attribute string we are searching for
-						// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
-						// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;
-						// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
-						// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
-						String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName()
-						        + "=\"(.*?)\"";
-						log.debug("dependency substitution pattern: " + pattern);
-						
-						// now search through and find all matches
-						Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(xml);
-						while (matcher.find()) {
-							// split the matched result group into the various ids
-							String[] ids = matcher.group(1).split(",");
+						if (attributeDescriptor.getClazz() != null
+						        && !classesNotToExport.contains(attributeDescriptor.getClazz())) {
 							
-							for (String id : ids) {
-								// if this id matches a uuid pattern, try to fetch the object by uuid
-								if (HtmlFormEntryUtil.isValidUuidFormat(id)
-								        && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
-									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
-									    (Class<? extends OpenmrsObject>) attributeDescriptor.getClazz(), id);
-									if (object != null) {
-										//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
-										if (Form.class.equals(attributeDescriptor.getClazz())) {
-											Form form = (Form) object;
-											HtmlForm htmlForm = Context.getService(HtmlFormEntryService.class)
-											        .getHtmlFormByForm(form);
-											if (htmlForm != null) {
-												dependencies.add(htmlForm);
+							// build the attribute string we are searching for
+							// pattern matches <tagName .* attribute="[anything]"; group(1) is set to [anything]
+							// to break down the regex in detail, ?: simply means that we don't want include this grouping in the groups that we backreference;
+							// the grouping itself is an "or", that matches either "\\s" (a single whitespace character) or
+							// "\\s[^>]*\\s" (a single whitespace character plus 0 to n characters of any type but a >, followed by another single whitespace character)
+							String pattern = "<" + tagName + "(?:\\s|\\s[^>]*\\s)" + attributeDescriptor.getName()
+							        + "=\"(.*?)\"";
+							log.debug("dependency substitution pattern: " + pattern);
+							
+							// now search through and find all matches
+							Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(xml);
+							while (matcher.find()) {
+								// split the matched result group into the various ids
+								String[] ids = matcher.group(1).split(",");
+								
+								for (String id : ids) {
+									// if this id matches a uuid pattern, try to fetch the object by uuid
+									if (HtmlFormEntryUtil.isValidUuidFormat(id)
+									        && OpenmrsObject.class.isAssignableFrom(attributeDescriptor.getClazz())) {
+										OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByUuid(
+										    (Class<? extends OpenmrsObject>) attributeDescriptor.getClazz(), id);
+										if (object != null) {
+											//special handling of Form -- if passed a Form, see if it can be passed along as  HtmlForm
+											if (Form.class.equals(attributeDescriptor.getClazz())) {
+												Form form = (Form) object;
+												HtmlForm htmlForm = Context.getService(HtmlFormEntryService.class)
+												        .getHtmlFormByForm(form);
+												if (htmlForm != null) {
+													dependencies.add(htmlForm);
+													continue;
+												}
+											}
+											dependencies.add(object);
+											continue;
+										}
+									}
+									
+									//if openmrs metadata, try to get it by metadataMapping service
+									if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
+										OpenmrsObject object = metadataMappingResolver.getMetadataItem(
+										    (Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
+										if (object != null) {
+											dependencies.add(object);
+											continue;
+										}
+									}
+									
+									// if we haven't found anything by uuid, try by name
+									try {
+										if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
+											OpenmrsObject object = Context.getService(HtmlFormEntryService.class)
+											        .getItemByName(
+											            (Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(),
+											            id);
+											if (object != null) {
+												dependencies.add(object);
 												continue;
 											}
 										}
-										dependencies.add(object);
-										continue;
+									}
+									catch (Exception e) {}
+									// finally, handle any special cases
+									// if it's a concept, we also need to handle concepts referenced by map
+									if (Concept.class.equals(attributeDescriptor.getClazz())) {
+										Concept concept = HtmlFormEntryUtil.getConcept(id);
+										if (concept != null) {
+											dependencies.add(concept);
+											continue;
+										}
+									}
+									// need to handle the special case where a program "name" is considered the "name" of the underlying concept
+									if (Program.class.equals(attributeDescriptor.getClazz())) {
+										Program program = HtmlFormEntryUtil.getProgram(id);
+										if (program != null) {
+											dependencies.add(program);
+											continue;
+										}
+									}
+									// need to handle the special case where a program workflow is specified by a concept map pointing to it's underlying concept
+									// note that we shouldn't have to handle program workflow states because they should always be picked up when sharing the overriding program and/or program workflow
+									if (ProgramWorkflow.class.equals(attributeDescriptor.getClazz())) {
+										ProgramWorkflow workflow = HtmlFormEntryUtil.getWorkflow(id);
+										if (workflow != null) {
+											dependencies.add(workflow);
+										}
+									}
+									// need to special case of the name of a role
+									if (Role.class.equals(attributeDescriptor.getClazz())) {
+										Role role = Context.getUserService().getRole(id);
+										if (role != null) {
+											dependencies.add(role);
+											continue;
+										}
+									}
+									//RelationshipType from the relationship tag, in case of lookup by name (which may or may not be implemented yet...)
+									if (RelationshipType.class.equals(attributeDescriptor.getClazz())) {
+										RelationshipType relationshipType = Context.getPersonService()
+										        .getRelationshipTypeByName(id);
+										if (relationshipType != null) {
+											dependencies.add(relationshipType);
+											continue;
+										}
 									}
 								}
-								
-								//if openmrs metadata, try to get it by metadataMapping service
-								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
-									OpenmrsObject object = metadataMappingResolver.getMetadataItem(
-									    (Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
-									if (object != null) {
-										dependencies.add(object);
-										continue;
-									}
-								}
-								
-								// if we haven't found anything by uuid, try by name
-								if (OpenmrsMetadata.class.isAssignableFrom(attributeDescriptor.getClazz())) {
-									OpenmrsObject object = Context.getService(HtmlFormEntryService.class).getItemByName(
-									    (Class<? extends OpenmrsMetadata>) attributeDescriptor.getClazz(), id);
-									if (object != null) {
-										dependencies.add(object);
-										continue;
-									}
-								}
-								// finally, handle any special cases
-								// if it's a concept, we also need to handle concepts referenced by map
-								if (Concept.class.equals(attributeDescriptor.getClazz())) {
-									Concept concept = HtmlFormEntryUtil.getConcept(id);
-									if (concept != null) {
-										dependencies.add(concept);
-										continue;
-									}
-								}
-								// need to handle the special case where a program "name" is considered the "name" of the underlying concept
-								if (Program.class.equals(attributeDescriptor.getClazz())) {
-									Program program = HtmlFormEntryUtil.getProgram(id);
-									if (program != null) {
-										dependencies.add(program);
-										continue;
-									}
-								}
-								// need to handle the special case where a program workflow is specified by a concept map pointing to it's underlying concept
-								// note that we shouldn't have to handle program workflow states because they should always be picked up when sharing the overriding program and/or program workflow
-								if (ProgramWorkflow.class.equals(attributeDescriptor.getClazz())) {
-									ProgramWorkflow workflow = HtmlFormEntryUtil.getWorkflow(id);
-									if (workflow != null) {
-										dependencies.add(workflow);
-									}
-								}
-								// need to special case of the name of a role
-								if (Role.class.equals(attributeDescriptor.getClazz())) {
-									Role role = Context.getUserService().getRole(id);
-									if (role != null) {
-										dependencies.add(role);
-										continue;
-									}
-								}
-								//RelationshipType from the relationship tag, in case of lookup by name (which may or may not be implemented yet...)
-								if (RelationshipType.class.equals(attributeDescriptor.getClazz())) {
-									RelationshipType relationshipType = Context.getPersonService()
-									        .getRelationshipTypeByName(id);
-									if (relationshipType != null) {
-										dependencies.add(relationshipType);
-										continue;
-									}
-								}
-								
-								RegimenSuggestionCompatibility regimen = Context.getRegisteredComponent(
-								    "htmlformentry.RegimenSuggestionCompatibility", RegimenSuggestionCompatibility.class);
-								regimen.AddDrugDependencies(id, attributeDescriptor, dependencies);
 							}
 						}
 					}

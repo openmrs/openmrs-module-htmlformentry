@@ -1,5 +1,15 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,27 +38,21 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
@@ -56,7 +60,10 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -74,12 +81,13 @@ import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.element.GettingExistingOrder;
+import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -273,8 +281,11 @@ public class HtmlFormEntryUtil {
 			}
 		} else if (dt.isCoded()) {
 			if (value instanceof Drug) {
-				obs.setValueDrug((Drug) value);
-				obs.setValueCoded(((Drug) value).getConcept());
+				Drug drugValue = (Drug) value;
+				// TODO: Not sure why this should be necessary, but unit tests fail without it (MS, 9/22/2020)
+				Concept conceptValue = HibernateUtil.getRealObjectFromProxy(drugValue.getConcept());
+				obs.setValueDrug(drugValue);
+				obs.setValueCoded(conceptValue);
 			} else if (value instanceof ConceptName) {
 				obs.setValueCodedName((ConceptName) value);
 				obs.setValueCoded(obs.getValueCodedName().getConcept());
@@ -396,7 +407,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Finds the first descendant of this node with the given tag name
-	 * 
+	 *
 	 * @param node
 	 * @param tagName
 	 * @return
@@ -501,7 +512,7 @@ public class HtmlFormEntryUtil {
 		return demo;
 	}
 	
-	public static HtmlFormSchema getHtmlFormSchema(HtmlForm htmlForm, FormEntryContext.Mode mode) {
+	public static HtmlFormSchema getHtmlFormSchema(HtmlForm htmlForm, Mode mode) {
 		try {
 			Patient patient = HtmlFormEntryUtil.getFakePerson();
 			FormEntrySession fes = new FormEntrySession(patient, null, mode, htmlForm, null);
@@ -538,23 +549,313 @@ public class HtmlFormEntryUtil {
 		return cal.getTime();
 	}
 	
+	public static Date startOfDay(Date d) {
+		if (d != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MINUTE, 0);
+			c.set(Calendar.SECOND, 0);
+			c.set(Calendar.MILLISECOND, 0);
+			return c.getTime();
+		}
+		return null;
+	}
+	
 	/**
-	 * Find Drug by UUID
-	 * 
-	 * @param uuid
-	 * @return
+	 * Convenience method to translate a given code
 	 */
-	public static Drug getDrug(String uuid) {
+	public static String translate(String message) {
+		return Context.getMessageSourceService().getMessage(message);
+	}
+	
+	/**
+	 * If an encounter has any non-voided providers, return the first listed Otherwise, if the current
+	 * user has any provider accounts, return the first listed Otherwise, return null
+	 */
+	public static Provider getOrdererFromEncounter(Encounter e) {
+		if (e != null) {
+			Set<EncounterProvider> encounterProviders = e.getEncounterProviders();
+			for (EncounterProvider encounterProvider : encounterProviders) {
+				if (BooleanUtils.isNotTrue(encounterProvider.getVoided())) {
+					return encounterProvider.getProvider();
+				}
+			}
+		}
+		User u = Context.getAuthenticatedUser();
+		Collection<Provider> l = Context.getProviderService().getProvidersByPerson(u.getPerson(), false);
+		if (!l.isEmpty()) {
+			return l.iterator().next();
+		}
+		return null;
+	}
+	
+	public static <T extends OpenmrsObject> T getOpenmrsObject(String lookup, Class<T> type) {
+		if (type == Concept.class) {
+			return (T) getConcept(lookup);
+		}
+		if (type == Drug.class) {
+			return (T) getDrug(lookup);
+		}
+		if (type == OrderType.class) {
+			return (T) getOrderType(lookup);
+		}
+		if (type == OrderFrequency.class) {
+			return (T) getOrderFrequency(lookup);
+		}
+		if (type == CareSetting.class) {
+			return (T) getCareSetting(lookup);
+		}
+		if (type == Location.class) {
+			return (T) getLocation(lookup);
+		}
+		if (type == Program.class) {
+			return (T) getProgram(lookup);
+		}
+		if (type == PatientIdentifierType.class) {
+			return (T) getPatientIdentifierType(lookup);
+		}
+		if (type == ProgramWorkflow.class) {
+			return (T) getWorkflow(lookup);
+		}
+		if (type == LocationTag.class) {
+			return (T) getLocationTag(lookup);
+		}
+		if (type == ProviderRole.class) {
+			return (T) getProviderRole(lookup);
+		}
+		if (type == Provider.class) {
+			return (T) getProvider(lookup);
+		}
+		throw new IllegalArgumentException("Not able to lookup OpenMRS object of type: " + type);
+	};
+	
+	/**
+	 * Find drug by uuid, name, or id
+	 */
+	public static Drug getDrug(String uuidOrIdOrName) {
 		Drug drug = null;
-		if (StringUtils.isNotBlank(uuid)) {
+		if (StringUtils.isNotBlank(uuidOrIdOrName)) {
+			uuidOrIdOrName = uuidOrIdOrName.trim();
 			try {
-				drug = Context.getConceptService().getDrugByUuid(uuid);
+				drug = Context.getConceptService().getDrugByUuid(uuidOrIdOrName);
+				if (drug == null) {
+					drug = Context.getConceptService().getDrug(uuidOrIdOrName);
+				}
 			}
 			catch (Exception e) {
 				log.error("Failed to find drug: ", e);
 			}
 		}
 		return drug;
+	}
+	
+	/**
+	 * Find order type by uuid, name, or id
+	 */
+	public static OrderType getOrderType(String uuidOrIdOrName) {
+		OrderType ret = null;
+		if (StringUtils.isNotBlank(uuidOrIdOrName)) {
+			uuidOrIdOrName = uuidOrIdOrName.trim();
+			ret = Context.getOrderService().getOrderTypeByUuid(uuidOrIdOrName);
+			if (ret == null) {
+				try {
+					ret = Context.getOrderService().getOrderType(Integer.parseInt(uuidOrIdOrName));
+				}
+				catch (Exception e) {}
+			}
+			if (ret == null) {
+				ret = Context.getOrderService().getOrderTypeByName(uuidOrIdOrName);
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * @return true if a given Order Type represents a Drug Order
+	 */
+	public static boolean isADrugOrderType(OrderType orderType) {
+		try {
+			return orderType.getJavaClass() == DrugOrder.class;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * @return all of the Order Types in the system that represent Drug Orders
+	 */
+	public static List<OrderType> getDrugOrderTypes() {
+		List<OrderType> ret = new ArrayList<>();
+		for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+			if (isADrugOrderType(orderType)) {
+				ret.add(orderType);
+			}
+		}
+		return ret;
+	}
+	
+	/**
+	 * If the implementation has the standard drug order type referenced by a core constant, return that
+	 * Next, try to find an Order Type named "Drug Order" Otherwise, return the first Order Type in the
+	 * system that is a Drug Order type
+	 */
+	public static OrderType getDrugOrderType() {
+		OrderType ot = Context.getOrderService().getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
+		if (ot == null) {
+			ot = Context.getOrderService().getOrderTypeByName("Drug Order");
+			if (ot == null) {
+				for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
+					if (isADrugOrderType(orderType)) {
+						ot = orderType;
+					}
+				}
+			}
+		}
+		return ot;
+	}
+	
+	/**
+	 * @return all drug orders for a patient, ordered by date, accounting for previous orders
+	 */
+	public static Map<Drug, List<DrugOrder>> getDrugOrdersForPatient(Patient patient, Set<Drug> drugs) {
+		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
+		List<Order> orders = Context.getOrderService().getAllOrdersByPatient(patient);
+		for (Order order : orders) {
+			order = HibernateUtil.getRealObjectFromProxy(order);
+			if (order instanceof DrugOrder && BooleanUtils.isNotTrue(order.getVoided())) {
+				DrugOrder drugOrder = (DrugOrder) order;
+				if (drugs == null || drugs.contains(drugOrder.getDrug())) {
+					List<DrugOrder> existing = ret.get(drugOrder.getDrug());
+					if (existing == null) {
+						existing = new ArrayList<>();
+						ret.put(drugOrder.getDrug(), existing);
+					}
+					existing.add(drugOrder);
+				}
+			}
+		}
+		for (List<DrugOrder> l : ret.values()) {
+			sortDrugOrders(l);
+		}
+		return ret;
+	}
+	
+	/**
+	 * Sorts the given drug orders in place. This first determines if a given order is a revision of an
+	 * order, if so it is later Otherwise, it compares effectiveStartDate Otherwise, it compares
+	 * effectiveStopDate, where a null stop date is later than a non-null one
+	 */
+	public static void sortDrugOrders(List<DrugOrder> drugOrders) {
+		if (drugOrders != null && drugOrders.size() > 1) {
+			Collections.sort(drugOrders, new Comparator<DrugOrder>() {
+				
+				@Override
+				public int compare(DrugOrder d1, DrugOrder d2) {
+					// Get all of the previous orders for d1.  If any are d2, then d1 is later
+					for (Order d1Prev = d1.getPreviousOrder(); d1Prev != null; d1Prev = d1Prev.getPreviousOrder()) {
+						if (d1Prev.equals(d2)) {
+							return 1;
+						}
+					}
+					// Get all of the previous orders for d2.  If any are d1, then d2 is later
+					for (Order d2Prev = d2.getPreviousOrder(); d2Prev != null; d2Prev = d2Prev.getPreviousOrder()) {
+						if (d2Prev.equals(d1)) {
+							return -1;
+						}
+					}
+					// If neither is a revision of the other, then compare based on effective start date
+					int dateCompare = d1.getEffectiveStartDate().compareTo(d2.getEffectiveStartDate());
+					if (dateCompare != 0) {
+						return dateCompare;
+					}
+					// If they are still the same, then order based on end date
+					int ret = OpenmrsUtil.compareWithNullAsLatest(d1.getEffectiveStopDate(), d2.getEffectiveStopDate());
+					if (ret == 0) {
+						// Finally, order based on orderId
+						ret = d1.getOrderId().compareTo(d2.getOrderId());
+					}
+					return ret;
+				}
+			});
+		}
+	}
+	
+	/**
+	 * Find order frequency by uuid or id, or concept
+	 */
+	public static OrderFrequency getOrderFrequency(String lookup) {
+		OrderFrequency orderFrequency = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			lookup = lookup.trim();
+			orderFrequency = Context.getOrderService().getOrderFrequencyByUuid(lookup);
+			if (orderFrequency == null) {
+				try {
+					orderFrequency = Context.getOrderService().getOrderFrequency(Integer.parseInt(lookup));
+				}
+				catch (Exception e) {}
+			}
+			if (orderFrequency == null) {
+				Concept c = getConcept(lookup);
+				if (c != null) {
+					orderFrequency = Context.getOrderService().getOrderFrequencyByConcept(c);
+				}
+			}
+		}
+		return orderFrequency;
+	}
+	
+	/**
+	 * Find order frequency by uuid or id, or concept
+	 */
+	public static Class<? extends DosingInstructions> getDosingType(String lookup) {
+		if (StringUtils.isNotBlank(lookup)) {
+			try {
+				return (Class<? extends DosingInstructions>) Context.loadClass(lookup);
+			}
+			catch (Exception e) {
+				log.warn("Unable to load dosing type with name: " + lookup);
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Find exact care setting by uuid, name, or id. If not found, but lookup corresponds to a care
+	 * setting type, return first matching one found
+	 */
+	public static CareSetting getCareSetting(String lookup) {
+		CareSetting ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			lookup = lookup.trim();
+			ret = Context.getOrderService().getCareSettingByUuid(lookup);
+			if (ret == null) {
+				ret = Context.getOrderService().getCareSettingByName(lookup);
+			}
+			if (ret == null) {
+				try {
+					ret = Context.getOrderService().getCareSetting(Integer.parseInt(lookup));
+				}
+				catch (Exception e) {
+					
+				}
+			}
+			if (ret == null) {
+				try {
+					CareSetting.CareSettingType type = CareSetting.CareSettingType.valueOf(lookup);
+					if (type != null) {
+						for (CareSetting cs : Context.getOrderService().getCareSettings(false)) {
+							if (cs.getCareSettingType().equals(type)) {
+								return cs;
+							}
+						}
+					}
+				}
+				catch (Exception e) {}
+			}
+		}
+		return ret;
 	}
 	
 	/**
@@ -638,7 +939,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * This method doesn't support "SessionAttribute:", but is otherwise like the similarly-named
 	 * method.
-	 * 
+	 *
 	 * @see #getLocation(String, FormEntryContext)
 	 */
 	public static Location getLocation(String id) {
@@ -835,7 +1136,7 @@ public class HtmlFormEntryUtil {
 	 * Get the person by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a username like "mgoodrich" or 4) an id/name pair
 	 * like "5090 - Bob Jones" (this format is used when saving a person on a obs as a value text)
-	 * 
+	 *
 	 * @param id
 	 * @return the person if exist, else null <strong>Should</strong> find a person by its id
 	 *         <strong>Should</strong> find a person by its uuid <strong>Should</strong> find a person
@@ -859,7 +1160,7 @@ public class HtmlFormEntryUtil {
 				}
 			}
 			catch (Exception ex) {
-				//do nothing 
+				//do nothing
 			}
 			
 			// handle uuid id: "a3e1302b-74bf-11df-9768-17cfc9833272", if id matches uuid format
@@ -889,7 +1190,7 @@ public class HtmlFormEntryUtil {
 					}
 				}
 				catch (Exception ex) {
-					//do nothing 
+					//do nothing
 				}
 			}
 		}
@@ -901,7 +1202,7 @@ public class HtmlFormEntryUtil {
 	/***
 	 * Get the patient identifier type by: 1)an integer id like 5090 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) a name like "Temporary Identifier"
-	 * 
+	 *
 	 * @param id
 	 * @return the identifier type if exist, else null <strong>Should</strong> find an identifier type
 	 *         by its id <strong>Should</strong> find an identifier type by its uuid
@@ -925,7 +1226,7 @@ public class HtmlFormEntryUtil {
 				}
 			}
 			catch (Exception ex) {
-				//do nothing 
+				//do nothing
 			}
 			
 			//get PatientIdentifierType by mapping
@@ -1020,7 +1321,7 @@ public class HtmlFormEntryUtil {
 	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple states
 	 * associated with the same concept in the program, this method will return an arbitrary one if
 	 * fetched by concept mapping)
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param program
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1064,7 +1365,7 @@ public class HtmlFormEntryUtil {
 	 * uuid, or by a concept map to the the underlying concept (Note that if there are multiple states
 	 * associated with the same concept in the workflow, this method will return an arbitrary one if
 	 * fetched by concept mapping)
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId, uuid or the concept name to match against
 	 * @param workflow
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1165,6 +1466,26 @@ public class HtmlFormEntryUtil {
 		return null;
 	}
 	
+	/**
+	 * Finds the first ancestor (including the current location) that is tagged with the specified
+	 * location tag
+	 *
+	 * @param location
+	 * @param locationTag
+	 * @return
+	 */
+	public static Location getFirstAncestorWithTag(Location location, LocationTag locationTag) {
+		if (location == null || locationTag == null) {
+			return null;
+		} else if (location.hasTag(locationTag.getName())) {
+			return location;
+		} else if (location.getParentLocation() != null) {
+			return getFirstAncestorWithTag(location.getParentLocation(), locationTag);
+		} else {
+			return null;
+		}
+	}
+	
 	private static List<ProgramWorkflowState> getStates(boolean includeRetired) {
 		List<ProgramWorkflowState> ret = new ArrayList<ProgramWorkflowState>();
 		for (Program p : Context.getProgramWorkflowService().getAllPrograms()) {
@@ -1191,7 +1512,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Looks up a {@link ProgramWorkflowState} from the specified workflow by programWorkflowStateId, or
 	 * uuid
-	 * 
+	 *
 	 * @param identifier the programWorkflowStateId or uuid to match against
 	 * @param
 	 * @return <strong>Should</strong> return the state with the matching id <strong>Should</strong>
@@ -1249,7 +1570,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Evaluates the specified Java constant using reflection
-	 * 
+	 *
 	 * @param fqn the fully qualified name of the constant
 	 * @return the constant value
 	 */
@@ -1271,7 +1592,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Gets all patient identifier types
-	 * 
+	 *
 	 * @return the patient identifier types
 	 */
 	public static List<PatientIdentifierType> getPatientIdentifierTypes() {
@@ -1339,11 +1660,9 @@ public class HtmlFormEntryUtil {
 						matchedObs.add(oga.getExistingGroup());
 					}
 				}
-				if (lfca instanceof GettingExistingOrder) {
-					GettingExistingOrder dse = (GettingExistingOrder) lfca;
-					if (dse.getExistingOrder() != null) {
-						matchedOrders.add(dse.getExistingOrder());
-					}
+				if (lfca instanceof DrugOrderSubmissionElement) {
+					DrugOrderSubmissionElement dse = (DrugOrderSubmissionElement) lfca;
+					matchedOrders.addAll(dse.getExistingOrders());
 				}
 			}
 			
@@ -1396,7 +1715,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Method that returns a copy of an Encounter. Includes copies of all Obs tree structures and
 	 * Orders.
-	 * 
+	 *
 	 * @param source
 	 * @param replacementObs
 	 * @param replacementOrders
@@ -1431,7 +1750,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Returns a copy of an Obs. Recurses through GroupMembers to return copies of those also, so the
 	 * whole Obs tree is a copy.
-	 * 
+	 *
 	 * @param obsToCopy
 	 * @param replacements
 	 * @return
@@ -1441,7 +1760,7 @@ public class HtmlFormEntryUtil {
 		Obs newObs = (Obs) returnCopy(obsToCopy);
 		
 		if (obsToCopy.isObsGrouping()) {
-			newObs.setGroupMembers(null);
+			newObs.setGroupMembers(new HashSet<Obs>());
 			for (Obs oinner : obsToCopy.getGroupMembers()) {
 				Obs oinnerNew = returnObsCopy(oinner, replacements);
 				newObs.addGroupMember(oinnerNew);
@@ -1455,7 +1774,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Utility to return a copy of an Order. Uses reflection so that this code will support any
 	 * subclassing of Order, such as DrugOrder
-	 * 
+	 *
 	 * @param source
 	 * @param replacementOrders
 	 * @return A copy of an Order
@@ -1470,7 +1789,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Utility to return a copy of an Object. Copies all properties that are referencese by getters and
 	 * setters and *are not* collection
-	 * 
+	 *
 	 * @param source
 	 * @return A copy of an object
 	 * @throws Exception
@@ -1506,7 +1825,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * The Encounter.setProvider() contains the different overloaded methods and this filters the
 	 * correct setter from those
-	 * 
+	 *
 	 * @param clazz
 	 * @param getter
 	 * @param methodname
@@ -1534,7 +1853,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Performs a case insensitive search on a class for a method by name.
-	 * 
+	 *
 	 * @param clazz
 	 * @param methodName
 	 * @return the found Method
@@ -1553,7 +1872,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * compares getter return types to setter parameter types
-	 * 
+	 *
 	 * @param getter
 	 * @param setter
 	 * @return true if getter return types are the same as setter parameter types. Else false.
@@ -1567,7 +1886,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * recurses through all superclasses of a class and adds the fields from that superclass
-	 * 
+	 *
 	 * @param fields
 	 * @param clazz
 	 */
@@ -1580,7 +1899,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Translates a String into a Date.
-	 * 
+	 *
 	 * @param value use "now" for the current timestamp, "today" for the current date with a timestamp
 	 *            of 00:00, or a date string that can be parsed by SimpleDateFormat with the format
 	 *            parameter.
@@ -1589,12 +1908,12 @@ public class HtmlFormEntryUtil {
 	 * @return Date on success; null for an invalid value
 	 * @throws IllegalArgumentException if a date string cannot be parsed with the format string you
 	 *             provided
-	 * @see java.text.SimpleDateFormat <strong>Should</strong> return a Date object with current date
-	 *      and time for "now" <strong>Should</strong> return a Date with current date, but time of
-	 *      00:00:00:00, for "today" <strong>Should</strong> return a Date object matching the value
-	 *      param if a format is specified <strong>Should</strong> return null for null value
-	 *      <strong>Should</strong> return null if format is null and value not in [ null, "now",
-	 *      "today" ] <strong>Should</strong> fail if date parsing fails
+	 * @see SimpleDateFormat <strong>Should</strong> return a Date object with current date and time for
+	 *      "now" <strong>Should</strong> return a Date with current date, but time of 00:00:00:00, for
+	 *      "today" <strong>Should</strong> return a Date object matching the value param if a format is
+	 *      specified <strong>Should</strong> return null for null value <strong>Should</strong> return
+	 *      null if format is null and value not in [ null, "now", "today" ] <strong>Should</strong>
+	 *      fail if date parsing fails
 	 */
 	public static Date translateDatetimeParam(String value, String format) {
 		if (value == null)
@@ -1702,7 +2021,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Checks whether the encounter has a provider specified (including ugly reflection code for 1.9+)
-	 * 
+	 *
 	 * @param e
 	 * @return whether e has one or more providers specified
 	 */
@@ -1721,7 +2040,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Checks if the user is enrolled in a program at the specified date
-	 * 
+	 *
 	 * @param patient the patient that should be enrolled in the program
 	 * @param program the program the patient be enrolled in
 	 * @param date the date at which to check
@@ -1785,16 +2104,27 @@ public class HtmlFormEntryUtil {
 	 * minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
-		// Get Calendar object set to the date and time of the given Date object  
+		// Get Calendar object set to the date and time of the given Date object
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		
-		// Set time fields to zero  
+		// Set time fields to zero
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		
+		return cal.getTime();
+	}
+	
+	public static Date increment(Date date, int months, int days, int hours, int minutes, int seconds) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.MONTH, months);
+		cal.add(Calendar.DATE, days);
+		cal.add(Calendar.HOUR, hours);
+		cal.add(Calendar.MINUTE, minutes);
+		cal.add(Calendar.SECOND, seconds);
 		return cal.getTime();
 	}
 	
@@ -1820,7 +2150,7 @@ public class HtmlFormEntryUtil {
 	/***
 	 * Get the encountger type by: 1)an integer id like 1 or 2) uuid like
 	 * "a3e12268-74bf-11df-9768-17cfc9833272" or 3) encounter type name like "AdultInitial".
-	 * 
+	 *
 	 * @param id
 	 * @return the encounter type if exist, else null <strong>Should</strong> find a encounter type by
 	 *         its encounterTypeId <strong>Should</strong> find a encounter type by name
@@ -1986,7 +2316,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Read the global property htmlformentry.archiveDir and return the correct path
-	 * 
+	 *
 	 * @return String representation of archive directory path <strong>Should</strong> return null if
 	 *         htmlformentry.archiveDir is not defined <strong>Should</strong> replace %Y with a four
 	 *         digit year value <strong>Should</strong> replace %M with a 2 digit month value
@@ -2085,7 +2415,7 @@ public class HtmlFormEntryUtil {
 	/**
 	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
 	 * {@code state}
-	 * 
+	 *
 	 * @param patient - the patient
 	 * @param patientProgram - the associated patient program
 	 * @param state - the state to transition to
@@ -2318,7 +2648,7 @@ public class HtmlFormEntryUtil {
 	
 	/**
 	 * Converts a collection of providers domain object into simple stub representation
-	 * 
+	 *
 	 * @param providers
 	 * @return
 	 */

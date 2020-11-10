@@ -13,19 +13,12 @@ import org.openmrs.OpenmrsObject;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class HtmlFormTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class HtmlFormTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	/**
@@ -34,17 +27,16 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void onSave_shouldShouldReplaceUuids() throws Exception {
-		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(false, false, false, false);
 		
-		String incomingUuid1 = "3cfcf118-931c-46f7-8ff6-7b876f0d4202";
-		String incomingUuid2 = "32296060-0370-102d-b0e3-123456789011";
+		String incomingUuid1 = "6de7ed10-53ad-11e1-8cb6-00248140a5eb";
+		String incomingUuid2 = "32296060-03aa-102d-b0e3-001ec94a0cc7";
 		
 		String existingUuid1 = "XXXXXXXX-931c-46f7-8ff6-7b876f0d4202";
 		String existingUuid2 = "XXXXXXXX-0370-102d-b0e3-123456789011";
@@ -81,11 +73,9 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test
 	public void onSave_shouldShouldReplaceNames() throws Exception {
-		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
-		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(true, false, true, true);
@@ -153,17 +143,16 @@ public class HtmlFormTest extends BaseModuleContextSensitiveTest {
 	 */
 	@Test(expected = IllegalArgumentException.class)
 	public void onSave_shouldThrowExceptionIfExistingUuidHasNot36Characters() throws Exception {
-		// include this set so that we get the mapping concept
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
 		
 		HtmlForm form = new HtmlForm();
-		form.setXmlData(new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "metadataSharingTestForm.xml"));
+		form.setXmlData(
+		    new TestUtil().loadXmlFromFile("org/openmrs/module/htmlformentry/include/metadataSharingTestForm.xml"));
 		
 		HtmlFormExporter exporter = new HtmlFormExporter(form);
 		HtmlForm formClone = exporter.export(false, false, false, false);
 		
-		String incomingUuid1 = "3cfcf118-931c-46f7-8ff6-7b876f0d4202";
-		String incomingUuid2 = "32296060-0370-102d-b0e3-123456789011";
+		String incomingUuid1 = "32296060-03aa-102d-b0e3-001ec94a0cc7";
+		String incomingUuid2 = "6de7ed10-53ad-11e1-8cb6-00248140a5eb";
 		
 		String existingUuid1 = "a";
 		String existingUuid2 = "b";

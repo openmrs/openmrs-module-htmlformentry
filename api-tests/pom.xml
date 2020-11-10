@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>htmlformentry-api-tests</artifactId>
@@ -15,7 +15,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.10</artifactId>
+			<artifactId>htmlformentry-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -29,16 +29,6 @@
 					<groupId>javassist</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.9</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-2.0</artifactId>
-			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
@@ -66,7 +56,6 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>metadatamapping-api</artifactId>
-			<version>1.1.0-alpha1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
@@ -92,10 +81,6 @@
 
 		<!-- jars we need to provide for compile but that will be provided at runtime 
 			(scope=provided) -->
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>logic</artifactId>
-		</dependency>
 
 		<!-- jars required only to run test scripts (scope=test) -->
 		<dependency>
@@ -125,31 +110,6 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-module-junit4</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-api-mockito</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-library</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -188,29 +148,5 @@
 		<MODULE_VERSION>${project.parent.version}</MODULE_VERSION>
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
 	</properties>
-
-	<profiles>
-		<profile>
-			<id>openmrs-1.10</id>
-			<build>
-				<plugins>
-					<plugin>
-					  <groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<testExcludes>
-								<!-- Run only against OpenMRS versions before 1.10 -->
-								<testExclude>**/HtmlFormEntryRegimenUtilTest.java</testExclude>
-								<testExclude>**/StandardRegimenTagTest.java</testExclude>
-								<testExclude>**/HtmlFormEntryUtilTest.java</testExclude>
-								<testExclude>**/DrugOrderTagTest.java</testExclude>
-							</testExcludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-
-	</profiles>
 
 </project>

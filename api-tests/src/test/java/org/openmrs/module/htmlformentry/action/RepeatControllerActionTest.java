@@ -1,5 +1,14 @@
 package org.openmrs.module.htmlformentry.action;
 
+import static org.mockito.Mockito.mock;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,12 +16,6 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.springframework.mock.web.MockHttpServletRequest;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.*;
-
-import static org.mockito.Mockito.mock;
 
 public class RepeatControllerActionTest {
 	

@@ -2,6 +2,6 @@
     Date: <encounterDate/>
     Location: <encounterLocation/>
     Provider: <encounterProvider role="Provider"/>
-    Text: <obsreference conceptId="8"/>
+    Text: <obsreference conceptId="80000"/>
     <submit/>
 </htmlform>

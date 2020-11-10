@@ -6,7 +6,7 @@
 	<section headerLabel="Section One">
 			<section headerLabel="Section One Inner One">
                 <obsgroup groupingConceptId="1004" label="obsgroup1004">
-                    <obsgroup groupingConceptId="7" label="obsgroup7">
+                    <obsgroup groupingConceptId="70000" label="obsgroup7">
                         <obs conceptId="1000"/>
                     </obsgroup>
                     <obs conceptId="1005"/>
@@ -16,7 +16,7 @@
 			</section>
 			<obs conceptId="3032" labelText="DST Result Date"/> DST START DATE
 	</section>
-	<obs conceptId="6"/>
+	<obs conceptId="60000"/>
 
 	<submit/>
 </htmlform>

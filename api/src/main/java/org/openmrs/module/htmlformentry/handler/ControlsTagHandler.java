@@ -1,11 +1,11 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.io.PrintWriter;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.w3c.dom.Node;
-
-import java.io.PrintWriter;
 
 /**
  * Usage is something like this: <pre>

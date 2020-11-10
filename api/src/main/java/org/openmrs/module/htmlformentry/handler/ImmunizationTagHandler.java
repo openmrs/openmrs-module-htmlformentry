@@ -1,11 +1,11 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import java.util.Map;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.element.ImmunizationSubmissionElement;
-
-import java.util.Map;
 
 /**
  * Tag handler for <immunization .. />

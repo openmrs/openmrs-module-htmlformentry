@@ -2,24 +2,17 @@ package org.openmrs.module.htmlformentry;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openmrs.logic.util.LogicUtil;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 
-public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
-	
-	public static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	public static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+public class ObsAnswerLocationTagsTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		LogicUtil.registerDefaultRules();
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test
 	public void obsAnswerLocationTags_shouldRestrictToTaggedLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\"Some Tag,1002\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\"Some Tag,1002\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -41,7 +34,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTags_shouldDisplayAllLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -50,7 +43,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTags0_shouldDisplayAllLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\"\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\"\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -59,7 +52,7 @@ public class ObsAnswerLocationTagsTest extends BaseModuleContextSensitiveTest {
 	
 	@Test
 	public void obsAnswerLocationTagsEmpty_shouldDisplayAllLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"6\" style=\"location\" answerLocationTags=\",,\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\",,\" /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();

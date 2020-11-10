@@ -1,6 +1,16 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import org.hamcrest.Matcher;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,23 +23,13 @@ import org.openmrs.api.PatientService;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
 @RunWith(PowerMockRunner.class)
+@PowerMockIgnore("javax.management.*")
 @PrepareForTest(HtmlFormEntryUtil.class)
 public class MarkPatientDeadTagHandlerTest {
 	
@@ -47,6 +47,8 @@ public class MarkPatientDeadTagHandlerTest {
 	
 	private Concept unknownConcept;
 	
+	private Concept codedCauseOfDeath;
+	
 	@Before
 	public void setUp() {
 		patient = new Patient();
@@ -54,6 +56,7 @@ public class MarkPatientDeadTagHandlerTest {
 		encounter.setPatient(patient);
 		
 		unknownConcept = new Concept();
+		codedCauseOfDeath = new Concept(12345);
 		
 		patientService = mock(PatientService.class);
 		submissionController = mock(FormSubmissionController.class);
@@ -62,6 +65,9 @@ public class MarkPatientDeadTagHandlerTest {
 		when(formEntrySession.getSubmissionController()).thenReturn(submissionController);
 		when(formEntrySession.getPatient()).thenReturn(patient);
 		when(formEntrySession.getEncounter()).thenReturn(encounter);
+		
+		mockStatic(HtmlFormEntryUtil.class);
+		PowerMockito.when(HtmlFormEntryUtil.getConcept("12345")).thenReturn(codedCauseOfDeath);
 		
 		tagHandler = new MarkPatientDeadTagHandler() {
 			
@@ -75,35 +81,29 @@ public class MarkPatientDeadTagHandlerTest {
 	
 	@Test
 	public void testDefaultSetup() throws Exception {
-		Map<String, String> arguments = new HashMap<String, String>();
-		assertThat(tagHandler.getSubstitution(formEntrySession, submissionController, arguments), is(""));
+		Map<String, String> arguments = new HashMap<>();
+		Assert.assertEquals("", tagHandler.getSubstitution(formEntrySession, submissionController, arguments));
 		verify(submissionController).addAction(argThat(isDefaultAction()));
 	}
 	
 	@Test
 	public void testNoDateSetup() throws Exception {
-		Map<String, String> arguments = new HashMap<String, String>();
+		Map<String, String> arguments = new HashMap<>();
 		arguments.put("deathDateFromEncounter", "false");
-		assertThat(tagHandler.getSubstitution(formEntrySession, submissionController, arguments), is(""));
+		Assert.assertEquals("", tagHandler.getSubstitution(formEntrySession, submissionController, arguments));
 		verify(submissionController).addAction(argThat(actionDoesNotSetDate()));
 	}
 	
 	@Test
 	public void testSetupWithCauseOfDeath() throws Exception {
-		int CONCEPT_ID = 12345;
-		Concept causeOfDeath = new Concept(CONCEPT_ID);
-		
-		mockStatic(HtmlFormEntryUtil.class);
-		when(HtmlFormEntryUtil.getConcept("" + CONCEPT_ID)).thenReturn(causeOfDeath);
-		
-		Map<String, String> arguments = new HashMap<String, String>();
-		arguments.put("causeOfDeathFromObs", "" + CONCEPT_ID);
-		assertThat(tagHandler.getSubstitution(formEntrySession, submissionController, arguments), is(""));
-		verify(submissionController).addAction(argThat(actionSetsCauseOfDeathFrom(causeOfDeath)));
+		Map<String, String> arguments = new HashMap<>();
+		arguments.put("causeOfDeathFromObs", "12345");
+		Assert.assertEquals("", tagHandler.getSubstitution(formEntrySession, submissionController, arguments));
+		verify(submissionController).addAction(argThat(actionSetsCauseOfDeathFrom()));
 	}
 	
 	@Test
-	public void testSettingDateFromEncounter() throws Exception {
+	public void testSettingDateFromEncounter() {
 		Date deathDate = new Date();
 		encounter.setEncounterDatetime(deathDate);
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
@@ -111,13 +111,13 @@ public class MarkPatientDeadTagHandlerTest {
 		
 		action.applyAction(formEntrySession);
 		
-		assertThat(patient.isDead(), is(true));
-		assertThat(patient.getDeathDate(), is(deathDate));
+		Assert.assertEquals(true, patient.getDead());
+		Assert.assertEquals(deathDate, patient.getDeathDate());
 		verify(patientService).savePatient(patient);
 	}
 	
 	@Test
-	public void testOverridingDateFromEncounter() throws Exception {
+	public void testOverridingDateFromEncounter() {
 		Date newDeathDate = new Date();
 		Date oldDeathDate = new Date(newDeathDate.getTime() - 1000000);
 		
@@ -128,13 +128,13 @@ public class MarkPatientDeadTagHandlerTest {
 		
 		action.applyAction(formEntrySession);
 		
-		assertThat(patient.isDead(), is(true));
-		assertThat(patient.getDeathDate(), is(newDeathDate));
+		Assert.assertEquals(true, patient.getDead());
+		Assert.assertEquals(newDeathDate, patient.getDeathDate());
 		verify(patientService).savePatient(patient);
 	}
 	
 	@Test
-	public void testNotOverridingDateFromEncounter() throws Exception {
+	public void testNotOverridingDateFromEncounter() {
 		Date newDeathDate = new Date();
 		Date oldDeathDate = new Date(newDeathDate.getTime() - 1000000);
 		
@@ -146,36 +146,36 @@ public class MarkPatientDeadTagHandlerTest {
 		
 		action.applyAction(formEntrySession);
 		
-		assertThat(patient.isDead(), is(true));
-		assertThat(patient.getDeathDate(), is(oldDeathDate));
+		Assert.assertEquals(true, patient.getDead());
+		Assert.assertEquals(oldDeathDate, patient.getDeathDate());
 		verify(patientService).savePatient(patient);
 	}
 	
 	@Test
-	public void testNotSettingDate() throws Exception {
+	public void testNotSettingDate() {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		action.setDeathDateFromEncounter(true);
 		
 		action.applyAction(formEntrySession);
 		
-		assertThat(patient.isDead(), is(true));
-		assertThat(patient.getDeathDate(), nullValue());
+		Assert.assertEquals(true, patient.getDead());
+		Assert.assertNull(patient.getDeathDate());
 		verify(patientService).savePatient(patient);
 	}
 	
 	@Test
-	public void testNotSettingCauseOfDeath() throws Exception {
+	public void testNotSettingCauseOfDeath() {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		
 		action.applyAction(formEntrySession);
 		
-		assertThat(patient.isDead(), is(true));
-		assertThat(patient.getCauseOfDeath(), is(unknownConcept));
+		Assert.assertEquals(true, patient.getDead());
+		Assert.assertTrue(unknownConcept == patient.getCauseOfDeath());
 		verify(patientService).savePatient(patient);
 	}
 	
 	@Test
-	public void testSettingCauseOfDeath() throws Exception {
+	public void testSettingCauseOfDeath() {
 		Concept causeOfDeath = new Concept();
 		Concept lungCancer = new Concept();
 		Obs causeOfDeathObs = new Obs();
@@ -188,43 +188,20 @@ public class MarkPatientDeadTagHandlerTest {
 		
 		action.applyAction(formEntrySession);
 		
-		assertThat(patient.isDead(), is(true));
-		assertThat(patient.getCauseOfDeath(), is(lungCancer));
+		Assert.assertEquals(true, patient.getDead());
+		Assert.assertTrue(lungCancer == patient.getCauseOfDeath());
 		verify(patientService).savePatient(patient);
 	}
 	
-	private Matcher<MarkPatientDeadTagHandler.Action> isDefaultAction() {
-		return new ArgumentMatcher<MarkPatientDeadTagHandler.Action>() {
-			
-			@Override
-			public boolean matches(Object o) {
-				MarkPatientDeadTagHandler.Action action = (MarkPatientDeadTagHandler.Action) o;
-				return action.isDeathDateFromEncounter() && !action.isPreserveExistingDeathDate();
-			}
-		};
+	private ArgumentMatcher<MarkPatientDeadTagHandler.Action> isDefaultAction() {
+		return action -> action.isDeathDateFromEncounter() && !action.isPreserveExistingDeathDate();
 	}
 	
-	private Matcher<MarkPatientDeadTagHandler.Action> actionDoesNotSetDate() {
-		return new ArgumentMatcher<MarkPatientDeadTagHandler.Action>() {
-			
-			@Override
-			public boolean matches(Object o) {
-				MarkPatientDeadTagHandler.Action action = (MarkPatientDeadTagHandler.Action) o;
-				return !action.isDeathDateFromEncounter();
-			}
-		};
+	private ArgumentMatcher<MarkPatientDeadTagHandler.Action> actionDoesNotSetDate() {
+		return action -> !action.isDeathDateFromEncounter();
 	}
 	
-	private Matcher<MarkPatientDeadTagHandler.Action> actionSetsCauseOfDeathFrom(final Concept concept) {
-		return new ArgumentMatcher<MarkPatientDeadTagHandler.Action>() {
-			
-			@Override
-			public boolean matches(Object o) {
-				MarkPatientDeadTagHandler.Action action = (MarkPatientDeadTagHandler.Action) o;
-				return action.getCauseOfDeathFromObs() != null
-				        && action.getCauseOfDeathFromObs().getConceptId().equals(concept.getConceptId());
-			}
-		};
+	private ArgumentMatcher<MarkPatientDeadTagHandler.Action> actionSetsCauseOfDeathFrom() {
+		return action -> action.getCauseOfDeathFromObs() == codedCauseOfDeath;
 	}
-	
 }

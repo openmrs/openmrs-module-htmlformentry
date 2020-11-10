@@ -16,14 +16,22 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
-import org.openmrs.Cohort;
 import org.openmrs.Concept;
 import org.openmrs.Form;
+import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
+import org.openmrs.Patient;
+import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.ProgramWorkflowState;
+import org.openmrs.annotation.Authorized;
 import org.openmrs.api.APIException;
+import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -35,6 +43,8 @@ import org.openmrs.module.htmlformentry.SerializableFormObject;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.util.PrivilegeConstants;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Standard implementation of the HtmlFormEntryService
@@ -77,8 +87,6 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	
 	/**
 	 * Sets the tag handlers
-	 * 
-	 * @param handlersToSet
 	 */
 	public void setHandlers(Map<String, TagHandler> handlersToSet) {
 		handlers.putAll(handlersToSet);
@@ -108,16 +116,19 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public HtmlForm getHtmlForm(Integer id) {
 		return dao.getHtmlForm(id);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public HtmlForm getHtmlFormByUuid(String uuid) {
 		return dao.getHtmlFormByUuid(uuid);
 	}
 	
 	@Override
+	@Transactional
 	public HtmlForm saveHtmlForm(HtmlForm htmlForm) {
 		if (htmlForm.getCreator() == null)
 			htmlForm.setCreator(Context.getAuthenticatedUser());
@@ -132,21 +143,25 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	}
 	
 	@Override
+	@Transactional
 	public void purgeHtmlForm(HtmlForm htmlForm) {
 		dao.deleteHtmlForm(htmlForm);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<HtmlForm> getAllHtmlForms() {
 		return dao.getAllHtmlForms();
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public HtmlForm getHtmlFormByForm(Form form) {
 		return dao.getHtmlFormByForm(form);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public boolean needsNameAndDescriptionMigration() {
 		if (nameAndDescriptionMigrationDone) {
 			return false;
@@ -162,6 +177,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	 * @see HtmlFormEntryService#getStartingFormXml(HtmlForm)
 	 */
 	@Override
+	@Transactional(readOnly = true)
 	public String getStartingFormXml(HtmlForm form) {
 		VelocityEngine velocityEngine = new VelocityEngine();
 		velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
@@ -182,8 +198,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 		StringWriter writer = new StringWriter();
 		try {
 			velocityEngine.evaluate(velocityContext, writer, "Basic HTML Form", getBasicFormXmlTemplate());
-			String result = writer.toString();
-			return result;
+			return writer.toString();
 		}
 		catch (Exception ex) {
 			log.error("Exception evaluating velocity expression", ex);
@@ -192,32 +207,37 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<PersonStub> getUsersAsPersonStubs(String roleName) {
 		return dao.getUsersAsPersonStubs(roleName);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public OpenmrsObject getItemByUuid(Class<? extends OpenmrsObject> type, String uuid) {
 		return dao.getItemByUuid(type, uuid);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public OpenmrsObject getItemById(Class<? extends OpenmrsObject> type, Integer id) {
 		return dao.getItemById(type, id);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public OpenmrsObject getItemByName(Class<? extends OpenmrsMetadata> type, String name) {
 		return dao.getItemByName(type, name);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<Integer> getPersonIdsHavingAttributes(String attribute, String attributeValue) {
-		
 		return dao.getPersonIdHavingAttributes(attribute, attributeValue);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public List<PersonStub> getPeopleAsPersonStubs(List<String> attributes, List<String> attributeValues,
 	        List<String> programIds, List<Person> personsToExclude) {
 		List<PersonStub> stubs = new ArrayList<PersonStub>();
@@ -233,9 +253,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					val = attributeValues.get(i);
 				}
 				
-				Set<Integer> setOfIds = new HashSet<Integer>();
-				setOfIds.addAll(getPersonIdsHavingAttributes(attr, val));
-				
+				Set<Integer> setOfIds = new HashSet<Integer>(getPersonIdsHavingAttributes(attr, val));
 				if (attributeMatches != null) {
 					attributeMatches.retainAll(setOfIds);
 				} else {
@@ -250,11 +268,11 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 					Program personProgram = HtmlFormEntryUtil.getProgram(prog);
 					
 					if (personProgram != null) {
-						Cohort pp = Context.getPatientSetService().getPatientsInProgram(personProgram, null, null);
+						Set<Integer> matchingEnrollments = dao.getPatientIdHavingEnrollments(personProgram);
 						if (programMatches != null) {
-							programMatches.retainAll(pp.getMemberIds());
+							programMatches.retainAll(matchingEnrollments);
 						} else {
-							programMatches = pp.getMemberIds();
+							programMatches = matchingEnrollments;
 						}
 					}
 				}
@@ -297,13 +315,14 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	}
 	
 	@Override
+	@Transactional
 	public void applyActions(FormEntrySession session) throws BadFormDesignException {
-		//Wrapped in a transactional service method such that actions in it 
-		//either pass or fail together. See TRUNK-3572
+		// Wrapped in a transactional service method such that actions in it either pass or fail together. See TRUNK-3572
 		session.applyActions();
 	}
 	
 	@Override
+	@Transactional
 	public void reprocessArchivedForm(String argument, boolean isPath) throws Exception {
 		SerializableFormObject formObject;
 		if (isPath) {
@@ -318,11 +337,13 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	}
 	
 	@Override
+	@Transactional
 	public void reprocessArchivedForm(String path) throws Exception {
 		reprocessArchivedForm(path, true);
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
 	public Concept getConceptByMapping(String sourceNameOrHl7CodeAndTerm) {
 		Concept ret = null;
 		if (sourceNameOrHl7CodeAndTerm != null) {
@@ -358,5 +379,129 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	@Override
 	public void clearConceptMappingCache() {
 		conceptMappingCache = new HashMap<String, Integer>();
+	}
+	
+	/**
+	 * @see HtmlFormEntryService#getPatientIdHavingEnrollments(Program)
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Set<Integer> getPatientIdHavingEnrollments(Program program) {
+		return dao.getPatientIdHavingEnrollments(program);
+	}
+	
+	/**
+	 * Removed from OpenMRS core in 2.x, added back in here to support this legacy functionality and
+	 * exitFromCare tag This is the way to establish that a patient has left the care center. This API
+	 * call is responsible for:
+	 * <ol>
+	 * <li>Closing workflow statuses</li>
+	 * <li>Terminating programs</li>
+	 * <li>Discontinuing orders</li>
+	 * <li>Flagging patient table</li>
+	 * <li>Creating any relevant observations about the patient (if applicable)</li>
+	 * </ol>
+	 */
+	@Authorized({ PrivilegeConstants.EDIT_PATIENTS })
+	@Override
+	@Transactional
+	public void exitFromCare(Patient patient, Date dateExited, Concept reasonForExit) throws APIException {
+		
+		if (patient == null) {
+			throw new APIException("Attempting to exit from care an invalid patient. Cannot proceed");
+		}
+		if (dateExited == null) {
+			throw new APIException("Must supply a valid dateExited when indicating that a patient has left care");
+		}
+		if (reasonForExit == null) {
+			throw new APIException(
+			        "Must supply a valid reasonForExit (even if 'Unknown') when indicating that a patient has left care");
+		}
+		
+		log.debug("Patient is exiting, so let's make sure there's an Obs for it");
+		
+		String codProp = Context.getAdministrationService().getGlobalProperty("concept.reasonExitedCare");
+		Concept reasonForExitQuestion = Context.getConceptService().getConcept(codProp);
+		
+		if (reasonForExitQuestion != null) {
+			List<Obs> obssExit = Context.getObsService().getObservationsByPersonAndConcept(patient, reasonForExitQuestion);
+			if (obssExit != null) {
+				if (obssExit.size() > 1) {
+					log.error("Multiple reasons for exit (" + obssExit.size() + ")?  Shouldn't be...");
+				} else {
+					Obs obsExit = null;
+					if (obssExit.size() == 1) {
+						// already has a reason for exit - let's edit it.
+						log.debug("Already has a reason for exit, so changing it");
+						
+						obsExit = obssExit.iterator().next();
+						
+					} else {
+						// no reason for exit obs yet, so let's make one
+						log.debug("No reason for exit yet, let's create one.");
+						
+						obsExit = new Obs();
+						obsExit.setPerson(patient);
+						obsExit.setConcept(reasonForExitQuestion);
+						
+						Location loc = Context.getLocationService().getDefaultLocation();
+						
+						if (loc != null) {
+							obsExit.setLocation(loc);
+						} else {
+							log.error("Could not find a suitable location for which to create this new Obs");
+						}
+					}
+					
+					if (obsExit != null) {
+						// put the right concept and (maybe) text in this
+						// obs
+						obsExit.setValueCoded(reasonForExit);
+						obsExit.setValueCodedName(reasonForExit.getName()); // ABKTODO: presume current locale?
+						obsExit.setObsDatetime(dateExited);
+						Context.getObsService().saveObs(obsExit, "updated by HtmlFormEntryService.saveReasonForExit");
+					}
+				}
+			}
+		} else {
+			log.debug("Reason for exit is null - should not have gotten here without throwing an error on the form.");
+		}
+		
+		log.debug("Patient is exiting, trigger programs to close");
+		
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		for (PatientProgram patientProgram : pws.getPatientPrograms(patient, null, null, null, null, null, false)) {
+			//skip past patient programs that already completed
+			if (patientProgram.getDateCompleted() == null) {
+				Set<ProgramWorkflow> workflows = patientProgram.getProgram().getWorkflows();
+				for (ProgramWorkflow workflow : workflows) {
+					// (getWorkflows() is only returning over nonretired workflows)
+					PatientState patientState = patientProgram.getCurrentState(workflow);
+					
+					// #1080 cannot exit patient from care
+					// Should allow a transition from a null state to a terminal state
+					// Or we should require a user to ALWAYS add an initial workflow/state when a patient is added to a program
+					ProgramWorkflowState currentState = (patientState != null) ? patientState.getState() : null;
+					ProgramWorkflowState transitionState = workflow.getState(reasonForExit);
+					
+					log.debug("Transitioning from current state [" + currentState + "]");
+					log.debug("|---> Transitioning to final state [" + transitionState + "]");
+					
+					if (transitionState != null && workflow.isLegalTransition(currentState, transitionState)) {
+						patientProgram.transitionToState(transitionState, dateExited);
+						log.debug("State Conversion Triggered: patientProgram=" + patientProgram + " transition from "
+						        + currentState + " to " + transitionState + " on " + dateExited);
+					}
+				}
+				
+				// #1068 - Exiting a patient from care causes "not-null property references
+				// a null or transient value: org.openmrs.PatientState.dateCreated". Explicitly
+				// calling the savePatientProgram() method will populate the metadata properties.
+				//
+				// #1067 - We should explicitly save the patient program rather than let
+				// Hibernate do so when it flushes the session.
+				Context.getProgramWorkflowService().savePatientProgram(patientProgram);
+			}
+		}
 	}
 }

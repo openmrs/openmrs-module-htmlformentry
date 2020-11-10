@@ -1,5 +1,12 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.util.Collection;
+
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.CustomFormSubmissionAction;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -7,13 +14,6 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.w3c.dom.Node;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.PrintWriter;
-import java.util.Collection;
 
 /**
  * Supports two usages: <redirectOnSave url=

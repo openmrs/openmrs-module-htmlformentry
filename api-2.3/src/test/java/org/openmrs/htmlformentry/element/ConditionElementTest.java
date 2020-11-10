@@ -1,9 +1,12 @@
 package org.openmrs.htmlformentry.element;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Matchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,17 +31,18 @@ import org.openmrs.ConceptClass;
 import org.openmrs.Condition;
 import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.Encounter;
+import org.openmrs.Form;
 import org.openmrs.Patient;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.ConditionService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
-import org.openmrs.module.htmlformentry.ConditionElement;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.element.ConditionElement;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
@@ -132,6 +136,7 @@ public class ConditionElementTest {
 		element.setOnSetDateWidget(onsetDateWidget);
 		element.setEndDateWidget(endDateWidget);
 		encounter = session.getEncounter();
+		element.setTagControlId("my_condition_tag");
 	}
 	
 	@Test
@@ -175,13 +180,14 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldSupportNoneCodedConceptValues() {
+	public void handleSubmission_shouldSupportNonCodedValues() {
 		// setup
 		request.addParameter("condition-field-name", "Typed in non-coded value");
 		when(context.getFieldName(conditionSearchWidget)).thenReturn("condition-field-name");
 		when(conditionSearchWidget.getValue(context, request)).thenReturn("");
 		
 		// replay
+		element.setRequired(true);
 		element.handleSubmission(session, request);
 		
 		// verify
@@ -206,15 +212,45 @@ public class ConditionElementTest {
 	}
 	
 	@Test
-	public void handleSubmission_shouldNotCreateConditionInViewMode() {
+	public void handleSubmission_shouldSupportFormField() {
 		// setup
-		when(context.getMode()).thenReturn(Mode.VIEW);
+		element.setTagControlId("my_condition_tag");
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
+		
+		// Mock session
+		Form form = new Form();
+		form.setName("MyForm");
+		form.setVersion("1.0");
+		when(session.getForm()).thenReturn(form);
+		doCallRealMethod().when(session).generateControlFormPath(anyString(), anyInt());
 		
 		// replay
 		element.handleSubmission(session, request);
 		
 		// verify
-		verify(conditionService, never()).saveCondition(any(Condition.class));
+		Set<Condition> conditions = encounter.getConditions();
+		Assert.assertEquals(1, conditions.size());
+		
+		Condition condition = conditions.iterator().next();
+		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
+		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
+		Assert.assertEquals("HtmlFormEntry^MyForm.1.0/my_condition_tag-0", condition.getFormNamespaceAndPath());
+	}
+	
+	@Test
+	public void handleSubmission_shouldNotSubmitTagWithPresetConceptAndWithoutStatus() {
+		
+		// Mock condition search widget
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		
+		// Test
+		element.setPresetConcept(new Concept());
+		element.handleSubmission(session, request);
+		
+		// Verify
+		Set<Condition> conditions = encounter.getConditions();
+		Assert.assertEquals(0, conditions.size());
 	}
 	
 	@Test
@@ -275,4 +311,30 @@ public class ConditionElementTest {
 		
 	}
 	
+	@Test
+	public void generateHtml_shouldThrowWhenMultipleConditionsWithSameControlId() {
+		// setup
+		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
+		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
+		when(context.getMode()).thenReturn(Mode.VIEW);
+		
+		// an encounter with two conditions located with the same control id
+		Encounter encounter = new Encounter();
+		Condition c1 = new Condition();
+		c1.setFormField("HtmlFormEntry", "MyForm.1.0/my_condition_tag-0");
+		Condition c2 = new Condition();
+		c2.setFormField("HtmlFormEntry", "MyForm.1.0/my_condition_tag-0");
+		
+		encounter.addCondition(c1);
+		encounter.addCondition(c2);
+		when(context.getExistingEncounter()).thenReturn(encounter);
+		
+		Form form = new Form();
+		form.setName("MyForm");
+		form.setVersion("1.0");
+		when(session.getForm()).thenReturn(form);
+		
+		// replay
+		assertThrows(IllegalStateException.class, () -> element.generateHtml(context));
+	}
 }

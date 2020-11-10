@@ -1,14 +1,10 @@
 package org.openmrs.module.htmlformentry;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Stack;
-import java.util.TreeSet;
-import java.util.UUID;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
@@ -16,6 +12,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
@@ -56,6 +54,8 @@ public class FormSubmissionActions {
 	
 	private List<Order> ordersToCreate = new Vector<Order>();
 	
+	private List<Order> ordersToVoid = new Vector<>();
+	
 	private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
 	
 	private List<PatientProgram> patientProgramsToComplete = new Vector<PatientProgram>();
@@ -83,8 +83,8 @@ public class FormSubmissionActions {
 	/**
 	 * Add a Person to the submission stack. A Person must be the first object added to the submission
 	 * stack.
-	 * 
-	 * @param Person person to add
+	 *
+	 * @param person Person to add
 	 * @throws InvalidActionException
 	 */
 	public void beginPerson(Person person) throws InvalidActionException {
@@ -101,7 +101,7 @@ public class FormSubmissionActions {
 	 * that Person are removed as well.
 	 * <p/>
 	 * (So, in the current one-person-per-form model, this would empty the entire submission stack)
-	 * 
+	 *
 	 * @throws InvalidActionException
 	 */
 	public void endPerson() throws InvalidActionException {
@@ -116,7 +116,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Adds an Encounter to the submission stack
-	 * 
+	 *
 	 * @param encounter the Encounter to add
 	 * @throws InvalidActionException
 	 */
@@ -133,7 +133,7 @@ public class FormSubmissionActions {
 	/**
 	 * Removes the most recently added Encounter from the submission stack. All objects added after that
 	 * Encounter are removed as well.
-	 * 
+	 *
 	 * @throws InvalidActionException
 	 */
 	public void endEncounter() throws InvalidActionException {
@@ -148,7 +148,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Adds an Obs Group to the submission stack
-	 * 
+	 *
 	 * @param group the Obs Group to add
 	 * @throws InvalidActionException
 	 */
@@ -178,7 +178,7 @@ public class FormSubmissionActions {
 	/**
 	 * Utility function that adds a set of Obs to an Encounter, skipping Obs that are already part of
 	 * the Encounter
-	 * 
+	 *
 	 * @param encounter
 	 * @param group
 	 */
@@ -193,7 +193,7 @@ public class FormSubmissionActions {
 	/**
 	 * Removes the most recently added ObsGroup from the submission stack. All objects added after that
 	 * ObsGroup are removed as well.
-	 * 
+	 *
 	 * @throws InvalidActionException
 	 */
 	public void endObsGroup() throws InvalidActionException {
@@ -209,7 +209,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the Person that was most recently added to the stack
-	 * 
+	 *
 	 * @return the Person most recently added to the stack
 	 */
 	public Person getCurrentPerson() {
@@ -218,7 +218,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the Encounter that was most recently added to the stack
-	 * 
+	 *
 	 * @return the Encounter most recently added to the stack
 	 */
 	public Encounter getCurrentEncounter() {
@@ -256,7 +256,7 @@ public class FormSubmissionActions {
 	 * <p/>
 	 * Note that this method does not actually commit the Obs to the database, but instead adds the Obs
 	 * to a list of Obs to be added. The changes are applied elsewhere in the framework.
-	 * 
+	 *
 	 * @param concept concept associated with the Obs
 	 * @param value value for the Obs
 	 * @param datetime date information for the Obs
@@ -304,7 +304,7 @@ public class FormSubmissionActions {
 	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs
 	 * to a list of Obs to create. Note that this method does not commit the changes to the
 	 * database--the changes are applied elsewhere in the framework.
-	 * 
+	 *
 	 * @param existingObs the Obs to modify
 	 * @param concept concept associated with the Obs
 	 * @param newValue the new value of the Obs
@@ -374,7 +374,7 @@ public class FormSubmissionActions {
 	 * <p/>
 	 * Note that this method does not commit the program enrollment to the database but instead adds the
 	 * Program to a list of programs to add. The changes are applied elsewhere in the framework
-	 * 
+	 *
 	 * @param program Program to enroll the patient in
 	 * @see #enrollInProgram(Program, Date, List)
 	 */
@@ -388,12 +388,30 @@ public class FormSubmissionActions {
 	 * <p/>
 	 * Note that this method does not commit the program enrollment to the database but instead adds the
 	 * Program to a list of programs to add. The changes are applied elsewhere in the framework
-	 * 
+	 *
 	 * @param program Program to enroll the patient in
 	 * @param enrollmentDate the date to enroll the patient in the program
 	 * @param states list of states to set as initial in their workflows
 	 */
 	public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states) {
+		enrollInProgram(program, enrollmentDate, states, null);
+	}
+	
+	/**
+	 * Enrolls the Patient most recently added to the stack in the specified Program setting the
+	 * enrollment date as the date specified and setting initial states from the specified state
+	 * <p/>
+	 * Note that this method does not commit the program enrollment to the database but instead adds the
+	 * Program to a list of programs to add. The changes are applied elsewhere in the framework
+	 *
+	 * @param program Program to enroll the patient in
+	 * @param enrollmentDate the date to enroll the patient in the program
+	 * @param states list of states to set as initial in their workflows
+	 * @param locationTag if not null, sets the enrollment location to the encounter location or first
+	 *            ancestor found that is tagged with this tag
+	 */
+	public void enrollInProgram(Program program, Date enrollmentDate, List<ProgramWorkflowState> states,
+	        LocationTag locationTag) {
 		if (program == null)
 			throw new IllegalArgumentException("Cannot enroll in a blank program");
 		
@@ -434,8 +452,16 @@ public class FormSubmissionActions {
 				pp = new PatientProgram();
 				pp.setPatient(patient);
 				pp.setProgram(program);
-				if (enrollmentDate != null)
+				if (enrollmentDate != null) {
 					pp.setDateEnrolled(enrollmentDate);
+				}
+				if (locationTag != null) {
+					Location enrollmentLocation = HtmlFormEntryUtil.getFirstAncestorWithTag(encounter.getLocation(),
+					    locationTag);
+					if (enrollmentLocation != null) {
+						pp.setLocation(enrollmentLocation);
+					}
+				}
 				
 				if (states != null) {
 					for (ProgramWorkflowState programWorkflowState : states) {
@@ -454,7 +480,7 @@ public class FormSubmissionActions {
 	 * Note that this method does not commit the program enrollment change to the database but instead
 	 * adds the Program to a list of programs to remove. The changes are applied elsewhere in the
 	 * framework
-	 * 
+	 *
 	 * @param program Program to end the enrollment for the patient in
 	 */
 	public void completeProgram(Program program) {
@@ -503,7 +529,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Prepares data to be sent for exiting the given patient from care
-	 * 
+	 *
 	 * @param date - the date of exit
 	 * @param exitReasonConcept - reason the patient is exited from care
 	 * @param causeOfDeathConcept -the concept that corresponds with the reason the patient died
@@ -546,7 +572,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns true/false if we need to save the patient record during form submissiosn
-	 * 
+	 *
 	 * @return
 	 */
 	public Boolean getPatientUpdateRequired() {
@@ -564,7 +590,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns a list of all the Persons that need to be created to process form submission
-	 * 
+	 *
 	 * @return a list of all Persons to create
 	 */
 	public List<Person> getPersonsToCreate() {
@@ -573,7 +599,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Persons that need to be created to process form submission
-	 * 
+	 *
 	 * @param personsToCreate the list of Persons to create
 	 */
 	public void setPersonsToCreate(List<Person> personsToCreate) {
@@ -582,7 +608,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns a list of all the Encounters that need to be created to process form submissions
-	 * 
+	 *
 	 * @return a list of Encounters to create
 	 */
 	public List<Encounter> getEncountersToCreate() {
@@ -591,7 +617,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Encounters that need to be created to process form submission
-	 * 
+	 *
 	 * @param encountersToCreate the list of Encounters to create
 	 */
 	public void setEncountersToCreate(List<Encounter> encountersToCreate) {
@@ -600,7 +626,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Encounters that need to be edited to process form submission
-	 * 
+	 *
 	 * @return the list of Encounters to edit
 	 */
 	public List<Encounter> getEncountersToEdit() {
@@ -609,7 +635,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Encounters that need to be editing to process form submission
-	 * 
+	 *
 	 * @param encountersToEdit the list of Encounters to edit
 	 */
 	public void setEncountersToEdit(List<Encounter> encountersToEdit) {
@@ -618,7 +644,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Obs that need to be created to process form submission
-	 * 
+	 *
 	 * @return the list of Obs to create
 	 */
 	public List<Obs> getObsToCreate() {
@@ -627,7 +653,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Obs that need to be created to process form submission
-	 * 
+	 *
 	 * @param obsToCreate the list of Obs to create
 	 */
 	public void setObsToCreate(List<Obs> obsToCreate) {
@@ -636,7 +662,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Os that need to be voided to process form submission
-	 * 
+	 *
 	 * @return the list of Obs to void
 	 */
 	public List<Obs> getObsToVoid() {
@@ -645,7 +671,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list Obs that need to be voided to process form submission
-	 * 
+	 *
 	 * @param obsToVoid the list of Obs to void
 	 */
 	public void setObsToVoid(List<Obs> obsToVoid) {
@@ -654,7 +680,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Orders that need to be created to process form submission
-	 * 
+	 *
 	 * @return the list of Orders to create
 	 */
 	public List<Order> getOrdersToCreate() {
@@ -663,16 +689,24 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Orders that need to be created to process form submission
-	 * 
+	 *
 	 * @param ordersToCreate the list of Orders to create
 	 */
 	public void setOrdersToCreate(List<Order> ordersToCreate) {
 		this.ordersToCreate = ordersToCreate;
 	}
 	
+	public List<Order> getOrdersToVoid() {
+		return ordersToVoid;
+	}
+	
+	public void setOrdersToVoid(List<Order> ordersToVoid) {
+		this.ordersToVoid = ordersToVoid;
+	}
+	
 	/**
 	 * Returns the list of Patient Programs that need to be created to process form submission
-	 * 
+	 *
 	 * @return the patientProgramsToCreate the list of Programs to create
 	 */
 	public List<PatientProgram> getPatientProgramsToCreate() {
@@ -681,7 +715,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Patient Programs that need to be created to process form submission
-	 * 
+	 *
 	 * @param patientProgramsToCreate the list of Programs to create
 	 */
 	public void setPatientProgramsToCreate(List<PatientProgram> patientProgramsToCreate) {
@@ -690,7 +724,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Patient Programs that need to be completed to process form submission
-	 * 
+	 *
 	 * @return the patientProgramsToComplete the list of Programs to completed
 	 */
 	public List<PatientProgram> getPatientProgramsToComplete() {
@@ -699,7 +733,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Patient Programs that need to be completed to process form submission
-	 * 
+	 *
 	 * @param patientProgramsToComplete the list of Programs to completed
 	 */
 	public void setPatientProgramsToComplete(List<PatientProgram> patientProgramsToComplete) {
@@ -708,7 +742,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Relationships that need to be created to process form submission
-	 * 
+	 *
 	 * @return the relationshipsToCreate
 	 */
 	public List<Relationship> getRelationshipsToCreate() {
@@ -717,7 +751,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Relationships that need to be creatd to process form submission
-	 * 
+	 *
 	 * @param relationshipsToCreate the relationshipsToCreate to set
 	 */
 	public void setRelationshipsToCreate(List<Relationship> relationshipsToCreate) {
@@ -726,7 +760,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Relationships that need to be voided to process form submission
-	 * 
+	 *
 	 * @return the relationshipsToVoid
 	 */
 	public List<Relationship> getRelationshipsToVoid() {
@@ -735,7 +769,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Relationships that need to be voided to process form submission
-	 * 
+	 *
 	 * @param relationshipsToVoid the relationshipsToVoid to set
 	 */
 	public void setRelationshipsToVoid(List<Relationship> relationshipsToVoid) {
@@ -744,7 +778,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Returns the list of Relationships that need to be edited to process form submission
-	 * 
+	 *
 	 * @return the relationshipsToEdit
 	 */
 	public List<Relationship> getRelationshipsToEdit() {
@@ -753,7 +787,7 @@ public class FormSubmissionActions {
 	
 	/**
 	 * Sets the list of Relationships that need to be edited to process form submission
-	 * 
+	 *
 	 * @param relationshipsToEdit the relationshipsToEdit to set
 	 */
 	public void setRelationshipsToEdit(List<Relationship> relationshipsToEdit) {

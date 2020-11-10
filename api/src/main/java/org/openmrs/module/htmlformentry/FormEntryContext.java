@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -10,6 +11,7 @@ import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
@@ -126,7 +128,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Gets the {@see Mode} associated with this Context
-	 * 
+	 *
 	 * @return the {@see Mode} associated with this Context
 	 */
 	public Mode getMode() {
@@ -137,7 +139,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Registers a widget within the Context
-	 * 
+	 *
 	 * @param widget the widget to register
 	 * @return the field id used to identify this widget in the HTML Form
 	 */
@@ -158,7 +160,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Registers an error widget within the Context
-	 * 
+	 *
 	 * @param widget: the widget to associate this error widget with
 	 * @param errorWidget: the error widget to register
 	 * @return the field id used to identify this widget in the HTML Form
@@ -177,7 +179,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Gets the field id used to identify a specific widget within the HTML Form
-	 * 
+	 *
 	 * @param widget the widget
 	 * @return the field id associated with the widget in the HTML Form
 	 * @throws IllegalArgumentException if the given widget is not registered
@@ -193,7 +195,7 @@ public class FormEntryContext {
 	/**
 	 * Like {@link #getFieldName(Widget)} but returns null if the widget is not registered (instead of
 	 * throwing an exception).
-	 * 
+	 *
 	 * @param widget
 	 * @return
 	 */
@@ -212,9 +214,13 @@ public class FormEntryContext {
 		return null;
 	}
 	
+	public ErrorWidget getErrorWidget(Widget widget) {
+		return errorWidgets.get(widget);
+	}
+	
 	/**
 	 * Gets the field id used to identify a specific error widget within the HTML Form
-	 * 
+	 *
 	 * @param widget the widget
 	 * @return the field id associated with the error widget in the HTML Form
 	 */
@@ -224,7 +230,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Gets the fields ids for all currently registered error widgets
-	 * 
+	 *
 	 * @return a set of all the field ids for all currently registered error widgets
 	 */
 	public Collection<String> getErrorDivIds() {
@@ -292,7 +298,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Gets the {@see ObsGroup} that is currently active within the current Context
-	 * 
+	 *
 	 * @return the currently active {@see ObsGroup}
 	 */
 	public ObsGroup getActiveObsGroup() {
@@ -348,7 +354,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Returns the concepts associated with the active {@see ObsGroup}
-	 * 
+	 *
 	 * @return a list of the concepts associated with the active {@see ObsGroup}
 	 */
 	public List<Concept> getCurrentObsGroupConcepts() {
@@ -358,7 +364,7 @@ public class FormEntryContext {
 	/**
 	 * Returns (and removes) the Obs from the current {@see ObsGroup} with the specified concept and
 	 * answer concept
-	 * 
+	 *
 	 * @param concept the concept associated with the Obs we are looking for
 	 * @param answerConcept the concept associated with the coded value of the Obs we are looking for
 	 *            (may be null)
@@ -403,7 +409,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Sets the Patient to associate with the context
-	 * 
+	 *
 	 * @param patient patient to associate with the context
 	 */
 	public void setupExistingData(Patient patient) {
@@ -414,7 +420,7 @@ public class FormEntryContext {
 	 * Sets the existing Encounter to associate with the context. Also sets all the Obs associated with
 	 * this Encounter as existing Obs Also sets all the Orders associated with this Encounter as
 	 * existing Orders
-	 * 
+	 *
 	 * @param encounter encounter to associate with the context
 	 */
 	public void setupExistingData(Encounter encounter) {
@@ -431,7 +437,7 @@ public class FormEntryContext {
 				list.add(obs);
 			}
 			for (Order order : encounter.getOrders()) {
-				if (!order.isVoided()) {
+				if (BooleanUtils.isNotTrue(order.getVoided())) {
 					//load subclasses for later retrieval
 					order = (Order) Context.getOrderService().getOrder(order.getOrderId());
 					List<Order> list = existingOrders.get(order.getConcept());
@@ -451,7 +457,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Sets obs associated with an obs groups in existing obs groups.
-	 * 
+	 *
 	 * @param Set the obsGroup to add to existingObsInGroups
 	 */
 	public void setupExistingObsInGroups(Set<Obs> oSet) {
@@ -464,7 +470,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Drug from existing Obs, and returns it.
-	 * 
+	 *
 	 * @param question the Concept associated with the Obs to remove
 	 * @param answer the Drug that serves as the answer for Obs to remove
 	 * @return
@@ -488,7 +494,7 @@ public class FormEntryContext {
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this
 	 * version for obs whose concept's datatype is not boolean.
-	 * 
+	 *
 	 * @param question the concept associated with the Obs to remove
 	 * @param answer the concept that serves as the answer for Obs to remove (may be null)
 	 * @return
@@ -512,7 +518,7 @@ public class FormEntryContext {
 	/**
 	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns it. Use this
 	 * version for ConceptSelect obs tags.
-	 * 
+	 *
 	 * @param questions the concepts associated with the Obs to remove
 	 * @param answer the concept that serves as the answer for Obs to remove (may NOT be null)
 	 * @return
@@ -558,7 +564,7 @@ public class FormEntryContext {
 	 * Removes an Obs or ObsGroup of the relevant Concept from existingObs, and returns the list for the
 	 * question. Use this version for obtaining the whole list of obs saved for the single Question
 	 * concept.Presently used for dynamic lists.
-	 * 
+	 *
 	 * @param question concept associated with the Obs to remove
 	 * @return the list of obs associated with it
 	 */
@@ -570,7 +576,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Removes an Order of the relevant Concept from existingOrders, and returns it.
-	 * 
+	 *
 	 * @param concept - question the concept associated with the Obs to remove
 	 * @return
 	 */
@@ -592,7 +598,7 @@ public class FormEntryContext {
 	
 	/**
 	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
-	 * 
+	 *
 	 * @return the list of orders
 	 */
 	public List<Order> getRemainingExistingOrders() {
@@ -609,7 +615,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
-	 * 
+	 *
 	 * @param drug- the drug associated with the DrugOrder to remove
 	 * @return
 	 */
@@ -654,7 +660,7 @@ public class FormEntryContext {
 	/**
 	 * Removes (and returns) an Obs or ObsGroup associated with a specified Concept from existingObs.
 	 * Use this version for obs whose concept's datatype is boolean that are checkbox-style.
-	 * 
+	 *
 	 * @param question - the concept associated with the Obs to remove
 	 * @param answer - the boolean value of the Obs
 	 * @return
@@ -710,16 +716,16 @@ public class FormEntryContext {
 	/**
 	 * Finds the best matching obsGroup at the right obsGroup hierarchy level
 	 * <p/>
-	 * 
-	 * @param groupConcept the grouping concept associated with the {@see ObsGroups}
-	 * @param requiredQuestionsAndAnswers the questions and answered associate with the {@see ObsGroup}
-	 * @param obsGroupDepth the depth level of the obsGroup in the xml
+	 *
+	 * @param xmlObsGroupConcept the grouping concept associated with the {@see ObsGroups}
+	 * @param questionsAndAnswers the questions and answered associate with the {@see ObsGroup}
+	 * @param path the depth level of the obsGroup in the xml
 	 * @return the first matching {@see ObsGroup}
 	 */
 	public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept,
 	        String path) {
 		Set<Obs> contenders = new HashSet<Obs>();
-		// first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are 
+		// first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are
 		// saved as contenders
 		for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet()) {
 			
@@ -753,7 +759,7 @@ public class FormEntryContext {
 			
 			if (rankTable.size() == 0 || rankTable.size() > 1) {
 				/* No unique matching obsGroup found; returning null obsGroup.  This will
-				 * trigger the creation of an <unmatched id={} /> tag which will be replaced on 
+				 * trigger the creation of an <unmatched id={} /> tag which will be replaced on
 				 * a subsequent form scan.
 				 */
 				ret = null;
@@ -788,7 +794,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Returns the translator currently associated with the context
-	 * 
+	 *
 	 * @return
 	 */
 	public Translator getTranslator() {
@@ -797,7 +803,7 @@ public class FormEntryContext {
 	
 	/**
 	 * Return the HTML Form schema currently associated with the context
-	 * 
+	 *
 	 * @return
 	 */
 	public HtmlFormSchema getSchema() {
@@ -861,7 +867,7 @@ public class FormEntryContext {
 	/**
 	 * Sets up the necessary information so that the javascript getField, getValue and setValue
 	 * functions can work.
-	 * 
+	 *
 	 * @param property the user-facing name of this property, e.g. weight.value
 	 * @param widgetId the HTML DOM id of the widget, to be passed to the property accessor methods (if
 	 *            this parameter is null, the method call has no effect)

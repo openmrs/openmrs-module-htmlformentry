@@ -1,11 +1,11 @@
 package org.openmrs.module.htmlformentry.util;
 
-import org.openmrs.Provider;
-import org.openmrs.module.htmlformentry.element.ProviderStub;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.openmrs.Provider;
+import org.openmrs.module.htmlformentry.element.ProviderStub;
 
 public class ProviderTransformer implements Transformer<Provider, ProviderStub> {
 	

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
-		<version>3.12.0-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>htmlformentry-omod</artifactId>
@@ -16,21 +16,6 @@
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>htmlformentry-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.9</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-1.10</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>htmlformentry-api-2.0</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -67,6 +52,11 @@
         <dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>legacyui-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openmrs.module</groupId>
+			<artifactId>legacyui-omod</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -158,7 +148,7 @@
 							<includeGroupIds>${project.parent.groupId}</includeGroupIds>
 							<includeArtifactIds>${project.parent.artifactId}-api</includeArtifactIds>
 							<excludeTransitive>true</excludeTransitive>
-							<includes>**/*</includes>
+							<includes>**\/*.xml,**\/*.properties</includes>
 							<outputDirectory>${project.build.directory}/classes</outputDirectory>
 						</configuration>
 					</execution>
@@ -174,8 +164,14 @@
 		<MODULE_PACKAGE>${project.parent.groupId}.${project.parent.artifactId}</MODULE_PACKAGE>
 	</properties>
 
-	<!-- different profiles for building/testing against different version of 
-		openmrs -->
+	<!--
+		The deploy-web profile is a convenience to copy web files over to an SDK server's working code
+		You would execute this by running:  mvn clean install -DskipTests -Pdeploy-web -DserverId=mysdkserver
+		If you are doing a lot of development, a more efficient alternative would be to set up a filesystem watch such as:
+		eg:
+		inotify-hookable -w omod/src/main/webapp/resources/ -c \
+		'cp -R omod/src/main/webapp/resources/* /path-to-server/tmp/openmrs/WEB-INF/view/module/htmlformentry/resources/'
+	-->
 	<profiles>
 		<profile>
 			<id>deploy-web</id>
@@ -192,8 +188,8 @@
 								</goals>
 								<configuration>
 									<tasks>
-										<copy todir="${deploy.path}/WEB-INF/view/module/${project.parent.artifactId}">
-											<fileset dir="src/main/webapp" includes="**/*" />
+										<copy todir="${user.home}/openmrs/${serverId}/tmp/openmrs/WEB-INF/view/module/${project.parent.artifactId}">
+										<fileset dir="src/main/webapp" includes="**/*" />
 										</copy>
 									</tasks>
 								</configuration>

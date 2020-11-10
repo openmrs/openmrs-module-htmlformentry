@@ -1,5 +1,9 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -9,10 +13,6 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * Usage example: <postSubmissionAction class="org.openmrs.module.xyz.DecideWhereToRedirect"/>

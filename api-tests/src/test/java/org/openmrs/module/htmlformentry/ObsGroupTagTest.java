@@ -1,18 +1,17 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Test;
-import org.openmrs.Encounter;
-import org.openmrs.api.ConceptService;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class ObsGroupTagTest extends BaseModuleContextSensitiveTest {
+import java.util.Date;
+
+import org.junit.Test;
+import org.openmrs.Encounter;
+import org.openmrs.api.ConceptService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	
 	@Autowired
 	@Qualifier("conceptService")

@@ -1,16 +1,16 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * A widget that allows the selection of a specific day, month, and year. To handle both a date and
@@ -43,7 +43,7 @@ public class DateWidget implements Widget {
 		return Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE, "110,20");
 	}
 	
-	private String jsDateFormat() {
+	public String jsDateFormat() {
 		String ret = dateFormat().toPattern();
 		if (ret.contains("yyyy"))
 			ret = ret.replaceAll("yyyy", "yy"); // jquery uses yy for 4-digit years
@@ -60,7 +60,7 @@ public class DateWidget implements Widget {
 		return ret;
 	}
 	
-	private String getLocaleForJquery() {
+	public String getLocaleForJquery() {
 		Locale loc = Context.getLocale();
 		String ret = loc.getLanguage();
 		if (StringUtils.hasText(loc.getCountry())) {

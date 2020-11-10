@@ -1,28 +1,55 @@
 package org.openmrs.module.htmlformentry;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.openmrs.Order.Urgency.ON_SCHEDULED_DATE;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
+import org.openmrs.ConceptMap;
 import org.openmrs.ConceptName;
+import org.openmrs.ConceptReferenceTerm;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
+import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Obs;
 import org.openmrs.Order;
+import org.openmrs.OrderFrequency;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.Program;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.ProgramWorkflowState;
+import org.openmrs.Provider;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.obs.ComplexData;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsConstants;
 import org.springframework.mock.web.MockHttpSession;
@@ -30,30 +57,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
  */
-public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
+public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
 	protected final Log log = LogFactory.getLog(getClass());
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_HTML_FORM_ENTRY_TEST_DATASET = "htmlFormEntryTestDataSet";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
 	
 	// For testing concept lookups by static constant
 	public static final int TEST_CONCEPT_CONSTANT_ID = 3;
@@ -64,7 +73,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_HTML_FORM_ENTRY_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	/**
@@ -158,7 +167,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should find a program by its Id", method = "getProgram(String)")
 	public void getProgram_shouldFindAProgramByItsId() throws Exception {
-		Assert.assertEquals("MDR program", HtmlFormEntryUtil.getProgram("2").getName());
+		Assert.assertEquals("MDR-TB PROGRAM", HtmlFormEntryUtil.getProgram("2").getName());
 	}
 	
 	/**
@@ -167,7 +176,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should find a program by its uuid", method = "getProgram(String)")
 	public void getProgram_shouldFindAProgramByItsUuid() throws Exception {
-		Assert.assertEquals("MDR program", HtmlFormEntryUtil.getProgram("71779c39-d289-4dfe-91b5-e7cfaa27c78b").getName());
+		Assert.assertEquals("MDR-TB PROGRAM",
+		    HtmlFormEntryUtil.getProgram("71779c39-d289-4dfe-91b5-e7cfaa27c78b").getName());
 	}
 	
 	/**
@@ -279,8 +289,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getConcept_shouldFindAConceptByItsMapping() throws Exception {
 		String id = "XYZ:HT";
 		Concept cpt = HtmlFormEntryUtil.getConcept(id);
-		Assert.assertEquals("XYZ", cpt.getConceptMappings().iterator().next().getSource().getName());
-		Assert.assertEquals("HT", cpt.getConceptMappings().iterator().next().getSourceCode());
+		assertConceptHasMapping(cpt, "XYZ", "HT");
 	}
 	
 	/**
@@ -313,8 +322,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should not find a concept with invalid uuid", method = "getConcept(String)")
 	public void getConcept_shouldNotFindAConceptWithInvalidUuid() throws Exception {
-		// concept from HtmlFormEntryTest-data.xml
-		String id = "1000";
+		String id = "abcde-12345";
 		Assert.assertNull(HtmlFormEntryUtil.getConcept(id));
 	}
 	
@@ -367,8 +375,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	public void getConcept_shouldFindAConceptByItsMappingWithASpaceInBetween() throws Exception {
 		String id = "XYZ: HT";
 		Concept cpt = HtmlFormEntryUtil.getConcept(id);
-		Assert.assertEquals("XYZ", cpt.getConceptMappings().iterator().next().getSource().getName());
-		Assert.assertEquals("HT", cpt.getConceptMappings().iterator().next().getSourceCode());
+		assertConceptHasMapping(cpt, "XYZ", "HT");
 	}
 	
 	/**
@@ -441,14 +448,14 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterVoided() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		
 		//add a bunch of obs...
 		TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date); //matches
@@ -458,8 +465,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
 		//this is going to test out the voided state of the obs in the encounter after processing:
@@ -470,27 +477,28 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterCorrectly() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		
 		//add a bunch of obs...
 		TestUtil.addObs(e, 2474, Context.getConceptService().getConcept(656), date); //matches
 		TestUtil.addObs(e, 3017, Context.getConceptService().getConcept(767), date); //matches
 		TestUtil.addObs(e, 3032, new Date(), date); //matches
-		TestUtil.addObs(e, 1, 5000, date); //   matches
-		TestUtil.addObs(e, 2, 5000, date); //not in form schema
-		TestUtil.addObs(e, 3, 5000, date); //not in form schema
-		TestUtil.addObs(e, 6, "blah blah", date); //   matches
+		TestUtil.addObs(e, 5497, 1500, date); //   matches
+		TestUtil.addObs(e, 5089, 5000, date); //not in form schema
+		TestUtil.addObs(e, 5090, 5000, date); //not in form schema
+		TestUtil.addObs(e, 80000, "blah blah", date); //   matches
 		//1004 is ANOTHER ALLERGY CONSTRUCT, 1005 is HYPER-ALLERGY CODED, 1001 is PENICILLIN
 		TestUtil.addObsGroup(e, 1004, new Date(), 1005, Context.getConceptService().getConcept(1001), new Date()); //matches
 		//7 IS ALLERGY CONSTRUCT, 1000 IS ALLERGY CODED, 1003 IS OPENMRS
-		TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date()); //matches
+		TestUtil.addObsGroup(e, 70000, new Date(), 1000, Context.getConceptService().getConcept(1003), new Date()); //matches
 		TestUtil.addObsGroup(e, 1000, new Date(), 7, Context.getConceptService().getConcept(1003), new Date()); //does not match	    
 		Context.getEncounterService().saveEncounter(e);
 		
@@ -499,8 +507,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
 		//this is going to test out the voided state of the obs in the encounter after processing:
@@ -512,13 +520,13 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 				Assert.assertTrue(o.isVoided());
 			if (o.getConcept().getConceptId().equals(3032))
 				Assert.assertTrue(o.isVoided());
-			if (o.getConcept().getConceptId().equals(1))
+			if (o.getConcept().getConceptId().equals(5097))
 				Assert.assertTrue(o.isVoided());
-			if (o.getConcept().getConceptId().equals(2))
+			if (o.getConcept().getConceptId().equals(5089))
 				Assert.assertTrue(!o.isVoided()); //not matched
-			if (o.getConcept().getConceptId().equals(3))
+			if (o.getConcept().getConceptId().equals(5090))
 				Assert.assertTrue(!o.isVoided());//not matched
-			if (o.getConcept().getConceptId().equals(6))
+			if (o.getConcept().getConceptId().equals(80000))
 				Assert.assertTrue(o.isVoided());
 			if (o.getConcept().getConceptId().equals(1004))
 				Assert.assertTrue(o.isVoided());
@@ -526,9 +534,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 				Assert.assertTrue(o.isVoided());
 			
 			//obsGroups
-			if (o.getConcept().getConceptId().equals(7) && o.isObsGrouping())
+			if (o.getConcept().getConceptId().equals(70000) && o.isObsGrouping())
 				Assert.assertTrue(o.isVoided());
-			if (o.getConcept().getConceptId().equals(7) && !o.isObsGrouping())
+			if (o.getConcept().getConceptId().equals(70000) && !o.isObsGrouping())
 				Assert.assertTrue(!o.isVoided());//not matched
 			if (o.getConcept().getConceptId().equals(1000) && o.isObsGrouping())
 				Assert.assertTrue(!o.isVoided());//not matched
@@ -540,26 +548,28 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectly() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
 		e.setEncounterDatetime(date);
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
-		TestUtil.addObs(e, 1, 5000, date); //a matching obs
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
+		TestUtil.addObs(e, 5497, 1500, date); //a matching obs
 		
 		DrugOrder dor = new DrugOrder();
-		dor.setVoided(false);
-		dor.setConcept(Context.getConceptService().getConcept(792));
-		dor.setCreator(Context.getUserService().getUser(1));
-		dor.setDateCreated(new Date());
-		dor.setDiscontinued(false);
-		dor.setDrug(Context.getConceptService().getDrug(2));
+		dor.setDrug(Context.getConceptService().getDrug(3));
+		dor.setDateActivated(new Date());
+		dor.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT"));
 		dor.setOrderType(Context.getOrderService().getOrderType(1));
 		dor.setPatient(Context.getPatientService().getPatient(2));
-		dor.setStartDate(new Date());
+		dor.setOrderer(Context.getProviderService().getProvider(1));
+		dor.setCreator(Context.getUserService().getUser(1));
+		dor.setDateCreated(new Date());
+		dor.setDosingType(FreeTextDosingInstructions.class);
+		dor.setDosingInstructions("Test Drug Order");
 		e.addOrder(dor);
 		
 		Context.getEncounterService().saveEncounter(e);
@@ -569,8 +579,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, "test void reason");
 		
@@ -590,26 +600,28 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderAndObsCorrectly() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		TestUtil.addObs(e, 3, 5000, date);//adding an un-matched Obs
 		
 		DrugOrder dor = new DrugOrder();
-		dor.setVoided(false);
-		dor.setConcept(Context.getConceptService().getConcept(792));
-		dor.setCreator(Context.getUserService().getUser(1));
-		dor.setDateCreated(new Date());
-		dor.setDiscontinued(false);
-		dor.setDrug(Context.getConceptService().getDrug(2));
+		dor.setDrug(Context.getConceptService().getDrug(3));
+		dor.setDateActivated(new Date());
+		dor.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT"));
 		dor.setOrderType(Context.getOrderService().getOrderType(1));
 		dor.setPatient(Context.getPatientService().getPatient(2));
-		dor.setStartDate(new Date());
+		dor.setOrderer(Context.getProviderService().getProvider(1));
+		dor.setCreator(Context.getUserService().getUser(1));
+		dor.setDateCreated(new Date());
+		dor.setDosingType(FreeTextDosingInstructions.class);
+		dor.setDosingInstructions("Test Drug Order");
 		e.addOrder(dor);
 		
 		Context.getEncounterService().saveEncounter(e);
@@ -619,8 +631,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
@@ -637,14 +649,15 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should delete encounter correctly", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldDeleteEncounter() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
 		e.setDateCreated(new Date());
+		e.setEncounterType(Context.getEncounterService().getEncounterType(1));
 		e.setEncounterDatetime(date);
 		e.setLocation(Context.getLocationService().getLocation(2));
-		e.setProvider(Context.getPersonService().getPerson(502));
+		e.addProvider(Context.getEncounterService().getEncounterRole(1), Context.getProviderService().getProvider(1));
 		TestUtil.addObs(e, 3, 5000, date);//adding an un-matched, voided Obs
 		for (Obs o : e.getAllObs(true)) {
 			o.setVoided(true);
@@ -655,19 +668,20 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		
 		//and adding a voided drug order
 		DrugOrder dor = new DrugOrder();
-		dor.setVoided(false);
-		dor.setConcept(Context.getConceptService().getConcept(792));
-		dor.setCreator(Context.getUserService().getUser(1));
-		dor.setDateCreated(new Date());
-		dor.setDiscontinued(false);
-		dor.setDrug(Context.getConceptService().getDrug(2));
+		dor.setDrug(Context.getConceptService().getDrug(3));
+		dor.setDateActivated(new Date());
+		dor.setCareSetting(Context.getOrderService().getCareSettingByName("INPATIENT"));
 		dor.setOrderType(Context.getOrderService().getOrderType(1));
 		dor.setPatient(Context.getPatientService().getPatient(2));
+		dor.setOrderer(Context.getProviderService().getProvider(1));
+		dor.setCreator(Context.getUserService().getUser(1));
+		dor.setDateCreated(new Date());
+		dor.setDosingType(FreeTextDosingInstructions.class);
+		dor.setDosingInstructions("Test Drug Order");
 		dor.setVoided(true);
 		dor.setVoidedBy(Context.getUserService().getUser(1));
 		dor.setVoidReason("blah");
 		dor.setDateVoided(new Date());
-		dor.setStartDate(new Date());
 		e.addOrder(dor);
 		
 		Context.getEncounterService().saveEncounter(e);
@@ -677,8 +691,8 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		htmlform.setForm(form);
 		form.setEncounterType(new EncounterType());
 		htmlform.setDateChanged(new Date());
-		htmlform.setXmlData(
-		    new TestUtil().loadXmlFromFile(XML_DATASET_PATH + "returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
+		htmlform.setXmlData(new TestUtil().loadXmlFromFile(
+		    "org/openmrs/module/htmlformentry/include/returnSectionsAndConceptsInSectionsTestFormWithGroups.xml"));
 		
 		HtmlFormEntryUtil.voidEncounterByHtmlFormSchema(e, htmlform, null);
 		
@@ -807,10 +821,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should look up a workflow by a concept mapping", method = "getWorkflow(String)")
 	public void getWorkflow_shouldLookUpAWorkflowByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
-		    HtmlFormEntryUtil.getWorkflow("SNOMED CT: Test Workflow Code").getUuid());
+		    HtmlFormEntryUtil.getWorkflow("XYZ: Test Workflow Code").getUuid());
 	}
 	
 	/**
@@ -842,9 +856,9 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil
-		        .getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getState("XYZ: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
 	
 	/**
@@ -854,8 +868,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return the state with the matching id", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingId() throws Exception {
-		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0",
-		    HtmlFormEntryUtil.getState("1", Context.getProgramWorkflowService().getWorkflow(1)).getUuid());
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		ProgramWorkflow wf = pws.getWorkflowByUuid("84f0effa-dd73-46cb-b931-7cd6be6c5f81");
+		ProgramWorkflowState state = HtmlFormEntryUtil.getState("1", wf);
+		Assert.assertEquals("92584cdc-6a20-4c84-a659-e035e45d36b0", state.getUuid());
 	}
 	
 	/**
@@ -865,10 +881,10 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Test
 	@Verifies(value = "should return the state with the matching uuid", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldReturnTheStateWithTheMatchingUuid() throws Exception {
-		Assert.assertEquals("1",
-		    HtmlFormEntryUtil
-		            .getState("92584cdc-6a20-4c84-a659-e035e45d36b0", Context.getProgramWorkflowService().getWorkflow(1))
-		            .getId().toString());
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		ProgramWorkflow wf = pws.getWorkflowByUuid("84f0effa-dd73-46cb-b931-7cd6be6c5f81");
+		ProgramWorkflowState state = HtmlFormEntryUtil.getState("92584cdc-6a20-4c84-a659-e035e45d36b0", wf);
+		Assert.assertEquals(1, state.getId().intValue());
 	}
 	
 	/**
@@ -879,9 +895,12 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
-		Assert.assertEquals("6de7ed10-53ad-11e1-8cb6-00248140a5eb", HtmlFormEntryUtil
-		        .getState("SNOMED CT: Test Code", Context.getProgramWorkflowService().getWorkflow(108)).getUuid());
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		ProgramWorkflow wf = pws.getWorkflowByUuid("7c3e071a-53a7-11e1-8cb6-00248140a5eb");
+		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
+		    HtmlFormEntryUtil.getState("XYZ: Test Code", wf).getUuid());
 	}
 	
 	/**
@@ -938,7 +957,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		PatientProgram pp = pws.getPatientProgram(1);
 		
 		Calendar cal = Calendar.getInstance();
-		cal.set(2008, 6, 31);
+		cal.set(2004, 6, 31);
 		Date newEnrollmentDate = cal.getTime();
 		Assert.assertTrue(newEnrollmentDate.before(pp.getDateEnrolled()));//sanity check
 		Assert.assertFalse(HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, newEnrollmentDate));
@@ -958,7 +977,7 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
 	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
 		// load this data set so that we get the additional patient program created in this data case
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
@@ -1106,22 +1125,22 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 	@Verifies(value = "shouldFetchLocationTagByName", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagByName() throws Exception {
 		// this tag is in the regression test dataset
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
 		Assert.assertNotNull(tag);
-		Assert.assertEquals("Some Tag", tag.getTag());
+		Assert.assertEquals("Some Tag", tag.getName());
 	}
 	
 	@Test
 	@Verifies(value = "shouldFetchLocationTagById", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagById() throws Exception {
 		// this tag is in the regression test dataset
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
 		Assert.assertNotNull(tag);
-		Assert.assertEquals("Some Tag", tag.getTag());
+		Assert.assertEquals("Some Tag", tag.getName());
 	}
 	
 	@Test
@@ -1136,6 +1155,162 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 		HtmlFormEntryUtil.evaluateStaticConstant("xxx.yyy.ZZZ");
 	}
 	
+	/**
+	 * @see HtmlFormEntryUtil#translate(String)
+	 */
+	@Test
+	public void translation_shouldReturnMessageIfFound() throws Exception {
+		Assert.assertEquals("HTML", HtmlFormEntryUtil.translate("htmlformentry.HtmlForm.html"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#translate(String)
+	 */
+	@Test
+	public void translation_shouldReturnMessageCodeIfNotFound() throws Exception {
+		Assert.assertEquals("this.is.not.valid", HtmlFormEntryUtil.translate("this.is.not.valid"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getOrderType(String)
+	 */
+	@Test
+	public void getOrderType_shouldLookupByIdUuidOrName() throws Exception {
+		OrderType expected = Context.getOrderService().getOrderType(2);
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderType("2"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderType("52a447d3-a64a-11e3-9aeb-50e549534c5e"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderType("Test order"));
+		Assert.assertNull(HtmlFormEntryUtil.getOrderType("Gibberish"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getOrderType(String)
+	 */
+	@Test
+	public void isADrugOrderType_shouldReturnTrueIfClassMatches() throws Exception {
+		Assert.assertTrue(HtmlFormEntryUtil.isADrugOrderType(Context.getOrderService().getOrderType(1)));
+		Assert.assertFalse(HtmlFormEntryUtil.isADrugOrderType(Context.getOrderService().getOrderType(2)));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getDrugOrderTypes()
+	 */
+	@Test
+	public void getDrugOrderTypes_shouldReturnMatches() throws Exception {
+		List<OrderType> found = HtmlFormEntryUtil.getDrugOrderTypes();
+		Assert.assertEquals(1, found.size());
+		Assert.assertEquals(1, found.get(0).getId().intValue());
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getDrugOrderTypes()
+	 */
+	@Test
+	public void getDrugOrderType_shouldReturnMatchBasedOnName() throws Exception {
+		Assert.assertEquals(1, HtmlFormEntryUtil.getDrugOrderType().getId().intValue());
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getOrderFrequency(String)
+	 */
+	@Test
+	public void getOrderFrequency_shouldLookupByIdUuidOrConceptLookup() throws Exception {
+		OrderFrequency expected = Context.getOrderService().getOrderFrequency(1);
+		// Frequency Lookups
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderFrequency("1"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderFrequency("28090760-7c38-11e3-baa7-0800200c9a66"));
+		// Concept Lookups
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderFrequency("113"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getOrderFrequency("7e02d1a0-7869-11e3-981f-0800200c9a66"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getCareSetting(String) (String)
+	 */
+	@Test
+	public void getCareSetting_shouldLookupByIdUuidNameOrFirstFoundType() throws Exception {
+		CareSetting expected = Context.getOrderService().getCareSetting(3);
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getCareSetting("3"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getCareSetting("3ed1e57d-9f18-41d3-b067-2eeaf4b30fb3"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getCareSetting("Some care setting"));
+		Assert.assertEquals(1, HtmlFormEntryUtil.getCareSetting("OUTPATIENT").getId().intValue());
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getDrug(String) (String)
+	 */
+	@Test
+	public void getDrug_shouldLookupByIdUuidOrName() throws Exception {
+		Drug expected = Context.getConceptService().getDrug(2);
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("2"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("3cfcf118-931c-46f7-8ff6-7b876f0d4202"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("Triomune-30"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getOrdererFromEncounter(Encounter)
+	 */
+	@Test
+	public void getOrdererFromEncounter_shouldReturnFirstFoundProvider() throws Exception {
+		Encounter e = Context.getEncounterService().getEncounter(6);
+		Provider p = HtmlFormEntryUtil.getOrdererFromEncounter(e);
+		Assert.assertEquals(1, p.getId().intValue());
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getDrugOrdersForPatient(Patient, Set)
+	 */
+	@Test
+	public void getDrugOrdersForPatient_shouldReturnAllDrugOrdersForGivenDrugs() throws Exception {
+		Patient patient = Context.getPatientService().getPatient(2);
+		Drug drug3 = Context.getConceptService().getDrug(3);
+		Drug drug11 = Context.getConceptService().getDrug(11);
+		Set<Drug> drugs = new HashSet<>();
+		drugs.add(drug3);
+		drugs.add(drug11);
+		Map<Drug, List<DrugOrder>> m = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, drugs);
+		Assert.assertEquals(3, m.get(drug3).size());
+		Assert.assertEquals(1, m.get(drug11).size());
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getDrugOrdersForPatient(Patient, Set)
+	 */
+	@Test
+	public void sortDrugOrders_shouldSortByDateAndPrevious() throws Exception {
+		DrugOrder o1 = new DrugOrder(1);
+		o1.setDateActivated(TestUtil.parseYmd("2000-01-01"));
+		
+		DrugOrder o2 = new DrugOrder(2);
+		o2.setDateActivated(TestUtil.parseYmd("2000-01-01"));
+		o2.setUrgency(ON_SCHEDULED_DATE);
+		o2.setScheduledDate(TestUtil.parseYmd("2000-02-01"));
+		
+		DrugOrder o3 = new DrugOrder(3);
+		o3.setDateActivated(TestUtil.parseYmd("2000-01-01"));
+		o3.setAutoExpireDate(TestUtil.parseYmd("2000-01-15"));
+		
+		DrugOrder o4 = new DrugOrder(4);
+		o4.setDateActivated(TestUtil.parseYmd("2000-01-01"));
+		o1.setPreviousOrder(o4);
+		
+		List<DrugOrder> orders = Arrays.asList(o1, o2, o3, o4);
+		HtmlFormEntryUtil.sortDrugOrders(orders);
+		
+		for (DrugOrder order : orders) {
+			Integer prevId = (order.getPreviousOrder() == null ? null : order.getPreviousOrder().getId());
+			StringBuilder sb = new StringBuilder("Order: ").append(order.getId());
+			sb.append("; previous=").append(prevId);
+			sb.append("; ").append(order.getEffectiveStartDate()).append(" - ").append(order.getEffectiveStopDate());
+			log.trace(sb.toString());
+		}
+		
+		Assert.assertEquals(o3, orders.get(0));
+		Assert.assertEquals(o4, orders.get(1));
+		Assert.assertEquals(o1, orders.get(2));
+		Assert.assertEquals(o2, orders.get(3));
+	}
+	
 	protected void checkBooleanObsValue(Obs obs, boolean expected) {
 		if (OpenmrsConstants.OPENMRS_VERSION_SHORT.equals("1.6")) {
 			Double expectedValue = expected ? 1.0 : 0.0;
@@ -1145,5 +1320,16 @@ public class HtmlFormEntryUtilTest extends BaseModuleContextSensitiveTest {
 			String conceptId = Context.getAdministrationService().getGlobalProperty(expectedGpProperty);
 			Assert.assertEquals(conceptId, obs.getValueCoded().getConceptId().toString());
 		}
+	}
+	
+	protected void assertConceptHasMapping(Concept concept, String source, String code) {
+		boolean found = false;
+		for (ConceptMap m : concept.getConceptMappings()) {
+			ConceptReferenceTerm term = m.getConceptReferenceTerm();
+			if (term.getConceptSource().getName().equalsIgnoreCase(source) && term.getCode().equalsIgnoreCase(code)) {
+				found = true;
+			}
+		}
+		Assert.assertTrue(found);
 	}
 }

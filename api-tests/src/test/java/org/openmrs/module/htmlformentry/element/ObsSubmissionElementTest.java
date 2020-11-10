@@ -14,6 +14,16 @@
 
 package org.openmrs.module.htmlformentry.element;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,23 +39,11 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.Translator;
-import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility;
-import org.openmrs.module.htmlformentry.compatibility.ConceptCompatibility1_9;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.util.LocaleUtility;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 /**
  *
@@ -89,8 +87,6 @@ public class ObsSubmissionElementTest {
 		mockStatic(HtmlFormEntryUtil.class);
 		mockStatic(Context.class);
 		PowerMockito.when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
-		PowerMockito.when(Context.getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class))
-		        .thenReturn(new ConceptCompatibility1_9());
 		
 		params.put("showUnits", "true");
 		params.put("conceptId", "5089");
@@ -142,8 +138,6 @@ public class ObsSubmissionElementTest {
 		mockStatic(HtmlFormEntryUtil.class);
 		mockStatic(Context.class);
 		PowerMockito.when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
-		PowerMockito.when(Context.getRegisteredComponent("htmlformentry.ConceptCompatibility", ConceptCompatibility.class))
-		        .thenReturn(new ConceptCompatibility1_9());
 		
 		params.put("conceptId", "5089");
 		params.put("locale", "ht");

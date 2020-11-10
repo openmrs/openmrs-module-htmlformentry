@@ -45,6 +45,7 @@ import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.validator.PatientIdentifierValidator;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -54,7 +55,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Holds the widgets used to represent Patient Details, and serves as both the HtmlGeneratorElement
@@ -133,7 +133,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			createWidgets(context, genderWidget, genderErrorWidget,
 			    existingPatient != null ? existingPatient.getGender() : null);
 		} else if (FIELD_AGE.equalsIgnoreCase(field)) {
-			ageWidget = new NumberFieldWidget(0d, 200d, false);
+			ageWidget = new NumberFieldWidget(0d, 200d, true);
 			ageErrorWidget = new ErrorWidget();
 			createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
 		} else if (FIELD_BIRTH_DATE.equalsIgnoreCase(field)) {
@@ -142,7 +142,7 @@ public class PatientDetailSubmissionElement implements HtmlGeneratorElement, For
 			createWidgets(context, birthDateWidget, birthDateErrorWidget,
 			    existingPatient != null ? existingPatient.getBirthdate() : null);
 		} else if (FIELD_BIRTH_DATE_OR_AGE.equalsIgnoreCase(field)) {
-			ageWidget = new NumberFieldWidget(0d, 200d, false);
+			ageWidget = new NumberFieldWidget(0d, 200d, true);
 			ageErrorWidget = new ErrorWidget();
 			createWidgets(context, ageWidget, ageErrorWidget, existingPatient != null ? existingPatient.getAge() : null);
 			

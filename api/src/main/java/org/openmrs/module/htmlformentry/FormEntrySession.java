@@ -1,16 +1,19 @@
 package org.openmrs.module.htmlformentry;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -18,6 +21,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Location;
@@ -32,13 +36,13 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.module.htmlformentry.compatibility.PatientServiceCompatibility;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
@@ -59,7 +63,7 @@ import org.springframework.web.util.JavaScriptUtils;
  * <p/>
  * <pre>
  *  session.getHtmlToDisplay();
- * 	List&lt;FormSubmissionError&gt; 
+ * 	List&lt;FormSubmissionError&gt;
  * 	validationErrors = session.getSubmissionController().validateSubmission(session.getContext(),
  * 	    request);
  * 	if (validationErrors.size() == 0) {
@@ -523,6 +527,43 @@ public class FormEntrySession {
 			}
 		}
 		
+		// Handle orders
+		
+		// First, we void any of the previous orders that are indicated, and keep track of which are voided
+		Set<Integer> voidedOrders = new HashSet<>();
+		if (submissionActions.getOrdersToVoid() != null) {
+			for (Order orderToVoid : submissionActions.getOrdersToVoid()) {
+				Context.getOrderService().voidOrder(orderToVoid, "Voided by htmlformentry");
+				voidedOrders.add(orderToVoid.getOrderId());
+			}
+		}
+		
+		// Next, we handle any new and revised orders
+		if (submissionActions.getOrdersToCreate() != null) {
+			for (Order order : submissionActions.getOrdersToCreate()) {
+				Order previousOrder = order.getPreviousOrder();
+				// If the previousOrder was just voided, then set the previous order to that order's previous order
+				if (previousOrder != null && voidedOrders.contains(previousOrder.getOrderId())) {
+					previousOrder = previousOrder.getPreviousOrder();
+				}
+				// If at this point there is no previous order, then set the action to NEW
+				if (previousOrder == null) {
+					order.setAction(Order.Action.NEW);
+				}
+				// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
+				if (order.getAction() == Order.Action.RENEW) {
+					Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+					dateStoppedField.setAccessible(true);
+					// To be consistent with OrderService, set this to the second prior to the order activation date
+					Date dateStopped = DateUtils.addSeconds(order.getDateActivated(), -1);
+					ReflectionUtils.setField(dateStoppedField, previousOrder, dateStopped);
+				}
+				order.setPreviousOrder(previousOrder);
+				order.setEncounter(encounter);
+				encounter.addOrder(order);
+			}
+		}
+		
 		// propagate encounterDatetime to PatientPrograms where necessary
 		if (submissionActions.getPatientProgramsToCreate() != null) {
 			for (PatientProgram pp : submissionActions.getPatientProgramsToCreate()) {
@@ -552,6 +593,7 @@ public class FormEntrySession {
 		}
 		
 		// TODO wrap this in a transaction
+		Person newlyCreatedPerson = null;
 		if (submissionActions.getPersonsToCreate() != null) {
 			for (Person p : submissionActions.getPersonsToCreate()) {
 				if (p instanceof Patient) {
@@ -565,7 +607,7 @@ public class FormEntrySession {
 						        "Please check the design of your form to make sure the following fields are mandatory to create a patient: <br/><b>&lt;personName/&gt;</b>, <b>&lt;birthDateOrAge/&gt;</b>, <b>&lt;gender/&gt;</b>, <b>&lt;identifierType/&gt;</b>, <b>&lt;identifier/&gt;</b>, and <b>&lt;identifierLocation/&gt;</b>");
 					}
 				}
-				Context.getPersonService().savePerson(p);
+				newlyCreatedPerson = Context.getPersonService().savePerson(p);
 			}
 		}
 		if (submissionActions.getEncountersToCreate() != null) {
@@ -575,6 +617,15 @@ public class FormEntrySession {
 					if (form.getEncounterType() != null)
 						e.setEncounterType(form.getEncounterType());
 				}
+				// Due to the way ObsValidator works, if the associated person has been newly created, re-set it on the Obs
+				if (newlyCreatedPerson != null) {
+					for (Obs o : e.getAllObs(true)) {
+						if (o.getPerson().equals(newlyCreatedPerson)) {
+							o.setPerson(newlyCreatedPerson);
+						}
+					}
+				}
+				
 				Context.getEncounterService().saveEncounter(encounter);
 			}
 		}
@@ -687,18 +738,9 @@ public class FormEntrySession {
 				// this may not work right due to savehandlers (similar error to HTML-135) but this branch is
 				// unreachable until html forms are allowed to edit data without an encounter
 				for (Obs o : submissionActions.getObsToCreate())
-					obsService.saveObs(o, null);
+					obsService.saveObs(o, "Created by htmlformentry");
 			}
 		}
-		
-		/*
-		   ObsService obsService = Context.getObsService();
-		   This should propagate from above
-		  if (submissionActions.getObsToCreate() != null) {
-		      for (Obs o : submissionActions.getObsToCreate())
-		          Context.getObsService().saveObs(o, null);
-		  }
-		  */
 		
 		if (submissionActions.getIdentifiersToVoid() != null) {
 			for (PatientIdentifier patientIdentifier : submissionActions.getIdentifiersToVoid()) {
@@ -725,12 +767,10 @@ public class FormEntrySession {
 				Context.getPatientService().processDeath(this.getPatient(), exitFromCareProperty.getDateOfExit(),
 				    exitFromCareProperty.getCauseOfDeathConcept(), exitFromCareProperty.getOtherReason());
 			} else {
-				PatientServiceCompatibility patientService = Context.getRegisteredComponent(
-				    "htmlformentry.PatientServiceCompatibility", PatientServiceCompatibility.class);
-				patientService.exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(),
+				HtmlFormEntryService hfes = Context.getService(HtmlFormEntryService.class);
+				hfes.exitFromCare(this.getPatient(), exitFromCareProperty.getDateOfExit(),
 				    exitFromCareProperty.getReasonExitConcept());
 			}
-			
 		}
 		
 		// handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
@@ -1158,8 +1198,11 @@ public class FormEntrySession {
 	
 	public void setHtmlForm(HtmlForm htmlForm) {
 		this.htmlForm = htmlForm;
-		if (form != null)
+		if (form != null) {
 			this.htmlForm.setForm(form);
+		} else {
+			this.form = htmlForm.getForm();
+		}
 	}
 	
 	public String getPatientPersonName() {
@@ -1184,5 +1227,32 @@ public class FormEntrySession {
 	
 	public String getEncounterLocationName() {
 		return StringEscapeUtils.escapeHtml(encounter.getLocation() == null ? "" : encounter.getLocation().getName());
+	}
+	
+	/**
+	 * Generates the form path based on the form name, form version, form field path and control
+	 * counter. The form path will have the following format: "MyForm.1.0/my_condition_tag-0"
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @param controlCounter The control counter, an integer
+	 * @return The constructed form path
+	 */
+	public String generateControlFormPath(String controlId, Integer controlCounter) {
+		String formField = "";
+		
+		// Validate if the form is not null
+		if (this.getForm() == null) {
+			throw new IllegalStateException("The form entry session has a null form.");
+		}
+		
+		// Create form path
+		String formName = this.getForm().getName();
+		String formVersion = this.getForm().getVersion();
+		formField = formName + "." + formVersion + "/";
+		
+		// Create control form path
+		formField += controlId + "-" + controlCounter;
+		
+		return formField;
 	}
 }

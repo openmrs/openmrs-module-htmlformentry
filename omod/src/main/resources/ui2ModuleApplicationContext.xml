@@ -52,7 +52,7 @@
     	<property name="entryPage"><value>enterHtmlForm</value></property>
     	<property name="openPage"><value>viewHtmlForm</value></property>
     	<property name="delegate">
-    		<bean class="org.openmrs.module.htmlformentry.extension.html.FormEntryHandlerExtension"/>
+    		<bean class="org.openmrs.module.htmlformentry.web.extension.FormEntryHandlerExtension"/>
     	</property>   	
     </bean>
     

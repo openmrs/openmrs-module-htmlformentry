@@ -22,16 +22,30 @@
 	</section>
 	
 	<section>
-	       CD4 COUNT numeric <obs conceptId="1"/>
-	       MARRIED text <obs conceptId="6"/>
-	       <obsgroup groupingConceptId="7">
+	       CD4 COUNT numeric <obs conceptId="5497"/>
+	       ALLERGY text <obs conceptId="80000"/>
+	       <obsgroup groupingConceptId="70000">
 				ALLERGY CODED 2: <obs conceptId="1000"/>
 			</obsgroup>
 	</section>
 	
 	<section>
-		<drugOrder drugNames="2,3" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
-		<drugOrder drugNames="11" validatedose="false" hideDoseAndFrequency="true" showOrderDuration="true"/>
+		<drugOrder>
+			<orderTemplate>
+				<orderProperty name="drug">
+					<option value="2" />
+					<option value="3" />
+				</orderProperty>
+			</orderTemplate>
+		</drugOrder>
+		<drugOrder>
+			<orderTemplate>
+				<orderProperty name="drug">
+					<option value="11" />
+				</orderProperty>
+			</orderTemplate>
+		</drugOrder>
+
 	</section>
 	
 	<submit/>

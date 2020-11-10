@@ -1,11 +1,10 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.StringWriter;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

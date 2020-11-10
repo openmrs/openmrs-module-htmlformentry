@@ -12,9 +12,9 @@ import org.w3c.dom.Node;
  * <pre>
  * {@code
  * <htmlform>
- *      <includeIf logicTest="FEMALE">
- * 		<obs conceptId="123" labelText="Pregnant?"/>
- * 	</includeIf>
+ *      <includeIf velocityTest="...">
+ * 		    <obs conceptId="123" labelText="Pregnant?"/>
+ * 	    </includeIf>
  * </htmlform>
  * }
  * </pre>

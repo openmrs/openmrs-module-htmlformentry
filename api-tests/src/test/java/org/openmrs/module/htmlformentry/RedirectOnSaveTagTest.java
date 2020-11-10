@@ -1,23 +1,18 @@
 package org.openmrs.module.htmlformentry;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.openmrs.test.BaseModuleContextSensitiveTest;
-import org.springframework.mock.web.MockHttpServletRequest;
-
 import java.util.Date;
 import java.util.Map;
 
-public class RedirectOnSaveTagTest extends BaseModuleContextSensitiveTest {
-	
-	protected static final String XML_DATASET_PATH = "org/openmrs/module/htmlformentry/include/";
-	
-	protected static final String XML_REGRESSION_TEST_DATASET = "regressionTestDataSet";
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+
+public class RedirectOnSaveTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeDataSet(XML_DATASET_PATH + new TestUtil().getTestDatasetFilename(XML_REGRESSION_TEST_DATASET));
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
 	
 	@Test

@@ -11,11 +11,13 @@ import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.MetadataMappingResolver;
@@ -179,19 +181,21 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				List<Option> providerUsers = new ArrayList<Option>();
 				
 				// If the "role" attribute is passed in, limit to users with this role
-				Object roleParam = parameters.get("role");
+				String roleParam = (String) parameters.get("role");
 				if (roleParam != null) {
-					Role role = null;
-					MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
-					role = metadataMappingResolver.getMetadataItem(Role.class, roleParam.toString());
+					Role role = Context.getUserService().getRoleByUuid(roleParam);
 					if (role == null) {
-						role = Context.getUserService().getRole((String) roleParam);
-					}
-					
-					if (role == null) {
-						throw new RuntimeException("Cannot find role: " + roleParam);
-					} else {
-						users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+						MetadataMappingResolver metadataMappingResolver = getMetadataMappingResolver();
+						role = metadataMappingResolver.getMetadataItem(Role.class, roleParam);
+						if (role == null) {
+							role = Context.getUserService().getRole((String) roleParam);
+						}
+						
+						if (role == null) {
+							throw new RuntimeException("Cannot find role: " + roleParam);
+						} else {
+							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
+						}
 					}
 				}
 				
@@ -357,6 +361,23 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				throw new RuntimeException(
 				        "Using both \"order\" and \"tags\" attribute in an encounterLocation tag is not currently supported");
 			}
+			if (parameters.get("restrictToSupportedVisitLocations") != null) {
+				Set<Location> allVisitLocations = new HashSet<Location>();
+				Set<Location> traversedLocations = new HashSet<Location>();
+				Set<Location> allVisitsAndChildLocations = new HashSet<Location>();
+				if ("true".equalsIgnoreCase(parameters.get("restrictToSupportedVisitLocations").toString())) {
+					LocationTag visitLocationTag = HtmlFormEntryUtil.getLocationTag("Visit Location");
+					List<Location> visitLocations = Context.getLocationService().getLocationsByTag(visitLocationTag);
+					allVisitLocations.addAll(visitLocations);
+					allVisitsAndChildLocations = getAllVisitsAndChildLocations(allVisitLocations, traversedLocations);
+					locations.addAll(allVisitsAndChildLocations);
+					
+				} else if (!"false".equalsIgnoreCase(parameters.get("restrictToSupportedVisitLocations").toString())) {
+					
+					throw new RuntimeException("Invalid value for restrictToSupportedVisitLocations,use true or false");
+				}
+				
+			}
 			
 			// if the "tags" attribute has been specified, load all the locations referenced by tag
 			if (parameters.get("tags") != null) {
@@ -390,6 +411,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			// if no locations have been specified by the order attribute, use all non-retired locations
 			if (locations.isEmpty()) {
 				locations = Context.getLocationService().getAllLocations(false);
+			}
+			
+			// restrict to visit locations if necessary
+			if ((parameters.get("restrictToCurrentVisitLocation") != null
+			        && "true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation").toString())
+			        || "true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(
+			            HtmlFormEntryConstants.GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION)))
+			        && context.getVisit() != null) {
+				locations = removeLocationsNotEqualToOrDescendentOf(locations, ((Visit) context.getVisit()).getLocation());
 			}
 			
 			// Set default values
@@ -577,6 +607,48 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	}
 	
 	/**
+	 * Iterates through the "locations" list and removed all that are not equal to, or a descendent of,
+	 * the "testLocation"
+	 *
+	 * @param locations
+	 * @param testLocation
+	 * @return
+	 */
+	private List<Location> removeLocationsNotEqualToOrDescendentOf(List<Location> locations, Location testLocation) {
+		
+		if (testLocation == null) {
+			return locations;
+		}
+		
+		Iterator<Location> i = locations.iterator();
+		
+		while (i.hasNext()) {
+			if (!isLocationEqualToOrDescendentOf(i.next(), testLocation)) {
+				i.remove();
+			}
+		}
+		
+		return locations;
+	}
+	
+	/**
+	 * Returns true/false whether the given location is equal to, or a descendent of, "testLocation"
+	 *
+	 * @param location
+	 * @param testLocation
+	 * @return
+	 */
+	private Boolean isLocationEqualToOrDescendentOf(Location location, Location testLocation) {
+		if (location == null) {
+			return false;
+		} else if (location.equals(testLocation)) {
+			return true;
+		} else {
+			return isLocationEqualToOrDescendentOf(location.getParentLocation(), testLocation);
+		}
+	}
+	
+	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
 	@Override
@@ -657,7 +729,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	/**
 	 * selects the correct setter function for provider/location widgets according to its type
-	 * 
+	 *
 	 * @param widget- dropdown or autocomplete
 	 * @return
 	 */
@@ -673,7 +745,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	/**
 	 * selects the correct getter function for provider/location widgets according to its type
-	 * 
+	 *
 	 * @param widget - dropdown or autocomplete
 	 * @return
 	 */
@@ -850,6 +922,26 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	private DateMidnight stripTimeComponent(Date date) {
 		return new DateMidnight(date);
+	}
+	
+	public static Set<Location> getAllVisitsAndChildLocations(Set<Location> visitLocations,
+	        Set<Location> traversedLocations) {
+		
+		Set<Location> locations = new HashSet<Location>();
+		
+		for (Location visitLocation : visitLocations) {
+			if (!traversedLocations.contains(visitLocation)) {
+				locations.add(visitLocation);
+				traversedLocations.add(visitLocation);
+				
+				if (visitLocation.getChildLocations() != null) {
+					locations.addAll(getAllVisitsAndChildLocations(visitLocation.getChildLocations(), traversedLocations));
+					
+				}
+			}
+			
+		}
+		return locations;
 	}
 	
 }

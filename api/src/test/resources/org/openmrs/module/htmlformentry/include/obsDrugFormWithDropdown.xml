@@ -1,0 +1,9 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+
+    Allergic to drug: <obs conceptId="1000" answerDrugIds="3cfcf118-931c-46f7-8ff6-7b876f0d4202,05ec820a-d297-44e3-be6e-698531d9dd3f"/>
+
+    <submit/>
+</htmlform>
