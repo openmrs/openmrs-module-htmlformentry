@@ -23,6 +23,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
@@ -206,7 +207,7 @@ public class DrugOrderWidget implements Widget {
 			Map<String, String> c = widgetConfig.getAttributes(property);
 			if (c != null) {
 				String key = c.toString();
-				String widgetHtml = generateHtmlForWidget(property, w, context);
+				String widgetHtml = generateHtmlForWidget(property, w, c, context);
 				// If no template was supplied, or if the template does not contain this widget, add to the default section
 				if (StringUtils.isBlank(templateContent) || !templateContent.contains(key)) {
 					defaultContent.append(widgetHtml);
@@ -246,9 +247,10 @@ public class DrugOrderWidget implements Widget {
 	/**
 	 * @return the html to render for each found property widget
 	 */
-	public String generateHtmlForWidget(String property, Widget w, FormEntryContext context) {
+	public String generateHtmlForWidget(String property, Widget w, Map<String, String> attrs, FormEntryContext context) {
 		StringBuilder ret = new StringBuilder();
-		String label = translate("htmlformentry.drugOrder." + property);
+		String labelCode = attrs.getOrDefault(DrugOrderTagHandler.LABEL_ATTRIBUTE, "htmlformentry.drugOrder." + property);
+		String label = translate(labelCode);
 		ret.append("<div class=\"order-field ").append(property).append("\">");
 		ret.append("<div class=\"order-field-label ").append(property).append("\">");
 		ret.append(label);
