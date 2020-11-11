@@ -38,6 +38,10 @@
         return ret;
     }
 
+    drugOrderWidget.drugsAlreadyAdded = function(config) {
+        return $('.drugorders-drug-section').length > 0;
+    }
+
     drugOrderWidget.drugAlreadyAdded = function(config, drugId) {
         return $('#drugorders-drug-section-' + drugId).length > 0;
     }
@@ -84,6 +88,9 @@
         // Set up watch for an encounter date change.  If date changes, re-initialize all drug sections
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         $encDateHidden.change(function() {
+            if (drugOrderWidget.drugsAlreadyAdded(config)) {
+                alert(config.translations.encounterDateChangeWarning);
+            }
             drugOrderWidget.refreshDrugs(config);
         });
     }
@@ -93,7 +100,7 @@
         $widgetField.find(".drugorders-order-section").empty();
 
         drugOrderWidget.getDrugsToRender(config).forEach(function(drug) {
-            drugOrderWidget.configureDrugOrderWidget(config, null, drug);
+            drugOrderWidget.configureDrugOrderWidget(config, drug);
         });
     }
 
@@ -113,7 +120,7 @@
             if (drugId !== '') {
                 var drug = drugOrderWidget.getDrugConfig(config, drugId);
                 if (!drugOrderWidget.drugAlreadyAdded(config, drugId)) {
-                    drugOrderWidget.configureDrugOrderWidget(config, null, drug);
+                    drugOrderWidget.configureDrugOrderWidget(config, drug);
                 }
                 $(this).val('');
             }
@@ -155,7 +162,7 @@
      * The purpose of this function is to re-initialize a given drug order section, in response to the mode
      * and to interactions on the form (encounter date changes, action changes, etc).
      */
-    drugOrderWidget.configureDrugOrderWidget = function(config, action, drugConfig) {
+    drugOrderWidget.configureDrugOrderWidget = function(config, drugConfig) {
         var $elementSection = $('#' + config.fieldName);
         var $ordersSection = $elementSection.find('.drugorders-order-section');
 
@@ -500,6 +507,21 @@
             $ret.append($doseSection);
         }
         return $ret;
+    }
+
+    drugOrderWidget.resetWidget = function(data) {
+        console.log(data);
+        data.values.forEach(function(val) {
+            var config = data.config;
+            var drugId = val.drugId;
+            var drug = drugOrderWidget.getDrugConfig(config, drugId);
+            if (!drugOrderWidget.drugAlreadyAdded(config, drugId)) {
+                drugOrderWidget.configureDrugOrderWidget(config, drug);
+                val.fields.forEach(function(field) {
+                    setValueByName(field.name, field.value);
+                });
+            }
+        });
     }
 
 }( window.drugOrderWidget = window.drugOrderWidget || {}, jQuery ));

@@ -40,6 +40,7 @@ import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.ReflectionUtils;
@@ -546,21 +547,29 @@ public class FormEntrySession {
 				if (previousOrder != null && voidedOrders.contains(previousOrder.getOrderId())) {
 					previousOrder = previousOrder.getPreviousOrder();
 				}
-				// If at this point there is no previous order, then set the action to NEW
+				// If at this point there is no previous order, then adjust the action
+				boolean processOrder = true;
 				if (previousOrder == null) {
-					order.setAction(Order.Action.NEW);
+					if (order.getAction() == Order.Action.DISCONTINUE) {
+						processOrder = false; // There is nothing to discontinue, it has already been voided, so do nothing
+					} else {
+						order.setAction(Order.Action.NEW); // If this was a revision, now it is new as previous is voided
+					}
+					
 				}
-				// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
-				if (order.getAction() == Order.Action.RENEW) {
-					Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
-					dateStoppedField.setAccessible(true);
-					// To be consistent with OrderService, set this to the second prior to the order activation date
-					Date dateStopped = DateUtils.addSeconds(order.getDateActivated(), -1);
-					ReflectionUtils.setField(dateStoppedField, previousOrder, dateStopped);
+				if (processOrder) {
+					// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
+					if (order.getAction() == Order.Action.RENEW) {
+						Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+						dateStoppedField.setAccessible(true);
+						// To be consistent with OrderService, set this to the second prior to the order activation date
+						Date dateStopped = DateUtils.addSeconds(order.getDateActivated(), -1);
+						ReflectionUtils.setField(dateStoppedField, previousOrder, dateStopped);
+					}
+					order.setPreviousOrder(previousOrder);
+					order.setEncounter(encounter);
+					encounter.addOrder(order);
 				}
-				order.setPreviousOrder(previousOrder);
-				order.setEncounter(encounter);
-				encounter.addOrder(order);
 			}
 		}
 		
@@ -866,10 +875,24 @@ public class FormEntrySession {
 		} else {
 			StringBuilder sb = new StringBuilder();
 			
+			// Get all of the widgets registered, but remove those Widgets that are handled directly by other widgets
+			Set<DrugOrderWidget> drugOrderWidgets = new HashSet<>();
+			Map<Widget, String> widgets = new HashMap<>(context.getFieldNames());
+			for (Widget w : context.getFieldNames().keySet()) {
+				if (w instanceof DrugOrderWidget) {
+					drugOrderWidgets.add((DrugOrderWidget) w);
+				} else {
+					widgets.put(w, context.getFieldNames().get(w));
+				}
+			}
+			for (DrugOrderWidget drugOrderWidget : drugOrderWidgets) {
+				widgets.keySet().removeAll(drugOrderWidget.getWidgets().values());
+			}
+			
 			// iterate through all the widgets and set their values based on the values in the last submission
 			// if there is no value in the last submission, explicitly set the value as empty to override any default values
-			for (Map.Entry<Widget, String> entry : context.getFieldNames().entrySet()) {
-				Widget widgetType = entry.getKey();
+			for (Map.Entry<Widget, String> entry : widgets.entrySet()) {
+				Widget widget = entry.getKey();
 				String widgetFieldName = entry.getValue();
 				String val = lastSubmission.getParameter(widgetFieldName);
 				
@@ -880,8 +903,8 @@ public class FormEntrySession {
 				
 				if (val != null) {
 					// special case to set the display field when autocomplete is used
-					if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
-						Class widgetClass = ((AutocompleteWidget) widgetType).getOptionClass();
+					if (AutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
+						Class widgetClass = ((AutocompleteWidget) widget).getOptionClass();
 						
 						if (widgetClass != null) {
 							
@@ -958,11 +981,11 @@ public class FormEntrySession {
 					}
 					
 				} else {
-					if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
+					if (AutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
 						sb.append("$j('#" + widgetFieldName + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
-					} else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
+					} else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
 						sb.append("$j('#" + widgetFieldName + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
@@ -971,6 +994,11 @@ public class FormEntrySession {
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
 					}
 				}
+			}
+			
+			// Put these at the end to ensure they load after the encounterDate and other widgets
+			for (DrugOrderWidget drugOrderWidget : drugOrderWidgets) {
+				sb.append(drugOrderWidget.getLastSubmissionJavascript(context, lastSubmission));
 			}
 			return sb.toString();
 		}

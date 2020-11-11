@@ -408,6 +408,9 @@ function setValueByName(ele, val, options) {
           else {
             node.checked = (node.value == val);
           }
+          if (node.checked) {
+          	jQuery(node).change();
+		  }
         }
       }
       else {

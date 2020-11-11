@@ -82,54 +82,14 @@ public class DrugOrderWidget implements Widget {
 		return (ret == null ? new ArrayList<>() : ret);
 	}
 	
-	@Override
-	public String generateHtml(FormEntryContext context) {
+	/**
+	 * Configuration object that is passed into Javascript widgets and used to configure their
+	 * capabilities
+	 */
+	public JsonObject constructJavascriptConfig(FormEntryContext context) {
 		
-		CapturingPrintWriter writer = new CapturingPrintWriter();
 		String fieldName = context.getFieldName(this);
 		
-		// Wrap the entire widget in a div
-		writer.println("<div id=\"" + fieldName + "\" class=\"drugorders-element\">");
-		
-		// Add a section that will contain the selected drug orders
-		writer.println("<div id=\"" + fieldName + "_orders\" class=\"drugorders-order-section\"></div>");
-		
-		// Add a section that can contain a selector
-		writer.println("<div id=\"" + fieldName + "_header\" class=\"drugorders-selector-section\"></div>");
-		
-		// Add a section that contains the order form template to use for entering orders
-		writer.println("<div id=\"" + fieldName + "_template\" class=\"drugorders-order-form\" style=\"display:none;\">");
-		String templateContent = getWidgetConfig().getTemplateContent();
-		StringBuilder defaultContent = new StringBuilder();
-		for (String property : widgets.keySet()) {
-			Widget w = widgets.get(property);
-			Map<String, String> c = widgetConfig.getAttributes(property);
-			if (c != null) {
-				String key = c.toString();
-				String widgetHtml = generateHtmlForWidget(property, w, context);
-				// If no template was supplied, or if the template does not contain this widget, add to the default section
-				if (StringUtils.isBlank(templateContent) || !templateContent.contains(key)) {
-					defaultContent.append(widgetHtml);
-				}
-				// Otherwise, replace the widget configuration with the widget html in the template
-				else {
-					templateContent = templateContent.replace(key, widgetHtml);
-				}
-			}
-		}
-		if (StringUtils.isNotBlank(templateContent)) {
-			writer.println(templateContent);
-		}
-		
-		// If a template was configured, then hide the non-template fields by default, otherwise show them
-		String nonTemplateStyle = StringUtils.isBlank(templateContent) ? "" : "display:none;";
-		writer.println("<div class=\"non-template-field\" style=\"" + nonTemplateStyle + "\">");
-		writer.println(defaultContent.toString());
-		writer.println("</div>");
-		
-		writer.println("</div>");
-		
-		// Establish a json config that initializes the javascript-based widget
 		Integer patId = context.getExistingPatient().getPatientId();
 		Integer encId = context.getExistingEncounter() == null ? null : context.getExistingEncounter().getEncounterId();
 		
@@ -169,6 +129,7 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "present");
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
+		translations.addTranslation(prefix, "encounterDateChangeWarning");
 		
 		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
 		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
@@ -218,13 +179,62 @@ public class DrugOrderWidget implements Widget {
 				}
 			}
 		}
+		return jsonConfig;
+	}
+	
+	@Override
+	public String generateHtml(FormEntryContext context) {
+		
+		CapturingPrintWriter writer = new CapturingPrintWriter();
+		String fieldName = context.getFieldName(this);
+		
+		// Wrap the entire widget in a div
+		writer.println("<div id=\"" + fieldName + "\" class=\"drugorders-element\">");
+		
+		// Add a section that will contain the selected drug orders
+		writer.println("<div id=\"" + fieldName + "_orders\" class=\"drugorders-order-section\"></div>");
+		
+		// Add a section that can contain a selector
+		writer.println("<div id=\"" + fieldName + "_header\" class=\"drugorders-selector-section\"></div>");
+		
+		// Add a section that contains the order form template to use for entering orders
+		writer.println("<div id=\"" + fieldName + "_template\" class=\"drugorders-order-form\" style=\"display:none;\">");
+		String templateContent = getWidgetConfig().getTemplateContent();
+		StringBuilder defaultContent = new StringBuilder();
+		for (String property : widgets.keySet()) {
+			Widget w = widgets.get(property);
+			Map<String, String> c = widgetConfig.getAttributes(property);
+			if (c != null) {
+				String key = c.toString();
+				String widgetHtml = generateHtmlForWidget(property, w, context);
+				// If no template was supplied, or if the template does not contain this widget, add to the default section
+				if (StringUtils.isBlank(templateContent) || !templateContent.contains(key)) {
+					defaultContent.append(widgetHtml);
+				}
+				// Otherwise, replace the widget configuration with the widget html in the template
+				else {
+					templateContent = templateContent.replace(key, widgetHtml);
+				}
+			}
+		}
+		if (StringUtils.isNotBlank(templateContent)) {
+			writer.println(templateContent);
+		}
+		
+		// If a template was configured, then hide the non-template fields by default, otherwise show them
+		String nonTemplateStyle = StringUtils.isBlank(templateContent) ? "" : "display:none;";
+		writer.println("<div class=\"non-template-field\" style=\"" + nonTemplateStyle + "\">");
+		writer.println(defaultContent.toString());
+		writer.println("</div>");
+		
+		writer.println("</div>");
 		
 		// Add javascript function to initialize widget as appropriate
 		String defaultLoadFn = "drugOrderWidget.initialize";
 		String onLoadFn = widgetConfig.getAttributes().getOrDefault("onLoadFunction", defaultLoadFn);
 		writer.println("<script type=\"text/javascript\">");
 		writer.println("jQuery(function() { " + onLoadFn + "(");
-		writer.println(jsonConfig.toJson());
+		writer.println(constructJavascriptConfig(context).toJson());
 		writer.println(")});");
 		writer.println("</script>");
 		
@@ -252,6 +262,30 @@ public class DrugOrderWidget implements Widget {
 		ret.append("</div>");
 		ret.append("</div>");
 		return ret.toString();
+	}
+	
+	public String getLastSubmissionJavascript(FormEntryContext c, HttpServletRequest r) {
+		CapturingPrintWriter writer = new CapturingPrintWriter();
+		writer.println("drugOrderWidget.resetWidget(");
+		JsonObject json = new JsonObject();
+		json.put("config", constructJavascriptConfig(c));
+		for (DrugOrderAnswer a : getDrugOrderField().getDrugOrderAnswers()) {
+			Drug d = a.getDrug();
+			Order.Action action = parseValue(getValue(c, r, d, "action"), Order.Action.class);
+			if (action != null) {
+				JsonObject o = json.addObjectToArray("values");
+				o.addString("drugId", d.getId().toString());
+				for (Widget w : widgets.values()) {
+					String fieldName = c.getFieldName(w) + "_" + d.getId();
+					JsonObject field = o.addObjectToArray("fields");
+					field.addString("name", fieldName);
+					field.addString("value", r.getParameter(fieldName));
+				}
+			}
+		}
+		writer.println(json.toJson());
+		writer.println(");");
+		return writer.getContent();
 	}
 	
 	@Override
@@ -309,12 +343,32 @@ public class DrugOrderWidget implements Widget {
 		return ret;
 	}
 	
-	protected String getValue(FormEntryContext context, HttpServletRequest req, Drug drug, String property) {
+	public String getFormField(FormEntryContext context, Drug drug, String property) {
 		try {
 			Widget w = widgets.get(property);
 			String requestParam = context.getFieldName(w) + "_" + drug.getId();
-			String value = req.getParameter(requestParam);
-			return value;
+			return requestParam;
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException("Unable to get form field for " + drug + " property " + property, e);
+		}
+	}
+	
+	public String getFormErrorField(FormEntryContext context, Drug drug, String property) {
+		try {
+			Widget w = widgets.get(property);
+			ErrorWidget ew = context.getErrorWidget(w);
+			String requestParam = context.getFieldName(ew) + "_" + drug.getId();
+			return requestParam;
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException("Unable to get form field for " + drug + " property " + property, e);
+		}
+	}
+	
+	protected String getValue(FormEntryContext context, HttpServletRequest req, Drug drug, String property) {
+		try {
+			return req.getParameter(getFormField(context, drug, property));
 		}
 		catch (Exception e) {
 			throw new IllegalArgumentException("Unable to get value from request", e);
@@ -455,5 +509,9 @@ public class DrugOrderWidget implements Widget {
 	
 	public void setWidgetConfig(DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
+	}
+	
+	public Map<String, Widget> getWidgets() {
+		return widgets;
 	}
 }
