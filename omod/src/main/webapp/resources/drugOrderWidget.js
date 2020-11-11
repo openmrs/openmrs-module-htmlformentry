@@ -510,18 +510,19 @@
     }
 
     drugOrderWidget.resetWidget = function(data) {
-        console.log(data);
-        data.values.forEach(function(val) {
-            var config = data.config;
-            var drugId = val.drugId;
-            var drug = drugOrderWidget.getDrugConfig(config, drugId);
-            if (!drugOrderWidget.drugAlreadyAdded(config, drugId)) {
-                drugOrderWidget.configureDrugOrderWidget(config, drug);
-                val.fields.forEach(function(field) {
-                    setValueByName(field.name, field.value);
-                });
-            }
-        });
+        if (data.values && data.values.length > 0) {
+            data.values.forEach(function (val) {
+                var config = data.config;
+                var drugId = val.drugId;
+                var drug = drugOrderWidget.getDrugConfig(config, drugId);
+                if (!drugOrderWidget.drugAlreadyAdded(config, drugId)) {
+                    drugOrderWidget.configureDrugOrderWidget(config, drug);
+                    val.fields.forEach(function (field) {
+                        setValueByName(field.name, field.value);
+                    });
+                }
+            });
+        }
     }
 
 }( window.drugOrderWidget = window.drugOrderWidget || {}, jQuery ));
