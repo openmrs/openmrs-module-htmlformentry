@@ -140,6 +140,7 @@ public abstract class SingleOptionWidget implements Widget {
 	 */
 	public void setOptions(List<Option> options) {
 		this.options = options;
+		addOptionIfMissing(initialValue);
 	}
 	
 }
