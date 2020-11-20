@@ -85,7 +85,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				optionalInput.ifPresent(i -> codedOrFreeText.setNonCoded(submission.getParameter(i)));
 			}
 		}
-		condition.setCondition(codedOrFreeText); 
+		condition.setCondition(codedOrFreeText);
 		
 		ConditionClinicalStatus status = getStatus(context, submission);
 		condition.setClinicalStatus(status);
