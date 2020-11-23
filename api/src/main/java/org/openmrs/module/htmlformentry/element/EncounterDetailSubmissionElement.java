@@ -771,7 +771,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				Date date = (Date) dateWidget.getValue(context, submission);
 				if (timeWidget != null) {
 					Date time = (Date) timeWidget.getValue(context, submission);
-					date = HtmlFormEntryUtil.combineDateAndTime(date, time);
+					String timeZone = timeWidget.getTimeZone(context, submission);
+					date = HtmlFormEntryUtil.combineDateAndTime(date, time, timeZone);
 				}
 				if (date == null)
 					throw new Exception("htmlformentry.error.required");
@@ -885,7 +886,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (timeWidget != null) {
 			Date time = (Date) timeWidget.getValue(session.getContext(), submission);
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
-			Date dateAndTime = HtmlFormEntryUtil.combineDateAndTime(e.getEncounterDatetime(), time);
+			String timeZone = timeWidget.getTimeZone(session.getContext(), submission);
+			Date dateAndTime = HtmlFormEntryUtil.combineDateAndTime(e.getEncounterDatetime(), time, timeZone);
 			e.setEncounterDatetime(dateAndTime);
 		}
 		if (providerWidget != null) {

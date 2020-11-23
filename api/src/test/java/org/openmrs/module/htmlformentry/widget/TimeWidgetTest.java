@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
@@ -60,7 +61,7 @@ public class TimeWidgetTest extends BaseHtmlFormEntryTest {
 		when(formEntryContext.getMode()).thenReturn(FormEntryContext.Mode.VIEW);
 		String html = widget.generateHtml(formEntryContext);
 		String expected = "<span class=\"value\">" + expectedValue + "</span>";
-		assertEquals(expected, html);
+		assertTrue(StringUtils.containsIgnoreCase(html, expected));
 	}
 	
 	protected void setGlobalProperty(String format) {
