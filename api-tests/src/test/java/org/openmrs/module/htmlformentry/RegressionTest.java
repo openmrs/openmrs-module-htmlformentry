@@ -1176,7 +1176,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 		new RegressionTestHelper() {
 			
 			@Override
-			public String getFormName() {<openMRSVersion>2.3.3-SNAPSHOT</openMRSVersion>
+			public String getFormName() {
 				return "simplestFormWithoutProvider";
 			}
 			
