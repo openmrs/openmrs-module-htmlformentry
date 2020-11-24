@@ -46,7 +46,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			protected String getStatusWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
-				return add(conceptSearchWidget, wasAdditionDetails ? 3 : 2);
+				return add(conceptSearchWidget, wasAdditionDetails ? 3 : 3);
 			}
 			
 			@Override
