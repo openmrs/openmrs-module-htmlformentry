@@ -151,9 +151,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append(htmlForConditionSearchWidget(context));
 		
 		// Show additional detail
-		if (showAdditionalDetail) {
-			ret.append(htmlForAdditionalDetailWidget(context));
-		}
+		ret.append(htmlForAdditionalDetailWidget(context, showAdditionalDetail));
 		
 		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
@@ -354,7 +352,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		return sb.toString();
 	}
 	
-	private String htmlForAdditionalDetailWidget(FormEntryContext context) {
+	private String htmlForAdditionalDetailWidget(FormEntryContext context, Boolean visible) {
 
 		String additionalDetailWrapperId = "condition-additional-detail-" + controlId;
 
@@ -368,7 +366,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		// Generate html
 		StringBuilder ret = new StringBuilder();
-		ret.append("<div id=\"" + additionalDetailWrapperId + "\">");
+		String displayNone = " style=\"display:none\"";
+		ret.append("<div id=\"" + additionalDetailWrapperId + (visible ? displayNone : "") + "\">");
 		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetail.label") + "</label>");
 		ret.append(getAdditionalDetailWidget().generateHtml(context));
 		ret.append("</div>");
