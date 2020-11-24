@@ -362,7 +362,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		context.registerWidget(getAdditionalDetailWidget());
 		
 		// Fill value for Edit/View
-		if (context.getMode() != Mode.ENTER && existingCondition != null) {
+		if (existingCondition != null) {
 			getAdditionalDetailWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
 		
