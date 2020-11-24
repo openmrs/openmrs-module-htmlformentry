@@ -175,7 +175,7 @@ public class ConditionElementTest {
 		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
 		
 		// replay
-		element.setShowAdditionalDetail(true);
+		element.setAdditionalDetailVisible(true);
 		element.handleSubmission(session, request);
 		
 		// verify
