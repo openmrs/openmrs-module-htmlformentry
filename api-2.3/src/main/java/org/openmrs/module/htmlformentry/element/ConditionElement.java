@@ -51,7 +51,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	private Concept presetConcept;
 	
-	private boolean showAdditionalDetail;
+	private boolean isAdditionalDetailVisible;
 	
 	// widgets
 	private ConceptSearchAutocompleteWidget conceptSearchWidget;
@@ -81,8 +81,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			if (concept != null) {
 				codedOrFreeText.setCoded(concept);
 			} else {
-				Optional<String> optionalInput = Optional.ofNullable(context.getFieldName(conceptSearchWidget));
-				optionalInput.ifPresent(i -> codedOrFreeText.setNonCoded(submission.getParameter(i)));
+				Optional.ofNullable(context.getFieldName(conceptSearchWidget))
+				        .ifPresent(fieldName -> codedOrFreeText.setNonCoded(submission.getParameter(fieldName)));
 			}
 		}
 		condition.setCondition(codedOrFreeText);
@@ -90,7 +90,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ConditionClinicalStatus status = getStatus(context, submission);
 		condition.setClinicalStatus(status);
 		
-		if (showAdditionalDetail) {
+		if (isAdditionalDetailVisible) {
 			condition.setAdditionalDetail(additionalDetailWidget.getValue(context, submission));
 		}
 		
@@ -151,7 +151,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		ret.append(htmlForConditionSearchWidget(context));
 		
 		// Show additional detail
-		ret.append(htmlForAdditionalDetailWidget(context, showAdditionalDetail));
+		ret.append(htmlForAdditionalDetailWidget(context, isAdditionalDetailVisible));
 		
 		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
@@ -244,7 +244,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		context.registerErrorWidget(conceptSearchWidget, conditionSearchErrorWidget);
 		
 		StringBuilder ret = new StringBuilder();
-
+		
 		String searchWidgetWrapperId = "condition-" + controlId;
 		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
 		
@@ -353,21 +353,20 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	}
 	
 	private String htmlForAdditionalDetailWidget(FormEntryContext context, Boolean visible) {
-
+		
 		String additionalDetailWrapperId = "condition-additional-detail-" + controlId;
-
+		
 		setAdditionalDetailWidget(new TextFieldWidget());
 		context.registerWidget(getAdditionalDetailWidget());
 		
-		// Fill value for Edit/View
 		if (existingCondition != null) {
 			getAdditionalDetailWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
 		
 		// Generate html
 		StringBuilder ret = new StringBuilder();
-		String displayNone = " style=\"display:none\"";
-		ret.append("<div id=\"" + additionalDetailWrapperId + (visible ? displayNone : "") + "\">");
+		String displayNone = visible ? "" : " style=\"display:none\"";
+		ret.append("<div id=\"" + additionalDetailWrapperId + "\"" + displayNone + ">");
 		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetail.label") + "</label>");
 		ret.append(getAdditionalDetailWidget().generateHtml(context));
 		ret.append("</div>");
@@ -446,12 +445,12 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		this.presetConcept = presetConcept;
 	}
 	
-	public boolean isShowAdditionalDetail() {
-		return showAdditionalDetail;
+	public boolean isAdditionalDetailVisible() {
+		return isAdditionalDetailVisible;
 	}
 	
-	public void setShowAdditionalDetail(boolean showAdditionalDetail) {
-		this.showAdditionalDetail = showAdditionalDetail;
+	public void setAdditionalDetailVisible(boolean showAdditionalDetail) {
+		this.isAdditionalDetailVisible = showAdditionalDetail;
 	}
 	
 	// available for testing purposes only
