@@ -246,8 +246,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		context.registerErrorWidget(conceptSearchWidget, conditionSearchErrorWidget);
 		
 		StringBuilder ret = new StringBuilder();
-		
-		// Create wrapper id
+
 		String searchWidgetWrapperId = "condition-" + controlId;
 		ret.append("<div id=\"" + searchWidgetWrapperId + "\">");
 		
@@ -356,11 +355,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	}
 	
 	private String htmlForAdditionalDetailWidget(FormEntryContext context) {
-		
-		// Create wrapper id
+
 		String additionalDetailWrapperId = "condition-additional-detail-" + controlId;
-		
-		// Register widget
+
 		setAdditionalDetailWidget(new TextFieldWidget());
 		context.registerWidget(getAdditionalDetailWidget());
 		

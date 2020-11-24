@@ -32,8 +32,7 @@ public class ConditionTagHandler extends SubstitutionTagHandler {
 		if (!StringUtils.isEmpty(conceptId)) {
 			conditionElement.setPresetConcept(HtmlFormEntryUtil.getConcept(conceptId));
 		}
-		
-		// Fill show additional detail attribute
+
 		String showAdditionalDetail = attributes.get("showAdditionalDetail");
 		if (StringUtils.equals("true", showAdditionalDetail)) {
 			conditionElement.setShowAdditionalDetail(true);
