@@ -51,12 +51,11 @@ public class TimeWidget implements Widget {
 			if (initialValue != null) {
 				StringBuilder sb = new StringBuilder();
 				toPrint = timeFormat().format(initialValue);
-				sb.append(WidgetFactory.displayValue(toPrint));
-				//Format the datetime with server timezone
-				String format = "yyyy-MM-dd'T'HH:mm:ssZ";
-				SimpleDateFormat dateFormatter = new SimpleDateFormat(format);
-				sb.append("<span class=\"hfe-dateTime\" value=\"").append(dateFormatter.format(initialValue))
-						.append("\">");
+				//Get server timezone
+				SimpleDateFormat dateFormatYouWant = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+				String newDate = dateFormatYouWant.format(initialValue);
+				String timezone = newDate.substring(newDate.length()-5);
+				sb.append("<span class=\"value\" tz=\"").append(timezone).append("\">").append(toPrint).append("</span>");
 				return sb.toString();
 			} else {
 				if (hideSeconds) {
