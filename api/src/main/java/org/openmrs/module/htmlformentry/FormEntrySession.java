@@ -3,13 +3,17 @@ package org.openmrs.module.htmlformentry;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -17,6 +21,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Location;
@@ -35,8 +40,10 @@ import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
 
@@ -521,6 +528,51 @@ public class FormEntrySession {
 			}
 		}
 		
+		// Handle orders
+		
+		// First, we void any of the previous orders that are indicated, and keep track of which are voided
+		Set<Integer> voidedOrders = new HashSet<>();
+		if (submissionActions.getOrdersToVoid() != null) {
+			for (Order orderToVoid : submissionActions.getOrdersToVoid()) {
+				Context.getOrderService().voidOrder(orderToVoid, "Voided by htmlformentry");
+				voidedOrders.add(orderToVoid.getOrderId());
+			}
+		}
+		
+		// Next, we handle any new and revised orders
+		if (submissionActions.getOrdersToCreate() != null) {
+			for (Order order : submissionActions.getOrdersToCreate()) {
+				Order previousOrder = order.getPreviousOrder();
+				// If the previousOrder was just voided, then set the previous order to that order's previous order
+				if (previousOrder != null && voidedOrders.contains(previousOrder.getOrderId())) {
+					previousOrder = previousOrder.getPreviousOrder();
+				}
+				// If at this point there is no previous order, then adjust the action
+				boolean processOrder = true;
+				if (previousOrder == null) {
+					if (order.getAction() == Order.Action.DISCONTINUE) {
+						processOrder = false; // There is nothing to discontinue, it has already been voided, so do nothing
+					} else {
+						order.setAction(Order.Action.NEW); // If this was a revision, now it is new as previous is voided
+					}
+					
+				}
+				if (processOrder) {
+					// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
+					if (order.getAction() == Order.Action.RENEW) {
+						Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+						dateStoppedField.setAccessible(true);
+						// To be consistent with OrderService, set this to the second prior to the order activation date
+						Date dateStopped = DateUtils.addSeconds(order.getDateActivated(), -1);
+						ReflectionUtils.setField(dateStoppedField, previousOrder, dateStopped);
+					}
+					order.setPreviousOrder(previousOrder);
+					order.setEncounter(encounter);
+					encounter.addOrder(order);
+				}
+			}
+		}
+		
 		// propagate encounterDatetime to PatientPrograms where necessary
 		if (submissionActions.getPatientProgramsToCreate() != null) {
 			for (PatientProgram pp : submissionActions.getPatientProgramsToCreate()) {
@@ -823,10 +875,24 @@ public class FormEntrySession {
 		} else {
 			StringBuilder sb = new StringBuilder();
 			
+			// Get all of the widgets registered, but remove those Widgets that are handled directly by other widgets
+			Set<DrugOrderWidget> drugOrderWidgets = new HashSet<>();
+			Map<Widget, String> widgets = new HashMap<>(context.getFieldNames());
+			for (Widget w : context.getFieldNames().keySet()) {
+				if (w instanceof DrugOrderWidget) {
+					drugOrderWidgets.add((DrugOrderWidget) w);
+				} else {
+					widgets.put(w, context.getFieldNames().get(w));
+				}
+			}
+			for (DrugOrderWidget drugOrderWidget : drugOrderWidgets) {
+				widgets.keySet().removeAll(drugOrderWidget.getWidgets().values());
+			}
+			
 			// iterate through all the widgets and set their values based on the values in the last submission
 			// if there is no value in the last submission, explicitly set the value as empty to override any default values
-			for (Map.Entry<Widget, String> entry : context.getFieldNames().entrySet()) {
-				Widget widgetType = entry.getKey();
+			for (Map.Entry<Widget, String> entry : widgets.entrySet()) {
+				Widget widget = entry.getKey();
 				String widgetFieldName = entry.getValue();
 				String val = lastSubmission.getParameter(widgetFieldName);
 				
@@ -837,8 +903,8 @@ public class FormEntrySession {
 				
 				if (val != null) {
 					// special case to set the display field when autocomplete is used
-					if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
-						Class widgetClass = ((AutocompleteWidget) widgetType).getOptionClass();
+					if (AutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
+						Class widgetClass = ((AutocompleteWidget) widget).getOptionClass();
 						
 						if (widgetClass != null) {
 							
@@ -915,11 +981,11 @@ public class FormEntrySession {
 					}
 					
 				} else {
-					if (AutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
+					if (AutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
 						sb.append("$j('#" + widgetFieldName + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
-					} else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(widgetType.getClass())) {
+					} else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
 						sb.append("$j('#" + widgetFieldName + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "_hid" + "').val('');\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
@@ -928,6 +994,11 @@ public class FormEntrySession {
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
 					}
 				}
+			}
+			
+			// Put these at the end to ensure they load after the encounterDate and other widgets
+			for (DrugOrderWidget drugOrderWidget : drugOrderWidgets) {
+				sb.append(drugOrderWidget.getLastSubmissionJavascript(context, lastSubmission));
 			}
 			return sb.toString();
 		}
