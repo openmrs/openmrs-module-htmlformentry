@@ -45,8 +45,8 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				return add(conceptSearchWidget, 2);
 			}
 			
-			protected String getStatusWidget(String conceptSearchWidget, boolean wasAdditionDetails) {
-				return add(conceptSearchWidget, wasAdditionDetails ? 3 : 3);
+			protected String getStatusWidget(String conceptSearchWidget) {
+				return add(conceptSearchWidget, 3);
 			}
 			
 			@Override
@@ -76,22 +76,22 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(widgets.get("Optional Coded Condition:"), "Epilepsy");
 				request.addParameter(widgets.get("Optional Coded Condition:") + "_hid", "3476");
 				request.addParameter(getAdditionalDetailWidget(widgets.get("Optional Coded Condition:")),
-				    "Additional detail");
-				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:"), true), "active");
+				    "Additional detail on this epilepsy");
+				request.addParameter(getStatusWidget(widgets.get("Optional Coded Condition:")), "active");
 				
 				// filling the required coded condition tag
 				request.addParameter(widgets.get("Required Coded Condition:"), "Indigestion");
 				request.addParameter(widgets.get("Required Coded Condition:") + "_hid", "3475");
 				request.addParameter(getAdditionalDetailWidget(widgets.get("Required Coded Condition:")),
-				    "Additional detail");
-				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:"), true), "active");
+				    "Some note on this indigestion");
+				request.addParameter(getStatusWidget(widgets.get("Required Coded Condition:")), "active");
 				
 				// filling the required non-coded condition tag
 				request.addParameter(widgets.get("Required Non-coded Condition:"), "Anemia (non-coded)");
-				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:"), false), "inactive");
+				request.addParameter(getStatusWidget(widgets.get("Required Non-coded Condition:")), "inactive");
 				
 				// filling up the preset condition tag
-				request.addParameter(getStatusWidget(widgets.get("Preset Condition:"), false), "history-of");
+				request.addParameter(getStatusWidget(widgets.get("Preset Condition:")), "history-of");
 			}
 			
 			@Override
@@ -108,6 +108,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Epilepsy"),
 					    actualCondition.getCondition().getCoded());
+					Assert.assertEquals("Additional detail on this epilepsy", actualCondition.getAdditionalDetail());
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
@@ -115,6 +116,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Indigestion"),
 					    actualCondition.getCondition().getCoded());
+					Assert.assertEquals("Some note on this indigestion", actualCondition.getAdditionalDetail());
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
@@ -144,10 +146,14 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				
 				// filling for the first time in EDIT mode the optional non-coded condition tag 
 				request.addParameter(widgets.get("Optional Non-coded Condition:"), "Sneezy cold (non-coded)");
-				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:"), false), "inactive");
+				request.addParameter(getStatusWidget(widgets.get("Optional Non-coded Condition:")), "inactive");
+				
+				// editing the required coded condition additional details
+				request.setParameter(getAdditionalDetailWidget(widgets.get("Required Coded Condition:")),
+				    "Updated note on this indigestion");
 				
 				// removing the status of the preset condition tag
-				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:"), false));
+				request.removeParameter(getStatusWidget(widgets.get("Preset Condition:")));
 			}
 			
 			@Override
@@ -164,6 +170,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 					Assert.assertEquals(ACTIVE, actualCondition.getClinicalStatus());
 					Assert.assertEquals(Context.getConceptService().getConceptByName("Indigestion"),
 					    actualCondition.getCondition().getCoded());
+					Assert.assertEquals("Updated note on this indigestion", actualCondition.getAdditionalDetail());
 					Assert.assertNotNull(actualCondition.getId());
 				}
 				{
@@ -203,7 +210,6 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				assertTrue(html.contains("Condition: <span class=\"value\">Edema</span>"));
 				// Verify for condition status
 				assertTrue(html.contains("Status: <span class=\"value\">inactive</span>"));
-				
 			}
 			
 			@Override
