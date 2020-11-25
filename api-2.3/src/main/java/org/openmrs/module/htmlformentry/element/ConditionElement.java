@@ -127,11 +127,11 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.VIEW) {
 			
 			if (StringUtils.isBlank(condition) && required) {
-				errors.add(new FormSubmissionError(context.getFieldName(conceptSearchWidget),
+				errors.add(new FormSubmissionError(conceptSearchWidget,
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.condition.required")));
 			}
 			if (status == null && required) {
-				errors.add(new FormSubmissionError(context.getFieldName(conditionStatusesWidget),
+				errors.add(new FormSubmissionError(conditionStatusesWidget,
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.status.required")));
 			}
 		}
