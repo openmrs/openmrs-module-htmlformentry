@@ -111,7 +111,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		List<FormSubmissionError> ret = new ArrayList<>();
+		List<FormSubmissionError> errors = new ArrayList<>();
 		
 		String condition = null;
 		if (StringUtils.isNotBlank((String) conceptSearchWidget.getValue(context, submission))) {
@@ -127,15 +127,15 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (context.getMode() != Mode.VIEW) {
 			
 			if (StringUtils.isBlank(condition) && required) {
-				ret.add(new FormSubmissionError(context.getFieldName(conceptSearchWidget),
+				errors.add(new FormSubmissionError(context.getFieldName(conceptSearchWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.condition.required")));
 			}
 			if (status == null && required) {
-				ret.add(new FormSubmissionError(context.getFieldName(conditionStatusesWidget),
+				errors.add(new FormSubmissionError(context.getFieldName(conditionStatusesWidget),
 				        Context.getMessageSourceService().getMessage("htmlformentry.conditionui.status.required")));
 			}
 		}
-		return ret;
+		return errors;
 	}
 	
 	@Override
@@ -147,15 +147,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		setExistingCondition(context);
 		StringBuilder ret = new StringBuilder();
 		ret.append("<div id=\"" + wrapperDivId + "\">");
-		// Show condition search
 		ret.append(htmlForConditionSearchWidget(context));
-		
-		// Show additional detail
 		ret.append(htmlForAdditionalDetailWidget(context, isAdditionalDetailVisible));
-		
-		// Show condition state
 		ret.append(htmlForConditionStatusesWidgets(context));
-		
 		ret.append("</div>");
 		return ret.toString();
 	}
@@ -363,15 +357,14 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			getAdditionalDetailWidget().setInitialValue(existingCondition.getAdditionalDetail());
 		}
 		
-		// Generate html
-		StringBuilder ret = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		String displayNone = visible ? "" : " style=\"display:none\"";
-		ret.append("<div id=\"" + additionalDetailWrapperId + "\"" + displayNone + ">");
-		ret.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetail.label") + "</label>");
-		ret.append(getAdditionalDetailWidget().generateHtml(context));
-		ret.append("</div>");
+		sb.append("<div id=\"" + additionalDetailWrapperId + "\"" + displayNone + ">");
+		sb.append("<label>" + mss.getMessage("htmlformentry.conditionui.additionalDetail.label") + "</label>");
+		sb.append(getAdditionalDetailWidget().generateHtml(context));
+		sb.append("</div>");
 		
-		return ret.toString();
+		return sb.toString();
 	}
 	
 	private ConditionClinicalStatus getStatus(FormEntryContext context, HttpServletRequest request) {
