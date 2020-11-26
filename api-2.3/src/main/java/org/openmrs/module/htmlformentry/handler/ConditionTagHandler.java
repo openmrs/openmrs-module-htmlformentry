@@ -33,6 +33,11 @@ public class ConditionTagHandler extends SubstitutionTagHandler {
 			conditionElement.setPresetConcept(HtmlFormEntryUtil.getConcept(conceptId));
 		}
 		
+		String showAdditionalDetail = attributes.get("showAdditionalDetail");
+		if (StringUtils.equals("true", showAdditionalDetail)) {
+			conditionElement.setAdditionalDetailVisible(true);
+		}
+		
 		session.getSubmissionController().addAction(conditionElement);
 		return conditionElement.generateHtml(session.getContext());
 	}
