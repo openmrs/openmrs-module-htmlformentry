@@ -698,7 +698,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							if (cc == null) {
 								throw new RuntimeException("Cannot find concept class " + className);
 							}
-							conceptAnswers.addAll(Context.getConceptService().getConceptsByClass(cc));
+							conceptAnswers.addAll((Collection<? extends Concept>) Context.getConceptService().getConceptsByClass(cc).stream().filter(it -> !it.getRetired()));
 						}
 						Collections.sort(conceptAnswers, conceptNameComparator);
 					}
