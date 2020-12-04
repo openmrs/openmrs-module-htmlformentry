@@ -183,7 +183,7 @@ public class ObsSubmissionElementTest {
 		option1.addName(new ConceptName("English 1", Locale.ENGLISH));
 		option1.addName(new ConceptName("Kreyol 1", LocaleUtility.fromSpecification("ht")));
 		
-		Concept option2 = new Concept(1);
+		Concept option2 = new Concept(2);
 		option2.addName(new ConceptName("English 2", Locale.ENGLISH));
 		option2.addName(new ConceptName("Kreyol 2", LocaleUtility.fromSpecification("ht")));
 		

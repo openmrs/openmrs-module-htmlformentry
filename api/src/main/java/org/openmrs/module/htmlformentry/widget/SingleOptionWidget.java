@@ -56,17 +56,7 @@ public abstract class SingleOptionWidget implements Widget {
 	protected void addOptionIfMissing(Object initialValue) {
 		Option initialValueOption = convertToOption(initialValue);
 		if (initialValueOption != null) {
-			boolean optionFound = false;
-			if (options != null) {
-				for (Option option : options) {
-					if (OpenmrsUtil.nullSafeEquals(option.getValue(), initialValueOption.getValue())) {
-						optionFound = true;
-					}
-				}
-			}
-			if (!optionFound) {
-				addOption(initialValueOption);
-			}
+			addOption(initialValueOption);
 		}
 	}
 	
@@ -119,9 +109,18 @@ public abstract class SingleOptionWidget implements Widget {
 	 * @param option
 	 */
 	public void addOption(Option option) {
-		if (options == null)
-			options = new ArrayList<Option>();
-		options.add(option);
+		if (options == null) {
+			options = new ArrayList<>();
+		}
+		boolean optionFound = false;
+		for (Option existingOption : options) {
+			if (OpenmrsUtil.nullSafeEquals(option.getValue(), existingOption.getValue())) {
+				optionFound = true;
+			}
+		}
+		if (!optionFound) {
+			options.add(option);
+		}
 	}
 	
 	/**

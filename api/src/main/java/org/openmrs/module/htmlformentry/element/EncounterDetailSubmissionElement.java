@@ -198,62 +198,41 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						}
 					}
 				}
-				
-				// Otherwise, use default options appropriate to the underlying OpenMRS version
+				// Otherwise, use default options
 				else {
-					if (openmrsVersionDoesNotSupportProviders()) {
-						// limit to users with the default OpenMRS PROVIDER role,
-						String defaultRole = RoleConstants.PROVIDER;
-						Role role = Context.getUserService().getRole(defaultRole);
-						if (role != null) {
-							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(role.getRole());
-						}
-						// If this role isn't used, default to all Users
-						if (users.isEmpty()) {
-							users = Context.getService(HtmlFormEntryService.class).getUsersAsPersonStubs(null);
-						}
-					} else {
-						// in OpenMRS 1.9+, get all suitable providers
-						users = getAllProvidersThatArePersonsAsPersonStubs();
-					}
+					users = getAllProvidersThatArePersonsAsPersonStubs();
 				}
 				
 				for (PersonStub personStub : users) {
-					
-					Option option = new Option(StringEscapeUtils.escapeHtml(personStub.toString()),
-					        personStub.getId().toString(), false);
+					String optionLabel = StringEscapeUtils.escapeHtml(personStub.toString());
+					Option option = new Option(optionLabel, personStub.getId().toString(), false);
 					providerUsers.add(option);
 				}
 				providerOptions.addAll(providerUsers);
-				
 			}
 			
-			// Set default values as appropriate
-			Person defaultProvider = null;
-			Option defProviderOption;
-			if (context.getExistingEncounter() != null) {
-				defaultProvider = EncounterCompatibility.getProvider(context.getExistingEncounter());
-				// this is done to avoid default provider being added twice due to that it can be added from the
-				// users = getAllProvidersThatArePersonsAsPersonStubs(); section with selected="false", therefore this can't be caught when
-				// searching whether the options list contains the 'defaultProvider'
-				boolean defaultOptionPresent = false;
-				if (defaultProvider != null) {
-					for (Option option : providerOptions) {
-						if (option.getValue().equals(defaultProvider.getId().toString())) {
-							defaultOptionPresent = true;
-							providerOptions.remove(option);
-							break;
-						}
-					}
-				}
-				if (defaultOptionPresent) {
-					defProviderOption = new Option(
-					        StringEscapeUtils.escapeHtml(defaultProvider.getPersonName().getFullName()),
-					        defaultProvider.getId().toString(), true);
-					providerOptions.add(defProviderOption);
-				}
-				
+			Collections.sort(providerOptions, new OptionComparator());
+			
+			if (("autocomplete").equals(parameters.get("type"))) {
+				providerWidget.addOption(new Option());
 			} else {
+				String emptyLabel = Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider");
+				providerWidget.addOption(new Option(emptyLabel, "", false));
+			}
+			if (!providerOptions.isEmpty()) {
+				for (Option option : providerOptions) {
+					providerWidget.addOption(option);
+				}
+			}
+			
+			// Configure the initial value of the widget with any provider value from an existing encounter
+			Person initialProviderValue = null;
+			if (context.getExistingEncounter() != null) {
+				initialProviderValue = EncounterCompatibility.getProvider(context.getExistingEncounter());
+			}
+			// If there is no existing encounter, then set the initial value with configured defaults, if they match valid options
+			else {
+				Person defaultProvider = null;
 				String defParam = (String) parameters.get("default");
 				if (StringUtils.hasText(defParam)) {
 					if ("currentuser".equalsIgnoreCase(defParam)) {
@@ -263,44 +242,26 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 					}
 					if (defaultProvider == null) {
 						throw new IllegalArgumentException("Invalid default provider specified for encounter: " + defParam);
-					} else {
-						defProviderOption = new Option(
-						        StringEscapeUtils.escapeHtml(defaultProvider.getPersonName().getFullName()),
-						        defaultProvider.getId().toString(), true);
-						for (Option option : providerOptions) {
-							if (option.getValue().equals(defProviderOption.getValue())) {
-								providerOptions.remove(option);
-								break;
-							}
+					}
+				}
+				if (defaultProvider != null && providerWidget.getOptions() != null) {
+					for (Option o : providerWidget.getOptions()) {
+						if (OpenmrsUtil.nullSafeEquals(defaultProvider.getId().toString(), o.getValue())) {
+							initialProviderValue = defaultProvider;
 						}
-						providerOptions.add(defProviderOption);
 					}
-					
 				}
 			}
-			if (defaultProvider != null) {
-				providerWidget.setInitialValue(new PersonStub(defaultProvider));
-			}
-			Collections.sort(providerOptions, new OptionComparator());
 			
-			if (("autocomplete").equals(parameters.get("type"))) {
-				providerWidget.addOption(new Option());
-				if (!providerOptions.isEmpty()) {
-					providerWidget.setOptions(providerOptions);
-				}
-				
-			} else {
-				// if initialValueIsSet=false, no initial/default provider, hence this shows the 'select input' field as first option
-				boolean initialValueIsSet = !(providerWidget.getInitialValue() == null);
-				providerWidget
-				        .addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"),
-				                "", !initialValueIsSet)); // if no initial or default value
-				
-				if (!providerOptions.isEmpty()) {
-					for (Option option : providerOptions) {
-						providerWidget.addOption(option);
-					}
-					
+			if (initialProviderValue != null) {
+				providerWidget.setInitialValue(new PersonStub(initialProviderValue));
+			}
+			
+			// Set the selected provider option appropriately
+			if (providerWidget.getOptions() != null) {
+				String selectedVal = initialProviderValue == null ? "" : initialProviderValue.getId().toString();
+				for (Option o : providerWidget.getOptions()) {
+					o.setSelected(OpenmrsUtil.nullSafeEquals(selectedVal, o.getValue()));
 				}
 			}
 			
@@ -422,30 +383,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				locations = removeLocationsNotEqualToOrDescendentOf(locations, ((Visit) context.getVisit()).getLocation());
 			}
 			
-			// Set default values
-			Location defaultLocation = null;
-			if (context.getExistingEncounter() != null) {
-				defaultLocation = context.getExistingEncounter().getLocation();
-			} else {
-				String defaultLocId = (String) parameters.get("default");
-				if (StringUtils.hasText(defaultLocId)) {
-					defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId, context);
-				}
-			}
-			defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
-			locationWidget.setInitialValue(defaultLocation);
-			
-			// if in EDIT mode, make sure that the default/selected location is one of the location options, so we don't accidentally lose it
-			if (defaultLocation != null && context.getMode().equals(Mode.EDIT)) {
-				if (!locations.contains(defaultLocation)) {
-					locations.add(defaultLocation);
-				}
-			}
-			
 			// now create the actual location options
 			for (Location location : locations) {
 				String label = HtmlFormEntryUtil.format(location);
-				Option option = new Option(label, location.getId().toString(), location.equals(defaultLocation));
+				Option option = new Option(label, location.getId().toString(), false);
 				locationOptions.add(option);
 			}
 			
@@ -461,12 +402,45 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 			} else {
 				boolean initialValueIsSet = !(locationWidget.getInitialValue() == null);
-				locationWidget
-				        .addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"),
-				                "", !initialValueIsSet));
+				String emptyLabel = Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation");
+				locationWidget.addOption(new Option(emptyLabel, "", !initialValueIsSet));
 				if (!locationOptions.isEmpty()) {
-					for (Option option : locationOptions)
+					for (Option option : locationOptions) {
 						locationWidget.addOption(option);
+					}
+				}
+			}
+			
+			// Configure the initial value of the widget with any location value from an existing encounter
+			Location initialValue = null;
+			if (context.getExistingEncounter() != null) {
+				initialValue = context.getExistingEncounter().getLocation();
+			}
+			// If there is no existing encounter, then set the initial value with configured defaults, if they match valid options
+			else {
+				Location defaultLocation = null;
+				String defaultLocId = (String) parameters.get("default");
+				if (StringUtils.hasText(defaultLocId)) {
+					defaultLocation = HtmlFormEntryUtil.getLocation(defaultLocId, context);
+				}
+				defaultLocation = defaultLocation == null ? context.getDefaultLocation() : defaultLocation;
+				if (defaultLocation != null && locationWidget.getOptions() != null) {
+					for (Option o : locationWidget.getOptions()) {
+						if (OpenmrsUtil.nullSafeEquals(defaultLocation.getId().toString(), o.getValue())) {
+							initialValue = defaultLocation;
+						}
+					}
+				}
+			}
+			
+			// Set the initial value of the widget based on the above
+			locationWidget.setInitialValue(initialValue);
+			
+			// Set the selected location option appropriately
+			if (locationWidget.getOptions() != null) {
+				String selectedVal = initialValue == null ? "" : initialValue.getId().toString();
+				for (Option o : locationWidget.getOptions()) {
+					o.setSelected(OpenmrsUtil.nullSafeEquals(selectedVal, o.getValue()));
 				}
 			}
 			
@@ -508,24 +482,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	 * without having to branch the module. We should remove this method when do a proper
 	 * implementation.
 	 *
-	 * @return
-	 */
-	private boolean openmrsVersionDoesNotSupportProviders() {
-		return OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6")
-		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7")
-		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.8");
-	}
-	
-	/**
-	 * This method exists to allow us to quickly support providers as introduce in OpenMRS 1.9.x,
-	 * without having to branch the module. We should remove this method when do a proper
-	 * implementation.
-	 *
 	 * @param persons
 	 */
 	private void removeNonProviders(List<Option> persons) {
-		if (openmrsVersionDoesNotSupportProviders())
-			return;
 		Set<Integer> legalPersonIds = getAllProviderPersonIds();
 		for (Iterator<Option> i = persons.iterator(); i.hasNext();) {
 			Option candidate = i.next();
@@ -542,9 +501,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	 * @return all providers that are attached to persons
 	 */
 	private List<Object> getAllProvidersThatArePersons() {
-		if (openmrsVersionDoesNotSupportProviders())
-			throw new RuntimeException(
-			        "Programming error in HTML Form Entry module. This method should not be called before OpenMRS 1.9.");
 		try {
 			Object providerService = Context.getService(Context.loadClass("org.openmrs.api.ProviderService"));
 			Method getProvidersMethod = providerService.getClass().getMethod("getAllProviders");
