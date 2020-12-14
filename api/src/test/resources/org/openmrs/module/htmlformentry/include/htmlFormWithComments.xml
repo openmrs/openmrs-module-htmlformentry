@@ -1,0 +1,6 @@
+<htmlform> <!-- Inline comments -->
+	Date: <encounterDate/>
+	Location: <encounterLocation />
+	Provider: <encounterProvider role="Provider"/>
+	<submit/>
+</htmlform>
