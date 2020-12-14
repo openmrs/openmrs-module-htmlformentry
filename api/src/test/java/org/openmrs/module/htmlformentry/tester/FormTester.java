@@ -8,6 +8,7 @@ import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlForm;
+import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.util.OpenmrsClassLoader;
 
 public class FormTester {
@@ -35,6 +36,11 @@ public class FormTester {
 			throw new IllegalArgumentException("Unable to load xml from resource: " + xmlPath, e);
 		}
 		return new FormTester(f);
+	}
+	
+	public HtmlForm saveForm() {
+		form = Context.getService(HtmlFormEntryService.class).saveHtmlForm(form);
+		return form;
 	}
 	
 	public FormSessionTester openForm(Patient patient, Mode mode) {
