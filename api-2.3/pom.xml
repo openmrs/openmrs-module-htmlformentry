@@ -13,7 +13,7 @@
     <description>2.3 api project for htmlformentry</description>
 
     <properties>
-        <openMRSVersion>2.3.2</openMRSVersion>
+        <openMRSVersion>2.3.3-SNAPSHOT</openMRSVersion>
 		<openMRSMinorVersion>2.3</openMRSMinorVersion>
     </properties>
 
@@ -108,7 +108,7 @@
 		<dependency>
 		    <groupId>javax.servlet</groupId>
 		    <artifactId>javax.servlet-api</artifactId>
-		    <version>3.0.1</version>
+		    <version>4.0.1</version>
 		    <scope>test</scope>
 		</dependency>
 		
