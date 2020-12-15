@@ -18,18 +18,18 @@ import org.springframework.util.StringUtils;
  */
 public class DateWidget implements Widget {
 	
-	private Date initialValue;
+	protected Date initialValue;
 	
-	private String onChangeFunction;
+	protected String onChangeFunction;
 	
 	private String dateFormat;
 	
-	private boolean hidden = false;
+	protected boolean hidden = false;
 	
 	public DateWidget() {
 	}
 	
-	private SimpleDateFormat dateFormat() {
+	protected SimpleDateFormat dateFormat() {
 		String df = dateFormat != null ? dateFormat
 		        : Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_DATE_FORMAT);
 		if (StringUtils.hasText(df)) {

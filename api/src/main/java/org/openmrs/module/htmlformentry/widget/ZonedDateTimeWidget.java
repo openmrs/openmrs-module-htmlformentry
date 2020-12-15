@@ -1,38 +1,33 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
 
-/**
- * A widget that allows the selection of a certain time-of-day. To handle both a date and time, see
- * {@see DateTimeWidget}.
- */
-public class TimeWidget implements Widget {
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
+
+public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	public static final String DEFAULT_TIME_FORMAT = "HH:mm";
 	
-	private Date initialValue;
+	protected Date initialValue;
 	
-	private boolean hidden;
+	protected boolean hidden;
 	
-	private boolean hideSeconds = false;
+	protected boolean hideSeconds = false;
 	
 	private String timeFormat;
 	
-	public TimeWidget() {
-		
+	public ZonedDateTimeWidget() {
 	}
 	
-	private SimpleDateFormat timeFormat() {
+	protected SimpleDateFormat timeFormat() {
 		String df = timeFormat != null ? timeFormat
 		        : Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIME_FORMAT);
 		if (!StringUtils.hasText(df)) {
@@ -44,35 +39,63 @@ public class TimeWidget implements Widget {
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
-	@Override
+	
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
+		if (context.getMode() == FormEntryContext.Mode.VIEW) {
 			String toPrint = "";
 			if (initialValue != null) {
 				StringBuilder sb = new StringBuilder();
-				toPrint = timeFormat().format(initialValue);
-				//Get server timezone
-				SimpleDateFormat dateFormatYouWant = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-				String newDate = dateFormatYouWant.format(initialValue);
-				String timezone = newDate.substring(newDate.length() - 5);
-				sb.append("<span class=\"value\" tz=\"").append(timezone).append("\">").append(toPrint).append("</span>");
+				String formatTime = "dd/MM/yyyy HH:mm:ss";
+				SimpleDateFormat utcFormatter = new SimpleDateFormat(formatTime);
+				utcFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+				sb.append("<span id=\"dateTimeWithTimezone\" class=\"value\">").append(utcFormatter.format(initialValue))
+				        .append("</span>");
 				return sb.toString();
 			} else {
+				StringBuilder sb = new StringBuilder();
+				toPrint = "________";
+				sb.append(WidgetFactory.displayEmptyValue(toPrint));
 				if (hideSeconds) {
 					toPrint = "___:___";
 				} else {
 					toPrint = "___:___:___";
-					
 				}
-				return WidgetFactory.displayEmptyValue(toPrint);
+				sb.append(WidgetFactory.displayEmptyValue(toPrint));
+				return sb.toString();
 			}
 		} else {
 			Calendar valAsCal = null;
 			if (initialValue != null) {
 				valAsCal = Calendar.getInstance();
 				valAsCal.setTime(initialValue);
+				
 			}
 			StringBuilder sb = new StringBuilder();
+			String fieldName = context.getFieldName(this);
+			if (!hidden) {
+				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
+			}
+			sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
+			if (onChangeFunction != null) {
+				sb.append(" onChange=\"" + onChangeFunction + "\" ");
+			}
+			if (hidden && initialValue != null) {
+				// set the value here, since it won't be set by the ui widget
+				sb.append(" value=\"" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "\"");
+			}
+			sb.append(" />");
+			if (!hidden) {
+				if ("true".equals(
+				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_SHOW_DATE_FORMAT))) {
+					sb.append(" (" + dateFormat().toLocalizedPattern().toLowerCase() + ")");
+				}
+				
+				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
+				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
+				if (initialValue != null)
+					sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
+				sb.append(")</script>");
+			}
 			
 			if (hidden) {
 				sb.append("<input type=\"hidden\" class=\"hfe-hours\" name=\"").append(context.getFieldName(this))
@@ -85,6 +108,7 @@ public class TimeWidget implements Widget {
 					        .append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
 				}
 			} else {
+				
 				sb.append("<select class=\"hfe-hours\" name=\"").append(context.getFieldName(this)).append("hours")
 				        .append("\">");
 				for (int i = 0; i <= 23; ++i) {
@@ -134,7 +158,6 @@ public class TimeWidget implements Widget {
 				        .append("timeZone").append("\">");
 				sb.append("</input>");
 			}
-			
 			return sb.toString();
 		}
 	}
@@ -144,20 +167,17 @@ public class TimeWidget implements Widget {
 	 *      javax.servlet.http.HttpServletRequest)
 	 */
 	
-	public String getTimeZone(FormEntryContext context, HttpServletRequest request) {
-		try {
-			String tz = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timeZone",
-			    String.class);
-			return tz;
-		}
-		catch (Exception ex) {
-			throw new IllegalArgumentException("Illegal value");
-		}
+	/**
+	 * @return The timezone string info that was submitted as part of the time submission.
+	 */
+	public String getSubmittedTimeZone(FormEntryContext context, HttpServletRequest request) {
+		return (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timeZone", String.class);
 	}
 	
-	@Override
-	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+	//@Override
+	public Date getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
+			
 			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "hours",
 			    Integer.class);
 			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "minutes",
@@ -177,13 +197,24 @@ public class TimeWidget implements Widget {
 				return null;
 			}
 			
-			Calendar cal = Calendar.getInstance();
-			cal.set(1900, 1, 1);
-			cal.set(Calendar.HOUR_OF_DAY, h);
-			cal.set(Calendar.MINUTE, m);
-			cal.set(Calendar.SECOND, s);
-			cal.set(Calendar.MILLISECOND, 0);
-			return cal.getTime();
+			String timezone = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timeZone",
+			    String.class);
+			Date d = (Date) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Date.class);
+			
+			Calendar calDateTime = Calendar.getInstance();
+			calDateTime.setTime(d);
+			
+			calDateTime.set(Calendar.HOUR_OF_DAY, h);
+			calDateTime.set(Calendar.MINUTE, m);
+			calDateTime.set(Calendar.SECOND, s);
+			calDateTime.set(Calendar.MILLISECOND, 0);
+			if (org.apache.commons.lang.StringUtils.isNotEmpty(timezone)) {
+				TimeZone tz = TimeZone.getTimeZone(timezone);
+				calDateTime.setTimeZone(tz);
+			}
+			
+			return calDateTime.getTime();
+			
 		}
 		catch (Exception ex) {
 			throw new IllegalArgumentException("Illegal value");
@@ -196,6 +227,10 @@ public class TimeWidget implements Widget {
 	@Override
 	public void setInitialValue(Object value) {
 		initialValue = (Date) value;
+	}
+	
+	public Object getInitialValue() {
+		return this.initialValue;
 	}
 	
 	public void setHidden(boolean hidden) {
@@ -213,4 +248,5 @@ public class TimeWidget implements Widget {
 	public void setTimeFormat(String timeFormat) {
 		this.timeFormat = timeFormat;
 	}
+	
 }

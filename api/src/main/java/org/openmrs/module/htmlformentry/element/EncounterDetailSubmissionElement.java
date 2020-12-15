@@ -24,17 +24,7 @@ import org.openmrs.module.htmlformentry.MetadataMappingResolver;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
-import org.openmrs.module.htmlformentry.widget.DateWidget;
-import org.openmrs.module.htmlformentry.widget.DropdownWidget;
-import org.openmrs.module.htmlformentry.widget.EncounterTypeWidget;
-import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.Option;
-import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
-import org.openmrs.module.htmlformentry.widget.TimeWidget;
-import org.openmrs.module.htmlformentry.widget.ToggleWidget;
-import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.module.htmlformentry.widget.*;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
@@ -42,15 +32,8 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.ZonedDateTime;
+import java.util.*;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -66,9 +49,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	private ErrorWidget dateErrorWidget;
 	
-	private TimeWidget timeWidget;
-	
-	private ErrorWidget timeErrorWidget;
+	private ZonedDateTimeWidget zonedDateTimeWidget;
 	
 	private SingleOptionWidget providerWidget;
 	
@@ -96,6 +77,28 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
 	}
 	
+	private void RegisterDateAndTime(FormEntryContext context, DateWidget widget, Map<String, Object> parameters) {
+		if (context.getExistingEncounter() != null) {
+			widget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
+		} else if (context.getDefaultEncounterDate() != null) {
+			widget.setInitialValue(context.getDefaultEncounterDate());
+		} else if (parameters.get("defaultDate") != null) {
+			widget.setInitialValue(parameters.get("defaultDate"));
+		}
+		
+		if (parameters.get("disallowMultipleEncountersOnDate") != null
+		        && StringUtils.hasText((String) parameters.get("disallowMultipleEncountersOnDate"))) {
+			widget.setOnChangeFunction(
+			    "existingEncounterOnDate(this, '" + parameters.get("disallowMultipleEncountersOnDate") + "') ");
+		}
+		context.registerWidget(widget);
+		context.registerErrorWidget(widget, dateErrorWidget);
+		
+		if ("hidden".equals(parameters.get("widget"))) {
+			dateWidget.setHidden(true);
+		}
+	}
+	
 	/**
 	 * Construct a new EncounterDetailSubmissionElement
 	 *
@@ -106,49 +109,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 		// Register Date and Time widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("date"))) {
-			
-			dateWidget = new DateWidget();
 			dateErrorWidget = new ErrorWidget();
-			
-			if (context.getExistingEncounter() != null) {
-				dateWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
-			} else if (context.getDefaultEncounterDate() != null) {
-				dateWidget.setInitialValue(context.getDefaultEncounterDate());
-			} else if (parameters.get("defaultDate") != null) {
-				dateWidget.setInitialValue(parameters.get("defaultDate"));
-			}
-			
-			if (parameters.get("disallowMultipleEncountersOnDate") != null
-			        && StringUtils.hasText((String) parameters.get("disallowMultipleEncountersOnDate"))) {
-				dateWidget.setOnChangeFunction(
-				    "existingEncounterOnDate(this, '" + parameters.get("disallowMultipleEncountersOnDate") + "') ");
-			}
-			
 			if ("true".equals(parameters.get("showTime"))) {
-				timeWidget = new TimeWidget();
-				timeErrorWidget = new ErrorWidget();
-				if (context.getExistingEncounter() != null) {
-					timeWidget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
-				} else if (parameters.get("defaultDate") != null) {
-					timeWidget.setInitialValue(parameters.get("defaultDate"));
-				}
-				if ("true".equals((parameters.get("hideSeconds")))) {
-					timeWidget.setHideSeconds(true);
-				}
-				context.registerWidget(timeWidget);
-				context.registerErrorWidget(timeWidget, timeErrorWidget);
-			}
-			context.registerWidget(dateWidget);
-			context.registerErrorWidget(dateWidget, dateErrorWidget);
-			
-			if ("hidden".equals(parameters.get("widget"))) {
-				dateWidget.setHidden(true);
-				if (timeWidget != null) {
-					timeWidget.setHidden(true);
-				}
+				zonedDateTimeWidget = new ZonedDateTimeWidget();
+				RegisterDateAndTime(context, zonedDateTimeWidget, parameters);
+			} else {
+				//ONLY DATE
+				dateWidget = new DateWidget();
+				RegisterDateAndTime(context, dateWidget, parameters);
 			}
 		}
-		
 		// Register Provider widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("provider"))) {
 			
@@ -648,6 +618,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 	}
 	
+	public void generateHtmlDateWidget(FormEntryContext context, DateWidget widget) {
+		id = id != null ? id : "encounterDate";
+		context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(widget),
+		    "dateFieldGetterFunction", null, "dateSetterFunction");
+		context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(widget), null, null, null);
+	}
+	
 	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
@@ -658,12 +635,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (id != null || !context.getMode().equals(Mode.VIEW)) {
 			// wrap the whole encounter element in a span tag so that we access property values via javascript
 			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
-			if (dateWidget != null) {
-				id = id != null ? id : "encounterDate";
-				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget),
-				    "dateFieldGetterFunction", null, "dateSetterFunction");
-				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
-				    null, null);
+			if (zonedDateTimeWidget != null) {
+				generateHtmlDateWidget(context, zonedDateTimeWidget);
+			} else if (dateWidget != null) {
+				generateHtmlDateWidget(context, dateWidget);
 			} else if (providerWidget != null) {
 				id = id != null ? id : "encounterProvider";
 				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
@@ -686,18 +661,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			ret.append("<span id='" + id + "'>");
 		}
 		
-		if (dateWidget != null) {
-			ret.append(dateWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
+		if (dateWidget != null || zonedDateTimeWidget != null) {
+			if (context.getMode() != Mode.VIEW) {
 				ret.append(dateErrorWidget.generateHtml(context));
-		}
-		if (timeWidget != null) {
-			if (!timeWidget.isHidden() || (context.getMode() == Mode.VIEW)) {
-				ret.append("&#160;");
 			}
-			ret.append(timeWidget.generateHtml(context));
-			if (context.getMode() != Mode.VIEW)
-				ret.append(timeErrorWidget.generateHtml(context));
+			if (dateWidget != null) {
+				ret.append(dateWidget.generateHtml(context));
+			} else {
+				ret.append(zonedDateTimeWidget.generateHtml(context));
+			}
 		}
 		if (providerWidget != null) {
 			ret.append(providerWidget.generateHtml(context));
@@ -759,6 +731,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		return null;
 	}
 	
+	public void validateWidget(FormEntryContext context, DateWidget widget, HttpServletRequest submission) throws Exception {
+		Date date = (Date) widget.getValue(context, submission);
+		if (date == null)
+			throw new Exception("htmlformentry.error.required");
+		if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
+			throw new Exception("htmlformentry.error.cannotBeInFuture");
+	}
+	
 	/**
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
@@ -768,16 +748,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		
 		try {
 			if (dateWidget != null) {
-				Date date = (Date) dateWidget.getValue(context, submission);
-				if (timeWidget != null) {
-					Date time = (Date) timeWidget.getValue(context, submission);
-					String timeZone = timeWidget.getTimeZone(context, submission);
-					date = HtmlFormEntryUtil.combineDateAndTime(date, time, timeZone);
+				validateWidget(context, dateWidget, submission);
+			} else if (zonedDateTimeWidget != null) {
+				validateWidget(context, zonedDateTimeWidget, submission);
+				String clientTimeZone = zonedDateTimeWidget.getSubmittedTimeZone(context, submission);
+				String serverTimezone = TimeZone.getDefault().getID();
+				boolean handleAllTimezones = true;
+				//Client and server on same TZ, is server and client in same Timezone, they dont need to have handleAllTimezones true)
+				if (!StringUtils.isEmpty(clientTimeZone)
+				        && (handleAllTimezones != true && !serverTimezone.equals(clientTimeZone))) {
+					throw new Exception("htmlformentry.error.handleTimezones");
 				}
-				if (date == null)
-					throw new Exception("htmlformentry.error.required");
-				if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
-					throw new Exception("htmlformentry.error.cannotBeInFuture");
 			}
 		}
 		catch (Exception ex) {
@@ -883,12 +864,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 			}
 		}
-		if (timeWidget != null) {
-			Date time = (Date) timeWidget.getValue(session.getContext(), submission);
+		if (zonedDateTimeWidget != null) {
+			Date dateTime = (Date) zonedDateTimeWidget.getValue(session.getContext(), submission);
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
-			String timeZone = timeWidget.getTimeZone(session.getContext(), submission);
-			Date dateAndTime = HtmlFormEntryUtil.combineDateAndTime(e.getEncounterDatetime(), time, timeZone);
-			e.setEncounterDatetime(dateAndTime);
+			e.setEncounterDatetime(dateTime);
 		}
 		if (providerWidget != null) {
 			Object value = providerWidget.getValue(session.getContext(), submission);
