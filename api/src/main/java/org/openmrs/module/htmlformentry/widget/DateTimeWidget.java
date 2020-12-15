@@ -57,10 +57,9 @@ public class DateTimeWidget implements Widget {
 		
 		// get the values from the associated date and time widgets
 		Date date = dateWidget.getValue(context, request);
-		String timeZone = timeWidget.getTimeZone(context, request);
 		Date time = (Date) timeWidget.getValue(context, request);
 		
-		return HtmlFormEntryUtil.combineDateAndTime(date, time, timeZone);
+		return HtmlFormEntryUtil.combineDateAndTime(date, time);
 	}
 	
 	/**

@@ -49,14 +49,8 @@ public class TimeWidget implements Widget {
 		if (context.getMode() == Mode.VIEW) {
 			String toPrint = "";
 			if (initialValue != null) {
-				StringBuilder sb = new StringBuilder();
 				toPrint = timeFormat().format(initialValue);
-				//Get server timezone
-				SimpleDateFormat dateFormatYouWant = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-				String newDate = dateFormatYouWant.format(initialValue);
-				String timezone = newDate.substring(newDate.length() - 5);
-				sb.append("<span class=\"value\" tz=\"").append(timezone).append("\">").append(toPrint).append("</span>");
-				return sb.toString();
+				return WidgetFactory.displayValue(toPrint);
 			} else {
 				if (hideSeconds) {
 					toPrint = "___:___";
@@ -130,9 +124,6 @@ public class TimeWidget implements Widget {
 					}
 					sb.append("</select>");
 				}
-				sb.append("<input type=\"hidden\" class=\"hfe-timeZone\" name=\"").append(context.getFieldName(this))
-				        .append("timeZone").append("\">");
-				sb.append("</input>");
 			}
 			
 			return sb.toString();
@@ -143,18 +134,6 @@ public class TimeWidget implements Widget {
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext,
 	 *      javax.servlet.http.HttpServletRequest)
 	 */
-	
-	public String getTimeZone(FormEntryContext context, HttpServletRequest request) {
-		try {
-			String tz = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timeZone",
-			    String.class);
-			return tz;
-		}
-		catch (Exception ex) {
-			throw new IllegalArgumentException("Illegal value");
-		}
-	}
-	
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		try {

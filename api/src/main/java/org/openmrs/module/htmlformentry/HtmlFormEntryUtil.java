@@ -20,7 +20,23 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -516,7 +532,7 @@ public class HtmlFormEntryUtil {
 	 * @param time the Date object that contains time information
 	 * @return a Date object with the combined date/time
 	 */
-	public static Date combineDateAndTime(Date date, Date time, String timeZone) {
+	public static Date combineDateAndTime(Date date, Date time) {
 		if (date == null)
 			return null;
 		Calendar cal = Calendar.getInstance();
@@ -529,10 +545,6 @@ public class HtmlFormEntryUtil {
 			cal.set(Calendar.MINUTE, temp.get(Calendar.MINUTE));
 			cal.set(Calendar.SECOND, temp.get(Calendar.SECOND));
 			cal.set(Calendar.MILLISECOND, temp.get(Calendar.MILLISECOND));
-			if (StringUtils.isNotEmpty(timeZone)) {
-				TimeZone tz = TimeZone.getTimeZone(timeZone);
-				cal.setTimeZone(tz);
-			}
 		}
 		return cal.getTime();
 	}
