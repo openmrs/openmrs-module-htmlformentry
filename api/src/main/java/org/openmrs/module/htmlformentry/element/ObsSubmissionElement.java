@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
@@ -698,7 +699,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							if (cc == null) {
 								throw new RuntimeException("Cannot find concept class " + className);
 							}
-							conceptAnswers.addAll(Context.getConceptService().getConceptsByClass(cc));
+							conceptAnswers.addAll(Context.getConceptService().getConceptsByClass(cc).stream()
+							        .filter(c -> !c.getRetired()).collect(Collectors.toList()));
 						}
 						Collections.sort(conceptAnswers, conceptNameComparator);
 					}
