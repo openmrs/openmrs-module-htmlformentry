@@ -197,11 +197,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			if (q.getAnswers() == null || q.getAnswers().isEmpty()) {
 				throw new BadFormDesignException(DISCONTINUE_REASON_QUESTION_ATTRIBUTE + " does not have any answers");
 			}
-			for (ConceptAnswer ca : q.getAnswers()) {
-				String caLabel = ca.getAnswerConcept().getDisplayString();
-				String caName = ca.getAnswerConcept().getUuid();
-				widgetConfig.addOrderPropertyOption("discontineReason", new Option(caLabel, caName, false));
-			}
+			widgetConfig.getDrugOrderField().setDiscontinuedReasonQuestion(q);
 		}
 		
 		String answerConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWERS_ATTRIBUTE);
@@ -212,6 +208,14 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			if (discontinuedLabels != null) {
 				String msg = "You must specify discontinueReasonAnswers if you specify discontinueReasonAnswerLabels";
 				throw new BadFormDesignException(msg);
+			}
+			if (widgetConfig.getDrugOrderField().getDiscontinuedReasonQuestion() != null) {
+				for (ConceptAnswer ca : widgetConfig.getDrugOrderField().getDiscontinuedReasonQuestion().getAnswers()) {
+					String caLabel = ca.getAnswerConcept().getDisplayString();
+					String caName = ca.getAnswerConcept().getUuid();
+					Option o = new Option(caLabel, caName, false);
+					widgetConfig.addOrderPropertyOption("discontinueReason", o);
+				}
 			}
 		} else {
 			if (discontinuedLabels != null && discontinuedLabels.length != discontinuedAnswers.length) {

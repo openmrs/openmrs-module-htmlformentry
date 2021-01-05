@@ -18,6 +18,8 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
@@ -63,7 +65,21 @@ public class FormSessionTester {
 	public String getHtmlToDisplay() {
 		return htmlToDisplay;
 	}
-	
+
+	public HtmlFormSchema getSchema() {
+		return formEntrySession.getContext().getSchema();
+	}
+
+	public <T extends HtmlFormField> List<T> getFields(Class<T> type) {
+		List<T> ret = new ArrayList<>();
+		for (HtmlFormField f : getSchema().getAllFields()) {
+			if (type.isAssignableFrom(f.getClass())) {
+				ret.add((T)f);
+			}
+		}
+		return ret;
+	}
+
 	public <T extends FormSubmissionControllerAction> List<T> getSubmissionAction(Class<T> type) {
 		List<T> ret = new ArrayList<>();
 		for (FormSubmissionControllerAction action : formEntrySession.getSubmissionController().getActions()) {

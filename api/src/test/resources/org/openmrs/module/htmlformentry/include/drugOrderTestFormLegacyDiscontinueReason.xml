@@ -1,0 +1,19 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<drugOrder
+			drugNames="2"
+			discontinuedReasonConceptId="555"
+	/>
+
+	<drugOrder
+			drugNames="3"
+			discontinuedReasonConceptId="555"
+			discontinueReasonAnswers="16,22"
+			discontinueReasonAnswerLabels="Died Label,Unknown Label"
+	/>
+
+	<submit/>
+</htmlform>
