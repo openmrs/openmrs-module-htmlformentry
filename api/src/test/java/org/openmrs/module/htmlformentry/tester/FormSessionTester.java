@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.tester;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.ArrayList;
@@ -65,21 +66,25 @@ public class FormSessionTester {
 	public String getHtmlToDisplay() {
 		return htmlToDisplay;
 	}
-
+	
+	public FormEntrySession getFormEntrySession() {
+		return formEntrySession;
+	}
+	
 	public HtmlFormSchema getSchema() {
 		return formEntrySession.getContext().getSchema();
 	}
-
+	
 	public <T extends HtmlFormField> List<T> getFields(Class<T> type) {
 		List<T> ret = new ArrayList<>();
 		for (HtmlFormField f : getSchema().getAllFields()) {
 			if (type.isAssignableFrom(f.getClass())) {
-				ret.add((T)f);
+				ret.add((T) f);
 			}
 		}
 		return ret;
 	}
-
+	
 	public <T extends FormSubmissionControllerAction> List<T> getSubmissionAction(Class<T> type) {
 		List<T> ret = new ArrayList<>();
 		for (FormSubmissionControllerAction action : formEntrySession.getSubmissionController().getActions()) {
@@ -135,6 +140,11 @@ public class FormSessionTester {
 	
 	public FormSessionTester assertHtmlContains(String expected) {
 		assertThat(htmlToDisplay, containsString(expected));
+		return this;
+	}
+	
+	public FormSessionTester assertHtmlDoesNotContain(String expected) {
+		assertThat(htmlToDisplay, not(containsString(expected)));
 		return this;
 	}
 	

@@ -302,6 +302,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		if (options.isEmpty()) {
 			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
 				options.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
+				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, d.getDisplayName()));
 			}
 		} else {
 			for (Option option : options) {
@@ -309,10 +310,8 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (d == null) {
 					throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
 				}
-				String label = option.getLabel();
-				if (StringUtils.isBlank(label)) {
-					option.setLabel(d.getDisplayName());
-				}
+				String label = getLabel(option.getLabel(), d.getDisplayName());
+				option.setLabel(label);
 				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, label));
 			}
 		}
@@ -369,9 +368,9 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 		} else {
 			for (Option option : options) {
-				if (StringUtils.isBlank(option.getLabel())) {
-					option.setLabel(HtmlFormEntryUtil.translate(msgPrefix + option.getValue().toLowerCase()));
-				}
+				String defaultLabel = HtmlFormEntryUtil.translate(msgPrefix + option.getValue().toLowerCase());
+				String label = getLabel(option.getLabel(), defaultLabel);
+				option.setLabel(label);
 			}
 		}
 		String selectedVal = config.getAttributes(property).get(VALUE_ATTRIBUTE);

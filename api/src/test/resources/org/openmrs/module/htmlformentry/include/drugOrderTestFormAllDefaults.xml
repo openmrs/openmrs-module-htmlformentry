@@ -3,7 +3,7 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	<drugOrder drugNames="2,3"/>
+	<drugOrder />
 
 	<submit/>
 </htmlform>
