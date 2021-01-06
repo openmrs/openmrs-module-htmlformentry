@@ -1,5 +1,11 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -29,16 +35,27 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		formSessionTester.assertStartingFormValue("order-field-label orderType", "1");
 		log.trace(formSessionTester.getHtmlToDisplay());
 	}
-	
-	/*
-	TODO:
-	
-	  - Should test that fieldName, fieldName_header, fieldName_orders, fieldName_template are created, with appropriate classes
-	- Should ensure that all order properties are part of the template, even if not explicitly configured in the template
-	 - Should have a default template?
-	 - Should append missing properties to hidden or non-hidden sections depending on requirement
-	 - Should have order-field, order-field-label, order-field-widget classes for all properties as appropriate
-	 - Should have an appropriate javascript method call with appropriate javascript object
-	
-	 */
+
+	@Test
+	public void shouldRenderTemplateWithAllWidgets() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester fst = formTester.openNewForm(2);
+		DrugOrderWidget widget = fst.getWidgets(DrugOrderWidget.class).get(0);
+		String[] properties = {
+				"drug", "action", "previousOrder", "careSetting", "dosingType", "orderType", "dosingInstructions",
+				"dose", "doseUnits", "route", "frequency", "asNeeded", "instructions", "urgency", "dateActivated",
+				"scheduledDate", "duration", "durationUnits", "quantity", "quantityUnits", "numRefills", "voided",
+				"discontinueReason"
+		};
+		assertThat(widget.getWidgets().size(), is(properties.length));
+		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
+		for (int i=0; i<widgets.size(); i++) {
+			String property = properties[i];
+			Widget propertyWidget = widgets.get(i);
+			fst.assertHtmlContains("<div class=\"order-field " + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-label " + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-widget " + property + "\"");
+			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
+		}
+	}
 }

@@ -21,6 +21,8 @@ import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
@@ -80,6 +82,16 @@ public class FormSessionTester {
 		for (HtmlFormField f : getSchema().getAllFields()) {
 			if (type.isAssignableFrom(f.getClass())) {
 				ret.add((T) f);
+			}
+		}
+		return ret;
+	}
+
+	public <T extends Widget> List<T> getWidgets(Class<T> type) {
+		List<T> ret = new ArrayList<>();
+		for (Widget widget : getFormEntrySession().getContext().getFieldNames().keySet()) {
+			if (type.isAssignableFrom(widget.getClass())) {
+				ret.add((T) widget);
 			}
 		}
 		return ret;
