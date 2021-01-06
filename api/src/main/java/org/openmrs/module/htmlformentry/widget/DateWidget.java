@@ -18,13 +18,13 @@ import org.springframework.util.StringUtils;
  */
 public class DateWidget implements Widget {
 	
-	protected Date initialValue;
+	private Date initialValue;
 	
-	protected String onChangeFunction;
+	private String onChangeFunction;
 	
 	private String dateFormat;
 	
-	protected boolean hidden = false;
+	private boolean hidden = false;
 	
 	public DateWidget() {
 	}
@@ -50,9 +50,9 @@ public class DateWidget implements Widget {
 		else if (ret.contains("yy"))
 			ret = ret.replaceAll("yy", "y"); // jquery uses y for 2-digit years
 		if (ret.contains("MMMM"))
-			ret = ret.replaceAll("MMMM", "MM"); // jquery uses MM for long month name 
+			ret = ret.replaceAll("MMMM", "MM"); // jquery uses MM for long month name
 		else if (ret.contains("MMM"))
-			ret = ret.replaceAll("MMM", "M"); // jquery uses M for short month name 
+			ret = ret.replaceAll("MMM", "M"); // jquery uses M for short month name
 		else if (ret.contains("MM"))
 			ret = ret.replaceAll("MM", "mm"); // jquery uses mm for 2-digit month
 		else

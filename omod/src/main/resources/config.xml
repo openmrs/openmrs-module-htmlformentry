@@ -98,7 +98,12 @@
         <description>When set to true and an encounter is being entered in the context of a visit, the encounter location will be restricted to the current visit location (and it's descendents)</description>
     </globalProperty>
 	<!-- /Required Global Properties -->
-
+	<globalProperty>
+		<property>htmlformentry.handleTimezones</property>
+		<defaultValue>false</defaultValue>
+		<description>Global variable to allow the sistem to user timezones, to use it, it should be true, but for retrocompatibility it´s initialized as false, besides that var, to use timezones the "encounterdate" tag should have "showTime=true".
+		</description>
+	</globalProperty>
 	<dwr>
 		<allow>
 			<create creator="new" javascript="DWRHtmlFormEntryService">

@@ -26,22 +26,20 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * This class is responsible for exporting htmlforms in a manner suitable for
- * later importing back in using initializer.  A primary use case would be to support an implementation
- * that has many htmlforms in their database and wants to transition to start maintaining these via
- * initializer
+ * This class is responsible for exporting htmlforms in a manner suitable for later importing back
+ * in using initializer. A primary use case would be to support an implementation that has many
+ * htmlforms in their database and wants to transition to start maintaining these via initializer
  */
 public class InitializerExportUtil {
 	
 	protected final static Log log = LogFactory.getLog(InitializerExportUtil.class);
-
+	
 	/**
-	 * This method creates a zip archive of all htmlforms in the system, with normalized
-	 * file names, and with the xml data altered to support initializer by adding appropriate
-	 * attributes to the htmlform tag.
-	 * If useSubstitution is set to true, this will also attempt to convert primary key ids
-	 * to uuids wherever possible.  This has a side effect of importing and exporting the xml data
-	 * from an xml Document, which may result in some xml differences (eg. order of attributes in tags, etc)
+	 * This method creates a zip archive of all htmlforms in the system, with normalized file names, and
+	 * with the xml data altered to support initializer by adding appropriate attributes to the htmlform
+	 * tag. If useSubstitution is set to true, this will also attempt to convert primary key ids to
+	 * uuids wherever possible. This has a side effect of importing and exporting the xml data from an
+	 * xml Document, which may result in some xml differences (eg. order of attributes in tags, etc)
 	 */
 	public static void writeAllHtmlFormsAsZip(boolean useSubstitutions, OutputStream out) {
 		log.info("Exporting all htmlforms for Initializer");
@@ -71,13 +69,13 @@ public class InitializerExportUtil {
 			throw new IllegalStateException("Unable to export all htmlforms for initializer", e);
 		}
 	}
-
+	
 	/**
-	 * This method returns the xml data for an htmlform, with the xml data altered to support initializer
-	 * by adding appropriate attributes to the htmlform tag.
-	 * If useSubstitution is set to true, this will also attempt to convert primary key ids
-	 * to uuids wherever possible.  This has a side effect of importing and exporting the xml data
-	 * from an xml Document, which may result in some xml differences (eg. order of attributes in tags, etc)
+	 * This method returns the xml data for an htmlform, with the xml data altered to support
+	 * initializer by adding appropriate attributes to the htmlform tag. If useSubstitution is set to
+	 * true, this will also attempt to convert primary key ids to uuids wherever possible. This has a
+	 * side effect of importing and exporting the xml data from an xml Document, which may result in
+	 * some xml differences (eg. order of attributes in tags, etc)
 	 */
 	public static String getXmlForInitializer(HtmlForm htmlForm, boolean useSubstitutions) throws Exception {
 		
@@ -151,11 +149,10 @@ public class InitializerExportUtil {
 		
 		return xml;
 	}
-
+	
 	/**
-	 * This method aims to create a name for a file given an htmlform
-	 * It essentially just converts the form name to lower case and
-	 * replaces white-space and special characters where possible
+	 * This method aims to create a name for a file given an htmlform It essentially just converts the
+	 * form name to lower case and replaces white-space and special characters where possible
 	 */
 	public static String getFileNameForForm(HtmlForm form) {
 		String name = form.getName();
@@ -170,10 +167,10 @@ public class InitializerExportUtil {
 		name = name.replace(")", "-");
 		return name;
 	}
-
+	
 	/**
-	 * This method gets the attributes that one would expect to find on an htmlform
-	 * that is consumed by initializer
+	 * This method gets the attributes that one would expect to find on an htmlform that is consumed by
+	 * initializer
 	 */
 	public static Map<String, String> getAttributesExpectedForHtmlForm(HtmlForm htmlForm) {
 		Map<String, String> ret = new LinkedHashMap<>();

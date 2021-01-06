@@ -12,6 +12,7 @@ import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.Visit;
+import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -29,11 +30,19 @@ import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.springframework.util.StringUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -77,7 +86,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
 	}
 	
-	private void RegisterDateAndTime(FormEntryContext context, DateWidget widget, Map<String, Object> parameters) {
+	private void initializeDateWidget(FormEntryContext context, Map<String, Object> parameters, DateWidget widget) {
 		if (context.getExistingEncounter() != null) {
 			widget.setInitialValue(context.getExistingEncounter().getEncounterDatetime());
 		} else if (context.getDefaultEncounterDate() != null) {
@@ -112,11 +121,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			dateErrorWidget = new ErrorWidget();
 			if ("true".equals(parameters.get("showTime"))) {
 				zonedDateTimeWidget = new ZonedDateTimeWidget();
-				RegisterDateAndTime(context, zonedDateTimeWidget, parameters);
+				initializeDateWidget(context, parameters, zonedDateTimeWidget);
 			} else {
 				//ONLY DATE
 				dateWidget = new DateWidget();
-				RegisterDateAndTime(context, dateWidget, parameters);
+				initializeDateWidget(context, parameters, dateWidget);
 			}
 		}
 		// Register Provider widgets, if appropriate
@@ -168,11 +177,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 						}
 					}
 				}
-				// Otherwise, use default options
+				
+				// Otherwise, use default options appropriate to the underlying OpenMRS version
 				else {
 					users = getAllProvidersThatArePersonsAsPersonStubs();
 				}
-				
 				for (PersonStub personStub : users) {
 					String optionLabel = StringEscapeUtils.escapeHtml(personStub.toString());
 					Option option = new Option(optionLabel, personStub.getId().toString(), false);
@@ -689,30 +698,46 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	public void validateWidget(FormEntryContext context, DateWidget widget, HttpServletRequest submission) throws Exception {
 		Date date = (Date) widget.getValue(context, submission);
-		if (date == null)
+		if (date == null) {
 			throw new Exception("htmlformentry.error.required");
-		if (OpenmrsUtil.compare((Date) date, new Date()) > 0)
+		}
+		if (OpenmrsUtil.compare((Date) date, new Date()) > 0) {
 			throw new Exception("htmlformentry.error.cannotBeInFuture");
+		}
 	}
 	
+	// ------------------FOR TESTING TZ-----------------------//
+	private void setGlobalProperty(String name, String value) {
+		GlobalProperty gp = Context.getAdministrationService().getGlobalPropertyObject(name);
+		if (gp == null) {
+			gp = new GlobalProperty(name);
+		}
+		gp.setPropertyValue(value);
+		Context.getAdministrationService().saveGlobalProperty(gp);
+	}
+	
+	// ------------------FOR TESTING TZ-----------------------//
 	/**
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
+		// ------------------FOR TESTING TZ-----------------------//
+		setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "true");
+		// ------------------FOR TESTING TZ-----------------------//
 		
 		try {
 			if (dateWidget != null) {
 				validateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
 				validateWidget(context, zonedDateTimeWidget, submission);
-				String clientTimeZone = zonedDateTimeWidget.getSubmittedTimeZone(context, submission);
+				String clientTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
 				String serverTimezone = TimeZone.getDefault().getID();
-				boolean handleAllTimezones = true;
-				//Client and server on same TZ, is server and client in same Timezone, they dont need to have handleAllTimezones true)
-				if (!StringUtils.isEmpty(clientTimeZone)
-				        && (handleAllTimezones != true && !serverTimezone.equals(clientTimeZone))) {
+				boolean handleAllTimezones = Boolean.parseBoolean(
+				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
+				if (!StringUtils.isEmpty(clientTimezone)
+				        && (handleAllTimezones != true && !serverTimezone.equals(clientTimezone))) {
 					throw new Exception("htmlformentry.error.handleTimezones");
 				}
 			}

@@ -41,4 +41,6 @@ public class HtmlFormEntryConstants {
 	public static final String ANSWER_LOCATION_TAGS = "answerLocationTags";
 	
 	public static final String FORM_NAMESPACE = "HtmlFormEntry";
+	
+	public final static String GP_HANDLE_TIMEZONES = "htmlformentry.handleTimezones";
 }

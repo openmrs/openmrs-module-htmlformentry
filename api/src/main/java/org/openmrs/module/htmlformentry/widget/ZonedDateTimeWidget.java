@@ -16,24 +16,11 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	public static final String DEFAULT_TIME_FORMAT = "HH:mm";
 	
-	protected Date initialValue;
-	
-	protected boolean hidden;
-	
 	protected boolean hideSeconds = false;
 	
 	private String timeFormat;
 	
 	public ZonedDateTimeWidget() {
-	}
-	
-	protected SimpleDateFormat timeFormat() {
-		String df = timeFormat != null ? timeFormat
-		        : Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIME_FORMAT);
-		if (!StringUtils.hasText(df)) {
-			df = DEFAULT_TIME_FORMAT;
-		}
-		return new SimpleDateFormat(df, Context.getLocale());
 	}
 	
 	/**
@@ -43,13 +30,13 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
 			String toPrint = "";
-			if (initialValue != null) {
+			if (getInitialValue() != null) {
 				StringBuilder sb = new StringBuilder();
 				String formatTime = "dd/MM/yyyy HH:mm:ss";
 				SimpleDateFormat utcFormatter = new SimpleDateFormat(formatTime);
 				utcFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-				sb.append("<span id=\"dateTimeWithTimezone\" class=\"value\">").append(utcFormatter.format(initialValue))
-				        .append("</span>");
+				sb.append("<span id=\"dateTimeWithTimezone\" class=\"value\">")
+				        .append(utcFormatter.format(getInitialValue())).append("</span>");
 				return sb.toString();
 			} else {
 				StringBuilder sb = new StringBuilder();
@@ -65,26 +52,26 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			}
 		} else {
 			Calendar valAsCal = null;
-			if (initialValue != null) {
+			if (getInitialValue() != null) {
 				valAsCal = Calendar.getInstance();
-				valAsCal.setTime(initialValue);
+				valAsCal.setTime((Date) getInitialValue());
 				
 			}
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
-			if (!hidden) {
+			if (!isHidden()) {
 				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
 			}
 			sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
-			if (onChangeFunction != null) {
-				sb.append(" onChange=\"" + onChangeFunction + "\" ");
+			if (getOnChangeFunction() != null) {
+				sb.append(" onChange=\"" + getOnChangeFunction() + "\" ");
 			}
-			if (hidden && initialValue != null) {
+			if (isHidden() && getInitialValue() != null) {
 				// set the value here, since it won't be set by the ui widget
-				sb.append(" value=\"" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "\"");
+				sb.append(" value=\"" + new SimpleDateFormat("yyyy-MM-dd").format(getInitialValue()) + "\"");
 			}
 			sb.append(" />");
-			if (!hidden) {
+			if (!isHidden()) {
 				if ("true".equals(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_SHOW_DATE_FORMAT))) {
 					sb.append(" (" + dateFormat().toLocalizedPattern().toLowerCase() + ")");
@@ -92,20 +79,22 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				
 				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
 				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
-				if (initialValue != null)
-					sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
+				if (getInitialValue() != null)
+					sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(getInitialValue()) + "'");
 				sb.append(")</script>");
 			}
 			
-			if (hidden) {
+			if (isHidden()) {
 				sb.append("<input type=\"hidden\" class=\"hfe-hours\" name=\"").append(context.getFieldName(this))
-				        .append("hours").append("\" value=\"" + new SimpleDateFormat("HH").format(initialValue) + "\"/>");
+				        .append("hours")
+				        .append("\" value=\"" + new SimpleDateFormat("HH").format(getInitialValue()) + "\"/>");
 				sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(context.getFieldName(this))
-				        .append("minutes").append("\" value=\"" + new SimpleDateFormat("mm").format(initialValue) + "\"/>");
+				        .append("minutes")
+				        .append("\" value=\"" + new SimpleDateFormat("mm").format(getInitialValue()) + "\"/>");
 				if (!hideSeconds) {
 					sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
 					        .append("seconds")
-					        .append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
+					        .append("\" value=\"" + new SimpleDateFormat("ss").format(getInitialValue()) + "\"/>");
 				}
 			} else {
 				
@@ -154,8 +143,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 					}
 					sb.append("</select>");
 				}
-				sb.append("<input type=\"hidden\" class=\"hfe-timeZone\" name=\"").append(context.getFieldName(this))
-				        .append("timeZone").append("\">");
+				sb.append("<input type=\"hidden\" class=\"hfe-timezone\" name=\"").append(context.getFieldName(this))
+				        .append("timezone").append("\">");
 				sb.append("</input>");
 			}
 			return sb.toString();
@@ -170,11 +159,11 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	/**
 	 * @return The timezone string info that was submitted as part of the time submission.
 	 */
-	public String getSubmittedTimeZone(FormEntryContext context, HttpServletRequest request) {
-		return (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timeZone", String.class);
+	public String getSubmittedTimezone(FormEntryContext context, HttpServletRequest request) {
+		return (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timezone", String.class);
 	}
 	
-	//@Override
+	@Override
 	public Date getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
 			
@@ -197,7 +186,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				return null;
 			}
 			
-			String timezone = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timeZone",
+			String timezone = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timezone",
 			    String.class);
 			Date d = (Date) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this), Date.class);
 			
@@ -219,30 +208,6 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		catch (Exception ex) {
 			throw new IllegalArgumentException("Illegal value");
 		}
-	}
-	
-	/**
-	 * @see org.openmrs.module.htmlformentry.widget.Widget#setInitialValue(java.lang.Object)
-	 */
-	@Override
-	public void setInitialValue(Object value) {
-		initialValue = (Date) value;
-	}
-	
-	public Object getInitialValue() {
-		return this.initialValue;
-	}
-	
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
-	
-	public void setHideSeconds(boolean hideSeconds) {
-		this.hideSeconds = hideSeconds;
-	}
-	
-	public boolean isHidden() {
-		return hidden;
 	}
 	
 	public void setTimeFormat(String timeFormat) {
