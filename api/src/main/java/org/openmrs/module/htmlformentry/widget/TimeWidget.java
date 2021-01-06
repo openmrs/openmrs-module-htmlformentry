@@ -136,12 +136,16 @@ public class TimeWidget implements Widget {
 	 */
 	@Override
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
+		return getValue(context, request, this);
+	}
+	
+	public static Object getValue(FormEntryContext context, HttpServletRequest request, Widget widget) {
 		try {
-			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "hours",
+			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "hours",
 			    Integer.class);
-			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "minutes",
+			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "minutes",
 			    Integer.class);
-			Integer s = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "seconds",
+			Integer s = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "seconds",
 			    Integer.class);
 			if (h == null && m == null)
 				return null;
