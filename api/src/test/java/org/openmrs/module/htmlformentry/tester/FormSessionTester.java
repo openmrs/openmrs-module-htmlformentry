@@ -86,7 +86,7 @@ public class FormSessionTester {
 		}
 		return ret;
 	}
-
+	
 	public <T extends Widget> List<T> getWidgets(Class<T> type) {
 		List<T> ret = new ArrayList<>();
 		for (Widget widget : getFormEntrySession().getContext().getFieldNames().keySet()) {

@@ -35,21 +35,19 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		formSessionTester.assertStartingFormValue("order-field-label orderType", "1");
 		log.trace(formSessionTester.getHtmlToDisplay());
 	}
-
+	
 	@Test
 	public void shouldRenderTemplateWithAllWidgets() {
 		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
 		FormSessionTester fst = formTester.openNewForm(2);
 		DrugOrderWidget widget = fst.getWidgets(DrugOrderWidget.class).get(0);
-		String[] properties = {
-				"drug", "action", "previousOrder", "careSetting", "dosingType", "orderType", "dosingInstructions",
-				"dose", "doseUnits", "route", "frequency", "asNeeded", "instructions", "urgency", "dateActivated",
-				"scheduledDate", "duration", "durationUnits", "quantity", "quantityUnits", "numRefills", "voided",
-				"discontinueReason"
-		};
+		String[] properties = { "drug", "action", "previousOrder", "careSetting", "dosingType", "orderType",
+		        "dosingInstructions", "dose", "doseUnits", "route", "frequency", "asNeeded", "instructions", "urgency",
+		        "dateActivated", "scheduledDate", "duration", "durationUnits", "quantity", "quantityUnits", "numRefills",
+		        "voided", "discontinueReason" };
 		assertThat(widget.getWidgets().size(), is(properties.length));
 		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
-		for (int i=0; i<widgets.size(); i++) {
+		for (int i = 0; i < widgets.size(); i++) {
 			String property = properties[i];
 			Widget propertyWidget = widgets.get(i);
 			fst.assertHtmlContains("<div class=\"order-field " + property + "\"");
