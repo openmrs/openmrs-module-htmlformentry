@@ -132,10 +132,13 @@
      * The purpose of this function is to determine what drugs should be rendered when the widget is reloaded,
      * either as a result of an initial page load or as a result of an encounter date change
      * It returns all configured drugs, if the widget is configured to display all drugs by default
-     * Otherwise it returns those drugs that have existing drugOrders within the current encounter
+     * It will always return those drugs that have existing drugOrders within the current encounter
+     * If not in view mode, it will also return those drugs that have active drug orders to facilitate
+     * operating on them in the current encounter by default
      */
     drugOrderWidget.getDrugsToRender = function(config) {
         var ret = new Array();
+        var encDate = drugOrderWidget.getEncounterDate(config.defaultDate);
         config.drugs.forEach(function(drugConfig) {
             if (drugOrderWidget.isSelectDrugs(config)) {
                 var drugHistory = drugConfig.history ? drugConfig.history : new Array();
@@ -143,6 +146,9 @@
                 if (!renderDrug) {
                     drugHistory.forEach(function (drugOrder) {
                         if (drugOrderWidget.isOrderInCurrentEncounter(drugOrder, config)) {
+                            renderDrug = true;
+                        }
+                        else if (config.mode !== 'VIEW' && drugOrderWidget.isOrderActive(drugOrder, encDate)) {
                             renderDrug = true;
                         }
                     });
