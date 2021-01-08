@@ -161,6 +161,10 @@
     <concept_set concept_set_id="1441" concept_id="1441" concept_set="3025" sort_weight="3" creator="1" date_created="2005-01-01 00:00:00.0"/>
     <concept_set concept_set_id="3016" concept_id="3016" concept_set="3025" sort_weight="4" creator="1" date_created="2005-01-01 00:00:00.0"/>
 
+    <!-- Add some additional routes for testing -->
+    <concept_set concept_set_id="20201" concept_id="9" concept_set="30" sort_weight="0.0" creator="1" date_created="2008-08-18 12:38:58.0" uuid="3a111999-639f-4cb5-961f-1e025bf88d91"/>
+    <concept_set concept_set_id="20202" concept_id="10" concept_set="30" sort_weight="0.0" creator="1" date_created="2008-08-18 12:38:58.0" uuid="3a221999-639f-4cb5-961f-1e025bf88d91"/>
+
     <!-- Add some allergies -->
     <concept_answer concept_answer_id="1001" concept_id="1000" answer_concept="1001" creator="1" date_created="2005-01-01 00:00:00.0"/>
     <concept_answer concept_answer_id="1002" concept_id="1000" answer_concept="1002" creator="1" date_created="2005-01-01 00:00:00.0"/>

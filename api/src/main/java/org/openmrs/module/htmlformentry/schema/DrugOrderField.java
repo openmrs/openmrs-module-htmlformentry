@@ -7,7 +7,7 @@ import org.openmrs.Concept;
 
 public class DrugOrderField implements HtmlFormField {
 	
-	private List<DrugOrderAnswer> drugOrderAnswers;
+	private List<DrugOrderAnswer> drugOrderAnswers = new ArrayList<>();
 	
 	private List<CareSettingAnswer> careSettingAnswers = new ArrayList<>();
 	

@@ -110,7 +110,7 @@
      */
     drugOrderWidget.buildDrugSelector = function(config) {
         var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
-        var label = (config.selectLabel ? config.selectLabel : config.translations.chooseDrug + "...");
+        var label = (config.tagAttributes.selectLabel ? config.tagAttributes.selectLabel : config.translations.chooseDrug + "...");
         $drugSelector.append('<option value="">' + label + '</option>');
         config.drugs.forEach(function (drug) {
             $drugSelector.append('<option value="' + drug.drugId + '">' + drug.drugLabel + '</option>');
