@@ -472,13 +472,21 @@
         $ret.addClass(isActive ? "order-view-active" : "order-view-inactive")
         $ret.append($existingActionSection);
 
+        var isDiscontinue = (d.action.value === 'DISCONTINUE');
+
         var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
-        $dateSection.append('<div class="order-view-field order-view-start-date">' + d.effectiveStartDate.display + '</div>');
-        var endDate = (d.effectiveStopDate.display === "" ? config.translations.present : d.effectiveStopDate.display);
-        $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + endDate + '</div>');
+        $dateSection.append('<div class="order-view-field order-view-start-date">');
+        $dateSection.append(config.translations.starting + ' ' + d.effectiveStartDate.display);
+        if (d.duration.display !== '') {
+            $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
+        }
+        else if (d.effectiveStopDate.display !== '') {
+            $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + d.effectiveStopDate.display + '</div>');
+        }
+        $dateSection.append('</div>');
         $ret.append($dateSection);
 
-        if (d.action.value === 'DISCONTINUE') {
+        if (isDiscontinue) {
             var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
             $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.orderReason.display + '</div>');
             $ret.append($discontinueSection);
@@ -492,19 +500,31 @@
                     $doseSection.append('<div class="order-view-field order-view-dose">' + d.dose.display + " " + d.doseUnits.display + "</div>");
                 }
                 if (d.route.display !== "") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-route">' + d.route.display + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-route">' + d.route.display + '</div>');
                 }
                 if (d.frequency.display !== "") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
                 }
                 if (d.asNeeded.value === "true") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
                 }
                 if (d.instructions.value !== "") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
                 }
             }
             $ret.append($doseSection);
+
+            var $dispenseSection = $('<div class="order-view-section order-view-dispensing"></div>');
+            if (d.quantity.display !== '') {
+                $dispenseSection.append('<div class="order-view-field order-view-quantity-label">' + config.translations.dispense + ': </div>');
+                $dispenseSection.append('<div class="order-view-field order-view-quantity">' + d.quantity.display + '</div>');
+                $dispenseSection.append('<div class="order-view-field order-view-quantityUnits">' + d.quantityUnits.display + '</div>');
+            }
+            if (d.numRefills.display !== "") {
+                $dispenseSection.append('<div class="order-view-field order-view-numRefills">' + d.numRefills.display + '</div>');
+                $dispenseSection.append('<div class="order-view-field order-view-numRefills-label">' + config.translations.refills + '</div>');
+            }
+            $ret.append($dispenseSection);
         }
         return $ret;
     }

@@ -127,7 +127,11 @@ public class DrugOrderWidget implements Widget {
 		JsonObject translations = jsonConfig.addObject("translations");
 		translations.addTranslation(prefix, "asNeeded");
 		translations.addTranslation(prefix, "previousOrder");
+		translations.addTranslation(prefix, "refills");
 		translations.addTranslation(prefix, "present");
+		translations.addTranslation(prefix, "starting");
+		translations.addTranslation(prefix, "for");
+		translations.addTranslation(prefix, "dispense");
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
 		translations.addTranslation(prefix, "encounterDateChangeWarning");
