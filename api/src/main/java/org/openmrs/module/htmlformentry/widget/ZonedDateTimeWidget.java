@@ -1,15 +1,17 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-
-import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
@@ -24,32 +26,20 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
-			String toPrint = "";
-			if (getInitialValue() != null) {
-				StringBuilder sb = new StringBuilder();
-				String formatTime = "dd/MM/yyyy HH:mm:ss";
-				SimpleDateFormat utcFormatter = new SimpleDateFormat(formatTime);
+			if (initialValue != null) {
+				SimpleDateFormat utcFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				utcFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-				sb.append("<span id=\"dateTimeWithTimezone\" class=\"value\">")
-				        .append(utcFormatter.format(getInitialValue())).append("</span>");
-				return sb.toString();
+				return new StringBuilder().append("<span id=\"dateTimeWithTimezone\" class=\"value\">")
+				        .append(utcFormatter.format(initialValue)).append("</span>").toString();
 			} else {
-				StringBuilder sb = new StringBuilder();
-				toPrint = "________";
-				sb.append(WidgetFactory.displayEmptyValue(toPrint));
-				if (hideSeconds) {
-					toPrint = "___:___";
-				} else {
-					toPrint = "___:___:___";
-				}
-				sb.append(WidgetFactory.displayEmptyValue(toPrint));
-				return sb.toString();
+				return new StringBuilder().append(WidgetFactory.displayEmptyValue("________"))
+				        .append(WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___")).toString();
 			}
 		} else {
 			Calendar valAsCal = null;
-			if (getInitialValue() != null) {
+			if (initialValue != null) {
 				valAsCal = Calendar.getInstance();
-				valAsCal.setTime((Date) getInitialValue());
+				valAsCal.setTime((Date) initialValue);
 			}
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
@@ -66,8 +56,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			
 			sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','" + getLocaleForJquery()
 			        + "', '#" + fieldName + "-display', '#" + fieldName + "'");
-			if (getInitialValue() != null) {
-				sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(getInitialValue()) + "'");
+			if (initialValue != null) {
+				sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
 			}
 			sb.append(")</script>");
 			sb.append("<select class=\"hfe-hours\" name=\"").append(context.getFieldName(this)).append("hours")
@@ -141,27 +131,22 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	@Override
 	public Date getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
-			Date timeOnly = (Date) TimeWidget.getValue(context, request, this);
-			Calendar time = Calendar.getInstance();
-			time.setTime(timeOnly);
-			Date dateOnly = super.getValue(context, request);
-			Calendar calDateTime = Calendar.getInstance();
-			calDateTime.setTime(dateOnly);
-			String timezone = (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timezone",
-			    String.class);
-			Date aaa = calDateTime.getTime();
-			Date bbb = time.getTime();
-			calDateTime.set(Calendar.HOUR_OF_DAY, time.get(Calendar.HOUR_OF_DAY));
-			calDateTime.set(Calendar.MINUTE, time.get(Calendar.MINUTE));
-			calDateTime.set(Calendar.SECOND, time.get(Calendar.SECOND));
-			calDateTime.set(Calendar.MILLISECOND, 0);
-			if (org.apache.commons.lang.StringUtils.isNotEmpty(timezone)) {
-				TimeZone tz = TimeZone.getTimeZone(timezone);
-				calDateTime.setTimeZone(tz);
+			Date time = (Date) TimeWidget.getValue(context, request, this);
+			Calendar timeCal = Calendar.getInstance();
+			timeCal.setTime(time);
+			Date date = super.getValue(context, request);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date);
+			String timezoneParam = (String) HtmlFormEntryUtil.getParameterAsType(request,
+			    context.getFieldName(this) + "timezone", String.class);
+			cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
+			cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
+			cal.set(Calendar.MILLISECOND, 0);
+			if (StringUtils.isNotEmpty(timezoneParam)) {
+				cal.setTimeZone(TimeZone.getTimeZone(timezoneParam));
 			}
-			
-			return calDateTime.getTime();
-			
+			return cal.getTime();
 		}
 		catch (Exception ex) {
 			throw new IllegalArgumentException("Illegal value");
