@@ -90,6 +90,13 @@
 	vertical-align: middle;
 }
 
+.order-field-radio-group> * {
+	display: inline;
+	float: none !important;
+	min-width: initial;
+	vertical-align: middle;
+}
+
 .order-field-label:after {
 	content: ": ";
 	white-space: pre;

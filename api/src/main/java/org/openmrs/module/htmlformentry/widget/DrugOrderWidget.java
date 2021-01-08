@@ -265,7 +265,11 @@ public class DrugOrderWidget implements Widget {
 		ret.append("<div class=\"order-field-label ").append(property).append("\">");
 		ret.append(label);
 		ret.append("</div>");
-		ret.append("<div class=\"order-field-widget ").append(property).append("\">");
+		ret.append("<div class=\"order-field-widget ").append(property);
+		if (w instanceof RadioButtonsWidget) {
+			ret.append(" order-field-radio-group");
+		}
+		ret.append("\">");
 		ret.append(w.generateHtml(context));
 		ErrorWidget ew = context.getErrorWidget(w);
 		if (ew != null) {
