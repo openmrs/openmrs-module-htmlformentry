@@ -94,9 +94,15 @@ public class DrugOrderWidget implements Widget {
 		Integer patId = context.getExistingPatient().getPatientId();
 		Integer encId = context.getExistingEncounter() == null ? null : context.getExistingEncounter().getEncounterId();
 		
+		// By default, set the default order date to the current encounter date, if editing an existing encounter, or today
+		Date defaultDate = new Date();
+		if (context.getExistingEncounter() != null) {
+			defaultDate = context.getExistingEncounter().getEncounterDatetime();
+		}
+		
 		JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addString("fieldName", fieldName);
-		jsonConfig.addString("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		jsonConfig.addString("defaultDate", new SimpleDateFormat("yyyy-MM-dd").format(defaultDate));
 		jsonConfig.addString("patientId", patId.toString());
 		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());

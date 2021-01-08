@@ -187,7 +187,7 @@
         var lastRenderedOrder = null;
         var lastOrderInEncounter = null;
 
-        var encDate = drugOrderWidget.getEncounterDate(config.today);
+        var encDate = drugOrderWidget.getEncounterDate(config.defaultDate);
         var drugHistory = drugConfig.history ? drugConfig.history : new Array();
 
         drugHistory.forEach(function(drugOrder) {
@@ -300,7 +300,7 @@
                         allowedActions.push("DISCONTINUE");
                     }
                     // Allow RENEW if operating on an order with an earlier start date
-                    else if (lastStart < encDate) {
+                    if (lastStart < encDate) {
                         allowedActions.push("RENEW");
                     }
                 }
