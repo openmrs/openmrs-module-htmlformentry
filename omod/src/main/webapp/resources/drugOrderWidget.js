@@ -514,17 +514,17 @@
             }
             $ret.append($doseSection);
 
-            var $dispenseSection = $('<div class="order-view-section order-view-dispensing"></div>');
+            var $quantitySection = $('<div class="order-view-section order-view-quantity-section"></div>');
             if (d.quantity.display !== '') {
-                $dispenseSection.append('<div class="order-view-field order-view-quantity-label">' + config.translations.dispense + ': </div>');
-                $dispenseSection.append('<div class="order-view-field order-view-quantity">' + d.quantity.display + '</div>');
-                $dispenseSection.append('<div class="order-view-field order-view-quantityUnits">' + d.quantityUnits.display + '</div>');
+                $quantitySection.append('<div class="order-view-field order-view-quantity-label">' + config.translations.quantity + ': </div>');
+                $quantitySection.append('<div class="order-view-field order-view-quantity">' + d.quantity.display + '</div>');
+                $quantitySection.append('<div class="order-view-field order-view-quantityUnits">' + d.quantityUnits.display + '</div>');
             }
             if (d.numRefills.display !== "") {
-                $dispenseSection.append('<div class="order-view-field order-view-numRefills">' + d.numRefills.display + '</div>');
-                $dispenseSection.append('<div class="order-view-field order-view-numRefills-label">' + config.translations.refills + '</div>');
+                $quantitySection.append('<div class="order-view-field order-view-numRefills">' + d.numRefills.display + '</div>');
+                $quantitySection.append('<div class="order-view-field order-view-numRefills-label">' + config.translations.refills + '</div>');
             }
-            $ret.append($dispenseSection);
+            $ret.append($quantitySection);
         }
         return $ret;
     }

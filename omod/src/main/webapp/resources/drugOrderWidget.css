@@ -58,6 +58,10 @@
 	content: "-- ";
 	white-space: pre;
 }
+.order-view-field.order-view-numRefills:before {
+	content: "-- ";
+	white-space: pre;
+}
 
 .order-view-field.order-view-discontinue-reason {
 	font-weight:bold; padding-left:20px;
