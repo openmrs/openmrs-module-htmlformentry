@@ -387,18 +387,21 @@ public class DrugOrderWidget implements Widget {
 		}
 	}
 	
+	/**
+	 * We do not allow for explicitly setting date activated on the form. If the tag is configured to
+	 * use entryDate, set this, otherwise leave as null to enable the default behavior, which associates
+	 * the date with the encounter date.
+	 */
 	protected Date getDateActivatedValue(FormEntryContext context, HttpServletRequest req, Drug drug) {
 		String property = "dateActivated";
-		Date val = parseValue(getValue(context, req, drug, property), Date.class);
-		if (val == null) {
-			Map<String, String> attrs = widgetConfig.getAttributes(property);
-			String defaultVal = attrs.get("value");
-			if (StringUtils.isNotBlank(defaultVal)) {
-				if ("entryDate".equals(defaultVal)) {
-					val = new Date();
-				} else {
-					throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultVal);
-				}
+		Date val = null;
+		Map<String, String> attrs = widgetConfig.getAttributes(property);
+		String defaultVal = attrs.get("value");
+		if (StringUtils.isNotBlank(defaultVal)) {
+			if ("entryDate".equals(defaultVal)) {
+				val = new Date();
+			} else {
+				throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultVal);
 			}
 		}
 		return val;

@@ -235,23 +235,32 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	}
 	
 	protected boolean isSameDrug(DrugOrder current, DrugOrder previous) {
-		boolean ret = OpenmrsUtil.nullSafeEquals(current.getDrug(), previous.getDrug());
-		ret = ret && OpenmrsUtil.nullSafeEquals(current.getDrugNonCoded(), previous.getDrugNonCoded());
+		boolean ret = areEqual(current.getDrug(), previous.getDrug());
+		ret = ret && areEqual(current.getDrugNonCoded(), previous.getDrugNonCoded());
 		return ret;
 	}
 	
 	protected boolean dosingInstructionsChanged(DrugOrder current, DrugOrder previous) {
 		boolean ret = false;
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDosingType(), previous.getDosingType());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDosingInstructions(), previous.getDosingInstructions());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDose(), previous.getDose());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getDoseUnits(), previous.getDoseUnits());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getRoute(), previous.getRoute());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getFrequency(), previous.getFrequency());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getInstructions(), previous.getInstructions());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getAsNeeded(), previous.getAsNeeded());
-		ret = ret || !OpenmrsUtil.nullSafeEquals(current.getAsNeededCondition(), previous.getAsNeededCondition());
+		ret = ret || !areEqual(current.getDosingType(), previous.getDosingType());
+		ret = ret || !areEqual(current.getDosingInstructions(), previous.getDosingInstructions());
+		ret = ret || !areEqual(current.getDose(), previous.getDose());
+		ret = ret || !areEqual(current.getDoseUnits(), previous.getDoseUnits());
+		ret = ret || !areEqual(current.getRoute(), previous.getRoute());
+		ret = ret || !areEqual(current.getFrequency(), previous.getFrequency());
+		ret = ret || !areEqual(current.getInstructions(), previous.getInstructions());
+		ret = ret || !areEqual(current.getAsNeeded(), previous.getAsNeeded());
+		ret = ret || !areEqual(current.getAsNeededCondition(), previous.getAsNeededCondition());
 		return ret;
+	}
+	
+	/**
+	 * Convenience method to determine if two objects are equal. It considers null and "" to be equal.
+	 */
+	protected boolean areEqual(Object o1, Object o2) {
+		o1 = ("".equals(o1) ? null : o1);
+		o2 = ("".equals(o2) ? null : o2);
+		return OpenmrsUtil.nullSafeEquals(o1, o2);
 	}
 	
 	public void handleRequiredField(List<FormSubmissionError> ret, FormEntryContext ctx, Drug d, String prop, Object val) {

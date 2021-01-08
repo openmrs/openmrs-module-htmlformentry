@@ -199,8 +199,8 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 			for (ConceptAnswer ca : q.getAnswers()) {
 				String caLabel = ca.getAnswerConcept().getDisplayString();
-				String caName = ca.getAnswerConcept().getUuid();
-				widgetConfig.addOrderPropertyOption("discontineReason", new Option(caLabel, caName, false));
+				String caName = ca.getAnswerConcept().getId().toString();
+				widgetConfig.addOrderPropertyOption("discontinueReason", new Option(caLabel, caName, false));
 			}
 		}
 		
@@ -305,11 +305,9 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (d == null) {
 					throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
 				}
-				String label = option.getLabel();
-				if (StringUtils.isBlank(label)) {
-					option.setLabel(d.getDisplayName());
-				}
-				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, label));
+				option.setValue(d.getDrugId().toString());
+				option.setLabel(getLabel(option.getLabel(), d.getDisplayName()));
+				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
 			}
 		}
 		config.setOrderPropertyOptions("drug", options);
@@ -334,10 +332,8 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (dosingType == null) {
 					throw new BadFormDesignException("Unable to find dosing type value: " + option.getValue());
 				}
-				String label = option.getLabel();
-				if (StringUtils.isBlank(label)) {
-					option.setLabel(m.get(dosingType));
-				}
+				option.setValue(dosingType.getName());
+				option.setLabel(getLabel(option.getLabel(), m.get(dosingType)));
 			}
 		}
 		String selectedVal = config.getAttributes(property).get(VALUE_ATTRIBUTE);
@@ -405,6 +401,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (cs == null) {
 					throw new BadFormDesignException("Unable to find care setting option value: " + defaultValue);
 				}
+				option.setValue(cs.getCareSettingId().toString());
 				option.setLabel(getLabel(option.getLabel(), cs.getName()));
 				config.getDrugOrderField().addCareSettingAnswer(new CareSettingAnswer(cs, option.getLabel()));
 			}
@@ -444,6 +441,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (ot == null) {
 					throw new BadFormDesignException("Unable to find order type option value: " + defaultValue);
 				}
+				option.setValue(ot.getOrderTypeId().toString());
 				option.setLabel(getLabel(option.getLabel(), ot.getName()));
 				config.getDrugOrderField().addOrderTypeAnswer(new OrderTypeAnswer(ot, option.getLabel()));
 			}
@@ -481,6 +479,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (freq == null) {
 					throw new BadFormDesignException("Unable to find frequency option value: " + defaultValue);
 				}
+				option.setValue(freq.getOrderFrequencyId().toString());
 				option.setLabel(getLabel(option.getLabel(), freq.getConcept().getDisplayString()));
 				config.getDrugOrderField().addOrderFrequencyAnswer(new OrderFrequencyAnswer(freq, option.getLabel()));
 			}
@@ -530,6 +529,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (!fullList.isEmpty() && !fullList.contains(c)) {
 					throw new BadFormDesignException(option.getValue() + " does not refer to a valid concept for " + prop);
 				}
+				option.setValue(c.getConceptId().toString());
 				option.setLabel(getLabel(option.getLabel(), c.getDisplayString()));
 				
 				ObsFieldAnswer a = new ObsFieldAnswer(option.getLabel(), c);
