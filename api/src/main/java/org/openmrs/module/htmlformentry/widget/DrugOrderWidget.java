@@ -16,6 +16,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
@@ -28,6 +29,7 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.JsonObject;
+import org.openmrs.util.OpenmrsUtil;
 
 public class DrugOrderWidget implements Widget {
 	
@@ -161,36 +163,90 @@ public class DrugOrderWidget implements Widget {
 					jho.addString("orderId", d.getOrderId().toString());
 					jho.addString("encounterId", d.getEncounter().getEncounterId().toString());
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
-					jho.addIdAndLabel("action", "value", "display", d.getAction());
-					jho.addIdAndLabel("drug", "value", "display", d.getDrug());
-					jho.addIdAndLabel("careSetting", "value", "display", d.getCareSetting());
-					jho.addIdAndLabel("dosingType", "value", "display", d.getDosingType());
-					jho.addIdAndLabel("orderType", "value", "display", d.getOrderType());
-					jho.addIdAndLabel("dosingInstructions", "value", "display", d.getDosingInstructions());
-					jho.addIdAndLabel("dose", "value", "display", d.getDose());
-					jho.addIdAndLabel("doseUnits", "value", "display", d.getDoseUnits());
-					jho.addIdAndLabel("route", "value", "display", d.getRoute());
-					jho.addIdAndLabel("frequency", "value", "display", d.getFrequency());
-					jho.addIdAndLabel("asNeeded", "value", "display", d.getAsNeeded());
-					jho.addIdAndLabel("instructions", "value", "display", d.getInstructions());
-					jho.addIdAndLabel("urgency", "value", "display", d.getUrgency());
-					jho.addIdAndLabel("dateActivated", "value", "display", d.getDateActivated());
-					jho.addIdAndLabel("scheduledDate", "value", "display", d.getScheduledDate());
-					jho.addIdAndLabel("effectiveStartDate", "value", "display", d.getEffectiveStartDate());
-					jho.addIdAndLabel("duration", "value", "display", d.getDuration());
-					jho.addIdAndLabel("durationUnits", "value", "display", d.getDurationUnits());
-					jho.addIdAndLabel("autoExpireDate", "value", "display", d.getAutoExpireDate());
-					jho.addIdAndLabel("dateStopped", "value", "display", d.getDateStopped());
-					jho.addIdAndLabel("effectiveStopDate", "value", "display", d.getEffectiveStopDate());
-					jho.addIdAndLabel("quantity", "value", "display", d.getQuantity());
-					jho.addIdAndLabel("quantityUnits", "value", "display", d.getQuantityUnits());
-					jho.addIdAndLabel("numRefills", "value", "display", d.getNumRefills());
-					jho.addIdAndLabel("orderReason", "value", "display", d.getOrderReason());
+					addToJsonObject(jho, "action", d.getAction());
+					addToJsonObject(jho, "drug", d.getDrug());
+					addToJsonObject(jho, "careSetting", d.getCareSetting());
+					addToJsonObject(jho, "dosingType", d.getDosingType());
+					addToJsonObject(jho, "orderType", d.getOrderType());
+					addToJsonObject(jho, "dosingInstructions", d.getDosingInstructions());
+					addToJsonObject(jho, "dose", d.getDose());
+					addToJsonObject(jho, "doseUnits", d.getDoseUnits());
+					addToJsonObject(jho, "route", d.getRoute());
+					addToJsonObject(jho, "frequency", d.getFrequency());
+					addToJsonObject(jho, "asNeeded", d.getAsNeeded());
+					addToJsonObject(jho, "instructions", d.getInstructions());
+					addToJsonObject(jho, "urgency", d.getUrgency());
+					addToJsonObject(jho, "dateActivated", d.getDateActivated());
+					addToJsonObject(jho, "scheduledDate", d.getScheduledDate());
+					addToJsonObject(jho, "effectiveStartDate", d.getEffectiveStartDate());
+					addToJsonObject(jho, "duration", d.getDuration());
+					addToJsonObject(jho, "durationUnits", d.getDurationUnits());
+					addToJsonObject(jho, "autoExpireDate", d.getAutoExpireDate());
+					addToJsonObject(jho, "dateStopped", d.getDateStopped());
+					addToJsonObject(jho, "effectiveStopDate", d.getEffectiveStopDate());
+					addToJsonObject(jho, "quantity", d.getQuantity());
+					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
+					addToJsonObject(jho, "numRefills", d.getNumRefills());
+					addToJsonObject(jho, "orderReason", d.getOrderReason());
 					history.add(jho);
 				}
 			}
 		}
 		return jsonConfig;
+	}
+	
+	public void addToJsonObject(JsonObject jho, String property, Object propertyValue) {
+		JsonObject o = jho.addObject(property);
+		o.addString("value", getValueForProperty(propertyValue));
+		o.addString("display", getLabelForProperty(property, propertyValue));
+	}
+	
+	public String getValueForProperty(Object propertyValue) {
+		String val = "";
+		if (propertyValue != null) {
+			if (propertyValue instanceof OpenmrsObject) {
+				val = ((OpenmrsObject) propertyValue).getId().toString();
+			} else if (propertyValue instanceof Date) {
+				Date dateVal = (Date) propertyValue;
+				val = new SimpleDateFormat("yyyy-MM-dd").format(dateVal);
+			} else if (propertyValue instanceof Class) {
+				Class classValue = (Class) propertyValue;
+				val = classValue.getName();
+			} else if (propertyValue instanceof Enum) {
+				Enum enumVal = (Enum) propertyValue;
+				val = enumVal.name();
+			} else {
+				val = propertyValue.toString();
+			}
+		}
+		return val;
+	}
+	
+	public String getLabelForProperty(String property, Object propertyValue) {
+		if (propertyValue != null) {
+			try {
+				Widget w = widgets.get(property);
+				if (w != null) {
+					if (w instanceof SingleOptionWidget) {
+						String valueToLookup = getValueForProperty(propertyValue);
+						for (Option o : ((SingleOptionWidget) w).getOptions()) {
+							if (OpenmrsUtil.nullSafeEquals(valueToLookup, o.getValue())) {
+								return o.getLabel();
+							}
+						}
+					}
+				}
+				if (propertyValue instanceof Date) {
+					DateWidget dw = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
+					return dw.getDateFormatForDisplay().format((Date) propertyValue);
+				}
+			}
+			catch (Exception e) {
+				log.warn("An error occurred trying to get label for property " + property, e);
+			}
+			return propertyValue.toString();
+		}
+		return "";
 	}
 	
 	@Override

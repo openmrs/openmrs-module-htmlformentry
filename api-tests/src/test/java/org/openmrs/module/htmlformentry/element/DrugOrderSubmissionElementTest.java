@@ -148,21 +148,6 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void shouldCreateRoutineOrderWithSpecificDateActivated() {
-		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
-		FormSessionTester formSessionTester = formTester.openNewForm(6);
-		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
-		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
-		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
-		triomuneField.dateActivated("2020-04-15");
-		triomuneField.freeTextDosing("Triomune instructions");
-		FormResultsTester results = formSessionTester.submitForm();
-		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
-		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
-		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-04-15 00:00:00");
-	}
-	
-	@Test
 	public void shouldCreateScheduledOrder() {
 		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
 		FormSessionTester formSessionTester = formTester.openNewForm(6);
