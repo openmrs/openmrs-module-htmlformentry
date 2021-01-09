@@ -187,7 +187,7 @@ public class DrugOrderWidget implements Widget {
 					addToJsonObject(jho, "quantity", d.getQuantity());
 					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 					addToJsonObject(jho, "numRefills", d.getNumRefills());
-					addToJsonObject(jho, "orderReason", d.getOrderReason());
+					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
 					history.add(jho);
 				}
 			}

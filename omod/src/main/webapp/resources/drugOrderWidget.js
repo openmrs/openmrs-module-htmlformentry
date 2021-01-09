@@ -343,9 +343,10 @@
                 $actionSection.children().show();
             }
 
-            // If there is only one action configured (in addition to empty action), toggle it by default
+            // If there is only one action configured (in addition to empty action),
+            // and there are no existing orders for the drug in the encounter, toggle it by default
             if (!drugOrderWidget.isCheckbox(config)) {
-                if (allowedActions.length === 2) {
+                if (allowedActions.length === 2 && lastOrderInEncounter === null) {
                     $actionWidget.val(allowedActions[1]);
                 } else {
                     $actionWidget.val(allowedActions[0]);
@@ -494,7 +495,7 @@
 
         if (isDiscontinue) {
             var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
-            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.orderReason.display + '</div>');
+            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + '</div>');
             $ret.append($discontinueSection);
         }
         else {
