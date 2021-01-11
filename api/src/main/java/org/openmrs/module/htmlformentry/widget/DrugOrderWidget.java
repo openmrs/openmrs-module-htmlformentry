@@ -139,6 +139,7 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "present");
 		translations.addTranslation(prefix, "starting");
 		translations.addTranslation(prefix, "for");
+		translations.addTranslation(prefix, "until");
 		translations.addTranslation(prefix, "quantity");
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");

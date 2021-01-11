@@ -484,11 +484,14 @@
         var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
         $dateSection.append('<div class="order-view-field order-view-start-date">');
         $dateSection.append(config.translations.starting + ' ' + d.effectiveStartDate.display);
-        if (d.duration.display !== '') {
-            $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
-        }
-        else if (d.effectiveStopDate.display !== '') {
-            $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + d.effectiveStopDate.display + '</div>');
+        if (d.action.value !== 'DISCONTINUE') {
+            if (d.duration.display !== '') {
+                $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
+            } else if (d.autoExpireDate.display !== '') {
+                $dateSection.append('<div class="order-view-field order-view-stop-date">');
+                $dateSection.append(config.translations.until + ' ' + d.autoExpireDate.display);
+                $dateSection.append('</div>');
+            }
         }
         $dateSection.append('</div>');
         $ret.append($dateSection);
