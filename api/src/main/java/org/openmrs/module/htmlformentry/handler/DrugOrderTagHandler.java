@@ -197,11 +197,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			if (q.getAnswers() == null || q.getAnswers().isEmpty()) {
 				throw new BadFormDesignException(DISCONTINUE_REASON_QUESTION_ATTRIBUTE + " does not have any answers");
 			}
-			for (ConceptAnswer ca : q.getAnswers()) {
-				String caLabel = ca.getAnswerConcept().getDisplayString();
-				String caName = ca.getAnswerConcept().getId().toString();
-				widgetConfig.addOrderPropertyOption("discontinueReason", new Option(caLabel, caName, false));
-			}
+			widgetConfig.getDrugOrderField().setDiscontinuedReasonQuestion(q);
 		}
 		
 		String answerConfig = widgetConfig.getAttribute(DISCONTINUE_REASON_ANSWERS_ATTRIBUTE);
@@ -212,6 +208,13 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			if (discontinuedLabels != null) {
 				String msg = "You must specify discontinueReasonAnswers if you specify discontinueReasonAnswerLabels";
 				throw new BadFormDesignException(msg);
+			}
+			if (widgetConfig.getDrugOrderField().getDiscontinuedReasonQuestion() != null) {
+				for (ConceptAnswer ca : widgetConfig.getDrugOrderField().getDiscontinuedReasonQuestion().getAnswers()) {
+					String caLabel = ca.getAnswerConcept().getDisplayString();
+					String caName = ca.getAnswerConcept().getId().toString();
+					widgetConfig.addOrderPropertyOption("discontinueReason", new Option(caLabel, caName, false));
+				}
 			}
 		} else {
 			if (discontinuedLabels != null && discontinuedLabels.length != discontinuedAnswers.length) {
@@ -298,6 +301,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		if (options.isEmpty()) {
 			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
 				options.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
+				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, d.getDisplayName()));
 			}
 		} else {
 			for (Option option : options) {
@@ -361,9 +365,9 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 		} else {
 			for (Option option : options) {
-				if (StringUtils.isBlank(option.getLabel())) {
-					option.setLabel(HtmlFormEntryUtil.translate(msgPrefix + option.getValue().toLowerCase()));
-				}
+				String defaultLabel = HtmlFormEntryUtil.translate(msgPrefix + option.getValue().toLowerCase());
+				String label = getLabel(option.getLabel(), defaultLabel);
+				option.setLabel(label);
 			}
 		}
 		String selectedVal = config.getAttributes(property).get(VALUE_ATTRIBUTE);
