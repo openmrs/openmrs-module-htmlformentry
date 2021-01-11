@@ -1,9 +1,10 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -18,7 +19,7 @@ import org.springframework.util.StringUtils;
  */
 public class DateWidget implements Widget {
 	
-	private Date initialValue;
+	protected Date initialValue;
 	
 	private String onChangeFunction;
 	
@@ -72,13 +73,11 @@ public class DateWidget implements Widget {
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-			String toPrint = "";
 			if (initialValue != null) {
-				toPrint = dateFormat().format(initialValue);
+				String toPrint = dateFormat().format(initialValue);
 				return WidgetFactory.displayValue(toPrint);
 			} else {
-				toPrint = "________";
-				return WidgetFactory.displayEmptyValue(toPrint);
+				return WidgetFactory.displayEmptyValue("________");
 			}
 		} else {
 			StringBuilder sb = new StringBuilder();

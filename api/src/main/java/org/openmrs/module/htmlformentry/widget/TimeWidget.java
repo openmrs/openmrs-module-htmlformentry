@@ -1,9 +1,10 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -47,18 +48,11 @@ public class TimeWidget implements Widget {
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-			String toPrint = "";
 			if (initialValue != null) {
-				toPrint = timeFormat().format(initialValue);
+				String toPrint = timeFormat().format(initialValue);
 				return WidgetFactory.displayValue(toPrint);
 			} else {
-				if (hideSeconds) {
-					toPrint = "___:___";
-				} else {
-					toPrint = "___:___:___";
-					
-				}
-				return WidgetFactory.displayEmptyValue(toPrint);
+				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
 			}
 		} else {
 			Calendar valAsCal = null;
