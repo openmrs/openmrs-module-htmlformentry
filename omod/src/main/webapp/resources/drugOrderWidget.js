@@ -132,10 +132,13 @@
      * The purpose of this function is to determine what drugs should be rendered when the widget is reloaded,
      * either as a result of an initial page load or as a result of an encounter date change
      * It returns all configured drugs, if the widget is configured to display all drugs by default
-     * Otherwise it returns those drugs that have existing drugOrders within the current encounter
+     * It will always return those drugs that have existing drugOrders within the current encounter
+     * If not in view mode, it will also return those drugs that have active drug orders to facilitate
+     * operating on them in the current encounter by default
      */
     drugOrderWidget.getDrugsToRender = function(config) {
         var ret = new Array();
+        var encDate = drugOrderWidget.getEncounterDate(config.defaultDate);
         config.drugs.forEach(function(drugConfig) {
             if (drugOrderWidget.isSelectDrugs(config)) {
                 var drugHistory = drugConfig.history ? drugConfig.history : new Array();
@@ -143,6 +146,9 @@
                 if (!renderDrug) {
                     drugHistory.forEach(function (drugOrder) {
                         if (drugOrderWidget.isOrderInCurrentEncounter(drugOrder, config)) {
+                            renderDrug = true;
+                        }
+                        else if (config.mode !== 'VIEW' && drugOrderWidget.isOrderActive(drugOrder, encDate)) {
                             renderDrug = true;
                         }
                     });
@@ -187,7 +193,7 @@
         var lastRenderedOrder = null;
         var lastOrderInEncounter = null;
 
-        var encDate = drugOrderWidget.getEncounterDate(config.today);
+        var encDate = drugOrderWidget.getEncounterDate(config.defaultDate);
         var drugHistory = drugConfig.history ? drugConfig.history : new Array();
 
         drugHistory.forEach(function(drugOrder) {
@@ -300,7 +306,7 @@
                         allowedActions.push("DISCONTINUE");
                     }
                     // Allow RENEW if operating on an order with an earlier start date
-                    else if (lastStart < encDate) {
+                    if (lastStart < encDate) {
                         allowedActions.push("RENEW");
                     }
                 }
@@ -337,9 +343,10 @@
                 $actionSection.children().show();
             }
 
-            // If there is only one action configured (in addition to empty action), toggle it by default
+            // If there is only one action configured (in addition to empty action),
+            // and there are no existing orders for the drug in the encounter, toggle it by default
             if (!drugOrderWidget.isCheckbox(config)) {
-                if (allowedActions.length === 2) {
+                if (allowedActions.length === 2 && lastOrderInEncounter === null) {
                     $actionWidget.val(allowedActions[1]);
                 } else {
                     $actionWidget.val(allowedActions[0]);
@@ -472,15 +479,26 @@
         $ret.addClass(isActive ? "order-view-active" : "order-view-inactive")
         $ret.append($existingActionSection);
 
+        var isDiscontinue = (d.action.value === 'DISCONTINUE');
+
         var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
-        $dateSection.append('<div class="order-view-field order-view-start-date">' + d.effectiveStartDate.display + '</div>');
-        var endDate = (d.effectiveStopDate.display === "" ? config.translations.present : d.effectiveStopDate.display);
-        $dateSection.append(' - <div class="order-view-field order-view-stop-date">' + endDate + '</div>');
+        $dateSection.append('<div class="order-view-field order-view-start-date">');
+        $dateSection.append(config.translations.starting + ' ' + d.effectiveStartDate.display);
+        if (d.action.value !== 'DISCONTINUE') {
+            if (d.duration.display !== '') {
+                $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
+            } else if (d.autoExpireDate.display !== '') {
+                $dateSection.append('<div class="order-view-field order-view-stop-date">');
+                $dateSection.append(config.translations.until + ' ' + d.autoExpireDate.display);
+                $dateSection.append('</div>');
+            }
+        }
+        $dateSection.append('</div>');
         $ret.append($dateSection);
 
-        if (d.action.value === 'DISCONTINUE') {
+        if (isDiscontinue) {
             var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
-            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.orderReason.display + '</div>');
+            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + '</div>');
             $ret.append($discontinueSection);
         }
         else {
@@ -492,19 +510,31 @@
                     $doseSection.append('<div class="order-view-field order-view-dose">' + d.dose.display + " " + d.doseUnits.display + "</div>");
                 }
                 if (d.route.display !== "") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-route">' + d.route.display + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-route">' + d.route.display + '</div>');
                 }
                 if (d.frequency.display !== "") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
                 }
                 if (d.asNeeded.value === "true") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
                 }
                 if (d.instructions.value !== "") {
-                    $doseSection.append(' -- <div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
+                    $doseSection.append('<div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
                 }
             }
             $ret.append($doseSection);
+
+            var $quantitySection = $('<div class="order-view-section order-view-quantity-section"></div>');
+            if (d.quantity.display !== '') {
+                $quantitySection.append('<div class="order-view-field order-view-quantity-label">' + config.translations.quantity + ': </div>');
+                $quantitySection.append('<div class="order-view-field order-view-quantity">' + d.quantity.display + '</div>');
+                $quantitySection.append('<div class="order-view-field order-view-quantityUnits">' + d.quantityUnits.display + '</div>');
+            }
+            if (d.numRefills.display !== "") {
+                $quantitySection.append('<div class="order-view-field order-view-numRefills">' + d.numRefills.display + '</div>');
+                $quantitySection.append('<div class="order-view-field order-view-numRefills-label">' + config.translations.refills + '</div>');
+            }
+            $ret.append($quantitySection);
         }
         return $ret;
     }

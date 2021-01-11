@@ -16,6 +16,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
@@ -28,6 +29,7 @@ import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.JsonObject;
+import org.openmrs.util.OpenmrsUtil;
 
 public class DrugOrderWidget implements Widget {
 	
@@ -94,9 +96,15 @@ public class DrugOrderWidget implements Widget {
 		Integer patId = context.getExistingPatient().getPatientId();
 		Integer encId = context.getExistingEncounter() == null ? null : context.getExistingEncounter().getEncounterId();
 		
+		// By default, set the default order date to the current encounter date, if editing an existing encounter, or today
+		Date defaultDate = new Date();
+		if (context.getExistingEncounter() != null) {
+			defaultDate = context.getExistingEncounter().getEncounterDatetime();
+		}
+		
 		JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addString("fieldName", fieldName);
-		jsonConfig.addString("today", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		jsonConfig.addString("defaultDate", new SimpleDateFormat("yyyy-MM-dd").format(defaultDate));
 		jsonConfig.addString("patientId", patId.toString());
 		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());
@@ -127,7 +135,12 @@ public class DrugOrderWidget implements Widget {
 		JsonObject translations = jsonConfig.addObject("translations");
 		translations.addTranslation(prefix, "asNeeded");
 		translations.addTranslation(prefix, "previousOrder");
+		translations.addTranslation(prefix, "refills");
 		translations.addTranslation(prefix, "present");
+		translations.addTranslation(prefix, "starting");
+		translations.addTranslation(prefix, "for");
+		translations.addTranslation(prefix, "until");
+		translations.addTranslation(prefix, "quantity");
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
 		translations.addTranslation(prefix, "encounterDateChangeWarning");
@@ -151,36 +164,90 @@ public class DrugOrderWidget implements Widget {
 					jho.addString("orderId", d.getOrderId().toString());
 					jho.addString("encounterId", d.getEncounter().getEncounterId().toString());
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
-					jho.addIdAndLabel("action", "value", "display", d.getAction());
-					jho.addIdAndLabel("drug", "value", "display", d.getDrug());
-					jho.addIdAndLabel("careSetting", "value", "display", d.getCareSetting());
-					jho.addIdAndLabel("dosingType", "value", "display", d.getDosingType());
-					jho.addIdAndLabel("orderType", "value", "display", d.getOrderType());
-					jho.addIdAndLabel("dosingInstructions", "value", "display", d.getDosingInstructions());
-					jho.addIdAndLabel("dose", "value", "display", d.getDose());
-					jho.addIdAndLabel("doseUnits", "value", "display", d.getDoseUnits());
-					jho.addIdAndLabel("route", "value", "display", d.getRoute());
-					jho.addIdAndLabel("frequency", "value", "display", d.getFrequency());
-					jho.addIdAndLabel("asNeeded", "value", "display", d.getAsNeeded());
-					jho.addIdAndLabel("instructions", "value", "display", d.getInstructions());
-					jho.addIdAndLabel("urgency", "value", "display", d.getUrgency());
-					jho.addIdAndLabel("dateActivated", "value", "display", d.getDateActivated());
-					jho.addIdAndLabel("scheduledDate", "value", "display", d.getScheduledDate());
-					jho.addIdAndLabel("effectiveStartDate", "value", "display", d.getEffectiveStartDate());
-					jho.addIdAndLabel("duration", "value", "display", d.getDuration());
-					jho.addIdAndLabel("durationUnits", "value", "display", d.getDurationUnits());
-					jho.addIdAndLabel("autoExpireDate", "value", "display", d.getAutoExpireDate());
-					jho.addIdAndLabel("dateStopped", "value", "display", d.getDateStopped());
-					jho.addIdAndLabel("effectiveStopDate", "value", "display", d.getEffectiveStopDate());
-					jho.addIdAndLabel("quantity", "value", "display", d.getQuantity());
-					jho.addIdAndLabel("quantityUnits", "value", "display", d.getQuantityUnits());
-					jho.addIdAndLabel("numRefills", "value", "display", d.getNumRefills());
-					jho.addIdAndLabel("orderReason", "value", "display", d.getOrderReason());
+					addToJsonObject(jho, "action", d.getAction());
+					addToJsonObject(jho, "drug", d.getDrug());
+					addToJsonObject(jho, "careSetting", d.getCareSetting());
+					addToJsonObject(jho, "dosingType", d.getDosingType());
+					addToJsonObject(jho, "orderType", d.getOrderType());
+					addToJsonObject(jho, "dosingInstructions", d.getDosingInstructions());
+					addToJsonObject(jho, "dose", d.getDose());
+					addToJsonObject(jho, "doseUnits", d.getDoseUnits());
+					addToJsonObject(jho, "route", d.getRoute());
+					addToJsonObject(jho, "frequency", d.getFrequency());
+					addToJsonObject(jho, "asNeeded", d.getAsNeeded());
+					addToJsonObject(jho, "instructions", d.getInstructions());
+					addToJsonObject(jho, "urgency", d.getUrgency());
+					addToJsonObject(jho, "dateActivated", d.getDateActivated());
+					addToJsonObject(jho, "scheduledDate", d.getScheduledDate());
+					addToJsonObject(jho, "effectiveStartDate", d.getEffectiveStartDate());
+					addToJsonObject(jho, "duration", d.getDuration());
+					addToJsonObject(jho, "durationUnits", d.getDurationUnits());
+					addToJsonObject(jho, "autoExpireDate", d.getAutoExpireDate());
+					addToJsonObject(jho, "dateStopped", d.getDateStopped());
+					addToJsonObject(jho, "effectiveStopDate", d.getEffectiveStopDate());
+					addToJsonObject(jho, "quantity", d.getQuantity());
+					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
+					addToJsonObject(jho, "numRefills", d.getNumRefills());
+					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
 					history.add(jho);
 				}
 			}
 		}
 		return jsonConfig;
+	}
+	
+	public void addToJsonObject(JsonObject jho, String property, Object propertyValue) {
+		JsonObject o = jho.addObject(property);
+		o.addString("value", getValueForProperty(propertyValue));
+		o.addString("display", getLabelForProperty(property, propertyValue));
+	}
+	
+	public String getValueForProperty(Object propertyValue) {
+		String val = "";
+		if (propertyValue != null) {
+			if (propertyValue instanceof OpenmrsObject) {
+				val = ((OpenmrsObject) propertyValue).getId().toString();
+			} else if (propertyValue instanceof Date) {
+				Date dateVal = (Date) propertyValue;
+				val = new SimpleDateFormat("yyyy-MM-dd").format(dateVal);
+			} else if (propertyValue instanceof Class) {
+				Class classValue = (Class) propertyValue;
+				val = classValue.getName();
+			} else if (propertyValue instanceof Enum) {
+				Enum enumVal = (Enum) propertyValue;
+				val = enumVal.name();
+			} else {
+				val = propertyValue.toString();
+			}
+		}
+		return val;
+	}
+	
+	public String getLabelForProperty(String property, Object propertyValue) {
+		if (propertyValue != null) {
+			try {
+				Widget w = widgets.get(property);
+				if (w != null) {
+					if (w instanceof SingleOptionWidget) {
+						String valueToLookup = getValueForProperty(propertyValue);
+						for (Option o : ((SingleOptionWidget) w).getOptions()) {
+							if (OpenmrsUtil.nullSafeEquals(valueToLookup, o.getValue())) {
+								return o.getLabel();
+							}
+						}
+					}
+				}
+				if (propertyValue instanceof Date) {
+					DateWidget dw = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
+					return dw.getDateFormatForDisplay().format((Date) propertyValue);
+				}
+			}
+			catch (Exception e) {
+				log.warn("An error occurred trying to get label for property " + property, e);
+			}
+			return propertyValue.toString();
+		}
+		return "";
 	}
 	
 	@Override
@@ -255,7 +322,11 @@ public class DrugOrderWidget implements Widget {
 		ret.append("<div class=\"order-field-label ").append(property).append("\">");
 		ret.append(label);
 		ret.append("</div>");
-		ret.append("<div class=\"order-field-widget ").append(property).append("\">");
+		ret.append("<div class=\"order-field-widget ").append(property);
+		if (w instanceof RadioButtonsWidget) {
+			ret.append(" order-field-radio-group");
+		}
+		ret.append("\">");
 		ret.append(w.generateHtml(context));
 		ErrorWidget ew = context.getErrorWidget(w);
 		if (ew != null) {
@@ -377,18 +448,21 @@ public class DrugOrderWidget implements Widget {
 		}
 	}
 	
+	/**
+	 * We do not allow for explicitly setting date activated on the form. If the tag is configured to
+	 * use entryDate, set this, otherwise leave as null to enable the default behavior, which associates
+	 * the date with the encounter date.
+	 */
 	protected Date getDateActivatedValue(FormEntryContext context, HttpServletRequest req, Drug drug) {
 		String property = "dateActivated";
-		Date val = parseValue(getValue(context, req, drug, property), Date.class);
-		if (val == null) {
-			Map<String, String> attrs = widgetConfig.getAttributes(property);
-			String defaultVal = attrs.get("value");
-			if (StringUtils.isNotBlank(defaultVal)) {
-				if ("entryDate".equals(defaultVal)) {
-					val = new Date();
-				} else {
-					throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultVal);
-				}
+		Date val = null;
+		Map<String, String> attrs = widgetConfig.getAttributes(property);
+		String defaultVal = attrs.get("value");
+		if (StringUtils.isNotBlank(defaultVal)) {
+			if ("entryDate".equals(defaultVal)) {
+				val = new Date();
+			} else {
+				throw new IllegalArgumentException("Unknown value for dateActivated: " + defaultVal);
 			}
 		}
 		return val;

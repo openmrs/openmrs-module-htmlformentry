@@ -1,6 +1,7 @@
 
 .drugorders-drug-section {
-	margin: 10px;
+	padding: 5px;
+	border: 1px dotted black;
 }
 
 .drugorders-drug-details {
@@ -8,24 +9,58 @@
 }
 
 .drugorders-drug-history {
+	display: block;
+	margin: 10px;
+}
+
+.drugorders-order-form {
 	display: table;
+	margin: 10px;
 }
 
 .drugorders-order-history-item {
-	display: table-row;
+	display: block;
 }
 
 .order-view-section {
-	display: table-cell;
-	padding-left: 20px;
+	display: block;
+}
+
+.order-view-section.order-view-action {
+	display: inline-block;
+}
+
+.order-view-section.order-view-dates {
+	display: inline-block;
 }
 
 .order-view-field {
-	display: inline;
+	display: inline-block;
 }
 
 .order-view-field.order-view-dose {
-	font-weight:bold; padding-left:20px;
+	font-weight:bold;
+}
+
+.order-view-field.order-view-route:before {
+	content: "-- ";
+	white-space: pre;
+}
+.order-view-field.order-view-frequency:before {
+	content: "-- ";
+	white-space: pre;
+}
+.order-view-field.order-view-as-needed:before {
+	content: "-- ";
+	white-space: pre;
+}
+.order-view-field.order-view-instructions:before {
+	content: "-- ";
+	white-space: pre;
+}
+.order-view-field.order-view-numRefills:before {
+	content: "-- ";
+	white-space: pre;
 }
 
 .order-view-field.order-view-discontinue-reason {
@@ -37,12 +72,7 @@
 }
 
 .drugorders-selector-section {
-	padding-left: 10px;
-}
-
-.drugorders-order-form {
-	padding-left: 20px;
-	display: table;
+	padding-top: 5px;
 }
 
 .instructions {
@@ -51,13 +81,20 @@
 
 .order-field {
 	display: table-row;
-	padding: 10px;
-	margin: 5px;
+	padding: 5px;
+	margin: 0px;
 }
 
 .order-field-label {
 	display: table-cell;
-	vertical-align: top;
+	vertical-align: middle;
+}
+
+.order-field-radio-group> * {
+	display: inline;
+	float: none !important;
+	min-width: initial;
+	vertical-align: middle;
 }
 
 .order-field-label:after {
@@ -67,4 +104,12 @@
 
 .order-field-widget {
 	display: table-cell;
+}
+
+.order-field-widget label {
+	display: inline;
+}
+
+.order-view-field {
+	padding-right: 10px;
 }

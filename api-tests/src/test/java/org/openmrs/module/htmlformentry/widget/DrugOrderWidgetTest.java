@@ -52,7 +52,7 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 			Widget propertyWidget = widgets.get(i);
 			fst.assertHtmlContains("<div class=\"order-field " + property + "\"");
 			fst.assertHtmlContains("<div class=\"order-field-label " + property + "\"");
-			fst.assertHtmlContains("<div class=\"order-field-widget " + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-widget " + property);
 			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
 		}
 	}
