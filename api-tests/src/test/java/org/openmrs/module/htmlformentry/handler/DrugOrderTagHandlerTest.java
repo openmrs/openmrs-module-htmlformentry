@@ -155,8 +155,8 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void shouldSupportCareSettingConfigurationProperties() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOrderProperties.xml").get(0);
-		assertOrderPropertyOption(w, "careSetting", 1, "6f0c9a92-6f24-11e3-af88-005056821db0", "OPD"); // Lookup by uuid
-		assertOrderPropertyOption(w, "careSetting", 2, "INPATIENT", "HTML Form Entry"); // Translated label
+		assertOrderPropertyOption(w, "careSetting", 1, "1", "OPD"); // Lookup by uuid
+		assertOrderPropertyOption(w, "careSetting", 2, "2", "HTML Form Entry"); // Translated label
 		List<CareSettingAnswer> answers = w.getDrugOrderField().getCareSettingAnswers();
 		assertThat(answers.size(), is(2));
 		assertThat(answers.get(0).getCareSetting().getUuid(), is("6f0c9a92-6f24-11e3-af88-005056821db0"));
@@ -183,8 +183,8 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldSupportOrderTypeConfigurationProperties() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOrderProperties.xml").get(0);
 		assertOrderPropertyOption(w, "orderType", 1, "1", "Drug order");
-		assertOrderPropertyOption(w, "orderType", 2, "52a447d3-a64a-11e3-9aeb-50e549534c5e", "Actually a test order");
-		assertOrderPropertyOption(w, "orderType", 3, "Radiology order", "HTML Form Entry");
+		assertOrderPropertyOption(w, "orderType", 2, "2", "Actually a test order");
+		assertOrderPropertyOption(w, "orderType", 3, "3", "HTML Form Entry");
 		List<OrderTypeAnswer> answers = w.getDrugOrderField().getOrderTypeAnswers();
 		assertThat(answers.size(), is(3));
 		assertThat(answers.get(0).getOrderType().getOrderTypeId(), is(1));
@@ -239,7 +239,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldSupportDoseUnitsConfigurationProperties() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOrderProperties.xml").get(0);
 		assertOrderPropertyOption(w, "doseUnits", 1, "50", "Milligrams");
-		assertOrderPropertyOption(w, "doseUnits", 2, "5a2aa3db-68a3-11e3-bd76-0800271c1b75", "HTML Form Entry");
+		assertOrderPropertyOption(w, "doseUnits", 2, "51", "HTML Form Entry");
 		List<ObsFieldAnswer> answers = w.getDrugOrderField().getDoseUnitAnswers();
 		assertThat(answers.size(), is(2));
 		assertThat(answers.get(0).getConcept().getConceptId(), is(50));
@@ -266,7 +266,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldSupportRouteConfigurationProperties() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOrderProperties.xml").get(0);
 		assertOrderPropertyOption(w, "route", 1, "9", "HTML Form Entry");
-		assertOrderPropertyOption(w, "route", 2, "0abca361-f6bf-49cc-97de-b2f37f099dde", "IV");
+		assertOrderPropertyOption(w, "route", 2, "10", "IV");
 		List<ObsFieldAnswer> answers = w.getDrugOrderField().getRouteAnswers();
 		assertThat(answers.size(), is(2));
 		assertThat(answers.get(0).getConcept().getConceptId(), is(9));
@@ -293,7 +293,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldSupportFrequencyConfigurationProperties() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOrderProperties.xml").get(0);
 		assertOrderPropertyOption(w, "frequency", 1, "1", "1 / day");
-		assertOrderPropertyOption(w, "frequency", 2, "38090760-7c38-11e3-baa7-0800200c9a66", "HTML Form Entry");
+		assertOrderPropertyOption(w, "frequency", 2, "2", "HTML Form Entry");
 		List<OrderFrequencyAnswer> answers = w.getDrugOrderField().getFrequencyAnswers();
 		assertThat(answers.size(), is(2));
 		assertThat(answers.get(0).getOrderFrequency().getId(), is(1));
