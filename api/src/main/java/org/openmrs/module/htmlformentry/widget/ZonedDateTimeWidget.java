@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
+//import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
@@ -37,9 +38,13 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			}
 		} else {
 			Calendar valAsCal = null;
+			SimpleDateFormat utcDateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+			utcDateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 			if (initialValue != null) {
-				valAsCal = Calendar.getInstance();
-				valAsCal.setTime((Date) initialValue);
+				SimpleDateFormat utcDateTimeFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				utcDateTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+				utcDateTimeFormatter.format(initialValue);
+				valAsCal = utcDateTimeFormatter.getCalendar();
 			}
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
@@ -57,7 +62,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','" + getLocaleForJquery()
 			        + "', '#" + fieldName + "-display', '#" + fieldName + "'");
 			if (initialValue != null) {
-				sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
+				sb.append(", '" + utcDateFormatter.format(initialValue) + "'");
 			}
 			sb.append(")</script>");
 			sb.append("<select class=\"hfe-hours\" name=\"").append(context.getFieldName(this)).append("hours")
