@@ -100,7 +100,7 @@
 	<!-- /Required Global Properties -->
 	<globalProperty>
 		<property>htmlformentry.handleTimezones</property>
-		<defaultValue>false</defaultValue>
+		<defaultValue>true</defaultValue>
 		<description>When set to true dates are sent from the server to the client as UTC dates and parsed from the client to the server as holding the client timezone information.
 		</description>
 	</globalProperty>

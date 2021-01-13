@@ -58,9 +58,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 				cal.set(MILLISECOND, 0);
 				cal.setTimeZone(TimeZone.getTimeZone("Pacific/Kiritimati"));
 				Date expectedDateTime = cal.getTime();
-				
 				Date encounterDateTime = results.getEncounterCreated().getEncounterDatetime();
-				
 				Assert.assertEquals(expectedDateTime, encounterDateTime);
 			}
 			
@@ -95,7 +93,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "true");
+				setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "false");
 				request.setParameter(widgets.get("Datetime"), "2020-11-16");
 				request.setParameter("w1hours", "7");
 				request.setParameter("w1minutes", "25");

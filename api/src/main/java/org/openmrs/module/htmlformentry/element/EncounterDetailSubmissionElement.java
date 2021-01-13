@@ -724,7 +724,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		// ------------------FOR TESTING TZ-----------------------//
-		setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "true");
+		//setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "true");
 		// ------------------FOR TESTING TZ-----------------------//
 		
 		try {
