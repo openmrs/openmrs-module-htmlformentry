@@ -101,7 +101,7 @@
 	<globalProperty>
 		<property>htmlformentry.handleTimezones</property>
 		<defaultValue>false</defaultValue>
-		<description>Global variable to allow the sistem to user timezones, to use it, it should be true, but for retrocompatibility it´s initialized as false, besides that var, to use timezones the "encounterdate" tag should have "showTime=true".
+		<description>When set to true dates are sent from the server to the client as UTC dates and parsed from the client to the server as holding the client timezone information.
 		</description>
 	</globalProperty>
 	<dwr>
