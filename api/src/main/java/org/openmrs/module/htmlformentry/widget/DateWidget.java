@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -30,7 +31,7 @@ public class DateWidget implements Widget {
 	public DateWidget() {
 	}
 	
-	protected SimpleDateFormat dateFormat() {
+	private SimpleDateFormat dateFormat() {
 		String df = dateFormat != null ? dateFormat
 		        : Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_DATE_FORMAT);
 		if (StringUtils.hasText(df)) {
@@ -70,6 +71,13 @@ public class DateWidget implements Widget {
 		return ret;
 	}
 	
+	/**
+	 * @return The date format to print dates in the generated HTML.
+	 */
+	protected DateFormat getHtmlDateFormat() {
+		return new SimpleDateFormat("yyyy-MM-dd");
+	}
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
@@ -91,7 +99,7 @@ public class DateWidget implements Widget {
 			}
 			if (hidden && initialValue != null) {
 				// set the value here, since it won't be set by the ui widget
-				sb.append(" value=\"" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "\"");
+				sb.append(" value=\"" + getHtmlDateFormat().format(initialValue) + "\"");
 			}
 			sb.append(" />");
 			
@@ -104,9 +112,10 @@ public class DateWidget implements Widget {
 				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
 				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
 				if (initialValue != null)
-					sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
+					sb.append(", '" + getHtmlDateFormat().format(initialValue) + "'");
 				sb.append(")</script>");
 			}
+			
 			return sb.toString();
 		}
 	}

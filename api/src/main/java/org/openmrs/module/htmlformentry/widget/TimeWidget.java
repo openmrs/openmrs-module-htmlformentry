@@ -42,6 +42,66 @@ public class TimeWidget implements Widget {
 		return new SimpleDateFormat(df, Context.getLocale());
 	}
 	
+	public String generateEditModeHtml(FormEntryContext context, String fieldName, Calendar valAsCal) {
+		StringBuilder sb = new StringBuilder();
+		
+		if (hidden) {
+			sb.append("<input type=\"hidden\" class=\"hfe-hours\" name=\"").append(fieldName).append("hours")
+			        .append("\" value=\"" + new SimpleDateFormat("HH").format(initialValue) + "\"/>");
+			sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(fieldName).append("minutes")
+			        .append("\" value=\"" + new SimpleDateFormat("mm").format(initialValue) + "\"/>");
+			if (!hideSeconds) {
+				sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds")
+				        .append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
+			}
+		} else {
+			sb.append("<select class=\"hfe-hours\" name=\"").append(fieldName).append("hours").append("\">");
+			for (int i = 0; i <= 23; ++i) {
+				String label = "" + i;
+				if (label.length() == 1)
+					label = "0" + label;
+				sb.append("<option value=\"" + i + "\"");
+				if (valAsCal != null) {
+					if (valAsCal.get(Calendar.HOUR_OF_DAY) == i)
+						sb.append(" selected=\"true\"");
+				}
+				sb.append(">" + label + "</option>");
+			}
+			sb.append("</select>");
+			sb.append(":");
+			sb.append("<select class=\"hfe-minutes\" name=\"").append(fieldName).append("minutes").append("\">");
+			for (int i = 0; i <= 59; ++i) {
+				String label = "" + i;
+				if (label.length() == 1)
+					label = "0" + label;
+				sb.append("<option value=\"" + i + "\"");
+				if (valAsCal != null) {
+					if (valAsCal.get(Calendar.MINUTE) == i)
+						sb.append(" selected=\"true\"");
+				}
+				sb.append(">" + label + "</option>");
+			}
+			sb.append("</select>");
+			if (!hideSeconds) {
+				sb.append("<select class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds").append("\">");
+				for (int i = 0; i <= 59; ++i) {
+					String label = "" + i;
+					if (label.length() == 1)
+						label = "0" + label;
+					sb.append("<option value=\"" + i + "\"");
+					if (valAsCal != null) {
+						if (valAsCal.get(Calendar.SECOND) == i)
+							sb.append(" selected=\"true\"");
+					}
+					sb.append(">" + label + "</option>");
+				}
+				sb.append("</select>");
+			}
+		}
+		
+		return sb.toString();
+	}
+	
 	/**
 	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
 	 */
@@ -60,66 +120,9 @@ public class TimeWidget implements Widget {
 				valAsCal = Calendar.getInstance();
 				valAsCal.setTime(initialValue);
 			}
+			
 			StringBuilder sb = new StringBuilder();
-			
-			if (hidden) {
-				sb.append("<input type=\"hidden\" class=\"hfe-hours\" name=\"").append(context.getFieldName(this))
-				        .append("hours").append("\" value=\"" + new SimpleDateFormat("HH").format(initialValue) + "\"/>");
-				sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(context.getFieldName(this))
-				        .append("minutes").append("\" value=\"" + new SimpleDateFormat("mm").format(initialValue) + "\"/>");
-				if (!hideSeconds) {
-					sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(context.getFieldName(this))
-					        .append("seconds")
-					        .append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
-				}
-			} else {
-				sb.append("<select class=\"hfe-hours\" name=\"").append(context.getFieldName(this)).append("hours")
-				        .append("\">");
-				for (int i = 0; i <= 23; ++i) {
-					String label = "" + i;
-					if (label.length() == 1)
-						label = "0" + label;
-					sb.append("<option value=\"" + i + "\"");
-					if (valAsCal != null) {
-						if (valAsCal.get(Calendar.HOUR_OF_DAY) == i)
-							sb.append(" selected=\"true\"");
-					}
-					sb.append(">" + label + "</option>");
-				}
-				sb.append("</select>");
-				sb.append(":");
-				sb.append("<select class=\"hfe-minutes\" name=\"").append(context.getFieldName(this)).append("minutes")
-				        .append("\">");
-				for (int i = 0; i <= 59; ++i) {
-					String label = "" + i;
-					if (label.length() == 1)
-						label = "0" + label;
-					sb.append("<option value=\"" + i + "\"");
-					if (valAsCal != null) {
-						if (valAsCal.get(Calendar.MINUTE) == i)
-							sb.append(" selected=\"true\"");
-					}
-					sb.append(">" + label + "</option>");
-				}
-				sb.append("</select>");
-				if (!hideSeconds) {
-					sb.append("<select class=\"hfe-seconds\" name=\"").append(context.getFieldName(this)).append("seconds")
-					        .append("\">");
-					for (int i = 0; i <= 59; ++i) {
-						String label = "" + i;
-						if (label.length() == 1)
-							label = "0" + label;
-						sb.append("<option value=\"" + i + "\"");
-						if (valAsCal != null) {
-							if (valAsCal.get(Calendar.SECOND) == i)
-								sb.append(" selected=\"true\"");
-						}
-						sb.append(">" + label + "</option>");
-					}
-					sb.append("</select>");
-				}
-			}
-			
+			sb.append(generateEditModeHtml(context, context.getFieldName(this), valAsCal));
 			return sb.toString();
 		}
 	}
