@@ -1,177 +1,127 @@
 package org.openmrs.module.htmlformentry;
 
 import static java.util.Calendar.MILLISECOND;
-import org.junit.Assert;
-import org.junit.Test;
-import org.openmrs.GlobalProperty;
-import org.openmrs.api.context.Context;
-import org.springframework.mock.web.MockHttpServletRequest;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.GP_HANDLE_TIMEZONES;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.openmrs.GlobalProperty;
+import org.openmrs.api.AdministrationService;
+import org.openmrs.messagesource.MessageSourceService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpServletRequest;
+
 public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	
+	@Autowired
+	private AdministrationService adminService;
+	
+	@Autowired
+	private MessageSourceService messageSourceService;
+	
+	/**
+	 * To test the encounter date tag submissions with the <pre>showTime</pre> attribute set to true.
+	 */
+	public class TimezonesEncounterDateTestHelper extends RegressionTestHelper {
+		
+		public TimezonesEncounterDateTestHelper(boolean handleTimezones) {
+			if (handleTimezones) {
+				adminService.saveGlobalProperty(new GlobalProperty(GP_HANDLE_TIMEZONES, "true"));
+			} else {
+				adminService.saveGlobalProperty(new GlobalProperty(GP_HANDLE_TIMEZONES, "false"));
+			}
+			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Zurich"));
+		}
+		
+		@Override
+		public String getFormName() {
+			return "";
+		}
+		
+		@Override
+		public String getFormXml() {
+			return "<htmlform> Datetime: <encounterDate showTime=\"true\" /> </htmlform>";
+		}
+		
+		@Override
+		public String[] widgetLabels() {
+			return new String[] { "Datetime" };
+		}
+		
+		@Override
+		public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+			request.setParameter(widgets.get("Datetime"), "2020-11-02");
+			request.setParameter("w1hours", "03");
+			request.setParameter("w1minutes", "30");
+			request.setParameter("w1seconds", "00");
+			request.setParameter("w1timezone", "Pacific/Kiritimati");
+		}
+		
+	}
+	
 	@Test
-	public void testSubmitEncounterDatetimeWithTimeZone() throws Exception {
-		new RegressionTestHelper() {
-			
-			private void setGlobalProperty(String name, String value) {
-				GlobalProperty gp = Context.getAdministrationService().getGlobalPropertyObject(name);
-				if (gp == null) {
-					gp = new GlobalProperty(name);
-				}
-				gp.setPropertyValue(value);
-				Context.getAdministrationService().saveGlobalProperty(gp);
-			}
+	public void submitEncounterDateWithTimezone_shouldConvertDateToServerTimezoneWhenTimezonesSupport() throws Exception {
+		
+		new TimezonesEncounterDateTestHelper(true) {
 			
 			@Override
-			public String getFormName() {
-				return "";
+			public void testResults(SubmissionResults results) {
+				Calendar cal = Calendar.getInstance();
+				cal.set(2020, 11 - 1, 02, 3, 30, 00);
+				cal.set(MILLISECOND, 0);
+				cal.setTimeZone(TimeZone.getTimeZone("Pacific/Kiritimati"));
+				Date expectedDate = cal.getTime(); // this converts the Kiritimati datetime to Zurich
+				
+				Assert.assertEquals(expectedDate, results.getEncounterCreated().getEncounterDatetime());
 			}
 			
-			@Override
-			public String getFormXml() {
-				return "<htmlform> Datetime: <encounterDate showTime=\"true\" /> </htmlform>";
-			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Datetime" };
-			}
+		}.run();
+		
+	}
+	
+	@Test
+	public void submitEncounterDateWithoutTimezone_shouldNotConvertDateWhenTimezonesSupportDisabled() throws Exception {
+		
+		new TimezonesEncounterDateTestHelper(false) {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "true");
-				request.setParameter(widgets.get("Datetime"), "2020-11-16");
-				request.setParameter("w1hours", "7");
-				request.setParameter("w1minutes", "25");
-				request.setParameter("w1seconds", "58");
-				request.setParameter("w1timezone", "Pacific/Kiritimati");
+				super.setupRequest(request, widgets);
+				request.removeParameter("w1timezone");
 			}
 			
 			@Override
 			public void testResults(SubmissionResults results) {
 				Calendar cal = Calendar.getInstance();
-				cal.set(2020, 11 - 1, 16, 7, 25, 58);
+				cal.set(2020, 11 - 1, 02, 3, 30, 00);
 				cal.set(MILLISECOND, 0);
-				cal.setTimeZone(TimeZone.getTimeZone("Pacific/Kiritimati"));
-				Date expectedDateTime = cal.getTime();
-				Date encounterDateTime = results.getEncounterCreated().getEncounterDatetime();
-				Assert.assertEquals(expectedDateTime, encounterDateTime);
+				Date expectedDate = cal.getTime();
+				
+				Assert.assertEquals(expectedDate, results.getEncounterCreated().getEncounterDatetime());
 			}
 			
 		}.run();
 		
-		//Test global variable that handles timezones
-		new RegressionTestHelper() {
-			
-			private void setGlobalProperty(String name, String value) {
-				GlobalProperty gp = Context.getAdministrationService().getGlobalPropertyObject(name);
-				if (gp == null) {
-					gp = new GlobalProperty(name);
-				}
-				gp.setPropertyValue(value);
-				Context.getAdministrationService().saveGlobalProperty(gp);
-			}
-			
-			@Override
-			public String getFormName() {
-				return "";
-			}
-			
-			@Override
-			public String getFormXml() {
-				return "<htmlform> Datetime: <encounterDate showTime=\"true\" /> </htmlform>";
-			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Datetime" };
-			}
-			
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "false");
-				request.setParameter(widgets.get("Datetime"), "2020-11-16");
-				request.setParameter("w1hours", "7");
-				request.setParameter("w1minutes", "25");
-				request.setParameter("w1seconds", "58");
-				String serverTimezone = TimeZone.getDefault().getID();
-				//to teste the handletimezone as false, we cannot have the same client and server tz.
-				if (serverTimezone == "Pacific/Kiritimati") {
-					request.setParameter("w1timezone", "America/Tijuana");
-				} else {
-					request.setParameter("w1timezone", "Pacific/Kiritimati");
-				}
-				
-			}
-			
-			@Override
-			public void testResults(SubmissionResults results) {
-				String formError = results.getValidationErrors().get(0).getError();
-				String errorMessage = Context.getMessageSourceService().getMessage("htmlformentry.error.handleTimezones");
-				Assert.assertEquals(formError, errorMessage);
-			}
-			
-		}.run();
 	}
 	
 	@Test
-	public void testSubmitEncounterDatetimeWithTimezoneAndGlobalVarHandleTimezoneAsFalse() throws Exception {
-		//Test global variable that handles timezones
-		new RegressionTestHelper() {
-			
-			private void setGlobalProperty(String name, String value) {
-				GlobalProperty gp = Context.getAdministrationService().getGlobalPropertyObject(name);
-				if (gp == null) {
-					gp = new GlobalProperty(name);
-				}
-				gp.setPropertyValue(value);
-				Context.getAdministrationService().saveGlobalProperty(gp);
-			}
-			
-			@Override
-			public String getFormName() {
-				return "";
-			}
-			
-			@Override
-			public String getFormXml() {
-				return "<htmlform> Datetime: <encounterDate showTime=\"true\" /> </htmlform>";
-			}
-			
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Datetime" };
-			}
-			
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				setGlobalProperty("GP_HANDLE_TIMEZONES", "false");
-				request.setParameter(widgets.get("Datetime"), "2020-11-16");
-				request.setParameter("w1hours", "7");
-				request.setParameter("w1minutes", "25");
-				request.setParameter("w1seconds", "58");
-				String serverTimezone = TimeZone.getDefault().getID();
-				//to teste the handletimezone as false, we cannot have the same client and server tz.
-				if (serverTimezone == "Pacific/Kiritimati") {
-					request.setParameter("w1timezone", "America/Tijuana");
-				} else {
-					request.setParameter("w1timezone", "Pacific/Kiritimati");
-				}
-				
-			}
+	public void submitEncounterDateWithTimezone_shouldErrorWhenTimezonesSupportDisabled() throws Exception {
+		
+		new TimezonesEncounterDateTestHelper(false) {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
 				String formError = results.getValidationErrors().get(0).getError();
-				String errorMessage = Context.getMessageSourceService().getMessage("htmlformentry.error.handleTimezones");
-				Assert.assertEquals(formError, errorMessage);
+				Assert.assertEquals(messageSourceService.getMessage("htmlformentry.error.handleTimezones"), formError);
 			}
 			
 		}.run();
+		
 	}
 	
 }

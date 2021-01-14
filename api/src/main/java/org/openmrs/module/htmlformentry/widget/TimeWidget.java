@@ -166,7 +166,7 @@ public class TimeWidget implements Widget {
 			return cal.getTime();
 		}
 		catch (Exception ex) {
-			throw new IllegalArgumentException("Illegal value");
+			throw new IllegalArgumentException("Illegal value", ex);
 		}
 	}
 	
