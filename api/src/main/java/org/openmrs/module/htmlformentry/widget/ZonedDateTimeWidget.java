@@ -35,9 +35,6 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		return dateFormat;
 	}
 	
-	/**
-	 * @see org.openmrs.module.htmlformentry.widget.Widget#generateHtml(org.openmrs.module.htmlformentry.FormEntryContext)
-	 */
 	public String generateHtml(FormEntryContext context) {
 		
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
@@ -73,11 +70,6 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	}
 	
 	/**
-	 * @see org.openmrs.module.htmlformentry.widget.Widget#getValue(org.openmrs.module.htmlformentry.FormEntryContext,
-	 *      javax.servlet.http.HttpServletRequest)
-	 */
-	
-	/**
 	 * @return The timezone string info that was submitted as part of the time submission.
 	 */
 	public String getSubmittedTimezone(FormEntryContext context, HttpServletRequest request) {
@@ -105,7 +97,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			return cal.getTime();
 		}
 		catch (Exception ex) {
-			throw new IllegalArgumentException("Illegal value");
+			throw new IllegalArgumentException("Illegal value", ex);
 		}
 	}
 	
