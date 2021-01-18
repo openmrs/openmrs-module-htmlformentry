@@ -30,7 +30,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	 * TODO: Probably needs to be moved to a util class for the whole HFE to rely on this whenever needed
 	 */
 	public static DateFormat getUTCDateFormat() {
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		return dateFormat;
 	}
