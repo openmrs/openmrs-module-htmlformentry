@@ -706,27 +706,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 	}
 	
-	// ------------------FOR TESTING TZ-----------------------//
-	private void setGlobalProperty(String name, String value) {
-		GlobalProperty gp = Context.getAdministrationService().getGlobalPropertyObject(name);
-		if (gp == null) {
-			gp = new GlobalProperty(name);
-		}
-		gp.setPropertyValue(value);
-		Context.getAdministrationService().saveGlobalProperty(gp);
-	}
-	
-	// ------------------FOR TESTING TZ-----------------------//
 	/**
 	 * @see FormSubmissionControllerAction#validateSubmission(FormEntryContext, HttpServletRequest)
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
-		// ------------------FOR TESTING TZ-----------------------//
-		//setGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES, "true");
-		// ------------------FOR TESTING TZ-----------------------//
-		
 		try {
 			if (dateWidget != null) {
 				validateWidget(context, dateWidget, submission);

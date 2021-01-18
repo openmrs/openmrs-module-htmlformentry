@@ -42,8 +42,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				return new StringBuilder().append("<span id=\"dateTimeWithTimezone\" class=\"value\">")
 				        .append(getUTCDateFormat().format(initialValue)).append("</span>").toString();
 			} else {
-				return new StringBuilder().append(WidgetFactory.displayEmptyValue("________"))
-				        .append(WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___")).toString();
+				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
 			}
 		} else {
 			StringBuilder sb = new StringBuilder();
