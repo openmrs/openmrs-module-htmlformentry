@@ -123,15 +123,17 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		String groupingConceptId = HtmlFormEntryUtil.getNodeAttribute(node, "groupingConceptId", null);
 		if (groupingConceptId == null) {
 			analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.groupingConceptIdMissing"));
-		}
-		Concept groupingConcept = HtmlFormEntryUtil.getConcept(groupingConceptId);
-		if (analysis.getErrors().size() == 0 && groupingConcept == null) {
-			analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
-			    new Object[] { groupingConceptId }, null));
-		}
-		if (groupingConcept != null && !groupingConcept.isSet()) {
-			analysis.addWarning(Context.getMessageSourceService().getMessage("htmlformentry.warning.groupingConcept",
-			    new Object[] { groupingConceptId }, null));
+		} else {
+			Concept groupingConcept = HtmlFormEntryUtil.getConcept(groupingConceptId);
+			if (groupingConcept == null) {
+				analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
+				    new Object[] { groupingConceptId }, null));
+			} else {
+				if (!groupingConcept.isSet()) {
+					analysis.addWarning(Context.getMessageSourceService().getMessage("htmlformentry.warning.groupingConcept",
+					    new Object[] { groupingConceptId }, null));
+				}
+			}
 		}
 		return analysis;
 	}
