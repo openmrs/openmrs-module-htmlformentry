@@ -69,7 +69,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	}
 	
 	/**
-	 * @return The timezone string info that was submitted as part of the time submission.
+	 * @return The timezone string info that was submitted along with the date-time value.
 	 */
 	public String getSubmittedTimezone(FormEntryContext context, HttpServletRequest request) {
 		return (String) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(this) + "timezone", String.class);

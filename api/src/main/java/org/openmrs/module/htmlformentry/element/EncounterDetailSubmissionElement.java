@@ -1,5 +1,19 @@
 package org.openmrs.module.htmlformentry.element;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -12,7 +26,6 @@ import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.Visit;
-import org.openmrs.GlobalProperty;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -25,24 +38,19 @@ import org.openmrs.module.htmlformentry.MetadataMappingResolver;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.widget.*;
-import org.openmrs.util.OpenmrsConstants;
+import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
+import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.widget.DropdownWidget;
+import org.openmrs.module.htmlformentry.widget.EncounterTypeWidget;
+import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.Option;
+import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
+import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
+import org.openmrs.module.htmlformentry.widget.ZonedDateTimeWidget;
 import org.openmrs.util.OpenmrsUtil;
-import org.openmrs.util.RoleConstants;
 import org.springframework.util.StringUtils;
-import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -583,13 +591,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 	}
 	
-	public void generateHtmlDateWidget(FormEntryContext context, DateWidget widget) {
-		id = id != null ? id : "encounterDate";
-		context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(widget),
-		    "dateFieldGetterFunction", null, "dateSetterFunction");
-		context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(widget), null, null, null);
-	}
-	
 	/**
 	 * @see HtmlGeneratorElement#generateHtml(FormEntryContext)
 	 */
@@ -600,10 +601,18 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (id != null || !context.getMode().equals(Mode.VIEW)) {
 			// wrap the whole encounter element in a span tag so that we access property values via javascript
 			// note that if this element ever handles multiple widgets, the names of the provider and location accessors will need unique names
-			if (zonedDateTimeWidget != null) {
-				generateHtmlDateWidget(context, zonedDateTimeWidget);
-			} else if (dateWidget != null) {
-				generateHtmlDateWidget(context, dateWidget);
+			if (dateWidget != null) {
+				id = id != null ? id : "encounterDate";
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(dateWidget),
+				    "dateFieldGetterFunction", null, "dateSetterFunction");
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
+				    null, null);
+			} else if (zonedDateTimeWidget != null) {
+				id = id != null ? id : "encounterDate";
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(zonedDateTimeWidget),
+				    "dateFieldGetterFunction", null, "dateSetterFunction");
+				context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(dateErrorWidget), null,
+				    null, null);
 			} else if (providerWidget != null) {
 				id = id != null ? id : "encounterProvider";
 				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(providerWidget), null,
@@ -696,8 +705,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		return null;
 	}
 	
-	public void validateWidget(FormEntryContext context, DateWidget widget, HttpServletRequest submission) throws Exception {
-		Date date = (Date) widget.getValue(context, submission);
+	protected void validateDateWidget(FormEntryContext context, DateWidget dateWidget, HttpServletRequest submission)
+	        throws Exception {
+		Date date = (Date) dateWidget.getValue(context, submission);
 		if (date == null) {
 			throw new Exception("htmlformentry.error.required");
 		}
@@ -714,17 +724,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		try {
 			if (dateWidget != null) {
-				validateWidget(context, dateWidget, submission);
+				validateDateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
-				validateWidget(context, zonedDateTimeWidget, submission);
 				String clientTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
 				String serverTimezone = TimeZone.getDefault().getID();
-				boolean handleAllTimezones = Boolean.parseBoolean(
+				boolean handleTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
-				if (!StringUtils.isEmpty(clientTimezone)
-				        && (handleAllTimezones != true && !serverTimezone.equals(clientTimezone))) {
-					throw new Exception("htmlformentry.error.handleTimezones");
+				if (!serverTimezone.equals(clientTimezone) && !handleTimezones) {
+					throw new IllegalStateException("htmlformentry.error.handleTimezones");
 				}
+				
+				validateDateWidget(context, zonedDateTimeWidget, submission);
 			}
 		}
 		catch (Exception ex) {
