@@ -39,8 +39,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
 			if (initialValue != null) {
-				return new StringBuilder().append("<span id=\"dateTimeWithTimezone\" class=\"value\">")
-				        .append(getUTCDateFormat().format(initialValue)).append("</span>").toString();
+				String toPrint = getUTCDateFormat().format(initialValue);
+				return WidgetFactory.displayValue(toPrint, "dateTimeWithTimezone");
 			} else {
 				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
 			}

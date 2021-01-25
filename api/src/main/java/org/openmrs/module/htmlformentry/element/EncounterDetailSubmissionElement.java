@@ -127,7 +127,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		// Register Date and Time widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("date"))) {
 			dateErrorWidget = new ErrorWidget();
-			if ("true".equals(parameters.get("showTime"))) {
+			boolean handleTimezones = Boolean.parseBoolean(
+			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
+			if ("true".equals(parameters.get("showTime")) && handleTimezones) {
 				zonedDateTimeWidget = new ZonedDateTimeWidget();
 				initializeDateWidget(context, parameters, zonedDateTimeWidget);
 			} else {
@@ -730,7 +732,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				String serverTimezone = TimeZone.getDefault().getID();
 				boolean handleTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
-				if (!serverTimezone.equals(clientTimezone) && !handleTimezones) {
+				if (!serverTimezone.equals(clientTimezone) && !handleTimezones && (clientTimezone != null)) {
 					throw new IllegalStateException("htmlformentry.error.handleTimezones");
 				}
 				

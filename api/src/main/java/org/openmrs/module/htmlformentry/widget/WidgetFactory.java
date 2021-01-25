@@ -113,10 +113,14 @@ public class WidgetFactory {
 	 * @return the HTML to display the value
 	 */
 	public static String displayValue(String value) {
+		return displayValue(value, "");
+	}
+	
+	public static String displayValue(String value, String className) {
 		value = value.replace("<", "&lt;");
 		value = value.replace(">", "&gt;");
 		value = value.replace("\n", "<br/>");
-		return "<span class=\"value\">" + value + "</span>";
+		return "<span class=\"value " + className + "\">" + value + "</span>";
 	}
 	
 	/**

@@ -37,7 +37,7 @@ public class ZonedDateTimeWidgetTest extends BaseHtmlFormEntryTest {
 		String html = widget.generateHtml(formEntryContext);
 		
 		// verify
-		Assert.assertEquals("<span id=\"dateTimeWithTimezone\" class=\"value\">30/01/2021 17:09:35</span>", html);
+		Assert.assertEquals("<span id=\"dateTimeWithTimezone\" class=\"value\">2021-01-30T17:09:35Z</span>", html);
 	}
 	
 	@Test
