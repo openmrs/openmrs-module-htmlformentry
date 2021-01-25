@@ -40,7 +40,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
 			if (initialValue != null) {
 				String toPrint = getUTCDateFormat().format(initialValue);
-				return WidgetFactory.displayValue(toPrint, "dateTimeWithTimezone");
+				return WidgetFactory.displayValue(toPrint, "date-with-timezone");
 			} else {
 				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
 			}
