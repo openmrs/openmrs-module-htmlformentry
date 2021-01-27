@@ -127,9 +127,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		// Register Date and Time widgets, if appropriate
 		if (Boolean.TRUE.equals(parameters.get("date"))) {
 			dateErrorWidget = new ErrorWidget();
-			boolean handleTimezones = Boolean.parseBoolean(
-			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
-			if ("true".equals(parameters.get("showTime")) && handleTimezones) {
+			if ("true".equals(parameters.get("showTime"))) {
 				zonedDateTimeWidget = new ZonedDateTimeWidget();
 				initializeDateWidget(context, parameters, zonedDateTimeWidget);
 			} else {
