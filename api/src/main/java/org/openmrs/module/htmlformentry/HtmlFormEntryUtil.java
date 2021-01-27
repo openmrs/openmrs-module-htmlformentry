@@ -1,15 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import static org.joda.time.DateTimeZone.UTC;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -38,12 +30,25 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
@@ -119,6 +124,20 @@ import org.xml.sax.InputSource;
 public class HtmlFormEntryUtil {
 	
 	public static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
+	
+	/**
+	 * @return The date formated as RFC 3339.
+	 */
+	public static String toRFC3339(Date date) {
+		return ISODateTimeFormat.dateTime().print(new DateTime(date.getTime(), UTC));
+	}
+	
+	/**
+	 * @return The GregorianCalendar set in UTC for the date.
+	 */
+	public static Calendar toUTCCalendar(Date date) {
+		return new DateTime(date.getTime(), UTC).toGregorianCalendar();
+	}
 	
 	private static MetadataMappingResolver getMetadaMappingResolver() {
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);

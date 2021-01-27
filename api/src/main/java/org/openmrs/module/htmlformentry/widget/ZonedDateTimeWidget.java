@@ -1,5 +1,8 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.toRFC3339;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.toUTCCalendar;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -26,21 +29,11 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		return dateFormat;
 	}
 	
-	/*
-	 * TODO: Probably needs to be moved to a util class for the whole HFE to rely on this whenever needed
-	 */
-	public static DateFormat getUTCDateFormat() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-		return dateFormat;
-	}
-	
 	public String generateHtml(FormEntryContext context) {
 		
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
 			if (initialValue != null) {
-				String toPrint = getUTCDateFormat().format(initialValue);
-				return WidgetFactory.displayValue(toPrint, "date-with-timezone");
+				return WidgetFactory.displayValue(toRFC3339(initialValue), "rfc3339-date");
 			} else {
 				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
 			}
@@ -51,12 +44,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			sb.append(super.generateHtml(context));
 			
 			// the time part
-			Calendar valAsCal = null;
-			if (initialValue != null) {
-				DateFormat utcFormat = getUTCDateFormat();
-				utcFormat.format(initialValue);
-				valAsCal = utcFormat.getCalendar();
-			}
+			Calendar valAsCal = initialValue != null ? toUTCCalendar(initialValue) : null;
 			sb.append(new TimeWidget().generateEditModeHtml(context, context.getFieldName(this), valAsCal));
 			
 			// the timezone part
