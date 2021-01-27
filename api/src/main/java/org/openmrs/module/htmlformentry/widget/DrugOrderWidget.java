@@ -114,7 +114,11 @@ public class DrugOrderWidget implements Widget {
 		JsonObject tagAttributes = jsonConfig.addObject("tagAttributes");
 		if (widgetConfig.getAttributes() != null) {
 			for (String att : widgetConfig.getAttributes().keySet()) {
-				tagAttributes.addString(att, widgetConfig.getAttributes().get(att));
+				String attVal = widgetConfig.getAttributes().get(att);
+				if (att.endsWith("Label") && attVal != null) {
+					attVal = translate(attVal);
+				}
+				tagAttributes.addString(att, attVal);
 			}
 		}
 		
