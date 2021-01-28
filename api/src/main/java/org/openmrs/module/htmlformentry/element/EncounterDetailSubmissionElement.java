@@ -726,10 +726,16 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (dateWidget != null) {
 				validateDateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
+				
 				String clientTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
+				if (StringUtils.isEmpty(clientTimezone)) {
+					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
+				}
+				
 				String serverTimezone = TimeZone.getDefault().getID();
 				boolean handleTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
+				
 				if (!serverTimezone.equals(clientTimezone) && !handleTimezones) {
 					throw new IllegalStateException("htmlformentry.error.handleTimezones");
 				}

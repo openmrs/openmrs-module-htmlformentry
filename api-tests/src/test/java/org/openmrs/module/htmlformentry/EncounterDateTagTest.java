@@ -92,7 +92,48 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				super.setupRequest(request, widgets);
-				request.removeParameter("w1timezone");
+				request.removeParameter("w1timezone"); // not really possible when using ZonedDateTimeWidget
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				String formError = results.getValidationErrors().get(0).getError();
+				Assert.assertEquals(messageSourceService.getMessage("htmlformentry.error.noClientTimezone"), formError);
+			}
+			
+		}.run();
+		
+	}
+	
+	@Test
+	public void submitEncounterDateWithTimezone_shouldErrorWhenTimezonesSupportDisabledAndTimezonesDiffer()
+	        throws Exception {
+		
+		new TimezonesEncounterDateTestHelper(false) {
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				String formError = results.getValidationErrors().get(0).getError();
+				Assert.assertEquals(messageSourceService.getMessage("htmlformentry.error.handleTimezones"), formError);
+			}
+			
+		}.run();
+		
+	}
+	
+	@Test
+	public void submitEncounterDateWithTimezone_shouldNotConvertDateWhenTimezonesSupportDisabledAndSameTimezones()
+	        throws Exception {
+		
+		new TimezonesEncounterDateTestHelper(false) {
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Datetime"), "2020-11-02");
+				request.setParameter("w1hours", "03");
+				request.setParameter("w1minutes", "30");
+				request.setParameter("w1seconds", "00");
+				request.setParameter("w1timezone", "Europe/Zurich");
 			}
 			
 			@Override
@@ -103,21 +144,6 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 				Date expectedDate = cal.getTime();
 				
 				Assert.assertEquals(expectedDate, results.getEncounterCreated().getEncounterDatetime());
-			}
-			
-		}.run();
-		
-	}
-	
-	@Test
-	public void submitEncounterDateWithTimezone_shouldErrorWhenTimezonesSupportDisabled() throws Exception {
-		
-		new TimezonesEncounterDateTestHelper(false) {
-			
-			@Override
-			public void testResults(SubmissionResults results) {
-				String formError = results.getValidationErrors().get(0).getError();
-				Assert.assertEquals(messageSourceService.getMessage("htmlformentry.error.handleTimezones"), formError);
 			}
 			
 		}.run();
