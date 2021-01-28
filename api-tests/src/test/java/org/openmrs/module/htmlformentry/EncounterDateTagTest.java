@@ -85,9 +85,9 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void submitEncounterDateWithoutTimezone_shouldNotConvertDateWhenTimezonesSupportDisabled() throws Exception {
+	public void submitEncounterDateWithoutTimezone_shouldError() throws Exception {
 		
-		new TimezonesEncounterDateTestHelper(false) {
+		new TimezonesEncounterDateTestHelper(true) { // false would do the same
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
