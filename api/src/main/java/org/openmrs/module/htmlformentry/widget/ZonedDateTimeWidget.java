@@ -17,8 +17,6 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
-	protected boolean hideSeconds = false;
-	
 	private TimeWidget timeWidget;
 	
 	public ZonedDateTimeWidget() {
