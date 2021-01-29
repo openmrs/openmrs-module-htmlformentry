@@ -105,6 +105,11 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 			for (HtmlFormField field : schema.getAllFields()) {
 				if (field instanceof DrugOrderField) {
 					DrugOrderField f = (DrugOrderField) field;
+					if (f.getConceptOptions() != null) {
+						for (ObsFieldAnswer a : f.getConceptOptions()) {
+							addDependency(ret, Concept.class, a.getConcept());
+						}
+					}
 					if (f.getDrugOrderAnswers() != null) {
 						for (DrugOrderAnswer a : f.getDrugOrderAnswers()) {
 							addDependency(ret, Drug.class, a.getDrug());

@@ -4,9 +4,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -84,6 +86,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	public static final Map<String, Class<? extends OpenmrsObject>> PROPERTIES = new HashMap<>();
 	
 	static {
+		PROPERTIES.put("concept", Concept.class);
 		PROPERTIES.put("drug", Drug.class);
 		PROPERTIES.put("careSetting", CareSetting.class);
 		PROPERTIES.put("orderType", OrderType.class);
@@ -139,6 +142,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		}
 		
 		// For each property, ensure all options are validated and defaults are configured
+		processConceptOptions(widgetConfig, "concept");
 		processDrugOptions(widgetConfig);
 		processEnumOptions(widgetConfig, "action", Order.Action.values(), null);
 		processCareSettingOptions(widgetConfig);
@@ -298,10 +302,23 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	 */
 	protected void processDrugOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
 		List<Option> options = config.getOrderPropertyOptions("drug");
+		
+		// Determine if any concepts were specifically configured and collect in a set
+		Set<Integer> configuredConceptIds = new HashSet<>();
+		List<ObsFieldAnswer> concepts = config.getDrugOrderField().getConceptOptions();
+		if (concepts != null && concepts.size() > 0) {
+			for (ObsFieldAnswer a : concepts) {
+				configuredConceptIds.add(a.getConcept().getConceptId());
+			}
+		}
+		
 		if (options.isEmpty()) {
 			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
-				options.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
-				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, d.getDisplayName()));
+				// If concepts were explicitly configured, then only add drugs that match the configured concepts
+				if (configuredConceptIds.isEmpty() || configuredConceptIds.contains(d.getConcept().getConceptId())) {
+					options.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
+					config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, d.getDisplayName()));
+				}
 			}
 		} else {
 			for (Option option : options) {
@@ -314,6 +331,20 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
 			}
 		}
+		
+		// If there are drugs configured, but no concepts configured, then populate concepts based on drugs
+		if (configuredConceptIds.isEmpty()) {
+			Map<String, Concept> conceptMap = new TreeMap<>();
+			for (DrugOrderAnswer a : config.getDrugOrderField().getDrugOrderAnswers()) {
+				Concept c = a.getDrug().getConcept();
+				conceptMap.put(c.getDisplayString(), c);
+			}
+			for (String name : conceptMap.keySet()) {
+				Concept c = conceptMap.get(name);
+				config.getDrugOrderField().addConceptOption(new ObsFieldAnswer(name, c));
+			}
+		}
+		
 		config.setOrderPropertyOptions("drug", options);
 	}
 	
@@ -537,7 +568,9 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				option.setLabel(getLabel(option.getLabel(), c.getDisplayString()));
 				
 				ObsFieldAnswer a = new ObsFieldAnswer(option.getLabel(), c);
-				if ("doseUnits".equalsIgnoreCase(prop)) {
+				if ("concept".equalsIgnoreCase(prop)) {
+					config.getDrugOrderField().addConceptOption(a);
+				} else if ("doseUnits".equalsIgnoreCase(prop)) {
 					config.getDrugOrderField().addDoseUnitAnswer(a);
 				} else if ("route".equalsIgnoreCase(prop)) {
 					config.getDrugOrderField().addRouteAnswer(a);
