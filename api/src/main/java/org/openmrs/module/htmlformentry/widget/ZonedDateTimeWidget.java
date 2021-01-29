@@ -17,6 +17,11 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
+	protected boolean hideSeconds = false;
+
+	/*
+	 * The encapsulated TimeWidget should not be registered with FormEntryContext, it is assumed that ZonedDateTimeWidget is the registered widget
+	 */
 	private TimeWidget timeWidget;
 	
 	public ZonedDateTimeWidget() {
@@ -68,7 +73,6 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	public Date getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
 			Date time = (Date) timeWidget.getValue(context, request, this);
-			//			Date time = (Date) timeWidget.getValue(context, request, this);
 			Calendar timeCal = Calendar.getInstance();
 			timeCal.setTime(time);
 			Date date = super.getValue(context, request);
