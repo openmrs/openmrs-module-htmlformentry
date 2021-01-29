@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -2514,6 +2515,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 				request.addParameter("w1hours", String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
 				request.addParameter("w1minutes", String.valueOf(cal.get(Calendar.MINUTE)));
 				request.addParameter("w1seconds", String.valueOf(cal.get(Calendar.SECOND)));
+				request.setParameter("w1timezone", TimeZone.getDefault().getID()); // making sure that client tz = server tz
 			}
 			
 			@Override

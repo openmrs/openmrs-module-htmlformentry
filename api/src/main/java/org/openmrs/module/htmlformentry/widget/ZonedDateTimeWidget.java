@@ -19,7 +19,10 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	protected boolean hideSeconds = false;
 	
+	private TimeWidget timeWidget;
+	
 	public ZonedDateTimeWidget() {
+		timeWidget = new TimeWidget();
 	}
 	
 	@Override
@@ -35,7 +38,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			if (initialValue != null) {
 				return WidgetFactory.displayValue(toRFC3339(initialValue), "rfc3339-date");
 			} else {
-				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
+				return WidgetFactory.displayEmptyValue(timeWidget.getHideSeconds() ? "___:___" : "___:___:___");
 			}
 		} else {
 			StringBuilder sb = new StringBuilder();
@@ -45,7 +48,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			
 			// the time part
 			Calendar valAsCal = initialValue != null ? toUTCCalendar(initialValue) : null;
-			sb.append(new TimeWidget().generateEditModeHtml(context, context.getFieldName(this), valAsCal));
+			sb.append(timeWidget.generateEditModeHtml(context, context.getFieldName(this), valAsCal));
 			
 			// the timezone part
 			sb.append("<input type=\"hidden\" class=\"hfe-timezone\" name=\"").append(context.getFieldName(this))
@@ -66,7 +69,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	@Override
 	public Date getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
-			Date time = (Date) TimeWidget.getValue(context, request, this);
+			Date time = (Date) timeWidget.getValue(context, request, this);
+			//			Date time = (Date) timeWidget.getValue(context, request, this);
 			Calendar timeCal = Calendar.getInstance();
 			timeCal.setTime(time);
 			Date date = super.getValue(context, request);

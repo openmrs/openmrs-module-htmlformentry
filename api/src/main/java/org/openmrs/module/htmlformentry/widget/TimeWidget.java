@@ -136,7 +136,7 @@ public class TimeWidget implements Widget {
 		return getValue(context, request, this);
 	}
 	
-	public static Object getValue(FormEntryContext context, HttpServletRequest request, Widget widget) {
+	public Object getValue(FormEntryContext context, HttpServletRequest request, Widget widget) {
 		try {
 			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "hours",
 			    Integer.class);
@@ -184,6 +184,10 @@ public class TimeWidget implements Widget {
 	
 	public void setHideSeconds(boolean hideSeconds) {
 		this.hideSeconds = hideSeconds;
+	}
+	
+	public boolean getHideSeconds() {
+		return hideSeconds;
 	}
 	
 	public boolean isHidden() {
