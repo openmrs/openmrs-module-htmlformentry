@@ -136,14 +136,22 @@ public class TimeWidget implements Widget {
 		return getValue(context, request, this);
 	}
 	
-	public Object getValue(FormEntryContext context, HttpServletRequest request, Widget widget) {
+	/**
+	 * It might be that TimeWidget itself was never registered when it is a piece of a construction
+	 * involving other widgets. In that case this method allows to point to the widget that is actually
+	 * registered.
+	 * 
+	 * @param registeredWidget The registered widget that TimeWidget is "part of".
+	 * @see Widget#getValue(FormEntryContext, HttpServletRequest)
+	 */
+	public Object getValue(FormEntryContext context, HttpServletRequest request, Widget registeredWidget) {
 		try {
-			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "hours",
-			    Integer.class);
-			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "minutes",
-			    Integer.class);
-			Integer s = (Integer) HtmlFormEntryUtil.getParameterAsType(request, context.getFieldName(widget) + "seconds",
-			    Integer.class);
+			Integer h = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
+			    context.getFieldName(registeredWidget) + "hours", Integer.class);
+			Integer m = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
+			    context.getFieldName(registeredWidget) + "minutes", Integer.class);
+			Integer s = (Integer) HtmlFormEntryUtil.getParameterAsType(request,
+			    context.getFieldName(registeredWidget) + "seconds", Integer.class);
 			if (h == null && m == null)
 				return null;
 			if (h == null)
