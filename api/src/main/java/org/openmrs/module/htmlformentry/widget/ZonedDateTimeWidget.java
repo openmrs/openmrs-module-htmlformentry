@@ -15,8 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
-public class ZonedDateTimeWidget extends DateWidget implements Widget {
-	
+public class ZonedDateTimeWidget extends DateWidget implements Widget {	
 
 	/*
 	 * The encapsulated TimeWidget should not be registered with FormEntryContext, it is assumed that ZonedDateTimeWidget is the registered widget
