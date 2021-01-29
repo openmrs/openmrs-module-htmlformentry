@@ -22,8 +22,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	/*
 	 * The encapsulated TimeWidget should not be registered with FormEntryContext, it is assumed that ZonedDateTimeWidget is the registered widget
 	 */
-	private TimeWidget timeWidget;
-	
+
 	public ZonedDateTimeWidget() {
 		timeWidget = new TimeWidget();
 	}
