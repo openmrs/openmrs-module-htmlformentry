@@ -1265,12 +1265,11 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Patient patient = Context.getPatientService().getPatient(2);
 		Drug drug3 = Context.getConceptService().getDrug(3);
 		Drug drug11 = Context.getConceptService().getDrug(11);
-		Set<Drug> drugs = new HashSet<>();
-		drugs.add(drug3);
-		drugs.add(drug11);
-		Map<Drug, List<DrugOrder>> m = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, drugs);
-		Assert.assertEquals(3, m.get(drug3).size());
-		Assert.assertEquals(1, m.get(drug11).size());
+		Set<Concept> concepts = new HashSet<>();
+		concepts.add(drug3.getConcept());
+		concepts.add(drug11.getConcept());
+		List<DrugOrder> m = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, concepts);
+		Assert.assertEquals(4, m.size());
 	}
 	
 	/**

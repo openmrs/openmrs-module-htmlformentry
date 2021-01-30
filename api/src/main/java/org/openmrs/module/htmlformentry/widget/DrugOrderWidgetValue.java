@@ -9,6 +9,8 @@ import org.openmrs.DrugOrder;
  */
 public class DrugOrderWidgetValue {
 	
+	private String fieldSuffix;
+	
 	private DrugOrder previousDrugOrder;
 	
 	private DrugOrder newDrugOrder;
@@ -16,6 +18,14 @@ public class DrugOrderWidgetValue {
 	private boolean voidPreviousOrder;
 	
 	public DrugOrderWidgetValue() {
+	}
+	
+	public String getFieldSuffix() {
+		return fieldSuffix;
+	}
+	
+	public void setFieldSuffix(String fieldSuffix) {
+		this.fieldSuffix = fieldSuffix;
 	}
 	
 	public DrugOrder getPreviousDrugOrder() {
