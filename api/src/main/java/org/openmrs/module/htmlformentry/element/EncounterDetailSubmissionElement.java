@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,7 +19,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.joda.time.DateMidnight;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
@@ -129,9 +129,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			dateErrorWidget = new ErrorWidget();
 			if ("true".equals(parameters.get("showTime"))) {
 				zonedDateTimeWidget = new ZonedDateTimeWidget();
+				if ("true".equals((parameters.get("hideSeconds")))) {
+					zonedDateTimeWidget.setHideSeconds(true);
+				}
 				initializeDateWidget(context, parameters, zonedDateTimeWidget);
 			} else {
-				//ONLY DATE
 				dateWidget = new DateWidget();
 				initializeDateWidget(context, parameters, dateWidget);
 			}
@@ -880,11 +882,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	}
 	
 	private boolean hasTimeComponent(Date date) {
-		return !(new DateMidnight(date).toDate().equals(date));
+		return !"00:00:00".equals(new SimpleDateFormat("HH:mm:ss").format(date));
 	}
 	
-	private DateMidnight stripTimeComponent(Date date) {
-		return new DateMidnight(date);
+	private String stripTimeComponent(Date date) {
+		return new SimpleDateFormat("yyyy-MM-dd").format(date);
 	}
 	
 	public static Set<Location> getAllVisitsAndChildLocations(Set<Location> visitLocations,

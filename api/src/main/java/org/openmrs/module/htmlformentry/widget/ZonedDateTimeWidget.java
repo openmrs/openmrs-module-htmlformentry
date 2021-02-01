@@ -15,13 +15,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
-public class ZonedDateTimeWidget extends DateWidget implements Widget {	
-
+public class ZonedDateTimeWidget extends DateWidget implements Widget {
+	
 	/*
 	 * The encapsulated TimeWidget should not be registered with FormEntryContext, it is assumed that ZonedDateTimeWidget is the registered widget
 	 */
 	private TimeWidget timeWidget;
-
+	
 	public ZonedDateTimeWidget() {
 		timeWidget = new TimeWidget();
 	}
@@ -90,6 +90,16 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		catch (Exception ex) {
 			throw new IllegalArgumentException("Illegal value", ex);
 		}
+	}
+	
+	@Override
+	public void setHidden(boolean hidden) {
+		super.setHidden(hidden);
+		timeWidget.setHidden(hidden);
+	}
+	
+	public void setHideSeconds(boolean hideSeconds) {
+		timeWidget.setHideSeconds(hideSeconds);
 	}
 	
 }
