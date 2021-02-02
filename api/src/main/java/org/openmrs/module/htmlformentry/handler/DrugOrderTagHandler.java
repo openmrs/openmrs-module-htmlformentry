@@ -142,8 +142,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		}
 		
 		// For each property, ensure all options are validated and defaults are configured
-		processConceptOptions(widgetConfig, "concept");
-		processDrugOptions(widgetConfig);
+		processOrderableOptions(widgetConfig);
 		processEnumOptions(widgetConfig, "action", Order.Action.values(), null);
 		processCareSettingOptions(widgetConfig);
 		processOrderTypeOptions(widgetConfig);
@@ -297,11 +296,11 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	}
 	
 	/**
-	 * Processes drug option by populating default labels if not supplied, validating drug value inputs,
-	 * and populating the DrugOrderField
+	 * Processes concept and drug options by populating default labels if not supplied, validating
+	 * inputs, and populating the DrugOrderField
 	 */
-	protected void processDrugOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
-		List<Option> options = config.getOrderPropertyOptions("drug");
+	protected void processOrderableOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
+		processConceptOptions(config, "concept");
 		
 		// Determine if any concepts were specifically configured and collect in a set
 		Set<Integer> configuredConceptIds = new HashSet<>();
@@ -312,16 +311,18 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 		}
 		
-		if (options.isEmpty()) {
+		List<Option> drugOptions = config.getOrderPropertyOptions("drug");
+		
+		if (drugOptions.isEmpty()) {
 			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
 				// If concepts were explicitly configured, then only add drugs that match the configured concepts
 				if (configuredConceptIds.isEmpty() || configuredConceptIds.contains(d.getConcept().getConceptId())) {
-					options.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
+					drugOptions.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
 					config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, d.getDisplayName()));
 				}
 			}
 		} else {
-			for (Option option : options) {
+			for (Option option : drugOptions) {
 				Drug d = HtmlFormEntryUtil.getDrug(option.getValue());
 				if (d == null) {
 					throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
@@ -331,6 +332,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
 			}
 		}
+		config.setOrderPropertyOptions("drug", drugOptions);
 		
 		// If there are drugs configured, but no concepts configured, then populate concepts based on drugs
 		if (configuredConceptIds.isEmpty()) {
@@ -341,11 +343,11 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 			for (String name : conceptMap.keySet()) {
 				Concept c = conceptMap.get(name);
+				Option conceptOption = new Option(c.getDisplayString(), c.getId().toString(), false);
+				config.addOrderPropertyOption("concept", conceptOption);
 				config.getDrugOrderField().addConceptOption(new ObsFieldAnswer(name, c));
 			}
 		}
-		
-		config.setOrderPropertyOptions("drug", options);
 	}
 	
 	/**

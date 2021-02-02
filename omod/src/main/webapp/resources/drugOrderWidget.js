@@ -104,12 +104,16 @@
         return ret;
     }
 
-    drugOrderWidget.supportsAction = function(config, action) {
+    drugOrderWidget.getActionOption = function(config, action) {
         var $orderTemplate = $('#' + config.fieldName + '_template');
         var $actionSection = $orderTemplate.find('.order-field.order-action');
         var $actionWidget = $actionSection.find('select');
         var $optionElement = $actionWidget.find('option[value="' + action + '"]');
-        return $optionElement.length > 0;
+        return $optionElement;
+    }
+
+    drugOrderWidget.supportsAction = function(config, action) {
+        return drugOrderWidget.getActionOption(config, action).length > 0;
     }
 
     /**
@@ -129,7 +133,7 @@
         // Set up watch for an encounter date change.  If date changes, re-initialize all drug sections
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         $encDateHidden.change(function() {
-            if (drugOrderWidget.conceptsAlreadyAdded(config)) {
+            if ($('.drugorders-order-form').length > 0) {
                 alert(config.translations.encounterDateChangeWarning);
             }
             drugOrderWidget.renderDrugOrdersForRevision(config);
@@ -137,8 +141,8 @@
 
         // Render ordering actions
         if (config.mode !== 'VIEW') {
-            var $drugSelector = drugOrderWidget.buildDrugSelector(config);
-            $widgetField.find('.drugorders-selector-section').append($drugSelector);
+            var $newOrderSection = drugOrderWidget.createNewOrderSection(config);
+            $widgetField.find('.drugorders-selector-section').append($newOrderSection);
         }
     }
 
@@ -190,11 +194,6 @@
         var $actionSection = drugOrderWidget.createEditOrderSections(drugOrder, config, encDate);
         $drugSection.append($actionSection);
 
-        // If none were rendered, and mode is view, indicate no orders
-        if (config.mode === 'VIEW') {
-            $historySection.append('<div class="order-view-section drugorders-order-history-none">' + config.translations.noOrders + '</div>');
-        }
-
         // Ensure this section is visible
         $drugSection.show();
         return $drugSection;
@@ -214,43 +213,6 @@
             }
         }
         return ret;
-    }
-
-    /**
-     * The purpose of this function is to construct a select list of drugs that will
-     * add a configured drug section to the form when a drug is selected
-     */
-    drugOrderWidget.buildDrugSelector = function(config) {
-        var $drugSelector = $('<select class="drugorders-drug-selector"></select>');
-        var label = (config.tagAttributes.selectLabel ? config.tagAttributes.selectLabel : config.translations.chooseDrug + "...");
-        $drugSelector.append('<option value="">' + label + '</option>');
-        config.concepts.forEach(function (concept) {
-            $drugSelector.append('<option value="' + concept.conceptId + '">' + concept.conceptLabel + '</option>');
-        });
-        $drugSelector.change(function () {
-            var conceptId = $(this).val();
-            if (conceptId !== '') {
-                var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
-
-                var $drugOrderSection = drugOrderWidget.addDrugOrderSection(config);
-                var $drugDetailsSection = $('<div class="drugorders-order-form-concept">' + concept.conceptLabel  + '</div>');
-                $drugOrderSection.append($drugDetailsSection);
-
-                var $removeLink = $('<a class="drugorders-drug-remove-action" href="#">[X]</a>')
-                $removeLink.click(function(event) {
-                    $drugOrderSection.remove();
-                });
-                $drugDetailsSection.append($removeLink);
-
-                var $orderForm = drugOrderWidget.constructOrderForm($drugOrderSection, config, 'NEW');
-                drugOrderWidget.enableFormulationSelector(concept, $orderForm);
-                drugOrderWidget.enableContextWidgets(config, $orderForm)
-                $orderForm.show();
-
-                $(this).val('');
-            }
-        });
-        return $drugSelector;
     }
 
     /**
@@ -322,6 +284,29 @@
         return $orderForm;
     }
 
+    /**
+     * The purpose of this function is to construct selectors and form for entering a NEW order
+     */
+    drugOrderWidget.createNewOrderSection = function(config) {
+        var $actionOption = drugOrderWidget.getActionOption(config, 'NEW');
+        var $newButton = $('<div class="order-action-button">' + $actionOption.html() + '</div>');
+        $newButton.click(function () {
+            var $drugOrderSection = drugOrderWidget.addDrugOrderSection(config);
+            var $orderForm = drugOrderWidget.constructOrderForm($drugOrderSection, config, 'NEW');
+
+            var $removeLink = $('<div class="order-action-button">' + config.translations.delete + '</div>');
+            $removeLink.click(function(event) {
+                $drugOrderSection.remove();
+            });
+            $drugOrderSection.append($removeLink);
+
+            drugOrderWidget.enableDrugSelector(config, $orderForm);
+            drugOrderWidget.enableContextWidgets(config, $orderForm);
+            $orderForm.show();
+        });
+        return $newButton;
+    }
+
     drugOrderWidget.createEditOrderSections = function(drugOrder, config, encDate) {
         var $orderActionSection = $('<div class="order-action-section"></div>');
         var $orderActionButtons = $('<div class="order-action-buttons"></div>');
@@ -331,8 +316,8 @@
 
         var orderActions = drugOrderWidget.getSupportedActions(drugOrder, config, encDate);
         orderActions.forEach(function(action) {
-            var actionKey = 'action.' + action.toLowerCase();
-            var $actionButton = $('<div class="order-action-button">' + config.translations[actionKey] + '</div>');
+            var $actionOption = drugOrderWidget.getActionOption(config, action);
+            var $actionButton = $('<div class="order-action-button">' + $actionOption.html() + '</div>');
             $actionButton.click(function(event) {
                 var $orderForm = $orderActionForms.find('.drugorders-order-form');
                 if ($orderForm.length > 0) {
@@ -353,15 +338,29 @@
     }
 
     // Enable selecting formulations / drugs for the selected concept
-    drugOrderWidget.enableFormulationSelector = function(conceptConfig, $orderForm) {
+    drugOrderWidget.enableDrugSelector = function(config, $orderForm) {
+        var $conceptSelect = $orderForm.find('.order-field-widget.order-concept').find('select');
         var $drugSelect = $orderForm.find('.order-field-widget.order-drug').find('select');
-        $drugSelect.empty();
-        $drugSelect.append('<option value=""></option>');
-        conceptConfig.drugs.forEach(function (val) {
-            $drugSelect.append('<option value="' + val.drugId + '">' + val.drugLabel + '</option>');
+        var $drugElements = $orderForm.find('.order-drug');
+        var $drugNonCodedElements = $orderForm.find('.order-drugNonCoded');
+        $drugElements.hide();
+        $drugNonCodedElements.hide();
+        $conceptSelect.change(function() {
+            $drugElements.hide();
+            $drugNonCodedElements.hide();
+            var conceptId = $conceptSelect.val();
+            if (conceptId !== '') {
+                $drugSelect.find("option").hide();
+                $drugSelect.find('option[value=""]').show();
+                var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
+                concept.drugs.forEach(function (drug) {
+                    $drugSelect.find('option[value="' + drug.drugId + '"]').show();
+                })
+                $drugElements.show();
+                $drugNonCodedElements.show();
+            }
         });
-        $orderForm.find('.order-drug').show();
-        $orderForm.find('.order-drugNonCoded').show();
+        $orderForm.find('.order-concept').show();
     }
 
     // If there was no template configured, show or set defaults where necessary
@@ -439,6 +438,7 @@
 
     drugOrderWidget.populateOrderForm = function(config, $orderForm, drugOrder) {
         $orderForm.find('.order-field-widget.order-previousOrder').find(':input').val(drugOrder.orderId);
+        $orderForm.find('.order-field-widget.order-concept').find(':input').val(drugOrder.concept.value);
         $orderForm.find('.order-field-widget.order-drug').find(':input').val(drugOrder.drug.value);
         $orderForm.find('.order-field-widget.order-drugNonCoded').find(':input').val(drugOrder.drugNonCoded.value);
         $orderForm.find('.order-field-widget.order-careSetting').find(':input').val(drugOrder.careSetting.value);
@@ -558,9 +558,9 @@
         if (data.values && data.values.length > 0) {
             data.values.forEach(function (val) {
                 var config = data.config;
-                var conceptId = val.conceptId;
-                var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
-                drugOrderWidget.configureConceptSection(config, concept);
+                var fieldSuffix = val.fieldSuffix;
+                var $orderForm = $('#' + config.fieldName + '_template' + fieldSuffix);
+                $orderForm.show();
                 val.fields.forEach(function (field) {
                     setValueByName(field.name, field.value);
                 });

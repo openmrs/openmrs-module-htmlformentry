@@ -200,7 +200,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				// We do this by determining if the new order is a revision within the same encounter, with same date activated
 				if (!voidPrevious && previousOrder != null) {
 					if (encounter.equals(previousOrder.getEncounter())) { // Same encounter
-						if (newOrder.getDrug().equals(previousOrder.getDrug())) { // Same drug
+						if (isSameDrug(newOrder, previousOrder)) {
 							if (newOrder.getDateActivated().equals(previousOrder.getDateActivated())) { // Same date activated
 								voidPrevious = true;
 							}
@@ -234,7 +234,8 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	}
 	
 	protected boolean isSameDrug(DrugOrder current, DrugOrder previous) {
-		boolean ret = areEqual(current.getDrug(), previous.getDrug());
+		boolean ret = areEqual(current.getConcept(), previous.getConcept());
+		ret = ret && areEqual(current.getDrug(), previous.getDrug());
 		ret = ret && areEqual(current.getDrugNonCoded(), previous.getDrugNonCoded());
 		return ret;
 	}

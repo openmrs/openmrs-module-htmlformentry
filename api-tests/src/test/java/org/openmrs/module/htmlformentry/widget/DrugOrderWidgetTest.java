@@ -32,7 +32,7 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		formSessionTester.assertHtmlContains("drugorders-order-section");
 		formSessionTester.assertHtmlContains("drugorders-selector-section");
 		formSessionTester.assertHtmlContains("drugorders-order-form");
-		formSessionTester.assertStartingFormValue("order-field-label orderType", "1");
+		formSessionTester.assertStartingFormValue("order-field-label order-orderType", "1");
 		log.trace(formSessionTester.getHtmlToDisplay());
 	}
 	
@@ -50,9 +50,9 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		for (int i = 0; i < widgets.size(); i++) {
 			String property = properties[i];
 			Widget propertyWidget = widgets.get(i);
-			fst.assertHtmlContains("<div class=\"order-field " + property + "\"");
-			fst.assertHtmlContains("<div class=\"order-field-label " + property + "\"");
-			fst.assertHtmlContains("<div class=\"order-field-widget " + property);
+			fst.assertHtmlContains("<div class=\"order-field order-" + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-label order-" + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-widget order-" + property);
 			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
 		}
 	}

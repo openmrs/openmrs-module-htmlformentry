@@ -36,7 +36,7 @@ public class DrugOrderFieldTester {
 	}
 	
 	public DrugOrderFieldTester setField(String property, String value) {
-		String formField = formSessionTester.getFormField("order-field-label " + property) + suffix;
+		String formField = formSessionTester.getFormField("order-field-label order-" + property) + suffix;
 		formSessionTester.setFormField(formField, value);
 		return this;
 	}
