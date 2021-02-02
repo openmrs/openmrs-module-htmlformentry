@@ -34,8 +34,8 @@
         return $('.drugorders-drug-section').length;
     }
 
-    drugOrderWidget.nextOrderFormIndex = function() {
-        return $('.drugorders-order-form').length;
+    drugOrderWidget.nextActionButtonIndex = function() {
+        return $('.order-action-button').length;
     }
 
     drugOrderWidget.isOrderInCurrentEncounter = function(order, config) {
@@ -218,11 +218,10 @@
     /**
      * Clones the order form template and replaces all the the ids and names as appropriate
      */
-    drugOrderWidget.constructOrderForm = function($sectionToAppendTo, config, action) {
+    drugOrderWidget.constructOrderForm = function($sectionToAppendTo, idSuffix, config, action) {
 
         // Clone the order form template, ensuring ids and names of widgets are configured for this specific drug
         var $orderForm = $('#' + config.fieldName + '_template').clone();
-        var idSuffix = '_' + drugOrderWidget.nextOrderFormIndex();
         $orderForm.find("[id]").add($orderForm).each(function () {
             this.id = this.id + idSuffix;
         });
@@ -284,15 +283,20 @@
         return $orderForm;
     }
 
+    drugOrderWidget.createActionButton = function(idSuffix, action, label) {
+        return $('<div id="order-action-button-' + action + idSuffix + '" class="order-action-button">' + label + '</div>');
+    }
+
     /**
      * The purpose of this function is to construct selectors and form for entering a NEW order
      */
     drugOrderWidget.createNewOrderSection = function(config) {
         var $actionOption = drugOrderWidget.getActionOption(config, 'NEW');
-        var $newButton = $('<div class="order-action-button">' + $actionOption.html() + '</div>');
+        var idSuffix = '_' + drugOrderWidget.nextActionButtonIndex();
+        var $newButton = drugOrderWidget.createActionButton(idSuffix, 'NEW', $actionOption.html());
         $newButton.click(function () {
             var $drugOrderSection = drugOrderWidget.addDrugOrderSection(config);
-            var $orderForm = drugOrderWidget.constructOrderForm($drugOrderSection, config, 'NEW');
+            var $orderForm = drugOrderWidget.constructOrderForm($drugOrderSection, idSuffix, config, 'NEW');
 
             var $removeLink = $('<div class="order-action-button">' + config.translations.delete + '</div>');
             $removeLink.click(function(event) {
@@ -317,8 +321,9 @@
         var orderActions = drugOrderWidget.getSupportedActions(drugOrder, config, encDate);
         orderActions.forEach(function(action) {
             var $actionOption = drugOrderWidget.getActionOption(config, action);
-            var $actionButton = $('<div class="order-action-button">' + $actionOption.html() + '</div>');
-            $actionButton.click(function(event) {
+            var idSuffix = '_' + drugOrderWidget.nextActionButtonIndex();
+            var $actionButton = drugOrderWidget.createActionButton(idSuffix, action, $actionOption.html());
+            $actionButton.click(function() {
                 var $orderForm = $orderActionForms.find('.drugorders-order-form');
                 if ($orderForm.length > 0) {
                     $orderForm.remove();
@@ -326,7 +331,7 @@
                 }
                 else {
                     $actionButton.addClass('drugorders-selected-action');
-                    $orderForm = drugOrderWidget.constructOrderForm($orderActionForms, config, action);
+                    $orderForm = drugOrderWidget.constructOrderForm($orderActionForms, idSuffix, config, action);
                     drugOrderWidget.populateOrderForm(config, $orderForm, drugOrder);
                     $orderForm.show();
                 }
@@ -559,8 +564,9 @@
             data.values.forEach(function (val) {
                 var config = data.config;
                 var fieldSuffix = val.fieldSuffix;
-                var $orderForm = $('#' + config.fieldName + '_template' + fieldSuffix);
-                $orderForm.show();
+                var action = val.action;
+                var $actionButton = $('#order-action-button-' + action + fieldSuffix);
+                $actionButton.click();
                 val.fields.forEach(function (field) {
                     setValueByName(field.name, field.value);
                 });

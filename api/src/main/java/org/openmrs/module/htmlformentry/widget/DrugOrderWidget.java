@@ -385,6 +385,7 @@ public class DrugOrderWidget implements Widget {
 			if (action != null) {
 				JsonObject o = json.addObjectToArray("values");
 				o.addString("fieldSuffix", fs);
+				o.addString("action", action.name());
 				for (Widget w : widgets.values()) {
 					String fieldName = c.getFieldName(w) + fs;
 					JsonObject field = o.addObjectToArray("fields");
