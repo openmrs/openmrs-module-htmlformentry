@@ -168,6 +168,7 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "action.revise");
 		translations.addTranslation(prefix, "action.discontinue");
 		translations.addTranslation(prefix, "delete");
+		translations.addTranslation(prefix, "discontinueReason");
 		
 		// Add a section for each concept configured in the tag
 		for (ObsFieldAnswer conceptOption : widgetConfig.getDrugOrderField().getConceptOptions()) {

@@ -178,6 +178,8 @@
         $drugSection.append($historySection);
         $historySection.empty();
 
+        $historySection.append(drugOrderWidget.formatOrderable(drugOrder));
+
         // If the order was placed in this encounter, and it was a revision of a previous order, render the previous order
         if (drugOrderWidget.shouldRenderPreviousOrder(drugOrder, config)) {
             var prevOrder = drugOrderWidget.getOrder(drugOrder.previousOrderId, config.history);
@@ -302,11 +304,13 @@
             var $drugOrderSection = drugOrderWidget.addDrugOrderSection(config);
             var $orderForm = drugOrderWidget.constructOrderForm($drugOrderSection, idSuffix, config, 'NEW');
 
-            var $removeLink = $('<div class="order-action-button">' + config.translations.delete + '</div>');
-            $removeLink.click(function(event) {
+            var $actionSection = $('<div class="order-action-section"></div>');
+            var $deleteAction = $('<div class="order-action-button">' + config.translations.delete + '</div>');
+            $deleteAction.click(function(event) {
                 $drugOrderSection.remove();
             });
-            $drugOrderSection.append($removeLink);
+            $actionSection.append($deleteAction);
+            $drugOrderSection.append($actionSection);
 
             drugOrderWidget.enableDrugSelector(config, $orderForm);
             drugOrderWidget.enableContextWidgets(config, $orderForm);
@@ -469,19 +473,21 @@
         $orderForm.find('.order-field-widget.order-numRefills').find(':input').val(drugOrder.numRefills.value);
     }
 
+    drugOrderWidget.formatOrderable = function(drugOrder) {
+        // Render drug name details
+        var $ret = $('<div class="order-view-section drugorders-drug-details"></div>');
+        $ret.append('<div class="drugorders-drug-details-concept">' + drugOrder.concept.display  + '</div>');
+        if (drugOrder.drug.value !== '') {
+            $ret.append('<div class="drugorders-drug-details-drug">' + drugOrder.drug.display + '</div>');
+        }
+        if (drugOrder.drugNonCoded.value !== '') {
+            $ret.append('<div class="drugorders-drug-details-drugNonCoded">' + drugOrder.drugNonCoded.display + '</div>');
+        }
+        return $ret;
+    }
+
     drugOrderWidget.formatDrugOrder = function(d, encDate, config) {
         var $ret = $('<div class="drugorders-order-history-item"></div>');
-
-        // Render drug name details
-        var $drugDetailsSection = $('<div class="order-view-section drugorders-drug-details"></div>');
-        $drugDetailsSection.append('<div class="drugorders-drug-details-concept">' + d.concept.display  + '</div>');
-        if (d.drug.value !== '') {
-            $drugDetailsSection.append('<div class="drugorders-drug-details-drug">' + d.drug.display + '</div>');
-        }
-        if (d.drugNonCoded.value !== '') {
-            $drugDetailsSection.append('<div class="drugorders-drug-details-drugNonCoded">' + d.drugNonCoded.display + '</div>');
-        }
-        $ret.append($drugDetailsSection);
 
         var $existingActionSection = $('<div class="order-view-section order-view-action"></div>');
         var inCurrentEncounter = drugOrderWidget.isOrderInCurrentEncounter(d, config);
@@ -522,8 +528,8 @@
 
         if (isDiscontinue) {
             var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
-            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + '</div>');
-            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason-non-coded">' + d.discontinueReasonNonCoded.display + '</div>');
+            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason-label">' + config.translations.discontinueReason + ': </div>');
+            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + d.discontinueReasonNonCoded.display + '</div>');
             $ret.append($discontinueSection);
         }
         else {

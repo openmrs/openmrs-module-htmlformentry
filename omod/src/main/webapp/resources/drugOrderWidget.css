@@ -104,7 +104,7 @@
 }
 
 .order-view-field.order-view-discontinue-reason {
-	font-weight:bold; padding-left:20px;
+	font-weight:bold;
 }
 
 .order-view-different-encounter {
@@ -112,7 +112,7 @@
 }
 
 .drugorders-selector-section {
-	padding-top: 5px;
+	margin: 10px;
 }
 
 .order-instructions {
@@ -152,6 +152,10 @@
 
 .order-view-field {
 	padding-right: 10px;
+}
+
+.order-action-section {
+	margin: 10px;
 }
 
 .order-action-button {
