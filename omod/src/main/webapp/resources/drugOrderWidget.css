@@ -19,19 +19,24 @@
 	display: inline-block;
 }
 
-.drugorders-drug-details-concept:after {
-	content: " -- ";
-	white-space: pre;
-}
-
 .drugorders-drug-details-drug {
 	display: inline-block;
 	font-style: italic;
 }
 
+.drugorders-drug-details-drug:before {
+	content: " -- ";
+	white-space: pre;
+}
+
 .drugorders-drug-details-drugNonCoded {
 	display: inline-block;
 	font-style: italic;
+}
+
+.drugorders-drug-details-drugNonCoded:before {
+	content: " -- ";
+	white-space: pre;
 }
 
 .drugorders-drug-history {
