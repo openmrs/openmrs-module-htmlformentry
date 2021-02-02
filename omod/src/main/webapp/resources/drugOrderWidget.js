@@ -261,7 +261,11 @@
         // Render the appropriate fields
         drugOrderWidget.enableDateWidgets(config, $orderForm, encDate);
         if (action === 'DISCONTINUE') {
-            $orderForm.find('.order-discontinueReason').show();
+            var $discontinueReasonSelect = $orderForm.find('.order-field-widget.order-discontinueReason').find('select');
+            if ($discontinueReasonSelect.find('option').length > 1) {
+                $orderForm.find('.order-discontinueReason').show();
+            }
+            $orderForm.find('.order-discontinueReasonNonCoded').show();
         } else if (action === 'RENEW') {
             drugOrderWidget.enableDrugOrderDurationWidgets($orderForm);
         } else if (action === 'REVISE' || action === 'NEW') {
@@ -519,6 +523,7 @@
         if (isDiscontinue) {
             var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
             $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + '</div>');
+            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason-non-coded">' + d.discontinueReasonNonCoded.display + '</div>');
             $ret.append($discontinueSection);
         }
         else {

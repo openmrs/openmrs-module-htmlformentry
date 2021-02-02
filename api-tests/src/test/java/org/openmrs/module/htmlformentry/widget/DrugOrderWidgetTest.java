@@ -44,7 +44,7 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		String[] properties = { "concept", "drug", "drugNonCoded", "action", "previousOrder", "careSetting", "dosingType",
 		        "orderType", "dosingInstructions", "dose", "doseUnits", "route", "frequency", "asNeeded", "instructions",
 		        "urgency", "dateActivated", "scheduledDate", "duration", "durationUnits", "quantity", "quantityUnits",
-		        "numRefills", "voided", "discontinueReason" };
+		        "numRefills", "voided", "discontinueReason", "discontinueReasonNonCoded" };
 		assertThat(widget.getWidgets().size(), is(properties.length));
 		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
 		for (int i = 0; i < widgets.size(); i++) {

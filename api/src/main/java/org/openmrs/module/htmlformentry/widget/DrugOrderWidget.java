@@ -71,6 +71,7 @@ public class DrugOrderWidget implements Widget {
 		configureNumericWidget(context, "numRefills", false);
 		configureCheckboxWidget(context, "voided");
 		configureOptionWidget(context, "discontinueReason", "dropdown");
+		configureTextWidget(context, "discontinueReasonNonCoded");
 	}
 	
 	@Override
@@ -227,6 +228,7 @@ public class DrugOrderWidget implements Widget {
 					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 					addToJsonObject(jho, "numRefills", d.getNumRefills());
 					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
+					addToJsonObject(jho, "discontinueReasonNonCoded", d.getOrderReasonNonCoded());
 				}
 			}
 		}
@@ -449,6 +451,7 @@ public class DrugOrderWidget implements Widget {
 					drugOrder.setNumRefills(parseValue(getValue(c, r, fs, "numRefills"), Integer.class));
 					if (action == Order.Action.DISCONTINUE) {
 						drugOrder.setOrderReason(parseValue(getValue(c, r, fs, "discontinueReason"), Concept.class));
+						drugOrder.setOrderReasonNonCoded(getValue(c, r, fs, "discontinueReasonNonCoded"));
 					}
 					v.setNewDrugOrder(drugOrder);
 				}
