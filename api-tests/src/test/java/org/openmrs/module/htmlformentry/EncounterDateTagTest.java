@@ -8,7 +8,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
@@ -23,6 +25,18 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Autowired
 	private MessageSourceService messageSourceService;
+	
+	private TimeZone systemTimezone;
+	
+	@Before
+	public void before() {
+		systemTimezone = TimeZone.getDefault();
+	}
+	
+	@After
+	public void after() {
+		TimeZone.setDefault(systemTimezone);
+	}
 	
 	/**
 	 * To test the encounter date tag submissions with the <pre>showTime</pre> attribute set to true.
