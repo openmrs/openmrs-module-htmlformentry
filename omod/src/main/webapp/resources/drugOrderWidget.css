@@ -115,7 +115,7 @@
 	padding-top: 5px;
 }
 
-.instructions {
+.order-instructions {
 	font-size: 1.0em;
 }
 
@@ -152,4 +152,28 @@
 
 .order-view-field {
 	padding-right: 10px;
+}
+
+.order-action-button {
+	display:inline-block;
+	color:#444;
+	border:1px solid #CCC;
+	background:#DDD;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	cursor:pointer;
+	vertical-align:middle;
+	max-width: 100px;
+	padding: 2px;
+	margin-right: 5px;
+	text-align: center;
+}
+.order-action-button:active {
+	font-weight: bold;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}
+
+.drugorders-selected-action {
+	background-color: #2200ff;
+	color: white;
+	font-weight: bold;
 }

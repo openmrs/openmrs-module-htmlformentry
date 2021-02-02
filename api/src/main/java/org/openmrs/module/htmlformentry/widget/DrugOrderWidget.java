@@ -162,8 +162,12 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
 		translations.addTranslation(prefix, "encounterDateChangeWarning");
+		translations.addTranslation(prefix, "action.new");
+		translations.addTranslation(prefix, "action.renew");
+		translations.addTranslation(prefix, "action.revise");
+		translations.addTranslation(prefix, "action.discontinue");
 		
-		// Add a section for each concept configured in the tag.  Hide these sections if appropriate
+		// Add a section for each concept configured in the tag
 		for (ObsFieldAnswer conceptOption : widgetConfig.getDrugOrderField().getConceptOptions()) {
 			Concept concept = conceptOption.getConcept();
 			String conceptId = concept.getId().toString();
@@ -186,12 +190,10 @@ public class DrugOrderWidget implements Widget {
 				}
 			}
 			
-			List<JsonObject> history = jsonConcept.getObjectArray("history");
-			
 			if (initialValue != null) {
 				for (DrugOrder d : getInitialValueForConcept(concept)) {
 					Order pd = d.getPreviousOrder();
-					JsonObject jho = new JsonObject();
+					JsonObject jho = jsonConfig.addObjectToArray("history");
 					jho.addString("orderId", d.getOrderId().toString());
 					jho.addString("encounterId", d.getEncounter().getEncounterId().toString());
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
@@ -224,7 +226,6 @@ public class DrugOrderWidget implements Widget {
 					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 					addToJsonObject(jho, "numRefills", d.getNumRefills());
 					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
-					history.add(jho);
 				}
 			}
 		}
@@ -353,11 +354,11 @@ public class DrugOrderWidget implements Widget {
 		StringBuilder ret = new StringBuilder();
 		String labelCode = attrs.getOrDefault(DrugOrderTagHandler.LABEL_ATTRIBUTE, "htmlformentry.drugOrder." + property);
 		String label = translate(labelCode);
-		ret.append("<div class=\"order-field ").append(property).append("\">");
-		ret.append("<div class=\"order-field-label ").append(property).append("\">");
+		ret.append("<div class=\"order-field order-").append(property).append("\">");
+		ret.append("<div class=\"order-field-label order-").append(property).append("\">");
 		ret.append(label);
 		ret.append("</div>");
-		ret.append("<div class=\"order-field-widget ").append(property);
+		ret.append("<div class=\"order-field-widget order-").append(property);
 		if (w instanceof RadioButtonsWidget) {
 			ret.append(" order-field-radio-group");
 		}
