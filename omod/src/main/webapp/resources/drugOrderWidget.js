@@ -133,7 +133,7 @@
         // Set up watch for an encounter date change.  If date changes, re-initialize all drug sections
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         $encDateHidden.change(function() {
-            if ($('.drugorders-order-form').length > 0) {
+            if ($('.drugorders-order-form').length > 1) { // More than 1, since the template is present
                 alert(config.translations.encounterDateChangeWarning);
             }
             drugOrderWidget.renderDrugOrdersForRevision(config);

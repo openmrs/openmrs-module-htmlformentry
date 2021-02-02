@@ -170,6 +170,8 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "delete");
 		translations.addTranslation(prefix, "discontinueReason");
 		
+		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
+		
 		// Add a section for each concept configured in the tag
 		for (ObsFieldAnswer conceptOption : widgetConfig.getDrugOrderField().getConceptOptions()) {
 			Concept concept = conceptOption.getConcept();
@@ -196,7 +198,7 @@ public class DrugOrderWidget implements Widget {
 			if (initialValue != null) {
 				for (DrugOrder d : getInitialValueForConcept(concept)) {
 					Order pd = d.getPreviousOrder();
-					JsonObject jho = jsonConfig.addObjectToArray("history");
+					JsonObject jho = new JsonObject();
 					jho.addString("orderId", d.getOrderId().toString());
 					jho.addString("encounterId", d.getEncounter().getEncounterId().toString());
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
@@ -230,6 +232,7 @@ public class DrugOrderWidget implements Widget {
 					addToJsonObject(jho, "numRefills", d.getNumRefills());
 					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
 					addToJsonObject(jho, "discontinueReasonNonCoded", d.getOrderReasonNonCoded());
+					historyArray.add(jho);
 				}
 			}
 		}
