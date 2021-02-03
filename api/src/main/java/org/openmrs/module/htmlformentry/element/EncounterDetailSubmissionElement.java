@@ -76,8 +76,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	
 	private ErrorWidget locationErrorWidget;
 	
-	private ToggleWidget toggleWidget;
-	
 	private CheckboxWidget voidWidget;
 	
 	private ErrorWidget voidErrorWidget;
