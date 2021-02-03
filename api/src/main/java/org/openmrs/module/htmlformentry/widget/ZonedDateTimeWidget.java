@@ -1,7 +1,7 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.toRFC3339;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.toUTCCalendar;
+import static org.openmrs.util.TimeZoneUtil.toRFC3339;
+import static org.openmrs.util.TimeZoneUtil.toUTCCalendar;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

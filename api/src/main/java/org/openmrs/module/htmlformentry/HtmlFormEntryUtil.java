@@ -1,7 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.joda.time.DateTimeZone.UTC;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +45,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptDatatype;
@@ -124,20 +120,6 @@ import org.xml.sax.InputSource;
 public class HtmlFormEntryUtil {
 	
 	public static Log log = LogFactory.getLog(HtmlFormEntryUtil.class);
-	
-	/**
-	 * @return The date formated as RFC 3339.
-	 */
-	public static String toRFC3339(Date date) {
-		return ISODateTimeFormat.dateTime().print(new DateTime(date.getTime(), UTC));
-	}
-	
-	/**
-	 * @return The GregorianCalendar set in UTC for the date.
-	 */
-	public static Calendar toUTCCalendar(Date date) {
-		return new DateTime(date.getTime(), UTC).toGregorianCalendar();
-	}
 	
 	private static MetadataMappingResolver getMetadaMappingResolver() {
 		return Context.getRegisteredComponent("metadataMappingResolver", MetadataMappingResolver.class);
