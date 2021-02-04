@@ -18,6 +18,7 @@ import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -124,12 +125,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 						ret.add(new FormSubmissionError(f, dosingTypeError));
 					}
 					
-					if (drugOrder.getCareSetting() != null) {
-						if (drugOrder.getCareSetting().getCareSettingType() == CareSetting.CareSettingType.OUTPATIENT) {
-							handleRequiredField(ret, ctx, fs, "quantity", drugOrder.getQuantity());
-							handleRequiredField(ret, ctx, fs, "quantityUnits", drugOrder.getQuantityUnits());
-							handleRequiredField(ret, ctx, fs, "numRefills", drugOrder.getNumRefills());
-						}
+					if (areQuantityFieldsRequired(drugOrder)) {
+						handleRequiredField(ret, ctx, fs, "quantity", drugOrder.getQuantity());
+						handleRequiredField(ret, ctx, fs, "quantityUnits", drugOrder.getQuantityUnits());
+						handleRequiredField(ret, ctx, fs, "numRefills", drugOrder.getNumRefills());
 					}
 					
 					if (drugOrder.getUrgency() == Order.Urgency.ON_SCHEDULED_DATE) {
@@ -252,6 +251,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		ret = ret || !areEqual(current.getAsNeeded(), previous.getAsNeeded());
 		ret = ret || !areEqual(current.getAsNeededCondition(), previous.getAsNeededCondition());
 		return ret;
+	}
+	
+	protected boolean areQuantityFieldsRequired(DrugOrder drugOrder) {
+		if (drugOrder.getCareSetting() != null) {
+			if (drugOrder.getCareSetting().getCareSettingType() == CareSetting.CareSettingType.OUTPATIENT) {
+				String gpName = "drugOrder.requireOutpatientQuantity";
+				String gpVal = Context.getAdministrationService().getGlobalProperty(gpName, "true");
+				return "true".equalsIgnoreCase(gpVal);
+			}
+		}
+		return false;
 	}
 	
 	/**
