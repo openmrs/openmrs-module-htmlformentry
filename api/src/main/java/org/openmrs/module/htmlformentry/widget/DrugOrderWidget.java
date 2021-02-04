@@ -18,6 +18,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
@@ -54,6 +55,8 @@ public class DrugOrderWidget implements Widget {
 		configureOptionWidget(context, "careSetting", "dropdown");
 		configureOptionWidget(context, "dosingType", "radio");
 		configureOptionWidget(context, "orderType", "dropdown");
+		configureOptionWidget(context, "orderReason", "dropdown");
+		configureTextWidget(context, "orderReasonNonCoded");
 		configureTextWidget(context, "dosingInstructions");
 		configureNumericWidget(context, "dose", true);
 		configureOptionWidget(context, "doseUnits", "dropdown");
@@ -69,7 +72,6 @@ public class DrugOrderWidget implements Widget {
 		configureNumericWidget(context, "quantity", true);
 		configureOptionWidget(context, "quantityUnits", "dropdown");
 		configureNumericWidget(context, "numRefills", false);
-		configureCheckboxWidget(context, "voided");
 		configureOptionWidget(context, "discontinueReason", "dropdown");
 		configureTextWidget(context, "discontinueReasonNonCoded");
 	}
@@ -168,6 +170,7 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "action.revise");
 		translations.addTranslation(prefix, "action.discontinue");
 		translations.addTranslation(prefix, "delete");
+		translations.addTranslation(prefix, "orderReason");
 		translations.addTranslation(prefix, "discontinueReason");
 		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
@@ -230,8 +233,17 @@ public class DrugOrderWidget implements Widget {
 					addToJsonObject(jho, "quantity", d.getQuantity());
 					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 					addToJsonObject(jho, "numRefills", d.getNumRefills());
-					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
-					addToJsonObject(jho, "discontinueReasonNonCoded", d.getOrderReasonNonCoded());
+					if (d.getAction() == Order.Action.DISCONTINUE) {
+						addToJsonObject(jho, "orderReason", "");
+						addToJsonObject(jho, "orderReasonNonCoded", "");
+						addToJsonObject(jho, "discontinueReason", d.getOrderReason());
+						addToJsonObject(jho, "discontinueReasonNonCoded", d.getOrderReasonNonCoded());
+					} else {
+						addToJsonObject(jho, "orderReason", d.getOrderReason());
+						addToJsonObject(jho, "orderReasonNonCoded", d.getOrderReasonNonCoded());
+						addToJsonObject(jho, "discontinueReason", "");
+						addToJsonObject(jho, "discontinueReasonNonCoded", "");
+					}
 					historyArray.add(jho);
 				}
 			}
@@ -283,6 +295,11 @@ public class DrugOrderWidget implements Widget {
 				if (propertyValue instanceof Date) {
 					DateWidget dw = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
 					return dw.getDateFormatForDisplay().format((Date) propertyValue);
+				}
+				if (propertyValue instanceof Concept) {
+					return ((Concept) propertyValue).getDisplayString();
+				} else if (propertyValue instanceof OpenmrsMetadata) {
+					return HtmlFormEntryUtil.format((OpenmrsMetadata) propertyValue);
 				}
 			}
 			catch (Exception e) {
@@ -409,56 +426,51 @@ public class DrugOrderWidget implements Widget {
 	public List<DrugOrderWidgetValue> getValue(FormEntryContext c, HttpServletRequest r) {
 		List<DrugOrderWidgetValue> ret = new ArrayList<>();
 		OrderType defOrderType = HtmlFormEntryUtil.getDrugOrderType();
-		
 		Set<String> fieldSuffixes = getFieldSuffixes(c, r);
 		for (String fs : fieldSuffixes) {
 			Order.Action action = parseValue(getValue(c, r, fs, "action"), Order.Action.class);
-			DrugOrder previousOrder = parseValue(getValue(c, r, fs, "previousOrder"), DrugOrder.class);
-			boolean voidPrevious = parseValue(getValue(c, r, fs, "voided"), Boolean.class, false);
-			if (action != null || voidPrevious) {
+			if (action != null) {
+				log.trace("User requested to place a " + action + "drug order");
+				DrugOrder previousOrder = parseValue(getValue(c, r, fs, "previousOrder"), DrugOrder.class);
 				DrugOrderWidgetValue v = new DrugOrderWidgetValue();
 				v.setFieldSuffix(fs);
 				v.setPreviousDrugOrder(previousOrder);
-				if (voidPrevious) {
-					v.setVoidPreviousOrder(true);
-					log.trace("User requested to void previous order with order id: " + previousOrder.getId());
+				DrugOrder drugOrder = new DrugOrder();
+				drugOrder.setPreviousOrder(previousOrder);
+				drugOrder.setAction(action);
+				drugOrder.setConcept(parseValue(getValue(c, r, fs, "concept"), Concept.class));
+				drugOrder.setDrug(parseValue(getValue(c, r, fs, "drug"), Drug.class));
+				drugOrder.setDrugNonCoded(getValue(c, r, fs, "drugNonCoded"));
+				drugOrder.setCareSetting(parseValue(getValue(c, r, fs, "careSetting"), CareSetting.class));
+				drugOrder.setDosingType(parseValue(getValue(c, r, fs, "dosingType"), Class.class));
+				drugOrder.setOrderType(parseValue(getValue(c, r, fs, "orderType"), OrderType.class, defOrderType));
+				drugOrder.setDosingInstructions(getValue(c, r, fs, "dosingInstructions"));
+				drugOrder.setDose(parseValue(getValue(c, r, fs, "dose"), Double.class));
+				drugOrder.setDoseUnits(parseValue(getValue(c, r, fs, "doseUnits"), Concept.class));
+				drugOrder.setRoute(parseValue(getValue(c, r, fs, "route"), Concept.class));
+				drugOrder.setFrequency(parseValue(getValue(c, r, fs, "frequency"), OrderFrequency.class));
+				drugOrder.setAsNeeded(parseValue(getValue(c, r, fs, "asNeeded"), Boolean.class, false));
+				drugOrder.setInstructions(getValue(c, r, fs, "instructions"));
+				drugOrder.setUrgency(parseValue(getValue(c, r, fs, "urgency"), Order.Urgency.class));
+				drugOrder.setDateActivated(getDateActivatedValue());
+				drugOrder.setScheduledDate(parseValue(getValue(c, r, fs, "scheduledDate"), Date.class));
+				drugOrder.setDuration(parseValue(getValue(c, r, fs, "duration"), Integer.class));
+				if (drugOrder.getDuration() != null) {
+					drugOrder.setDurationUnits(parseValue(getValue(c, r, fs, "durationUnits"), Concept.class));
 				}
-				if (action != null) {
-					log.trace("User requested to place a " + action + "drug order");
-					DrugOrder drugOrder = new DrugOrder();
-					drugOrder.setPreviousOrder(previousOrder);
-					drugOrder.setAction(action);
-					drugOrder.setConcept(parseValue(getValue(c, r, fs, "concept"), Concept.class));
-					drugOrder.setDrug(parseValue(getValue(c, r, fs, "drug"), Drug.class));
-					drugOrder.setDrugNonCoded(getValue(c, r, fs, "drugNonCoded"));
-					drugOrder.setCareSetting(parseValue(getValue(c, r, fs, "careSetting"), CareSetting.class));
-					drugOrder.setDosingType(parseValue(getValue(c, r, fs, "dosingType"), Class.class));
-					drugOrder.setOrderType(parseValue(getValue(c, r, fs, "orderType"), OrderType.class, defOrderType));
-					drugOrder.setDosingInstructions(getValue(c, r, fs, "dosingInstructions"));
-					drugOrder.setDose(parseValue(getValue(c, r, fs, "dose"), Double.class));
-					drugOrder.setDoseUnits(parseValue(getValue(c, r, fs, "doseUnits"), Concept.class));
-					drugOrder.setRoute(parseValue(getValue(c, r, fs, "route"), Concept.class));
-					drugOrder.setFrequency(parseValue(getValue(c, r, fs, "frequency"), OrderFrequency.class));
-					drugOrder.setAsNeeded(parseValue(getValue(c, r, fs, "asNeeded"), Boolean.class, false));
-					drugOrder.setInstructions(getValue(c, r, fs, "instructions"));
-					drugOrder.setUrgency(parseValue(getValue(c, r, fs, "urgency"), Order.Urgency.class));
-					drugOrder.setDateActivated(getDateActivatedValue());
-					drugOrder.setScheduledDate(parseValue(getValue(c, r, fs, "scheduledDate"), Date.class));
-					drugOrder.setDuration(parseValue(getValue(c, r, fs, "duration"), Integer.class));
-					if (drugOrder.getDuration() != null) {
-						drugOrder.setDurationUnits(parseValue(getValue(c, r, fs, "durationUnits"), Concept.class));
-					}
-					drugOrder.setQuantity(parseValue(getValue(c, r, fs, "quantity"), Double.class));
-					if (drugOrder.getQuantity() != null) {
-						drugOrder.setQuantityUnits(parseValue(getValue(c, r, fs, "quantityUnits"), Concept.class));
-					}
-					drugOrder.setNumRefills(parseValue(getValue(c, r, fs, "numRefills"), Integer.class));
-					if (action == Order.Action.DISCONTINUE) {
-						drugOrder.setOrderReason(parseValue(getValue(c, r, fs, "discontinueReason"), Concept.class));
-						drugOrder.setOrderReasonNonCoded(getValue(c, r, fs, "discontinueReasonNonCoded"));
-					}
-					v.setNewDrugOrder(drugOrder);
+				drugOrder.setQuantity(parseValue(getValue(c, r, fs, "quantity"), Double.class));
+				if (drugOrder.getQuantity() != null) {
+					drugOrder.setQuantityUnits(parseValue(getValue(c, r, fs, "quantityUnits"), Concept.class));
 				}
+				drugOrder.setNumRefills(parseValue(getValue(c, r, fs, "numRefills"), Integer.class));
+				if (action == Order.Action.DISCONTINUE) {
+					drugOrder.setOrderReason(parseValue(getValue(c, r, fs, "discontinueReason"), Concept.class));
+					drugOrder.setOrderReasonNonCoded(getValue(c, r, fs, "discontinueReasonNonCoded"));
+				} else {
+					drugOrder.setOrderReason(parseValue(getValue(c, r, fs, "orderReason"), Concept.class));
+					drugOrder.setOrderReasonNonCoded(getValue(c, r, fs, "orderReasonNonCoded"));
+				}
+				v.setNewDrugOrder(drugOrder);
 				ret.add(v);
 			}
 		}

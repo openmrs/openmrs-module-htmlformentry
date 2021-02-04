@@ -75,6 +75,10 @@
 	display: inline-block;
 }
 
+.order-view-section.order-view-reasons {
+	display: inline-block;
+}
+
 .order-view-section.order-view-dates {
 	display: inline-block;
 }

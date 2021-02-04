@@ -181,7 +181,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			
 			DrugOrder newOrder = v.getNewDrugOrder();
 			DrugOrder previousOrder = v.getPreviousDrugOrder();
-			boolean voidPrevious = v.isVoidPreviousOrder();
+			boolean voidPrevious = false;
 			
 			// First we set some defaults on the new order
 			
@@ -198,7 +198,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				
 				// Next, determine if this is a revision that should really be a void operation
 				// We do this by determining if the new order is a revision within the same encounter, with same date activated
-				if (!voidPrevious && previousOrder != null) {
+				if (previousOrder != null) {
 					if (encounter.equals(previousOrder.getEncounter())) { // Same encounter
 						if (isSameDrug(newOrder, previousOrder)) {
 							if (newOrder.getDateActivated().equals(previousOrder.getDateActivated())) { // Same date activated

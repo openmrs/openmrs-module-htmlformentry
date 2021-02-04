@@ -15,8 +15,6 @@ public class DrugOrderWidgetValue {
 	
 	private DrugOrder newDrugOrder;
 	
-	private boolean voidPreviousOrder;
-	
 	public DrugOrderWidgetValue() {
 	}
 	
@@ -42,13 +40,5 @@ public class DrugOrderWidgetValue {
 	
 	public void setNewDrugOrder(DrugOrder newDrugOrder) {
 		this.newDrugOrder = newDrugOrder;
-	}
-	
-	public boolean isVoidPreviousOrder() {
-		return voidPreviousOrder;
-	}
-	
-	public void setVoidPreviousOrder(boolean voidPreviousOrder) {
-		this.voidPreviousOrder = voidPreviousOrder;
 	}
 }

@@ -380,7 +380,16 @@
     drugOrderWidget.enableContextWidgets = function(config, $orderForm) {
         if (config.hasTemplate === 'false') {
             $orderForm.find('.order-careSetting').show();
-            $orderForm.find('.order-orderType').show();
+
+            var $orderTypeSelect = $orderForm.find('.order-field-widget.order-orderReason').find(':input');
+            if ($orderTypeSelect.find('option').length > 1) {
+                $orderForm.find('.order-orderType').show();
+            }
+
+            var $orderReasonSelect = $orderForm.find('.order-field-widget.order-orderReason').find(':input');
+            if ($orderReasonSelect.find('option').length > 1) {
+                $orderForm.find('.order-orderReason').show();
+            }
         }
     }
 
@@ -454,6 +463,8 @@
         $orderForm.find('.order-field-widget.order-concept').find(':input').val(drugOrder.concept.value);
         $orderForm.find('.order-field-widget.order-drug').find(':input').val(drugOrder.drug.value);
         $orderForm.find('.order-field-widget.order-drugNonCoded').find(':input').val(drugOrder.drugNonCoded.value);
+        $orderForm.find('.order-field-widget.order-orderReason').find(':input').val(drugOrder.orderReason.value);
+        $orderForm.find('.order-field-widget.order-orderReasonNonCoded').find(':input').val(drugOrder.orderReasonNonCoded.value);
         $orderForm.find('.order-field-widget.order-careSetting').find(':input').val(drugOrder.careSetting.value);
         $orderForm.find('.order-field-widget.order-dosingType').find(':input[value="' + drugOrder.dosingType.value + '"]').click();
         $orderForm.find('.order-field-widget.order-orderType').find(':input').val(drugOrder.orderType.value);
@@ -489,7 +500,10 @@
     drugOrderWidget.formatDrugOrder = function(d, encDate, config) {
         var $ret = $('<div class="drugorders-order-history-item"></div>');
 
-        var $existingActionSection = $('<div class="order-view-section order-view-action"></div>');
+        var isActive = drugOrderWidget.isOrderActive(d, encDate);
+        $ret.addClass(isActive ? "order-view-active" : "order-view-inactive")
+
+        var $existingActionSection = $('<div class="order-view-section order-view-field order-view-action"></div>');
         var inCurrentEncounter = drugOrderWidget.isOrderInCurrentEncounter(d, config);
         if (!inCurrentEncounter) {
             $ret.addClass('order-view-different-encounter');
@@ -505,9 +519,14 @@
             $ret.addClass('value');
             $existingActionSection.append(d.action.display);
         }
-        var isActive = drugOrderWidget.isOrderActive(d, encDate);
-        $ret.addClass(isActive ? "order-view-active" : "order-view-inactive")
         $ret.append($existingActionSection);
+
+        var $reasonSection = $('<div class="order-view-section order-view-reasons"></div>');
+        if (d.orderReason.display !== '' || d.orderReasonNonCoded.display !== '') {
+            $reasonSection.append('<div class="order-view-field order-view-orderReason-label">' + config.translations.for + '</div>');
+            $reasonSection.append('<div class="order-view-field order-view-orderReason">' + d.orderReason.display + d.orderReasonNonCoded.display + '</div>');
+        }
+        $ret.append($reasonSection);
 
         var isDiscontinue = (d.action.value === 'DISCONTINUE');
 

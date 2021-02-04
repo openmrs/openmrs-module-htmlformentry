@@ -95,6 +95,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		PROPERTIES.put("frequency", OrderFrequency.class);
 		PROPERTIES.put("durationUnits", Concept.class);
 		PROPERTIES.put("quantityUnits", Concept.class);
+		PROPERTIES.put("orderReason", Concept.class);
 		PROPERTIES.put("discontinueReason", Concept.class);
 	}
 	
@@ -146,6 +147,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		processEnumOptions(widgetConfig, "action", Order.Action.values(), null);
 		processCareSettingOptions(widgetConfig);
 		processOrderTypeOptions(widgetConfig);
+		processConceptOptions(widgetConfig, "orderReason");
 		processConceptOptions(widgetConfig, "doseUnits");
 		processConceptOptions(widgetConfig, "route");
 		processOrderFrequencyOptions(widgetConfig);
