@@ -278,7 +278,9 @@
 
         // Set up ability to toggle between free-text and simple dosing instructions
         $orderForm.find('.order-dosingType').find('input:radio').change(function () {
-            drugOrderWidget.enableDrugOrderDoseWidgets($orderForm);
+            if (action === 'REVISE' || action === 'NEW') {
+                drugOrderWidget.enableDrugOrderDoseWidgets($orderForm);
+            }
         });
 
         // Set up ability to toggle between scheduled and non-scheduled urgencies
