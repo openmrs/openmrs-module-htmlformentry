@@ -385,11 +385,10 @@
             if ($orderTypeSelect.find('option').length > 1) {
                 $orderForm.find('.order-orderType').show();
             }
-
-            var $orderReasonSelect = $orderForm.find('.order-field-widget.order-orderReason').find(':input');
-            if ($orderReasonSelect.find('option').length > 1) {
-                $orderForm.find('.order-orderReason').show();
-            }
+        }
+        var $orderReasonSelect = $orderForm.find('.order-field-widget.order-orderReason').find(':input');
+        if ($orderReasonSelect.find('option').length > 1) {
+            $orderForm.find('.order-orderReason').show();
         }
     }
 
