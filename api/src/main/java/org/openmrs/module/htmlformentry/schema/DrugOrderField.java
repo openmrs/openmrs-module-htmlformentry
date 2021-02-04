@@ -7,6 +7,8 @@ import org.openmrs.Concept;
 
 public class DrugOrderField implements HtmlFormField {
 	
+	private List<ObsFieldAnswer> conceptOptions = new ArrayList<>();
+	
 	private List<DrugOrderAnswer> drugOrderAnswers = new ArrayList<>();
 	
 	private List<CareSettingAnswer> careSettingAnswers = new ArrayList<>();
@@ -28,6 +30,21 @@ public class DrugOrderField implements HtmlFormField {
 	private List<ObsFieldAnswer> discontinuedReasonAnswers = new ArrayList<>();
 	
 	public DrugOrderField() {
+	}
+	
+	public List<ObsFieldAnswer> getConceptOptions() {
+		return conceptOptions;
+	}
+	
+	public void setConceptOptions(List<ObsFieldAnswer> conceptOptions) {
+		this.conceptOptions = conceptOptions;
+	}
+	
+	public void addConceptOption(ObsFieldAnswer a) {
+		if (conceptOptions == null) {
+			conceptOptions = new ArrayList<>();
+		}
+		conceptOptions.add(a);
 	}
 	
 	public List<DrugOrderAnswer> getDrugOrderAnswers() {

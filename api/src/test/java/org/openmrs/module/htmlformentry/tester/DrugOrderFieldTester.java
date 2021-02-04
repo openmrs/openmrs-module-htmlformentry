@@ -1,29 +1,48 @@
 package org.openmrs.module.htmlformentry.tester;
 
+import org.openmrs.Drug;
 import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.context.Context;
 
 public class DrugOrderFieldTester {
 	
-	private final Integer drugId;
+	private static int nextFieldNum = 0;
+	
+	private final String suffix;
 	
 	private final FormSessionTester formSessionTester;
 	
-	private DrugOrderFieldTester(Integer drugId, FormSessionTester formSessionTester) {
-		this.drugId = drugId;
+	private DrugOrderFieldTester(String suffix, FormSessionTester formSessionTester) {
+		this.suffix = suffix;
 		this.formSessionTester = formSessionTester;
 	}
 	
+	public static DrugOrderFieldTester forDrug(Integer drugId, String suffix, FormSessionTester formSessionTester) {
+		Drug drug = Context.getConceptService().getDrug(drugId);
+		DrugOrderFieldTester tester = new DrugOrderFieldTester(suffix, formSessionTester);
+		tester.setField("concept", drug.getConcept().getConceptId().toString());
+		tester.setField("drug", drugId.toString());
+		return tester;
+	}
+	
 	public static DrugOrderFieldTester forDrug(Integer drugId, FormSessionTester formSessionTester) {
-		DrugOrderFieldTester tester = new DrugOrderFieldTester(drugId, formSessionTester);
-		formSessionTester.setFieldWithLabel("order-field-label drug", drugId.toString());
+		Drug drug = Context.getConceptService().getDrug(drugId);
+		String nextSuffix = "_" + drug.getConcept().getConceptId() + "_" + nextFieldNum++;
+		DrugOrderFieldTester tester = new DrugOrderFieldTester(nextSuffix, formSessionTester);
+		tester.setField("concept", drug.getConcept().getConceptId().toString());
+		tester.setField("drug", drugId.toString());
 		return tester;
 	}
 	
 	public DrugOrderFieldTester setField(String property, String value) {
-		String formField = formSessionTester.getFormField("order-field-label " + property) + "_" + drugId;
+		String formField = formSessionTester.getFormField("order-field-label order-" + property) + suffix;
 		formSessionTester.setFormField(formField, value);
 		return this;
+	}
+	
+	public String getSuffix() {
+		return suffix;
 	}
 	
 	public DrugOrderFieldTester previousOrder(String val) {

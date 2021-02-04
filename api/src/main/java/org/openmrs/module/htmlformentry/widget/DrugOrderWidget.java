@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -16,6 +18,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
@@ -27,6 +30,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.JsonObject;
 import org.openmrs.util.OpenmrsUtil;
@@ -39,16 +43,20 @@ public class DrugOrderWidget implements Widget {
 	
 	private final Map<String, Widget> widgets = new LinkedHashMap<>();
 	
-	private Map<Drug, List<DrugOrder>> initialValue;
+	private Map<Concept, List<DrugOrder>> initialValue;
 	
 	public DrugOrderWidget(FormEntryContext context, DrugOrderWidgetConfig widgetConfig) {
 		this.widgetConfig = widgetConfig;
-		registerWidget(context, new HiddenFieldWidget(), new ErrorWidget(), "drug");
+		configureOptionWidget(context, "concept", "dropdown");
+		configureOptionWidget(context, "drug", "dropdown");
+		configureTextWidget(context, "drugNonCoded");
 		configureOptionWidget(context, "action", "dropdown");
 		registerWidget(context, new HiddenFieldWidget(), new ErrorWidget(), "previousOrder");
 		configureOptionWidget(context, "careSetting", "dropdown");
 		configureOptionWidget(context, "dosingType", "radio");
 		configureOptionWidget(context, "orderType", "dropdown");
+		configureOptionWidget(context, "orderReason", "dropdown");
+		configureTextWidget(context, "orderReasonNonCoded");
 		configureTextWidget(context, "dosingInstructions");
 		configureNumericWidget(context, "dose", true);
 		configureOptionWidget(context, "doseUnits", "dropdown");
@@ -64,23 +72,29 @@ public class DrugOrderWidget implements Widget {
 		configureNumericWidget(context, "quantity", true);
 		configureOptionWidget(context, "quantityUnits", "dropdown");
 		configureNumericWidget(context, "numRefills", false);
-		configureCheckboxWidget(context, "voided");
 		configureOptionWidget(context, "discontinueReason", "dropdown");
+		configureTextWidget(context, "discontinueReasonNonCoded");
 	}
 	
 	@Override
 	public void setInitialValue(Object v) {
-		initialValue = (Map<Drug, List<DrugOrder>>) v;
+		List<DrugOrder> l = (List<DrugOrder>) v;
+		initialValue = new HashMap<>();
+		for (DrugOrder drugOrder : l) {
+			Concept concept = drugOrder.getConcept();
+			List<DrugOrder> orderList = initialValue.get(concept);
+			if (orderList == null) {
+				orderList = new ArrayList<>();
+				initialValue.put(concept, orderList);
+			}
+			orderList.add(drugOrder);
+		}
 	}
 	
-	public List<DrugOrder> getInitialValueForDrug(String drugId) {
+	public List<DrugOrder> getInitialValueForConcept(Concept concept) {
 		List<DrugOrder> ret = null;
 		if (initialValue != null) {
-			for (Drug d : initialValue.keySet()) {
-				if (d.getId().toString().equalsIgnoreCase(drugId)) {
-					ret = initialValue.get(d);
-				}
-			}
+			ret = initialValue.get(concept);
 		}
 		return (ret == null ? new ArrayList<>() : ret);
 	}
@@ -137,7 +151,10 @@ public class DrugOrderWidget implements Widget {
 		// Add any translations needed by the default views
 		String prefix = "htmlformentry.drugOrder.";
 		JsonObject translations = jsonConfig.addObject("translations");
+		translations.addTranslation(prefix, "drugName");
+		translations.addTranslation(prefix, "formulation");
 		translations.addTranslation(prefix, "asNeeded");
+		translations.addTranslation(prefix, "active");
 		translations.addTranslation(prefix, "previousOrder");
 		translations.addTranslation(prefix, "refills");
 		translations.addTranslation(prefix, "present");
@@ -148,28 +165,52 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
 		translations.addTranslation(prefix, "encounterDateChangeWarning");
+		translations.addTranslation(prefix, "action.new");
+		translations.addTranslation(prefix, "action.renew");
+		translations.addTranslation(prefix, "action.revise");
+		translations.addTranslation(prefix, "action.discontinue");
+		translations.addTranslation(prefix, "delete");
+		translations.addTranslation(prefix, "orderReason");
+		translations.addTranslation(prefix, "discontinueReason");
 		
-		// Add a section for each drug configured in the tag.  Hide these sections if appropriate
-		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
-			Drug drug = HtmlFormEntryUtil.getDrug(drugOption.getValue());
-			String drugId = drug.getId().toString();
-			String drugLabel = drugOption.getLabel();
+		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
+		
+		// Add a section for each concept configured in the tag
+		for (ObsFieldAnswer conceptOption : widgetConfig.getDrugOrderField().getConceptOptions()) {
+			Concept concept = conceptOption.getConcept();
+			String conceptId = concept.getId().toString();
+			String conceptLabel = conceptOption.getDisplayName();
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
-			JsonObject jsonDrug = jsonConfig.addObjectToArray("drugs");
-			jsonDrug.addString("drugId", drugId);
-			jsonDrug.addString("drugLabel", drugLabel);
-			List<JsonObject> history = jsonDrug.getObjectArray("history");
+			JsonObject jsonConcept = jsonConfig.addObjectToArray("concepts");
+			jsonConcept.addString("conceptId", conceptId);
+			jsonConcept.addString("conceptLabel", conceptLabel);
+			
+			for (DrugOrderAnswer drugOption : widgetConfig.getDrugOrderField().getDrugOrderAnswers()) {
+				Drug d = drugOption.getDrug();
+				if (d.getConcept().equals(concept)) {
+					JsonObject jsonDrug = jsonConcept.addObjectToArray("drugs");
+					jsonDrug.addString("drugId", d.getDrugId().toString());
+					jsonDrug.addString("drugLabel", drugOption.getDisplayName());
+					jsonDrug.addString("strength", d.getStrength());
+					String dosageForm = d.getDosageForm() == null ? "" : d.getDosageForm().getConceptId().toString();
+					jsonDrug.addString("dosageForm", dosageForm);
+				}
+			}
 			
 			if (initialValue != null) {
-				for (DrugOrder d : getInitialValueForDrug(drugId)) {
+				for (DrugOrder d : getInitialValueForConcept(concept)) {
 					Order pd = d.getPreviousOrder();
 					JsonObject jho = new JsonObject();
 					jho.addString("orderId", d.getOrderId().toString());
 					jho.addString("encounterId", d.getEncounter().getEncounterId().toString());
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
 					addToJsonObject(jho, "action", d.getAction());
+					JsonObject conceptObj = jho.addObject("concept");
+					conceptObj.addString("value", conceptId);
+					conceptObj.addString("display", conceptLabel);
 					addToJsonObject(jho, "drug", d.getDrug());
+					addToJsonObject(jho, "drugNonCoded", d.getDrugNonCoded());
 					addToJsonObject(jho, "careSetting", d.getCareSetting());
 					addToJsonObject(jho, "dosingType", d.getDosingType());
 					addToJsonObject(jho, "orderType", d.getOrderType());
@@ -192,8 +233,18 @@ public class DrugOrderWidget implements Widget {
 					addToJsonObject(jho, "quantity", d.getQuantity());
 					addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 					addToJsonObject(jho, "numRefills", d.getNumRefills());
-					addToJsonObject(jho, "discontinueReason", d.getOrderReason());
-					history.add(jho);
+					if (d.getAction() == Order.Action.DISCONTINUE) {
+						addToJsonObject(jho, "orderReason", "");
+						addToJsonObject(jho, "orderReasonNonCoded", "");
+						addToJsonObject(jho, "discontinueReason", d.getOrderReason());
+						addToJsonObject(jho, "discontinueReasonNonCoded", d.getOrderReasonNonCoded());
+					} else {
+						addToJsonObject(jho, "orderReason", d.getOrderReason());
+						addToJsonObject(jho, "orderReasonNonCoded", d.getOrderReasonNonCoded());
+						addToJsonObject(jho, "discontinueReason", "");
+						addToJsonObject(jho, "discontinueReasonNonCoded", "");
+					}
+					historyArray.add(jho);
 				}
 			}
 		}
@@ -244,6 +295,11 @@ public class DrugOrderWidget implements Widget {
 				if (propertyValue instanceof Date) {
 					DateWidget dw = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
 					return dw.getDateFormatForDisplay().format((Date) propertyValue);
+				}
+				if (propertyValue instanceof Concept) {
+					return ((Concept) propertyValue).getDisplayString();
+				} else if (propertyValue instanceof OpenmrsMetadata) {
+					return HtmlFormEntryUtil.format((OpenmrsMetadata) propertyValue);
 				}
 			}
 			catch (Exception e) {
@@ -322,11 +378,11 @@ public class DrugOrderWidget implements Widget {
 		StringBuilder ret = new StringBuilder();
 		String labelCode = attrs.getOrDefault(DrugOrderTagHandler.LABEL_ATTRIBUTE, "htmlformentry.drugOrder." + property);
 		String label = translate(labelCode);
-		ret.append("<div class=\"order-field ").append(property).append("\">");
-		ret.append("<div class=\"order-field-label ").append(property).append("\">");
+		ret.append("<div class=\"order-field order-").append(property).append("\">");
+		ret.append("<div class=\"order-field-label order-").append(property).append("\">");
 		ret.append(label);
 		ret.append("</div>");
-		ret.append("<div class=\"order-field-widget ").append(property);
+		ret.append("<div class=\"order-field-widget order-").append(property);
 		if (w instanceof RadioButtonsWidget) {
 			ret.append(" order-field-radio-group");
 		}
@@ -346,14 +402,15 @@ public class DrugOrderWidget implements Widget {
 		writer.println("drugOrderWidget.resetWidget(");
 		JsonObject json = new JsonObject();
 		json.put("config", constructJavascriptConfig(c));
-		for (DrugOrderAnswer a : getDrugOrderField().getDrugOrderAnswers()) {
-			Drug d = a.getDrug();
-			Order.Action action = parseValue(getValue(c, r, d, "action"), Order.Action.class);
+		Set<String> fieldSuffixes = getFieldSuffixes(c, r);
+		for (String fs : fieldSuffixes) {
+			Order.Action action = parseValue(getValue(c, r, fs, "action"), Order.Action.class);
 			if (action != null) {
 				JsonObject o = json.addObjectToArray("values");
-				o.addString("drugId", d.getId().toString());
+				o.addString("fieldSuffix", fs);
+				o.addString("action", action.name());
 				for (Widget w : widgets.values()) {
-					String fieldName = c.getFieldName(w) + "_" + d.getId();
+					String fieldName = c.getFieldName(w) + fs;
 					JsonObject field = o.addObjectToArray("fields");
 					field.addString("name", fieldName);
 					field.addString("value", r.getParameter(fieldName));
@@ -369,83 +426,96 @@ public class DrugOrderWidget implements Widget {
 	public List<DrugOrderWidgetValue> getValue(FormEntryContext c, HttpServletRequest r) {
 		List<DrugOrderWidgetValue> ret = new ArrayList<>();
 		OrderType defOrderType = HtmlFormEntryUtil.getDrugOrderType();
-		for (DrugOrderAnswer doa : getDrugOrderField().getDrugOrderAnswers()) {
-			Drug d = doa.getDrug();
-			Order.Action action = parseValue(getValue(c, r, d, "action"), Order.Action.class);
-			DrugOrder previousOrder = parseValue(getValue(c, r, d, "previousOrder"), DrugOrder.class);
-			boolean voidPrevious = parseValue(getValue(c, r, d, "voided"), Boolean.class, false);
-			if (action != null || voidPrevious) {
+		Set<String> fieldSuffixes = getFieldSuffixes(c, r);
+		for (String fs : fieldSuffixes) {
+			Order.Action action = parseValue(getValue(c, r, fs, "action"), Order.Action.class);
+			if (action != null) {
+				log.trace("User requested to place a " + action + "drug order");
+				DrugOrder previousOrder = parseValue(getValue(c, r, fs, "previousOrder"), DrugOrder.class);
 				DrugOrderWidgetValue v = new DrugOrderWidgetValue();
+				v.setFieldSuffix(fs);
 				v.setPreviousDrugOrder(previousOrder);
-				if (voidPrevious) {
-					v.setVoidPreviousOrder(true);
-					log.trace("User requested to void previous order for: " + d.getDisplayName());
+				DrugOrder drugOrder = new DrugOrder();
+				drugOrder.setPreviousOrder(previousOrder);
+				drugOrder.setAction(action);
+				drugOrder.setConcept(parseValue(getValue(c, r, fs, "concept"), Concept.class));
+				drugOrder.setDrug(parseValue(getValue(c, r, fs, "drug"), Drug.class));
+				drugOrder.setDrugNonCoded(getValue(c, r, fs, "drugNonCoded"));
+				drugOrder.setCareSetting(parseValue(getValue(c, r, fs, "careSetting"), CareSetting.class));
+				drugOrder.setDosingType(parseValue(getValue(c, r, fs, "dosingType"), Class.class));
+				drugOrder.setOrderType(parseValue(getValue(c, r, fs, "orderType"), OrderType.class, defOrderType));
+				drugOrder.setDosingInstructions(getValue(c, r, fs, "dosingInstructions"));
+				drugOrder.setDose(parseValue(getValue(c, r, fs, "dose"), Double.class));
+				drugOrder.setDoseUnits(parseValue(getValue(c, r, fs, "doseUnits"), Concept.class));
+				drugOrder.setRoute(parseValue(getValue(c, r, fs, "route"), Concept.class));
+				drugOrder.setFrequency(parseValue(getValue(c, r, fs, "frequency"), OrderFrequency.class));
+				drugOrder.setAsNeeded(parseValue(getValue(c, r, fs, "asNeeded"), Boolean.class, false));
+				drugOrder.setInstructions(getValue(c, r, fs, "instructions"));
+				drugOrder.setUrgency(parseValue(getValue(c, r, fs, "urgency"), Order.Urgency.class));
+				drugOrder.setDateActivated(getDateActivatedValue());
+				drugOrder.setScheduledDate(parseValue(getValue(c, r, fs, "scheduledDate"), Date.class));
+				drugOrder.setDuration(parseValue(getValue(c, r, fs, "duration"), Integer.class));
+				if (drugOrder.getDuration() != null) {
+					drugOrder.setDurationUnits(parseValue(getValue(c, r, fs, "durationUnits"), Concept.class));
 				}
-				if (action != null) {
-					log.trace("User requested to place a " + action + "drug order for: " + d.getDisplayName());
-					DrugOrder drugOrder = new DrugOrder();
-					drugOrder.setDrug(d);
-					drugOrder.setPreviousOrder(previousOrder);
-					drugOrder.setAction(action);
-					drugOrder.setCareSetting(parseValue(getValue(c, r, d, "careSetting"), CareSetting.class));
-					drugOrder.setDosingType(parseValue(getValue(c, r, d, "dosingType"), Class.class));
-					drugOrder.setOrderType(parseValue(getValue(c, r, d, "orderType"), OrderType.class, defOrderType));
-					drugOrder.setDosingInstructions(getValue(c, r, d, "dosingInstructions"));
-					drugOrder.setDose(parseValue(getValue(c, r, d, "dose"), Double.class));
-					drugOrder.setDoseUnits(parseValue(getValue(c, r, d, "doseUnits"), Concept.class));
-					drugOrder.setRoute(parseValue(getValue(c, r, d, "route"), Concept.class));
-					drugOrder.setFrequency(parseValue(getValue(c, r, d, "frequency"), OrderFrequency.class));
-					drugOrder.setAsNeeded(parseValue(getValue(c, r, d, "asNeeded"), Boolean.class, false));
-					drugOrder.setInstructions(getValue(c, r, d, "instructions"));
-					drugOrder.setUrgency(parseValue(getValue(c, r, d, "urgency"), Order.Urgency.class));
-					drugOrder.setDateActivated(getDateActivatedValue(c, r, d));
-					drugOrder.setScheduledDate(parseValue(getValue(c, r, d, "scheduledDate"), Date.class));
-					drugOrder.setDuration(parseValue(getValue(c, r, d, "duration"), Integer.class));
-					if (drugOrder.getDuration() != null) {
-						drugOrder.setDurationUnits(parseValue(getValue(c, r, d, "durationUnits"), Concept.class));
-					}
-					drugOrder.setQuantity(parseValue(getValue(c, r, d, "quantity"), Double.class));
-					if (drugOrder.getQuantity() != null) {
-						drugOrder.setQuantityUnits(parseValue(getValue(c, r, d, "quantityUnits"), Concept.class));
-					}
-					drugOrder.setNumRefills(parseValue(getValue(c, r, d, "numRefills"), Integer.class));
-					if (action == Order.Action.DISCONTINUE) {
-						drugOrder.setOrderReason(parseValue(getValue(c, r, d, "discontinueReason"), Concept.class));
-					}
-					v.setNewDrugOrder(drugOrder);
+				drugOrder.setQuantity(parseValue(getValue(c, r, fs, "quantity"), Double.class));
+				if (drugOrder.getQuantity() != null) {
+					drugOrder.setQuantityUnits(parseValue(getValue(c, r, fs, "quantityUnits"), Concept.class));
 				}
+				drugOrder.setNumRefills(parseValue(getValue(c, r, fs, "numRefills"), Integer.class));
+				if (action == Order.Action.DISCONTINUE) {
+					drugOrder.setOrderReason(parseValue(getValue(c, r, fs, "discontinueReason"), Concept.class));
+					drugOrder.setOrderReasonNonCoded(getValue(c, r, fs, "discontinueReasonNonCoded"));
+				} else {
+					drugOrder.setOrderReason(parseValue(getValue(c, r, fs, "orderReason"), Concept.class));
+					drugOrder.setOrderReasonNonCoded(getValue(c, r, fs, "orderReasonNonCoded"));
+				}
+				v.setNewDrugOrder(drugOrder);
 				ret.add(v);
 			}
 		}
 		return ret;
 	}
 	
-	public String getFormField(FormEntryContext context, Drug drug, String property) {
+	public Set<String> getFieldSuffixes(FormEntryContext c, HttpServletRequest r) {
+		Set<String> ret = new TreeSet<>();
+		// All submitted orders will have a non-null action submitted
+		String widgetFieldName = c.getFieldName(widgets.get("action"));
+		for (Object paramKey : r.getParameterMap().keySet()) {
+			String paramName = paramKey.toString();
+			if (paramName.startsWith(widgetFieldName)) {
+				ret.add(StringUtils.substringAfter(paramName, widgetFieldName));
+			}
+		}
+		return ret;
+	}
+	
+	public String getFormField(FormEntryContext context, String suffix, String property) {
 		try {
 			Widget w = widgets.get(property);
-			String requestParam = context.getFieldName(w) + "_" + drug.getId();
+			String requestParam = context.getFieldName(w) + suffix;
 			return requestParam;
 		}
 		catch (Exception e) {
-			throw new IllegalArgumentException("Unable to get form field for " + drug + " property " + property, e);
+			throw new IllegalArgumentException("Unable to get form field instance " + suffix + " property " + property, e);
 		}
 	}
 	
-	public String getFormErrorField(FormEntryContext context, Drug drug, String property) {
+	public String getFormErrorField(FormEntryContext context, String suffix, String property) {
 		try {
 			Widget w = widgets.get(property);
 			ErrorWidget ew = context.getErrorWidget(w);
-			String requestParam = context.getFieldName(ew) + "_" + drug.getId();
+			String requestParam = context.getFieldName(ew) + suffix;
 			return requestParam;
 		}
 		catch (Exception e) {
-			throw new IllegalArgumentException("Unable to get form field for " + drug + " property " + property, e);
+			throw new IllegalArgumentException("Unable to get form field for " + suffix + " property " + property, e);
 		}
 	}
 	
-	protected String getValue(FormEntryContext context, HttpServletRequest req, Drug drug, String property) {
+	protected String getValue(FormEntryContext context, HttpServletRequest req, String fieldSuffix, String property) {
 		try {
-			return req.getParameter(getFormField(context, drug, property));
+			return req.getParameter(getFormField(context, fieldSuffix, property));
 		}
 		catch (Exception e) {
 			throw new IllegalArgumentException("Unable to get value from request", e);
@@ -457,7 +527,7 @@ public class DrugOrderWidget implements Widget {
 	 * use entryDate, set this, otherwise leave as null to enable the default behavior, which associates
 	 * the date with the encounter date.
 	 */
-	protected Date getDateActivatedValue(FormEntryContext context, HttpServletRequest req, Drug drug) {
+	protected Date getDateActivatedValue() {
 		String property = "dateActivated";
 		Date val = null;
 		Map<String, String> attrs = widgetConfig.getAttributes(property);

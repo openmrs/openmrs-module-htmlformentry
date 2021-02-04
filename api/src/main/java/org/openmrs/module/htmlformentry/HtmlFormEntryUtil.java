@@ -719,26 +719,19 @@ public class HtmlFormEntryUtil {
 	/**
 	 * @return all drug orders for a patient, ordered by date, accounting for previous orders
 	 */
-	public static Map<Drug, List<DrugOrder>> getDrugOrdersForPatient(Patient patient, Set<Drug> drugs) {
-		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
+	public static List<DrugOrder> getDrugOrdersForPatient(Patient patient, Set<Concept> concepts) {
+		List<DrugOrder> ret = new ArrayList<>();
 		List<Order> orders = Context.getOrderService().getAllOrdersByPatient(patient);
 		for (Order order : orders) {
 			order = HibernateUtil.getRealObjectFromProxy(order);
 			if (order instanceof DrugOrder && BooleanUtils.isNotTrue(order.getVoided())) {
 				DrugOrder drugOrder = (DrugOrder) order;
-				if (drugs == null || drugs.contains(drugOrder.getDrug())) {
-					List<DrugOrder> existing = ret.get(drugOrder.getDrug());
-					if (existing == null) {
-						existing = new ArrayList<>();
-						ret.put(drugOrder.getDrug(), existing);
-					}
-					existing.add(drugOrder);
+				if (concepts.contains(order.getConcept())) {
+					ret.add(drugOrder);
 				}
 			}
 		}
-		for (List<DrugOrder> l : ret.values()) {
-			sortDrugOrders(l);
-		}
+		sortDrugOrders(ret);
 		return ret;
 	}
 	

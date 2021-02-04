@@ -133,7 +133,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldSupportActionConfigurationProperties() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOrderProperties.xml").get(0);
 		assertThat(w.getWidgetConfig().getOrderPropertyOptions("action").size(), is(3));
-		assertOrderPropertyOption(w, "action", 1, "NEW", "New Order"); // Default
+		assertOrderPropertyOption(w, "action", 1, "NEW", "New"); // Default
 		assertOrderPropertyOption(w, "action", 2, "REVISE", "Revise this Order"); // Explicit
 		assertOrderPropertyOption(w, "action", 3, "DISCONTINUE", "HTML Form Entry"); // Translated
 		assertValueAttribute(w, "action", "NEW");

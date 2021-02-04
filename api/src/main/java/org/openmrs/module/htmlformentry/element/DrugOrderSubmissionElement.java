@@ -3,23 +3,22 @@ package org.openmrs.module.htmlformentry.element;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
-import org.openmrs.Drug;
+import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -28,6 +27,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
@@ -102,47 +102,45 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		for (DrugOrderWidgetValue v : drugOrders) {
 			DrugOrder drugOrder = v.getNewDrugOrder();
 			if (drugOrder != null) {
-				Drug drug = drugOrder.getDrug();
+				String fs = v.getFieldSuffix();
 				Order.Action action = drugOrder.getAction();
 				DrugOrder previousOrder = (DrugOrder) drugOrder.getPreviousOrder();
 				
 				// If not a discontinue Order, then validate dosing
 				if (action != Order.Action.DISCONTINUE) {
 					
-					handleRequiredField(ret, ctx, drug, "careSetting", drugOrder.getCareSetting());
+					handleRequiredField(ret, ctx, fs, "careSetting", drugOrder.getCareSetting());
 					
 					if (drugOrder.getDosingType() == SimpleDosingInstructions.class) {
-						handleRequiredField(ret, ctx, drug, "dose", drugOrder.getDose());
-						handleRequiredField(ret, ctx, drug, "doseUnits", drugOrder.getDoseUnits());
-						handleRequiredField(ret, ctx, drug, "route", drugOrder.getRoute());
-						handleRequiredField(ret, ctx, drug, "frequency", drugOrder.getFrequency());
+						handleRequiredField(ret, ctx, fs, "dose", drugOrder.getDose());
+						handleRequiredField(ret, ctx, fs, "doseUnits", drugOrder.getDoseUnits());
+						handleRequiredField(ret, ctx, fs, "route", drugOrder.getRoute());
+						handleRequiredField(ret, ctx, fs, "frequency", drugOrder.getFrequency());
 					} else if (drugOrder.getDosingType() == FreeTextDosingInstructions.class) {
 						String doseInstructions = drugOrder.getDosingInstructions();
-						handleRequiredField(ret, ctx, drug, "dosingInstructions", doseInstructions);
+						handleRequiredField(ret, ctx, fs, "dosingInstructions", doseInstructions);
 					} else {
-						String f = drugOrderWidget.getFormErrorField(ctx, drugOrder.getDrug(), "dosingType");
+						String f = drugOrderWidget.getFormErrorField(ctx, fs, "dosingType");
 						String dosingTypeError = HtmlFormEntryUtil.translate("htmlformentry.drugOrder.invalidDosingType");
 						ret.add(new FormSubmissionError(f, dosingTypeError));
 					}
 					
-					if (drugOrder.getCareSetting() != null) {
-						if (drugOrder.getCareSetting().getCareSettingType() == CareSetting.CareSettingType.OUTPATIENT) {
-							handleRequiredField(ret, ctx, drug, "quantity", drugOrder.getQuantity());
-							handleRequiredField(ret, ctx, drug, "quantityUnits", drugOrder.getQuantityUnits());
-							handleRequiredField(ret, ctx, drug, "numRefills", drugOrder.getNumRefills());
-						}
+					if (areQuantityFieldsRequired(drugOrder)) {
+						handleRequiredField(ret, ctx, fs, "quantity", drugOrder.getQuantity());
+						handleRequiredField(ret, ctx, fs, "quantityUnits", drugOrder.getQuantityUnits());
+						handleRequiredField(ret, ctx, fs, "numRefills", drugOrder.getNumRefills());
 					}
 					
 					if (drugOrder.getUrgency() == Order.Urgency.ON_SCHEDULED_DATE) {
-						handleRequiredField(ret, ctx, drug, "scheduledDate", drugOrder.getScheduledDate());
+						handleRequiredField(ret, ctx, fs, "scheduledDate", drugOrder.getScheduledDate());
 					}
 					
 					if (drugOrder.getDuration() != null) {
-						handleRequiredField(ret, ctx, drug, "durationUnits", drugOrder.getDurationUnits());
+						handleRequiredField(ret, ctx, fs, "durationUnits", drugOrder.getDurationUnits());
 					}
 					
 					if (drugOrder.getQuantity() != null) {
-						handleRequiredField(ret, ctx, drug, "quantityUnits", drugOrder.getQuantityUnits());
+						handleRequiredField(ret, ctx, fs, "quantityUnits", drugOrder.getQuantityUnits());
 					}
 				}
 				
@@ -182,7 +180,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			
 			DrugOrder newOrder = v.getNewDrugOrder();
 			DrugOrder previousOrder = v.getPreviousDrugOrder();
-			boolean voidPrevious = v.isVoidPreviousOrder();
+			boolean voidPrevious = false;
 			
 			// First we set some defaults on the new order
 			
@@ -199,9 +197,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				
 				// Next, determine if this is a revision that should really be a void operation
 				// We do this by determining if the new order is a revision within the same encounter, with same date activated
-				if (!voidPrevious && previousOrder != null) {
+				if (previousOrder != null) {
 					if (encounter.equals(previousOrder.getEncounter())) { // Same encounter
-						if (newOrder.getDrug().equals(previousOrder.getDrug())) { // Same drug
+						if (isSameDrug(newOrder, previousOrder)) {
 							if (newOrder.getDateActivated().equals(previousOrder.getDateActivated())) { // Same date activated
 								voidPrevious = true;
 							}
@@ -222,20 +220,21 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	/**
 	 * Retrieves the drug orders for the patient for the specified drugs
 	 */
-	public Map<Drug, List<DrugOrder>> getDrugOrders(Patient patient, DrugOrderField drugOrderField) {
-		Map<Drug, List<DrugOrder>> ret = new HashMap<>();
-		if (patient != null && drugOrderField.getDrugOrderAnswers() != null) {
-			Set<Drug> drugs = new HashSet<>();
-			for (DrugOrderAnswer doa : drugOrderField.getDrugOrderAnswers()) {
-				drugs.add(doa.getDrug());
+	public List<DrugOrder> getDrugOrders(Patient patient, DrugOrderField drugOrderField) {
+		List<DrugOrder> ret = new ArrayList<>();
+		if (patient != null && drugOrderField.getConceptOptions() != null) {
+			Set<Concept> concepts = new HashSet<>();
+			for (ObsFieldAnswer a : drugOrderField.getConceptOptions()) {
+				concepts.add(a.getConcept());
 			}
-			ret = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, drugs);
+			ret = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, concepts);
 		}
 		return ret;
 	}
 	
 	protected boolean isSameDrug(DrugOrder current, DrugOrder previous) {
-		boolean ret = areEqual(current.getDrug(), previous.getDrug());
+		boolean ret = areEqual(current.getConcept(), previous.getConcept());
+		ret = ret && areEqual(current.getDrug(), previous.getDrug());
 		ret = ret && areEqual(current.getDrugNonCoded(), previous.getDrugNonCoded());
 		return ret;
 	}
@@ -254,6 +253,17 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		return ret;
 	}
 	
+	protected boolean areQuantityFieldsRequired(DrugOrder drugOrder) {
+		if (drugOrder.getCareSetting() != null) {
+			if (drugOrder.getCareSetting().getCareSettingType() == CareSetting.CareSettingType.OUTPATIENT) {
+				String gpName = "drugOrder.requireOutpatientQuantity";
+				String gpVal = Context.getAdministrationService().getGlobalProperty(gpName, "true");
+				return "true".equalsIgnoreCase(gpVal);
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Convenience method to determine if two objects are equal. It considers null and "" to be equal.
 	 */
@@ -263,9 +273,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		return OpenmrsUtil.nullSafeEquals(o1, o2);
 	}
 	
-	public void handleRequiredField(List<FormSubmissionError> ret, FormEntryContext ctx, Drug d, String prop, Object val) {
+	public void handleRequiredField(List<FormSubmissionError> ret, FormEntryContext ctx, String fieldSuffix, String prop,
+	        Object val) {
 		if (val == null || val.equals("")) {
-			String field = drugOrderWidget.getFormErrorField(ctx, d, prop);
+			String field = drugOrderWidget.getFormErrorField(ctx, fieldSuffix, prop);
 			addError(ret, field, "htmlformentry.error.required");
 		}
 	}

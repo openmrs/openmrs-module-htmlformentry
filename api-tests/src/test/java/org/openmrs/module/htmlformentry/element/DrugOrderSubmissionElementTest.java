@@ -296,7 +296,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
 		
 		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
-		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, reviseTester);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, triomuneField.getSuffix(), reviseTester);
 		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
 		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
 		FormResultsTester revisedResults = reviseTester.submitForm();
@@ -331,7 +331,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		// Then, we revise this above revision
 		
 		FormSessionTester editSession2 = editSession1.reopenForEditing(results1);
-		DrugOrderFieldTester revision2 = DrugOrderFieldTester.forDrug(2, editSession2);
+		DrugOrderFieldTester revision2 = DrugOrderFieldTester.forDrug(2, revision1.getSuffix(), editSession2);
 		revision2.orderAction("REVISE").previousOrder(order1.getId().toString());
 		revision2.freeTextDosing("My revision revision");
 		FormResultsTester results2 = editSession2.submitForm();

@@ -4,8 +4,39 @@
 	border: 1px dotted black;
 }
 
+.drugorders-drug-remove-action {
+	display: inline-block;
+	padding-left: 10px;
+	font-weight: bold;
+}
+
 .drugorders-drug-details {
 	font-weight: bold;
+	display: inline-block;
+}
+
+.drugorders-drug-details-concept {
+	display: inline-block;
+}
+
+.drugorders-drug-details-drug {
+	display: inline-block;
+	font-style: italic;
+}
+
+.drugorders-drug-details-drug:before {
+	content: " -- ";
+	white-space: pre;
+}
+
+.drugorders-drug-details-drugNonCoded {
+	display: inline-block;
+	font-style: italic;
+}
+
+.drugorders-drug-details-drugNonCoded:before {
+	content: " -- ";
+	white-space: pre;
 }
 
 .drugorders-drug-history {
@@ -18,8 +49,22 @@
 	margin: 10px;
 }
 
+.drugorders-order-form-concept {
+	font-weight: bold;
+}
+
 .drugorders-order-history-item {
 	display: block;
+}
+
+.drugorders-order-history-item.value {
+	font-weight: normal;
+}
+
+.drugorders-drug-order-history-separator {
+	margin-top: 5px;
+	border-bottom: 1px dotted black;
+	margin-bottom: 5px;
 }
 
 .order-view-section {
@@ -27,6 +72,10 @@
 }
 
 .order-view-section.order-view-action {
+	display: inline-block;
+}
+
+.order-view-section.order-view-reasons {
 	display: inline-block;
 }
 
@@ -64,7 +113,7 @@
 }
 
 .order-view-field.order-view-discontinue-reason {
-	font-weight:bold; padding-left:20px;
+	font-weight:bold;
 }
 
 .order-view-different-encounter {
@@ -72,10 +121,10 @@
 }
 
 .drugorders-selector-section {
-	padding-top: 5px;
+	margin: 10px;
 }
 
-.instructions {
+.order-instructions {
 	font-size: 1.0em;
 }
 
@@ -112,4 +161,32 @@
 
 .order-view-field {
 	padding-right: 10px;
+}
+
+.order-action-section {
+	margin: 10px;
+}
+
+.order-action-button {
+	display:inline-block;
+	color:#444;
+	border:1px solid #CCC;
+	background:#DDD;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	cursor:pointer;
+	vertical-align:middle;
+	max-width: 200px;
+	padding: 2px;
+	margin-right: 5px;
+	text-align: center;
+}
+.order-action-button:active {
+	font-weight: bold;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}
+
+.drugorders-selected-action {
+	background-color: #2200ff;
+	color: white;
+	font-weight: bold;
 }

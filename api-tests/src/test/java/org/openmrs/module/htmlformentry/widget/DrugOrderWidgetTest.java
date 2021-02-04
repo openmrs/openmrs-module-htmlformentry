@@ -32,7 +32,7 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		formSessionTester.assertHtmlContains("drugorders-order-section");
 		formSessionTester.assertHtmlContains("drugorders-selector-section");
 		formSessionTester.assertHtmlContains("drugorders-order-form");
-		formSessionTester.assertStartingFormValue("order-field-label orderType", "1");
+		formSessionTester.assertStartingFormValue("order-field-label order-orderType", "1");
 		log.trace(formSessionTester.getHtmlToDisplay());
 	}
 	
@@ -41,18 +41,19 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
 		FormSessionTester fst = formTester.openNewForm(2);
 		DrugOrderWidget widget = fst.getWidgets(DrugOrderWidget.class).get(0);
-		String[] properties = { "drug", "action", "previousOrder", "careSetting", "dosingType", "orderType",
-		        "dosingInstructions", "dose", "doseUnits", "route", "frequency", "asNeeded", "instructions", "urgency",
-		        "dateActivated", "scheduledDate", "duration", "durationUnits", "quantity", "quantityUnits", "numRefills",
-		        "voided", "discontinueReason" };
+		String[] properties = { "concept", "drug", "drugNonCoded", "action", "previousOrder", "careSetting", "dosingType",
+		        "orderType", "orderReason", "orderReasonNonCoded", "dosingInstructions", "dose", "doseUnits", "route",
+		        "frequency", "asNeeded", "instructions", "urgency", "dateActivated", "scheduledDate", "duration",
+		        "durationUnits", "quantity", "quantityUnits", "numRefills", "discontinueReason",
+		        "discontinueReasonNonCoded" };
 		assertThat(widget.getWidgets().size(), is(properties.length));
 		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
 		for (int i = 0; i < widgets.size(); i++) {
 			String property = properties[i];
 			Widget propertyWidget = widgets.get(i);
-			fst.assertHtmlContains("<div class=\"order-field " + property + "\"");
-			fst.assertHtmlContains("<div class=\"order-field-label " + property + "\"");
-			fst.assertHtmlContains("<div class=\"order-field-widget " + property);
+			fst.assertHtmlContains("<div class=\"order-field order-" + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-label order-" + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-widget order-" + property);
 			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
 		}
 	}
