@@ -602,6 +602,7 @@
                     setValueByName(field.name, field.value);
                 });
             });
+            $('.order-field-widget.order-concept').find('select').change();
         }
     }
 

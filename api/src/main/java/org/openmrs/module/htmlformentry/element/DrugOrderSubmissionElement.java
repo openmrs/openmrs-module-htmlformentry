@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
@@ -110,6 +111,12 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				if (action != Order.Action.DISCONTINUE) {
 					
 					handleRequiredField(ret, ctx, fs, "careSetting", drugOrder.getCareSetting());
+					
+					if (drugOrder.getDrug() != null && StringUtils.isNotBlank(drugOrder.getDrugNonCoded())) {
+						String f = drugOrderWidget.getFormErrorField(ctx, fs, "drugNonCoded");
+						String errorCode = "htmlformentry.drugOrder.specifyEitherDrugOrDrugNonCoded";
+						ret.add(new FormSubmissionError(f, HtmlFormEntryUtil.translate(errorCode)));
+					}
 					
 					if (drugOrder.getDosingType() == SimpleDosingInstructions.class) {
 						handleRequiredField(ret, ctx, fs, "dose", drugOrder.getDose());
