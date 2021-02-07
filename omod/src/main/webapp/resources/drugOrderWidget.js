@@ -370,8 +370,8 @@
                 var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
                 concept.drugs.forEach(function (drug) {
                     $drugSelect.find('option[value="' + drug.drugId + '"]').show();
+                    $drugElements.show();
                 })
-                $drugElements.show();
                 $drugNonCodedElements.show();
             }
         });

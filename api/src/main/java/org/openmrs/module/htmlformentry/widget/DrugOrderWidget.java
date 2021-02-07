@@ -28,9 +28,7 @@ import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler;
-import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
-import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.JsonObject;
 import org.openmrs.util.OpenmrsUtil;
@@ -174,27 +172,47 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "discontinueReason");
 		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
+		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
+		
+		// Organize drugs by concept and as json options
+		Map<String, JsonObject> jsonDrugs = new HashMap<>();
+		Map<String, List<Option>> drugsForConcept = new LinkedHashMap<>();
+		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
+			Drug drug = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
+			String conceptId = drug.getConcept().getConceptId().toString();
+			List<Option> options = drugsForConcept.get(conceptId);
+			if (options == null) {
+				options = new ArrayList<>();
+				drugsForConcept.put(conceptId, options);
+			}
+			options.add(drugOption);
+			
+			JsonObject jsonDrug = new JsonObject();
+			jsonDrug.addString("drugId", drug.getDrugId().toString());
+			jsonDrug.addString("drugLabel", drugOption.getLabel());
+			jsonDrug.addString("strength", drug.getStrength());
+			String dosageForm = drug.getDosageForm() == null ? "" : drug.getDosageForm().getConceptId().toString();
+			jsonDrug.addString("dosageForm", dosageForm);
+			jsonDrugs.put(drug.getDrugId().toString(), jsonDrug);
+		}
 		
 		// Add a section for each concept configured in the tag
-		for (ObsFieldAnswer conceptOption : widgetConfig.getDrugOrderField().getConceptOptions()) {
-			Concept concept = conceptOption.getConcept();
-			String conceptId = concept.getId().toString();
-			String conceptLabel = conceptOption.getDisplayName();
+		for (Option conceptOption : widgetConfig.getOrderPropertyOptions("concept")) {
+			String conceptId = conceptOption.getValue();
+			String conceptLabel = conceptOption.getLabel();
+			Concept concept = Context.getConceptService().getConcept(Integer.parseInt(conceptId));
 			
 			// For each rendered drugOrderWidget, add configuration of that widget into json for javascript
-			JsonObject jsonConcept = jsonConfig.addObjectToArray("concepts");
+			JsonObject jsonConcept = new JsonObject();
+			conceptArray.add(jsonConcept);
 			jsonConcept.addString("conceptId", conceptId);
 			jsonConcept.addString("conceptLabel", conceptLabel);
+			List<JsonObject> jsonConceptDrugs = jsonConcept.getObjectArray("drugs");
 			
-			for (DrugOrderAnswer drugOption : widgetConfig.getDrugOrderField().getDrugOrderAnswers()) {
-				Drug d = drugOption.getDrug();
-				if (d.getConcept().equals(concept)) {
-					JsonObject jsonDrug = jsonConcept.addObjectToArray("drugs");
-					jsonDrug.addString("drugId", d.getDrugId().toString());
-					jsonDrug.addString("drugLabel", drugOption.getDisplayName());
-					jsonDrug.addString("strength", d.getStrength());
-					String dosageForm = d.getDosageForm() == null ? "" : d.getDosageForm().getConceptId().toString();
-					jsonDrug.addString("dosageForm", dosageForm);
+			List<Option> drugOptions = drugsForConcept.get(conceptId);
+			if (drugOptions != null) {
+				for (Option drugOption : drugOptions) {
+					jsonConceptDrugs.add(jsonDrugs.get(drugOption.getValue()));
 				}
 			}
 			

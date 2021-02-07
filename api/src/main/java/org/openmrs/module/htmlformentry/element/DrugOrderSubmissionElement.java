@@ -27,12 +27,11 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
-import org.openmrs.module.htmlformentry.schema.DrugOrderField;
-import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.DrugOrderWidgetValue;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
@@ -54,12 +53,12 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	 */
 	public DrugOrderSubmissionElement(FormEntryContext context, DrugOrderWidget drugOrderWidget) {
 		this.drugOrderWidget = drugOrderWidget;
-		DrugOrderField field = drugOrderWidget.getDrugOrderField();
-		drugOrderWidget.setInitialValue(getDrugOrders(context.getExistingPatient(), field));
+		DrugOrderWidgetConfig config = drugOrderWidget.getWidgetConfig();
+		drugOrderWidget.setInitialValue(getDrugOrders(context.getExistingPatient(), config));
 		drugOrderErrorWidget = new ErrorWidget();
 		context.registerWidget(drugOrderWidget);
 		context.registerErrorWidget(drugOrderWidget, drugOrderErrorWidget);
-		context.addFieldToActiveSection(field);
+		context.addFieldToActiveSection(config.getDrugOrderField());
 		populateExistingOrders(context);
 	}
 	
@@ -227,12 +226,12 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	/**
 	 * Retrieves the drug orders for the patient for the specified drugs
 	 */
-	public List<DrugOrder> getDrugOrders(Patient patient, DrugOrderField drugOrderField) {
+	public List<DrugOrder> getDrugOrders(Patient patient, DrugOrderWidgetConfig config) {
 		List<DrugOrder> ret = new ArrayList<>();
-		if (patient != null && drugOrderField.getConceptOptions() != null) {
+		if (patient != null && config.getOrderPropertyOptions("concept") != null) {
 			Set<Concept> concepts = new HashSet<>();
-			for (ObsFieldAnswer a : drugOrderField.getConceptOptions()) {
-				concepts.add(a.getConcept());
+			for (Option o : config.getOrderPropertyOptions("concept")) {
+				concepts.add(HtmlFormEntryUtil.getConcept(o.getValue()));
 			}
 			ret = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, concepts);
 		}

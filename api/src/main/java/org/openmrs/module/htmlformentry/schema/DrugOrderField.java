@@ -1,7 +1,10 @@
 package org.openmrs.module.htmlformentry.schema;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Concept;
 
@@ -28,6 +31,8 @@ public class DrugOrderField implements HtmlFormField {
 	private Concept discontinuedReasonQuestion;
 	
 	private List<ObsFieldAnswer> discontinuedReasonAnswers = new ArrayList<>();
+	
+	private Map<String, List<ConceptOptionGroup>> conceptOptionGroups = new HashMap<>();
 	
 	public DrugOrderField() {
 	}
@@ -188,5 +193,25 @@ public class DrugOrderField implements HtmlFormField {
 			discontinuedReasonAnswers = new ArrayList<>();
 		}
 		discontinuedReasonAnswers.add(ofa);
+	}
+	
+	public Map<String, List<ConceptOptionGroup>> getConceptOptionGroups() {
+		if (conceptOptionGroups == null) {
+			conceptOptionGroups = new LinkedHashMap<>();
+		}
+		return conceptOptionGroups;
+	}
+	
+	public void addConceptOptionGroup(String propertyName, ConceptOptionGroup optionSet) {
+		List<ConceptOptionGroup> l = getConceptOptionGroups().get(propertyName);
+		if (l == null) {
+			l = new ArrayList<>();
+			getConceptOptionGroups().put(propertyName, l);
+		}
+		l.add(optionSet);
+	}
+	
+	public void setConceptOptionGroups(Map<String, List<ConceptOptionGroup>> conceptOptionGroups) {
+		this.conceptOptionGroups = conceptOptionGroups;
 	}
 }
