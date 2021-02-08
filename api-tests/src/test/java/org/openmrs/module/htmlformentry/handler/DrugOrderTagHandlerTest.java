@@ -411,6 +411,15 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		assertAttribute(w, "dosingInstructions", "textAreaRows", "10");
 		assertAttribute(w, "dosingInstructions", "textAreaColumns", "100");
 	}
+
+	@Test
+	public void shouldSupportOptionGroupsWithQuestionAnswers() {
+		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOptionGroups.xml").get(0);
+		List<Option> options = w.getWidgetConfig().getOrderPropertyOptions("discontinueReason");
+		assertThat(options.size(), is(2));
+		assertThat("TOXICITY", is(options.get(0).getLabel()));
+		assertThat("TRANSFERRED OUT", is(options.get(1).getLabel()));
+	}
 	
 	@Test
 	public void shouldSupportDefaultDiscontinueReasonIfNoneExplicitlyConfigured() {
