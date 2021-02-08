@@ -17,6 +17,15 @@ public class DrugOrderFieldTester {
 		this.suffix = suffix;
 		this.formSessionTester = formSessionTester;
 	}
+
+	public static DrugOrderFieldTester forDrug(Integer conceptId, Integer drugId, String drugNonCoded, FormSessionTester formSessionTester) {
+		String nextSuffix = "_" + conceptId + "_" + nextFieldNum++;
+		DrugOrderFieldTester tester = new DrugOrderFieldTester(nextSuffix, formSessionTester);
+		tester.setField("concept", conceptId.toString());
+		tester.setField("drug", drugId == null ? "" : drugId.toString());
+		tester.setField("drugNonCoded", drugNonCoded);
+		return tester;
+	}
 	
 	public static DrugOrderFieldTester forDrug(Integer drugId, String suffix, FormSessionTester formSessionTester) {
 		Drug drug = Context.getConceptService().getDrug(drugId);

@@ -321,16 +321,14 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	 */
 	protected void processDrugOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
 		List<Option> drugOptions = config.getOrderPropertyOptions("drug");
-		if (!drugOptions.isEmpty()) {
-			for (Option option : drugOptions) {
-				Drug d = HtmlFormEntryUtil.getDrug(option.getValue());
-				if (d == null) {
-					throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
-				}
-				option.setValue(d.getDrugId().toString());
-				option.setLabel(getLabel(option.getLabel(), d.getDisplayName()));
-				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
+		for (Option option : drugOptions) {
+			Drug d = HtmlFormEntryUtil.getDrug(option.getValue());
+			if (d == null) {
+				throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
 			}
+			option.setValue(d.getDrugId().toString());
+			option.setLabel(getLabel(option.getLabel(), d.getDisplayName()));
+			config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
 		}
 		config.setOrderPropertyOptions("drug", drugOptions);
 	}
