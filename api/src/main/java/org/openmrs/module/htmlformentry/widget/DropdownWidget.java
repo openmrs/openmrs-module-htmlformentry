@@ -90,6 +90,9 @@ public class DropdownWidget extends SingleOptionWidget {
 				sb.append(option.getLabel());
 				sb.append("</option>");
 			}
+			if (StringUtils.isNotBlank(currentOptionGroup)) {
+				sb.append("</optgroup>");
+			}
 			sb.append("</select>");
 			return sb.toString();
 		}
