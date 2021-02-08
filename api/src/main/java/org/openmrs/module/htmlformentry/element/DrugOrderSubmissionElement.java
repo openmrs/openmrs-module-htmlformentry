@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -13,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.FreeTextDosingInstructions;
@@ -99,6 +101,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext ctx, HttpServletRequest submission) {
 		List<FormSubmissionError> ret = new ArrayList<>();
 		List<DrugOrderWidgetValue> drugOrders = drugOrderWidget.getValue(ctx, submission);
+		Map<Concept, List<Drug>> conceptsAndDrugs = drugOrderWidget.getWidgetConfig().getConceptsAndDrugsConfigured();
 		for (DrugOrderWidgetValue v : drugOrders) {
 			DrugOrder drugOrder = v.getNewDrugOrder();
 			if (drugOrder != null) {
@@ -110,11 +113,24 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 				if (action != Order.Action.DISCONTINUE) {
 					
 					handleRequiredField(ret, ctx, fs, "careSetting", drugOrder.getCareSetting());
+					handleRequiredField(ret, ctx, fs, "concept", drugOrder.getConcept());
 					
 					if (drugOrder.getDrug() != null && StringUtils.isNotBlank(drugOrder.getDrugNonCoded())) {
 						String f = drugOrderWidget.getFormErrorField(ctx, fs, "drugNonCoded");
 						String errorCode = "htmlformentry.drugOrder.specifyEitherDrugOrDrugNonCoded";
 						ret.add(new FormSubmissionError(f, HtmlFormEntryUtil.translate(errorCode)));
+					}
+					
+					if (drugOrder.getDrug() == null && StringUtils.isBlank(drugOrder.getDrugNonCoded())) {
+						boolean isDrugRequired = getGlobalProperty("drugOrder.requireDrug", false);
+						if (isDrugRequired) {
+							List<Drug> drugsConfigured = conceptsAndDrugs.get(drugOrder.getConcept());
+							if (drugsConfigured != null && !drugsConfigured.isEmpty()) {
+								handleRequiredField(ret, ctx, fs, "drug", drugOrder.getDrug());
+							} else {
+								handleRequiredField(ret, ctx, fs, "drugNonCoded", drugOrder.getDrugNonCoded());
+							}
+						}
 					}
 					
 					if (drugOrder.getDosingType() == SimpleDosingInstructions.class) {
@@ -263,7 +279,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		if (drugOrder.getCareSetting() != null) {
 			if (drugOrder.getCareSetting().getCareSettingType() == CareSetting.CareSettingType.OUTPATIENT) {
 				String gpName = "drugOrder.requireOutpatientQuantity";
-				String gpVal = Context.getAdministrationService().getGlobalProperty(gpName, "true");
+				String gpVal = getGlobalProperty(gpName, "true");
 				return "true".equalsIgnoreCase(gpVal);
 			}
 		}
@@ -277,6 +293,10 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 		o1 = ("".equals(o1) ? null : o1);
 		o2 = ("".equals(o2) ? null : o2);
 		return OpenmrsUtil.nullSafeEquals(o1, o2);
+	}
+	
+	protected <T> T getGlobalProperty(String name, T defaultValue) {
+		return Context.getAdministrationService().getGlobalPropertyValue(name, defaultValue);
 	}
 	
 	public void handleRequiredField(List<FormSubmissionError> ret, FormEntryContext ctx, String fieldSuffix, String prop,
