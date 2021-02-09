@@ -24,6 +24,7 @@ import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
 import org.openmrs.api.context.Context;
+import org.openmrs.messagesource.PresentationMessage;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -149,29 +150,15 @@ public class DrugOrderWidget implements Widget {
 		// Add any translations needed by the default views
 		String prefix = "htmlformentry.drugOrder.";
 		JsonObject translations = jsonConfig.addObject("translations");
-		translations.addTranslation(prefix, "drugName");
-		translations.addTranslation(prefix, "formulation");
-		translations.addTranslation(prefix, "asNeeded");
-		translations.addTranslation(prefix, "active");
-		translations.addTranslation(prefix, "previousOrder");
-		translations.addTranslation(prefix, "refills");
-		translations.addTranslation(prefix, "present");
-		translations.addTranslation(prefix, "starting");
-		translations.addTranslation(prefix, "until");
-		translations.addTranslation(prefix, "quantity");
-		translations.addTranslation(prefix, "noOrders");
-		translations.addTranslation(prefix, "chooseDrug");
-		translations.addTranslation(prefix, "encounterDateChangeWarning");
-		translations.addTranslation(prefix, "editDeleteWarning");
-		translations.addTranslation(prefix, "action.new");
-		translations.addTranslation(prefix, "action.renew");
-		translations.addTranslation(prefix, "action.revise");
-		translations.addTranslation(prefix, "action.discontinue");
-		translations.addTranslation(prefix, "delete");
-		translations.addTranslation(prefix, "editOrder");
-		translations.addTranslation(prefix, "deleteOrder");
-		translations.addTranslation(prefix, "orderReason");
-		translations.addTranslation(prefix, "order");
+		Set<String> messageCodes = new TreeSet<>();
+		for (PresentationMessage message : Context.getMessageSourceService().getActiveMessageSource().getPresentations()) {
+			if (message.getCode().startsWith(prefix)) {
+				messageCodes.add(StringUtils.substringAfter(message.getCode(), prefix));
+			}
+		}
+		for (String messageCode : messageCodes) {
+			translations.addTranslation(prefix, messageCode);
+		}
 		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
@@ -182,11 +169,7 @@ public class DrugOrderWidget implements Widget {
 		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
 			Drug drug = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
 			String conceptId = drug.getConcept().getConceptId().toString();
-			List<Option> options = drugsForConcept.get(conceptId);
-			if (options == null) {
-				options = new ArrayList<>();
-				drugsForConcept.put(conceptId, options);
-			}
+			List<Option> options = drugsForConcept.computeIfAbsent(conceptId, k -> new ArrayList<>());
 			options.add(drugOption);
 			
 			JsonObject jsonDrug = new JsonObject();

@@ -79,6 +79,20 @@
 	display: inline-block;
 }
 
+.order-view-section.order-view-reasons:before {
+	content: "-- ";
+	white-space: pre;
+}
+
+.order-view-section.order-view-dates:before {
+	content: "-- ";
+	white-space: pre;
+}
+
+.order-view-field.order-view-orderReason-label {
+	display: none;
+}
+
 .order-view-field.order-view-orderReason {
 	display: inline-block;
 	font-weight: bold;

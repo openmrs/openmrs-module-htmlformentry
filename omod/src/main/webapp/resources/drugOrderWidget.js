@@ -554,18 +554,22 @@
         }
         $ret.append($existingActionSection);
 
-        var $reasonSection = $('<div class="order-view-section order-view-reasons"></div>');
         if (d.orderReason.display !== '' || d.orderReasonNonCoded.display !== '') {
-            $reasonSection.append('<div class="order-view-field order-view-orderReason">' + d.orderReason.display + d.orderReasonNonCoded.display + '</div>');
+            var $reasonSection = $('<div class="order-view-section order-view-reasons"></div>');
+            $reasonSection.append('<div class="order-view-field order-view-orderReason-label">' + config.translations.orderReason + '</div>');
+            if (d.orderReason.display !== '') {
+                $reasonSection.append('<div class="order-view-field order-view-orderReason">' + d.orderReason.display + '</div>');
+            }
+            if (d.orderReasonNonCoded.display !== '') {
+                $reasonSection.append('<div class="order-view-field order-view-orderReasonNonCoded">' + d.orderReasonNonCoded.display + '</div>');
+            }
         }
-        $reasonSection.append(config.translations.order);
         $ret.append($reasonSection);
 
         var isDiscontinue = (d.action.value === 'DISCONTINUE');
 
         var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
-        $dateSection.append('<div class="order-view-field order-view-start-date">');
-        $dateSection.append(config.translations.starting + ' ' + d.effectiveStartDate.display);
+        $dateSection.append('<div class="order-view-field order-view-start-date">' + config.translations.starting + ' ' + d.effectiveStartDate.display + "</div>");
         if (d.action.value !== 'DISCONTINUE') {
             if (d.duration.display !== '') {
                 $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
