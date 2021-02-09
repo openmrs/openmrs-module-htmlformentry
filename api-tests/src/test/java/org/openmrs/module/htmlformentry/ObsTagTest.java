@@ -13,17 +13,6 @@
  */
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.matchers.JUnitMatchers.containsString;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +25,17 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.matchers.JUnitMatchers.containsString;
 
 /**
  * Tests the obs tag.
@@ -983,7 +983,6 @@ public class ObsTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				System.out.println(html);
 				assertTrue(html.contains("autocomplete"));
 				assertTrue(html.contains("source: '/openmrs/module/htmlformentry/drugSearch.form'"));
 			}
@@ -1020,13 +1019,34 @@ public class ObsTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public boolean doEditEncounter() {
-				return false;
+				return true;
 			}
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				assertThat(html, containsString("Allergic to drug: Aspirin"));
 				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;NyQuil</span>", html);
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				assertTrue(html.contains("<input id=\"w8-value\" type=\"hidden\" name=\"w8\" value=\"Drug:3\"/>"));
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Allergic to drug:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2");
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertObsCreated(1000, Context.getConceptService().getDrug(2));
 			}
 		}.run();
 	}
@@ -1086,7 +1106,6 @@ public class ObsTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testEditFormHtml(String html) {
-				System.out.println(html);
 				assertTrue(html.contains("<option value=\"Drug:3\" selected=\"true\">Aspirin</option>"));
 			}
 			
@@ -1097,7 +1116,7 @@ public class ObsTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2"); // in the dynamic autocomplete, the widget value is just the count of the number of entries
+				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2");
 			}
 			
 			@Override

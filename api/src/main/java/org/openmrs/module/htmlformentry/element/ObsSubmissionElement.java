@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -61,6 +46,21 @@ import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.openmrs.web.WebConstants;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
@@ -800,9 +800,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							widget.setDisplayTemplate("{{name}}");
 						}
 						if (existingObs != null && existingObs.getValueDrug() != null) {
-							// TODO: not quite sure how this works?
-							widget.setInitialValue(new Option(existingObs.getValueDrug().getName(),
-							        existingObs.getValueDrug().getDrugId().toString(), true));
+							widget.setInitialValue(existingObs.getValueDrug());
 						}
 						valueWidget = widget;
 					}
@@ -876,6 +874,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 					// set the initial value, but only if not value drug (we handle that in the above drug-specific code)
 					if (existingObs != null && existingObs.getValueDrug() == null) {
+						// TODO: not sure which case this is actually applying to, or if it's needed?
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
