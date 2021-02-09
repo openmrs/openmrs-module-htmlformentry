@@ -358,12 +358,15 @@
             $actionButton.click(function() {
                 var $orderForm = $orderActionForms.find('.drugorders-order-form');
                 $orderActionWarningSection.hide();
+                $orderActionButtons.find(".order-action-button").hide();
                 if ($orderForm.length > 0) {
                     $orderForm.remove();
                     $actionButton.removeClass('drugorders-selected-action');
+                    $orderActionButtons.find(".order-action-button").show();
                 }
                 else {
                     $actionButton.addClass('drugorders-selected-action');
+                    $actionButton.show();
                     $orderForm = drugOrderWidget.constructOrderForm($orderActionForms, idSuffix, config, action);
                     drugOrderWidget.populateOrderForm(config, $orderForm, drugOrder);
                     if (isEditingPreviousEncounter) {
