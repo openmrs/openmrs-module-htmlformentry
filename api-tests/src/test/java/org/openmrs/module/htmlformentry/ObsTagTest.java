@@ -992,14 +992,13 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testBlankFormHtml(String html) {
-				System.out.println(html);
 				assertTrue(html.contains("autocomplete"));
 				assertTrue(html.contains("source: '/openmrs/module/htmlformentry/drugSearch.form'"));
 			}
 			
 			@Override
 			public String[] widgetLabels() {
-				return new String[] { "Date:", "Location:", "Provider:", "Allergic to drug:", "NYQUIL as checkbox:" };
+				return new String[] { "Date:", "Location:", "Provider:", "Allergic to drug:" };
 			}
 			
 			@Override
@@ -1008,7 +1007,6 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				request.addParameter(widgets.get("Allergic to drug:"), "Drug:3");
-				request.addParameter(widgets.get("NYQUIL as checkbox:"), "Drug:11");
 			}
 			
 			@Override
@@ -1017,9 +1015,8 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(2);
-				results.assertObsCreatedCount(3);
+				results.assertObsCreatedCount(1);
 				results.assertObsCreated(1000, Context.getConceptService().getDrug(3));
-				results.assertObsCreated(8119, Context.getConceptService().getDrug(11));
 			}
 			
 			@Override
@@ -1029,13 +1026,33 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public boolean doEditEncounter() {
-				return false;
+				return true;
 			}
 			
 			@Override
 			public void testViewingEncounter(Encounter encounter, String html) {
 				assertThat(html, containsString("Allergic to drug: Aspirin"));
-				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;NyQuil</span>", html);
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				assertTrue(html.contains("<input id=\"w8-value\" type=\"hidden\" name=\"w8\" value=\"Drug:3\"/>"));
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Allergic to drug:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2");
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertObsCreated(1000, Context.getConceptService().getDrug(2));
 			}
 		}.run();
 	}
@@ -1095,7 +1112,6 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void testEditFormHtml(String html) {
-				System.out.println(html);
 				assertTrue(html.contains("<option value=\"Drug:3\" selected=\"true\">Aspirin</option>"));
 			}
 			
@@ -1106,7 +1122,7 @@ public class ObsTagTest extends BaseModuleContextSensitiveTest {
 			
 			@Override
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2"); // in the dynamic autocomplete, the widget value is just the count of the number of entries
+				request.setParameter(widgets.get("Allergic to drug:"), "Drug:2");
 			}
 			
 			@Override

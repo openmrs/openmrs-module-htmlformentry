@@ -801,9 +801,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							widget.setDisplayTemplate("{{name}}");
 						}
 						if (existingObs != null && existingObs.getValueDrug() != null) {
-							// TODO: not quite sure how this works?
-							widget.setInitialValue(new Option(existingObs.getValueDrug().getName(),
-							        existingObs.getValueDrug().getDrugId().toString(), true));
+							widget.setInitialValue(existingObs.getValueDrug());
 						}
 						valueWidget = widget;
 					}
@@ -877,6 +875,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 					// set the initial value, but only if not value drug (we handle that in the above drug-specific code)
 					if (existingObs != null && existingObs.getValueDrug() == null) {
+						// TODO: not sure which case this is actually applying to, or if it's needed?
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
