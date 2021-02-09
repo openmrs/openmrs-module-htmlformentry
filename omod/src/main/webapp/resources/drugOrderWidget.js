@@ -99,9 +99,10 @@
 
     // Discontinue is allowed for active orders.
     drugOrderWidget.canDiscontinueDrugOrder = function(drugOrder, config) {
-        var ret = drugOrderWidget.supportsAction(config, 'DISCONTINUE');
-        ret = ret && drugOrder.action.value !== 'DISCONTINUE';
-        return ret;
+        var supportsAction = drugOrderWidget.supportsAction(config, 'DISCONTINUE');
+        var inEncounter = drugOrderWidget.isOrderInCurrentEncounter(drugOrder, config);
+        var notDiscontinued = drugOrder.action.value !== 'DISCONTINUE'
+        return supportsAction && (inEncounter || notDiscontinued);
     }
 
     drugOrderWidget.getActionOption = function(config, action) {
@@ -262,6 +263,7 @@
 
         // Render the appropriate fields
         drugOrderWidget.enableDateWidgets(config, $orderForm, encDate);
+
         if (action === 'DISCONTINUE') {
             var $discontinueReasonSelect = $orderForm.find('.order-field-widget.order-discontinueReason').find('select');
             if ($discontinueReasonSelect.find('option').length > 1) {
@@ -271,6 +273,7 @@
         } else if (action === 'RENEW') {
             drugOrderWidget.enableDrugOrderDurationWidgets($orderForm);
         } else if (action === 'REVISE' || action === 'NEW') {
+            $orderForm.find('.order-orderReason').show();
             drugOrderWidget.enableDrugOrderDoseWidgets($orderForm);
             $orderForm.find('.order-urgency').show();
             drugOrderWidget.enableDrugOrderDurationWidgets($orderForm);
@@ -325,25 +328,54 @@
         var $orderActionSection = $('<div class="order-action-section"></div>');
         var $orderActionButtons = $('<div class="order-action-buttons"></div>');
         $orderActionSection.append($orderActionButtons);
+        var $orderActionWarningSection = $("<div class='order-action-warnings'>" + config.translations.editDeleteWarning + "</div>");
+        $orderActionSection.append($orderActionWarningSection);
+        $orderActionWarningSection.hide();
         var $orderActionForms = $('<div class="order-action-forms"></div>');
         $orderActionSection.append($orderActionForms);
 
         var orderActions = drugOrderWidget.getSupportedActions(drugOrder, config, encDate);
+
         orderActions.forEach(function(action) {
             var $actionOption = drugOrderWidget.getActionOption(config, action);
             var idSuffix = '_' + drugOrderWidget.nextActionButtonIndex();
-            var $actionButton = drugOrderWidget.createActionButton(idSuffix, action, $actionOption.html());
+
+            var actionLabel = $actionOption.html();
+            var isEditingPreviousEncounter = drugOrderWidget.isOrderInCurrentEncounter(drugOrder, config);
+            var isRevising = (action === 'REVISE');
+            var isDiscontinuing = (action === 'DISCONTINUE');
+
+            if (isEditingPreviousEncounter) {
+                if (isRevising) {
+                    actionLabel = config.translations.editOrder;
+                }
+                else if (isDiscontinuing) {
+                    actionLabel = config.translations.deleteOrder;
+                }
+            }
+
+            var $actionButton = drugOrderWidget.createActionButton(idSuffix, action, actionLabel);
             $actionButton.click(function() {
                 var $orderForm = $orderActionForms.find('.drugorders-order-form');
+                $orderActionWarningSection.hide();
                 if ($orderForm.length > 0) {
                     $orderForm.remove();
-                    $('.order-action-button').removeClass('drugorders-selected-action');
+                    $actionButton.removeClass('drugorders-selected-action');
                 }
                 else {
                     $actionButton.addClass('drugorders-selected-action');
                     $orderForm = drugOrderWidget.constructOrderForm($orderActionForms, idSuffix, config, action);
                     drugOrderWidget.populateOrderForm(config, $orderForm, drugOrder);
-                    $orderForm.show();
+                    if (isEditingPreviousEncounter) {
+                        if (isDiscontinuing) {
+                            $orderForm.hide();
+                        } else {
+                            $orderForm.show();
+                        }
+                        if (isRevising || isDiscontinuing) {
+                            $orderActionWarningSection.show();
+                        }
+                    }
                 }
             });
             $orderActionButtons.append($actionButton);
@@ -524,9 +556,9 @@
 
         var $reasonSection = $('<div class="order-view-section order-view-reasons"></div>');
         if (d.orderReason.display !== '' || d.orderReasonNonCoded.display !== '') {
-            $reasonSection.append('<div class="order-view-field order-view-orderReason-label">' + config.translations.for + '</div>');
             $reasonSection.append('<div class="order-view-field order-view-orderReason">' + d.orderReason.display + d.orderReasonNonCoded.display + '</div>');
         }
+        $reasonSection.append(config.translations.order);
         $ret.append($reasonSection);
 
         var isDiscontinue = (d.action.value === 'DISCONTINUE');

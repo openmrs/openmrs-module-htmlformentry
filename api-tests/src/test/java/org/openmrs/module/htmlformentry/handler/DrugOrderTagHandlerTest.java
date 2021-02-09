@@ -411,7 +411,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		assertAttribute(w, "dosingInstructions", "textAreaRows", "10");
 		assertAttribute(w, "dosingInstructions", "textAreaColumns", "100");
 	}
-
+	
 	@Test
 	public void shouldSupportOptionGroupsWithQuestionAnswers() {
 		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOptionGroups.xml").get(0);

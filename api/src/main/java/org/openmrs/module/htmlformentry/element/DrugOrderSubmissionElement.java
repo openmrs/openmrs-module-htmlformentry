@@ -202,6 +202,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			
 			DrugOrder newOrder = v.getNewDrugOrder();
 			DrugOrder previousOrder = v.getPreviousDrugOrder();
+			boolean createNew = (newOrder != null);
 			boolean voidPrevious = false;
 			
 			// First we set some defaults on the new order
@@ -224,6 +225,9 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 						if (isSameDrug(newOrder, previousOrder)) {
 							if (newOrder.getDateActivated().equals(previousOrder.getDateActivated())) { // Same date activated
 								voidPrevious = true;
+								if (newOrder.getAction() == Order.Action.DISCONTINUE) {
+									createNew = false;
+								}
 							}
 						}
 					}
@@ -233,7 +237,7 @@ public class DrugOrderSubmissionElement implements HtmlGeneratorElement, FormSub
 			if (voidPrevious) {
 				session.getSubmissionActions().getOrdersToVoid().add(previousOrder);
 			}
-			if (newOrder != null) {
+			if (createNew) {
 				session.getSubmissionActions().getOrdersToCreate().add(newOrder);
 			}
 		}

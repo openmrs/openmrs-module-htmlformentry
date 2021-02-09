@@ -44,7 +44,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		FormResultsTester revisedResults = formSessionTester.submitForm();
 		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.previousOrderRequired");
 	}
-
+	
 	@Test
 	public void shouldFailValidationIfDrugIsRequiredAndNotSupplied() {
 		Context.getAdministrationService().setGlobalProperty("drugOrder.requireDrug", "true");
@@ -59,7 +59,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		results.assertErrors(1);
 		results.assertErrorMessage("Required");
 	}
-
+	
 	@Test
 	public void shouldNotFailValidationIfDrugIsNotRequiredAndNotSupplied() {
 		Context.getAdministrationService().setGlobalProperty("drugOrder.requireDrug", "false");
@@ -73,7 +73,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		FormResultsTester results = formSessionTester.submitForm();
 		results.assertErrors(0);
 	}
-
+	
 	@Test
 	public void shouldFailValidationIfBothDrugAndNonCodedDrugEntered() {
 		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");

@@ -79,6 +79,11 @@
 	display: inline-block;
 }
 
+.order-view-field.order-view-orderReason {
+	display: inline-block;
+	font-weight: bold;
+}
+
 .order-view-section.order-view-dates {
 	display: inline-block;
 }
@@ -160,11 +165,17 @@
 }
 
 .order-view-field {
-	padding-right: 10px;
+	padding-right: 5px;
 }
 
 .order-action-section {
 	margin: 10px;
+}
+
+.order-action-warnings {
+	padding-top: 10px;
+	font-weight: bold;
+	color: red;
 }
 
 .order-action-button {

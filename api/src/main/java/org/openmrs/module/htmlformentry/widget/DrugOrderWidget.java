@@ -157,19 +157,21 @@ public class DrugOrderWidget implements Widget {
 		translations.addTranslation(prefix, "refills");
 		translations.addTranslation(prefix, "present");
 		translations.addTranslation(prefix, "starting");
-		translations.addTranslation(prefix, "for");
 		translations.addTranslation(prefix, "until");
 		translations.addTranslation(prefix, "quantity");
 		translations.addTranslation(prefix, "noOrders");
 		translations.addTranslation(prefix, "chooseDrug");
 		translations.addTranslation(prefix, "encounterDateChangeWarning");
+		translations.addTranslation(prefix, "editDeleteWarning");
 		translations.addTranslation(prefix, "action.new");
 		translations.addTranslation(prefix, "action.renew");
 		translations.addTranslation(prefix, "action.revise");
 		translations.addTranslation(prefix, "action.discontinue");
 		translations.addTranslation(prefix, "delete");
+		translations.addTranslation(prefix, "editOrder");
+		translations.addTranslation(prefix, "deleteOrder");
 		translations.addTranslation(prefix, "orderReason");
-		translations.addTranslation(prefix, "discontinueReason");
+		translations.addTranslation(prefix, "order");
 		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");

@@ -1249,7 +1249,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("3cfcf118-931c-46f7-8ff6-7b876f0d4202"));
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getDrug("Triomune-30"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getConceptClass(String)
 	 */
@@ -1260,7 +1260,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptClass("3d065ed4-b0b9-4710-9a17-6d8c4fd259b7"));
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptClass("Drug"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getConceptDatatype(String)
 	 */
@@ -1271,7 +1271,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptDatatype("8d4a48b6-c2cc-11de-8d13-0010c6dffd0f"));
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptDatatype("Coded"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getConceptNameTag(String)
 	 */
@@ -1282,7 +1282,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptNameTag("cb6bc7cf-d5d3-4d51-a05b-5ea656c7413a"));
 		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptNameTag("synonym"));
 	}
-
+	
 	/**
 	 * @see HtmlFormEntryUtil#getConceptNameType(String)
 	 */

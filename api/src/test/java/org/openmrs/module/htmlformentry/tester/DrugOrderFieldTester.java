@@ -17,8 +17,9 @@ public class DrugOrderFieldTester {
 		this.suffix = suffix;
 		this.formSessionTester = formSessionTester;
 	}
-
-	public static DrugOrderFieldTester forDrug(Integer conceptId, Integer drugId, String drugNonCoded, FormSessionTester formSessionTester) {
+	
+	public static DrugOrderFieldTester forDrug(Integer conceptId, Integer drugId, String drugNonCoded,
+	        FormSessionTester formSessionTester) {
 		String nextSuffix = "_" + conceptId + "_" + nextFieldNum++;
 		DrugOrderFieldTester tester = new DrugOrderFieldTester(nextSuffix, formSessionTester);
 		tester.setField("concept", conceptId.toString());
