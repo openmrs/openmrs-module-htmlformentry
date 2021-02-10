@@ -46,8 +46,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
+import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
+import org.openmrs.ConceptNameTag;
 import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
@@ -80,6 +83,7 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Provider;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
+import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.messagesource.MessageSourceService;
@@ -1457,6 +1461,68 @@ public class HtmlFormEntryUtil {
 		}
 		
 		return null;
+	}
+	
+	public static ConceptClass getConceptClass(String lookup) {
+		ConceptClass ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			try {
+				ret = Context.getConceptService().getConceptClassByUuid(lookup);
+				if (ret == null) {
+					ret = Context.getConceptService().getConceptClassByName(lookup);
+				}
+				if (ret == null) {
+					ret = Context.getConceptService().getConceptClass(Integer.parseInt(lookup));
+				}
+			}
+			catch (Exception e) {}
+		}
+		return ret;
+	}
+	
+	public static ConceptDatatype getConceptDatatype(String lookup) {
+		ConceptDatatype ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			try {
+				ret = Context.getConceptService().getConceptDatatypeByUuid(lookup);
+				if (ret == null) {
+					ret = Context.getConceptService().getConceptDatatypeByName(lookup);
+				}
+				if (ret == null) {
+					ret = Context.getConceptService().getConceptDatatype(Integer.parseInt(lookup));
+				}
+			}
+			catch (Exception e) {}
+		}
+		return ret;
+	}
+	
+	public static ConceptNameType getConceptNameType(String lookup) {
+		ConceptNameType ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			try {
+				return ConceptNameType.valueOf(lookup);
+			}
+			catch (Exception e) {}
+		}
+		return ret;
+	}
+	
+	public static ConceptNameTag getConceptNameTag(String lookup) {
+		ConceptNameTag ret = null;
+		if (StringUtils.isNotBlank(lookup)) {
+			try {
+				ret = Context.getConceptService().getConceptNameTagByUuid(lookup);
+				if (ret == null) {
+					ret = Context.getConceptService().getConceptNameTagByName(lookup);
+				}
+				if (ret == null) {
+					ret = Context.getConceptService().getConceptNameTag(Integer.parseInt(lookup));
+				}
+			}
+			catch (Exception e) {}
+		}
+		return ret;
 	}
 	
 	/**

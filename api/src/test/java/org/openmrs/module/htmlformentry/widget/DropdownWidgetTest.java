@@ -65,6 +65,41 @@ public class DropdownWidgetTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void testMultipleOptionsWithGroupsAndClasses() throws Exception {
+		FormEntryContext context = getContext();
+		DropdownWidget widget = new DropdownWidget();
+		
+		List<Option> options = new ArrayList<Option>();
+		options.add(groupOption("label1", "value1", false, "", "", ""));
+		options.add(groupOption("label2", "value2", true, "", "Group 1", "class-1"));
+		options.add(groupOption("label3", "value3", false, "oc1", "Group 1", "class-1"));
+		options.add(groupOption("label4", "value4", false, "oc2", "Group 2", "class-2"));
+		options.add(groupOption("label5", "value5", false, "", "Group 2", "class-2"));
+		
+		widget.setOptions(options);
+		widget.setInitialValue("value2");
+		context.registerWidget(widget);
+		
+		String html = widget.generateHtml(context);
+		StringBuilder expected = new StringBuilder();
+		expected.append("<select id=\"w3\" name=\"w3\">");
+		expected.append("<option value=\"").append("value1").append("\">").append("label1").append("</option>");
+		expected.append("<optgroup label=\"").append("Group 1").append("\" class=\"").append("class-1").append("\">");
+		expected.append("<option value=\"").append("value2").append("\" selected=\"true\">").append("label2")
+		        .append("</option>");
+		expected.append("<option value=\"").append("value3").append("\" class=\"").append("oc1").append("\">")
+		        .append("label3").append("</option>");
+		expected.append("</optgroup>");
+		expected.append("<optgroup label=\"").append("Group 2").append("\" class=\"").append("class-2").append("\">");
+		expected.append("<option value=\"").append("value4").append("\" class=\"").append("oc2").append("\">")
+		        .append("label4").append("</option>");
+		expected.append("<option value=\"").append("value5").append("\">").append("label5").append("</option>");
+		expected.append("</optgroup>");
+		expected.append("</select>");
+		assertThat(html, is(expected.toString()));
+	}
+	
+	@Test
 	public void generateHtml_shouldRenderInitialValueAsOptionIfMissing() throws Exception {
 		
 		// Test String option
@@ -148,5 +183,14 @@ public class DropdownWidgetTest extends BaseHtmlFormEntryTest {
 		String selectedText = (selected ? " selected=\"true\"" : "");
 		String expectedOption = "<option value=\"" + idExpected + "\"" + selectedText + ">" + idExpected + "</option>";
 		assertThat(html, containsString(expectedOption));
+	}
+	
+	protected Option groupOption(String label, String value, boolean selected, String optionClass, String groupLabel,
+	        String groupCssClass) {
+		Option o = new Option(label, value, selected);
+		o.setCssClass(optionClass);
+		o.setGroupLabel(groupLabel);
+		o.setGroupCssClass(groupCssClass);
+		return o;
 	}
 }

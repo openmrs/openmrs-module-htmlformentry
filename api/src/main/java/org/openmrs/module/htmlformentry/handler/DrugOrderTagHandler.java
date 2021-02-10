@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.handler;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -11,12 +12,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
+import org.openmrs.ConceptName;
+import org.openmrs.ConceptNameTag;
 import org.openmrs.DosingInstructions;
 import org.openmrs.Drug;
 import org.openmrs.FreeTextDosingInstructions;
@@ -25,6 +29,7 @@ import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
 import org.openmrs.SimpleDosingInstructions;
+import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.OrderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
@@ -35,6 +40,7 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryGenerator;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
 import org.openmrs.module.htmlformentry.schema.CareSettingAnswer;
+import org.openmrs.module.htmlformentry.schema.ConceptOptionGroup;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
@@ -76,6 +82,8 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	public static final String ORDER_PROPERTY_TAG = "orderProperty";
 	
 	public static final String ORDER_PROPERTY_OPTION_TAG = "option";
+	
+	public static final String ORDER_PROPERTY_OPTION_GROUP_TAG = "optionGroup";
 	
 	public static final String NAME_ATTRIBUTE = "name";
 	
@@ -143,7 +151,9 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		}
 		
 		// For each property, ensure all options are validated and defaults are configured
-		processOrderableOptions(widgetConfig);
+		processConceptOptions(widgetConfig, "concept");
+		processDrugOptions(widgetConfig);
+		ensureConceptAndDrugOptionsAreConsistent(widgetConfig);
 		processEnumOptions(widgetConfig, "action", Order.Action.values(), null);
 		processCareSettingOptions(widgetConfig);
 		processOrderTypeOptions(widgetConfig);
@@ -279,7 +289,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		c.setOrderPropertyAttributes(name, attributes);
 		w.print(attributes.toString()); // This writes to the template, which is used for replacement later on
 		
-		// Determine if there are any explicit options configured for this property
+		// Determine if there are any explicit options or option groups configured for this property
 		List<Option> optionVals = new ArrayList<>();
 		NodeList childNodes = n.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
@@ -292,6 +302,14 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 					throw new BadFormDesignException(msg);
 				}
 				optionVals.add(new Option(optionAttributes.get(LABEL_ATTRIBUTE), value, false));
+			} else if (childNode.getNodeName().equalsIgnoreCase(ORDER_PROPERTY_OPTION_GROUP_TAG)) {
+				if (PROPERTIES.get(name) == Concept.class) {
+					Map<String, String> optionAttributes = getAttributes(childNode);
+					ConceptOptionGroup optionGroup = ConceptOptionGroup.newInstance(optionAttributes);
+					c.getDrugOrderField().addConceptOptionGroup(name, optionGroup);
+				} else {
+					throw new BadFormDesignException(ORDER_PROPERTY_OPTION_GROUP_TAG + " is only for concept properties");
+				}
 			}
 		}
 		c.setOrderPropertyOptions(name, optionVals);
@@ -301,55 +319,18 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	 * Processes concept and drug options by populating default labels if not supplied, validating
 	 * inputs, and populating the DrugOrderField
 	 */
-	protected void processOrderableOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
-		processConceptOptions(config, "concept");
-		
-		// Determine if any concepts were specifically configured and collect in a set
-		Set<Integer> configuredConceptIds = new HashSet<>();
-		List<ObsFieldAnswer> concepts = config.getDrugOrderField().getConceptOptions();
-		if (concepts != null && concepts.size() > 0) {
-			for (ObsFieldAnswer a : concepts) {
-				configuredConceptIds.add(a.getConcept().getConceptId());
-			}
-		}
-		
+	protected void processDrugOptions(DrugOrderWidgetConfig config) throws BadFormDesignException {
 		List<Option> drugOptions = config.getOrderPropertyOptions("drug");
-		
-		if (drugOptions.isEmpty()) {
-			for (Drug d : Context.getConceptService().getAllDrugs(false)) {
-				// If concepts were explicitly configured, then only add drugs that match the configured concepts
-				if (configuredConceptIds.isEmpty() || configuredConceptIds.contains(d.getConcept().getConceptId())) {
-					drugOptions.add(new Option(d.getDisplayName(), d.getDrugId().toString(), false));
-					config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, d.getDisplayName()));
-				}
+		for (Option option : drugOptions) {
+			Drug d = HtmlFormEntryUtil.getDrug(option.getValue());
+			if (d == null) {
+				throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
 			}
-		} else {
-			for (Option option : drugOptions) {
-				Drug d = HtmlFormEntryUtil.getDrug(option.getValue());
-				if (d == null) {
-					throw new BadFormDesignException("Unable to find Drug option value: " + option.getValue());
-				}
-				option.setValue(d.getDrugId().toString());
-				option.setLabel(getLabel(option.getLabel(), d.getDisplayName()));
-				config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
-			}
+			option.setValue(d.getDrugId().toString());
+			option.setLabel(getLabel(option.getLabel(), d.getDisplayName()));
+			config.getDrugOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
 		}
 		config.setOrderPropertyOptions("drug", drugOptions);
-		
-		// If there are drugs configured, but no concepts configured, then populate concepts based on drugs
-		if (configuredConceptIds.isEmpty()) {
-			Map<String, Concept> conceptMap = new TreeMap<>();
-			for (DrugOrderAnswer a : config.getDrugOrderField().getDrugOrderAnswers()) {
-				Concept c = a.getDrug().getConcept();
-				conceptMap.put(c.getDisplayString(), c);
-			}
-			for (String name : conceptMap.keySet()) {
-				Concept c = conceptMap.get(name);
-				Option conceptOption = new Option(c.getDisplayString(), c.getId().toString(), false);
-				config.addOrderPropertyOption("concept", conceptOption);
-				config.getDrugOrderField().addConceptOption(new ObsFieldAnswer(name, c));
-			}
-		}
 	}
 	
 	/**
@@ -536,6 +517,66 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	 */
 	protected void processConceptOptions(DrugOrderWidgetConfig config, String prop) throws BadFormDesignException {
 		List<Option> options = config.getOrderPropertyOptions(prop);
+		
+		Set<String> valuesAlreadyAdded = new HashSet<>();
+		for (Option o : options) {
+			valuesAlreadyAdded.add(o.getValue());
+		}
+		
+		List<Concept> fullList = getFullConceptListForProperty(prop);
+		
+		List<ConceptOptionGroup> optGroups = config.getDrugOrderField().getConceptOptionGroups().get(prop);
+		if (optGroups != null) {
+			for (ConceptOptionGroup optGroup : optGroups) {
+				List<Option> optionsInSet = new ArrayList<>();
+				
+				// If an option group is configured without a concept, add all concepts still available from full list
+				List<Concept> conceptsForOptionGroup = getConceptsForOptionGroup(optGroup);
+				if (conceptsForOptionGroup == null || conceptsForOptionGroup.isEmpty()) {
+					conceptsForOptionGroup = fullList;
+				}
+				for (Concept c : conceptsForOptionGroup) {
+					String value = c.getConceptId().toString();
+					if (!valuesAlreadyAdded.contains(value)) {
+						String label = c.getDisplayString();
+						ConceptNameType type = HtmlFormEntryUtil.getConceptNameType(optGroup.getLabelNameType());
+						ConceptNameTag tag = HtmlFormEntryUtil.getConceptNameTag(optGroup.getLabelNameTag());
+						if (type != null || tag != null) {
+							ConceptName cn = c.getName(Context.getLocale(), type, tag);
+							if (cn != null) {
+								label = cn.getName();
+							}
+						} else if (StringUtils.isNotBlank(optGroup.getLabelMessagePrefix())) {
+							String messageCode = optGroup.getLabelMessagePrefix() + c.getUuid();
+							String translated = HtmlFormEntryUtil.translate(messageCode);
+							if (StringUtils.isNotBlank(translated) && !translated.equals(messageCode)) {
+								label = translated;
+							}
+						}
+						StringBuilder css = new StringBuilder();
+						if (optGroup.getGroupClass() != null) {
+							css.append(optGroup.getOptionClass());
+						}
+						if (BooleanUtils.isTrue(c.getRetired()) && optGroup.getRetiredOptionClass() != null) {
+							css.append(css.length() > 0 ? " " : "").append(optGroup.getRetiredOptionClass());
+						}
+						Option option = new Option();
+						option.setValue(value);
+						option.setLabel(label);
+						option.setGroupLabel(optGroup.getGroupLabel());
+						option.setGroupCssClass(optGroup.getGroupClass());
+						option.setCssClass(css.toString());
+						optionsInSet.add(option);
+						valuesAlreadyAdded.add(value);
+					}
+				}
+				if (BooleanUtils.isTrue(optGroup.getSortAlphabetically())) {
+					optionsInSet.sort(Comparator.comparing(option -> option.getLabel().toLowerCase()));
+				}
+				options.addAll(optionsInSet);
+			}
+		}
+		
 		String defaultValue = config.getAttributes(prop).get(VALUE_ATTRIBUTE);
 		Concept defaultConcept = null;
 		if (StringUtils.isNotBlank(defaultValue)) {
@@ -543,16 +584,6 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			if (defaultConcept == null) {
 				throw new BadFormDesignException("Unable to find Concept default value: " + defaultValue);
 			}
-		}
-		List<Concept> fullList = new ArrayList<>();
-		if ("doseUnits".equalsIgnoreCase(prop)) {
-			fullList = getOrderService().getDrugDosingUnits();
-		} else if ("route".equalsIgnoreCase(prop)) {
-			fullList = getOrderService().getDrugRoutes();
-		} else if ("durationUnits".equalsIgnoreCase(prop)) {
-			fullList = getOrderService().getDurationUnits();
-		} else if ("quantityUnits".equalsIgnoreCase(prop)) {
-			fullList = getOrderService().getDrugDispensingUnits();
 		}
 		
 		if (options.isEmpty()) {
@@ -565,7 +596,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				if (c == null) {
 					throw new BadFormDesignException("Unable to find concept option value: " + defaultValue);
 				}
-				if (!fullList.isEmpty() && !fullList.contains(c)) {
+				if (!fullList.isEmpty() && !fullList.contains(c) && !prop.equalsIgnoreCase("concept")) {
 					throw new BadFormDesignException(option.getValue() + " does not refer to a valid concept for " + prop);
 				}
 				option.setValue(c.getConceptId().toString());
@@ -593,6 +624,97 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			}
 		}
 		config.setOrderPropertyOptions(prop, options);
+	}
+	
+	protected void ensureConceptAndDrugOptionsAreConsistent(DrugOrderWidgetConfig config) {
+		List<Option> concepts = config.getOrderPropertyOptions("concept");
+		List<Option> drugs = config.getOrderPropertyOptions("drug");
+		
+		Set<String> existingConcepts = new HashSet<>();
+		Set<String> existingDrugs = new HashSet<>();
+		for (Option o : concepts) {
+			existingConcepts.add(o.getValue());
+		}
+		for (Option o : drugs) {
+			existingDrugs.add(o.getValue());
+		}
+		
+		Map<String, Drug> allDrugsInFormulary = new HashMap<>();
+		Map<String, Concept> allConceptsInFormulary = new HashMap<>();
+		Map<Concept, List<Drug>> conceptsToDrugs = new HashMap<>();
+		for (Drug d : Context.getConceptService().getAllDrugs(false)) {
+			allDrugsInFormulary.put(d.getDrugId().toString(), d);
+			Concept c = d.getConcept();
+			allConceptsInFormulary.put(c.getConceptId().toString(), c);
+			List<Drug> l = conceptsToDrugs.get(c);
+			if (l == null) {
+				l = new ArrayList<>();
+				conceptsToDrugs.put(c, l);
+			}
+			l.add(d);
+		}
+		
+		// If there are no drugs or concepts configured, populate based on entire formulary
+		if (drugs.isEmpty() && concepts.isEmpty()) {
+			for (Concept c : conceptsToDrugs.keySet()) {
+				concepts.add(new Option(c.getDisplayString(), c.getId().toString()));
+				for (Drug d : conceptsToDrugs.get(c)) {
+					drugs.add(new Option(d.getDisplayName(), d.getId().toString()));
+				}
+			}
+		}
+		// Otherwise, ensure drugs and concepts are additive
+		else {
+			// If drugs are configured, all associated concepts should be configured
+			for (Option drugOption : drugs) {
+				Drug d = allDrugsInFormulary.get(drugOption.getValue());
+				if (d == null) {
+					d = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
+				}
+				String conceptIdStr = d.getConcept().getId().toString();
+				if (!existingConcepts.contains(conceptIdStr)) {
+					concepts.add(new Option(d.getConcept().getDisplayString(), conceptIdStr));
+				}
+			}
+			// If concepts are configured, all associated drugs should be configured
+			for (Option conceptOption : concepts) {
+				Concept c = allConceptsInFormulary.get(conceptOption.getValue());
+				if (conceptsToDrugs.get(c) != null) {
+					for (Drug d : conceptsToDrugs.get(c)) {
+						if (!existingDrugs.contains(d.getDrugId().toString())) {
+							drugs.add(new Option(d.getDisplayName(), d.getId().toString()));
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	protected List<Concept> getConceptsForOptionGroup(ConceptOptionGroup optionGroup) {
+		List<Concept> ret = new ArrayList<>();
+		if (optionGroup.getConcept() != null) {
+			ret.addAll(Context.getConceptService().getConceptsByConceptSet(optionGroup.getConcept()));
+			for (ConceptAnswer ca : optionGroup.getConcept().getAnswers()) {
+				ret.add(ca.getAnswerConcept());
+			}
+		}
+		return ret;
+	}
+	
+	protected List<Concept> getFullConceptListForProperty(String prop) {
+		List<Concept> fullList = new ArrayList<>();
+		if ("doseUnits".equalsIgnoreCase(prop)) {
+			fullList = getOrderService().getDrugDosingUnits();
+		} else if ("route".equalsIgnoreCase(prop)) {
+			fullList = getOrderService().getDrugRoutes();
+		} else if ("durationUnits".equalsIgnoreCase(prop)) {
+			fullList = getOrderService().getDurationUnits();
+		} else if ("quantityUnits".equalsIgnoreCase(prop)) {
+			fullList = getOrderService().getDrugDispensingUnits();
+		} else if ("concept".equals(prop)) {
+			fullList = Context.getConceptService().getConceptsWithDrugsInFormulary();
+		}
+		return fullList;
 	}
 	
 	private String getLabel(String configuredLabel, String defaultLabel) {

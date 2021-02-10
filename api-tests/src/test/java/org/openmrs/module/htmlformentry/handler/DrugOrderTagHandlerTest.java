@@ -120,13 +120,9 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		DrugOrderWidget widget = getDrugOrderWidgets("drugOrderTestFormAllDefaults.xml").get(0);
 		DrugOrderField f = widget.getDrugOrderField();
 		List<Drug> allDrugs = Context.getConceptService().getAllDrugs(false);
-		assertThat(f.getDrugOrderAnswers().size(), is(allDrugs.size()));
-		for (int i = 0; i < allDrugs.size(); i++) {
-			Drug d = allDrugs.get(i);
-			DrugOrderAnswer a = f.getDrugOrderAnswers().get(i);
-			assertThat(a.getDrug(), is(d));
-			assertThat(a.getDisplayName(), is(d.getDisplayName()));
-		}
+		assertThat(f.getDrugOrderAnswers().size(), is(0));
+		List<Option> drugOptions = widget.getWidgetConfig().getOrderPropertyOptions("drug");
+		assertThat(drugOptions.size(), is(allDrugs.size()));
 	}
 	
 	@Test
@@ -414,6 +410,15 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		assertAttribute(w, "dosingInstructions", "textArea", "true");
 		assertAttribute(w, "dosingInstructions", "textAreaRows", "10");
 		assertAttribute(w, "dosingInstructions", "textAreaColumns", "100");
+	}
+	
+	@Test
+	public void shouldSupportOptionGroupsWithQuestionAnswers() {
+		DrugOrderWidget w = getDrugOrderWidgets("drugOrderTestFormOptionGroups.xml").get(0);
+		List<Option> options = w.getWidgetConfig().getOrderPropertyOptions("discontinueReason");
+		assertThat(options.size(), is(2));
+		assertThat("TOXICITY", is(options.get(0).getLabel()));
+		assertThat("TRANSFERRED OUT", is(options.get(1).getLabel()));
 	}
 	
 	@Test
