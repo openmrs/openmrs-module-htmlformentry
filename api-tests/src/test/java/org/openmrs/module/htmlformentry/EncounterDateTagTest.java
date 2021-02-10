@@ -4,7 +4,6 @@ import static java.util.Calendar.MILLISECOND;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.GP_HANDLE_TIMEZONES;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -89,9 +88,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 				cal.set(2020, 11 - 1, 02, 3, 30, 00);
 				cal.set(MILLISECOND, 0);
 				cal.setTimeZone(TimeZone.getTimeZone("Pacific/Kiritimati"));
-				Date expectedDate = cal.getTime(); // this converts the Kiritimati datetime to Zurich
-				
-				Assert.assertEquals(expectedDate, results.getEncounterCreated().getEncounterDatetime());
+				results.assertEncounterDatetime(cal.getTime()); // this converts the Kiritimati datetime to Zurich
 			}
 			
 		}.run();
@@ -155,9 +152,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 				Calendar cal = Calendar.getInstance();
 				cal.set(2020, 11 - 1, 02, 3, 30, 00);
 				cal.set(MILLISECOND, 0);
-				Date expectedDate = cal.getTime();
-				
-				Assert.assertEquals(expectedDate, results.getEncounterCreated().getEncounterDatetime());
+				results.assertEncounterDatetime(cal.getTime());
 			}
 			
 		}.run();
