@@ -349,7 +349,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				Concept c = concepts.get(i);
 				String label = null;
 				if (conceptLabels != null && i < conceptLabels.size()) {
-					label = conceptLabels.get(i);
+					label = HtmlFormEntryUtil.translate(conceptLabels.get(i));
 				} else {
 					label = c.getName(locale, false).getName();
 				}
