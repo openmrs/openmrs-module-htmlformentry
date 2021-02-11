@@ -91,6 +91,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	protected String unitsCssClass = "units";
 	
+	protected String labelCssClass;
+	
 	private String dateLabel;
 	
 	private DateWidget dateWidget;
@@ -228,6 +230,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		if (StringUtils.isNotEmpty(parameters.get("absoluteMinimum"))) {
 			absoluteMinimum = Double.parseDouble(parameters.get("absoluteMinimum"));
+		}
+		
+		if (parameters.get("labelCssClass") != null) {
+			labelCssClass = parameters.get("labelCssClass");
 		}
 		
 		prepareWidgets(context, parameters);
@@ -1149,7 +1155,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				    null, null, null);
 			}
 		}
+		if (labelCssClass != null) {
+			ret.append("<span class=\"").append(labelCssClass).append("\">");
+		}
 		ret.append(valueLabel);
+		if (labelCssClass != null) {
+			ret.append("</span>");
+		}
 		if (!"".equals(valueLabel))
 			ret.append(" ");
 		ret.append(valueWidget.generateHtml(context));
