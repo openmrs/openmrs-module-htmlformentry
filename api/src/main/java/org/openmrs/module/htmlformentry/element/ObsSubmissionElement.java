@@ -1346,10 +1346,16 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		}
 		if (concepts != null) {
 			try {
-				if (value instanceof Concept)
+				if (value instanceof Concept) {
 					concept = (Concept) value;
-				else
-					concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+				} else {
+					if (value == null) {
+						concept = null;
+					}
+					else {
+						concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+					}
+				}
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Unable to convert response to a concept!");
