@@ -1351,8 +1351,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				} else {
 					if (value == null) {
 						concept = null;
-					}
-					else {
+					} else {
 						concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
 					}
 				}
