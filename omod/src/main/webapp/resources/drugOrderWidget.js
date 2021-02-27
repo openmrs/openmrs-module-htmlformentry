@@ -390,6 +390,11 @@
     // Enable selecting formulations / drugs for the selected concept
     drugOrderWidget.enableDrugSelector = function(config, $orderForm) {
         var $conceptSelect = $orderForm.find('.order-field-widget.order-concept').find('select');
+
+        if (config.orderPropertyAttributes?.concept?.style === 'autocomplete') {
+            drugOrderWidget.convertToAutocomplete($conceptSelect);
+        }
+
         var $drugSelect = $orderForm.find('.order-field-widget.order-drug').find('select');
         var $drugElements = $orderForm.find('.order-drug');
         var $drugNonCodedElements = $orderForm.find('.order-drugNonCoded');
@@ -644,6 +649,42 @@
             });
             $('.order-field-widget.order-concept').find('select').change();
         }
+    }
+
+    drugOrderWidget.convertToAutocomplete = function($selectListElement) {
+        // Create a new jQuery autocomplete text box, use it to update select list, which is hidden
+        var options = [];
+        var width = 300;
+        $selectListElement.find('option').each(function() {
+            var val = $(this).val();
+            if (val !== '') {
+                options.push( { 'label': $(this).html(), 'value': val })
+                var currentOptionWidth = $(this).width();
+                if (currentOptionWidth > width) {
+                    width = currentOptionWidth;
+                }
+            }
+        });
+        var $inputBox = $('<input type="text" autocomplete="do-not-fill" data-lpignore="true">');
+        $inputBox.css("width", width);
+        $inputBox.autocomplete({
+            source: options,
+            minChars: 0,
+            width: width,
+            matchContains: true,
+            select: function(event, ui) {
+                event.preventDefault();
+                $inputBox.val(ui.item.label);
+                $selectListElement.val(ui.item.value);
+                $selectListElement.change();
+            },
+            focus: function(event, ui) {
+                event.preventDefault();
+                $inputBox.val(ui.item.label);
+            }
+        });
+        $inputBox.insertAfter($selectListElement);
+        $selectListElement.hide();
     }
 
 }( window.drugOrderWidget = window.drugOrderWidget || {}, jQuery ));

@@ -135,6 +135,8 @@ public class DrugOrderWidget implements Widget {
 				tagAttributes.addString(att, attVal);
 			}
 		}
+
+		jsonConfig.put("orderPropertyAttributes", widgetConfig.getOrderPropertyAttributes());
 		
 		// In order to re-configure date widgets, add some additional configuration
 		DateWidget w = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
