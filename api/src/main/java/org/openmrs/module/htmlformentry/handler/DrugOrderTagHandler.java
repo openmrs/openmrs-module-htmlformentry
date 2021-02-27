@@ -125,14 +125,18 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	@Override
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node p, Node node) throws BadFormDesignException {
 		
+		log.trace("DrugOrderTagHandler - started");
 		FormEntryContext context = session.getContext();
 		DrugOrderField drugOrderField = new DrugOrderField();
 		DrugOrderWidgetConfig widgetConfig = new DrugOrderWidgetConfig();
 		widgetConfig.setDrugOrderField(drugOrderField);
 		widgetConfig.setAttributes(getAttributes(node));
+
+		log.trace("DrugOrderTagHandler - processing legacy drug order attributes");
 		processLegacyDrugOrderAttributes(widgetConfig);
 		
 		// <drugOrder>
+		log.trace("DrugOrderTagHandler - loading drug order tag elements and attributes");
 		NodeList childNodes = node.getChildNodes();
 		for (int i = 0; i < childNodes.getLength(); i++) {
 			Node childNode = childNodes.item(i);
@@ -151,6 +155,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		}
 		
 		// For each property, ensure all options are validated and defaults are configured
+		log.trace("DrugOrderTagHandler - processing and validating options");
 		processConceptOptions(widgetConfig, "concept");
 		processDrugOptions(widgetConfig);
 		ensureConceptAndDrugOptionsAreConsistent(widgetConfig);
@@ -166,12 +171,19 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		processConceptOptions(widgetConfig, "durationUnits");
 		processConceptOptions(widgetConfig, "quantityUnits");
 		processConceptOptions(widgetConfig, "discontinueReason");
-		
+
+		log.trace("DrugOrderTagHandler - constructing drug order widget");
 		DrugOrderWidget drugOrderWidget = new DrugOrderWidget(context, widgetConfig);
+
+		log.trace("DrugOrderTagHandler - constructing drug order submission element");
 		DrugOrderSubmissionElement element = new DrugOrderSubmissionElement(context, drugOrderWidget);
 		session.getSubmissionController().addAction(element);
+
+		log.trace("DrugOrderTagHandler - generating html");
 		out.print(element.generateHtml(context));
 		
+		log.trace("DrugOrderTagHandler - completed");
+
 		return false; // skip contents/children
 	}
 	
@@ -629,7 +641,10 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 	protected void ensureConceptAndDrugOptionsAreConsistent(DrugOrderWidgetConfig config) {
 		List<Option> concepts = config.getOrderPropertyOptions("concept");
 		List<Option> drugs = config.getOrderPropertyOptions("drug");
-		
+
+		boolean conceptsExplicitlyDefined = !concepts.isEmpty();
+		boolean drugsExplicitlyDefined = !drugs.isEmpty();
+
 		Set<String> existingConcepts = new HashSet<>();
 		Set<String> existingDrugs = new HashSet<>();
 		for (Option o : concepts) {
@@ -646,16 +661,12 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			allDrugsInFormulary.put(d.getDrugId().toString(), d);
 			Concept c = d.getConcept();
 			allConceptsInFormulary.put(c.getConceptId().toString(), c);
-			List<Drug> l = conceptsToDrugs.get(c);
-			if (l == null) {
-				l = new ArrayList<>();
-				conceptsToDrugs.put(c, l);
-			}
+			List<Drug> l = conceptsToDrugs.computeIfAbsent(c, k -> new ArrayList<>());
 			l.add(d);
 		}
 		
 		// If there are no drugs or concepts configured, populate based on entire formulary
-		if (drugs.isEmpty() && concepts.isEmpty()) {
+		if (!conceptsExplicitlyDefined && !drugsExplicitlyDefined) {
 			for (Concept c : conceptsToDrugs.keySet()) {
 				concepts.add(new Option(c.getDisplayString(), c.getId().toString()));
 				for (Drug d : conceptsToDrugs.get(c)) {
@@ -666,6 +677,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 		// Otherwise, ensure drugs and concepts are additive
 		else {
 			// If drugs are configured, all associated concepts should be configured
+			List<Option> conceptsToAddFromDrugs = new ArrayList<>();
 			for (Option drugOption : drugs) {
 				Drug d = allDrugsInFormulary.get(drugOption.getValue());
 				if (d == null) {
@@ -673,7 +685,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				}
 				String conceptIdStr = d.getConcept().getId().toString();
 				if (!existingConcepts.contains(conceptIdStr)) {
-					concepts.add(new Option(d.getConcept().getDisplayString(), conceptIdStr));
+					conceptsToAddFromDrugs.add(new Option(d.getConcept().getDisplayString(), conceptIdStr));
 				}
 			}
 			// If concepts are configured, all associated drugs should be configured
@@ -687,6 +699,11 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 					}
 				}
 			}
+			concepts.addAll(conceptsToAddFromDrugs);
+		}
+
+		if (!conceptsExplicitlyDefined) {
+			concepts.sort(Comparator.comparing(option -> option.getLabel().toLowerCase()));
 		}
 	}
 	
@@ -711,8 +728,6 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 			fullList = getOrderService().getDurationUnits();
 		} else if ("quantityUnits".equalsIgnoreCase(prop)) {
 			fullList = getOrderService().getDrugDispensingUnits();
-		} else if ("concept".equals(prop)) {
-			fullList = Context.getConceptService().getConceptsWithDrugsInFormulary();
 		}
 		return fullList;
 	}

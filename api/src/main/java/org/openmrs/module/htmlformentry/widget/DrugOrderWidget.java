@@ -103,7 +103,7 @@ public class DrugOrderWidget implements Widget {
 	 * capabilities
 	 */
 	public JsonObject constructJavascriptConfig(FormEntryContext context) {
-		
+		log.trace("DrugOrderWidget - constructing javascript config");
 		String fieldName = context.getFieldName(this);
 		
 		Integer patId = context.getExistingPatient().getPatientId();
@@ -124,6 +124,7 @@ public class DrugOrderWidget implements Widget {
 		jsonConfig.addString("hasTemplate", Boolean.toString(StringUtils.isNotBlank(widgetConfig.getTemplateContent())));
 		
 		// Add all of the attributes configured on the top level drugOrder tag, for use as needed by the widget
+		log.trace("DrugOrderWidget - adding and translating tag attributes");
 		JsonObject tagAttributes = jsonConfig.addObject("tagAttributes");
 		if (widgetConfig.getAttributes() != null) {
 			for (String att : widgetConfig.getAttributes().keySet()) {
@@ -148,14 +149,24 @@ public class DrugOrderWidget implements Widget {
 		}
 		
 		// Add any translations needed by the default views
+		log.trace("DrugOrderWidget - adding all of the translations");
 		String prefix = "htmlformentry.drugOrder.";
 		JsonObject translations = jsonConfig.addObject("translations");
-		Set<String> messageCodes = new TreeSet<>();
-		for (PresentationMessage message : Context.getMessageSourceService().getActiveMessageSource().getPresentations()) {
-			if (message.getCode().startsWith(prefix)) {
-				messageCodes.add(StringUtils.substringAfter(message.getCode(), prefix));
-			}
-		}
+		String[] messageCodes = {
+				"encounterDateChangeWarning",
+				"delete",
+				"editDeleteWarning",
+				"editOrder",
+				"deleteOrder",
+				"previousOrder",
+				"orderReason",
+				"starting",
+				"until",
+				"discontinueReason",
+				"asNeeded",
+				"quantity",
+				"refills"
+		};
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
 		}
@@ -164,6 +175,7 @@ public class DrugOrderWidget implements Widget {
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
 		
 		// Organize drugs by concept and as json options
+		log.trace("DrugOrderWidget - getting all of the drugs configured");
 		Map<String, JsonObject> jsonDrugs = new HashMap<>();
 		Map<String, List<Option>> drugsForConcept = new LinkedHashMap<>();
 		for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
@@ -182,6 +194,7 @@ public class DrugOrderWidget implements Widget {
 		}
 		
 		// Add a section for each concept configured in the tag
+		log.trace("DrugOrderWidget - adding all of the drugs configured");
 		for (Option conceptOption : widgetConfig.getOrderPropertyOptions("concept")) {
 			String conceptId = conceptOption.getValue();
 			String conceptLabel = conceptOption.getLabel();
@@ -316,6 +329,7 @@ public class DrugOrderWidget implements Widget {
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		
+		log.trace("DrugOrderWidget - generating html");
 		CapturingPrintWriter writer = new CapturingPrintWriter();
 		String fieldName = context.getFieldName(this);
 		
@@ -337,6 +351,7 @@ public class DrugOrderWidget implements Widget {
 			Map<String, String> c = widgetConfig.getAttributes(property);
 			if (c != null) {
 				String key = c.toString();
+				log.trace("DrugOrderWidget - generating html for: " + property);
 				String widgetHtml = generateHtmlForWidget(property, w, c, context);
 				// If no template was supplied, or if the template does not contain this widget, add to the default section
 				if (StringUtils.isBlank(templateContent) || !templateContent.contains(key)) {

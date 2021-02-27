@@ -402,6 +402,7 @@
             if (conceptId !== '') {
                 $drugSelect.find("option").hide();
                 $drugSelect.find('option[value=""]').show();
+                $drugSelect.val("");
                 var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
                 concept.drugs.forEach(function (drug) {
                     $drugSelect.find('option[value="' + drug.drugId + '"]').show();
