@@ -668,13 +668,15 @@
                 options.push( { 'label': $(this).html(), 'value': val })
             }
         });
-        var $inputBox = $('<input type="text" autocomplete="do-not-fill" data-lpignore="true">');
+        var $inputBox = $('<input type="text" class="drugorder-autocomplete-textbox" autocomplete="do-not-fill" data-lpignore="true">');
         var $clearButton = $('<div class="custom-button">X</div>');
-        $inputBox.css("width", $selectListElement.width());
+        var width = $selectListElement.width() + 20;
+        $inputBox.css("width", width);
         $inputBox.autocomplete({
             source: options,
             minChars: 0,
-            width: $selectListElement.width(),
+            minLength: 0,
+            width: width,
             matchContains: true,
             select: function(event, ui) {
                 event.preventDefault();
@@ -689,6 +691,8 @@
             },
         }).blur(function() {
             $inputBox.val($selectListElement.find("option:selected").html());
+        }).focus(function() {
+            $(this).autocomplete('search', $(this).val());
         });
         $clearButton.click(function() {
             $inputBox.val("").focus();
