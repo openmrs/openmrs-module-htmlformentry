@@ -192,6 +192,26 @@
 	color: red;
 }
 
+.custom-button {
+	display:inline-block;
+	color:#444;
+	border:1px solid #CCC;
+	background:#DDD;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	cursor:pointer;
+	vertical-align:middle;
+	padding: 2px;
+	margin-left: 5px;
+	line-height: 0.75;
+	font-size: small;
+	margin-right: 5px;
+	text-align: center;
+}
+.custom-button:active {
+	font-weight: bold;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}
+
 .order-action-button {
 	display:inline-block;
 	color:#444;
@@ -214,4 +234,15 @@
 	background-color: #2200ff;
 	color: white;
 	font-weight: bold;
+}
+
+.drugorder-autocomplete-textbox {
+	display: inline-block;
+}
+
+.ui-autocomplete {
+	max-height: 300px;
+	overflow-y: auto;   /* prevent horizontal scrollbar */
+	overflow-x: hidden; /* add padding to account for vertical scrollbar */
+	z-index:1000 !important;
 }

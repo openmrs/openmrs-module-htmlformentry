@@ -686,6 +686,7 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				String conceptIdStr = d.getConcept().getId().toString();
 				if (!existingConcepts.contains(conceptIdStr)) {
 					conceptsToAddFromDrugs.add(new Option(d.getConcept().getDisplayString(), conceptIdStr));
+					existingConcepts.add(conceptIdStr);
 				}
 			}
 			// If concepts are configured, all associated drugs should be configured
@@ -693,8 +694,10 @@ public class DrugOrderTagHandler extends AbstractTagHandler {
 				Concept c = allConceptsInFormulary.get(conceptOption.getValue());
 				if (conceptsToDrugs.get(c) != null) {
 					for (Drug d : conceptsToDrugs.get(c)) {
-						if (!existingDrugs.contains(d.getDrugId().toString())) {
-							drugs.add(new Option(d.getDisplayName(), d.getId().toString()));
+						String drugId = d.getDrugId().toString();
+						if (!existingDrugs.contains(drugId)) {
+							drugs.add(new Option(d.getDisplayName(), drugId));
+							existingDrugs.add(drugId);
 						}
 					}
 				}

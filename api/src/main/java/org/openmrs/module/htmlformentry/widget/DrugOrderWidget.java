@@ -164,10 +164,12 @@ public class DrugOrderWidget implements Widget {
 				"orderReason",
 				"starting",
 				"until",
+				"for",
 				"discontinueReason",
 				"asNeeded",
 				"quantity",
-				"refills"
+				"refills",
+				"active"
 		};
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
