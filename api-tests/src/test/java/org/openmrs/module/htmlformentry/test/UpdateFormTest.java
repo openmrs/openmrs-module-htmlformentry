@@ -13,18 +13,18 @@ import org.junit.Test;
  * This class exists to facilitate updating a form in a database for testing from an xml file on the
  * filesystem
  */
-@Ignore
+//@Ignore
 public class UpdateFormTest {
 	
-	String filePath = "src/test/resources/testForm.xml";
+	String filePath = "/home/mseaton/code/github/pih/openmrs-config-zl/configuration/pih/htmlforms/example-drug-order-form.xml";
 	
-	Integer htmlFormId = 35;
+	Integer htmlFormId = 89;
 	
 	String dbUser = "root";
 	
-	String dbPass = "password";
+	String dbPass = "Admin123";
 	
-	String dbUrl = "jdbc:mysql://localhost:3308/openmrs";
+	String dbUrl = "jdbc:mysql://msdev.pih-emr.org:3308/haitihiv";
 	
 	String dbDriver = "com.mysql.jdbc.Driver";
 	

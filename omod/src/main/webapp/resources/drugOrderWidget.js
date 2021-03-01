@@ -390,33 +390,41 @@
     // Enable selecting formulations / drugs for the selected concept
     drugOrderWidget.enableDrugSelector = function(config, $orderForm) {
         var $conceptSelect = $orderForm.find('.order-field-widget.order-concept').find('select');
-
-        if (config.orderPropertyAttributes?.concept?.style === 'autocomplete') {
-            drugOrderWidget.convertToAutocomplete($conceptSelect);
-        }
-
         var $drugSelect = $orderForm.find('.order-field-widget.order-drug').find('select');
         var $drugElements = $orderForm.find('.order-drug');
         var $drugNonCodedElements = $orderForm.find('.order-drugNonCoded');
-        $drugElements.hide();
-        $drugNonCodedElements.hide();
-        $conceptSelect.change(function() {
+
+        if ($conceptSelect.is(":visible")) {
+            if (config.orderPropertyAttributes?.concept?.style === 'autocomplete') {
+                drugOrderWidget.convertToAutocomplete($conceptSelect);
+            }
             $drugElements.hide();
             $drugNonCodedElements.hide();
-            var conceptId = $conceptSelect.val();
-            if (conceptId !== '') {
-                $drugSelect.find("option").hide();
-                $drugSelect.find('option[value=""]').show();
-                $drugSelect.val("");
-                var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
-                concept.drugs.forEach(function (drug) {
-                    $drugSelect.find('option[value="' + drug.drugId + '"]').show();
-                    $drugElements.show();
-                })
-                $drugNonCodedElements.show();
+            $conceptSelect.change(function () {
+                $drugElements.hide();
+                $drugNonCodedElements.hide();
+                var conceptId = $conceptSelect.val();
+                if (conceptId !== '') {
+                    $drugSelect.find("option").hide();
+                    $drugSelect.find('option[value=""]').show();
+                    $drugSelect.val("");
+                    var concept = drugOrderWidget.getConfigForConcept(config, conceptId);
+                    concept.drugs.forEach(function (drug) {
+                        $drugSelect.find('option[value="' + drug.drugId + '"]').show();
+                        $drugElements.show();
+                    })
+                    $drugNonCodedElements.show();
+                }
+            });
+            $orderForm.find('.order-concept').show();
+        }
+        else {
+            $drugElements.show();
+            $drugNonCodedElements.hide();
+            if (config.orderPropertyAttributes?.drug?.style === 'autocomplete') {
+                drugOrderWidget.convertToAutocomplete($drugSelect);
             }
-        });
-        $orderForm.find('.order-concept').show();
+        }
     }
 
     // If there was no template configured, show or set defaults where necessary
@@ -654,36 +662,40 @@
     drugOrderWidget.convertToAutocomplete = function($selectListElement) {
         // Create a new jQuery autocomplete text box, use it to update select list, which is hidden
         var options = [];
-        var width = 300;
         $selectListElement.find('option').each(function() {
             var val = $(this).val();
             if (val !== '') {
                 options.push( { 'label': $(this).html(), 'value': val })
-                var currentOptionWidth = $(this).width();
-                if (currentOptionWidth > width) {
-                    width = currentOptionWidth;
-                }
             }
         });
         var $inputBox = $('<input type="text" autocomplete="do-not-fill" data-lpignore="true">');
-        $inputBox.css("width", width);
+        var $clearButton = $('<div class="custom-button">X</div>');
+        $inputBox.css("width", $selectListElement.width());
         $inputBox.autocomplete({
             source: options,
             minChars: 0,
-            width: width,
+            width: $selectListElement.width(),
             matchContains: true,
             select: function(event, ui) {
                 event.preventDefault();
                 $inputBox.val(ui.item.label);
                 $selectListElement.val(ui.item.value);
                 $selectListElement.change();
+
             },
             focus: function(event, ui) {
                 event.preventDefault();
                 $inputBox.val(ui.item.label);
-            }
+            },
+        }).blur(function() {
+            $inputBox.val($selectListElement.find("option:selected").html());
         });
+        $clearButton.click(function() {
+            $inputBox.val("").focus();
+            $selectListElement.val("");
+        })
         $inputBox.insertAfter($selectListElement);
+        $clearButton.insertAfter($inputBox);
         $selectListElement.hide();
     }
 
