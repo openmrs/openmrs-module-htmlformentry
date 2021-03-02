@@ -18,14 +18,13 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.CareSettingAnswer;
+import org.openmrs.module.htmlformentry.schema.ConceptOption;
 import org.openmrs.module.htmlformentry.schema.ConceptOptionGroup;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
-import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.module.htmlformentry.schema.ObsFieldAnswer;
+import org.openmrs.module.htmlformentry.schema.OrderField;
 import org.openmrs.module.htmlformentry.schema.OrderFrequencyAnswer;
-import org.openmrs.module.htmlformentry.schema.OrderTypeAnswer;
 import org.openmrs.module.htmlformentry.substitution.Substituter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -35,9 +34,9 @@ import org.w3c.dom.NodeList;
  * This is a subclass of AttributeDescriptor that allows for resolving openmrs object dependencies
  * and substituting them out for Metadata Sharing
  */
-public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
+public class OrderTagAttributeDescriptor extends AttributeDescriptor {
 	
-	public DrugOrderTagAttributeDescriptor() {
+	public OrderTagAttributeDescriptor() {
 		super("value", OpenmrsObject.class);
 	}
 	
@@ -60,11 +59,11 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 	        Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 		if (node != null) {
 			String name = node.getNodeName();
-			if (name.equalsIgnoreCase("drugOrder")) {
-				handleDrugOrderNode(node, substituter, substitutionMap);
+			if (name.equalsIgnoreCase("order")) {
+				updateOrderNode(node, substituter, substitutionMap);
 			} else if (name.equalsIgnoreCase("orderProperty")) {
 				String property = HtmlFormEntryUtil.getNodeAttribute(node, "name", "");
-				currentPropertyType = DrugOrderTagHandler.PROPERTIES.get(property);
+				currentPropertyType = OrderTagHandler.PROPERTIES.get(property);
 				if (currentPropertyType != null) {
 					updateValueNode(node, currentPropertyType, substituter, substitutionMap);
 				}
@@ -72,6 +71,9 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 				if (currentPropertyType != null) {
 					updateValueNode(node, currentPropertyType, substituter, substitutionMap);
 				}
+			}
+			else if (name.equalsIgnoreCase("optionGroup")) {
+				updateOptionGroupNode(node, substituter, substitutionMap);
 			}
 			if (node.getChildNodes() != null) {
 				NodeList children = node.getChildNodes();
@@ -82,8 +84,17 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 		}
 	}
 	
-	private void handleDrugOrderNode(Node node, Substituter substituter, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
-		// TODO: Handle drugOrder tag, with legacy options for backwards compatibility
+	private void updateOrderNode(Node node, Substituter substituter, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
+		if (node != null) {
+			Node orderTypeNode = node.getAttributes().getNamedItem("orderType");
+			if (orderTypeNode != null) {
+				String propertyValue = orderTypeNode.getTextContent();
+				if (StringUtils.isNotBlank(propertyValue)) {
+					String replacementVal = substituter.substitute(propertyValue, OrderType.class, substitutionMap);
+					orderTypeNode.setTextContent(replacementVal);
+				}
+			}
+		}
 	}
 	
 	private void updateValueNode(Node node, Class<? extends OpenmrsObject> type, Substituter substituter,
@@ -99,21 +110,35 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 			}
 		}
 	}
+
+	private void updateOptionGroupNode(Node node, Substituter substituter, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
+		if (node != null) {
+			Node conceptNode = node.getAttributes().getNamedItem("concept");
+			if (conceptNode != null) {
+				String propertyValue = conceptNode.getTextContent();
+				if (StringUtils.isNotBlank(propertyValue)) {
+					String replacementVal = substituter.substitute(propertyValue, Concept.class, substitutionMap);
+					conceptNode.setTextContent(replacementVal);
+				}
+			}
+		}
+	}
 	
 	public Map<Class<? extends OpenmrsObject>, Set<OpenmrsObject>> getDependencies(HtmlForm htmlForm) {
 		Map<Class<? extends OpenmrsObject>, Set<OpenmrsObject>> ret = new HashMap<>();
 		try {
 			HtmlFormSchema schema = HtmlFormEntryUtil.getHtmlFormSchema(htmlForm, FormEntryContext.Mode.ENTER);
 			for (HtmlFormField field : schema.getAllFields()) {
-				if (field instanceof DrugOrderField) {
-					DrugOrderField f = (DrugOrderField) field;
+				if (field instanceof OrderField) {
+					OrderField f = (OrderField) field;
+					addDependency(ret, OrderType.class, f.getOrderType());
 					for (List<ConceptOptionGroup> setList : f.getConceptOptionGroups().values()) {
 						for (ConceptOptionGroup optionSet : setList) {
 							addDependency(ret, Concept.class, optionSet.getConcept());
 						}
 					}
 					if (f.getConceptOptions() != null) {
-						for (ObsFieldAnswer a : f.getConceptOptions()) {
+						for (ConceptOption a : f.getConceptOptions()) {
 							addDependency(ret, Concept.class, a.getConcept());
 						}
 					}
@@ -127,18 +152,13 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 							addDependency(ret, CareSetting.class, a.getCareSetting());
 						}
 					}
-					if (f.getOrderTypeAnswers() != null) {
-						for (OrderTypeAnswer a : f.getOrderTypeAnswers()) {
-							addDependency(ret, OrderType.class, a.getOrderType());
-						}
-					}
 					if (f.getDoseUnitAnswers() != null) {
-						for (ObsFieldAnswer a : f.getDoseUnitAnswers()) {
+						for (ConceptOption a : f.getDoseUnitAnswers()) {
 							addDependency(ret, Concept.class, a.getConcept());
 						}
 					}
 					if (f.getRouteAnswers() != null) {
-						for (ObsFieldAnswer a : f.getRouteAnswers()) {
+						for (ConceptOption a : f.getRouteAnswers()) {
 							addDependency(ret, Concept.class, a.getConcept());
 						}
 					}
@@ -148,21 +168,30 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 						}
 					}
 					if (f.getDurationUnitAnswers() != null) {
-						for (ObsFieldAnswer a : f.getDurationUnitAnswers()) {
+						for (ConceptOption a : f.getDurationUnitAnswers()) {
 							addDependency(ret, Concept.class, a.getConcept());
 						}
 					}
 					if (f.getQuantityUnitAnswers() != null) {
-						for (ObsFieldAnswer a : f.getQuantityUnitAnswers()) {
+						for (ConceptOption a : f.getQuantityUnitAnswers()) {
 							addDependency(ret, Concept.class, a.getConcept());
 						}
 					}
-					if (f.getDiscontinuedReasonQuestion() != null) {
-						addDependency(ret, Concept.class, f.getDiscontinuedReasonQuestion());
-					}
-					if (f.getDiscontinuedReasonAnswers() != null) {
-						for (ObsFieldAnswer a : f.getDiscontinuedReasonAnswers()) {
+					if (f.getOrderReasonAnswers() != null) {
+						for (ConceptOption a : f.getOrderReasonAnswers()) {
 							addDependency(ret, Concept.class, a.getConcept());
+						}
+					}
+					if (f.getDiscontinueReasonAnswers() != null) {
+						for (ConceptOption a : f.getDiscontinueReasonAnswers()) {
+							addDependency(ret, Concept.class, a.getConcept());
+						}
+					}
+					if (f.getConceptOptionGroups() != null) {
+						for (List<ConceptOptionGroup> groups : f.getConceptOptionGroups().values()) {
+							for (ConceptOptionGroup group : groups) {
+								addDependency(ret, Concept.class, group.getConcept());
+							}
 						}
 					}
 				}

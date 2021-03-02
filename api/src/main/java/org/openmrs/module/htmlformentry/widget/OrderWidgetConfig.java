@@ -10,17 +10,17 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.openmrs.module.htmlformentry.schema.DrugOrderField;
+import org.openmrs.module.htmlformentry.schema.OrderField;
 
 /**
- * Holds the configuration for a DrugOrderWidget This mainly serves as an object into which the
- * DrugOrderTagHandler can store the configuration following parsing, validating, and processing all
+ * Holds the configuration for an OrderWidget This mainly serves as an object into which the
+ * OrderTagHandler can store the configuration following parsing, validating, and processing all
  * of the xml tag configuration in the htmlform, and enables passing this configuration to the
  * various widgets that are used to appropriately render the controls
  */
-public class DrugOrderWidgetConfig {
+public class OrderWidgetConfig {
 	
-	private DrugOrderField drugOrderField;
+	private OrderField orderField;
 	
 	private Map<String, String> attributes;
 	
@@ -32,7 +32,7 @@ public class DrugOrderWidgetConfig {
 	
 	private Map<String, List<Option>> orderPropertyOptions;
 	
-	public DrugOrderWidgetConfig() {
+	public OrderWidgetConfig() {
 	}
 	
 	// INSTANCE METHODS
@@ -49,11 +49,7 @@ public class DrugOrderWidgetConfig {
 		}
 		for (Option drugOption : getOrderPropertyOptions("drug")) {
 			Drug drug = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
-			List<Drug> drugs = drugsForConcept.get(drug.getConcept());
-			if (drugs == null) {
-				drugs = new ArrayList<>();
-				drugsForConcept.put(drug.getConcept(), drugs);
-			}
+			List<Drug> drugs = drugsForConcept.computeIfAbsent(drug.getConcept(), k -> new ArrayList<>());
 			drugs.add(drug);
 		}
 		return drugsForConcept;
@@ -61,12 +57,12 @@ public class DrugOrderWidgetConfig {
 	
 	// PROPERTY ACCESSORS
 	
-	public DrugOrderField getDrugOrderField() {
-		return drugOrderField;
+	public OrderField getOrderField() {
+		return orderField;
 	}
 	
-	public void setDrugOrderField(DrugOrderField drugOrderField) {
-		this.drugOrderField = drugOrderField;
+	public void setOrderField(OrderField orderField) {
+		this.orderField = orderField;
 	}
 	
 	public Map<String, String> getAttributes() {

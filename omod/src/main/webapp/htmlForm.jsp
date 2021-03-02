@@ -272,8 +272,8 @@
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.js" />
 	<openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlFormEntry.css" />
     <openmrs:htmlInclude file="/moduleResources/htmlformentry/htmlForm.js" />
-	<openmrs:htmlInclude file="/moduleResources/htmlformentry/drugOrderWidget.css" />
-	<openmrs:htmlInclude file="/moduleResources/htmlformentry/drugOrderWidget.js" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/orderWidget.css" />
+	<openmrs:htmlInclude file="/moduleResources/htmlformentry/orderWidget.js" />
 
 	<br/>
 	<br/>

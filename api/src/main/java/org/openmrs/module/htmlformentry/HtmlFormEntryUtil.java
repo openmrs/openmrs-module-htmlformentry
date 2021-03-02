@@ -46,7 +46,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
-import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptName;
@@ -91,7 +90,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.element.DrugOrderSubmissionElement;
+import org.openmrs.module.htmlformentry.element.OrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -680,7 +679,7 @@ public class HtmlFormEntryUtil {
 	 */
 	public static boolean isADrugOrderType(OrderType orderType) {
 		try {
-			return orderType.getJavaClass() == DrugOrder.class;
+			return DrugOrder.class.isAssignableFrom(orderType.getJavaClass());
 		}
 		catch (Exception e) {
 			return false;
@@ -721,35 +720,34 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * @return all drug orders for a patient, ordered by date, accounting for previous orders
+	 * @return all orders for a patient, ordered by date, accounting for previous orders
 	 */
-	public static List<DrugOrder> getDrugOrdersForPatient(Patient patient, Set<Concept> concepts) {
-		List<DrugOrder> ret = new ArrayList<>();
+	public static List<Order> getOrdersForPatient(Patient patient, Set<Concept> concepts) {
+		List<Order> ret = new ArrayList<>();
 		List<Order> orders = Context.getOrderService().getAllOrdersByPatient(patient);
 		for (Order order : orders) {
 			order = HibernateUtil.getRealObjectFromProxy(order);
-			if (order instanceof DrugOrder && BooleanUtils.isNotTrue(order.getVoided())) {
-				DrugOrder drugOrder = (DrugOrder) order;
+			if (BooleanUtils.isNotTrue(order.getVoided())) {
 				if (concepts.contains(order.getConcept())) {
-					ret.add(drugOrder);
+					ret.add(order);
 				}
 			}
 		}
-		sortDrugOrders(ret);
+		sortOrders(ret);
 		return ret;
 	}
 	
 	/**
-	 * Sorts the given drug orders in place. This first determines if a given order is a revision of an
+	 * Sorts the given orders in place. This first determines if a given order is a revision of an
 	 * order, if so it is later Otherwise, it compares effectiveStartDate Otherwise, it compares
 	 * effectiveStopDate, where a null stop date is later than a non-null one
 	 */
-	public static void sortDrugOrders(List<DrugOrder> drugOrders) {
+	public static void sortOrders(List<Order> drugOrders) {
 		if (drugOrders != null && drugOrders.size() > 1) {
-			Collections.sort(drugOrders, new Comparator<DrugOrder>() {
+			Collections.sort(drugOrders, new Comparator<Order>() {
 				
 				@Override
-				public int compare(DrugOrder d1, DrugOrder d2) {
+				public int compare(Order d1, Order d2) {
 					// Get all of the previous orders for d1.  If any are d2, then d1 is later
 					for (Order d1Prev = d1.getPreviousOrder(); d1Prev != null; d1Prev = d1Prev.getPreviousOrder()) {
 						if (d1Prev.equals(d2)) {
@@ -1719,8 +1717,8 @@ public class HtmlFormEntryUtil {
 						matchedObs.add(oga.getExistingGroup());
 					}
 				}
-				if (lfca instanceof DrugOrderSubmissionElement) {
-					DrugOrderSubmissionElement dse = (DrugOrderSubmissionElement) lfca;
+				if (lfca instanceof OrderSubmissionElement) {
+					OrderSubmissionElement dse = (OrderSubmissionElement) lfca;
 					matchedOrders.addAll(dse.getExistingOrders());
 				}
 			}

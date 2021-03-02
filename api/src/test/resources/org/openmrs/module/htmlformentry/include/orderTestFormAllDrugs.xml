@@ -3,10 +3,7 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	<drugOrder
-			drugNames="2,3"
-			drugLabels="TRIOMUNE 30 Label,Aspirin Label"
-	/>
+	<order orderType="1" />
 
 	<submit/>
 </htmlform>
