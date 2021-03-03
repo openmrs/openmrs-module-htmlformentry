@@ -303,9 +303,9 @@
      */
     drugOrderWidget.createNewOrderSection = function(config) {
         var $actionOption = drugOrderWidget.getActionOption(config, 'NEW');
-        var idSuffix = '_' + drugOrderWidget.nextActionButtonIndex();
-        var $newButton = drugOrderWidget.createActionButton(idSuffix, 'NEW', $actionOption.html());
+        var $newButton = drugOrderWidget.createActionButton("", 'NEW', $actionOption.html());
         $newButton.click(function () {
+            var idSuffix = '_' + drugOrderWidget.nextActionButtonIndex();
             var $drugOrderSection = drugOrderWidget.addDrugOrderSection(config);
             var $orderForm = drugOrderWidget.constructOrderForm($drugOrderSection, idSuffix, config, 'NEW');
 
