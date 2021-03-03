@@ -303,9 +303,9 @@
      */
     orderWidget.createNewOrderSection = function(config) {
         var $actionOption = orderWidget.getActionOption(config, 'NEW');
-        var idSuffix = '_' + orderWidget.nextActionButtonIndex();
-        var $newButton = orderWidget.createActionButton(idSuffix, 'NEW', $actionOption.html());
+        var $newButton = orderWidget.createActionButton("", 'NEW', $actionOption.html());
         $newButton.click(function () {
+            var idSuffix = '_' + orderWidget.nextActionButtonIndex();
             var $orderSection = orderWidget.addOrderSection(config);
             var $orderForm = orderWidget.constructOrderForm($orderSection, idSuffix, config, 'NEW');
 
