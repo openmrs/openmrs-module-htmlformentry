@@ -14,9 +14,9 @@ import org.openmrs.module.htmlformentry.schema.OrderField;
 
 /**
  * Holds the configuration for an OrderWidget This mainly serves as an object into which the
- * OrderTagHandler can store the configuration following parsing, validating, and processing all
- * of the xml tag configuration in the htmlform, and enables passing this configuration to the
- * various widgets that are used to appropriately render the controls
+ * OrderTagHandler can store the configuration following parsing, validating, and processing all of
+ * the xml tag configuration in the htmlform, and enables passing this configuration to the various
+ * widgets that are used to appropriately render the controls
  */
 public class OrderWidgetConfig {
 	

@@ -9,42 +9,42 @@ import java.util.Map;
 import org.openmrs.OrderType;
 
 public class OrderField implements HtmlFormField {
-
+	
 	private OrderType orderType;
-
+	
 	private List<ConceptOption> conceptOptions = new ArrayList<>();
-
+	
 	private List<DrugOrderAnswer> drugOrderAnswers = new ArrayList<>();
-
+	
 	private List<CareSettingAnswer> careSettingAnswers = new ArrayList<>();
-
+	
 	private List<ConceptOption> orderReasonAnswers = new ArrayList<>();
-
+	
 	private List<ConceptOption> discontinueReasonAnswers = new ArrayList<>();
-
+	
 	private List<ConceptOption> doseUnitAnswers = new ArrayList<>();
-
+	
 	private List<ConceptOption> routeAnswers = new ArrayList<>();
-
+	
 	private List<OrderFrequencyAnswer> frequencyAnswers = new ArrayList<>();
-
+	
 	private List<ConceptOption> durationUnitAnswers = new ArrayList<>();
-
+	
 	private List<ConceptOption> quantityUnitAnswers = new ArrayList<>();
-
+	
 	private Map<String, List<ConceptOptionGroup>> conceptOptionGroups = new HashMap<>();
-
+	
 	public OrderField() {
 	}
-
+	
 	public OrderType getOrderType() {
 		return orderType;
 	}
-
+	
 	public void setOrderType(OrderType orderType) {
 		this.orderType = orderType;
 	}
-
+	
 	public List<ConceptOption> getConceptOptions() {
 		return conceptOptions;
 	}
@@ -89,30 +89,30 @@ public class OrderField implements HtmlFormField {
 		}
 		careSettingAnswers.add(a);
 	}
-
+	
 	public List<ConceptOption> getOrderReasonAnswers() {
 		return orderReasonAnswers;
 	}
-
+	
 	public void setOrderReasonAnswers(List<ConceptOption> orderReasonAnswers) {
 		this.orderReasonAnswers = orderReasonAnswers;
 	}
-
+	
 	public void addOrderReasonAnswer(ConceptOption a) {
 		if (orderReasonAnswers == null) {
 			orderReasonAnswers = new ArrayList<>();
 		}
 		orderReasonAnswers.add(a);
 	}
-
+	
 	public List<ConceptOption> getDiscontinueReasonAnswers() {
 		return discontinueReasonAnswers;
 	}
-
+	
 	public void setDiscontinueReasonAnswers(List<ConceptOption> discontinueReasonAnswers) {
 		this.discontinueReasonAnswers = discontinueReasonAnswers;
 	}
-
+	
 	public void addDiscontinueReasonAnswer(ConceptOption a) {
 		if (discontinueReasonAnswers == null) {
 			discontinueReasonAnswers = new ArrayList<>();

@@ -36,8 +36,9 @@ import org.openmrs.module.htmlformentry.widget.OrderWidgetValue;
 import org.openmrs.util.OpenmrsUtil;
 
 /**
- * Holds the widgets used to represent orders for a configured set of orderables (concepts, drugs), and serves as both
- * the HtmlGeneratorElement and the FormSubmissionControllerAction for the associated orders.
+ * Holds the widgets used to represent orders for a configured set of orderables (concepts, drugs),
+ * and serves as both the HtmlGeneratorElement and the FormSubmissionControllerAction for the
+ * associated orders.
  */
 public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
@@ -113,20 +114,20 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 					
 					handleRequiredField(ret, ctx, fs, "careSetting", newOrder.getCareSetting());
 					handleRequiredField(ret, ctx, fs, "concept", newOrder.getConcept());
-
+					
 					if (newOrder.getUrgency() == Order.Urgency.ON_SCHEDULED_DATE) {
 						handleRequiredField(ret, ctx, fs, "scheduledDate", newOrder.getScheduledDate());
 					}
-
+					
 					if (newOrder instanceof DrugOrder) {
 						DrugOrder newDrugOrder = (DrugOrder) newOrder;
-
+						
 						if (newDrugOrder.getDrug() != null && StringUtils.isNotBlank(newDrugOrder.getDrugNonCoded())) {
 							String f = orderWidget.getFormErrorField(ctx, fs, "drugNonCoded");
 							String errorCode = "htmlformentry.orders.specifyEitherDrugOrDrugNonCoded";
 							ret.add(new FormSubmissionError(f, HtmlFormEntryUtil.translate(errorCode)));
 						}
-
+						
 						if (newDrugOrder.getDrug() == null && StringUtils.isBlank(newDrugOrder.getDrugNonCoded())) {
 							boolean isDrugRequired = getGlobalProperty("drugOrder.requireDrug", false);
 							if (isDrugRequired) {
@@ -138,7 +139,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 								}
 							}
 						}
-
+						
 						if (newDrugOrder.getDosingType() == SimpleDosingInstructions.class) {
 							handleRequiredField(ret, ctx, fs, "dose", newDrugOrder.getDose());
 							handleRequiredField(ret, ctx, fs, "doseUnits", newDrugOrder.getDoseUnits());
@@ -150,20 +151,20 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 						} else {
 							String f = orderWidget.getFormErrorField(ctx, fs, "dosingType");
 							String dosingTypeError = HtmlFormEntryUtil
-									.translate("htmlformentry.drugOrder.invalidDosingType");
+							        .translate("htmlformentry.drugOrder.invalidDosingType");
 							ret.add(new FormSubmissionError(f, dosingTypeError));
 						}
-
+						
 						if (areQuantityFieldsRequired(newDrugOrder)) {
 							handleRequiredField(ret, ctx, fs, "quantity", newDrugOrder.getQuantity());
 							handleRequiredField(ret, ctx, fs, "quantityUnits", newDrugOrder.getQuantityUnits());
 							handleRequiredField(ret, ctx, fs, "numRefills", newDrugOrder.getNumRefills());
 						}
-
+						
 						if (newDrugOrder.getDuration() != null) {
 							handleRequiredField(ret, ctx, fs, "durationUnits", newDrugOrder.getDurationUnits());
 						}
-
+						
 						if (newDrugOrder.getQuantity() != null) {
 							handleRequiredField(ret, ctx, fs, "quantityUnits", newDrugOrder.getQuantityUnits());
 						}
@@ -180,7 +181,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 							addError(ret, errorField, "htmlformentry.orders.drugChangedForRevision");
 						}
 						if (action == Order.Action.RENEW && newOrder instanceof DrugOrder) {
-							if (dosingInstructionsChanged((DrugOrder)newOrder, (DrugOrder)previousOrder)) {
+							if (dosingInstructionsChanged((DrugOrder) newOrder, (DrugOrder) previousOrder)) {
 								addError(ret, errorField, "htmlformentry.orders.dosingChangedForRenew");
 							}
 						}
@@ -192,9 +193,9 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 	}
 	
 	/**
-	 * This is responsible for taking the passed OrderWidgetValue objects returned from the widget
-	 * and issuing the appropriate void, NEW, RENEW, REVISE, DISCONTINUE orders, setting default values
-	 * as needed
+	 * This is responsible for taking the passed OrderWidgetValue objects returned from the widget and
+	 * issuing the appropriate void, NEW, RENEW, REVISE, DISCONTINUE orders, setting default values as
+	 * needed
 	 *
 	 * @see FormSubmissionControllerAction#handleSubmission(FormEntrySession, HttpServletRequest)
 	 */

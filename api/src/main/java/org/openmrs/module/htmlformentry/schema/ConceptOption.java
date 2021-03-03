@@ -6,14 +6,14 @@ import org.openmrs.Concept;
  * Represents a Concept configured as a configurable option within the HTML Form Schema
  */
 public class ConceptOption {
-
+	
 	private String displayName;
-
+	
 	private Concept concept;
-
+	
 	public ConceptOption() {
 	}
-
+	
 	public ConceptOption(String displayName, Concept concept) {
 		this.displayName = displayName;
 		this.concept = concept;

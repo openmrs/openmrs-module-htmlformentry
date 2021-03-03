@@ -99,7 +99,7 @@ public class TagUtil {
 				catch (Exception e) {
 					throw new IllegalArgumentException("Unable to parse value as class: " + valueToParse);
 				}
-			} else if (type == Order.class) {
+			} else if (Order.class.isAssignableFrom(type)) {
 				Integer orderId = Integer.parseInt(valueToParse);
 				Order order = Context.getOrderService().getOrder(orderId);
 				ret = (T) HibernateUtil.getRealObjectFromProxy(order);

@@ -53,12 +53,9 @@ import org.w3c.dom.NodeList;
 
 /**
  * Handles the {@code <order>} tag. The order tag has the following general structure:
- * <order orderAttribute="orderAttributeValue">
- *     <orderTemplate>
- *         arbitrary html with
- *         <orderProperty propertyAttribute="propertyAttributeValue"></orderProperty>
- *         interspersed to control which properties are displayed / editable and with what configuration
- *     </orderTemplate>
+ * <order orderAttribute="orderAttributeValue"> <orderTemplate> arbitrary html with
+ * <orderProperty propertyAttribute="propertyAttributeValue"></orderProperty> interspersed to
+ * control which properties are displayed / editable and with what configuration </orderTemplate>
  * </order>
  */
 public class OrderTagHandler extends AbstractTagHandler {
@@ -116,7 +113,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 		OrderWidgetConfig widgetConfig = new OrderWidgetConfig();
 		widgetConfig.setOrderField(orderField);
 		widgetConfig.setAttributes(getAttributes(node));
-
+		
 		// <order>
 		log.trace("OrderTagHandler - loading order tag elements and attributes");
 		NodeList childNodes = node.getChildNodes();
@@ -138,9 +135,9 @@ public class OrderTagHandler extends AbstractTagHandler {
 		
 		// For each property, ensure all options are validated and defaults are configured
 		log.trace("OrderTagHandler - processing and validating options");
-
+		
 		OrderType orderType = processOrderType(widgetConfig);
-
+		
 		// Options valid for all orders
 		processConceptOptions(widgetConfig, "concept");
 		processEnumOptions(widgetConfig, "action", Order.Action.values(), null);
@@ -148,7 +145,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 		processEnumOptions(widgetConfig, "urgency", Order.Urgency.values(), Order.Urgency.ROUTINE);
 		processConceptOptions(widgetConfig, "orderReason");
 		processConceptOptions(widgetConfig, "discontinueReason");
-
+		
 		// Options valid for drug orders
 		if (HtmlFormEntryUtil.isADrugOrderType(orderType)) {
 			processDrugOptions(widgetConfig);
@@ -160,24 +157,24 @@ public class OrderTagHandler extends AbstractTagHandler {
 			processConceptOptions(widgetConfig, "durationUnits");
 			processConceptOptions(widgetConfig, "quantityUnits");
 		}
-
+		
 		log.trace("OrderTagHandler - constructing order widget");
 		OrderWidget orderWidget = new OrderWidget(context, widgetConfig);
-
+		
 		log.trace("OrderTagHandler - constructing order submission element");
 		OrderSubmissionElement element = new OrderSubmissionElement(context, orderWidget);
 		session.getSubmissionController().addAction(element);
-
+		
 		log.trace("OrderTagHandler - generating html");
 		out.print(element.generateHtml(context));
 		
 		log.trace("OrderTagHandler - completed");
-
+		
 		return false; // skip contents/children
 	}
-
+	
 	/**
-	 * Order Type is retrieved from an attribute on the tag.  This is required.
+	 * Order Type is retrieved from an attribute on the tag. This is required.
 	 */
 	protected OrderType processOrderType(OrderWidgetConfig widgetConfig) throws BadFormDesignException {
 		String configuredOrderType = widgetConfig.getAttribute("orderType");
@@ -537,10 +534,10 @@ public class OrderTagHandler extends AbstractTagHandler {
 	protected void ensureConceptAndDrugOptionsAreConsistent(OrderWidgetConfig config) {
 		List<Option> concepts = config.getOrderPropertyOptions("concept");
 		List<Option> drugs = config.getOrderPropertyOptions("drug");
-
+		
 		boolean conceptsExplicitlyDefined = !concepts.isEmpty();
 		boolean drugsExplicitlyDefined = !drugs.isEmpty();
-
+		
 		Set<String> existingConcepts = new HashSet<>();
 		Set<String> existingDrugs = new HashSet<>();
 		for (Option o : concepts) {
@@ -600,7 +597,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 			}
 			concepts.addAll(conceptsToAddFromDrugs);
 		}
-
+		
 		if (!conceptsExplicitlyDefined) {
 			concepts.sort(Comparator.comparing(option -> option.getLabel().toLowerCase()));
 		}

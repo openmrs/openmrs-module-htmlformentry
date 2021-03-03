@@ -71,8 +71,7 @@ public class OrderTagAttributeDescriptor extends AttributeDescriptor {
 				if (currentPropertyType != null) {
 					updateValueNode(node, currentPropertyType, substituter, substitutionMap);
 				}
-			}
-			else if (name.equalsIgnoreCase("optionGroup")) {
+			} else if (name.equalsIgnoreCase("optionGroup")) {
 				updateOptionGroupNode(node, substituter, substitutionMap);
 			}
 			if (node.getChildNodes() != null) {
@@ -110,8 +109,9 @@ public class OrderTagAttributeDescriptor extends AttributeDescriptor {
 			}
 		}
 	}
-
-	private void updateOptionGroupNode(Node node, Substituter substituter, Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
+	
+	private void updateOptionGroupNode(Node node, Substituter substituter,
+	        Map<OpenmrsObject, OpenmrsObject> substitutionMap) {
 		if (node != null) {
 			Node conceptNode = node.getAttributes().getNamedItem("concept");
 			if (conceptNode != null) {

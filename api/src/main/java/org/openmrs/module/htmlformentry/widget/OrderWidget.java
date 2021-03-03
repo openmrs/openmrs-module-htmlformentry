@@ -57,7 +57,7 @@ public class OrderWidget implements Widget {
 		registerWidget(context, new DateWidget(), new ErrorWidget(), "scheduledDate");
 		configureOptionWidget(context, "discontinueReason", "dropdown");
 		configureTextWidget(context, "discontinueReasonNonCoded");
-
+		
 		if (isDrugOrder()) {
 			configureOptionWidget(context, "drug", "dropdown");
 			configureTextWidget(context, "drugNonCoded");
@@ -106,16 +106,16 @@ public class OrderWidget implements Widget {
 	public JsonObject constructJavascriptConfig(FormEntryContext context) {
 		log.trace("OrderWidget - constructing javascript config");
 		String fieldName = context.getFieldName(this);
-
+		
 		Integer patId = context.getExistingPatient().getPatientId();
 		Integer encId = context.getExistingEncounter() == null ? null : context.getExistingEncounter().getEncounterId();
-
+		
 		// By default, set the default order date to the current encounter date, if editing an existing encounter, or today
 		Date defaultDate = new Date();
 		if (context.getExistingEncounter() != null) {
 			defaultDate = context.getExistingEncounter().getEncounterDatetime();
 		}
-
+		
 		JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addString("fieldName", fieldName);
 		jsonConfig.addString("defaultDate", new SimpleDateFormat("yyyy-MM-dd").format(defaultDate));
@@ -123,7 +123,7 @@ public class OrderWidget implements Widget {
 		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());
 		jsonConfig.addString("hasTemplate", Boolean.toString(StringUtils.isNotBlank(widgetConfig.getTemplateContent())));
-
+		
 		// Add all of the attributes configured on the top level order tag, for use as needed by the widget
 		log.trace("OrderWidget - adding and translating tag attributes");
 		JsonObject tagAttributes = jsonConfig.addObject("tagAttributes");
@@ -136,49 +136,35 @@ public class OrderWidget implements Widget {
 				tagAttributes.addString(att, attVal);
 			}
 		}
-
+		
 		jsonConfig.put("orderPropertyAttributes", widgetConfig.getOrderPropertyAttributes());
-
+		
 		// In order to re-configure date widgets, add some additional configuration
 		DateWidget w = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
 		JsonObject dateConfig = jsonConfig.addObject("dateWidgetConfig");
 		dateConfig.addString("dateFormat", w.jsDateFormat());
 		dateConfig.addString("yearsRange", w.getYearsRange());
 		dateConfig.addString("locale", w.getLocaleForJquery());
-
+		
 		JsonObject jsonWidgets = jsonConfig.addObject("widgets");
 		for (String key : widgets.keySet()) {
 			jsonWidgets.addString(key, context.getFieldName(widgets.get(key)));
 		}
-
+		
 		// Add any translations needed by the default views
 		log.trace("OrderWidget - adding all of the translations");
 		String prefix = "htmlformentry.orders.";
 		JsonObject translations = jsonConfig.addObject("translations");
-		String[] messageCodes = {
-				"encounterDateChangeWarning",
-				"delete",
-				"editDeleteWarning",
-				"editOrder",
-				"deleteOrder",
-				"previousOrder",
-				"orderReason",
-				"starting",
-				"until",
-				"for",
-				"discontinueReason",
-				"asNeeded",
-				"quantity",
-				"refills",
-				"active"
-		};
+		String[] messageCodes = { "encounterDateChangeWarning", "delete", "editDeleteWarning", "editOrder", "deleteOrder",
+		        "previousOrder", "orderReason", "starting", "until", "for", "discontinueReason", "asNeeded", "quantity",
+		        "refills", "active" };
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
 		}
-
+		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
-
+		
 		// Organize orderables by concept and as json options
 		Map<String, JsonObject> jsonDrugs = new HashMap<>();
 		Map<String, List<Option>> drugsForConcept = new LinkedHashMap<>();
@@ -189,7 +175,7 @@ public class OrderWidget implements Widget {
 				String conceptId = drug.getConcept().getConceptId().toString();
 				List<Option> options = drugsForConcept.computeIfAbsent(conceptId, k -> new ArrayList<>());
 				options.add(drugOption);
-
+				
 				JsonObject jsonDrug = new JsonObject();
 				jsonDrug.addString("drugId", drug.getDrugId().toString());
 				jsonDrug.addString("drugLabel", drugOption.getLabel());
@@ -212,7 +198,7 @@ public class OrderWidget implements Widget {
 			conceptArray.add(jsonConcept);
 			jsonConcept.addString("conceptId", conceptId);
 			jsonConcept.addString("conceptLabel", conceptLabel);
-
+			
 			if (isDrugOrder()) {
 				List<JsonObject> jsonConceptDrugs = jsonConcept.getObjectArray("drugs");
 				List<Option> drugOptions = drugsForConcept.get(conceptId);
@@ -244,9 +230,9 @@ public class OrderWidget implements Widget {
 					addToJsonObject(jho, "autoExpireDate", o.getAutoExpireDate());
 					addToJsonObject(jho, "dateStopped", o.getDateStopped());
 					addToJsonObject(jho, "effectiveStopDate", o.getEffectiveStopDate());
-
+					
 					if (o instanceof DrugOrder) {
-						DrugOrder d = (DrugOrder)o;
+						DrugOrder d = (DrugOrder) o;
 						addToJsonObject(jho, "drug", d.getDrug());
 						addToJsonObject(jho, "drugNonCoded", d.getDrugNonCoded());
 						addToJsonObject(jho, "dosingType", d.getDosingType());
@@ -262,7 +248,7 @@ public class OrderWidget implements Widget {
 						addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 						addToJsonObject(jho, "numRefills", d.getNumRefills());
 					}
-
+					
 					if (o.getAction() == Order.Action.DISCONTINUE) {
 						addToJsonObject(jho, "orderReason", "");
 						addToJsonObject(jho, "orderReasonNonCoded", "");
@@ -684,7 +670,7 @@ public class OrderWidget implements Widget {
 		registerWidget(context, w, new ErrorWidget(), property);
 		return w;
 	}
-
+	
 	protected boolean isDrugOrder() {
 		return HtmlFormEntryUtil.isADrugOrderType(widgetConfig.getOrderField().getOrderType());
 	}

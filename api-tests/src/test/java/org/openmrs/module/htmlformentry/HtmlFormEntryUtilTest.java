@@ -1304,22 +1304,22 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	}
 	
 	/**
-	 * @see HtmlFormEntryUtil#getDrugOrdersForPatient(Patient, Set)
+	 * @see HtmlFormEntryUtil#getOrdersForPatient(Patient, Set)
 	 */
 	@Test
-	public void getDrugOrdersForPatient_shouldReturnAllDrugOrdersForGivenDrugs() throws Exception {
+	public void getOrdersForPatient_shouldReturnAllDrugOrdersForGivenDrugs() throws Exception {
 		Patient patient = Context.getPatientService().getPatient(2);
 		Drug drug3 = Context.getConceptService().getDrug(3);
 		Drug drug11 = Context.getConceptService().getDrug(11);
 		Set<Concept> concepts = new HashSet<>();
 		concepts.add(drug3.getConcept());
 		concepts.add(drug11.getConcept());
-		List<DrugOrder> m = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, concepts);
+		List<Order> m = HtmlFormEntryUtil.getOrdersForPatient(patient, concepts);
 		Assert.assertEquals(4, m.size());
 	}
 	
 	/**
-	 * @see HtmlFormEntryUtil#getDrugOrdersForPatient(Patient, Set)
+	 * @see HtmlFormEntryUtil#getOrdersForPatient(Patient, Set)
 	 */
 	@Test
 	public void sortDrugOrders_shouldSortByDateAndPrevious() throws Exception {
@@ -1339,10 +1339,10 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		o4.setDateActivated(TestUtil.parseYmd("2000-01-01"));
 		o1.setPreviousOrder(o4);
 		
-		List<DrugOrder> orders = Arrays.asList(o1, o2, o3, o4);
-		HtmlFormEntryUtil.sortDrugOrders(orders);
+		List<Order> orders = Arrays.asList(o1, o2, o3, o4);
+		HtmlFormEntryUtil.sortOrders(orders);
 		
-		for (DrugOrder order : orders) {
+		for (Order order : orders) {
 			Integer prevId = (order.getPreviousOrder() == null ? null : order.getPreviousOrder().getId());
 			StringBuilder sb = new StringBuilder("Order: ").append(order.getId());
 			sb.append("; previous=").append(prevId);
