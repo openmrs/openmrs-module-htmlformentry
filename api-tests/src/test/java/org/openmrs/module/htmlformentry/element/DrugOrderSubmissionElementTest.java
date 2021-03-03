@@ -42,7 +42,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		revisedTriomuneField.orderAction("REVISE");
 		revisedTriomuneField.freeTextDosing("My instructions");
 		FormResultsTester revisedResults = formSessionTester.submitForm();
-		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.previousOrderRequired");
+		revisedResults.assertErrorMessage("htmlformentry.orders.previousOrderRequired");
 	}
 	
 	@Test
@@ -94,7 +94,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
 		revisedTriomuneField.orderAction("REVISE").previousOrder("111"); // This has drug 3, which is different
 		FormResultsTester revisedResults = formSessionTester.submitForm();
-		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.drugChangedForRevision");
+		revisedResults.assertErrorMessage("htmlformentry.orders.drugChangedForRevision");
 	}
 	
 	@Test
@@ -105,7 +105,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		revisedTriomuneField.orderAction("RENEW").previousOrder("111");
 		revisedTriomuneField.freeTextDosing("My instructions");
 		FormResultsTester revisedResults = formSessionTester.submitForm();
-		revisedResults.assertErrorMessage("htmlformentry.drugOrderError.dosingChangedForRenew");
+		revisedResults.assertErrorMessage("htmlformentry.orders.dosingChangedForRenew");
 	}
 	
 	@Test

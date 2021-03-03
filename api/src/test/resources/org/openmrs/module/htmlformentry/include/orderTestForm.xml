@@ -5,8 +5,9 @@
 
 	<order orderType="1">
 		<orderTemplate>
-			<orderProperty name="concept">
-				<option value="792" label="D4T+3TC+NVP"/>
+			<orderProperty name="drug">
+				<option value="2" label="Drug 2"/>
+				<option value="3" label="Drug 3"/>
 			</orderProperty>
 		</orderTemplate>
 	</order>

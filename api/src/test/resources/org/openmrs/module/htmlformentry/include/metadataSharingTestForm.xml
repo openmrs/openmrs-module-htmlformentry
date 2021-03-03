@@ -18,7 +18,7 @@
 	<workflowState workflowId="XYZ: Test Workflow Code" stateIds="207,XYZ: Test Code"/>    <!-- using to test substitution -->
 
 	Drugs:
-	<order>
+	<order orderType="1">
 		<orderTemplate>
 			<orderProperty name="drug">
 				<option value="2"/>

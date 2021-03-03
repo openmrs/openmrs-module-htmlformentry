@@ -99,7 +99,7 @@ public class OrderTagHandlerTest extends BaseHtmlFormEntryTest {
 			Order.Action action = Order.Action.values()[i];
 			Option option = w.getWidgetConfig().getOrderPropertyOptions("action").get(i);
 			assertThat(option.getValue(), is(action.name()));
-			String label = HtmlFormEntryUtil.translate("htmlformentry.drugOrder.action." + action.name().toLowerCase());
+			String label = HtmlFormEntryUtil.translate("htmlformentry.orders.action." + action.name().toLowerCase());
 			assertThat(option.getLabel(), is(label));
 		}
 	}
@@ -132,22 +132,6 @@ public class OrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void shouldSupportDefaultOrderTypeIfNoneExplicitlyConfigured() {
-		OrderWidget w = getDrugOrderWidgets("orderTestFormAllDefaults.xml").get(0);
-		List<OrderType> all = HtmlFormEntryUtil.getDrugOrderTypes();
-		assertThat(w.getWidgetConfig().getOrderPropertyOptions("orderType").size(), is(all.size()));
-		OrderType defaultOrderType = HtmlFormEntryUtil.getDrugOrderType();
-		for (int i = 0; i < all.size(); i++) {
-			OrderType expected = all.get(i);
-			Option option = w.getWidgetConfig().getOrderPropertyOptions("orderType").get(i);
-			assertThat(option.getValue(), is(expected.getId().toString()));
-			assertThat(option.getLabel(), is(expected.getName()));
-			boolean isDefault = expected.equals(defaultOrderType);
-			assertThat(option.isSelected(), is(isDefault));
-		}
-	}
-	
-	@Test
 	public void shouldSupportDosingTypeConfigurationProperties() {
 		OrderWidget w = getDrugOrderWidgets("orderTestFormOrderProperties.xml").get(0);
 		assertOrderPropertyOption(w, "dosingType", 1, "org.openmrs.SimpleDosingInstructions", "Structured");
@@ -165,7 +149,7 @@ public class OrderTagHandlerTest extends BaseHtmlFormEntryTest {
 			Class type = types[i];
 			Option option = w.getWidgetConfig().getOrderPropertyOptions("dosingType").get(i);
 			assertThat(option.getValue(), is(type.getName()));
-			String label = HtmlFormEntryUtil.translate("htmlformentry.drugOrder.dosingType." + labels[i]);
+			String label = HtmlFormEntryUtil.translate("htmlformentry.orders.dosingType." + labels[i]);
 			assertThat(option.getLabel(), is(label));
 		}
 	}
@@ -269,7 +253,7 @@ public class OrderTagHandlerTest extends BaseHtmlFormEntryTest {
 			Order.Urgency urgency = Order.Urgency.values()[i];
 			Option option = w.getWidgetConfig().getOrderPropertyOptions("urgency").get(i);
 			assertThat(option.getValue(), is(urgency.name()));
-			String label = HtmlFormEntryUtil.translate("htmlformentry.drugOrder.urgency." + urgency.name().toLowerCase());
+			String label = HtmlFormEntryUtil.translate("htmlformentry.orders.urgency." + urgency.name().toLowerCase());
 			assertThat(option.getLabel(), is(label));
 		}
 	}

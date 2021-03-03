@@ -285,8 +285,8 @@ public class OrderTagHandler extends AbstractTagHandler {
 		String property = "dosingType";
 		List<Option> options = config.getOrderPropertyOptions(property);
 		Map<Class<? extends DosingInstructions>, String> m = new LinkedHashMap<>();
-		m.put(SimpleDosingInstructions.class, "htmlformentry.drugOrder.dosingType.simple");
-		m.put(FreeTextDosingInstructions.class, "htmlformentry.drugOrder.dosingType.freetext");
+		m.put(SimpleDosingInstructions.class, "htmlformentry.orders.dosingType.simple");
+		m.put(FreeTextDosingInstructions.class, "htmlformentry.orders.dosingType.freetext");
 		if (options.isEmpty()) {
 			for (Map.Entry<Class<? extends DosingInstructions>, String> e : m.entrySet()) {
 				options.add(new Option(e.getValue(), e.getKey().getName(), false));
@@ -318,7 +318,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 	 */
 	protected void processEnumOptions(OrderWidgetConfig config, String property, Enum[] vals, Enum defVal) {
 		List<Option> options = config.getOrderPropertyOptions(property);
-		String msgPrefix = "htmlformentry.drugOrder." + property + ".";
+		String msgPrefix = "htmlformentry.orders." + property + ".";
 		if (options.isEmpty()) {
 			for (Enum e : vals) {
 				String label = HtmlFormEntryUtil.translate(msgPrefix + e.name().toLowerCase());

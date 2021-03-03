@@ -32,7 +32,6 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 		formSessionTester.assertHtmlContains("orderwidget-order-section");
 		formSessionTester.assertHtmlContains("orderwidget-selector-section");
 		formSessionTester.assertHtmlContains("orderwidget-order-form");
-		formSessionTester.assertStartingFormValue("order-field-label order-orderType", "1");
 		log.trace(formSessionTester.getHtmlToDisplay());
 	}
 	
@@ -42,10 +41,9 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 		FormSessionTester fst = formTester.openNewForm(2);
 		OrderWidget widget = fst.getWidgets(OrderWidget.class).get(0);
 		String[] properties = { "concept", "drug", "drugNonCoded", "action", "previousOrder", "careSetting", "dosingType",
-		        "orderType", "orderReason", "orderReasonNonCoded", "dosingInstructions", "dose", "doseUnits", "route",
-		        "frequency", "asNeeded", "instructions", "urgency", "dateActivated", "scheduledDate", "duration",
-		        "durationUnits", "quantity", "quantityUnits", "numRefills", "discontinueReason",
-		        "discontinueReasonNonCoded" };
+		        "orderReason", "orderReasonNonCoded", "dosingInstructions", "dose", "doseUnits", "route", "frequency",
+		        "asNeeded", "instructions", "urgency", "dateActivated", "scheduledDate", "duration", "durationUnits",
+		        "quantity", "quantityUnits", "numRefills", "discontinueReason", "discontinueReasonNonCoded" };
 		assertThat(widget.getWidgets().size(), is(properties.length));
 		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
 		for (int i = 0; i < widgets.size(); i++) {
