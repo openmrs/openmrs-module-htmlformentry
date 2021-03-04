@@ -63,7 +63,7 @@
     /* If the order was placed in this encounter, or if is active at the time of the encounter, then render it
        We also check if dateStopped is null.  This will result in hiding these if a historical encounter is edited and the order has been subsequently closed.
      */
-    orderWidget.shouldRenderorder = function(order, config, encDate) {
+    orderWidget.shouldRenderOrder = function(order, config, encDate) {
         return orderWidget.isOrderInCurrentEncounter(order, config) || (
             config.mode !== 'VIEW' && orderWidget.isOrderActive(order, encDate) && order.dateStopped.value === ""
         );

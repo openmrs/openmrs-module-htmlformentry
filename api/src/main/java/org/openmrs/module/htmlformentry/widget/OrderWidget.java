@@ -509,7 +509,7 @@ public class OrderWidget implements Widget {
 		String widgetFieldName = c.getFieldName(widgets.get("action"));
 		for (Object paramKey : r.getParameterMap().keySet()) {
 			String paramName = paramKey.toString();
-			if (paramName.startsWith(widgetFieldName)) {
+			if (paramName.startsWith(widgetFieldName + "_")) {
 				ret.add(StringUtils.substringAfter(paramName, widgetFieldName));
 			}
 		}
