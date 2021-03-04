@@ -165,52 +165,32 @@ public class OrderWidget implements Widget {
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
 		
-		// Organize orderables by concept and as json options
-		Map<String, JsonObject> jsonDrugs = new HashMap<>();
-		Map<String, List<Option>> drugsForConcept = new LinkedHashMap<>();
-		if (isDrugOrder()) {
-			log.trace("OrderWidget - getting all of the drugs configured");
-			for (Option drugOption : widgetConfig.getOrderPropertyOptions("drug")) {
-				Drug drug = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
-				String conceptId = drug.getConcept().getConceptId().toString();
-				List<Option> options = drugsForConcept.computeIfAbsent(conceptId, k -> new ArrayList<>());
-				options.add(drugOption);
-				
-				JsonObject jsonDrug = new JsonObject();
-				jsonDrug.addString("drugId", drug.getDrugId().toString());
-				jsonDrug.addString("drugLabel", drugOption.getLabel());
-				jsonDrug.addString("strength", drug.getStrength());
-				String dosageForm = drug.getDosageForm() == null ? "" : drug.getDosageForm().getConceptId().toString();
-				jsonDrug.addString("dosageForm", dosageForm);
-				jsonDrugs.put(drug.getDrugId().toString(), jsonDrug);
-			}
-		}
-		
 		// Add a section for each concept configured in the tag
-		log.trace("OrderWidget - getting all of the concepts configured");
-		for (Option conceptOption : widgetConfig.getOrderPropertyOptions("concept")) {
-			String conceptId = conceptOption.getValue();
-			String conceptLabel = conceptOption.getLabel();
-			Concept concept = Context.getConceptService().getConcept(Integer.parseInt(conceptId));
-			
+		log.trace("OrderWidget - add concepts and drugs");
+		for (Concept c : widgetConfig.getConceptsAndDrugsConfigured().keySet()) {
+
+			Option conceptOption = widgetConfig.getOption("concept", c.getId().toString());
+
 			// For each rendered widget, add configuration of that widget into json for javascript
 			JsonObject jsonConcept = new JsonObject();
 			conceptArray.add(jsonConcept);
-			jsonConcept.addString("conceptId", conceptId);
-			jsonConcept.addString("conceptLabel", conceptLabel);
-			
-			if (isDrugOrder()) {
+			jsonConcept.addString("conceptId", c.getId().toString());
+			jsonConcept.addString("conceptLabel", conceptOption.getLabel());
+
+			for (Drug d : widgetConfig.getConceptsAndDrugsConfigured().get(c)) {
+				Option drugOption = widgetConfig.getOption("drug", d.getId().toString());
 				List<JsonObject> jsonConceptDrugs = jsonConcept.getObjectArray("drugs");
-				List<Option> drugOptions = drugsForConcept.get(conceptId);
-				if (drugOptions != null) {
-					for (Option drugOption : drugOptions) {
-						jsonConceptDrugs.add(jsonDrugs.get(drugOption.getValue()));
-					}
-				}
+				JsonObject jsonDrug = new JsonObject();
+				jsonDrug.addString("drugId", d.getDrugId().toString());
+				jsonDrug.addString("drugLabel", drugOption.getLabel());
+				jsonDrug.addString("strength", d.getStrength());
+				String dosageForm = d.getDosageForm() == null ? "" : d.getDosageForm().getConceptId().toString();
+				jsonDrug.addString("dosageForm", dosageForm);
+				jsonConceptDrugs.add(jsonDrug);
 			}
 			
 			if (initialValue != null) {
-				for (Order o : getInitialValueForConcept(concept)) {
+				for (Order o : getInitialValueForConcept(c)) {
 					Order pd = o.getPreviousOrder();
 					JsonObject jho = new JsonObject();
 					jho.addString("orderId", o.getOrderId().toString());
@@ -218,8 +198,8 @@ public class OrderWidget implements Widget {
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
 					addToJsonObject(jho, "action", o.getAction());
 					JsonObject conceptObj = jho.addObject("concept");
-					conceptObj.addString("value", conceptId);
-					conceptObj.addString("display", conceptLabel);
+					conceptObj.addString("value", c.getId().toString());
+					conceptObj.addString("display", conceptOption.getLabel());
 					addToJsonObject(jho, "careSetting", o.getCareSetting());
 					addToJsonObject(jho, "orderType", o.getOrderType());
 					addToJsonObject(jho, "instructions", o.getInstructions());

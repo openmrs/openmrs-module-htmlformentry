@@ -8,8 +8,6 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.Drug;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.OrderField;
 
 /**
@@ -32,6 +30,10 @@ public class OrderWidgetConfig {
 	
 	private Map<String, List<Option>> orderPropertyOptions;
 	
+	// Serves to provide access to the orderables configured
+	
+	private Map<Concept, List<Drug>> conceptsAndDrugsConfigured = new HashMap<>();
+	
 	public OrderWidgetConfig() {
 	}
 	
@@ -39,20 +41,6 @@ public class OrderWidgetConfig {
 	
 	public Map<String, String> getAttributes(String orderProperty) {
 		return getOrderPropertyAttributes().getOrDefault(orderProperty, new HashMap<>());
-	}
-	
-	public Map<Concept, List<Drug>> getConceptsAndDrugsConfigured() {
-		Map<Concept, List<Drug>> drugsForConcept = new LinkedHashMap<>();
-		for (Option conceptOption : getOrderPropertyOptions("concept")) {
-			Concept concept = HtmlFormEntryUtil.getConcept(conceptOption.getValue());
-			drugsForConcept.put(concept, new ArrayList<>());
-		}
-		for (Option drugOption : getOrderPropertyOptions("drug")) {
-			Drug drug = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
-			List<Drug> drugs = drugsForConcept.computeIfAbsent(drug.getConcept(), k -> new ArrayList<>());
-			drugs.add(drug);
-		}
-		return drugsForConcept;
 	}
 	
 	// PROPERTY ACCESSORS
@@ -119,6 +107,15 @@ public class OrderWidgetConfig {
 		}
 		return l;
 	}
+
+	public Option getOption(String property, String value) {
+		for (Option o : getOrderPropertyOptions(property)) {
+			if (o.getValue().equalsIgnoreCase(value)) {
+				return o;
+			}
+		}
+		return null;
+	}
 	
 	public void setOrderPropertyOptions(String property, List<Option> options) {
 		getOrderPropertyOptions().put(property, options);
@@ -126,5 +123,16 @@ public class OrderWidgetConfig {
 	
 	public void addOrderPropertyOption(String property, Option option) {
 		getOrderPropertyOptions(property).add(option);
+	}
+	
+	public Map<Concept, List<Drug>> getConceptsAndDrugsConfigured() {
+		if (conceptsAndDrugsConfigured == null) {
+			conceptsAndDrugsConfigured = new LinkedHashMap<>();
+		}
+		return conceptsAndDrugsConfigured;
+	}
+	
+	public void setConceptsAndDrugsConfigured(Map<Concept, List<Drug>> conceptsAndDrugsConfigured) {
+		this.conceptsAndDrugsConfigured = conceptsAndDrugsConfigured;
 	}
 }

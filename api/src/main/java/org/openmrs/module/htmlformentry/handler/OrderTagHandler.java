@@ -560,6 +560,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 		
 		// If there are no drugs or concepts configured, populate based on entire formulary
 		if (!conceptsExplicitlyDefined && !drugsExplicitlyDefined) {
+			config.setConceptsAndDrugsConfigured(conceptsToDrugs);
 			for (Concept c : conceptsToDrugs.keySet()) {
 				concepts.add(new Option(c.getDisplayString(), c.getId().toString()));
 				for (Drug d : conceptsToDrugs.get(c)) {
@@ -580,6 +581,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 				if (!existingConcepts.contains(conceptIdStr)) {
 					conceptsToAddFromDrugs.add(new Option(d.getConcept().getDisplayString(), conceptIdStr));
 					existingConcepts.add(conceptIdStr);
+					config.getConceptsAndDrugsConfigured().computeIfAbsent(d.getConcept(), k -> new ArrayList<>()).add(d);
 				}
 			}
 			// If concepts are configured, all associated drugs should be configured
@@ -591,6 +593,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 						if (!existingDrugs.contains(drugId)) {
 							drugs.add(new Option(d.getDisplayName(), drugId));
 							existingDrugs.add(drugId);
+							config.getConceptsAndDrugsConfigured().computeIfAbsent(c, k -> new ArrayList<>()).add(d);
 						}
 					}
 				}

@@ -252,12 +252,9 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 	 */
 	public List<Order> getOrders(Patient patient, OrderWidgetConfig config) {
 		List<Order> ret = new ArrayList<>();
-		if (patient != null && config.getOrderPropertyOptions("concept") != null) {
-			Set<Concept> concepts = new HashSet<>();
-			for (Option o : config.getOrderPropertyOptions("concept")) {
-				concepts.add(HtmlFormEntryUtil.getConcept(o.getValue()));
-			}
-			ret = HtmlFormEntryUtil.getOrdersForPatient(patient, concepts);
+		Set<Concept> configuredConcepts = config.getConceptsAndDrugsConfigured().keySet();
+		if (patient != null && !configuredConcepts.isEmpty()) {
+			ret = HtmlFormEntryUtil.getOrdersForPatient(patient, configuredConcepts);
 		}
 		return ret;
 	}
