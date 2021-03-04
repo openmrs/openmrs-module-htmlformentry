@@ -179,7 +179,7 @@
         $orderableSection.append($historySection);
         $historySection.empty();
 
-        $historySection.append(orderWidget.formatOrderable(order));
+        $historySection.append(orderWidget.formatOrderable(order, config));
 
         // If the order was placed in this encounter, and it was a revision of a previous order, render the previous order
         if (orderWidget.shouldRenderPreviousOrder(order, config)) {
@@ -532,9 +532,10 @@
         }
     }
 
-    orderWidget.formatOrderable = function(order) {
+    orderWidget.formatOrderable = function(order, config) {
         // Render drug name details
-        var $ret = $('<div class="order-view-section orderwidget-orderable-details"></div>');
+        var cssClasses = "order-view-section orderwidget-orderable-details" + (config.mode === 'VIEW' ? ' value' : '');
+        var $ret = $('<div class="' + cssClasses + '"></div>');
         $ret.append('<div class="orderwidget-orderable-details-concept">' + order.concept.display  + '</div>');
         if (order.drug && order.drug.value !== '') {
             $ret.append('<div class="orderwidget-orderable-details-drug">' + order.drug.display + '</div>');
