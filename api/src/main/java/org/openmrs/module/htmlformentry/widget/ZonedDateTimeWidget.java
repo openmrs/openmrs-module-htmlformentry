@@ -28,7 +28,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	@Override
 	protected DateFormat getHtmlDateFormat() {
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 		return dateFormat;
 	}

@@ -45,4 +45,14 @@ public class TimeZoneUtil {
 		return new DateTime(date.getTime(), UTC).toGregorianCalendar();
 	}
 	
+	/**
+	 * Gets a String date in ISO8601 format. This always returns a Date converted from UTC to the server
+	 * timezone subclass.
+	 *
+	 * @param ISOStringDate A String in a ISO 8601 Format.
+	 * @return Date with the server timezone.
+	 */
+	public static Date toDate(String ISOStringDate) {
+		return javax.xml.bind.DatatypeConverter.parseDateTime(ISOStringDate).getTime();
+	}
 }
