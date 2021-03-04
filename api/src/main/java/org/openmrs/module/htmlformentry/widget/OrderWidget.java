@@ -177,9 +177,9 @@ public class OrderWidget implements Widget {
 			jsonConcept.addString("conceptId", c.getId().toString());
 			jsonConcept.addString("conceptLabel", conceptOption.getLabel());
 
+			List<JsonObject> jsonConceptDrugs = jsonConcept.getObjectArray("drugs");
 			for (Drug d : widgetConfig.getConceptsAndDrugsConfigured().get(c)) {
 				Option drugOption = widgetConfig.getOption("drug", d.getId().toString());
-				List<JsonObject> jsonConceptDrugs = jsonConcept.getObjectArray("drugs");
 				JsonObject jsonDrug = new JsonObject();
 				jsonDrug.addString("drugId", d.getDrugId().toString());
 				jsonDrug.addString("drugLabel", drugOption.getLabel());
@@ -196,6 +196,8 @@ public class OrderWidget implements Widget {
 					jho.addString("orderId", o.getOrderId().toString());
 					jho.addString("encounterId", o.getEncounter().getEncounterId().toString());
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
+					jho.addString("orderClass", o.getClass().getName());
+					jho.addString("isDrugOrder", Boolean.toString(HtmlFormEntryUtil.isADrugOrderType(o.getOrderType())));
 					addToJsonObject(jho, "action", o.getAction());
 					JsonObject conceptObj = jho.addObject("concept");
 					conceptObj.addString("value", c.getId().toString());

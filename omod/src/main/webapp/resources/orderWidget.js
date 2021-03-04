@@ -394,6 +394,8 @@
         var $drugElements = $orderForm.find('.order-drug');
         var $drugNonCodedElements = $orderForm.find('.order-drugNonCoded');
 
+        $orderForm.find('.order-concept').show();
+
         if ($conceptSelect.is(":visible")) {
             if (config.orderPropertyAttributes?.concept?.style === 'autocomplete') {
                 orderWidget.convertToAutocomplete($conceptSelect);
@@ -416,7 +418,6 @@
                     $drugNonCodedElements.show();
                 }
             });
-            $orderForm.find('.order-concept').show();
         }
         else {
             $drugElements.show();
@@ -506,37 +507,39 @@
     orderWidget.populateOrderForm = function(config, $orderForm, order) {
         $orderForm.find('.order-field-widget.order-previousOrder').find(':input').val(order.orderId);
         $orderForm.find('.order-field-widget.order-concept').find(':input').val(order.concept.value);
-        $orderForm.find('.order-field-widget.order-drug').find(':input').val(order.drug.value);
-        $orderForm.find('.order-field-widget.order-drugNonCoded').find(':input').val(order.drugNonCoded.value);
         $orderForm.find('.order-field-widget.order-orderReason').find(':input').val(order.orderReason.value);
         $orderForm.find('.order-field-widget.order-orderReasonNonCoded').find(':input').val(order.orderReasonNonCoded.value);
         $orderForm.find('.order-field-widget.order-careSetting').find(':input').val(order.careSetting.value);
-        $orderForm.find('.order-field-widget.order-dosingType').find(':input[value="' + order.dosingType.value + '"]').click();
-        $orderForm.find('.order-field-widget.order-orderType').find(':input').val(order.orderType.value);
-        $orderForm.find('.order-field-widget.order-dosingInstructions').find(':input').val(order.dosingInstructions.value);
-        $orderForm.find('.order-field-widget.order-dose').find(':input').val(order.dose.value);
-        $orderForm.find('.order-field-widget.order-doseUnits').find(':input').val(order.doseUnits.value);
-        $orderForm.find('.order-field-widget.order-route').find(':input').val(order.route.value);
-        $orderForm.find('.order-field-widget.order-frequency').find(':input').val(order.frequency.value);
-        if (order.asNeeded.value === 'true') {
-            $orderForm.find('.order-field-widget.order-asNeeded').find(':input').attr('checked', 'true');
-        }
         $orderForm.find('.order-field-widget.order-instructions').find(':input').val(order.instructions.value);
-        $orderForm.find('.order-field-widget.order-duration').find(':input').val(order.duration.value);
-        $orderForm.find('.order-field-widget.order-durationUnits').find(':input').val(order.durationUnits.value);
-        $orderForm.find('.order-field-widget.order-quantity').find(':input').val(order.quantity.value);
-        $orderForm.find('.order-field-widget.order-quantityUnits').find(':input').val(order.quantityUnits.value);
-        $orderForm.find('.order-field-widget.order-numRefills').find(':input').val(order.numRefills.value);
+        if (order.isDrugOrder === 'true') {
+            $orderForm.find('.order-field-widget.order-drug').find(':input').val(order.drug.value);
+            $orderForm.find('.order-field-widget.order-drugNonCoded').find(':input').val(order.drugNonCoded.value);
+            $orderForm.find('.order-field-widget.order-dosingType').find(':input[value="' + order.dosingType.value + '"]').click();
+            $orderForm.find('.order-field-widget.order-orderType').find(':input').val(order.orderType.value);
+            $orderForm.find('.order-field-widget.order-dosingInstructions').find(':input').val(order.dosingInstructions.value);
+            $orderForm.find('.order-field-widget.order-dose').find(':input').val(order.dose.value);
+            $orderForm.find('.order-field-widget.order-doseUnits').find(':input').val(order.doseUnits.value);
+            $orderForm.find('.order-field-widget.order-route').find(':input').val(order.route.value);
+            $orderForm.find('.order-field-widget.order-frequency').find(':input').val(order.frequency.value);
+            if (order.asNeeded.value === 'true') {
+                $orderForm.find('.order-field-widget.order-asNeeded').find(':input').attr('checked', 'true');
+            }
+            $orderForm.find('.order-field-widget.order-duration').find(':input').val(order.duration.value);
+            $orderForm.find('.order-field-widget.order-durationUnits').find(':input').val(order.durationUnits.value);
+            $orderForm.find('.order-field-widget.order-quantity').find(':input').val(order.quantity.value);
+            $orderForm.find('.order-field-widget.order-quantityUnits').find(':input').val(order.quantityUnits.value);
+            $orderForm.find('.order-field-widget.order-numRefills').find(':input').val(order.numRefills.value);
+        }
     }
 
     orderWidget.formatOrderable = function(order) {
         // Render drug name details
         var $ret = $('<div class="order-view-section orderwidget-orderable-details"></div>');
         $ret.append('<div class="orderwidget-orderable-details-concept">' + order.concept.display  + '</div>');
-        if (order.drug.value !== '') {
+        if (order.drug && order.drug.value !== '') {
             $ret.append('<div class="orderwidget-orderable-details-drug">' + order.drug.display + '</div>');
         }
-        if (order.drugNonCoded.value !== '') {
+        if (order.drugNonCoded && order.drugNonCoded.value !== '') {
             $ret.append('<div class="orderwidget-orderable-details-drugNonCoded">' + order.drugNonCoded.display + '</div>');
         }
         return $ret;
@@ -583,7 +586,7 @@
         var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
         $dateSection.append('<div class="order-view-field order-view-start-date">' + config.translations.starting + ' ' + d.effectiveStartDate.display + "</div>");
         if (d.action.value !== 'DISCONTINUE') {
-            if (d.duration.display !== '') {
+            if (d.duration && d.duration.display !== '') {
                 $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
             } else if (d.autoExpireDate.display !== '') {
                 $dateSection.append('<div class="order-view-field order-view-stop-date">');
@@ -600,7 +603,7 @@
             $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + d.discontinueReasonNonCoded.display + '</div>');
             $ret.append($discontinueSection);
         }
-        else {
+        else if (d.isDrugOrder === 'true') {
             var $doseSection = $('<div class="order-view-section order-view-dosing"></div>');
             if (d.dosingType.value === 'org.openmrs.FreeTextDosingInstructions') {
                 $doseSection.append('<div class="order-view-field order-view-dosing-instructions">' + d.dosingInstructions.display + "</div>");
