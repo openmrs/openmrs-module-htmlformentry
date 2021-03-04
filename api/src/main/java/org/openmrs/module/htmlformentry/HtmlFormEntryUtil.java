@@ -722,37 +722,33 @@ public class HtmlFormEntryUtil {
 	 * order, if so it is later Otherwise, it compares effectiveStartDate Otherwise, it compares
 	 * effectiveStopDate, where a null stop date is later than a non-null one
 	 */
-	public static void sortOrders(List<Order> drugOrders) {
-		if (drugOrders != null && drugOrders.size() > 1) {
-			Collections.sort(drugOrders, new Comparator<Order>() {
-				
-				@Override
-				public int compare(Order d1, Order d2) {
-					// Get all of the previous orders for d1.  If any are d2, then d1 is later
-					for (Order d1Prev = d1.getPreviousOrder(); d1Prev != null; d1Prev = d1Prev.getPreviousOrder()) {
-						if (d1Prev.equals(d2)) {
-							return 1;
-						}
+	public static void sortOrders(List<Order> orders) {
+		if (orders != null && orders.size() > 1) {
+			Collections.sort(orders, (d1, d2) -> {
+				// Get all of the previous orders for d1.  If any are d2, then d1 is later
+				for (Order d1Prev = d1.getPreviousOrder(); d1Prev != null; d1Prev = d1Prev.getPreviousOrder()) {
+					if (d1Prev.equals(d2)) {
+						return 1;
 					}
-					// Get all of the previous orders for d2.  If any are d1, then d2 is later
-					for (Order d2Prev = d2.getPreviousOrder(); d2Prev != null; d2Prev = d2Prev.getPreviousOrder()) {
-						if (d2Prev.equals(d1)) {
-							return -1;
-						}
-					}
-					// If neither is a revision of the other, then compare based on effective start date
-					int dateCompare = d1.getEffectiveStartDate().compareTo(d2.getEffectiveStartDate());
-					if (dateCompare != 0) {
-						return dateCompare;
-					}
-					// If they are still the same, then order based on end date
-					int ret = OpenmrsUtil.compareWithNullAsLatest(d1.getEffectiveStopDate(), d2.getEffectiveStopDate());
-					if (ret == 0) {
-						// Finally, order based on orderId
-						ret = d1.getOrderId().compareTo(d2.getOrderId());
-					}
-					return ret;
 				}
+				// Get all of the previous orders for d2.  If any are d1, then d2 is later
+				for (Order d2Prev = d2.getPreviousOrder(); d2Prev != null; d2Prev = d2Prev.getPreviousOrder()) {
+					if (d2Prev.equals(d1)) {
+						return -1;
+					}
+				}
+				// If neither is a revision of the other, then compare based on effective start date
+				int dateCompare = d1.getEffectiveStartDate().compareTo(d2.getEffectiveStartDate());
+				if (dateCompare != 0) {
+					return dateCompare;
+				}
+				// If they are still the same, then order based on end date
+				int ret = OpenmrsUtil.compareWithNullAsLatest(d1.getEffectiveStopDate(), d2.getEffectiveStopDate());
+				if (ret == 0) {
+					// Finally, order based on orderId
+					ret = d1.getOrderId().compareTo(d2.getOrderId());
+				}
+				return ret;
 			});
 		}
 	}

@@ -1314,7 +1314,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	 * @see HtmlFormEntryUtil#getOrdersForPatient(Patient, Set)
 	 */
 	@Test
-	public void sortDrugOrders_shouldSortByDateAndPrevious() throws Exception {
+	public void sortOrders_shouldSortByDateAndPrevious() throws Exception {
 		DrugOrder o1 = new DrugOrder(1);
 		o1.setDateActivated(TestUtil.parseYmd("2000-01-01"));
 		

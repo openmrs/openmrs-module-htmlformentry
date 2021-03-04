@@ -3,7 +3,6 @@ package org.openmrs.module.htmlformentry.element;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +28,6 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
-import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.OrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.OrderWidgetValue;
@@ -150,8 +148,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 							handleRequiredField(ret, ctx, fs, "dosingInstructions", doseInstructions);
 						} else {
 							String f = orderWidget.getFormErrorField(ctx, fs, "dosingType");
-							String dosingTypeError = HtmlFormEntryUtil
-							        .translate("htmlformentry.drugOrder.invalidDosingType");
+							String dosingTypeError = HtmlFormEntryUtil.translate("htmlformentry.orders.invalidDosingType");
 							ret.add(new FormSubmissionError(f, dosingTypeError));
 						}
 						

@@ -76,7 +76,7 @@ public class HtmlFormSubstitutionUtils {
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					
-					// Special case handling DrugOrderTagAttributeDescriptor, which has more complex property nesting
+					// Special case handling OrderTagAttributeDescriptor, which has more complex property nesting
 					if (attributeDescriptor instanceof OrderTagAttributeDescriptor) {
 						OrderTagAttributeDescriptor dtad = (OrderTagAttributeDescriptor) attributeDescriptor;
 						dtad.performSubstitutions(form, substituter, substitutionMap);
