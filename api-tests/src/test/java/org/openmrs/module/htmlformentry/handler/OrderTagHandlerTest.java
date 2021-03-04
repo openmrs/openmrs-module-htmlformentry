@@ -34,7 +34,7 @@ import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 
 /**
- * Tests that the DrugOrderTagHandler successfully parses the XML and instantiates correctly
+ * Tests that the OrderTagHandler successfully parses the XML and instantiates correctly
  * configured fields, widgets, and submission elements.
  */
 public class OrderTagHandlerTest extends BaseHtmlFormEntryTest {
