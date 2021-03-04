@@ -42,7 +42,7 @@ public class OrderFieldTester {
 	
 	public static OrderFieldTester forDrug(Integer drugId, FormSessionTester formSessionTester) {
 		Drug drug = Context.getConceptService().getDrug(drugId);
-		return forDrug(drug.getConcept().getConceptId(), drug.getDrugId(), null, formSessionTester);
+		return forDrug(drug.getConcept().getConceptId(), drug.getDrugId(), "", formSessionTester);
 	}
 	
 	public OrderFieldTester setField(String property, String value) {
