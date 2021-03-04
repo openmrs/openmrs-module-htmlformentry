@@ -9,16 +9,11 @@
  */
 package org.openmrs.module.htmlformentry.util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.openmrs.Concept;
-import org.openmrs.OpenmrsData;
-import org.openmrs.OpenmrsMetadata;
 import org.openmrs.api.context.Context;
 
 /**
@@ -42,48 +37,6 @@ public class JsonObject extends LinkedHashMap<String, Object> {
 	
 	public void addString(String key, String value) {
 		put(key, value);
-	}
-	
-	public void addIdAndLabel(String key, String idName, String labelName, Object val) {
-		JsonObject o = addObject(key);
-		String id = "";
-		String label = "";
-		if (val != null) {
-			if (val instanceof OpenmrsMetadata) {
-				OpenmrsMetadata metadata = (OpenmrsMetadata) val;
-				id = metadata.getId().toString();
-				label = metadata.getName();
-			} else if (val instanceof OpenmrsData) {
-				OpenmrsData data = (OpenmrsData) val;
-				id = data.getId().toString();
-				label = data.getId().toString();
-			} else if (val instanceof Concept) {
-				Concept conceptVal = (Concept) val;
-				id = conceptVal.getId().toString();
-				label = conceptVal.getDisplayString();
-			} else if (val instanceof Date) {
-				Date dateVal = (Date) val;
-				id = new SimpleDateFormat("yyyy-MM-dd").format(dateVal);
-				label = Context.getDateFormat().format(dateVal);
-			} else if (val instanceof Class) {
-				Class classValue = (Class) val;
-				id = classValue.getName();
-				label = classValue.getSimpleName();
-			} else if (val instanceof Enum) {
-				Enum enumVal = (Enum) val;
-				id = enumVal.name();
-				label = enumVal.name();
-			} else {
-				id = val.toString();
-				label = val.toString();
-			}
-		}
-		if (idName != null) {
-			o.addString(idName, id);
-		}
-		if (labelName != null) {
-			o.addString(labelName, label);
-		}
 	}
 	
 	public void addTranslation(String prefix, String key) {

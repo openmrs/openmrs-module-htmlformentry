@@ -1,7 +1,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
  * A dropdown widget, like {@code <select name="..."><option value="...">...</option></select>}
@@ -54,18 +56,42 @@ public class DropdownWidget extends SingleOptionWidget {
 				sb.append(" size=").append("\"" + size.intValue() + "\"");
 			}
 			sb.append(">");
+			String currentOptionGroup = "";
 			for (int i = 0; i < getOptions().size(); ++i) {
 				Option option = getOptions().get(i);
+				
+				String optionGroup = (option.getGroupLabel() == null ? "" : option.getGroupLabel().trim());
+				if (!optionGroup.equalsIgnoreCase(currentOptionGroup)) {
+					if (StringUtils.isNotBlank(optionGroup)) {
+						if (StringUtils.isNotBlank(currentOptionGroup)) {
+							sb.append("</optgroup>");
+						}
+						sb.append("<optgroup label=\"").append(HtmlFormEntryUtil.translate(optionGroup)).append("\"");
+						if (StringUtils.isNotBlank(option.getGroupCssClass())) {
+							sb.append(" class=\"").append(option.getGroupCssClass()).append("\"");
+						}
+						sb.append(">");
+					}
+				}
+				currentOptionGroup = optionGroup;
+				
 				boolean selected = option.isSelected();
 				if (!selected)
 					selected = getInitialValue() == null ? option.getValue().equals("")
 					        : getInitialValue().equals(option.getValue());
 				sb.append("<option value=\"").append(option.getValue()).append("\"");
-				if (selected)
+				if (selected) {
 					sb.append(" selected=\"true\"");
+				}
+				if (StringUtils.isNotBlank(option.getCssClass())) {
+					sb.append(" class=\"").append(option.getCssClass()).append("\"");
+				}
 				sb.append(">");
 				sb.append(option.getLabel());
 				sb.append("</option>");
+			}
+			if (StringUtils.isNotBlank(currentOptionGroup)) {
+				sb.append("</optgroup>");
 			}
 			sb.append("</select>");
 			return sb.toString();

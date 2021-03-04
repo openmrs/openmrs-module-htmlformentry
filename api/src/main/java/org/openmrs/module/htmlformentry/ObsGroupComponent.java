@@ -113,8 +113,14 @@ public class ObsGroupComponent {
 			Set<Integer> obsGroupComponentMatchLog = new HashSet<Integer>();
 			
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
-				boolean questionMatches = obsGroupComponent.getQuestion().getConceptId()
-				        .equals(obs.getConcept().getConceptId());
+				Concept groupComponentQuestion = obsGroupComponent.getQuestion();
+				if (groupComponentQuestion == null) {
+					// The correct error should be thrown with useful contextual information from ObsSubmissionElement:174
+					// https://github.com/openmrs/openmrs-module-htmlformentry/blob/e6188717db16fc681ac4ec5d1610f251f214c372/api/src/main/java/org/openmrs/module/htmlformentry/element/ObsSubmissionElement.java#L174
+					continue;
+				}
+				
+				boolean questionMatches = groupComponentQuestion.getConceptId().equals(obs.getConcept().getConceptId());
 				boolean answerMatches = false;
 				
 				if (obsGroupComponent.getAnswerDrug() == null) {

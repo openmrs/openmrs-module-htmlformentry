@@ -1,13 +1,18 @@
 package org.openmrs.module.htmlformentry.schema;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Concept;
 
 public class DrugOrderField implements HtmlFormField {
 	
-	private List<DrugOrderAnswer> drugOrderAnswers;
+	private List<ObsFieldAnswer> conceptOptions = new ArrayList<>();
+	
+	private List<DrugOrderAnswer> drugOrderAnswers = new ArrayList<>();
 	
 	private List<CareSettingAnswer> careSettingAnswers = new ArrayList<>();
 	
@@ -27,7 +32,24 @@ public class DrugOrderField implements HtmlFormField {
 	
 	private List<ObsFieldAnswer> discontinuedReasonAnswers = new ArrayList<>();
 	
+	private Map<String, List<ConceptOptionGroup>> conceptOptionGroups = new HashMap<>();
+	
 	public DrugOrderField() {
+	}
+	
+	public List<ObsFieldAnswer> getConceptOptions() {
+		return conceptOptions;
+	}
+	
+	public void setConceptOptions(List<ObsFieldAnswer> conceptOptions) {
+		this.conceptOptions = conceptOptions;
+	}
+	
+	public void addConceptOption(ObsFieldAnswer a) {
+		if (conceptOptions == null) {
+			conceptOptions = new ArrayList<>();
+		}
+		conceptOptions.add(a);
 	}
 	
 	public List<DrugOrderAnswer> getDrugOrderAnswers() {
@@ -171,5 +193,25 @@ public class DrugOrderField implements HtmlFormField {
 			discontinuedReasonAnswers = new ArrayList<>();
 		}
 		discontinuedReasonAnswers.add(ofa);
+	}
+	
+	public Map<String, List<ConceptOptionGroup>> getConceptOptionGroups() {
+		if (conceptOptionGroups == null) {
+			conceptOptionGroups = new LinkedHashMap<>();
+		}
+		return conceptOptionGroups;
+	}
+	
+	public void addConceptOptionGroup(String propertyName, ConceptOptionGroup optionSet) {
+		List<ConceptOptionGroup> l = getConceptOptionGroups().get(propertyName);
+		if (l == null) {
+			l = new ArrayList<>();
+			getConceptOptionGroups().put(propertyName, l);
+		}
+		l.add(optionSet);
+	}
+	
+	public void setConceptOptionGroups(Map<String, List<ConceptOptionGroup>> conceptOptionGroups) {
+		this.conceptOptionGroups = conceptOptionGroups;
 	}
 }

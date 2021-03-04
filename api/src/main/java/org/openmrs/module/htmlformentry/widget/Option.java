@@ -9,6 +9,12 @@ public class Option {
 	
 	private String value;
 	
+	private String groupLabel; // Optional to provide information to widget as to how to group with other options
+	
+	private String groupCssClass; // Optional to add a particular css class to the grouping element
+	
+	private String cssClass; // Optional to enable setting particular class attributes on the rendered option
+	
 	private boolean selected = false;
 	
 	private boolean retired = false;
@@ -16,6 +22,10 @@ public class Option {
 	public Option() {
 		value = "";
 		label = "";
+	}
+	
+	public Option(String label, String value) {
+		this(label, value, false);
 	}
 	
 	public Option(String label, String value, boolean selected) {
@@ -108,5 +118,29 @@ public class Option {
 			return value;
 		else
 			return label;
+	}
+	
+	public String getGroupLabel() {
+		return groupLabel;
+	}
+	
+	public void setGroupLabel(String groupLabel) {
+		this.groupLabel = groupLabel;
+	}
+	
+	public String getGroupCssClass() {
+		return groupCssClass;
+	}
+	
+	public void setGroupCssClass(String groupCssClass) {
+		this.groupCssClass = groupCssClass;
+	}
+	
+	public String getCssClass() {
+		return cssClass;
+	}
+	
+	public void setCssClass(String cssClass) {
+		this.cssClass = cssClass;
 	}
 }

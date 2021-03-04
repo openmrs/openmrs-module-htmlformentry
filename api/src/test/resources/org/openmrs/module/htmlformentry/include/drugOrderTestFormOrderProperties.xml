@@ -1,0 +1,77 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<drugOrder format="select" selectLabel="Order Drug...">
+		<orderTemplate>
+			<h3>Please enter your drug orders below:</h3>
+			<orderProperty name="drug" value="2">
+				<option value="2"/>
+				<option value="05ec820a-d297-44e3-be6e-698531d9dd3f" label="Aspirin 325mg Tablet"/>
+				<option value="Paracetamol" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="action" value="NEW">
+				<option value="NEW"/>
+				<option value="REVISE" label="Revise this Order"/>
+				<option value="DISCONTINUE" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="careSetting" value="1">
+				<option value="6f0c9a92-6f24-11e3-af88-005056821db0" label="OPD"/>
+				<option value="INPATIENT" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="orderType" value="1">
+				<option value="1"/>
+				<option value="52a447d3-a64a-11e3-9aeb-50e549534c5e" label="Actually a test order"/>
+				<option value="Radiology order" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="dosingType" value="org.openmrs.SimpleDosingInstructions">
+				<option value="org.openmrs.SimpleDosingInstructions" label="Structured"/>
+				<option value="org.openmrs.FreeTextDosingInstructions" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="dose" value="350.0"/>
+			<orderProperty name="doseUnits" value="50">
+				<option value="50" label="Milligrams"/>
+				<option value="5a2aa3db-68a3-11e3-bd76-0800271c1b75" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="frequency" value="1">
+				<option value="1" label="1 / day"/>
+				<option value="38090760-7c38-11e3-baa7-0800200c9a66" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="route" value="9">
+				<option value="9" label="htmlformentry.title"/>
+				<option value="0abca361-f6bf-49cc-97de-b2f37f099dde" label="IV"/>
+			</orderProperty>
+			<orderProperty name="urgency" value="ROUTINE">
+				<option value="ROUTINE"/>
+				<option value="STAT" label="ASAP"/>
+				<option value="ON_SCHEDULED_DATE" label="htmlformentry.title"/>
+			</orderProperty>
+			<orderProperty name="asNeeded" value="true"/>
+			<orderProperty name="instructions" textArea="true" textAreaRows="4" textAreaColumns="50" value="Instructions"/>
+			<orderProperty name="dosingInstructions" textArea="true" textAreaRows="10" textAreaColumns="100" value="Dosing"/>
+			<orderProperty name="dateActivated"/>
+			<orderProperty name="scheduledDate"/>
+			<orderProperty name="duration" value="30"/>
+			<orderProperty name="durationUnits" value="28">
+				<option value="28" label="Days"/>
+			</orderProperty>
+			<h3>There are some hidden properties here.  You can see how this can be used along with defaults...</h3>
+			<div style="display:none;">
+				<orderProperty name="previousOrder"/>
+				<orderProperty name="quantity" value="0"/>
+				<orderProperty name="quantityUnits" value="51">
+					<option value="51" label="Tablets"/>
+				</orderProperty>
+				<orderProperty name="numRefills" value="0"/>
+			</div>
+			<orderProperty name="voided"/>
+			<orderProperty name="discontinueReason" value="22">
+				<option value="16" label="Patient Died"/>
+				<option value="22" label="htmlformentry.title"/>
+			</orderProperty>
+		</orderTemplate>
+	</drugOrder>
+
+	<submit/>
+</htmlform>

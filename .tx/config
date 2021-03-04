@@ -23,3 +23,4 @@ trans.ru = api/src/main/resources/messages_ru.properties
 trans.si = api/src/main/resources/messages_si.properties
 trans.sw = api/src/main/resources/messages_sw.properties
 trans.te = api/src/main/resources/messages_te.properties
+

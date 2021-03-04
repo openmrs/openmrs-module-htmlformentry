@@ -46,6 +46,48 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void shouldFailValidationIfDrugIsRequiredAndNotSupplied() {
+		Context.getAdministrationService().setGlobalProperty("drugOrder.requireDrug", "true");
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(792, null, "", formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("1").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		triomuneField.quantity("10").quantityUnits("51").numRefills("1");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertErrors(1);
+		results.assertErrorMessage("Required");
+	}
+	
+	@Test
+	public void shouldNotFailValidationIfDrugIsNotRequiredAndNotSupplied() {
+		Context.getAdministrationService().setGlobalProperty("drugOrder.requireDrug", "false");
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(792, null, "", formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("1").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		triomuneField.quantity("10").quantityUnits("51").numRefills("1");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertErrors(0);
+	}
+	
+	@Test
+	public void shouldFailValidationIfBothDrugAndNonCodedDrugEntered() {
+		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(792, 2, "Non-coded drug", formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("1").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		triomuneField.quantity("10").quantityUnits("51").numRefills("1");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertErrorMessage("You cannot specify both a coded and non-coded drug formulation");
+	}
+	
+	@Test
 	public void shouldFailValidationIfDrugChangedOnRevision() {
 		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
 		FormSessionTester formSessionTester = formTester.openExistingToEdit(3);
@@ -145,21 +187,6 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
 		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
 		TestUtil.assertDate(order.getDateActivated(), TestUtil.formatYmd(order.getDateCreated()));
-	}
-	
-	@Test
-	public void shouldCreateRoutineOrderWithSpecificDateActivated() {
-		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
-		FormSessionTester formSessionTester = formTester.openNewForm(6);
-		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
-		DrugOrderFieldTester triomuneField = DrugOrderFieldTester.forDrug(2, formSessionTester);
-		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
-		triomuneField.dateActivated("2020-04-15");
-		triomuneField.freeTextDosing("Triomune instructions");
-		FormResultsTester results = formSessionTester.submitForm();
-		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
-		DrugOrder order = results.assertDrugOrder(Order.Action.NEW, 2);
-		TestUtil.assertDate(order.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-04-15 00:00:00");
 	}
 	
 	@Test
@@ -311,7 +338,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
 		
 		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
-		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, reviseTester);
+		DrugOrderFieldTester revisedTriomuneField = DrugOrderFieldTester.forDrug(2, triomuneField.getSuffix(), reviseTester);
 		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
 		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
 		FormResultsTester revisedResults = reviseTester.submitForm();
@@ -346,7 +373,7 @@ public class DrugOrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		// Then, we revise this above revision
 		
 		FormSessionTester editSession2 = editSession1.reopenForEditing(results1);
-		DrugOrderFieldTester revision2 = DrugOrderFieldTester.forDrug(2, editSession2);
+		DrugOrderFieldTester revision2 = DrugOrderFieldTester.forDrug(2, revision1.getSuffix(), editSession2);
 		revision2.orderAction("REVISE").previousOrder(order1.getId().toString());
 		revision2.freeTextDosing("My revision revision");
 		FormResultsTester results2 = editSession2.submitForm();

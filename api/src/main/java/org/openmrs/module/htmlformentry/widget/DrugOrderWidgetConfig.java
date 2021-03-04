@@ -6,6 +6,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openmrs.Concept;
+import org.openmrs.Drug;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 
 /**
@@ -35,6 +39,24 @@ public class DrugOrderWidgetConfig {
 	
 	public Map<String, String> getAttributes(String orderProperty) {
 		return getOrderPropertyAttributes().getOrDefault(orderProperty, new HashMap<>());
+	}
+	
+	public Map<Concept, List<Drug>> getConceptsAndDrugsConfigured() {
+		Map<Concept, List<Drug>> drugsForConcept = new LinkedHashMap<>();
+		for (Option conceptOption : getOrderPropertyOptions("concept")) {
+			Concept concept = HtmlFormEntryUtil.getConcept(conceptOption.getValue());
+			drugsForConcept.put(concept, new ArrayList<>());
+		}
+		for (Option drugOption : getOrderPropertyOptions("drug")) {
+			Drug drug = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
+			List<Drug> drugs = drugsForConcept.get(drug.getConcept());
+			if (drugs == null) {
+				drugs = new ArrayList<>();
+				drugsForConcept.put(drug.getConcept(), drugs);
+			}
+			drugs.add(drug);
+		}
+		return drugsForConcept;
 	}
 	
 	// PROPERTY ACCESSORS
