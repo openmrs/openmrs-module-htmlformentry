@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.tester;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.schema.HtmlFormField;
+import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
+import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
+import org.openmrs.module.htmlformentry.widget.Widget;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
@@ -62,6 +67,34 @@ public class FormSessionTester {
 	
 	public String getHtmlToDisplay() {
 		return htmlToDisplay;
+	}
+	
+	public FormEntrySession getFormEntrySession() {
+		return formEntrySession;
+	}
+	
+	public HtmlFormSchema getSchema() {
+		return formEntrySession.getContext().getSchema();
+	}
+	
+	public <T extends HtmlFormField> List<T> getFields(Class<T> type) {
+		List<T> ret = new ArrayList<>();
+		for (HtmlFormField f : getSchema().getAllFields()) {
+			if (type.isAssignableFrom(f.getClass())) {
+				ret.add((T) f);
+			}
+		}
+		return ret;
+	}
+	
+	public <T extends Widget> List<T> getWidgets(Class<T> type) {
+		List<T> ret = new ArrayList<>();
+		for (Widget widget : getFormEntrySession().getContext().getFieldNames().keySet()) {
+			if (type.isAssignableFrom(widget.getClass())) {
+				ret.add((T) widget);
+			}
+		}
+		return ret;
 	}
 	
 	public <T extends FormSubmissionControllerAction> List<T> getSubmissionAction(Class<T> type) {
@@ -119,6 +152,11 @@ public class FormSessionTester {
 	
 	public FormSessionTester assertHtmlContains(String expected) {
 		assertThat(htmlToDisplay, containsString(expected));
+		return this;
+	}
+	
+	public FormSessionTester assertHtmlDoesNotContain(String expected) {
+		assertThat(htmlToDisplay, not(containsString(expected)));
 		return this;
 	}
 	

@@ -25,9 +25,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
+import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.ConceptMap;
 import org.openmrs.ConceptName;
+import org.openmrs.ConceptNameTag;
 import org.openmrs.ConceptReferenceTerm;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
@@ -47,6 +49,7 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Provider;
+import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.obs.ComplexData;
@@ -1248,6 +1251,49 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	}
 	
 	/**
+	 * @see HtmlFormEntryUtil#getConceptClass(String)
+	 */
+	@Test
+	public void getConceptClass_shouldLookupByIdUuidOrName() throws Exception {
+		ConceptClass expected = Context.getConceptService().getConceptClass(3);
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptClass("3"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptClass("3d065ed4-b0b9-4710-9a17-6d8c4fd259b7"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptClass("Drug"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getConceptDatatype(String)
+	 */
+	@Test
+	public void getConceptDatatype_shouldLookupByIdUuidOrName() throws Exception {
+		ConceptDatatype expected = Context.getConceptService().getConceptDatatype(2);
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptDatatype("2"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptDatatype("8d4a48b6-c2cc-11de-8d13-0010c6dffd0f"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptDatatype("Coded"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getConceptNameTag(String)
+	 */
+	@Test
+	public void getConceptNameTag_shouldLookupByIdUuidOrTag() throws Exception {
+		ConceptNameTag expected = Context.getConceptService().getConceptNameTag(3);
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptNameTag("3"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptNameTag("cb6bc7cf-d5d3-4d51-a05b-5ea656c7413a"));
+		Assert.assertEquals(expected, HtmlFormEntryUtil.getConceptNameTag("synonym"));
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getConceptNameType(String)
+	 */
+	@Test
+	public void getConceptNameType_shouldLookupByName() throws Exception {
+		for (ConceptNameType t : ConceptNameType.values()) {
+			Assert.assertEquals(t, HtmlFormEntryUtil.getConceptNameType(t.name()));
+		}
+	}
+	
+	/**
 	 * @see HtmlFormEntryUtil#getOrdererFromEncounter(Encounter)
 	 */
 	@Test
@@ -1265,12 +1311,11 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Patient patient = Context.getPatientService().getPatient(2);
 		Drug drug3 = Context.getConceptService().getDrug(3);
 		Drug drug11 = Context.getConceptService().getDrug(11);
-		Set<Drug> drugs = new HashSet<>();
-		drugs.add(drug3);
-		drugs.add(drug11);
-		Map<Drug, List<DrugOrder>> m = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, drugs);
-		Assert.assertEquals(3, m.get(drug3).size());
-		Assert.assertEquals(1, m.get(drug11).size());
+		Set<Concept> concepts = new HashSet<>();
+		concepts.add(drug3.getConcept());
+		concepts.add(drug11.getConcept());
+		List<DrugOrder> m = HtmlFormEntryUtil.getDrugOrdersForPatient(patient, concepts);
+		Assert.assertEquals(4, m.size());
 	}
 	
 	/**

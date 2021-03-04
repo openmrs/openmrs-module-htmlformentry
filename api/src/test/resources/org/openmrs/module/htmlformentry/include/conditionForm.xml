@@ -4,8 +4,8 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	Optional Coded Condition: <condition required="false" controlId="optional_coded_condition" />
-	Required Coded Condition: <condition required="true" controlId="required_coded_condition" />
+	Optional Coded Condition: <condition required="false" controlId="optional_coded_condition" showAdditionalDetail="true"/>
+	Required Coded Condition: <condition required="true" controlId="required_coded_condition" showAdditionalDetail="true"/>
 	Optional Non-coded Condition: <condition required="false" controlId="optional_noncoded_condition" />
 	Required Non-coded Condition: <condition required="true" controlId="required_noncoded_condition" />
 	Preset Condition: <condition conceptId="22" controlId="optional_preset_condition" />

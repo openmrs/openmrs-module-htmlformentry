@@ -1,19 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
@@ -61,6 +47,21 @@ import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
 import org.openmrs.web.WebConstants;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+import java.util.stream.Collectors;
+
 /**
  * Holds the widgets used to represent a specific Observation, and serves as both the
  * HtmlGeneratorElement and the FormSubmissionControllerAction for the Observation.
@@ -89,6 +90,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private String unitsCode;
 	
 	protected String unitsCssClass = "units";
+	
+	protected String labelCssClass;
 	
 	private String dateLabel;
 	
@@ -229,6 +232,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			absoluteMinimum = Double.parseDouble(parameters.get("absoluteMinimum"));
 		}
 		
+		if (parameters.get("labelCssClass") != null) {
+			labelCssClass = parameters.get("labelCssClass");
+		}
+		
 		prepareWidgets(context, parameters);
 	}
 	
@@ -348,7 +355,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				Concept c = concepts.get(i);
 				String label = null;
 				if (conceptLabels != null && i < conceptLabels.size()) {
-					label = conceptLabels.get(i);
+					label = HtmlFormEntryUtil.translate(conceptLabels.get(i));
 				} else {
 					label = c.getName(locale, false).getName();
 				}
@@ -698,7 +705,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							if (cc == null) {
 								throw new RuntimeException("Cannot find concept class " + className);
 							}
-							conceptAnswers.addAll(Context.getConceptService().getConceptsByClass(cc));
+							conceptAnswers.addAll(Context.getConceptService().getConceptsByClass(cc).stream()
+							        .filter(c -> !c.getRetired()).collect(Collectors.toList()));
 						}
 						Collections.sort(conceptAnswers, conceptNameComparator);
 					}
@@ -798,9 +806,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 							widget.setDisplayTemplate("{{name}}");
 						}
 						if (existingObs != null && existingObs.getValueDrug() != null) {
-							// TODO: not quite sure how this works?
-							widget.setInitialValue(new Option(existingObs.getValueDrug().getName(),
-							        existingObs.getValueDrug().getDrugId().toString(), true));
+							widget.setInitialValue(existingObs.getValueDrug());
 						}
 						valueWidget = widget;
 					}
@@ -874,6 +880,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 					// set the initial value, but only if not value drug (we handle that in the above drug-specific code)
 					if (existingObs != null && existingObs.getValueDrug() == null) {
+						// TODO: not sure which case this is actually applying to, or if it's needed?
 						valueWidget.setInitialValue(existingObs.getValueCoded());
 					} else if (defaultValue != null && Mode.ENTER.equals(context.getMode())) {
 						Concept initialValue = HtmlFormEntryUtil.getConcept(defaultValue);
@@ -1148,7 +1155,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				    null, null, null);
 			}
 		}
+		if (labelCssClass != null) {
+			ret.append("<span class=\"").append(labelCssClass).append("\">");
+		}
 		ret.append(valueLabel);
+		if (labelCssClass != null) {
+			ret.append("</span>");
+		}
 		if (!"".equals(valueLabel))
 			ret.append(" ");
 		ret.append(valueWidget.generateHtml(context));
@@ -1333,10 +1346,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		}
 		if (concepts != null) {
 			try {
-				if (value instanceof Concept)
+				if (value instanceof Concept) {
 					concept = (Concept) value;
-				else
-					concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+				} else {
+					if (value == null) {
+						concept = null;
+					} else {
+						concept = (Concept) HtmlFormEntryUtil.convertToType(value.toString(), Concept.class);
+					}
+				}
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Unable to convert response to a concept!");

@@ -49,4 +49,4 @@ fi
 
 WEBAPP_DIR="$SRC_DIR/omod/src/main/webapp"
 CP_CMD="cp -R $WEBAPP_DIR/* ~/openmrs/$SERVER_ID/tmp/openmrs/WEB-INF/view/module/htmlformentry/"
-inotify-hookable -w $WEBAPP_DIR -c "$CP_CMD"
+inotify-hookable -w $WEBAPP_DIR --recursive -c "$CP_CMD"

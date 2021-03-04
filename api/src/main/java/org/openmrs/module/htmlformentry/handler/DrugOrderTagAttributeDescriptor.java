@@ -3,6 +3,7 @@ package org.openmrs.module.htmlformentry.handler;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,6 +18,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.schema.CareSettingAnswer;
+import org.openmrs.module.htmlformentry.schema.ConceptOptionGroup;
 import org.openmrs.module.htmlformentry.schema.DrugOrderAnswer;
 import org.openmrs.module.htmlformentry.schema.DrugOrderField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
@@ -105,6 +107,16 @@ public class DrugOrderTagAttributeDescriptor extends AttributeDescriptor {
 			for (HtmlFormField field : schema.getAllFields()) {
 				if (field instanceof DrugOrderField) {
 					DrugOrderField f = (DrugOrderField) field;
+					for (List<ConceptOptionGroup> setList : f.getConceptOptionGroups().values()) {
+						for (ConceptOptionGroup optionSet : setList) {
+							addDependency(ret, Concept.class, optionSet.getConcept());
+						}
+					}
+					if (f.getConceptOptions() != null) {
+						for (ObsFieldAnswer a : f.getConceptOptions()) {
+							addDependency(ret, Concept.class, a.getConcept());
+						}
+					}
 					if (f.getDrugOrderAnswers() != null) {
 						for (DrugOrderAnswer a : f.getDrugOrderAnswers()) {
 							addDependency(ret, Drug.class, a.getDrug());

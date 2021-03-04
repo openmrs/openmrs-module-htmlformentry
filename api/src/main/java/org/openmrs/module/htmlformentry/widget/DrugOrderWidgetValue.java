@@ -9,13 +9,21 @@ import org.openmrs.DrugOrder;
  */
 public class DrugOrderWidgetValue {
 	
+	private String fieldSuffix;
+	
 	private DrugOrder previousDrugOrder;
 	
 	private DrugOrder newDrugOrder;
 	
-	private boolean voidPreviousOrder;
-	
 	public DrugOrderWidgetValue() {
+	}
+	
+	public String getFieldSuffix() {
+		return fieldSuffix;
+	}
+	
+	public void setFieldSuffix(String fieldSuffix) {
+		this.fieldSuffix = fieldSuffix;
 	}
 	
 	public DrugOrder getPreviousDrugOrder() {
@@ -32,13 +40,5 @@ public class DrugOrderWidgetValue {
 	
 	public void setNewDrugOrder(DrugOrder newDrugOrder) {
 		this.newDrugOrder = newDrugOrder;
-	}
-	
-	public boolean isVoidPreviousOrder() {
-		return voidPreviousOrder;
-	}
-	
-	public void setVoidPreviousOrder(boolean voidPreviousOrder) {
-		this.voidPreviousOrder = voidPreviousOrder;
 	}
 }

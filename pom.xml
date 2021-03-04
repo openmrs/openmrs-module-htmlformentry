@@ -40,12 +40,12 @@
         <repository>
             <id>openmrs-repo-modules</id>
             <name>Modules</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules/</url>
+            <url>https://openmrs.jfrog.io/artifactory/modules/</url>
         </repository>
         <snapshotRepository>
             <id>openmrs-repo-snapshots</id>
             <name>OpenMRS Snapshots</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+            <url>https://openmrs.jfrog.io/artifactory/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -355,26 +355,6 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.9.1</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.googlecode.maven-java-formatter-plugin</groupId>
-                    <artifactId>maven-java-formatter-plugin</artifactId>
-                    <version>0.3</version>
-                    <configuration>
-                        <compilerSource>1.8</compilerSource>
-                        <compilerCompliance>1.8</compilerCompliance>
-                        <compilerTargetPlatform>1.8</compilerTargetPlatform>
-                        <configFile>eclipse/OpenMRSFormatter.xml</configFile>
-                        <overrideConfigCompilerVersion>true</overrideConfigCompilerVersion>
-                        <lineEnding>CRLF</lineEnding>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.openmrs.tools</groupId>
-                            <artifactId>openmrs-tools</artifactId>
-                            <version>2.3.2-SNAPSHOT</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -383,7 +363,7 @@
         <repository>
             <id>openmrs-repo</id>
             <name>OpenMRS Nexus Repository</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
         </repository>
     </repositories>
 
@@ -391,10 +371,12 @@
         <pluginRepository>
             <id>openmrs-repo</id>
             <name>OpenMRS Nexus Repository</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>openmrs-repo-snapshots</id>
+            <name>OpenMRS Snapshots</name>
+            <url>https://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
         </pluginRepository>
     </pluginRepositories>
 

@@ -39,6 +39,10 @@ public class DateWidget implements Widget {
 		}
 	}
 	
+	public SimpleDateFormat getDateFormatForDisplay() {
+		return dateFormat();
+	}
+	
 	public String getYearsRange() {
 		return Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_YEARS_RANGE, "110,20");
 	}
