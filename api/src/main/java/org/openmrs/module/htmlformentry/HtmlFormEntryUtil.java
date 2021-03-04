@@ -700,26 +700,6 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * If the implementation has the standard drug order type referenced by a core constant, return that
-	 * Next, try to find an Order Type named "Drug Order" Otherwise, return the first Order Type in the
-	 * system that is a Drug Order type
-	 */
-	public static OrderType getDrugOrderType() {
-		OrderType ot = Context.getOrderService().getOrderTypeByUuid(OrderType.DRUG_ORDER_TYPE_UUID);
-		if (ot == null) {
-			ot = Context.getOrderService().getOrderTypeByName("Drug Order");
-			if (ot == null) {
-				for (OrderType orderType : Context.getOrderService().getOrderTypes(false)) {
-					if (isADrugOrderType(orderType)) {
-						ot = orderType;
-					}
-				}
-			}
-		}
-		return ot;
-	}
-	
-	/**
 	 * @return all orders for a patient, ordered by date, accounting for previous orders
 	 */
 	public static List<Order> getOrdersForPatient(Patient patient, Set<Concept> concepts) {

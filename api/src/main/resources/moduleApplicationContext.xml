@@ -92,6 +92,10 @@
                     <bean class="org.openmrs.module.htmlformentry.handler.OrderTagHandler"/>
                 </entry>
                 <entry>
+                    <key><value>drugOrder</value></key>
+                    <bean class="org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler"/>
+                </entry>
+                <entry>
                     <key><value>relationship</value></key>
                     <bean class="org.openmrs.module.htmlformentry.handler.RelationshipTagHandler"/>
                 </entry>

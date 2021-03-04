@@ -1206,14 +1206,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	}
 	
 	/**
-	 * @see HtmlFormEntryUtil#getDrugOrderTypes()
-	 */
-	@Test
-	public void getDrugOrderType_shouldReturnMatchBasedOnName() throws Exception {
-		Assert.assertEquals(1, HtmlFormEntryUtil.getDrugOrderType().getId().intValue());
-	}
-	
-	/**
 	 * @see HtmlFormEntryUtil#getOrderFrequency(String)
 	 */
 	@Test
