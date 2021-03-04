@@ -13,10 +13,10 @@ import org.openmrs.Order;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.TestUtil;
-import org.openmrs.module.htmlformentry.tester.OrderFieldTester;
 import org.openmrs.module.htmlformentry.tester.FormResultsTester;
 import org.openmrs.module.htmlformentry.tester.FormSessionTester;
 import org.openmrs.module.htmlformentry.tester.FormTester;
+import org.openmrs.module.htmlformentry.tester.OrderFieldTester;
 
 public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	
@@ -391,5 +391,18 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		
 		DrugOrder originalOrder = (DrugOrder) Context.getOrderService().getOrder(3);
 		TestUtil.assertDate(originalOrder.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-03-29 23:59:59");
+	}
+
+	@Test
+	public void shouldCreateLabTestOrder() {
+		FormTester formTester = FormTester.buildForm("orderLabTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		OrderFieldTester cd4Field = OrderFieldTester.forConcept(5497, formSessionTester);
+		cd4Field.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1);
+		Order order = results.assertOrder(Order.Action.NEW, 5497);
+		assertThat(order.getUrgency(), is(Order.Urgency.ROUTINE));
 	}
 }

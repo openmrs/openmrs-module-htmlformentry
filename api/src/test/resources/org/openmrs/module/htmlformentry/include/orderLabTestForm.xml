@@ -1,0 +1,15 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<order orderType="2">
+		<orderTemplate>
+			<orderProperty name="concept">
+				<option value="5497" label="CD4 Test"/>
+			</orderProperty>
+		</orderTemplate>
+	</order>
+
+	<submit/>
+</htmlform>

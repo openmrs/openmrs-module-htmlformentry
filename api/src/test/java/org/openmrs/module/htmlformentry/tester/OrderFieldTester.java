@@ -17,12 +17,16 @@ public class OrderFieldTester {
 		this.suffix = suffix;
 		this.formSessionTester = formSessionTester;
 	}
-	
-	public static OrderFieldTester forDrug(Integer conceptId, Integer drugId, String drugNonCoded,
-	        FormSessionTester formSessionTester) {
+
+	public static OrderFieldTester forConcept(Integer conceptId, FormSessionTester formSessionTester) {
 		String nextSuffix = "_" + conceptId + "_" + nextFieldNum++;
 		OrderFieldTester tester = new OrderFieldTester(nextSuffix, formSessionTester);
 		tester.setField("concept", conceptId.toString());
+		return tester;
+	}
+	
+	public static OrderFieldTester forDrug(Integer conceptId, Integer drugId, String drugNonCoded, FormSessionTester t) {
+		OrderFieldTester tester = forConcept(conceptId, t);
 		tester.setField("drug", drugId == null ? "" : drugId.toString());
 		tester.setField("drugNonCoded", drugNonCoded);
 		return tester;
@@ -38,11 +42,7 @@ public class OrderFieldTester {
 	
 	public static OrderFieldTester forDrug(Integer drugId, FormSessionTester formSessionTester) {
 		Drug drug = Context.getConceptService().getDrug(drugId);
-		String nextSuffix = "_" + drug.getConcept().getConceptId() + "_" + nextFieldNum++;
-		OrderFieldTester tester = new OrderFieldTester(nextSuffix, formSessionTester);
-		tester.setField("concept", drug.getConcept().getConceptId().toString());
-		tester.setField("drug", drugId.toString());
-		return tester;
+		return forDrug(drug.getConcept().getConceptId(), drug.getDrugId(), null, formSessionTester);
 	}
 	
 	public OrderFieldTester setField(String property, String value) {
