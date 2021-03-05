@@ -166,10 +166,20 @@
 
 .order-field-widget {
 	display: table-cell;
+	vertical-align: middle;
+}
+
+.order-field.order-field-hidden {
+	display:none;
 }
 
 .order-field-widget label {
 	display: inline;
+}
+
+.order-view-current-encounter .order-field-widget {
+	color: #2200ff;
+	font-weight: bold;
 }
 
 .order-view-field {
