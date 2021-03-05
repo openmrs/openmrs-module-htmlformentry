@@ -40,7 +40,7 @@ public class AutocompleteWidget extends SingleOptionWidget {
 				// lookup the label for the selected value
 				boolean found = false;
 				for (Option o : getOptions()) {
-					if (getInitialValue().equals(o.getLabel())) {
+					if (getInitialValue().equals(o.getValue())) {
 						toPrint = o.getLabel();
 						found = true;
 						break;

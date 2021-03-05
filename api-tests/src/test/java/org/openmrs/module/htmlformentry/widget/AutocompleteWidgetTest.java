@@ -13,14 +13,15 @@
  */
 package org.openmrs.module.htmlformentry.widget;
 
-import java.util.Map;
-import java.util.Set;
-
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
+import org.openmrs.Location;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
+
+import java.util.Map;
+import java.util.Set;
 
 public class AutocompleteWidgetTest extends BaseHtmlFormEntryTest {
 	
@@ -79,5 +80,19 @@ public class AutocompleteWidgetTest extends BaseHtmlFormEntryTest {
 			Assert.assertTrue(generatedHtml.indexOf("Unknown Location,Xanadu,Tést Locãtion Doùblê") > -1);
 		}
 		
+	}
+	
+	@Test
+	public void autocompleteWidget_shouldGenerateTheCorrectStringValueForLocationInVIEWMode() throws Exception {
+		AutocompleteWidget autocompleteWidget = new AutocompleteWidget(Location.class);
+		FormEntryContext context = new FormEntryContext(FormEntryContext.Mode.VIEW);
+		
+		final Integer INITIAL_LOCATION_ID = 100;
+		final String INITIAL_LOCATION_NAME = "Willa Home Clinic";
+		autocompleteWidget.addOption(new Option(INITIAL_LOCATION_NAME, INITIAL_LOCATION_ID.toString()));
+		autocompleteWidget.setInitialValue(INITIAL_LOCATION_ID.toString());
+		
+		final String GENERATED_HTML = autocompleteWidget.generateHtml(context);
+		Assert.assertTrue(GENERATED_HTML.contains(INITIAL_LOCATION_NAME));
 	}
 }
