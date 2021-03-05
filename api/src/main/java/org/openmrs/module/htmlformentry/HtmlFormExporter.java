@@ -24,7 +24,7 @@ import org.openmrs.Role;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
-import org.openmrs.module.htmlformentry.handler.DrugOrderTagAttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.OrderTagAttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.module.htmlformentry.substitution.HtmlFormSubstitutionUtils;
 
@@ -109,8 +109,8 @@ public class HtmlFormExporter {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					
 					// Special case handling for Schema attribute descriptors
-					if (attributeDescriptor instanceof DrugOrderTagAttributeDescriptor) {
-						DrugOrderTagAttributeDescriptor dtad = (DrugOrderTagAttributeDescriptor) attributeDescriptor;
+					if (attributeDescriptor instanceof OrderTagAttributeDescriptor) {
+						OrderTagAttributeDescriptor dtad = (OrderTagAttributeDescriptor) attributeDescriptor;
 						Map<Class<? extends OpenmrsObject>, Set<OpenmrsObject>> deps = dtad.getDependencies(formToExport);
 						for (Class<? extends OpenmrsObject> c : deps.keySet()) {
 							if (!classesNotToExport.contains(c)) {

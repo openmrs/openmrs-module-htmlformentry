@@ -23,7 +23,6 @@ import java.util.Map;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
-import org.openmrs.DrugOrder;
 import org.openmrs.EncounterRole;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
@@ -99,7 +98,7 @@ public class TagUtil {
 				catch (Exception e) {
 					throw new IllegalArgumentException("Unable to parse value as class: " + valueToParse);
 				}
-			} else if (type == DrugOrder.class) {
+			} else if (Order.class.isAssignableFrom(type)) {
 				Integer orderId = Integer.parseInt(valueToParse);
 				Order order = Context.getOrderService().getOrder(orderId);
 				ret = (T) HibernateUtil.getRealObjectFromProxy(order);

@@ -3,13 +3,13 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	<drugOrder>
+	<order orderType="2">
 		<orderTemplate>
-			<orderProperty name="discontinueReason">
-				<optionGroup concept="555"/>
+			<orderProperty name="concept">
+				<option value="5497" label="CD4 Test"/>
 			</orderProperty>
 		</orderTemplate>
-	</drugOrder>
+	</order>
 
 	<submit/>
 </htmlform>
