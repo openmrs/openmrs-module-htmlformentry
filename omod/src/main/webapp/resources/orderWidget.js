@@ -550,16 +550,18 @@
 
         $ret.show();
 
-        var hideForNew = ['action', 'discontinueReason', 'discontinueReasonNonCoded'];
-        var hideForRevise = [
-            'careSetting', 'concept', 'drug', 'drugNonCoded', 'discontinueReason', 'discontinueReasonNonCoded'
+        var orderableProperties = [
+            'careSetting', 'concept', 'drug', 'drugNonCoded'
         ];
-        var hideForRenew = [...hideForRevise,
+        var dosingProperties = [
             'dosingType', 'dose', 'doseUnits', 'route',
             'frequency', 'asNeeded', 'asNeededCondition', 'instructions', 'dosingInstructions'
         ];
-        var hideForDiscontinue = [
-            ...hideForRenew, 'quantity', 'quantityUnits', 'numRefills'
+        var dispensingProperties = [
+            'quantity', 'quantityUnits', 'numRefills'
+        ];
+        var discontinueProperties = [
+            'discontinueReason', 'discontinueReasonNonCoded'
         ];
 
         for (var orderProperty in d) {
@@ -572,10 +574,10 @@
                     $ret.find('.order-field.order-' + orderProperty).addClass('order-field-hidden');
                 }
                 if (
-                    (d.action.value === 'NEW' && hideForNew.includes(orderProperty)) ||
-                    (d.action.value  === 'REVISE' && hideForRevise.includes(orderProperty)) ||
-                    (d.action.value  === 'RENEW' && hideForRevise.includes(orderProperty)) ||
-                    (d.action.value  === 'DISCONTINUE' && hideForDiscontinue.includes(orderProperty))
+                    (d.action.value === 'NEW' && [...discontinueProperties, 'action'].includes(orderProperty)) ||
+                    (d.action.value  === 'REVISE' && [...orderableProperties, ...discontinueProperties].includes(orderProperty)) ||
+                    (d.action.value  === 'RENEW' && [...orderableProperties, ...dosingProperties, ... discontinueProperties].includes(orderProperty)) ||
+                    (d.action.value  === 'DISCONTINUE' && [...orderableProperties, ...dosingProperties, ...dispensingProperties].includes(orderProperty))
                 ) {
                     $ret.find('.order-field.order-' + orderProperty).addClass('order-field-hidden');
                 }
