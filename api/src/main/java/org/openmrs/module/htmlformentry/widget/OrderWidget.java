@@ -324,37 +324,62 @@ public class OrderWidget implements Widget {
 		// Add a section that can contain a selector
 		writer.println("<div id=\"" + fieldName + "_header\" class=\"orderwidget-selector-section\"></div>");
 		
-		// Add a section that contains the order form template to use for entering orders
-		writer.println("<div id=\"" + fieldName + "_template\" class=\"orderwidget-order-form\" style=\"display:none;\">");
-		String templateContent = getWidgetConfig().getTemplateContent();
-		StringBuilder defaultContent = new StringBuilder();
+		// Add sections to serve as templates for edit mode and view mode for a given order
+
+		// Build the templates from the configured widgets and properties
+		String editTemplateContent = getWidgetConfig().getTemplateContent();
+		StringBuilder defaultEditContent = new StringBuilder();
+		String viewTemplateContent = getWidgetConfig().getTemplateContent();
+		StringBuilder defaultViewContent = new StringBuilder();
+
 		for (String property : widgets.keySet()) {
 			Widget w = widgets.get(property);
 			Map<String, String> c = widgetConfig.getAttributes(property);
 			if (c != null) {
 				String key = c.toString();
 				log.trace("OrderWidget - generating html for: " + property);
-				String widgetHtml = generateHtmlForWidget(property, w, c, context);
-				// If no template was supplied, or if the template does not contain this widget, add to the default section
-				if (StringUtils.isBlank(templateContent) || !templateContent.contains(key)) {
-					defaultContent.append(widgetHtml);
+
+				// We always generate a view template, as it is used both in view and edit/enter modes
+				String viewHtml = generateHtmlForWidget(property, null, c, context);
+				if (StringUtils.isBlank(viewTemplateContent)) {
+					defaultViewContent.append(viewHtml);
 				}
-				// Otherwise, replace the widget configuration with the widget html in the template
 				else {
-					templateContent = templateContent.replace(key, widgetHtml);
+					viewTemplateContent = viewTemplateContent.replace(key, viewHtml);
+				}
+
+				// We only generate the edit template for ENTER/EDIT modes
+				if (context.getMode() != FormEntryContext.Mode.VIEW) {
+					String widgetHtml = generateHtmlForWidget(property, w, c, context);
+					// If no template was supplied, or if the template does not contain this widget, add to the default section
+					if (StringUtils.isBlank(editTemplateContent) || !editTemplateContent.contains(key)) {
+						defaultEditContent.append(widgetHtml);
+					}
+					// Otherwise, replace the widget configuration with the widget html in the template
+					else {
+						editTemplateContent = editTemplateContent.replace(key, widgetHtml);
+					}
 				}
 			}
 		}
-		if (StringUtils.isNotBlank(templateContent)) {
-			writer.println(templateContent);
+
+		// Render edit template
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
+			writer.println("<div id=\"" + fieldName + "_template\" class=\"orderwidget-order-form\" style=\"display:none;\">");
+			if (StringUtils.isNotBlank(editTemplateContent)) {
+				writer.println(editTemplateContent);
+			}
+			// If a template was configured, then hide the non-template fields by default, otherwise show them
+			String nonTemplateStyle = StringUtils.isBlank(editTemplateContent) ? "" : "display:none;";
+			writer.println("<div class=\"non-template-field\" style=\"" + nonTemplateStyle + "\">");
+			writer.println(defaultEditContent.toString());
+			writer.println("</div>");
+			writer.println("</div>");
 		}
-		
-		// If a template was configured, then hide the non-template fields by default, otherwise show them
-		String nonTemplateStyle = StringUtils.isBlank(templateContent) ? "" : "display:none;";
-		writer.println("<div class=\"non-template-field\" style=\"" + nonTemplateStyle + "\">");
-		writer.println(defaultContent.toString());
-		writer.println("</div>");
-		
+
+		// Render view template
+		writer.println("<div id=\"" + fieldName + "_view_template\" class=\"orderwidget-order-history-item\" style=\"display:none;\">");
+		writer.println(StringUtils.isBlank(viewTemplateContent) ? defaultViewContent : viewTemplateContent);
 		writer.println("</div>");
 		
 		// Add javascript function to initialize widget as appropriate
@@ -387,10 +412,12 @@ public class OrderWidget implements Widget {
 			ret.append(" order-field-radio-group");
 		}
 		ret.append("\">");
-		ret.append(w.generateHtml(context));
-		ErrorWidget ew = context.getErrorWidget(w);
-		if (ew != null) {
-			ret.append(ew.generateHtml(context));
+		if (w != null) {
+			ret.append(w.generateHtml(context));
+			ErrorWidget ew = context.getErrorWidget(w);
+			if (ew != null) {
+				ret.append(ew.generateHtml(context));
+			}
 		}
 		ret.append("</div>");
 		ret.append("</div>");

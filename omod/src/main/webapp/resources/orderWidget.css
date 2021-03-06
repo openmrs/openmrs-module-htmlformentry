@@ -1,50 +1,12 @@
 
-.orderwidget-orderable-section {
-	padding: 5px;
-	border: 1px dotted black;
-}
 
-.orderwidget-orderable-details {
-	font-weight: bold;
-	display: inline-block;
-}
-
-.orderwidget-orderable-details-concept {
-	display: inline-block;
-}
-
-.orderwidget-orderable-details-drug {
-	display: inline-block;
-	font-style: italic;
-}
-
-.orderwidget-orderable-details-drug:before {
-	content: " -- ";
-	white-space: pre;
-}
-
-.orderwidget-orderable-details-drugNonCoded {
-	display: inline-block;
-	font-style: italic;
-}
-
-.orderwidget-orderable-details-drugNonCoded:before {
-	content: " -- ";
-	white-space: pre;
-}
-
-.orderwidget-history-section {
-	display: block;
+.orderwidget-selector-section {
 	margin: 10px;
 }
 
 .orderwidget-order-form {
 	display: table;
 	margin: 10px;
-}
-
-.orderwidget-order-form-concept {
-	font-weight: bold;
 }
 
 .orderwidget-order-history-item {
@@ -55,86 +17,19 @@
 	font-weight: normal;
 }
 
-.orderwidget-order-history-separator {
+.orderwidget-orderable-section {
 	margin-top: 5px;
 	border-bottom: 1px dotted black;
 	margin-bottom: 5px;
-}
-
-.order-view-section {
-	display: block;
-}
-
-.order-view-section.order-view-action {
-	display: inline-block;
-}
-
-.order-view-section.order-view-reasons {
-	display: inline-block;
-}
-
-.order-view-section.order-view-reasons:before {
-	content: "-- ";
-	white-space: pre;
-}
-
-.order-view-section.order-view-dates:before {
-	content: "-- ";
-	white-space: pre;
-}
-
-.order-view-field.order-view-orderReason-label {
-	display: none;
-}
-
-.order-view-field.order-view-orderReason {
-	display: inline-block;
-	font-weight: bold;
-}
-
-.order-view-section.order-view-dates {
-	display: inline-block;
-}
-
-.order-view-field {
-	display: inline-block;
-}
-
-.order-view-field.order-view-dose {
-	font-weight:bold;
-}
-
-.order-view-field.order-view-route:before {
-	content: "-- ";
-	white-space: pre;
-}
-.order-view-field.order-view-frequency:before {
-	content: "-- ";
-	white-space: pre;
-}
-.order-view-field.order-view-as-needed:before {
-	content: "-- ";
-	white-space: pre;
-}
-.order-view-field.order-view-instructions:before {
-	content: "-- ";
-	white-space: pre;
-}
-.order-view-field.order-view-numRefills:before {
-	content: "-- ";
-	white-space: pre;
-}
-
-.order-view-field.order-view-discontinue-reason {
-	font-weight:bold;
 }
 
 .order-view-different-encounter {
 	color: grey;
 }
 
-.orderwidget-selector-section {
-	margin: 10px;
+.order-view-current-encounter .order-field-widget {
+	color: #2200ff;
+	font-weight: bold;
 }
 
 .order-instructions {
@@ -166,14 +61,15 @@
 
 .order-field-widget {
 	display: table-cell;
+	vertical-align: middle;
+}
+
+.order-field.order-field-hidden {
+	display:none;
 }
 
 .order-field-widget label {
 	display: inline;
-}
-
-.order-view-field {
-	padding-right: 5px;
 }
 
 .order-action-section {
@@ -232,6 +128,7 @@
 
 .orderwidget-autocomplete-textbox {
 	display: inline-block;
+	max-width: 600px;
 }
 
 .ui-autocomplete {

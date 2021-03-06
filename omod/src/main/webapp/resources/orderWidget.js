@@ -179,8 +179,6 @@
         $orderableSection.append($historySection);
         $historySection.empty();
 
-        $historySection.append(orderWidget.formatOrderable(order, config));
-
         // If the order was placed in this encounter, and it was a revision of a previous order, render the previous order
         if (orderWidget.shouldRenderPreviousOrder(order, config)) {
             var prevOrder = orderWidget.getOrder(order.previousOrderId, config.history);
@@ -532,113 +530,60 @@
         }
     }
 
-    orderWidget.formatOrderable = function(order, config) {
-        // Render drug name details
-        var cssClasses = "order-view-section orderwidget-orderable-details" + (config.mode === 'VIEW' ? ' value' : '');
-        var $ret = $('<div class="' + cssClasses + '"></div>');
-        $ret.append('<div class="orderwidget-orderable-details-concept">' + order.concept.display  + '</div>');
-        if (order.drug && order.drug.value !== '') {
-            $ret.append('<div class="orderwidget-orderable-details-drug">' + order.drug.display + '</div>');
-        }
-        if (order.drugNonCoded && order.drugNonCoded.value !== '') {
-            $ret.append('<div class="orderwidget-orderable-details-drugNonCoded">' + order.drugNonCoded.display + '</div>');
-        }
-        return $ret;
-    }
-
     orderWidget.formatOrder = function(d, encDate, config) {
-        var $ret = $('<div class="orderwidget-order-history-item"></div>');
+        // Clone the view template, ensuring ids are configured for this specific orderable
+        var $ret = $('#' + config.fieldName + '_view_template').clone();
+        $ret.find("[id]").add($ret).each(function () {
+            this.id = this.id + "_" + d.orderId;
+        });
 
         var isActive = orderWidget.isOrderActive(d, encDate);
         $ret.addClass(isActive ? "order-view-active" : "order-view-inactive")
 
-        var $existingActionSection = $('<div class="order-view-section order-view-field order-view-action"></div>');
         var inCurrentEncounter = orderWidget.isOrderInCurrentEncounter(d, config);
         if (!inCurrentEncounter) {
             $ret.addClass('order-view-different-encounter');
-            if (orderWidget.isOrderActive(d, encDate)) {
-                $existingActionSection.append(config.translations['active']);
-            }
-            else {
-                $existingActionSection.append(config.translations.previousOrder);
-            }
         }
         else {
             $ret.addClass('order-view-current-encounter');
-            $ret.addClass('value');
-            $existingActionSection.append(d.action.display);
         }
-        $ret.append($existingActionSection);
 
-        if (d.orderReason.display !== '' || d.orderReasonNonCoded.display !== '') {
-            var $reasonSection = $('<div class="order-view-section order-view-reasons"></div>');
-            $reasonSection.append('<div class="order-view-field order-view-orderReason-label">' + config.translations.orderReason + '</div>');
-            if (d.orderReason.display !== '') {
-                $reasonSection.append('<div class="order-view-field order-view-orderReason">' + d.orderReason.display + '</div>');
-            }
-            if (d.orderReasonNonCoded.display !== '') {
-                $reasonSection.append('<div class="order-view-field order-view-orderReasonNonCoded">' + d.orderReasonNonCoded.display + '</div>');
-            }
-        }
-        $ret.append($reasonSection);
+        $ret.show();
 
-        var isDiscontinue = (d.action.value === 'DISCONTINUE');
+        var orderableProperties = [
+            'careSetting', 'concept', 'drug', 'drugNonCoded'
+        ];
+        var dosingProperties = [
+            'dosingType', 'dose', 'doseUnits', 'route',
+            'frequency', 'asNeeded', 'asNeededCondition', 'instructions', 'dosingInstructions'
+        ];
+        var dispensingProperties = [
+            'quantity', 'quantityUnits', 'numRefills'
+        ];
+        var discontinueProperties = [
+            'discontinueReason', 'discontinueReasonNonCoded'
+        ];
 
-        var $dateSection = $('<div class="order-view-section order-view-dates"></div>');
-        $dateSection.append('<div class="order-view-field order-view-start-date">' + config.translations.starting + ' ' + d.effectiveStartDate.display + "</div>");
-        if (d.action.value !== 'DISCONTINUE') {
-            if (d.duration && d.duration.display !== '') {
-                $dateSection.append(' ' + config.translations['for'] + ' ' + d.duration.display + ' ' + d.durationUnits.display);
-            } else if (d.autoExpireDate.display !== '') {
-                $dateSection.append('<div class="order-view-field order-view-stop-date">');
-                $dateSection.append(config.translations.until + ' ' + d.autoExpireDate.display);
-                $dateSection.append('</div>');
-            }
-        }
-        $dateSection.append('</div>');
-        $ret.append($dateSection);
-
-        if (isDiscontinue) {
-            var $discontinueSection = $('<div class="order-view-section order-view-discontinue"></div>');
-            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason-label">' + config.translations.discontinueReason + ': </div>');
-            $discontinueSection.append('<div class="order-view-field order-view-discontinue-reason">' + d.discontinueReason.display + d.discontinueReasonNonCoded.display + '</div>');
-            $ret.append($discontinueSection);
-        }
-        else if (d.isDrugOrder === 'true') {
-            var $doseSection = $('<div class="order-view-section order-view-dosing"></div>');
-            if (d.dosingType.value === 'org.openmrs.FreeTextDosingInstructions') {
-                $doseSection.append('<div class="order-view-field order-view-dosing-instructions">' + d.dosingInstructions.display + "</div>");
-            } else {
-                if (d.dose.display !== '') {
-                    $doseSection.append('<div class="order-view-field order-view-dose">' + d.dose.display + " " + d.doseUnits.display + "</div>");
+        for (var orderProperty in d) {
+            if (Object.prototype.hasOwnProperty.call(d, orderProperty)) {
+                var val = d[orderProperty];
+                if (val.display && val.display !== '') {
+                    $ret.find('.order-field-widget.order-' + orderProperty).html(val.display);
                 }
-                if (d.route.display !== "") {
-                    $doseSection.append('<div class="order-view-field order-view-route">' + d.route.display + '</div>');
+                else {
+                    $ret.find('.order-field.order-' + orderProperty).addClass('order-field-hidden');
                 }
-                if (d.frequency.display !== "") {
-                    $doseSection.append('<div class="order-view-field order-view-frequency">' + d.frequency.display + '</div>');
-                }
-                if (d.asNeeded.value === "true") {
-                    $doseSection.append('<div class="order-view-field order-view-as-needed">' + config.translations.asNeeded + '</div>');
-                }
-                if (d.instructions.value !== "") {
-                    $doseSection.append('<div class="order-view-field order-view-instructions">' + d.instructions.display + '</div>');
+                if (
+                    (d.action.value === 'NEW' && [...discontinueProperties, 'action'].includes(orderProperty)) ||
+                    (d.action.value  === 'REVISE' && [...orderableProperties, ...discontinueProperties].includes(orderProperty)) ||
+                    (d.action.value  === 'RENEW' && [...orderableProperties, ...dosingProperties, ... discontinueProperties].includes(orderProperty)) ||
+                    (d.action.value  === 'DISCONTINUE' && [...orderableProperties, ...dosingProperties, ...dispensingProperties].includes(orderProperty))
+                ) {
+                    $ret.find('.order-field.order-' + orderProperty).addClass('order-field-hidden');
                 }
             }
-            $ret.append($doseSection);
-
-            var $quantitySection = $('<div class="order-view-section order-view-quantity-section"></div>');
-            if (d.quantity.display !== '') {
-                $quantitySection.append('<div class="order-view-field order-view-quantity-label">' + config.translations.quantity + ': </div>');
-                $quantitySection.append('<div class="order-view-field order-view-quantity">' + d.quantity.display + '</div>');
-                $quantitySection.append('<div class="order-view-field order-view-quantityUnits">' + d.quantityUnits.display + '</div>');
-            }
-            if (d.numRefills.display !== "") {
-                $quantitySection.append('<div class="order-view-field order-view-numRefills">' + d.numRefills.display + '</div>');
-                $quantitySection.append('<div class="order-view-field order-view-numRefills-label">' + config.translations.refills + '</div>');
-            }
-            $ret.append($quantitySection);
         }
+
         return $ret;
     }
 
