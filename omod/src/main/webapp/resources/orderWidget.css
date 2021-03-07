@@ -76,6 +76,10 @@
 	margin: 10px;
 }
 
+.order-cancel-action-section {
+	margin-top: 10px;
+}
+
 .order-action-warnings {
 	padding-top: 10px;
 	font-weight: bold;

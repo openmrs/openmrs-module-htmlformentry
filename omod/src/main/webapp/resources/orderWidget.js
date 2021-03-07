@@ -86,7 +86,7 @@
     orderWidget.canRenewOrder = function(order, config) {
         var ret = orderWidget.supportsAction(config, 'RENEW');
         ret = ret && order.action.value !== 'DISCONTINUE';
-        ret = ret && !orderWidget.isOrderInCurrentEncounter(order, config);
+        ret = ret && (!orderWidget.isOrderInCurrentEncounter(order, config) || order.action.value === 'RENEW');
         return ret;
     }
 
@@ -94,6 +94,7 @@
     orderWidget.canReviseOrder = function(order, config) {
         var ret = orderWidget.supportsAction(config, 'REVISE');
         ret = ret && order.action.value !== 'DISCONTINUE';
+        ret = ret && (!orderWidget.isOrderInCurrentEncounter(order, config) || order.action.value === 'REVISE');
         return ret;
     }
 
@@ -219,7 +220,7 @@
     /**
      * Clones the order form template and replaces all the the ids and names as appropriate
      */
-    orderWidget.constructOrderForm = function($sectionToAppendTo, idSuffix, config, action) {
+    orderWidget.constructOrderForm = function($sectionToAppendTo, idSuffix, config, action, $actionButton) {
 
         // Clone the order form template, ensuring ids and names of widgets are configured for this specific orderable
         var $orderForm = $('#' + config.fieldName + '_template').clone();
@@ -244,6 +245,7 @@
         });
 
         $orderForm.hide();
+        $sectionToAppendTo.show();
         $sectionToAppendTo.append($orderForm);
 
         // Hide all widgets by default
@@ -289,6 +291,16 @@
             orderWidget.enableDateWidgets(config, $orderForm, encDate);
         });
 
+        var $actionSection = $('<div class="order-cancel-action-section"></div>');
+        var $deleteAction = $('<div class="order-action-button">' + config.translations.cancelAction + '</div>');
+        $deleteAction.click(function(event) {
+            $actionButton.removeClass('orderwidget-selected-action');
+            $orderForm.remove();
+            $sectionToAppendTo.hide();
+        });
+        $actionSection.append($deleteAction);
+        $orderForm.append($actionSection);
+
         return $orderForm;
     }
 
@@ -305,16 +317,7 @@
         $newButton.click(function () {
             var idSuffix = '_' + orderWidget.nextActionButtonIndex();
             var $orderSection = orderWidget.addOrderSection(config);
-            var $orderForm = orderWidget.constructOrderForm($orderSection, idSuffix, config, 'NEW');
-
-            var $actionSection = $('<div class="order-action-section"></div>');
-            var $deleteAction = $('<div class="order-action-button">' + config.translations.delete + '</div>');
-            $deleteAction.click(function(event) {
-                $orderSection.remove();
-            });
-            $actionSection.append($deleteAction);
-            $orderSection.append($actionSection);
-
+            var $orderForm = orderWidget.constructOrderForm($orderSection, idSuffix, config, 'NEW', $newButton);
             orderWidget.enableOrderableSelector(config, $orderForm);
             orderWidget.enableContextWidgets(config, $orderForm);
             $orderForm.show();
@@ -326,9 +329,6 @@
         var $orderActionSection = $('<div class="order-action-section"></div>');
         var $orderActionButtons = $('<div class="order-action-buttons"></div>');
         $orderActionSection.append($orderActionButtons);
-        var $orderActionWarningSection = $("<div class='order-action-warnings'>" + config.translations.editDeleteWarning + "</div>");
-        $orderActionSection.append($orderActionWarningSection);
-        $orderActionWarningSection.hide();
         var $orderActionForms = $('<div class="order-action-forms"></div>');
         $orderActionSection.append($orderActionForms);
 
@@ -338,45 +338,30 @@
             var $actionOption = orderWidget.getActionOption(config, action);
             var idSuffix = '_' + orderWidget.nextActionButtonIndex();
 
-            var actionLabel = $actionOption.html();
-            var isEditingPreviousEncounter = orderWidget.isOrderInCurrentEncounter(order, config);
-            var isRevising = (action === 'REVISE');
-            var isDiscontinuing = (action === 'DISCONTINUE');
+            var orderInCurrentEncounter = orderWidget.isOrderInCurrentEncounter(order, config);
+            var isVoidAndEdit = orderInCurrentEncounter && (action === 'REVISE' && order.action.value === 'REVISE') || (action === 'RENEW' && order.action.value === 'RENEW');
+            var isVoid = (orderInCurrentEncounter && action === 'DISCONTINUE');
 
-            if (isEditingPreviousEncounter) {
-                if (isRevising) {
-                    actionLabel = config.translations.editOrder;
-                }
-                else if (isDiscontinuing) {
-                    actionLabel = config.translations.deleteOrder;
-                }
-            }
+            var actionLabel = isVoidAndEdit ? config.translations.editOrder : isVoid ? config.translations.deleteOrder : $actionOption.html();
 
             var $actionButton = orderWidget.createActionButton(idSuffix, action, actionLabel);
             $actionButton.click(function() {
                 var $orderForm = $orderActionForms.find('.orderwidget-order-form');
-                $orderActionWarningSection.hide();
-                $orderActionButtons.find(".order-action-button").hide();
+                $orderActionSection.find(".order-action-button").removeClass('orderwidget-selected-action');
                 if ($orderForm.length > 0) {
                     $orderForm.remove();
-                    $actionButton.removeClass('orderwidget-selected-action');
-                    $orderActionButtons.find(".order-action-button").show();
                 }
-                else {
-                    $actionButton.addClass('orderwidget-selected-action');
-                    $actionButton.show();
-                    $orderForm = orderWidget.constructOrderForm($orderActionForms, idSuffix, config, action);
-                    orderWidget.populateOrderForm(config, $orderForm, order);
-                    if (isEditingPreviousEncounter) {
-                        if (isDiscontinuing) {
-                            $orderForm.hide();
-                        } else {
-                            $orderForm.show();
-                        }
-                        if (isRevising || isDiscontinuing) {
-                            $orderActionWarningSection.show();
-                        }
+                $actionButton.addClass('orderwidget-selected-action');
+                $actionButton.show();
+                $orderForm = orderWidget.constructOrderForm($orderActionForms, idSuffix, config, action, $actionButton);
+                orderWidget.populateOrderForm(config, $orderForm, order);
+
+                if (isVoidAndEdit || isVoid) {
+                    if (isVoid) {
+                        $orderForm.find('.order-field').hide();
                     }
+                    $orderForm.prepend("<div class='order-action-warnings'>" + config.translations.editDeleteWarning + "</div>");
+                    $orderForm.show();
                 }
             });
             $orderActionButtons.append($actionButton);
@@ -564,6 +549,24 @@
             'discontinueReason', 'discontinueReasonNonCoded'
         ];
 
+        var hideForNew = [...discontinueProperties, 'action'];
+        var hideForRevise = [...discontinueProperties];
+        var hideForRenew = [...dosingProperties, ... discontinueProperties];
+        var hideForDiscontinue = [
+            ...dosingProperties, ...dispensingProperties,
+            'orderReason', 'orderReasonNonCoded', 'duration', 'durationUnits'
+        ]
+        if (inCurrentEncounter) {
+            hideForRevise = [...hideForRevise, ...orderableProperties];
+            hideForRenew = [...hideForRenew, ...orderableProperties];
+            hideForDiscontinue = [...hideForDiscontinue, ...orderableProperties];
+        }
+        else {
+            hideForRevise.push('action');
+            hideForRenew.push('action');
+            hideForDiscontinue.push('action');
+        }
+
         for (var orderProperty in d) {
             if (Object.prototype.hasOwnProperty.call(d, orderProperty)) {
                 var val = d[orderProperty];
@@ -574,10 +577,10 @@
                     $ret.find('.order-field.order-' + orderProperty).addClass('order-field-hidden');
                 }
                 if (
-                    (d.action.value === 'NEW' && [...discontinueProperties, 'action'].includes(orderProperty)) ||
-                    (d.action.value  === 'REVISE' && [...orderableProperties, ...discontinueProperties].includes(orderProperty)) ||
-                    (d.action.value  === 'RENEW' && [...orderableProperties, ...dosingProperties, ... discontinueProperties].includes(orderProperty)) ||
-                    (d.action.value  === 'DISCONTINUE' && [...orderableProperties, ...dosingProperties, ...dispensingProperties].includes(orderProperty))
+                    (d.action.value === 'NEW' && hideForNew.includes(orderProperty)) ||
+                    (d.action.value  === 'REVISE' && hideForRevise.includes(orderProperty)) ||
+                    (d.action.value  === 'RENEW' && hideForRenew.includes(orderProperty)) ||
+                    (d.action.value  === 'DISCONTINUE' && hideForDiscontinue.includes(orderProperty))
                 ) {
                     $ret.find('.order-field.order-' + orderProperty).addClass('order-field-hidden');
                 }
