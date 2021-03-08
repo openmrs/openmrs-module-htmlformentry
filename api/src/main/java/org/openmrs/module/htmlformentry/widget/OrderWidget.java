@@ -157,7 +157,8 @@ public class OrderWidget implements Widget {
 		JsonObject translations = jsonConfig.addObject("translations");
 		String[] messageCodes = { "encounterDateChangeWarning", "delete", "editDeleteWarning", "editOrder", "deleteOrder",
 		        "previousOrder", "orderReason", "starting", "until", "for", "discontinueReason", "asNeeded", "quantity",
-		        "refills", "active", "cancelAction" };
+		        "refills", "active", "cancelAction", "existingOrdersViewTitle", "existingOrdersEditTitle",
+				"newOrdersTitle", "noOrders"};
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
 		}

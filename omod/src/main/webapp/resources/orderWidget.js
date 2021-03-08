@@ -94,7 +94,7 @@
     orderWidget.canReviseOrder = function(order, config) {
         var ret = orderWidget.supportsAction(config, 'REVISE');
         ret = ret && order.action.value !== 'DISCONTINUE';
-        ret = ret && (!orderWidget.isOrderInCurrentEncounter(order, config) || order.action.value === 'REVISE');
+        ret = ret && (!orderWidget.isOrderInCurrentEncounter(order, config) || ['NEW','REVISE'].includes(order.action.value));
         return ret;
     }
 
@@ -150,32 +150,52 @@
 
     orderWidget.renderOrdersForRevision = function(config) {
         var $widgetField = $('#' + config.fieldName);
-        $widgetField.find(".orderwidget-order-section").empty();
-
         var encDate = orderWidget.getEncounterDate(config.defaultDate);
+
+        var $orderSection = $widgetField.find(".orderwidget-order-section");
+        $orderSection.empty();
+        var $existingOrderSection = $('<div class="orderwidget-existing-order-section"></div>');
+
+        var existingOrdersTitle = config.mode === 'VIEW' ? config.translations.existingOrdersViewTitle : config.translations.existingOrdersEditTitle;
+        var newOrdersTitle = config.translations.newOrdersTitle;
+        var noOrdersTitle = config.translations.noOrders;
+
+        $existingOrderSection.append('<div class="orderwidget-section-header">' + existingOrdersTitle + '</div>');
+        $existingOrderSection.append('<div class="orderwidget-section-no-orders">' + noOrdersTitle + '</div>');
+        $orderSection.append($existingOrderSection);
+
+        var $newOrderSection = $('<div class="orderwidget-new-order-section"></div>');
+        $newOrderSection.append('<div class="orderwidget-section-header">' + newOrdersTitle + '</div>');
+        $newOrderSection.append('<div class="orderwidget-section-no-orders">' + noOrdersTitle + '</div>');
+        $orderSection.append($newOrderSection);
 
         config.history.forEach(function(order) {
             if (orderWidget.shouldRenderOrder(order, config, encDate)) {
-                orderWidget.renderOrder(order, config, encDate);
+                var newInEncounter = orderWidget.isOrderInCurrentEncounter(order, config) && order.action.value === 'NEW';
+                if (newInEncounter) {
+                    orderWidget.renderOrder($newOrderSection, order, config, encDate);
+                }
+                else {
+                    orderWidget.renderOrder($existingOrderSection, order, config, encDate);
+                }
             }
         });
     }
 
-    orderWidget.addOrderSection = function(config) {
-        var $elementSection = $('#' + config.fieldName);
-        var $ordersSection = $elementSection.find('.orderwidget-order-section');
+    orderWidget.addOrderSection = function($sectionToAddTo, config) {
+        $sectionToAddTo.find(".orderwidget-section-no-orders").hide();
         var orderableSectionId = 'orderwidget-orderable-section-' + orderWidget.nextOrderableSectionIndex();
         var $orderableSection = $('<div id="' + orderableSectionId + '" class="orderwidget-orderable-section"></div>');
-        $ordersSection.append($orderableSection);
+        $sectionToAddTo.append($orderableSection);
         return $orderableSection;
     }
 
     /**
      * Renders a given drug order
      */
-    orderWidget.renderOrder = function(order, config, encDate) {
+    orderWidget.renderOrder = function($sectionToAppendTo, order, config, encDate) {
 
-        var $orderableSection = orderWidget.addOrderSection(config);
+        var $orderableSection = orderWidget.addOrderSection($sectionToAppendTo, config);
         var $historySection = $('<div class="orderwidget-history-section"></div>');
         $orderableSection.append($historySection);
         $historySection.empty();
@@ -312,11 +332,13 @@
      * The purpose of this function is to construct selectors and form for entering a NEW order
      */
     orderWidget.createNewOrderSection = function(config) {
+        var $widgetField = $('#' + config.fieldName);
         var $actionOption = orderWidget.getActionOption(config, 'NEW');
         var $newButton = orderWidget.createActionButton("", 'NEW', $actionOption.html());
+        var $newOrderSection = $widgetField.find('.orderwidget-new-order-section');
         $newButton.click(function () {
             var idSuffix = '_' + orderWidget.nextActionButtonIndex();
-            var $orderSection = orderWidget.addOrderSection(config);
+            var $orderSection = orderWidget.addOrderSection($newOrderSection, config);
             var $orderForm = orderWidget.constructOrderForm($orderSection, idSuffix, config, 'NEW', $newButton);
             orderWidget.enableOrderableSelector(config, $orderForm);
             orderWidget.enableContextWidgets(config, $orderForm);
@@ -339,7 +361,7 @@
             var idSuffix = '_' + orderWidget.nextActionButtonIndex();
 
             var orderInCurrentEncounter = orderWidget.isOrderInCurrentEncounter(order, config);
-            var isVoidAndEdit = orderInCurrentEncounter && (action === 'REVISE' && order.action.value === 'REVISE') || (action === 'RENEW' && order.action.value === 'RENEW');
+            var isVoidAndEdit = orderInCurrentEncounter && (action === 'REVISE' && ['NEW','REVISE'].includes(order.action.value)) || (action === 'RENEW' && order.action.value === 'RENEW');
             var isVoid = (orderInCurrentEncounter && action === 'DISCONTINUE');
 
             var actionLabel = isVoidAndEdit ? config.translations.editOrder : isVoid ? config.translations.deleteOrder : $actionOption.html();

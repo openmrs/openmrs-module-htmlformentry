@@ -1,4 +1,10 @@
 
+.orderwidget-section-header {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-weight: bold;
+	font-size: larger;
+}
 
 .orderwidget-selector-section {
 	margin: 10px;
