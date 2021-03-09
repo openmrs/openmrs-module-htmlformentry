@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 
@@ -39,6 +40,9 @@ public class RadioButtonsWidget extends SingleOptionWidget {
 			}
 		} else {
 			String id = context.getFieldName(this);
+			if (getOptions() == null) {
+				throw new RuntimeException("There is a radio widget in the schema that has no options");
+			}
 			for (int i = 0; i < getOptions().size(); ++i) {
 				Option option = getOptions().get(i);
 				boolean selected = option.isSelected();
