@@ -30,21 +30,21 @@
 	</section>
 	
 	<section>
-		<drugOrder>
+		<order orderType="1">
 			<orderTemplate>
 				<orderProperty name="drug">
 					<option value="2" />
 					<option value="3" />
 				</orderProperty>
 			</orderTemplate>
-		</drugOrder>
-		<drugOrder>
+		</order>
+		<order orderType="1">
 			<orderTemplate>
 				<orderProperty name="drug">
 					<option value="11" />
 				</orderProperty>
 			</orderTemplate>
-		</drugOrder>
+		</order>
 
 	</section>
 	

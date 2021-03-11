@@ -6,46 +6,54 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.openmrs.Concept;
+import org.openmrs.OrderType;
 
-public class DrugOrderField implements HtmlFormField {
+public class OrderField implements HtmlFormField {
 	
-	private List<ObsFieldAnswer> conceptOptions = new ArrayList<>();
+	private OrderType orderType;
+	
+	private List<ConceptOption> conceptOptions = new ArrayList<>();
 	
 	private List<DrugOrderAnswer> drugOrderAnswers = new ArrayList<>();
 	
 	private List<CareSettingAnswer> careSettingAnswers = new ArrayList<>();
 	
-	private List<OrderTypeAnswer> orderTypeAnswers = new ArrayList<>();
+	private List<ConceptOption> orderReasonAnswers = new ArrayList<>();
 	
-	private List<ObsFieldAnswer> doseUnitAnswers = new ArrayList<>();
+	private List<ConceptOption> discontinueReasonAnswers = new ArrayList<>();
 	
-	private List<ObsFieldAnswer> routeAnswers = new ArrayList<>();
+	private List<ConceptOption> doseUnitAnswers = new ArrayList<>();
+	
+	private List<ConceptOption> routeAnswers = new ArrayList<>();
 	
 	private List<OrderFrequencyAnswer> frequencyAnswers = new ArrayList<>();
 	
-	private List<ObsFieldAnswer> durationUnitAnswers = new ArrayList<>();
+	private List<ConceptOption> durationUnitAnswers = new ArrayList<>();
 	
-	private List<ObsFieldAnswer> quantityUnitAnswers = new ArrayList<>();
-	
-	private Concept discontinuedReasonQuestion;
-	
-	private List<ObsFieldAnswer> discontinuedReasonAnswers = new ArrayList<>();
+	private List<ConceptOption> quantityUnitAnswers = new ArrayList<>();
 	
 	private Map<String, List<ConceptOptionGroup>> conceptOptionGroups = new HashMap<>();
 	
-	public DrugOrderField() {
+	public OrderField() {
 	}
 	
-	public List<ObsFieldAnswer> getConceptOptions() {
+	public OrderType getOrderType() {
+		return orderType;
+	}
+	
+	public void setOrderType(OrderType orderType) {
+		this.orderType = orderType;
+	}
+	
+	public List<ConceptOption> getConceptOptions() {
 		return conceptOptions;
 	}
 	
-	public void setConceptOptions(List<ObsFieldAnswer> conceptOptions) {
+	public void setConceptOptions(List<ConceptOption> conceptOptions) {
 		this.conceptOptions = conceptOptions;
 	}
 	
-	public void addConceptOption(ObsFieldAnswer a) {
+	public void addConceptOption(ConceptOption a) {
 		if (conceptOptions == null) {
 			conceptOptions = new ArrayList<>();
 		}
@@ -82,45 +90,60 @@ public class DrugOrderField implements HtmlFormField {
 		careSettingAnswers.add(a);
 	}
 	
-	public List<OrderTypeAnswer> getOrderTypeAnswers() {
-		return orderTypeAnswers;
+	public List<ConceptOption> getOrderReasonAnswers() {
+		return orderReasonAnswers;
 	}
 	
-	public void setOrderTypeAnswers(List<OrderTypeAnswer> orderTypeAnswers) {
-		this.orderTypeAnswers = orderTypeAnswers;
+	public void setOrderReasonAnswers(List<ConceptOption> orderReasonAnswers) {
+		this.orderReasonAnswers = orderReasonAnswers;
 	}
 	
-	public void addOrderTypeAnswer(OrderTypeAnswer a) {
-		if (orderTypeAnswers == null) {
-			orderTypeAnswers = new ArrayList<>();
+	public void addOrderReasonAnswer(ConceptOption a) {
+		if (orderReasonAnswers == null) {
+			orderReasonAnswers = new ArrayList<>();
 		}
-		orderTypeAnswers.add(a);
+		orderReasonAnswers.add(a);
 	}
 	
-	public List<ObsFieldAnswer> getDoseUnitAnswers() {
+	public List<ConceptOption> getDiscontinueReasonAnswers() {
+		return discontinueReasonAnswers;
+	}
+	
+	public void setDiscontinueReasonAnswers(List<ConceptOption> discontinueReasonAnswers) {
+		this.discontinueReasonAnswers = discontinueReasonAnswers;
+	}
+	
+	public void addDiscontinueReasonAnswer(ConceptOption a) {
+		if (discontinueReasonAnswers == null) {
+			discontinueReasonAnswers = new ArrayList<>();
+		}
+		discontinueReasonAnswers.add(a);
+	}
+	
+	public List<ConceptOption> getDoseUnitAnswers() {
 		return doseUnitAnswers;
 	}
 	
-	public void setDoseUnitAnswers(List<ObsFieldAnswer> doseUnitAnswers) {
+	public void setDoseUnitAnswers(List<ConceptOption> doseUnitAnswers) {
 		this.doseUnitAnswers = doseUnitAnswers;
 	}
 	
-	public void addDoseUnitAnswer(ObsFieldAnswer a) {
+	public void addDoseUnitAnswer(ConceptOption a) {
 		if (doseUnitAnswers == null) {
 			doseUnitAnswers = new ArrayList<>();
 		}
 		doseUnitAnswers.add(a);
 	}
 	
-	public List<ObsFieldAnswer> getRouteAnswers() {
+	public List<ConceptOption> getRouteAnswers() {
 		return routeAnswers;
 	}
 	
-	public void setRouteAnswers(List<ObsFieldAnswer> routeAnswers) {
+	public void setRouteAnswers(List<ConceptOption> routeAnswers) {
 		this.routeAnswers = routeAnswers;
 	}
 	
-	public void addRouteAnswer(ObsFieldAnswer a) {
+	public void addRouteAnswer(ConceptOption a) {
 		if (routeAnswers == null) {
 			routeAnswers = new ArrayList<>();
 		}
@@ -142,57 +165,34 @@ public class DrugOrderField implements HtmlFormField {
 		frequencyAnswers.add(a);
 	}
 	
-	public List<ObsFieldAnswer> getDurationUnitAnswers() {
+	public List<ConceptOption> getDurationUnitAnswers() {
 		return durationUnitAnswers;
 	}
 	
-	public void setDurationUnitAnswers(List<ObsFieldAnswer> durationUnitAnswers) {
+	public void setDurationUnitAnswers(List<ConceptOption> durationUnitAnswers) {
 		this.durationUnitAnswers = durationUnitAnswers;
 	}
 	
-	public void addDurationUnitAnswer(ObsFieldAnswer a) {
+	public void addDurationUnitAnswer(ConceptOption a) {
 		if (durationUnitAnswers == null) {
 			durationUnitAnswers = new ArrayList<>();
 		}
 		durationUnitAnswers.add(a);
 	}
 	
-	public List<ObsFieldAnswer> getQuantityUnitAnswers() {
+	public List<ConceptOption> getQuantityUnitAnswers() {
 		return quantityUnitAnswers;
 	}
 	
-	public void setQuantityUnitAnswers(List<ObsFieldAnswer> quantityUnitAnswers) {
+	public void setQuantityUnitAnswers(List<ConceptOption> quantityUnitAnswers) {
 		this.quantityUnitAnswers = quantityUnitAnswers;
 	}
 	
-	public void addQuantityUnitAnswer(ObsFieldAnswer a) {
+	public void addQuantityUnitAnswer(ConceptOption a) {
 		if (quantityUnitAnswers == null) {
 			quantityUnitAnswers = new ArrayList<>();
 		}
 		quantityUnitAnswers.add(a);
-	}
-	
-	public Concept getDiscontinuedReasonQuestion() {
-		return discontinuedReasonQuestion;
-	}
-	
-	public void setDiscontinuedReasonQuestion(Concept discontinuedReasonQuestion) {
-		this.discontinuedReasonQuestion = discontinuedReasonQuestion;
-	}
-	
-	public List<ObsFieldAnswer> getDiscontinuedReasonAnswers() {
-		return discontinuedReasonAnswers;
-	}
-	
-	public void setDiscontinuedReasonAnswers(List<ObsFieldAnswer> discontinuedReasonAnswers) {
-		this.discontinuedReasonAnswers = discontinuedReasonAnswers;
-	}
-	
-	public void addDiscontinuedReasonAnswer(ObsFieldAnswer ofa) {
-		if (discontinuedReasonAnswers == null) {
-			discontinuedReasonAnswers = new ArrayList<>();
-		}
-		discontinuedReasonAnswers.add(ofa);
 	}
 	
 	public Map<String, List<ConceptOptionGroup>> getConceptOptionGroups() {

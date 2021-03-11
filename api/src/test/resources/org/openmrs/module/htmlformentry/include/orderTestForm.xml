@@ -1,0 +1,16 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<drugOrder>
+		<orderTemplate>
+			<orderProperty name="drug">
+				<option value="2" label="Drug 2"/>
+				<option value="3" label="Drug 3"/>
+			</orderProperty>
+		</orderTemplate>
+	</drugOrder>
+
+	<submit/>
+</htmlform>

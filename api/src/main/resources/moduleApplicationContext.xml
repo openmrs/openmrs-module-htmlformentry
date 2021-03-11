@@ -88,6 +88,10 @@
                     <bean class="org.openmrs.module.htmlformentry.handler.PatientTagHandler"/>
                 </entry>
                 <entry>
+                    <key><value>order</value></key>
+                    <bean class="org.openmrs.module.htmlformentry.handler.OrderTagHandler"/>
+                </entry>
+                <entry>
                     <key><value>drugOrder</value></key>
                     <bean class="org.openmrs.module.htmlformentry.handler.DrugOrderTagHandler"/>
                 </entry>

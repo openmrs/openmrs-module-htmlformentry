@@ -21,7 +21,6 @@ import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
-import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;

@@ -1,0 +1,15 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+
+	<order orderType="1">
+		<orderTemplate>
+			<orderProperty name="discontinueReason">
+				<optionGroup concept="555"/>
+			</orderProperty>
+		</orderTemplate>
+	</order>
+
+	<submit/>
+</htmlform>

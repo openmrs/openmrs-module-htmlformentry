@@ -573,6 +573,24 @@ public class FormResultsTester {
 		assertThat(num, is(expected));
 		return this;
 	}
+
+	/**
+	 * Fails if there is no order created in the encounter with given concept and action
+	 *
+	 * @returns the matching order
+	 */
+	public Order assertOrder(Order.Action action, Integer conceptId) {
+		List<Order> found = new ArrayList<>();
+		for (Order o : getOrdersCreated()) {
+			if (o.getAction() == action && o.getConcept().getId().equals(conceptId)) {
+				if (BooleanUtils.isFalse(o.getVoided())) {
+					found.add(o);
+				}
+			}
+		}
+		assertThat(found.size(), is(1));
+		return found.get(0);
+	}
 	
 	/**
 	 * Fails if there is no order created in the encounter with given drug and action

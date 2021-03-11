@@ -597,52 +597,6 @@ public class FormEntryContext {
 	}
 	
 	/**
-	 * checks the existing orders property and return a list of all as-of-yet unmatched orders
-	 *
-	 * @return the list of orders
-	 */
-	public List<Order> getRemainingExistingOrders() {
-		List<Order> ret = new ArrayList<Order>();
-		if (this.getExistingOrders() != null) {
-			for (Map.Entry<Concept, List<Order>> e : this.getExistingOrders().entrySet()) {
-				List<Order> ords = e.getValue();
-				for (Order o : ords)
-					ret.add(o);
-			}
-		}
-		return ret;
-	}
-	
-	/**
-	 * Removes a DrugOrder of the relevant Drug.Concept from existingOrders, and returns it.
-	 *
-	 * @param drug- the drug associated with the DrugOrder to remove
-	 * @return
-	 */
-	public DrugOrder removeExistingDrugOrder(Drug drug) {
-		if (drug != null) {
-			Concept concept = drug.getConcept();
-			List<Order> list = existingOrders.get(concept);
-			if (list != null) {
-				for (Iterator<Order> iter = list.iterator(); iter.hasNext();) {
-					Order test = iter.next();
-					if (test instanceof DrugOrder) {
-						DrugOrder testDrugOrder = (DrugOrder) test;
-						if (equalDrug(testDrugOrder.getDrug(), drug)) {
-							iter.remove();
-							if (list.size() == 0)
-								existingOrders.remove(concept);
-							return testDrugOrder;
-						}
-					}
-					
-				}
-			}
-		}
-		return null;
-	}
-	
-	/**
 	 * This method exists because of the stupid bug where Concept.equals(Concept) doesn't always work.
 	 * TODO: Fix the bug where Concept.equals(Concept) doesn't always work
 	 */
