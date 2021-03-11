@@ -1,0 +1,149 @@
+
+.orderwidget-section-header {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-weight: bold;
+	font-size: larger;
+}
+
+.orderwidget-selector-section {
+	margin: 10px;
+}
+
+.orderwidget-order-form {
+	display: table;
+	margin: 10px;
+}
+
+.orderwidget-order-history-item {
+	display: block;
+}
+
+.orderwidget-order-history-item.value {
+	font-weight: normal;
+}
+
+.orderwidget-orderable-section {
+	margin-top: 5px;
+	border-bottom: 1px dotted black;
+	margin-bottom: 5px;
+}
+
+.order-view-different-encounter {
+	color: grey;
+}
+
+.order-view-current-encounter .order-field-widget {
+	color: #2200ff;
+	font-weight: bold;
+}
+
+.order-instructions {
+	font-size: 1.0em;
+}
+
+.order-field {
+	display: table-row;
+	padding: 5px;
+	margin: 0px;
+}
+
+.order-field-label {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.order-field-radio-group> * {
+	display: inline;
+	float: none !important;
+	min-width: initial;
+	vertical-align: middle;
+}
+
+.order-field-label:after {
+	content: ": ";
+	white-space: pre;
+}
+
+.order-field-widget {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+.order-field.order-field-hidden {
+	display:none;
+}
+
+.order-field-widget label {
+	display: inline;
+}
+
+.order-action-section {
+	margin: 10px;
+}
+
+.order-cancel-action-section {
+	margin-top: 10px;
+}
+
+.order-action-warnings {
+	padding-top: 10px;
+	font-weight: bold;
+	color: red;
+}
+
+.custom-button {
+	display:inline-block;
+	color:#444;
+	border:1px solid #CCC;
+	background:#DDD;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	cursor:pointer;
+	vertical-align:middle;
+	padding: 2px;
+	margin-left: 5px;
+	line-height: 0.75;
+	font-size: small;
+	margin-right: 5px;
+	text-align: center;
+}
+.custom-button:active {
+	font-weight: bold;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}
+
+.order-action-button {
+	display:inline-block;
+	color:#444;
+	border:1px solid #CCC;
+	background:#DDD;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	cursor:pointer;
+	vertical-align:middle;
+	max-width: 200px;
+	padding: 2px;
+	margin-right: 5px;
+	text-align: center;
+}
+.order-action-button:active {
+	font-weight: bold;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
+}
+
+.orderwidget-selected-action {
+	background-color: #2200ff;
+	color: white;
+	font-weight: bold;
+}
+
+.orderwidget-autocomplete-textbox {
+	display: inline-block;
+	max-width: 600px;
+}
+
+.ui-autocomplete {
+	max-height: 300px;
+	overflow-y: auto;   /* prevent horizontal scrollbar */
+	overflow-x: hidden; /* add padding to account for vertical scrollbar */
+	z-index:1000 !important;
+}

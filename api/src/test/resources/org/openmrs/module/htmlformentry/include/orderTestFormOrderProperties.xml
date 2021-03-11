@@ -3,7 +3,7 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	<drugOrder format="select" selectLabel="Order Drug...">
+	<order orderType="1">
 		<orderTemplate>
 			<h3>Please enter your drug orders below:</h3>
 			<orderProperty name="drug" value="2">
@@ -71,7 +71,7 @@
 				<option value="22" label="htmlformentry.title"/>
 			</orderProperty>
 		</orderTemplate>
-	</drugOrder>
+	</order>
 
 	<submit/>
 </htmlform>

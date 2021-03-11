@@ -1,9 +1,0 @@
-<htmlform>
-	Date: <encounterDate/>
-	Location: <encounterLocation/>
-	Provider: <encounterProvider role="Provider"/>
-
-	<drugOrder />
-
-	<submit/>
-</htmlform>

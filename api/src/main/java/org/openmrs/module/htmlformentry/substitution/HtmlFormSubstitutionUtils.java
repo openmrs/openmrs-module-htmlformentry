@@ -13,7 +13,7 @@ import org.openmrs.module.htmlformentry.HtmlForm;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
-import org.openmrs.module.htmlformentry.handler.DrugOrderTagAttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.OrderTagAttributeDescriptor;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 
 public class HtmlFormSubstitutionUtils {
@@ -76,9 +76,9 @@ public class HtmlFormSubstitutionUtils {
 			if (tagHandlers.get(tagName).getAttributeDescriptors() != null) {
 				for (AttributeDescriptor attributeDescriptor : tagHandlers.get(tagName).getAttributeDescriptors()) {
 					
-					// Special case handling DrugOrderTagAttributeDescriptor, which has more complex property nesting
-					if (attributeDescriptor instanceof DrugOrderTagAttributeDescriptor) {
-						DrugOrderTagAttributeDescriptor dtad = (DrugOrderTagAttributeDescriptor) attributeDescriptor;
+					// Special case handling OrderTagAttributeDescriptor, which has more complex property nesting
+					if (attributeDescriptor instanceof OrderTagAttributeDescriptor) {
+						OrderTagAttributeDescriptor dtad = (OrderTagAttributeDescriptor) attributeDescriptor;
 						dtad.performSubstitutions(form, substituter, substitutionMap);
 					} else {
 						// we only need to deal with descriptors that have an associated class

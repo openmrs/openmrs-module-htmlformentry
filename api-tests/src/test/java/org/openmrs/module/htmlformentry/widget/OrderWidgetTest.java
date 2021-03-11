@@ -14,9 +14,9 @@ import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.tester.FormSessionTester;
 import org.openmrs.module.htmlformentry.tester.FormTester;
 
-public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
+public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 	
-	private static final Log log = LogFactory.getLog(DrugOrderWidgetTest.class);
+	private static final Log log = LogFactory.getLog(OrderWidgetTest.class);
 	
 	@Before
 	public void setupDatabase() throws Exception {
@@ -25,27 +25,25 @@ public class DrugOrderWidgetTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void testDrugOrdersTag_htmlShouldRenderCorrectlyWithDefaultFormValues() {
-		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
 		FormSessionTester formSessionTester = formTester.openNewForm(2);
 		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
-		formSessionTester.assertHtmlContains("drugorders-element");
-		formSessionTester.assertHtmlContains("drugorders-order-section");
-		formSessionTester.assertHtmlContains("drugorders-selector-section");
-		formSessionTester.assertHtmlContains("drugorders-order-form");
-		formSessionTester.assertStartingFormValue("order-field-label order-orderType", "1");
+		formSessionTester.assertHtmlContains("orderwidget-element");
+		formSessionTester.assertHtmlContains("orderwidget-order-section");
+		formSessionTester.assertHtmlContains("orderwidget-selector-section");
+		formSessionTester.assertHtmlContains("orderwidget-order-form");
 		log.trace(formSessionTester.getHtmlToDisplay());
 	}
 	
 	@Test
 	public void shouldRenderTemplateWithAllWidgets() {
-		FormTester formTester = FormTester.buildForm("drugOrderTestForm.xml");
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
 		FormSessionTester fst = formTester.openNewForm(2);
-		DrugOrderWidget widget = fst.getWidgets(DrugOrderWidget.class).get(0);
+		OrderWidget widget = fst.getWidgets(OrderWidget.class).get(0);
 		String[] properties = { "concept", "drug", "drugNonCoded", "action", "previousOrder", "careSetting", "dosingType",
-		        "orderType", "orderReason", "orderReasonNonCoded", "dosingInstructions", "dose", "doseUnits", "route",
-		        "frequency", "asNeeded", "instructions", "urgency", "dateActivated", "scheduledDate", "duration",
-		        "durationUnits", "quantity", "quantityUnits", "numRefills", "discontinueReason",
-		        "discontinueReasonNonCoded" };
+		        "orderReason", "orderReasonNonCoded", "dosingInstructions", "dose", "doseUnits", "route", "frequency",
+		        "asNeeded", "instructions", "urgency", "dateActivated", "scheduledDate", "duration", "durationUnits",
+		        "quantity", "quantityUnits", "numRefills", "discontinueReason", "discontinueReasonNonCoded" };
 		assertThat(widget.getWidgets().size(), is(properties.length));
 		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
 		for (int i = 0; i < widgets.size(); i++) {

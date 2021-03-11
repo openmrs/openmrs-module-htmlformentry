@@ -21,7 +21,6 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
-import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Location;
@@ -40,7 +39,7 @@ import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
-import org.openmrs.module.htmlformentry.widget.DrugOrderWidget;
+import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.ReflectionUtils;
@@ -560,7 +559,7 @@ public class FormEntrySession {
 				if (processOrder) {
 					// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
 					if (order.getAction() == Order.Action.RENEW) {
-						Field dateStoppedField = ReflectionUtils.findField(DrugOrder.class, "dateStopped");
+						Field dateStoppedField = ReflectionUtils.findField(Order.class, "dateStopped");
 						dateStoppedField.setAccessible(true);
 						// To be consistent with OrderService, set this to the second prior to the order activation date
 						Date dateStopped = DateUtils.addSeconds(order.getDateActivated(), -1);
@@ -876,17 +875,17 @@ public class FormEntrySession {
 			StringBuilder sb = new StringBuilder();
 			
 			// Get all of the widgets registered, but remove those Widgets that are handled directly by other widgets
-			Set<DrugOrderWidget> drugOrderWidgets = new HashSet<>();
+			Set<OrderWidget> orderWidgets = new HashSet<>();
 			Map<Widget, String> widgets = new HashMap<>(context.getFieldNames());
 			for (Widget w : context.getFieldNames().keySet()) {
-				if (w instanceof DrugOrderWidget) {
-					drugOrderWidgets.add((DrugOrderWidget) w);
+				if (w instanceof OrderWidget) {
+					orderWidgets.add((OrderWidget) w);
 				} else {
 					widgets.put(w, context.getFieldNames().get(w));
 				}
 			}
-			for (DrugOrderWidget drugOrderWidget : drugOrderWidgets) {
-				widgets.keySet().removeAll(drugOrderWidget.getWidgets().values());
+			for (OrderWidget orderWidget : orderWidgets) {
+				widgets.keySet().removeAll(orderWidget.getWidgets().values());
 			}
 			
 			// iterate through all the widgets and set their values based on the values in the last submission
@@ -997,8 +996,8 @@ public class FormEntrySession {
 			}
 			
 			// Put these at the end to ensure they load after the encounterDate and other widgets
-			for (DrugOrderWidget drugOrderWidget : drugOrderWidgets) {
-				sb.append(drugOrderWidget.getLastSubmissionJavascript(context, lastSubmission));
+			for (OrderWidget orderWidget : orderWidgets) {
+				sb.append(orderWidget.getLastSubmissionJavascript(context, lastSubmission));
 			}
 			return sb.toString();
 		}

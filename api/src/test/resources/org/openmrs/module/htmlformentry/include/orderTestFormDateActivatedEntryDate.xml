@@ -3,11 +3,14 @@
 	Location: <encounterLocation/>
 	Provider: <encounterProvider role="Provider"/>
 
-	<drugOrder drugNames="2,3">
+	<order orderType="1">
 		<orderTemplate>
+			<orderProperty name="drug">
+				<option value="2" label="Triomune-30" />
+			</orderProperty>
 			<orderProperty name="dateActivated" value="entryDate"/>
 		</orderTemplate>
-	</drugOrder>
+	</order>
 
 	<submit/>
 </htmlform>
