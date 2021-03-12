@@ -213,8 +213,10 @@
         var $orderElement = orderWidget.formatOrder(order, encDate, config);
         $historySection.append($orderElement);
 
-        var $actionSection = orderWidget.createEditOrderSections(order, config, encDate);
-        $orderableSection.append($actionSection);
+        if (config.mode !== 'VIEW') {
+            var $actionSection = orderWidget.createEditOrderSections(order, config, encDate);
+            $orderableSection.append($actionSection);
+        }
 
         // Ensure this section is visible
         $orderableSection.show();
