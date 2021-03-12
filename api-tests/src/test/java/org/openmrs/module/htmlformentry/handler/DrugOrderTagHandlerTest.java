@@ -21,7 +21,8 @@ import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 
 /**
- * Tests that the DrugOrderTagHandler successfully parses the XML and sets the appropriate order type
+ * Tests that the DrugOrderTagHandler successfully parses the XML and sets the appropriate order
+ * type
  */
 public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	
@@ -31,7 +32,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void setupDatabase() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
 	}
-
+	
 	@Test
 	public void shouldAddOrderWidgetWithImpliedOrderType() {
 		List<OrderWidget> widgets = getDrugOrderWidgets("orderTestForm.xml");
@@ -44,7 +45,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldAddOrderSubmissionElement() {
 		assertThat(getOrderSubmissionElements("orderTestForm.xml").size(), is(1));
 	}
-
+	
 	@Test
 	public void shouldFailIfNoOrderTypeIsSpecifiedAndMultipleDrugOrderTypesExist() {
 		OrderType newDrugOrderType = new OrderType();
@@ -55,7 +56,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		FormSessionTester fst = formTester.openNewForm(6);
 		fst.assertHtmlContains("org.openmrs.module.htmlformentry.BadFormDesignException");
 	}
-
+	
 	@Test
 	public void shouldAllowExplicitOrderTypeToBeSpecified() {
 		OrderType newDrugOrderType = new OrderType();
@@ -67,7 +68,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		OrderWidget widget = widgets.get(0);
 		assertThat(widget.getOrderField().getOrderType().getUuid(), is("131168f4-15f5-102d-96e4-000c29c2a5d7"));
 	}
-
+	
 	private List<OrderWidget> getDrugOrderWidgets(String form) {
 		List<OrderWidget> ret = new ArrayList<>();
 		FormTester formTester = FormTester.buildForm(form);
@@ -80,7 +81,7 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		}
 		return ret;
 	}
-
+	
 	private List<OrderSubmissionElement> getOrderSubmissionElements(String form) {
 		List<OrderSubmissionElement> ret = new ArrayList<>();
 		FormTester formTester = FormTester.buildForm(form);
@@ -93,11 +94,11 @@ public class DrugOrderTagHandlerTest extends BaseHtmlFormEntryTest {
 		}
 		return ret;
 	}
-
+	
 	private void assertAttribute(OrderWidget widget, String property, String attributeName, String value) {
 		assertThat(widget.getWidgetConfig().getAttributes(property).get(attributeName), is(value));
 	}
-
+	
 	private void assertNoBadFormDesignException(FormSessionTester fst) {
 		fst.assertHtmlDoesNotContain("org.openmrs.module.htmlformentry.BadFormDesignException");
 	}

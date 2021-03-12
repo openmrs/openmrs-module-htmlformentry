@@ -107,7 +107,7 @@ public class OrderWidgetConfig {
 		}
 		return l;
 	}
-
+	
 	public Option getOption(String property, String value) {
 		for (Option o : getOrderPropertyOptions(property)) {
 			if (o.getValue().equalsIgnoreCase(value)) {

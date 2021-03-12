@@ -392,7 +392,7 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		DrugOrder originalOrder = (DrugOrder) Context.getOrderService().getOrder(3);
 		TestUtil.assertDate(originalOrder.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-03-29 23:59:59");
 	}
-
+	
 	@Test
 	public void shouldCreateLabTestOrder() {
 		FormTester formTester = FormTester.buildForm("orderLabTestForm.xml");

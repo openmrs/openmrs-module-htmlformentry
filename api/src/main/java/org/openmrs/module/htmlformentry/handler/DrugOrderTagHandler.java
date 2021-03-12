@@ -8,14 +8,16 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.widget.OrderWidgetConfig;
 
 /**
- * Handles the {@code <drugOrder>} tag.  This exists in order to provide a convenience over the
- * existing "order" tag, by simply implying an OrderType based on HtmlformentryUtil.getDrugOrderTypes();
+ * Handles the {@code <drugOrder>} tag. This exists in order to provide a convenience over the
+ * existing "order" tag, by simply implying an OrderType based on
+ * HtmlformentryUtil.getDrugOrderTypes();
  */
 public class DrugOrderTagHandler extends OrderTagHandler {
-
+	
 	/**
-	 * support explicit configuration of orderType on the tag, as is supported by the order tag superclass
-	 * if not supplied, infer the order type if only one valid order type is configured for drug orders
+	 * support explicit configuration of orderType on the tag, as is supported by the order tag
+	 * superclass if not supplied, infer the order type if only one valid order type is configured for
+	 * drug orders
 	 */
 	@Override
 	protected OrderType processOrderType(OrderWidgetConfig widgetConfig) throws BadFormDesignException {

@@ -112,28 +112,44 @@
 	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
 }
 
+.order-action-buttons {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+}
+.order-action-buttons .order-action-button {
+	position: relative;
+	float: left;
+}
+
+.order-action-buttons > .orderwidget-selected-action {
+	background: #d8d8d8;
+	border-color: #d0d0d0;
+}
+
 .order-action-button {
-	display:inline-block;
-	color:#444;
-	border:1px solid #CCC;
-	background:#DDD;
-	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
-	cursor:pointer;
-	vertical-align:middle;
-	max-width: 200px;
-	padding: 2px;
-	margin-right: 5px;
+	background: -webkit-linear-gradient(top, #ffffff, #dddddd);
+	border: #dddddd 1px solid;
+	padding: 8px 20px;
+	display: inline-block;
+	line-height: 1.2em;
+	color: #003f5e;
+	cursor: pointer;
+	min-width: 0;
+	max-width: 300px;
+	text-decoration: none;
+	margin: 0px;
 	text-align: center;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	vertical-align:middle;
+}
+.order-action-button:hover {
+	background: #e2e2e2;
+	border-color: #d0d0d0;
 }
 .order-action-button:active {
 	font-weight: bold;
 	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
-}
-
-.orderwidget-selected-action {
-	background-color: #2200ff;
-	color: white;
-	font-weight: bold;
 }
 
 .orderwidget-autocomplete-textbox {

@@ -157,8 +157,8 @@ public class OrderWidget implements Widget {
 		JsonObject translations = jsonConfig.addObject("translations");
 		String[] messageCodes = { "encounterDateChangeWarning", "delete", "editDeleteWarning", "editOrder", "deleteOrder",
 		        "previousOrder", "orderReason", "starting", "until", "for", "discontinueReason", "asNeeded", "quantity",
-		        "refills", "active", "cancelAction", "existingOrdersViewTitle", "existingOrdersEditTitle",
-				"newOrdersTitle", "noOrders"};
+		        "refills", "active", "cancelAction", "existingOrdersViewTitle", "existingOrdersEditTitle", "newOrdersTitle",
+		        "noOrders" };
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
 		}
@@ -169,15 +169,15 @@ public class OrderWidget implements Widget {
 		// Add a section for each concept configured in the tag
 		log.trace("OrderWidget - add concepts and drugs");
 		for (Concept c : widgetConfig.getConceptsAndDrugsConfigured().keySet()) {
-
+			
 			Option conceptOption = widgetConfig.getOption("concept", c.getId().toString());
-
+			
 			// For each rendered widget, add configuration of that widget into json for javascript
 			JsonObject jsonConcept = new JsonObject();
 			conceptArray.add(jsonConcept);
 			jsonConcept.addString("conceptId", c.getId().toString());
 			jsonConcept.addString("conceptLabel", conceptOption.getLabel());
-
+			
 			List<JsonObject> jsonConceptDrugs = jsonConcept.getObjectArray("drugs");
 			for (Drug d : widgetConfig.getConceptsAndDrugsConfigured().get(c)) {
 				Option drugOption = widgetConfig.getOption("drug", d.getId().toString());
@@ -326,29 +326,28 @@ public class OrderWidget implements Widget {
 		writer.println("<div id=\"" + fieldName + "_header\" class=\"orderwidget-selector-section\"></div>");
 		
 		// Add sections to serve as templates for edit mode and view mode for a given order
-
+		
 		// Build the templates from the configured widgets and properties
 		String editTemplateContent = getWidgetConfig().getTemplateContent();
 		StringBuilder defaultEditContent = new StringBuilder();
 		String viewTemplateContent = getWidgetConfig().getTemplateContent();
 		StringBuilder defaultViewContent = new StringBuilder();
-
+		
 		for (String property : widgets.keySet()) {
 			Widget w = widgets.get(property);
 			Map<String, String> c = widgetConfig.getAttributes(property);
 			if (c != null) {
 				String key = c.toString();
 				log.trace("OrderWidget - generating html for: " + property);
-
+				
 				// We always generate a view template, as it is used both in view and edit/enter modes
 				String viewHtml = generateHtmlForWidget(property, null, c, context);
 				if (StringUtils.isBlank(viewTemplateContent)) {
 					defaultViewContent.append(viewHtml);
-				}
-				else {
+				} else {
 					viewTemplateContent = viewTemplateContent.replace(key, viewHtml);
 				}
-
+				
 				// We only generate the edit template for ENTER/EDIT modes
 				if (context.getMode() != FormEntryContext.Mode.VIEW) {
 					String widgetHtml = generateHtmlForWidget(property, w, c, context);
@@ -363,10 +362,11 @@ public class OrderWidget implements Widget {
 				}
 			}
 		}
-
+		
 		// Render edit template
 		if (context.getMode() != FormEntryContext.Mode.VIEW) {
-			writer.println("<div id=\"" + fieldName + "_template\" class=\"orderwidget-order-form\" style=\"display:none;\">");
+			writer.println(
+			    "<div id=\"" + fieldName + "_template\" class=\"orderwidget-order-form\" style=\"display:none;\">");
 			if (StringUtils.isNotBlank(editTemplateContent)) {
 				writer.println(editTemplateContent);
 			}
@@ -377,9 +377,10 @@ public class OrderWidget implements Widget {
 			writer.println("</div>");
 			writer.println("</div>");
 		}
-
+		
 		// Render view template
-		writer.println("<div id=\"" + fieldName + "_view_template\" class=\"orderwidget-order-history-item\" style=\"display:none;\">");
+		writer.println(
+		    "<div id=\"" + fieldName + "_view_template\" class=\"orderwidget-order-history-item\" style=\"display:none;\">");
 		writer.println(StringUtils.isBlank(viewTemplateContent) ? defaultViewContent : viewTemplateContent);
 		writer.println("</div>");
 		

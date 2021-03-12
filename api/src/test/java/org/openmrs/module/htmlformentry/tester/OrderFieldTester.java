@@ -17,7 +17,7 @@ public class OrderFieldTester {
 		this.suffix = suffix;
 		this.formSessionTester = formSessionTester;
 	}
-
+	
 	public static OrderFieldTester forConcept(Integer conceptId, FormSessionTester formSessionTester) {
 		String nextSuffix = "_" + conceptId + "_" + nextFieldNum++;
 		OrderFieldTester tester = new OrderFieldTester(nextSuffix, formSessionTester);
