@@ -734,7 +734,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				
 				String serverTimezone = TimeZone.getDefault().getID();
 				boolean handleTimezones = Boolean.parseBoolean(
-				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_HANDLE_TIMEZONES));
+				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
 				if (!serverTimezone.equals(clientTimezone) && !handleTimezones) {
 					throw new IllegalStateException("htmlformentry.error.handleTimezones");

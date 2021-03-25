@@ -1,7 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import static java.util.Calendar.MILLISECOND;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.GP_HANDLE_TIMEZONES;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS;
 
 import java.util.Calendar;
 import java.util.Map;
@@ -44,9 +44,9 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 		
 		public TimezonesEncounterDateTestHelper(boolean handleTimezones) {
 			if (handleTimezones) {
-				adminService.saveGlobalProperty(new GlobalProperty(GP_HANDLE_TIMEZONES, "true"));
+				adminService.saveGlobalProperty(new GlobalProperty(GP_TIMEZONE_CONVERSIONS, "true"));
 			} else {
-				adminService.saveGlobalProperty(new GlobalProperty(GP_HANDLE_TIMEZONES, "false"));
+				adminService.saveGlobalProperty(new GlobalProperty(GP_TIMEZONE_CONVERSIONS, "false"));
 			}
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Zurich"));
 		}
