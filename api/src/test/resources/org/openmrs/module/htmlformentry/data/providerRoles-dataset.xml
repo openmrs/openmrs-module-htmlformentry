@@ -11,5 +11,7 @@
     <provider provider_id="1005" provider_role_id="1001" person_id="7" identifier="2a7" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="da7f513f-cca9-11e0-9572-0800200c9a66" />
     <provider provider_id="1006" provider_role_id="1002" person_id="8" identifier="2a8" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" uuid="da7d523f-cca9-11e0-9572-0800200c9a66" />
 
+    <provider provider_id="1007" provider_role_id="1002" person_id="9" identifier="2a9" creator="1" date_created="2005-01-01 00:00:00.0" retired="true" uuid="da7d5212f-cca9-11e0-9572-0800200c9a66" />
+    
 
 </dataset>

@@ -8,6 +8,7 @@ import static org.openmrs.Order.Urgency.ON_SCHEDULED_DATE;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -1308,6 +1309,53 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		concepts.add(drug11.getConcept());
 		List<Order> m = HtmlFormEntryUtil.getOrdersForPatient(patient, concepts);
 		Assert.assertEquals(4, m.size());
+	}
+	
+	/**
+	 * @see HtmlFormEntryUtil#getProviders(List,boolean,boolean)
+	 */
+	@Test
+	public void getProviders_shouldIncludeRetiredProvidersWhenIncludeRetiredIsTrue() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
+		List<Provider> providers = HtmlFormEntryUtil.getProviders(null, true, true);
+		List <Provider> nonRetiredProviders = new ArrayList<>();
+		List <Provider> retiredProviders = new ArrayList<>();
+		
+		for(Provider provider:providers) {
+			if(provider.getRetired() == false) {
+			  nonRetiredProviders.add(provider);
+			}
+			else {
+				retiredProviders.add(provider);
+			}
+		}
+		
+		Assert.assertEquals(6, providers.size());
+		Assert.assertEquals(5, nonRetiredProviders.size());
+		Assert.assertEquals(1, retiredProviders.size());
+		Assert.assertEquals(retiredProviders.size(), providers.size() - nonRetiredProviders.size());
+	}
+	
+	@Test
+	public void getProviders_shouldExcludeRetiredProvidersWhenIncludeRetiredIsFalse() throws Exception {
+		executeDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
+		List<Provider> providers = HtmlFormEntryUtil.getProviders(null, true, false);
+		List <Provider> nonRetiredProviders = new ArrayList<>();
+		List <Provider> retiredProviders = new ArrayList<>();
+		
+		for(Provider provider:providers) {
+			if(provider.getRetired() == false) {
+			  nonRetiredProviders.add(provider);
+			}
+			else {
+				retiredProviders.add(provider);
+			}
+		}
+		
+		Assert.assertEquals(5, providers.size());
+		Assert.assertEquals(5, nonRetiredProviders.size());
+		Assert.assertEquals(0, retiredProviders.size());
+		Assert.assertEquals(retiredProviders.size(), providers.size() - nonRetiredProviders.size());
 	}
 	
 	/**
