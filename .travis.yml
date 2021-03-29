@@ -1,5 +1,0 @@
-language: java
-jdk:
- - openjdk8
-after_failure:
- - cat api-tests/target/surefire-reports/*.txt
