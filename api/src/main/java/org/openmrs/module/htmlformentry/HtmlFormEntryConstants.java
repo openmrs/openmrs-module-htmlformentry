@@ -36,7 +36,7 @@ public class HtmlFormEntryConstants {
 	
 	public static final String GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION = "htmlformentry.restrictEncounterLocationToCurrentVisitLocation";
 	
-	public final static String GP_TIMEZONE_CONVERSIONS = "uiframework.timezone.conversions";
+	public final static String GP_TIMEZONE_CONVERSIONS = "htmlformentry.timezone.conversions";
 	
 	public static final String COMPLEX_UUID = "8d4a6242-c2cc-11de-8d13-0010c6dffd0f";
 	
