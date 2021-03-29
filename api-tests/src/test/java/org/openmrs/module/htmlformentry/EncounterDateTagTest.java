@@ -42,8 +42,8 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	 */
 	public class TimezonesEncounterDateTestHelper extends RegressionTestHelper {
 		
-		public TimezonesEncounterDateTestHelper(boolean handleTimezones) {
-			if (handleTimezones) {
+		public TimezonesEncounterDateTestHelper(boolean convertTimezones) {
+			if (convertTimezones) {
 				adminService.saveGlobalProperty(new GlobalProperty(GP_TIMEZONE_CONVERSIONS, "true"));
 			} else {
 				adminService.saveGlobalProperty(new GlobalProperty(GP_TIMEZONE_CONVERSIONS, "false"));
