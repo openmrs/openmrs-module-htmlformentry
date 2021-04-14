@@ -984,7 +984,7 @@ public class ObsTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testBlankFormHtml(String html) {
 				assertTrue(html.contains("autocomplete"));
-				assertTrue(html.contains("source: '/openmrs/module/htmlformentry/drugSearch.form'"));
+				assertTrue(html.contains("source: '/openmrs/module/htmlformentry/drugSearch.form?includeRetired=true'"));
 			}
 			
 			@Override
