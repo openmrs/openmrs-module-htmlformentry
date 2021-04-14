@@ -797,8 +797,11 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					// handle "answerDrugs" automcplete use case
 					else if (parameters.get("answerDrugs") != null) {
 						// we support searching through all drugs via AJAX
-						RemoteJsonAutocompleteWidget widget = new RemoteJsonAutocompleteWidget(
-						        "/" + WebConstants.WEBAPP_NAME + "/module/htmlformentry/drugSearch.form");
+						StringBuilder ajaxUrl = new StringBuilder();
+						ajaxUrl.append("/" + WebConstants.WEBAPP_NAME + "/module/htmlformentry/drugSearch.form");
+						ajaxUrl.append("?includeRetired=");
+						ajaxUrl.append(parameters.getOrDefault("includeRetiredDrugs", "true"));
+						RemoteJsonAutocompleteWidget widget = new RemoteJsonAutocompleteWidget(ajaxUrl.toString());
 						widget.setValueTemplate("Drug:{{id}}");
 						if (parameters.get("displayTemplate") != null) {
 							widget.setDisplayTemplate(parameters.get("displayTemplate"));

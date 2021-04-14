@@ -26,7 +26,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.propertyeditor.ConceptClassEditor;
 import org.openmrs.propertyeditor.ConceptEditor;
-import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.web.WebUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -120,27 +119,14 @@ public class HtmlFormSearchController {
 	}
 	
 	@RequestMapping("/module/htmlformentry/drugSearch")
-	public void drugSearch(@RequestParam("term") String query, HttpServletResponse response) throws IOException {
+	public void drugSearch(@RequestParam("term") String query,
+	        @RequestParam(value = "includeRetired", required = false) Boolean includeRetired, HttpServletResponse response)
+	        throws IOException {
 		
-		List<Drug> drugs;
-		
-		// we want to use a later API method from 1.8+ if it is available, so we need to access it via reflection
-		if (OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.6")
-		        || OpenmrsConstants.OPENMRS_VERSION_SHORT.startsWith("1.7")) {
-			drugs = conceptService.getDrugs(query); // this method returns retired drugs, so it is not ideal
-		} else {
-			try {
-				Object conceptService = Context.getService(Context.loadClass("org.openmrs.api.ConceptService"));
-				Method getDrugsMethod = conceptService.getClass().getMethod("getDrugs", String.class, Concept.class,
-				    boolean.class, boolean.class, boolean.class, Integer.class, Integer.class);
-				
-				drugs = (List<Drug>) getDrugsMethod.invoke(conceptService, query, null, true, false, true, 0, 100); // this method excludes retired drugs
-				
-			}
-			catch (Exception ex) {
-				throw new RuntimeException("Unable to access ConceptService getDrugs method via reflection", ex);
-			}
-		}
+		boolean includeRet = includeRetired == null || includeRetired;
+		int min = 0;
+		int max = 100;
+		List<Drug> drugs = conceptService.getDrugs(query, null, true, false, includeRet, min, max);
 		
 		List<Map<String, Object>> simplified = simplify(drugs);
 		
