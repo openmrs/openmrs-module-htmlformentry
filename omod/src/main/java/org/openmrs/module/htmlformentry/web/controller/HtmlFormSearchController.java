@@ -120,8 +120,8 @@ public class HtmlFormSearchController {
 	
 	@RequestMapping("/module/htmlformentry/drugSearch")
 	public void drugSearch(@RequestParam("term") String query,
-						   @RequestParam(value = "includeRetired", required = false) Boolean includeRetired,
-						   HttpServletResponse response) throws IOException {
+	        @RequestParam(value = "includeRetired", required = false) Boolean includeRetired, HttpServletResponse response)
+	        throws IOException {
 		
 		boolean includeRet = includeRetired == null || includeRetired;
 		int min = 0;
