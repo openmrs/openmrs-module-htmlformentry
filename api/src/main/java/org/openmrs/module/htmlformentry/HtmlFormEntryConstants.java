@@ -38,6 +38,9 @@ public class HtmlFormEntryConstants {
 	
 	public final static String GP_TIMEZONE_CONVERSIONS = "htmlformentry.timezone.conversions";
 	
+	//The name of the user property that save the client timezone.
+	public static final String UP_CLIENT_TIMEZONE = "htmlformentry.client.timezone";
+	
 	public static final String COMPLEX_UUID = "8d4a6242-c2cc-11de-8d13-0010c6dffd0f";
 	
 	public static final String ANSWER_LOCATION_TAGS = "answerLocationTags";

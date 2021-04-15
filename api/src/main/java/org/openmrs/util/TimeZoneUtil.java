@@ -14,6 +14,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,7 +38,8 @@ public class TimeZoneUtil {
 	 * @return string with the date in the client timezone, formatted and ready to be displayed.
 	 */
 	public static String toTimezone(Date date, String format) {
-		String clientTimezone = Context.getAuthenticatedUser().getUserProperty("clientTimezone");
+		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(
+		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE));
 		return toTimezone(date, format, clientTimezone);
 	}
 	
