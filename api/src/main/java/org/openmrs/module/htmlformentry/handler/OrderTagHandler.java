@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -50,6 +38,18 @@ import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.OrderWidgetConfig;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Handles the {@code <order>} tag. The order tag has the following general structure:
@@ -582,8 +582,8 @@ public class OrderTagHandler extends AbstractTagHandler {
 				if (!existingConcepts.contains(conceptIdStr)) {
 					conceptsToAddFromDrugs.add(new Option(d.getConcept().getDisplayString(), conceptIdStr));
 					existingConcepts.add(conceptIdStr);
-					config.getConceptsAndDrugsConfigured().computeIfAbsent(d.getConcept(), k -> new ArrayList<>()).add(d);
 				}
+				config.getConceptsAndDrugsConfigured().computeIfAbsent(d.getConcept(), k -> new ArrayList<>()).add(d);
 			}
 			// If concepts are configured, all associated drugs should be configured
 			for (Option conceptOption : concepts) {
