@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.widget;
 
 import java.io.File;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openmrs.ConceptComplex;
 import org.openmrs.ConceptDatatype;
 import org.openmrs.FormField;
@@ -107,16 +108,30 @@ public class WidgetFactory {
 	*/
 	
 	/**
-	 * Formats a value for display as HTML.
+	 * Formats a value for display as a simple HTML span.
 	 * 
 	 * @param the value to display
 	 * @return the HTML to display the value
 	 */
 	public static String displayValue(String value) {
+		return displayValue(value, "");
+	}
+	
+	/**
+	 * Formats a value for display as a simple HTML span.
+	 * 
+	 * @param value the value to display
+	 * @param className an extra class name to add to the generated span.
+	 * @return the HTML to display the value
+	 */
+	public static String displayValue(String value, String className) {
 		value = value.replace("<", "&lt;");
 		value = value.replace(">", "&gt;");
 		value = value.replace("\n", "<br/>");
-		return "<span class=\"value\">" + value + "</span>";
+		if (!StringUtils.isEmpty(className)) {
+			className = " " + className;
+		}
+		return "<span class=\"value" + className + "\">" + value + "</span>";
 	}
 	
 	/**

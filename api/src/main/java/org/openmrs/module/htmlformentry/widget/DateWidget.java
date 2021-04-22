@@ -1,9 +1,11 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -18,7 +20,7 @@ import org.springframework.util.StringUtils;
  */
 public class DateWidget implements Widget {
 	
-	private Date initialValue;
+	protected Date initialValue;
 	
 	private String onChangeFunction;
 	
@@ -54,9 +56,9 @@ public class DateWidget implements Widget {
 		else if (ret.contains("yy"))
 			ret = ret.replaceAll("yy", "y"); // jquery uses y for 2-digit years
 		if (ret.contains("MMMM"))
-			ret = ret.replaceAll("MMMM", "MM"); // jquery uses MM for long month name 
+			ret = ret.replaceAll("MMMM", "MM"); // jquery uses MM for long month name
 		else if (ret.contains("MMM"))
-			ret = ret.replaceAll("MMM", "M"); // jquery uses M for short month name 
+			ret = ret.replaceAll("MMM", "M"); // jquery uses M for short month name
 		else if (ret.contains("MM"))
 			ret = ret.replaceAll("MM", "mm"); // jquery uses mm for 2-digit month
 		else
@@ -73,16 +75,21 @@ public class DateWidget implements Widget {
 		return ret;
 	}
 	
+	/**
+	 * @return The date format to print dates in the generated HTML.
+	 */
+	protected DateFormat getHtmlDateFormat() {
+		return new SimpleDateFormat("yyyy-MM-dd");
+	}
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
-			String toPrint = "";
 			if (initialValue != null) {
-				toPrint = dateFormat().format(initialValue);
+				String toPrint = dateFormat().format(initialValue);
 				return WidgetFactory.displayValue(toPrint);
 			} else {
-				toPrint = "________";
-				return WidgetFactory.displayEmptyValue(toPrint);
+				return WidgetFactory.displayEmptyValue("________");
 			}
 		} else {
 			StringBuilder sb = new StringBuilder();
@@ -96,7 +103,7 @@ public class DateWidget implements Widget {
 			}
 			if (hidden && initialValue != null) {
 				// set the value here, since it won't be set by the ui widget
-				sb.append(" value=\"" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "\"");
+				sb.append(" value=\"" + getHtmlDateFormat().format(initialValue) + "\"");
 			}
 			sb.append(" />");
 			
@@ -109,9 +116,10 @@ public class DateWidget implements Widget {
 				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
 				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
 				if (initialValue != null)
-					sb.append(", '" + new SimpleDateFormat("yyyy-MM-dd").format(initialValue) + "'");
+					sb.append(", '" + getHtmlDateFormat().format(initialValue) + "'");
 				sb.append(")</script>");
 			}
+			
 			return sb.toString();
 		}
 	}

@@ -3,10 +3,11 @@ package org.openmrs.module.htmlformentry.handler;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Map;
 
-import org.joda.time.DateMidnight;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
@@ -22,7 +23,7 @@ public class MarkPatientDeadTagHandlerComponentTest extends BaseHtmlFormEntryTes
 	
 	@Test
 	public void testMarkPatientDead() throws Exception {
-		final Date date = new DateMidnight().toDate();
+		final Date date = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
 		new RegressionTestHelper() {
 			
 			@Override

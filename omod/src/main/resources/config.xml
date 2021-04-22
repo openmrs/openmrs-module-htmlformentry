@@ -98,6 +98,13 @@
         <description>When set to true and an encounter is being entered in the context of a visit, the encounter location will be restricted to the current visit location (and it's descendents)</description>
     </globalProperty>
 	<!-- /Required Global Properties -->
+	//TODO this GP should be removed once the timezone.conversions GP is provided by Core.
+	<globalProperty>
+		<property>timezone.conversions</property>
+		<defaultValue>true</defaultValue>
+		<description>When set to true dates are sent from the server to the client as UTC dates, and time-sensitive widgets send dates from the client to the server holding the client time zone information.</description>
+	</globalProperty>
+
 
 	<dwr>
 		<allow>
