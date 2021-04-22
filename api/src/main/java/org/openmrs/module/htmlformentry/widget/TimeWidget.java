@@ -161,10 +161,6 @@ public class TimeWidget implements Widget {
 			if (s == null)
 				s = 0;
 			
-			if (h == 0 && m == 0 && s == 0) {
-				return null;
-			}
-			
 			Calendar cal = Calendar.getInstance();
 			cal.set(1900, 1, 1);
 			cal.set(Calendar.HOUR_OF_DAY, h);
