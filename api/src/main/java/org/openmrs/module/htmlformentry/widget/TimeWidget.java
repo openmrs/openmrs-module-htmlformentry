@@ -1,17 +1,16 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * A widget that allows the selection of a certain time-of-day. To handle both a date and time, see
@@ -47,12 +46,12 @@ public class TimeWidget implements Widget {
 		
 		if (hidden) {
 			sb.append("<input type=\"hidden\" class=\"hfe-hours\" name=\"").append(fieldName).append("hours")
-			        .append("\" value=\"" + new SimpleDateFormat("HH").format(initialValue) + "\"/>");
+			        .append("\" value=\"" + valAsCal.get(Calendar.HOUR_OF_DAY) + "\"/>");
 			sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(fieldName).append("minutes")
-			        .append("\" value=\"" + new SimpleDateFormat("mm").format(initialValue) + "\"/>");
+			        .append("\" value=\"" + valAsCal.get(Calendar.MINUTE) + "\"/>");
 			if (!hideSeconds) {
 				sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds")
-				        .append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
+				        .append("\" value=\"" + valAsCal.get(Calendar.SECOND) + "\"/>");
 			}
 		} else {
 			sb.append("<select class=\"hfe-hours\" name=\"").append(fieldName).append("hours").append("\">");
@@ -140,7 +139,7 @@ public class TimeWidget implements Widget {
 	 * It might be that TimeWidget itself was never registered when it is a piece of a construction
 	 * involving other widgets. In that case this method allows to point to the widget that is actually
 	 * registered.
-	 * 
+	 *
 	 * @param registeredWidget The registered widget that TimeWidget is "part of".
 	 * @see Widget#getValue(FormEntryContext, HttpServletRequest)
 	 */
