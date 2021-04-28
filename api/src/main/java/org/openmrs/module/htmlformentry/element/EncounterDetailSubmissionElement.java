@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -51,6 +36,20 @@ import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.module.htmlformentry.widget.ZonedDateTimeWidget;
 import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -110,7 +109,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		context.registerErrorWidget(widget, dateErrorWidget);
 		
 		if ("hidden".equals(parameters.get("widget"))) {
-			dateWidget.setHidden(true);
+			widget.setHidden(true);
 		}
 	}
 	
