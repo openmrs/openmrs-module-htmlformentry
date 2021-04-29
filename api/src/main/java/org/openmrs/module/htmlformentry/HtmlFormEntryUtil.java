@@ -1,44 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -91,8 +52,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.compatibility.EncounterCompatibility;
-import org.openmrs.module.htmlformentry.element.OrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ObsSubmissionElement;
+import org.openmrs.module.htmlformentry.element.OrderSubmissionElement;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.util.MatchMode;
@@ -116,6 +77,45 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
 
 /**
  * HTML Form Entry utility methods
@@ -1517,6 +1517,48 @@ public class HtmlFormEntryUtil {
 			return getFirstAncestorWithTag(location.getParentLocation(), locationTag);
 		} else {
 			return null;
+		}
+	}
+	
+	/**
+	 * Iterates through the "locations" list and removed all that are not equal to, or a descendent of,
+	 * the "testLocation"
+	 *
+	 * @param locations
+	 * @param testLocation
+	 * @return
+	 */
+	public static List<Location> removeLocationsNotEqualToOrDescendentOf(List<Location> locations, Location testLocation) {
+		
+		if (testLocation == null) {
+			return locations;
+		}
+		
+		Iterator<Location> i = locations.iterator();
+		
+		while (i.hasNext()) {
+			if (!isLocationEqualToOrDescendentOf(i.next(), testLocation)) {
+				i.remove();
+			}
+		}
+		
+		return locations;
+	}
+	
+	/**
+	 * Returns true/false whether the given location is equal to, or a descendent of, "testLocation"
+	 *
+	 * @param location
+	 * @param testLocation
+	 * @return
+	 */
+	public static Boolean isLocationEqualToOrDescendentOf(Location location, Location testLocation) {
+		if (location == null) {
+			return false;
+		} else if (location.equals(testLocation)) {
+			return true;
+		} else {
+			return isLocationEqualToOrDescendentOf(location.getParentLocation(), testLocation);
 		}
 	}
 	

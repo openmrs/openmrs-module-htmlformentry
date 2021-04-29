@@ -366,7 +366,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			        || "true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(
 			            HtmlFormEntryConstants.GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION)))
 			        && context.getVisit() != null) {
-				locations = removeLocationsNotEqualToOrDescendentOf(locations, ((Visit) context.getVisit()).getLocation());
+				locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations,
+				    ((Visit) context.getVisit()).getLocation());
 			}
 			
 			// now create the actual location options
@@ -545,48 +546,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		catch (Exception ex) {
 			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
-		}
-	}
-	
-	/**
-	 * Iterates through the "locations" list and removed all that are not equal to, or a descendent of,
-	 * the "testLocation"
-	 *
-	 * @param locations
-	 * @param testLocation
-	 * @return
-	 */
-	private List<Location> removeLocationsNotEqualToOrDescendentOf(List<Location> locations, Location testLocation) {
-		
-		if (testLocation == null) {
-			return locations;
-		}
-		
-		Iterator<Location> i = locations.iterator();
-		
-		while (i.hasNext()) {
-			if (!isLocationEqualToOrDescendentOf(i.next(), testLocation)) {
-				i.remove();
-			}
-		}
-		
-		return locations;
-	}
-	
-	/**
-	 * Returns true/false whether the given location is equal to, or a descendent of, "testLocation"
-	 *
-	 * @param location
-	 * @param testLocation
-	 * @return
-	 */
-	private Boolean isLocationEqualToOrDescendentOf(Location location, Location testLocation) {
-		if (location == null) {
-			return false;
-		} else if (location.equals(testLocation)) {
-			return true;
-		} else {
-			return isLocationEqualToOrDescendentOf(location.getParentLocation(), testLocation);
 		}
 	}
 	
