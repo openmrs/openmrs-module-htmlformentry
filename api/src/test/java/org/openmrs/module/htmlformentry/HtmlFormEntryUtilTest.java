@@ -1,19 +1,23 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Location;
 import org.openmrs.PersonName;
 import org.openmrs.Provider;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.util.MatchMode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
@@ -147,6 +151,38 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Provider provider = providerService.getProvider(13010);
 		
 		assertTrue(providerStubs.contains(new ProviderStub(provider)));
+	}
+	
+	@Test
+	public void isInLocationHierarchy_shouldReturnTrueIfLocationIsWithinParentHierarchyAndFalseOtherwise() {
+		
+		Location parent = new Location();
+		Location child1 = new Location();
+		Location child2 = new Location();
+		Location grandchild1 = new Location();
+		Location grandchild2 = new Location();
+		Location grandchild3 = new Location();
+		Location otherLocation = new Location();
+		
+		parent.addChildLocation(child1);
+		parent.addChildLocation(child2);
+		child1.addChildLocation(grandchild1);
+		child2.addChildLocation(grandchild2);
+		child2.addChildLocation(grandchild3);
+		
+		List<Location> locations = new ArrayList<>();
+		locations.add(parent);
+		locations.add(child1);
+		locations.add(child2);
+		locations.add(grandchild1);
+		locations.add(grandchild2);
+		locations.add(grandchild3);
+		locations.add(otherLocation);
+		
+		HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations, parent);
+		assertThat(locations.size(), is(6));
+		assertThat(locations, not(hasItem(otherLocation)));
+		
 	}
 	
 }
