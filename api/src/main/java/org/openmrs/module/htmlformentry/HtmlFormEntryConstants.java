@@ -44,4 +44,10 @@ public class HtmlFormEntryConstants {
 	
 	public static final String FORM_NAMESPACE = "HtmlFormEntry";
 	
+	//The name of the user property that save the client timezone.
+	public static final String CLIENT_TIMEZONE = "clientTimezone";
+	
+	//The name of the global property that save Datetime Format.
+	public static final String FORMATTER_DATETIME_NAME = "uiframework.formatter.dateAndTimeFormat";
+	
 }

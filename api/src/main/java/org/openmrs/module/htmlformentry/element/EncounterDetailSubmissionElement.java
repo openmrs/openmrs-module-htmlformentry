@@ -50,6 +50,7 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.module.htmlformentry.widget.ZonedDateTimeWidget;
 import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.util.PrivilegeConstants;
 import org.springframework.util.StringUtils;
 
 /**
@@ -731,7 +732,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				if (StringUtils.isEmpty(clientTimezone)) {
 					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
 				}
-				
 				String serverTimezone = TimeZone.getDefault().getID();
 				boolean convertTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
@@ -741,6 +741,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);
+				//setClientTimezone(clientTimezone);
 			}
 		}
 		catch (Exception ex) {
@@ -905,6 +906,21 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			
 		}
 		return locations;
+	}
+	
+	/**
+	 * Change the user property clientTimezone, that has the value of the user timezone.
+	 *
+	 * @param clientTimezone The client timezone.
+	 */
+	public void setClientTimezone(String clientTimezone) {
+		try {
+			Context.addProxyPrivilege(PrivilegeConstants.EDIT_USERS);
+			Context.getUserService().setUserProperty(Context.getAuthenticatedUser(), HtmlFormEntryConstants.CLIENT_TIMEZONE, clientTimezone);
+		}
+		finally {
+			Context.removeProxyPrivilege(PrivilegeConstants.EDIT_USERS);
+		}
 	}
 	
 }

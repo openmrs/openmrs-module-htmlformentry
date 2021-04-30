@@ -29,6 +29,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
+import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
+
 public class VelocityFunctions {
 	
 	private FormEntrySession session;
@@ -407,4 +409,18 @@ public class VelocityFunctions {
 		}
 		return matches;
 	}
+
+	/**
+	 * Formats a date with the client timezone
+	 *
+	 * @param date The date to be converted.
+	 * @return The date formated in client timezone, unless the conversion function fail, on that case, send back the received date.
+	 */
+	public String toClientTZ(Date date) {
+
+		String dateWithTZ = toClientTimezone(date, Context.getAdministrationService()
+		        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "yyyy-MM-dd, HH:mm:ss"));
+		return StringUtils.isNotEmpty(dateWithTZ) ? dateWithTZ : date.toString();
+	}
+	
 }

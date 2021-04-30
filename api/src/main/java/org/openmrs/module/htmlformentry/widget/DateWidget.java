@@ -14,6 +14,8 @@ import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
 
+import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
+
 /**
  * A widget that allows the selection of a specific day, month, and year. To handle both a date and
  * time, see {@see DateTimeWidget}.
@@ -94,6 +96,7 @@ public class DateWidget implements Widget {
 		} else {
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
+			String dateClientTimezone = toClientTimezone(initialValue, "yyyy-MM-dd");
 			if (!hidden) {
 				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
 			}
@@ -103,7 +106,9 @@ public class DateWidget implements Widget {
 			}
 			if (hidden && initialValue != null) {
 				// set the value here, since it won't be set by the ui widget
-				sb.append(" value=\"" + getHtmlDateFormat().format(initialValue) + "\"");
+				sb.append(" value=\"")
+				        .append(dateClientTimezone != null ? dateClientTimezone : getHtmlDateFormat().format(initialValue))
+				        .append("\"");
 			}
 			sb.append(" />");
 			
@@ -115,8 +120,11 @@ public class DateWidget implements Widget {
 				
 				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
 				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
-				if (initialValue != null)
-					sb.append(", '" + getHtmlDateFormat().format(initialValue) + "'");
+				if (initialValue != null) {
+					sb.append(", '");
+					sb.append(dateClientTimezone != null ? dateClientTimezone : getHtmlDateFormat().format(initialValue));
+					sb.append("'");
+				}
 				sb.append(")</script>");
 			}
 			
