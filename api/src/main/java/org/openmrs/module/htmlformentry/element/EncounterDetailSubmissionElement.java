@@ -916,7 +916,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	public void setClientTimezone(String clientTimezone) {
 		try {
 			Context.addProxyPrivilege(PrivilegeConstants.EDIT_USERS);
-			Context.getUserService().setUserProperty(Context.getAuthenticatedUser(), HtmlFormEntryConstants.CLIENT_TIMEZONE, clientTimezone);
+			Context.getUserService().setUserProperty(Context.getAuthenticatedUser(), HtmlFormEntryConstants.CLIENT_TIMEZONE,
+			    clientTimezone);
 		}
 		finally {
 			Context.removeProxyPrivilege(PrivilegeConstants.EDIT_USERS);

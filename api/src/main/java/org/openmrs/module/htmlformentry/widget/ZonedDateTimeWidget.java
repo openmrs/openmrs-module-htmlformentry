@@ -50,8 +50,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			if (BooleanUtils.isTrue(timezonesConversions) && StringUtils.isEmpty(this.getUP_clientTimezone())) {
 				return WidgetFactory.displayEmptyValue(timeWidget.getHideSeconds() ? "___:___" : "___:___:___");
 			}
-			return toClientTimezone(initialValue,
-			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME , "dd-MM-yyyy, HH:mm:ss"));
+			return toClientTimezone(initialValue, Context.getAdministrationService()
+			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss"));
 		} else {
 			StringBuilder sb = new StringBuilder();
 			
