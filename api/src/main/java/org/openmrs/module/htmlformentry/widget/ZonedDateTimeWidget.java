@@ -68,7 +68,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 					String dateClientTZ = toClientTimezone(initialValue, Context.getAdministrationService()
 					        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME));
 					if (StringUtils.isNotEmpty(dateClientTZ)) {
-						valAsCal.setTime(sdf.parse(dateClientTZ));// all done
+						valAsCal.setTime(sdf.parse(dateClientTZ));
 					} else {
 						valAsCal.setTime(initialValue);
 					}

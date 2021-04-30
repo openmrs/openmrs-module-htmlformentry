@@ -39,7 +39,7 @@ public class TimeZoneUtil {
 	 */
 	public static String toClientTimezone(Date date, String formatting) {
 		Boolean timezoneConvention = BooleanUtils.toBoolean(
-		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS)); //create constants
+		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
 		formatting = formatting != null ? formatting : "dd-MM-yyyy, HH:mm:ss";
 		if (date != null && BooleanUtils.isTrue(timezoneConvention)) {
