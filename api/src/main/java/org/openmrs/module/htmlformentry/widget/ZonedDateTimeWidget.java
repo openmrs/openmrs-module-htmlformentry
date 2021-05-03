@@ -119,6 +119,12 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			cal.set(Calendar.MILLISECOND, 0);
 			if (StringUtils.isNotEmpty(this.getUP_clientTimezone())) {
 				cal.setTimeZone(TimeZone.getTimeZone(this.getUP_clientTimezone()));
+			} else {
+				String timezoneParam = (String) HtmlFormEntryUtil.getParameterAsType(request,
+				    context.getFieldName(this) + "timezone", String.class);
+				if (StringUtils.isNotEmpty(timezoneParam)) {
+					cal.setTimeZone(TimeZone.getTimeZone(timezoneParam));
+				}
 			}
 			return cal.getTime();
 		}
