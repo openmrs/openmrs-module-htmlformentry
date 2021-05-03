@@ -10,6 +10,7 @@
 package org.openmrs.util;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -40,12 +41,14 @@ public class TimeZoneUtil {
 	public static String toClientTimezone(Date date, String formatting) {
 		Boolean timezoneConvention = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
-		formatting = formatting != null ? formatting : "dd-MM-yyyy, HH:mm:ss";
 		if (date != null && BooleanUtils.isTrue(timezoneConvention)) {
-			SimpleDateFormat dateFormat = new SimpleDateFormat(formatting, Context.getLocale());
-			dateFormat.setTimeZone(TimeZone.getTimeZone(clientTimezone));
-			return dateFormat.format(date);
+			String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
+			if (StringUtils.isNotEmpty(clientTimezone)) {
+				formatting = formatting != null ? formatting : "dd-MM-yyyy, HH:mm:ss";
+				SimpleDateFormat dateFormat = new SimpleDateFormat(formatting, Context.getLocale());
+				dateFormat.setTimeZone(TimeZone.getTimeZone(clientTimezone));
+				return dateFormat.format(date);
+			}
 		}
 		return null;
 	}

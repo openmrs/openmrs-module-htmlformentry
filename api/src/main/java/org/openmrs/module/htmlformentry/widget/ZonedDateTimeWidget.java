@@ -44,14 +44,14 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			boolean timezonesConversions = BooleanUtils.toBoolean(
 			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 			if (BooleanUtils.isNotTrue(timezonesConversions)) {
-				return datetimeFormat().format(initialValue);
+				return WidgetFactory.displayValue(datetimeFormat().format(initialValue));
 			}
 			//If Timezone.Conversions if true but the UP with client timezone is empty, we dont show any date
 			if (BooleanUtils.isTrue(timezonesConversions) && StringUtils.isEmpty(this.getUP_clientTimezone())) {
 				return WidgetFactory.displayEmptyValue(timeWidget.getHideSeconds() ? "___:___" : "___:___:___");
 			}
-			return toClientTimezone(initialValue, Context.getAdministrationService()
-			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss"));
+			return WidgetFactory.displayValue(toClientTimezone(initialValue, Context.getAdministrationService()
+			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss")));
 		} else {
 			StringBuilder sb = new StringBuilder();
 			
@@ -61,9 +61,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			// the time part
 			Calendar valAsCal = Calendar.getInstance();
 			if (initialValue != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat(
-				        Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME),
-				        Context.getLocale());
+				SimpleDateFormat sdf = new SimpleDateFormat(Context.getAdministrationService().getGlobalProperty(
+				    HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss"), Context.getLocale());
 				try {
 					String dateClientTZ = toClientTimezone(initialValue, Context.getAdministrationService()
 					        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME));
