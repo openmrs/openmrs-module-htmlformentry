@@ -741,7 +741,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);
-				//setClientTimezone(clientTimezone);
 			}
 		}
 		catch (Exception ex) {
@@ -851,6 +850,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			Date dateTime = (Date) zonedDateTimeWidget.getValue(session.getContext(), submission);
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
 			e.setEncounterDatetime(dateTime);
+			//setClientTimezone(clientTimezone);
 		}
 		if (providerWidget != null) {
 			Object value = providerWidget.getValue(session.getContext(), submission);
