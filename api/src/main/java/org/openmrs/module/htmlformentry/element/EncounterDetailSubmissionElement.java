@@ -16,6 +16,7 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -643,7 +644,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (dateWidget != null) {
 				ret.append(dateWidget.generateHtml(context));
 			} else {
-				ret.append(zonedDateTimeWidget.generateHtml(context));
+				try {
+					ret.append(zonedDateTimeWidget.generateHtml(context));
+				}
+				catch (Exception ex) {
+					ret.append(
+					    Context.getMessageSourceService().getMessage("htmlformentry.error.noClientTimezoneOnUserProperty"));
+				}
+				
 			}
 		}
 		if (providerWidget != null) {
@@ -728,16 +736,18 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				validateDateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
 				
-				String clientTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
-				if (StringUtils.isEmpty(clientTimezone)) {
+				String serverTimezone = TimeZone.getDefault().getID();
+				String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
+				
+				if (StringUtils.isEmpty(clientSubmittedTimezone)) {
 					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
 				}
-				String serverTimezone = TimeZone.getDefault().getID();
+				
 				boolean convertTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
-				if (!serverTimezone.equals(clientTimezone) && !convertTimezones) {
-					throw new IllegalStateException("htmlformentry.error.handleTimezones");
+				if (!serverTimezone.equals(clientSubmittedTimezone) && BooleanUtils.isNotTrue(convertTimezones)) {
+					throw new IllegalArgumentException("htmlformentry.error.handleTimezones");
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);
@@ -850,7 +860,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			Date dateTime = (Date) zonedDateTimeWidget.getValue(session.getContext(), submission);
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
 			e.setEncounterDatetime(dateTime);
-			//setClientTimezone(clientTimezone);
+			String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(session.getContext(), submission);
+			setClientTimezone(clientSubmittedTimezone);
 		}
 		if (providerWidget != null) {
 			Object value = providerWidget.getValue(session.getContext(), submission);

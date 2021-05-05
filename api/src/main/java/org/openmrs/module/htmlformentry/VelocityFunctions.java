@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -418,10 +419,20 @@ public class VelocityFunctions {
 	 *         send back the received date.
 	 */
 	public String toClientTZ(Date date) {
+		boolean timezoneConversions = BooleanUtils.toBoolean(
+		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
+		String UPClientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
+		if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(UPClientTimezone)) {
+			return toClientTimezone(date, Context.getAdministrationService()
+			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "yyyy-MM-dd, HH:mm:ss"));
+		} else if (BooleanUtils.isNotTrue(timezoneConversions)) {
+			throw new IllegalArgumentException(
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.handleTimezones"));
+		} else {
+			throw new IllegalArgumentException(
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.noClientTimezoneOnUserProperty"));
+		}
 		
-		String dateWithTZ = toClientTimezone(date, Context.getAdministrationService()
-		        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "yyyy-MM-dd, HH:mm:ss"));
-		return StringUtils.isNotEmpty(dateWithTZ) ? dateWithTZ : date.toString();
 	}
 	
 }
