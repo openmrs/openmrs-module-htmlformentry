@@ -1,0 +1,13 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Latest weight: <lookup expression="fn.latestObs(5089).valueNumeric"/>
+	Latest weight with Date: <lookup expression="fn.latestObs(5089,'2008-07-10').valueNumeric"/>
+	Last Encounter Location with Date: <lookup expression="fn.latestEncounterAtDate('2008-08-01').location"/>
+	Last Encounter Location for Scheduled: <lookup expression="fn.latestEncounter('61ae96f4-6afe-4351-b6f8-cd4fc383cce1','2008-08-01').location"/>
+	Workflow State All: <lookup expression="fn.currentProgramWorkflowStatus(100).state.concept.Id"/>
+    Workflow State Concept May End: <lookup expression="fn.currentProgramWorkflowStatus(100,'2005-05-31').state.concept.Id"/>
+	Workflow State Concept September End: <lookup expression="fn.currentProgramWorkflowStatus(100,'2005-09-30').state.concept.Id"/>
+	<submit/>
+</htmlform>

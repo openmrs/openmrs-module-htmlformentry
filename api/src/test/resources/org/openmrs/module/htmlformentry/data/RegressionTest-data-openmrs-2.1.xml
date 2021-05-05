@@ -301,6 +301,10 @@
     <patient_program patient_program_id="101" patient_id="2" program_id="1" creator="1" date_enrolled="2001-01-01 00:00:00.0" date_created="2001-01-01 00:00:00.0" date_completed="2003-05-01 00:00:00.0" voided="false" uuid="32596060-03aa-102d-b0e3-001ec94a0cc5"/>
     <patient_program patient_program_id="102" patient_id="8" program_id="10" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="31396060-03aa-102d-b0e3-001ec94a0cc5"/>
 
+    <patient_state patient_state_id="101" patient_program_id="102" state="200" start_date="2005-01-01" end_date="2005-06-30" creator="1" date_created="2005-01-01 00:00:00.0" voided="false" uuid="b0601496-6d33-4de9-8fa7-79b16b4cacd0" />
+    <patient_state patient_state_id="102" patient_program_id="102" state="201" start_date="2005-07-01" end_date="2005-10-31" creator="1" date_created="2005-07-01 00:00:00.0" voided="false" uuid="f4b2cb72-1976-4b4c-ae55-6466b71dac4e" />
+    <patient_state patient_state_id="103" patient_program_id="102" state="202" start_date="2005-11-01" creator="1" date_created="2005-07-01 00:00:00.0" voided="false" uuid="5de5500c-e9cb-46db-9520-3f509343c286e" />
+
     <encounter encounter_id="101" encounter_type="1" patient_id="2" location_id="1" form_id="1" encounter_datetime="2008-08-01 00:00:00.0" creator="1" date_created="2008-08-18 14:09:05.0" voided="false" void_reason="" uuid="6519d653-393b-4118-9c83-a3715b82dfff"/>
 
     <encounter_provider encounter_provider_id="1" provider_id="1" encounter_id="101"/>
