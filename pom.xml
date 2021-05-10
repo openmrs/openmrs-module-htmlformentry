@@ -14,6 +14,7 @@
     <properties>
         <openMRSVersion>2.1.0</openMRSVersion>
         <openMRSMinorVersion>2.1</openMRSMinorVersion>
+        <htmlformentryuiVersion>2.0.0-SNAPSHOT</htmlformentryuiVersion>
         <legacyuiVersion>1.7.0</legacyuiVersion>
         <jacksonVersion>1.5.0</jacksonVersion>
         <junitJupiterVersion>5.7.0</junitJupiterVersion>
