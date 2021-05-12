@@ -742,7 +742,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
 				if (StringUtils.isEmpty(clientSubmittedTimezone) && BooleanUtils.isTrue(convertTimezones)) {
-					throw new IllegalArgumentException("htmlformentry.error.handleTimezones");
+					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);

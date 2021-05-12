@@ -117,22 +117,6 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void submitEncounterDateWithTimezone_shouldErrorWhenTimezonesSupportDisabledAndTimezonesDiffer()
-	        throws Exception {
-		
-		new TimezonesEncounterDateTestHelper(false) {
-			
-			@Override
-			public void testResults(SubmissionResults results) {
-				String formError = results.getValidationErrors().get(0).getError();
-				Assert.assertEquals(messageSourceService.getMessage("htmlformentry.error.handleTimezones"), formError);
-			}
-			
-		}.run();
-		
-	}
-	
-	@Test
 	public void submitEncounterDateWithTimezone_shouldNotConvertDateWhenTimezonesSupportDisabledAndSameTimezones()
 	        throws Exception {
 		
