@@ -735,18 +735,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (dateWidget != null) {
 				validateDateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
-				
-				String serverTimezone = TimeZone.getDefault().getID();
+
 				String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
-				
-				if (StringUtils.isEmpty(clientSubmittedTimezone)) {
-					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
-				}
-				
+
 				boolean convertTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
-				if (!serverTimezone.equals(clientSubmittedTimezone) && BooleanUtils.isNotTrue(convertTimezones)) {
+				if (StringUtils.isEmpty(clientSubmittedTimezone) && BooleanUtils.isTrue(convertTimezones)) {
 					throw new IllegalArgumentException("htmlformentry.error.handleTimezones");
 				}
 				

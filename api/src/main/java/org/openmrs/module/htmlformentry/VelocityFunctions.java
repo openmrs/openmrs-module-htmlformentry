@@ -425,12 +425,11 @@ public class VelocityFunctions {
 		if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(UPClientTimezone)) {
 			return toClientTimezone(date, Context.getAdministrationService()
 			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "yyyy-MM-dd, HH:mm:ss"));
-		} else if (BooleanUtils.isNotTrue(timezoneConversions)) {
-			throw new IllegalArgumentException(
-			        Context.getMessageSourceService().getMessage("htmlformentry.error.handleTimezones"));
-		} else {
+		} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(UPClientTimezone)) {
 			throw new IllegalArgumentException(
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.noClientTimezoneOnUserProperty"));
+		} else {
+			return date.toString();
 		}
 		
 	}

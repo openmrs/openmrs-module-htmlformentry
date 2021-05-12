@@ -44,6 +44,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			boolean timezoneConversions = BooleanUtils.toBoolean(
 			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 			if (BooleanUtils.isNotTrue(timezoneConversions)) {
+				//The server and client are on the same timezone
 				return WidgetFactory.displayValue(datetimeFormat().format(initialValue));
 			}
 			//If Timezone.Conversions is true but the UP with client timezone is empty, it shows an error, because we dont know the client timezone.
@@ -64,10 +65,10 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				SimpleDateFormat sdf = new SimpleDateFormat(Context.getAdministrationService().getGlobalProperty(
 				    HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss"), Context.getLocale());
 				try {
-					String dateClientTZ = toClientTimezone(initialValue, Context.getAdministrationService()
+					String formatDateWithClientTZ = toClientTimezone(initialValue, Context.getAdministrationService()
 					        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME));
-					if (StringUtils.isNotEmpty(dateClientTZ)) {
-						valAsCal.setTime(sdf.parse(dateClientTZ));
+					if (StringUtils.isNotEmpty(formatDateWithClientTZ)) {
+						valAsCal.setTime(sdf.parse(formatDateWithClientTZ));
 					} else {
 						valAsCal.setTime(initialValue);
 					}
@@ -117,15 +118,29 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
 			cal.set(Calendar.SECOND, timeCal.get(Calendar.SECOND));
 			cal.set(Calendar.MILLISECOND, 0);
-			String timezoneParam = (String) HtmlFormEntryUtil.getParameterAsType(request,
-			    context.getFieldName(this) + "timezone", String.class);
+			
 			boolean timezoneConversions = BooleanUtils.toBoolean(
 			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-			if (StringUtils.isNotEmpty(timezoneParam)) {
-				cal.setTimeZone(TimeZone.getTimeZone(timezoneParam));
-			} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(this.getUPClientTimezone())) {
-				cal.setTimeZone(TimeZone.getTimeZone(this.getUPClientTimezone()));
+			
+			String timezoneToConvert = null;
+			
+			if (BooleanUtils.isTrue(timezoneConversions)) {
+				String timezoneParam = (String) HtmlFormEntryUtil.getParameterAsType(request,
+				    context.getFieldName(this) + "timezone", String.class);
+				if (StringUtils.isNotEmpty(timezoneParam)) {
+					//Use the client timezone submitted with the form
+					timezoneToConvert = timezoneParam;
+				} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(this.getUPClientTimezone())) {
+					//Use the User Property with client timezone
+					timezoneToConvert = this.getUPClientTimezone();
+				}
+				
+			} else {
+				//Server timezone is the same as client timezone.
+				timezoneToConvert = TimeZone.getDefault().getID();
 			}
+			
+			cal.setTimeZone(TimeZone.getTimeZone(timezoneToConvert));
 			return cal.getTime();
 		}
 		catch (Exception ex) {
