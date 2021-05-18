@@ -814,7 +814,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
 			e.setEncounterDatetime(dateTime);
 			String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(session.getContext(), submission);
-			setClientTimezone(clientSubmittedTimezone);
+			if(!StringUtils.isEmpty(clientSubmittedTimezone)){
+				setClientTimezone(clientSubmittedTimezone);
+			}
 		}
 		if (providerWidget != null) {
 			Object value = providerWidget.getValue(session.getContext(), submission);
