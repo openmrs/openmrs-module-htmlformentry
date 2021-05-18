@@ -11,6 +11,7 @@ import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Person;
 import org.openmrs.Role;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -54,6 +55,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -522,6 +524,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					if ((locationList == null) || (locationList != null && locationList.size() < 1)) {
 						// if no locations by tags are found then get all locations
 						locationList = Context.getLocationService().getAllLocations();
+					}
+					
+					// if "restrictToVisitLocation" parameter remove all locations that aren't children of the visit location
+					if ("true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation"))
+					        && context.getVisit() != null) {
+						HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locationList,
+						    ((Visit) context.getVisit()).getLocation());
 					}
 					
 					for (Location location : locationList) {

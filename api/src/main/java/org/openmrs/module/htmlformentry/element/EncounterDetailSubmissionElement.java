@@ -1,20 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -53,6 +38,20 @@ import org.openmrs.module.htmlformentry.widget.ZonedDateTimeWidget;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.PrivilegeConstants;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -112,7 +111,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		context.registerErrorWidget(widget, dateErrorWidget);
 		
 		if ("hidden".equals(parameters.get("widget"))) {
-			dateWidget.setHidden(true);
+			widget.setHidden(true);
 		}
 	}
 	
@@ -369,7 +368,8 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			        || "true".equalsIgnoreCase(Context.getAdministrationService().getGlobalProperty(
 			            HtmlFormEntryConstants.GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION)))
 			        && context.getVisit() != null) {
-				locations = removeLocationsNotEqualToOrDescendentOf(locations, ((Visit) context.getVisit()).getLocation());
+				locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations,
+				    ((Visit) context.getVisit()).getLocation());
 			}
 			
 			// now create the actual location options
@@ -548,48 +548,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 		catch (Exception ex) {
 			throw new RuntimeException("Programming error in HTML Form Entry module. This method should be safe!", ex);
-		}
-	}
-	
-	/**
-	 * Iterates through the "locations" list and removed all that are not equal to, or a descendent of,
-	 * the "testLocation"
-	 *
-	 * @param locations
-	 * @param testLocation
-	 * @return
-	 */
-	private List<Location> removeLocationsNotEqualToOrDescendentOf(List<Location> locations, Location testLocation) {
-		
-		if (testLocation == null) {
-			return locations;
-		}
-		
-		Iterator<Location> i = locations.iterator();
-		
-		while (i.hasNext()) {
-			if (!isLocationEqualToOrDescendentOf(i.next(), testLocation)) {
-				i.remove();
-			}
-		}
-		
-		return locations;
-	}
-	
-	/**
-	 * Returns true/false whether the given location is equal to, or a descendent of, "testLocation"
-	 *
-	 * @param location
-	 * @param testLocation
-	 * @return
-	 */
-	private Boolean isLocationEqualToOrDescendentOf(Location location, Location testLocation) {
-		if (location == null) {
-			return false;
-		} else if (location.equals(testLocation)) {
-			return true;
-		} else {
-			return isLocationEqualToOrDescendentOf(location.getParentLocation(), testLocation);
 		}
 	}
 	

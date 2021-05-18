@@ -2,6 +2,8 @@ package org.openmrs.module.htmlformentry;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Visit;
+import org.openmrs.api.context.Context;
 
 public class ObsAnswerLocationTagsTest extends BaseHtmlFormEntryTest {
 	
@@ -12,7 +14,7 @@ public class ObsAnswerLocationTagsTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void obsAnswerLocationTags_shouldRestrictToTaggedLocations() throws Exception {
-		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\"Some Tag,1002\" /></htmlform>";
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" answerLocationTags=\"Some Tag,1002\"  /></htmlform>";
 		FormEntrySession session = new FormEntrySession(null, htmlform, null);
 		
 		String htmlToDisplay = session.getHtmlToDisplay();
@@ -29,6 +31,25 @@ public class ObsAnswerLocationTagsTest extends BaseHtmlFormEntryTest {
 		TestUtil.assertFuzzyDoesNotContain("Unknown Location", session.getHtmlToDisplay());
 		TestUtil.assertFuzzyDoesNotContain("Xanadu", session.getHtmlToDisplay());
 		TestUtil.assertFuzzyDoesNotContain("Never Never Land", session.getHtmlToDisplay());
+		
+	}
+	
+	@Test
+	public void obsAnswerLocationTags_shouldRestrictToVisitLocationsAndChildren() throws Exception {
+		String htmlform = "<htmlform><obs conceptId=\"60000\" style=\"location\" restrictToCurrentVisitLocation=\"true\"  /></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+		Visit visit = new Visit();
+		visit.setLocation(Context.getLocationService().getLocation("Boston"));
+		session.getContext().setVisit(visit);
+		
+		String htmlToDisplay = session.getHtmlToDisplay();
+		TestUtil.assertFuzzyContains("Boston", htmlToDisplay);
+		TestUtil.assertFuzzyContains("Jamaica Plain", htmlToDisplay);
+		
+		TestUtil.assertFuzzyDoesNotContain("Indianapolis", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Mirebaials", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Scituate", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("Lacolline", htmlToDisplay);
 		
 	}
 	
