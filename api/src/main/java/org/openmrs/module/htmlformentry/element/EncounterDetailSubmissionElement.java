@@ -693,9 +693,9 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (dateWidget != null) {
 				validateDateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
-
+				
 				String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
-
+				
 				boolean convertTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
@@ -813,10 +813,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			Date dateTime = (Date) zonedDateTimeWidget.getValue(session.getContext(), submission);
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
 			e.setEncounterDatetime(dateTime);
-			String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(session.getContext(), submission);
-			if (!StringUtils.isEmpty(clientSubmittedTimezone)) {
-				setClientTimezone(clientSubmittedTimezone);
-			}
 		}
 		if (providerWidget != null) {
 			Object value = providerWidget.getValue(session.getContext(), submission);
@@ -872,22 +868,6 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			
 		}
 		return locations;
-	}
-	
-	/**
-	 * Change the user property clientTimezone, that has the value of the user timezone.
-	 *
-	 * @param clientTimezone The client timezone.
-	 */
-	public void setClientTimezone(String clientTimezone) {
-		try {
-			Context.addProxyPrivilege(PrivilegeConstants.EDIT_USERS);
-			Context.getUserService().setUserProperty(Context.getAuthenticatedUser(), HtmlFormEntryConstants.CLIENT_TIMEZONE,
-			    clientTimezone);
-		}
-		finally {
-			Context.removeProxyPrivilege(PrivilegeConstants.EDIT_USERS);
-		}
 	}
 	
 }
