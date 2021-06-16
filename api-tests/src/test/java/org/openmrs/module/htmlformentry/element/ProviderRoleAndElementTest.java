@@ -33,7 +33,7 @@ public class ProviderRoleAndElementTest extends BaseHtmlFormEntryTest {
 		Map<String, String> params = new HashMap<String, String>();
 		List<Provider> providerList = new ProviderAndRoleElement(context, params).getTag().getProviders();
 		
-		// there are 4 providers in the provider roles dataset and one in the standard test dataset
+		// there are 4 providers in the provider roles dataset and one in the standard test dataset ie non retired
 		assertThat(providerList.size(), is(5));
 	}
 	

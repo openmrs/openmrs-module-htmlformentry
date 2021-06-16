@@ -2466,9 +2466,14 @@ public class HtmlFormEntryUtil {
 	}
 	
 	public static List<Provider> getProviders(List<String> providerRoleIds, boolean returnAllIfNoRolesSpecified) {
+		return getProviders(providerRoleIds, returnAllIfNoRolesSpecified, false);
+	}
+	
+	public static List<Provider> getProviders(List<String> providerRoleIds, boolean returnAllIfNoRolesSpecified,
+	        boolean includeRetired) {
 		if (providerRoleIds == null || providerRoleIds.isEmpty()) {
 			if (returnAllIfNoRolesSpecified) {
-				return getAllProviders();
+				return getAllProviders(includeRetired);
 			}
 			return new ArrayList<Provider>();
 		} else {
@@ -2484,10 +2489,9 @@ public class HtmlFormEntryUtil {
 		}
 	}
 	
-	public static List<Provider> getAllProviders() {
-		return Context.getProviderService().getAllProviders(false);
+	public static List<Provider> getAllProviders(boolean includeRetired) {
+		return Context.getProviderService().getAllProviders(includeRetired);
 	}
-	
 	/**
 	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
 	 * {@code state}
