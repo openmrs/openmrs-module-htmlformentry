@@ -48,6 +48,8 @@ public class EncounterProviderAndRoleTag {
 	
 	private List<Provider> providers; // Enables population with list of allowed providers
 	
+	private boolean includeRetired; //Doesnot display retired providers if set to false
+	
 	/**
 	 * @param parameters
 	 */
@@ -57,11 +59,12 @@ public class EncounterProviderAndRoleTag {
 		providerWidgetSeparator = TagUtil.parseParameter(parameters, "providerWidgetSeparator", String.class, ", ");
 		encounterRole = TagUtil.parseParameter(parameters, "encounterRole", EncounterRole.class);
 		autocompleteProvider = TagUtil.parseParameter(parameters, "autocompleteProvider", Boolean.class, false);
+		includeRetired = TagUtil.parseParameter(parameters, "includeRetired", Boolean.class, false);
 		providerMatchMode = TagUtil.parseParameter(parameters, "providerMatchMode", MatchMode.class, MatchMode.ANYWHERE);
 		defaultValue = TagUtil.parseParameter(parameters, "default", Provider.class);
 		providerRoles = TagUtil.parseListParameter(parameters, "providerRoles", String.class);
 		if (!autocompleteProvider) {
-			providers = HtmlFormEntryUtil.getProviders(providerRoles, true);
+			providers = HtmlFormEntryUtil.getProviders(providerRoles, true, includeRetired);
 		}
 	}
 	

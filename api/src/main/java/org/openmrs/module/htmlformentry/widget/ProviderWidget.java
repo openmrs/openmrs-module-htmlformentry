@@ -14,7 +14,10 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.openmrs.Provider;
@@ -62,7 +65,23 @@ public class ProviderWidget implements Widget {
 				return "";
 		}
 		
-		Collections.sort(providers, new ProviderByPersonNameComparator());
+		List<Provider> retiredProviders = new ArrayList<>();
+		List<Provider> nonRetiredProviders = new ArrayList<>();
+		List<Provider> sortedProviders = new ArrayList<>();
+		
+		for(Provider provider:providers) {
+			if(provider.getRetired() == true) {
+			   retiredProviders.add(provider);
+			}
+			else {
+			   nonRetiredProviders.add(provider);
+			}
+		}
+		Collections.sort(nonRetiredProviders, new ProviderByPersonNameComparator());
+		Collections.sort(retiredProviders, new ProviderByPersonNameComparator());
+		
+		sortedProviders.addAll(nonRetiredProviders);
+		sortedProviders.addAll(retiredProviders);
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("<select name=\"" + context.getFieldName(this) + "\">");
@@ -70,15 +89,28 @@ public class ProviderWidget implements Widget {
 		sb.append(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"));
 		sb.append("</option>");
 		
-		for (Provider provider : providers) {
-			sb.append("\n<option ");
-			if (initialValue != null && initialValue.equals(provider))
-				sb.append("selected=\"true\" ");
-			sb.append("value=\"" + provider.getId() + "\">")
-			        .append(provider.getPerson() != null
-			                ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName())
-			                : provider.getName())
-			        .append("</option>");
+		for (Provider provider : sortedProviders) {
+			if (provider.getRetired()) {
+				sb.append("\n<option ");
+				if (initialValue != null && initialValue.equals(provider))
+					sb.append("selected=\"true\" ");
+				sb.append("style=\"font-style: italic\" ");
+				sb.append("value=\"" + provider.getId() + "\">")
+				        .append(provider.getPerson() != null
+				                ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName())
+				                : provider.getName())
+				        .append("</option>");
+			} else {
+				
+				sb.append("\n<option ");
+				if (initialValue != null && initialValue.equals(provider))
+					sb.append("selected=\"true\" ");
+				sb.append("value=\"" + provider.getId() + "\">")
+				        .append(provider.getPerson() != null
+				                ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName())
+				                : provider.getName())
+				        .append("</option>");
+			}
 		}
 		sb.append("</select>");
 		return sb.toString();
@@ -96,5 +128,5 @@ public class ProviderWidget implements Widget {
 		}
 		return null;
 	}
-	
+
 }
