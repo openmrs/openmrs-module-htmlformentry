@@ -34,7 +34,7 @@ public class ProviderRoleAndElementTest extends BaseHtmlFormEntryTest {
 		List<Provider> providerList = new ProviderAndRoleElement(context, params).getTag().getProviders();
 		
 		// there are 4 providers in the provider roles dataset and one in the standard test dataset ie non retired
-		assertThat(providerList.size(), is(5));
+		assertThat(providerList.size(), is(6));
 	}
 	
 	@Test
