@@ -96,7 +96,7 @@ public class DateWidget implements Widget {
 		} else {
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
-			String dateClientTimezone = toClientTimezone(initialValue, "yyyy-MM-dd");
+			String dateClientTimezone = toClientTimezone(initialValue, "yyyy-MM-dd"); // Return null if Timezones GP are not true
 			if (!hidden) {
 				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
 			}
