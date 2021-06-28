@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.handler;
 
 import java.io.PrintWriter;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -25,10 +27,13 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 	
 	boolean unmatchedInd = false;
 	
+	ObsGroup ogSchemaObj;
+	
 	@Override
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("groupingConceptId", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("contextObs", Concept.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
@@ -37,17 +42,19 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 	 *      java.io.PrintWriter, org.w3c.dom.Node, org.w3c.dom.Node)
 	 */
 	@Override
-	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
+	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node)
+	        throws BadFormDesignException {
 		
 		Map<String, String> attributes = getAttributes(node);
 		if (attributes.get("groupingConceptId") == null) {
-			throw new NullPointerException("obsgroup tag requires a groupingConceptId attribute");
+			throw new BadFormDesignException("obsgroup tag requires a groupingConceptId attribute");
 		}
 		Concept groupingConcept = HtmlFormEntryUtil.getConcept(attributes.get("groupingConceptId"));
 		if (groupingConcept == null) {
-			throw new NullPointerException("could not find concept " + attributes.get("groupingConceptId")
+			throw new BadFormDesignException("could not find concept " + attributes.get("groupingConceptId")
 			        + " as grouping obs for an obsgroup tag");
 		}
+		
 		boolean ignoreIfEmpty = session.getContext().getMode() == Mode.VIEW && "false".equals(attributes.get("showIfEmpty"));
 		
 		// avoid lazy init exception
@@ -84,7 +91,8 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		}
 		
 		// sets up the obs group stack, sets current obs group to this one
-		ObsGroup ogSchemaObj = new ObsGroup(groupingConcept, name);
+		ogSchemaObj = new ObsGroup(groupingConcept, name);
+		ogSchemaObj.setContextObs(getContextObs(attributes.get("contextObs")));
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack
 		session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
@@ -104,6 +112,29 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 	}
 	
+	private Map.Entry<Concept, Concept> getContextObs(String contextObsString) throws BadFormDesignException {
+		if (contextObsString != null) {
+			String[] contextObsStrings = contextObsString.split("=");
+			if (contextObsStrings.length != 2) {
+				throw new BadFormDesignException("obsgroup tag contextObs parameter requires exactly two concepts "
+				        + "delimited by an equals sign (=).");
+			}
+			Concept contextQuestion = HtmlFormEntryUtil.getConcept(contextObsStrings[0]);
+			if (contextQuestion == null) {
+				throw new BadFormDesignException("could not find concept " + contextObsStrings[0]
+				        + " as the question part of the contextObs for an obsgroup tag");
+			}
+			Concept contextValue = HtmlFormEntryUtil.getConcept(contextObsStrings[1]);
+			if (contextValue == null) {
+				throw new BadFormDesignException("could not find concept " + contextObsStrings[1]
+				        + " as the value part of the contextObs for an obsgroup tag");
+			}
+			return new AbstractMap.SimpleEntry<>(contextQuestion, contextValue);
+		} else {
+			return null;
+		}
+	}
+	
 	@Override
 	public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
 		//                Concept question = null;
@@ -114,7 +145,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		//                    } catch (Exception ex){}    
 		//                }
 		session.getContext().endObsGroup();
-		session.getSubmissionController().addAction(ObsGroupAction.end());
+		session.getSubmissionController().addAction(ObsGroupAction.end(ogSchemaObj));
 	}
 	
 	@Override
