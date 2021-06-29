@@ -77,9 +77,17 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 				}
 			} else {
 				if (obsGroupSchemaObject.getContextObs() != null) {
-					// existingGroup seems never to exist. Not sure if something needs to be done to handle it.
+					// existingGroup seems never to exist. Not sure if something needs to be done to handle it,
+					// as is done in the other `if` branches.
 					Concept contextObsConcept = obsGroupSchemaObject.getContextObs().getKey();
 					Concept contextObsValue = obsGroupSchemaObject.getContextObs().getValue();
+					// If the obs group will have any members, we want to ensure that the context obs is present.
+					// Otherwise, we want to ensure that the context obs is absent.
+					// 
+					// To do this, we construct a list of the expected members which are not the context obs.
+					// This is the current members (which includes those to be added), minus those that will
+					// be voided, minus the context obs. In the process we find out whether the context obs
+					// already exists, which informs whether we need to create or void it.
 					ArrayList<Obs> members = new ArrayList<>();
 					Obs currentObsGroup = session.getSubmissionActions().getCurrentObsGroup();
 					if (currentObsGroup.getGroupMembers() != null) {
