@@ -62,7 +62,7 @@ public class ObsTagHandler extends AbstractTagHandler {
 		ObsSubmissionElement element = (ObsSubmissionElement) popped;
 		if (session.getContext().getMode() != FormEntryContext.Mode.VIEW && element.hasWhenValueThen()) {
 			if (element.getId() == null) {
-				throw new IllegalStateException("<obs> must have an id attribute to define when-then actions");
+				throw new BadFormDesignException("<obs> must have an id attribute to define when-then actions");
 			}
 			out.println("<script type=\"text/javascript\">");
 			out.println("jQuery(function() { htmlForm.setupWhenThen('" + element.getId() + "', "

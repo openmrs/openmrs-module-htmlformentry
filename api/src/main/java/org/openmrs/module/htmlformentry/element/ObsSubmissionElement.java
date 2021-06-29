@@ -1382,7 +1382,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
 
-		// note that the rare use case where showCommentField=true and style=location won't work, as "org.openmrs.Location"
+		// note that style=location cannot be used with showCommentField=true, since "org.openmrs.Location"
 		// will override any user-entered comment
 		if (isLocationObs) {
 			comment = "org.openmrs.Location";
@@ -1403,12 +1403,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 
 			// call this regardless of whether the new value is null -- the
 			// modifyObs method is smart
-			if (concepts != null)
+			if (concepts != null) {
 				session.getSubmissionActions().modifyObs(existingObs, concept, answerConcept, obsDatetime,
 				    accessionNumberValue, comment);
-			else
+			} else {
 				session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue,
-				    comment);
+					comment);
+			}
 		} else {
 			if (concepts != null && value != null && !"".equals(value) && concept != null) {
 				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue, comment);

@@ -226,6 +226,13 @@ public class FormSubmissionActions {
 	}
 	
 	/**
+	 * @return the ObsGroup that was most recently added to the stack
+	 */
+	public Obs getCurrentObsGroup() {
+		return highestOnStack(Obs.class);
+	}
+	
+	/**
 	 * Utility method that returns the object of a specified class that was most recently added to the
 	 * stack
 	 */
