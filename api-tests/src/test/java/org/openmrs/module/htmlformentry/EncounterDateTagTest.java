@@ -53,7 +53,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Zurich"));
 		}
 		
-		public Date ExpectedDatetime(String timezone) {
+		public Date expectedDatetime(String timezone) {
 			Calendar cal = Calendar.getInstance();
 			cal.set(2020, 11 - 1, 02, 3, 30, 00);
 			cal.set(MILLISECOND, 0);
@@ -97,7 +97,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				results.assertEncounterDatetime(ExpectedDatetime("Pacific/Kiritimati")); // this converts the Kiritimati datetime to Zurich
+				results.assertEncounterDatetime(expectedDatetime("Pacific/Kiritimati")); // this converts the Kiritimati datetime to Zurich
 			}
 			
 		}.run();
@@ -117,7 +117,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				results.assertEncounterDatetime(ExpectedDatetime(null));
+				results.assertEncounterDatetime(expectedDatetime(null));
 			}
 			
 		}.run();
@@ -162,7 +162,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				results.assertEncounterDatetime(ExpectedDatetime(null));
+				results.assertEncounterDatetime(expectedDatetime(null));
 			}
 			
 		}.run();

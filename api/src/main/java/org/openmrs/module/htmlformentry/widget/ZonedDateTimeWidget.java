@@ -9,7 +9,7 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
@@ -31,7 +31,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	private SimpleDateFormat datetimeFormat() {
 		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME,
 		    "dd-MM-yyyy, HH:mm:ss");
-		if (org.springframework.util.StringUtils.hasText(df)) {
+		if (StringUtils.isNotBlank(df)) {
 			return new SimpleDateFormat(df, Context.getLocale());
 		} else {
 			return Context.getDateFormat();
