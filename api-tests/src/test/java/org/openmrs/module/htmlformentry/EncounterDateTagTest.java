@@ -4,6 +4,7 @@ import static java.util.Calendar.MILLISECOND;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
@@ -11,6 +12,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.platform.commons.util.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.messagesource.MessageSourceService;
@@ -51,6 +53,16 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Zurich"));
 		}
 		
+		public Date ExpectedDatetime(String timezone) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(2020, 11 - 1, 02, 3, 30, 00);
+			cal.set(MILLISECOND, 0);
+			if (StringUtils.isNotBlank(timezone)) {
+				cal.setTimeZone(TimeZone.getTimeZone(timezone));
+			}
+			return cal.getTime();
+		}
+		
 		@Override
 		public String getFormName() {
 			return "";
@@ -78,17 +90,14 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void submitEncounterDateWithTimezone_shouldConvertDateToServerTimezoneWhenTimezonesSupport() throws Exception {
+	public void submitEncounterDateWithTimezone_shouldConvertDateToServerTimezoneWhenTimezoneConversionIsTrue()
+	        throws Exception {
 		
 		new TimezonesEncounterDateTestHelper(true) {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(2020, 11 - 1, 02, 3, 30, 00);
-				cal.set(MILLISECOND, 0);
-				cal.setTimeZone(TimeZone.getTimeZone("Pacific/Kiritimati"));
-				results.assertEncounterDatetime(cal.getTime()); // this converts the Kiritimati datetime to Zurich
+				results.assertEncounterDatetime(ExpectedDatetime("Pacific/Kiritimati")); // this converts the Kiritimati datetime to Zurich
 			}
 			
 		}.run();
@@ -96,7 +105,27 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void submitEncounterDateWithoutTimezone_shouldError() throws Exception {
+	public void submitEncounterDateWhenTimezoneConversionIsNotTrue_shouldNotError() throws Exception {
+		
+		new TimezonesEncounterDateTestHelper(false) { // false would do the same
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				super.setupRequest(request, widgets);
+				request.removeParameter("w1timezone"); // not really possible when using ZonedDateTimeWidget
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertEncounterDatetime(ExpectedDatetime(null));
+			}
+			
+		}.run();
+		
+	}
+	
+	@Test
+	public void submitEncounterDateWithoutTimezoneInformationWhenTimezoneConversionIsTrue_shouldError() throws Exception {
 		
 		new TimezonesEncounterDateTestHelper(true) { // false would do the same
 			
@@ -117,10 +146,10 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void submitEncounterDateWithTimezone_shouldNotConvertDateWhenTimezonesSupportDisabledAndSameTimezones()
+	public void submitEncounterDateWithTimezone_shouldNotConvertDateWhenTimezonesConversionIsTrueAndSameTimezoneOnClientAndServer()
 	        throws Exception {
 		
-		new TimezonesEncounterDateTestHelper(false) {
+		new TimezonesEncounterDateTestHelper(true) {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
@@ -133,10 +162,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(2020, 11 - 1, 02, 3, 30, 00);
-				cal.set(MILLISECOND, 0);
-				results.assertEncounterDatetime(cal.getTime());
+				results.assertEncounterDatetime(ExpectedDatetime(null));
 			}
 			
 		}.run();

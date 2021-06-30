@@ -69,12 +69,11 @@ public class ProviderWidget implements Widget {
 		List<Provider> nonRetiredProviders = new ArrayList<>();
 		List<Provider> sortedProviders = new ArrayList<>();
 		
-		for(Provider provider:providers) {
-			if(provider.getRetired() == true) {
-			   retiredProviders.add(provider);
-			}
-			else {
-			   nonRetiredProviders.add(provider);
+		for (Provider provider : providers) {
+			if (provider.getRetired() == true) {
+				retiredProviders.add(provider);
+			} else {
+				nonRetiredProviders.add(provider);
 			}
 		}
 		Collections.sort(nonRetiredProviders, new ProviderByPersonNameComparator());
@@ -128,5 +127,5 @@ public class ProviderWidget implements Widget {
 		}
 		return null;
 	}
-
+	
 }
