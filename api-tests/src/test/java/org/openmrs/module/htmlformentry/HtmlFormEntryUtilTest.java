@@ -1318,14 +1318,13 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void getProviders_shouldIncludeRetiredProvidersWhenIncludeRetiredIsTrue() throws Exception {
 		executeDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
 		List<Provider> providers = HtmlFormEntryUtil.getProviders(null, true, true);
-		List <Provider> nonRetiredProviders = new ArrayList<>();
-		List <Provider> retiredProviders = new ArrayList<>();
+		List<Provider> nonRetiredProviders = new ArrayList<>();
+		List<Provider> retiredProviders = new ArrayList<>();
 		
-		for(Provider provider:providers) {
-			if(provider.getRetired() == false) {
-			  nonRetiredProviders.add(provider);
-			}
-			else {
+		for (Provider provider : providers) {
+			if (provider.getRetired() == false) {
+				nonRetiredProviders.add(provider);
+			} else {
 				retiredProviders.add(provider);
 			}
 		}
@@ -1340,14 +1339,13 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	public void getProviders_shouldExcludeRetiredProvidersWhenIncludeRetiredIsFalse() throws Exception {
 		executeDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
 		List<Provider> providers = HtmlFormEntryUtil.getProviders(null, true, false);
-		List <Provider> nonRetiredProviders = new ArrayList<>();
-		List <Provider> retiredProviders = new ArrayList<>();
+		List<Provider> nonRetiredProviders = new ArrayList<>();
+		List<Provider> retiredProviders = new ArrayList<>();
 		
-		for(Provider provider:providers) {
-			if(provider.getRetired() == false) {
-			  nonRetiredProviders.add(provider);
-			}
-			else {
+		for (Provider provider : providers) {
+			if (provider.getRetired() == false) {
+				nonRetiredProviders.add(provider);
+			} else {
 				retiredProviders.add(provider);
 			}
 		}

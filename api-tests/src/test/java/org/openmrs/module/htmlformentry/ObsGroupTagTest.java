@@ -74,12 +74,12 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupContextObsDoesNotDisplay() throws Exception {
+	public void testObsGrouphiddenObsDoesNotDisplay() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "obsGroupWithContextObs";
+				return "obsGroupWithHiddenObs";
 			}
 			
 			public void testBlankFormHtml(String html) {
@@ -99,13 +99,13 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupSubmitsContextObs() throws Exception {
+	public void testObsGroupSubmitshiddenObs() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "obsGroupWithContextObs";
+				return "obsGroupWithHiddenObs";
 			}
 			
 			@Override
@@ -132,13 +132,13 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupDoesNotSaveContextObsWhenEmpty() throws Exception {
+	public void testObsGroupDoesNotSavehiddenObsWhenEmpty() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "obsGroupWithContextObs";
+				return "obsGroupWithHiddenObs";
 			}
 			
 			@Override
@@ -164,13 +164,13 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupDeletesContextObsWhenCleared() throws Exception {
+	public void testObsGroupDeleteshiddenObsWhenCleared() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
 			@Override
 			public String getFormName() {
-				return "obsGroupWithContextObs";
+				return "obsGroupWithHiddenObs";
 			}
 			
 			@Override
