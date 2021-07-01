@@ -418,7 +418,7 @@ public class VelocityFunctions {
 	 * @return The date formated in client timezone, unless the conversion function fail, on that case,
 	 *         send back the received date.
 	 */
-	public String toClientTZ(Date date) {
+	public String formatsDatetimeToClientTZ(Date date) {
 		boolean timezoneConversions = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 		String UPClientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
