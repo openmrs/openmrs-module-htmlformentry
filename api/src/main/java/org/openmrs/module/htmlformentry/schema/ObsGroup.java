@@ -17,7 +17,7 @@ public class ObsGroup implements HtmlFormField {
 	
 	private String label;
 	
-	private Map.Entry<Concept, Concept> contextObs;
+	private Map.Entry<Concept, Concept> hiddenObs;
 	
 	public ObsGroup(Concept concept) {
 		this.concept = concept;
@@ -73,12 +73,12 @@ public class ObsGroup implements HtmlFormField {
 		this.label = label;
 	}
 	
-	public Map.Entry<Concept, Concept> getContextObs() {
-		return contextObs;
+	public Map.Entry<Concept, Concept> gethiddenObs() {
+		return hiddenObs;
 	}
 	
-	public void setContextObs(Map.Entry<Concept, Concept> contextObs) {
-		this.contextObs = contextObs;
+	public void sethiddenObs(Map.Entry<Concept, Concept> hiddenObs) {
+		this.hiddenObs = hiddenObs;
 	}
 	
 }

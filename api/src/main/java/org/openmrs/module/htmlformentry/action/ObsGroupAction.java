@@ -76,17 +76,17 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					session.getSubmissionActions().beginObsGroup(obsGroup);
 				}
 			} else {
-				if (obsGroupSchemaObject.getContextObs() != null) {
+				if (obsGroupSchemaObject.gethiddenObs() != null) {
 					// existingGroup seems never to exist. Not sure if something needs to be done to handle it,
 					// as is done in the other `if` branches.
-					Concept contextObsConcept = obsGroupSchemaObject.getContextObs().getKey();
-					Concept contextObsValue = obsGroupSchemaObject.getContextObs().getValue();
-					// If the obs group will have any members, we want to ensure that the context obs is present.
-					// Otherwise, we want to ensure that the context obs is absent.
+					Concept hiddenObsConcept = obsGroupSchemaObject.gethiddenObs().getKey();
+					Concept hiddenObsValue = obsGroupSchemaObject.gethiddenObs().getValue();
+					// If the obs group will have any members, we want to ensure that the hidden obs is present.
+					// Otherwise, we want to ensure that the hidden obs is absent.
 					// 
-					// To do this, we construct a list of the expected members which are not the context obs.
+					// To do this, we construct a list of the expected members which are not the hidden obs.
 					// This is the current members (which includes those to be added), minus those that will
-					// be voided, minus the context obs. In the process we find out whether the context obs
+					// be voided, minus the hidden obs. In the process we find out whether the hidden obs
 					// already exists, which informs whether we need to create or void it.
 					ArrayList<Obs> members = new ArrayList<>();
 					Obs currentObsGroup = session.getSubmissionActions().getCurrentObsGroup();
@@ -94,18 +94,18 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 						members.addAll(currentObsGroup.getGroupMembers());
 					}
 					members.removeAll(session.getSubmissionActions().getObsToVoid());
-					Obs existingContextObs = null;
+					Obs existinghiddenObs = null;
 					for (Obs member : members) {
-						if (member.getConcept() == contextObsConcept && member.getValueCoded() == contextObsValue) {
-							existingContextObs = member;
-							members.remove(existingContextObs);
+						if (member.getConcept() == hiddenObsConcept && member.getValueCoded() == hiddenObsValue) {
+							existinghiddenObs = member;
+							members.remove(existinghiddenObs);
 							break;
 						}
 					}
-					if (!members.isEmpty() && existingContextObs == null) {
-						session.getSubmissionActions().createObs(contextObsConcept, contextObsValue, null, null, null);
-					} else if (members.isEmpty() && existingContextObs != null) {
-						session.getSubmissionActions().modifyObs(existingContextObs, contextObsConcept, null, null, null,
+					if (!members.isEmpty() && existinghiddenObs == null) {
+						session.getSubmissionActions().createObs(hiddenObsConcept, hiddenObsValue, null, null, null);
+					} else if (members.isEmpty() && existinghiddenObs != null) {
+						session.getSubmissionActions().modifyObs(existinghiddenObs, hiddenObsConcept, null, null, null,
 						    null);
 					}
 				}

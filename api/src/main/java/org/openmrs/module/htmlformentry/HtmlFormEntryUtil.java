@@ -2492,6 +2492,7 @@ public class HtmlFormEntryUtil {
 	public static List<Provider> getAllProviders(boolean includeRetired) {
 		return Context.getProviderService().getAllProviders(includeRetired);
 	}
+	
 	/**
 	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
 	 * {@code state}

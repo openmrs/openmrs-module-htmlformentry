@@ -33,7 +33,8 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
 		attributeDescriptors.add(new AttributeDescriptor("groupingConceptId", Concept.class));
-		attributeDescriptors.add(new AttributeDescriptor("contextObs", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("hiddenConceptId", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("hiddenAnswerConceptId", Concept.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
@@ -92,7 +93,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 		// sets up the obs group stack, sets current obs group to this one
 		ogSchemaObj = new ObsGroup(groupingConcept, name);
-		ogSchemaObj.setContextObs(getContextObs(attributes.get("contextObs")));
+		ogSchemaObj.sethiddenObs(gethiddenObs(attributes.get("hiddenConceptId"), attributes.get("hiddenAnswerConceptId")));
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack
 		session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
@@ -112,24 +113,24 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 	}
 	
-	private Map.Entry<Concept, Concept> getContextObs(String contextObsString) throws BadFormDesignException {
-		if (contextObsString != null) {
-			String[] contextObsStrings = contextObsString.split("=");
-			if (contextObsStrings.length != 2) {
-				throw new BadFormDesignException("obsgroup tag contextObs parameter requires exactly two concepts "
-				        + "delimited by an equals sign (=).");
+	private Map.Entry<Concept, Concept> gethiddenObs(String hiddenConceptId, String hiddenAnswerConceptId)
+	        throws BadFormDesignException {
+		if (hiddenConceptId != null || hiddenAnswerConceptId != null) {
+			if (hiddenConceptId == null || hiddenAnswerConceptId == null) {
+				throw new BadFormDesignException(
+				        "obsgroup tags 'hiddenConceptId' and 'hiddenAnswerConceptId' must be used together");
 			}
-			Concept contextQuestion = HtmlFormEntryUtil.getConcept(contextObsStrings[0]);
-			if (contextQuestion == null) {
-				throw new BadFormDesignException("could not find concept " + contextObsStrings[0]
-				        + " as the question part of the contextObs for an obsgroup tag");
+			Concept question = HtmlFormEntryUtil.getConcept(hiddenConceptId);
+			if (question == null) {
+				throw new BadFormDesignException(
+				        "could not find concept " + hiddenConceptId + " as the hiddenConceptId for an obsgroup tag");
 			}
-			Concept contextValue = HtmlFormEntryUtil.getConcept(contextObsStrings[1]);
-			if (contextValue == null) {
-				throw new BadFormDesignException("could not find concept " + contextObsStrings[1]
-				        + " as the value part of the contextObs for an obsgroup tag");
+			Concept answer = HtmlFormEntryUtil.getConcept(hiddenAnswerConceptId);
+			if (answer == null) {
+				throw new BadFormDesignException("could not find concept " + hiddenAnswerConceptId
+				        + " as the hiddenAnswerConceptId for an obsgroup tag");
 			}
-			return new AbstractMap.SimpleEntry<>(contextQuestion, contextValue);
+			return new AbstractMap.SimpleEntry<>(question, answer);
 		} else {
 			return null;
 		}
