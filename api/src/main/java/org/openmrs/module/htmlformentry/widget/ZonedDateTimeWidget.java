@@ -48,8 +48,9 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				return WidgetFactory.displayValue(datetimeFormat().format(initialValue));
 			}
 			//If Timezone.Conversions is true but the UP with client timezone is empty, it shows an error, because we dont know the client timezone.
-			if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(this.getUPClientTimezone())) {
-				throw new RuntimeException();
+			if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(this.getClientTimezone())) {
+				throw new RuntimeException(
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 			}
 			return WidgetFactory.displayValue(toClientTimezone(initialValue, Context.getAdministrationService()
 			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss")));
@@ -94,7 +95,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	/**
 	 * @return The timezone string info saved as User Property.
 	 */
-	public String getUPClientTimezone() {
+	public String getClientTimezone() {
 		return Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
 	}
 	
@@ -130,9 +131,9 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				if (StringUtils.isNotEmpty(timezoneParam)) {
 					//Use the client timezone submitted with the form
 					timezoneToConvert = timezoneParam;
-				} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(this.getUPClientTimezone())) {
+				} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(this.getClientTimezone())) {
 					//Use the User Property with client timezone
-					timezoneToConvert = this.getUPClientTimezone();
+					timezoneToConvert = this.getClientTimezone();
 				}
 				
 			} else {

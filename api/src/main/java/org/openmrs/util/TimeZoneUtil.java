@@ -35,17 +35,17 @@ public class TimeZoneUtil {
 	 * Formats a date with the client timezone, using the User Property clientTimezone
 	 *
 	 * @param date The date.
-	 * @param formatting The output format of the date.
+	 * @param format The output format of the date.
 	 * @return The date formated in client timezone.
 	 */
-	public static String toClientTimezone(Date date, String formatting) {
-		Boolean timezoneConvention = BooleanUtils.toBoolean(
+	public static String toClientTimezone(Date date, String format) {
+		Boolean timezoneConversions = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-		if (date != null && BooleanUtils.isTrue(timezoneConvention)) {
+		if (date != null && BooleanUtils.isTrue(timezoneConversions)) {
 			String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
 			if (StringUtils.isNotEmpty(clientTimezone)) {
-				formatting = formatting != null ? formatting : "dd-MM-yyyy, HH:mm:ss";
-				SimpleDateFormat dateFormat = new SimpleDateFormat(formatting, Context.getLocale());
+				format = format != null ? format : "dd-MM-yyyy, HH:mm:ss";
+				SimpleDateFormat dateFormat = new SimpleDateFormat(format, Context.getLocale());
 				dateFormat.setTimeZone(TimeZone.getTimeZone(clientTimezone));
 				return dateFormat.format(date);
 			}

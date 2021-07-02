@@ -421,13 +421,13 @@ public class VelocityFunctions {
 	public String convertToClientTimezone(Date date) {
 		boolean timezoneConversions = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-		String UPClientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
-		if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(UPClientTimezone)) {
+		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
+		if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(clientTimezone)) {
 			return toClientTimezone(date, Context.getAdministrationService()
 			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "yyyy-MM-dd, HH:mm:ss"));
-		} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(UPClientTimezone)) {
+		} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(clientTimezone)) {
 			throw new IllegalArgumentException(
-			        Context.getMessageSourceService().getMessage("htmlformentry.error.noClientTimezoneOnUserProperty"));
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 		} else {
 			return date.toString();
 		}

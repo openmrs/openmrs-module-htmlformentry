@@ -607,7 +607,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				catch (Exception ex) {
 					ret.append(
-					    Context.getMessageSourceService().getMessage("htmlformentry.error.noClientTimezoneOnUserProperty"));
+					    Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 				}
 				
 			}
