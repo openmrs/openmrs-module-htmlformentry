@@ -53,7 +53,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 			}
 			return WidgetFactory.displayValue(toClientTimezone(initialValue, Context.getAdministrationService()
-			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss")));
+			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME)));
 		} else {
 			StringBuilder sb = new StringBuilder();
 			
