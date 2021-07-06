@@ -119,14 +119,8 @@ public class VelocityFunctions {
 			
 			List<Concept> questions = new ArrayList<Concept>();
 			questions.add(concept);
-			try {
-				List<Obs> list = getObsService().getObservations(who, (List) null, questions, (List) null, (List) null,
-				    (List) null, (List) null, (Integer) null, (Integer) null, (Date) null, latestDate, false);
-				return list;
-			}
-			catch (APIException e) {
-				return new ArrayList<Obs>();
-			}
+			return getObsService().getObservations(who, (List) null, questions, (List) null, (List) null, (List) null,
+			    (List) null, (Integer) null, (Integer) null, (Date) null, latestDate, false);
 		}
 	}
 	
