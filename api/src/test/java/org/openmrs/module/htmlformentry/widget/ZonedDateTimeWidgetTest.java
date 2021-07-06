@@ -32,7 +32,7 @@ public class ZonedDateTimeWidgetTest extends BaseHtmlFormEntryTest {
 		
 		when(formEntryContext.getFieldName(widget)).thenReturn("w1");
 		when(administrationService.getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS)).thenReturn("true");
-		when(administrationService.getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss"))
+		when(administrationService.getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "uiframework.formatter.dateAndTimeFormat"))
 		        .thenReturn("dd-MM-yyyy, HH:mm:ss");
 		
 		//Set Client Timezone

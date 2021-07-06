@@ -52,8 +52,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				throw new RuntimeException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 			}
-			return WidgetFactory.displayValue(toClientTimezone(initialValue, Context.getAdministrationService()
-			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME)));
+			return WidgetFactory.displayValue(toClientTimezone(initialValue,
+			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME)));
 		} else {
 			StringBuilder sb = new StringBuilder();
 			

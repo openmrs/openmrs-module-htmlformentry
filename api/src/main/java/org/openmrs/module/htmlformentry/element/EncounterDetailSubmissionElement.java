@@ -605,7 +605,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				try {
 					ret.append(zonedDateTimeWidget.generateHtml(context));
 				}
-				catch (Exception ex) {
+				catch (RuntimeException ex) {
 					ret.append(
 					    Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 				}
