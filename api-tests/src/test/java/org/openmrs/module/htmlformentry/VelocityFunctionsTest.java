@@ -90,7 +90,7 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		VelocityFunctions functions = setupFunctionsForPatient(7);
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		
-		Obs latestWeight = functions.latestObs("5089", "2008-08-17");
+		Obs latestWeight = functions.latestObs(5089, "2008-08-17");
 		Assert.assertEquals(55, latestWeight.getValueNumeric().intValue());
 		Assert.assertEquals("2008-08-15", df.format(latestWeight.getObsDatetime()));
 	}

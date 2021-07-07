@@ -16,7 +16,6 @@ import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
-import org.openmrs.api.APIException;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
@@ -78,17 +77,11 @@ public class VelocityFunctions {
 			throw new CannotBePreviewedException();
 	}
 	
-	private Date parseDate(String dateString) {
+	private Date parseDate(String dateString) throws ParseException {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		if (StringUtils.isNotEmpty(dateString)) {
-			try {
-				return df.parse(dateString);
-			}
-			catch (ParseException pe) {
-				return null;
-			}
+			return df.parse(dateString);
 		}
-		
 		return null;
 	}
 	
@@ -144,26 +137,22 @@ public class VelocityFunctions {
 	 * @return the most recent obs given the passed conceptId on or before the specified
 	 *         date<strong>Should</strong> return the most recent obs given the passed conceptId
 	 */
-	public Obs latestObs(Integer conceptId, String latestDateString) {
-		return latestObs(conceptId.toString(), latestDateString);
+	public Obs latestObs(Integer conceptId, String latestDateString) throws ParseException {
+		return latestObs(conceptId.toString(), parseDate(latestDateString));
 	}
 	
 	public Obs latestObs(Integer conceptId, Date latestDate) {
-		if (latestDate == null) {
-			return latestObs(conceptId.toString(), null);
-		}
-		return latestObs(conceptId.toString(), latestDate.toString());
+		return latestObs(conceptId.toString(), latestDate);
 	}
 	
-	public Obs latestObs(String conceptId, String latestDateString) {
-		List<Obs> obs = allObs(conceptId, parseDate(latestDateString));
+	public Obs latestObs(String conceptId, Date latestDate) {
+		List<Obs> obs = allObs(conceptId, latestDate);
 		
 		if (obs == null || obs.isEmpty()) {
 			return null;
 		} else {
 			return obs.get(0);
 		}
-		
 	}
 	
 	public Obs latestObs(Integer conceptId) {
@@ -249,7 +238,7 @@ public class VelocityFunctions {
 	 *         the most recent encounter of the specified type <strong>Should</strong> return the most
 	 *         recent encounter of any type if no type specified
 	 */
-	public Encounter latestEncounterAtDate(String latestDateString) {
+	public Encounter latestEncounterAtDate(String latestDateString) throws ParseException {
 		return getLatestEncounter(null, parseDate(latestDateString));
 	}
 	
@@ -266,7 +255,7 @@ public class VelocityFunctions {
 		return latestEncounter(encounterTypeId.toString(), latestDate);
 	}
 	
-	public Encounter latestEncounter(String encounterTypeId, String latestDateString) {
+	public Encounter latestEncounter(String encounterTypeId, String latestDateString) throws ParseException {
 		return latestEncounter(encounterTypeId, parseDate(latestDateString));
 	}
 	
@@ -361,7 +350,8 @@ public class VelocityFunctions {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, String latestDateString) {
+	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, String latestDateString)
+	        throws ParseException {
 		return currentProgramWorkflowStatus(programWorkflowId, parseDate(latestDateString));
 	}
 	
