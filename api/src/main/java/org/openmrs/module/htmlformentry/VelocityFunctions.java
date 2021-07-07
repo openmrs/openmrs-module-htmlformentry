@@ -1,10 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -18,16 +13,24 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
 import org.openmrs.PatientState;
+import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
-import org.openmrs.api.EncounterService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class VelocityFunctions {
 	
@@ -74,6 +77,14 @@ public class VelocityFunctions {
 			throw new CannotBePreviewedException();
 	}
 	
+	private Date parseDate(String dateString) throws ParseException {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		if (StringUtils.isNotEmpty(dateString)) {
+			return df.parse(dateString);
+		}
+		return null;
+	}
+	
 	/**
 	 * @param locationIdentifier
 	 * @return the location with the specified locationId, uuid or name.
@@ -82,7 +93,7 @@ public class VelocityFunctions {
 		return HtmlFormEntryUtil.getLocation(locationIdentifier);
 	}
 	
-	public List<Obs> allObs(String conceptId) {
+	public List<Obs> allObs(String conceptId, Date latestDate) {
 		
 		if (session.getPatient() == null) {
 			return new ArrayList<Obs>();
@@ -96,12 +107,22 @@ public class VelocityFunctions {
 		if (p == null || concept == null) {
 			return new ArrayList<Obs>();
 		} else {
-			return getObsService().getObservationsByPersonAndConcept(p, concept);
+			List<Person> who = new ArrayList<Person>();
+			who.add(p.getPerson());
+			
+			List<Concept> questions = new ArrayList<Concept>();
+			questions.add(concept);
+			return getObsService().getObservations(who, (List) null, questions, (List) null, (List) null, (List) null,
+			    (List) null, (Integer) null, (Integer) null, (Date) null, latestDate, false);
 		}
 	}
 	
+	public List<Obs> allObs(String conceptId) {
+		return allObs(conceptId, null);
+	}
+	
 	public List<Obs> allObs(Integer conceptId) {
-		return allObs(conceptId.toString());
+		return allObs(conceptId.toString(), null);
 	}
 	
 	/**
@@ -109,19 +130,33 @@ public class VelocityFunctions {
 	 *         recent obs given the passed conceptId
 	 */
 	public Obs latestObs(String conceptId) {
-		
-		List<Obs> obs = allObs(conceptId);
+		return latestObs(conceptId, null);
+	}
+	
+	/**
+	 * @return the most recent obs given the passed conceptId on or before the specified
+	 *         date<strong>Should</strong> return the most recent obs given the passed conceptId
+	 */
+	public Obs latestObs(Integer conceptId, String latestDateString) throws ParseException {
+		return latestObs(conceptId.toString(), parseDate(latestDateString));
+	}
+	
+	public Obs latestObs(Integer conceptId, Date latestDate) {
+		return latestObs(conceptId.toString(), latestDate);
+	}
+	
+	public Obs latestObs(String conceptId, Date latestDate) {
+		List<Obs> obs = allObs(conceptId, latestDate);
 		
 		if (obs == null || obs.isEmpty()) {
 			return null;
 		} else {
 			return obs.get(0);
 		}
-		
 	}
 	
 	public Obs latestObs(Integer conceptId) {
-		return latestObs(conceptId.toString());
+		return latestObs(conceptId.toString(), null);
 	}
 	
 	/**
@@ -129,8 +164,7 @@ public class VelocityFunctions {
 	 *         given the passed conceptId
 	 */
 	public Obs earliestObs(String conceptId) {
-		
-		List<Obs> obs = allObs(conceptId);
+		List<Obs> obs = allObs(conceptId, null);
 		
 		if (obs == null || obs.isEmpty()) {
 			return null;
@@ -155,6 +189,10 @@ public class VelocityFunctions {
 	}
 	
 	private List<Encounter> getAllEncounters(EncounterType type) {
+		return getAllEncounters(type, null);
+	}
+	
+	private List<Encounter> getAllEncounters(EncounterType type, Date latestDate) {
 		if (session.getPatient() == null) {
 			return new ArrayList<Encounter>();
 		}
@@ -163,17 +201,21 @@ public class VelocityFunctions {
 		if (p == null) {
 			return new ArrayList<Encounter>();
 		} else {
-			if (type == null) {
-				return Context.getEncounterService().getEncountersByPatient(p);
-			} else {
+			EncounterSearchCriteriaBuilder b = new EncounterSearchCriteriaBuilder();
+			b.setPatient(p).setIncludeVoided(false);
+			
+			if (type != null) {
 				List<EncounterType> typeList = new ArrayList<EncounterType>();
 				typeList.add(type);
-				
-				EncounterService esc = Context.getEncounterService();
-				EncounterSearchCriteriaBuilder b = new EncounterSearchCriteriaBuilder();
-				b.setPatient(p).setEncounterTypes(typeList).setIncludeVoided(false);
-				return Context.getEncounterService().getEncounters(b.createEncounterSearchCriteria());
+				b.setEncounterTypes(typeList);
 			}
+			
+			if (latestDate != null) {
+				b.setToDate(latestDate);
+			}
+			
+			List<Encounter> encounters = Context.getEncounterService().getEncounters(b.createEncounterSearchCriteria());
+			return encounters;
 		}
 	}
 	
@@ -188,11 +230,46 @@ public class VelocityFunctions {
 			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
 		}
 		
-		return getLatestEncounter(encounterType);
+		return getLatestEncounter(encounterType, null);
 	}
 	
-	private Encounter getLatestEncounter(EncounterType type) {
-		List<Encounter> encounters = getAllEncounters(type);
+	/**
+	 * @return the most recent encounter before or on the specified date <strong>Should</strong> return
+	 *         the most recent encounter of the specified type <strong>Should</strong> return the most
+	 *         recent encounter of any type if no type specified
+	 */
+	public Encounter latestEncounterAtDate(String latestDateString) throws ParseException {
+		return getLatestEncounter(null, parseDate(latestDateString));
+	}
+	
+	public Encounter latestEncounterAtDate(Date latestDate) {
+		return getLatestEncounter(null, latestDate);
+	}
+	
+	/**
+	 * @return the most recent encounter of the specified type before or up to the specified date
+	 *         <strong>Should</strong> return the most recent encounter of the specified type
+	 *         <strong>Should</strong> return the most recent encounter of any type if no type specified
+	 */
+	public Encounter latestEncounter(Integer encounterTypeId, Date latestDate) {
+		return latestEncounter(encounterTypeId.toString(), latestDate);
+	}
+	
+	public Encounter latestEncounter(String encounterTypeId, String latestDateString) throws ParseException {
+		return latestEncounter(encounterTypeId, parseDate(latestDateString));
+	}
+	
+	public Encounter latestEncounter(String encounterTypeId, Date latestDateString) {
+		EncounterType encounterType = null;
+		if (StringUtils.isNotEmpty(encounterTypeId)) {
+			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
+		}
+		
+		return getLatestEncounter(encounterType, latestDateString);
+	}
+	
+	private Encounter getLatestEncounter(EncounterType type, Date latestDate) {
+		List<Encounter> encounters = getAllEncounters(type, latestDate);
 		if (encounters == null || encounters.isEmpty()) {
 			return null;
 		} else {
@@ -204,7 +281,7 @@ public class VelocityFunctions {
 	 * @return the most recent encounter <strong>Should</strong> return the most recent encounter
 	 */
 	public Encounter latestEncounter() {
-		return latestEncounter(null);
+		return latestEncounter((String) null, (Date) null);
 	}
 	
 	public ProgramWorkflow getWorkflow(Integer id) {
@@ -267,6 +344,55 @@ public class VelocityFunctions {
 			PatientState ps = mostRecentPatientProgram.getCurrentState(workflow);
 			if (ps != null && ps.getState() != null && ps.getState().getConcept().getName() != null) {
 				return ps;
+			}
+		}
+		return null;
+	}
+	
+	@SuppressWarnings("deprecation")
+	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, String latestDateString)
+	        throws ParseException {
+		return currentProgramWorkflowStatus(programWorkflowId, parseDate(latestDateString));
+	}
+	
+	@SuppressWarnings("deprecation")
+	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, Date latestDate) {
+		if (latestDate == null) {
+			// the date format is invalid or the string is empty so just call the original method
+			return currentProgramWorkflowStatus(programWorkflowId);
+		}
+		Patient p = session.getPatient();
+		if (p == null || p.getId() == null) {
+			return null;
+		}
+		cannotBePreviewed();
+		ProgramWorkflow workflow = getWorkflow(programWorkflowId); // not sure if and how I want to reference the UUID
+		List<PatientProgram> pps = getProgramWorkflowService().getPatientPrograms(p, workflow.getProgram(), null, null, null,
+		    null, false);
+		PatientProgram mostRecentPatientProgram = null;
+		for (PatientProgram pp : pps) {
+			// try to figure out which program enrollment is active or the most
+			// recent one; guess this would better fit somewhere in the
+			// ProgramWorkflowServive
+			if (!pp.isVoided()) {
+				if (pp.getDateCompleted() == null) {
+					mostRecentPatientProgram = pp;
+				} else {
+					if (mostRecentPatientProgram != null
+					        && pp.getDateCompleted().after(mostRecentPatientProgram.getDateCompleted())) {
+						// pp was completed after the most recent date
+						// maybe the start date is also important
+						mostRecentPatientProgram = pp;
+					}
+				}
+			}
+		}
+		if (mostRecentPatientProgram != null) {
+			// find the active state on the specified date
+			for (PatientState state : mostRecentPatientProgram.getStates()) {
+				if (state.getActive(latestDate)) {
+					return state;
+				}
 			}
 		}
 		return null;

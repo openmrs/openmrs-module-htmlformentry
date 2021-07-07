@@ -79,6 +79,22 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals("2008-08-19", df.format(earliestWeight.getObsDatetime()));
 	}
 	
+	/**
+	 * @see VelocityFunctions#latestObs(Integer, Date)
+	 * @verifies return the most recent obs given the passed conceptId and the latest date for the
+	 *           concept
+	 */
+	@Test
+	public void latestObs_shouldReturnTheMostRecentObsGivenThePassedConceptIdAndLatestDate() throws Exception {
+		
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		
+		Obs latestWeight = functions.latestObs(5089, "2008-08-17");
+		Assert.assertEquals(55, latestWeight.getValueNumeric().intValue());
+		Assert.assertEquals("2008-08-15", df.format(latestWeight.getObsDatetime()));
+	}
+	
 	@Test
 	public void latestObs_shouldReturnTheMostRecentObsGivenThePassedConceptUuid() throws Exception {
 		
@@ -98,6 +114,29 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 	public void latestEncounter_shouldReturnTheMostRecentEncounter() throws Exception {
 		VelocityFunctions functions = setupFunctionsForPatient(7);
 		Assert.assertEquals(new Integer(5), functions.latestEncounter().getEncounterId());
+	}
+	
+	/**
+	 * @see VelocityFunctions@latestEncounterAtDate(EncounterType, Date)
+	 * @verifies return the most recent encounter if encounter type is null and the date before/on the
+	 *           specified date
+	 */
+	@Test
+	public void latestEncounterWithDate_shouldReturnTheMostRecentEncounter() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		Assert.assertEquals(new Integer(4), functions.latestEncounterAtDate("2008-08-16").getEncounterId());
+	}
+	
+	/**
+	 * @see VelocityFunctions@latestEncounter(EncounterType, Date)
+	 * @verifies return the most recent encounter if encounter type is null and before/on the date
+	 *           specified
+	 */
+	@Test
+	public void latestEncounter_shouldReturnTheMostRecentEncounterByTypeAndUpToTheSpecifiedEncounterDate() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		Encounter latestEncounter = functions.latestEncounter("1", "2008-08-16");
+		Assert.assertEquals(new Integer(4), latestEncounter.getEncounterId());
 	}
 	
 	/**
