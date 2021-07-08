@@ -29,7 +29,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	}
 	
 	private SimpleDateFormat datetimeFormat() {
-		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME,
+		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME,
 		    "dd-MM-yyyy, HH:mm:ss");
 		if (StringUtils.isNotBlank(df)) {
 			return new SimpleDateFormat(df, Context.getLocale());
@@ -53,7 +53,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 			}
 			return WidgetFactory.displayValue(toClientTimezone(initialValue,
-			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME)));
+			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME)));
 		} else {
 			StringBuilder sb = new StringBuilder();
 			
@@ -64,10 +64,10 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			Calendar valAsCal = Calendar.getInstance();
 			if (initialValue != null) {
 				SimpleDateFormat sdf = new SimpleDateFormat(Context.getAdministrationService().getGlobalProperty(
-				    HtmlFormEntryConstants.FORMATTER_DATETIME_NAME, "dd-MM-yyyy, HH:mm:ss"), Context.getLocale());
+				    HtmlFormEntryConstants.FORMATTER_DATETIME, "dd-MM-yyyy, HH:mm:ss"), Context.getLocale());
 				try {
 					String formatDateWithClientTZ = toClientTimezone(initialValue, Context.getAdministrationService()
-					        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME_NAME));
+					        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME));
 					if (StringUtils.isNotEmpty(formatDateWithClientTZ)) {
 						valAsCal.setTime(sdf.parse(formatDateWithClientTZ));
 					} else {
