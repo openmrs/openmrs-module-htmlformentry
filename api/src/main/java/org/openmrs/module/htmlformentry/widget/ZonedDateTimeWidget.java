@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
@@ -49,7 +50,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			}
 			//If Timezone.Conversions is true but the UP with client timezone is empty, it shows an error, because we dont know the client timezone.
 			if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(this.getClientTimezone())) {
-				throw new RuntimeException(
+				throw new MissingRequiredPropertyException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 			}
 			return WidgetFactory.displayValue(toClientTimezone(initialValue,

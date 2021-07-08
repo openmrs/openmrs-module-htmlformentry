@@ -12,6 +12,7 @@ import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.Visit;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -605,7 +606,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				try {
 					ret.append(zonedDateTimeWidget.generateHtml(context));
 				}
-				catch (RuntimeException ex) {
+				catch (MissingRequiredPropertyException ex) {
 					ret.append(
 					    Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 				}
