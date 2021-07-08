@@ -75,8 +75,10 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 						valAsCal.setTime(initialValue);
 					}
 				}
-				catch (ParseException e) {
+				catch (Exception e) {
 					valAsCal = null;
+					sb.append(
+							Context.getMessageSourceService().getMessage("htmlformentry.error.formattingTimeForEncounterDate"));
 				}
 			} else {
 				valAsCal = null;
