@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.schema;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.openmrs.Concept;
 
@@ -15,6 +16,8 @@ public class ObsGroup implements HtmlFormField {
 	private List<HtmlFormField> children = new ArrayList<HtmlFormField>();
 	
 	private String label;
+	
+	private Map.Entry<Concept, Concept> hiddenObs;
 	
 	public ObsGroup(Concept concept) {
 		this.concept = concept;
@@ -68,6 +71,14 @@ public class ObsGroup implements HtmlFormField {
 	
 	public void setLabel(String label) {
 		this.label = label;
+	}
+	
+	public Map.Entry<Concept, Concept> gethiddenObs() {
+		return hiddenObs;
+	}
+	
+	public void sethiddenObs(Map.Entry<Concept, Concept> hiddenObs) {
+		this.hiddenObs = hiddenObs;
 	}
 	
 }

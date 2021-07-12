@@ -534,7 +534,8 @@ public class FormEntryContext {
 	
 	/**
 	 * Finds whether there is existing obs created for the question concept and numeric answer, returns
-	 * that <obs> if any, Use this only when datatype is numeric and style="checkbox"
+	 * that <obs> if any, Use this only when datatype is numeric and style="checkbox" // TODO: the above
+	 * comment does not make sense???
 	 *
 	 * @param question - the concept associated with the Obs to acquire
 	 * @param numericAns - numeric answer given with <obs/> declaration

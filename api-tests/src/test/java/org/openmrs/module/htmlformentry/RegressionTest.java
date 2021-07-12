@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1028,6 +1029,52 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void testLatestVelocityExpressionsWithDate() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "velocityFormLatestWithDate";
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Latest weight: 50.0", html);
+				TestUtil.assertFuzzyContains("Latest weight with Date: 70.0", html);
+				TestUtil.assertFuzzyContains("Location with Date: Unknown Location", html);
+				TestUtil.assertFuzzyContains("Location for Scheduled: Unknown Location", html);
+			}
+		}.run();
+	}
+	
+	/**
+	 * These tests use a different patient so as no to create conflicts with other tests
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testLatestVelocityExpressionsForWorkFlowWithDate() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public Patient getPatient() {
+				return Context.getPatientService().getPatient(8);
+			}
+			
+			@Override
+			public String getFormName() {
+				return "velocityFormLatestWithDate";
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Workflow State Concept May End: 10002", html);
+				TestUtil.assertFuzzyContains("Workflow State Concept September End: 10003", html);
+			}
+		}.run();
+	}
+	
+	@Test
 	public void testVelocityExpressionWithNoValueShouldReturnEmptyString() throws Exception {
 		new RegressionTestHelper() {
 			
@@ -1247,7 +1294,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 			@Override
 			public Patient getPatientToView() throws Exception {
 				return Context.getPatientService().getPatient(2);
-			};
+			}
 			
 			@Override
 			public Encounter getEncounterToEdit() {

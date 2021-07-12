@@ -227,7 +227,7 @@ public abstract class RegressionTestHelper {
 	 * @see #widgetLabels()
 	 */
 	public String[] widgetLabelsForEdit() {
-		return new String[0];
+		return widgetLabels();
 	}
 	
 	/**
@@ -915,8 +915,8 @@ public abstract class RegressionTestHelper {
 		public void assertObsGroupCreated(int groupingConceptId, Object... conceptIdsAndValues) {
 			// quick checks
 			Assert.assertNotNull(encounterCreated);
-			Collection<Obs> temp = encounterCreated.getAllObs();
-			Assert.assertNotNull(temp);
+			Collection<Obs> createdObs = encounterCreated.getAllObs();
+			Assert.assertNotNull(createdObs);
 			
 			List<TestObsValue> expected = new ArrayList<TestObsValue>();
 			for (int i = 0; i < conceptIdsAndValues.length; i += 2) {
@@ -925,7 +925,7 @@ public abstract class RegressionTestHelper {
 				expected.add(new TestObsValue(conceptId, value));
 			}
 			
-			for (Obs o : temp) {
+			for (Obs o : createdObs) {
 				if (o.getConcept().getConceptId() == groupingConceptId) {
 					if (o.getValueCoded() != null || o.getValueComplex() != null || o.getValueDatetime() != null
 					        || o.getValueDrug() != null || o.getValueNumeric() != null || o.getValueText() != null) {

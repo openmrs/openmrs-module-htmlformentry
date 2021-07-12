@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.action;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.openmrs.Concept;
@@ -8,6 +9,7 @@ import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.InvalidActionException;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 
@@ -32,8 +34,8 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 	 * 
 	 * @return
 	 */
-	public static ObsGroupAction end() {
-		return new ObsGroupAction(null, null, null, false);
+	public static ObsGroupAction end(ObsGroup ogSchemaObj) {
+		return new ObsGroupAction(null, null, ogSchemaObj, false);
 	}
 	
 	//------------------------------------
@@ -74,6 +76,39 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					session.getSubmissionActions().beginObsGroup(obsGroup);
 				}
 			} else {
+				if (obsGroupSchemaObject.gethiddenObs() != null) {
+					// existingGroup seems never to exist. Not sure if something needs to be done to handle it,
+					// as is done in the other `if` branches.
+					Concept hiddenObsConcept = obsGroupSchemaObject.gethiddenObs().getKey();
+					Concept hiddenObsValue = obsGroupSchemaObject.gethiddenObs().getValue();
+					// If the obs group will have any members, we want to ensure that the hidden obs is present.
+					// Otherwise, we want to ensure that the hidden obs is absent.
+					// 
+					// To do this, we construct a list of the expected members which are not the hidden obs.
+					// This is the current members (which includes those to be added), minus those that will
+					// be voided, minus the hidden obs. In the process we find out whether the hidden obs
+					// already exists, which informs whether we need to create or void it.
+					ArrayList<Obs> members = new ArrayList<>();
+					Obs currentObsGroup = session.getSubmissionActions().getCurrentObsGroup();
+					if (currentObsGroup.getGroupMembers() != null) {
+						members.addAll(currentObsGroup.getGroupMembers());
+					}
+					members.removeAll(session.getSubmissionActions().getObsToVoid());
+					Obs existinghiddenObs = null;
+					for (Obs member : members) {
+						if (member.getConcept() == hiddenObsConcept && member.getValueCoded() == hiddenObsValue) {
+							existinghiddenObs = member;
+							members.remove(existinghiddenObs);
+							break;
+						}
+					}
+					if (!members.isEmpty() && existinghiddenObs == null) {
+						session.getSubmissionActions().createObs(hiddenObsConcept, hiddenObsValue, null, null, null);
+					} else if (members.isEmpty() && existinghiddenObs != null) {
+						session.getSubmissionActions().modifyObs(existinghiddenObs, hiddenObsConcept, null, null, null,
+						    null);
+					}
+				}
 				session.getSubmissionActions().endObsGroup();
 			}
 		}
