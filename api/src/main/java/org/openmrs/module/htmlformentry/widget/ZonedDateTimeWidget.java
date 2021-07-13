@@ -67,8 +67,8 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				SimpleDateFormat sdf = new SimpleDateFormat(Context.getAdministrationService().getGlobalProperty(
 				    HtmlFormEntryConstants.FORMATTER_DATETIME, "dd-MM-yyyy, HH:mm:ss"), Context.getLocale());
 				try {
-					String formatDateWithClientTZ = toClientTimezone(initialValue, Context.getAdministrationService()
-					        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME));
+					String formatDateWithClientTZ = toClientTimezone(initialValue,
+					    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME));
 					if (StringUtils.isNotEmpty(formatDateWithClientTZ)) {
 						valAsCal.setTime(sdf.parse(formatDateWithClientTZ));
 					} else {
@@ -78,7 +78,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 				catch (Exception e) {
 					valAsCal = null;
 					sb.append(
-							Context.getMessageSourceService().getMessage("htmlformentry.error.formattingTimeForEncounterDate"));
+					    Context.getMessageSourceService().getMessage("htmlformentry.error.formattingTimeForEncounterDate"));
 				}
 			} else {
 				valAsCal = null;

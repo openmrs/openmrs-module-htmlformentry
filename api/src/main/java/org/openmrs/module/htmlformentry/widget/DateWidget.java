@@ -99,14 +99,16 @@ public class DateWidget implements Widget {
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
 			boolean timezoneConversions = BooleanUtils.toBoolean(
-					Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-
+			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
+			
 			if (timezoneConversions) {
-				 dateToDisplay = toClientTimezone(initialValue, "yyyy-MM-dd"); // Return null if Timezones GP are not true
+				dateToDisplay = toClientTimezone(initialValue, "yyyy-MM-dd"); // Return null if Timezones GP are not true
 			} else {
-				dateToDisplay =  getHtmlDateFormat().format(initialValue);
+				if (initialValue != null) {
+					dateToDisplay = getHtmlDateFormat().format(initialValue);
+				}
 			}
-
+			
 			if (!hidden) {
 				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
 			}
@@ -116,9 +118,7 @@ public class DateWidget implements Widget {
 			}
 			if (hidden && initialValue != null) {
 				// set the value here, since it won't be set by the ui widget
-				sb.append(" value=\"")
-				        .append(dateToDisplay)
-				        .append("\"");
+				sb.append(" value=\"").append(dateToDisplay).append("\"");
 			}
 			sb.append(" />");
 			
