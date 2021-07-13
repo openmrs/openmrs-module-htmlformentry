@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -94,9 +95,18 @@ public class DateWidget implements Widget {
 				return WidgetFactory.displayEmptyValue("________");
 			}
 		} else {
+			String dateToDisplay = "";
 			StringBuilder sb = new StringBuilder();
 			String fieldName = context.getFieldName(this);
-			String dateClientTimezone = toClientTimezone(initialValue, "yyyy-MM-dd"); // Return null if Timezones GP are not true
+			boolean timezoneConversions = BooleanUtils.toBoolean(
+					Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
+
+			if (timezoneConversions) {
+				 dateToDisplay = toClientTimezone(initialValue, "yyyy-MM-dd"); // Return null if Timezones GP are not true
+			} else {
+				dateToDisplay =  getHtmlDateFormat().format(initialValue);
+			}
+
 			if (!hidden) {
 				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
 			}
@@ -107,7 +117,7 @@ public class DateWidget implements Widget {
 			if (hidden && initialValue != null) {
 				// set the value here, since it won't be set by the ui widget
 				sb.append(" value=\"")
-				        .append(dateClientTimezone != null ? dateClientTimezone : getHtmlDateFormat().format(initialValue))
+				        .append(dateToDisplay)
 				        .append("\"");
 			}
 			sb.append(" />");
@@ -122,7 +132,7 @@ public class DateWidget implements Widget {
 				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
 				if (initialValue != null) {
 					sb.append(", '");
-					sb.append(dateClientTimezone != null ? dateClientTimezone : getHtmlDateFormat().format(initialValue));
+					sb.append(dateToDisplay);
 					sb.append("'");
 				}
 				sb.append(")</script>");
