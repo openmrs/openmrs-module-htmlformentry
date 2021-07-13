@@ -31,7 +31,7 @@ public class TimeWidgetTest extends BaseHtmlFormEntryTest {
 		String html = widget.generateHtml(formEntryContext);
 		
 		assertTrue(html.contains("<input type=\"hidden\" class=\"hfe-hours\" name=\"w1hours\" value=\"18\"/>"));
-		assertTrue(html.contains("<input type=\"hidden\" class=\"hfe-minutes\" name=\"w1minutes\" value=\"09\"/>"));
+		assertTrue(html.contains("<input type=\"hidden\" class=\"hfe-minutes\" name=\"w1minutes\" value=\"9\"/>"));
 		assertTrue(html.contains("<input type=\"hidden\" class=\"hfe-seconds\" name=\"w1seconds\" value=\"35\"/>"));
 	}
 	

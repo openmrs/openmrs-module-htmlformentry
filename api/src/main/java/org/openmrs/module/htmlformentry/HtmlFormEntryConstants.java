@@ -43,5 +43,14 @@ public class HtmlFormEntryConstants {
 	public static final String ANSWER_LOCATION_TAGS = "answerLocationTags";
 	
 	public static final String FORM_NAMESPACE = "HtmlFormEntry";
+
+	/**
+	* The name of the user property that save the client timezone
+	* TODO this GP should be removed once the timezone.conversions GP is provided by Core.
+	*/
+	public static final String CLIENT_TIMEZONE = "clientTimezone";
+	
+	//The name of the global property that save Datetime Format.
+	public static final String FORMATTER_DATETIME = "uiframework.formatter.dateAndTimeFormat";
 	
 }
