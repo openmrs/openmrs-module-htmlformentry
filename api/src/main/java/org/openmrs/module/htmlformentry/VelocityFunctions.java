@@ -27,6 +27,7 @@ import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
@@ -92,7 +93,7 @@ public class VelocityFunctions {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * @param locationIdentifier
 	 * @return the location with the specified locationId, uuid or name.
@@ -117,18 +118,18 @@ public class VelocityFunctions {
 		} else {
 			List<Person> who = new ArrayList<Person>();
 			who.add(p.getPerson());
-
+			
 			List<Concept> questions = new ArrayList<Concept>();
 			questions.add(concept);
 			return getObsService().getObservations(who, (List) null, questions, (List) null, (List) null, (List) null,
 			    (List) null, (Integer) null, (Integer) null, (Date) null, latestDate, false);
 		}
 	}
-
+	
 	public List<Obs> allObs(String conceptId) {
 		return allObs(conceptId, null);
 	}
-
+	
 	public List<Obs> allObs(Integer conceptId) {
 		return allObs(conceptId.toString(), null);
 	}
@@ -140,7 +141,7 @@ public class VelocityFunctions {
 	public Obs latestObs(String conceptId) {
 		return latestObs(conceptId, null);
 	}
-
+	
 	/**
 	 * @return the most recent obs given the passed conceptId on or before the specified
 	 *         date<strong>Should</strong> return the most recent obs given the passed conceptId
@@ -148,11 +149,11 @@ public class VelocityFunctions {
 	public Obs latestObs(Integer conceptId, String latestDateString) throws ParseException {
 		return latestObs(conceptId.toString(), parseDate(latestDateString));
 	}
-
+	
 	public Obs latestObs(Integer conceptId, Date latestDate) {
 		return latestObs(conceptId.toString(), latestDate);
 	}
-
+	
 	public Obs latestObs(String conceptId, Date latestDate) {
 		List<Obs> obs = allObs(conceptId, latestDate);
 		
@@ -199,7 +200,7 @@ public class VelocityFunctions {
 	private List<Encounter> getAllEncounters(EncounterType type) {
 		return getAllEncounters(type, null);
 	}
-
+	
 	private List<Encounter> getAllEncounters(EncounterType type, Date latestDate) {
 		if (session.getPatient() == null) {
 			return new ArrayList<Encounter>();
@@ -211,17 +212,17 @@ public class VelocityFunctions {
 		} else {
 			EncounterSearchCriteriaBuilder b = new EncounterSearchCriteriaBuilder();
 			b.setPatient(p).setIncludeVoided(false);
-
+			
 			if (type != null) {
 				List<EncounterType> typeList = new ArrayList<EncounterType>();
 				typeList.add(type);
 				b.setEncounterTypes(typeList);
 			}
-
+			
 			if (latestDate != null) {
 				b.setToDate(latestDate);
 			}
-
+			
 			List<Encounter> encounters = Context.getEncounterService().getEncounters(b.createEncounterSearchCriteria());
 			return encounters;
 		}
@@ -240,7 +241,7 @@ public class VelocityFunctions {
 		
 		return getLatestEncounter(encounterType, null);
 	}
-
+	
 	/**
 	 * @return the most recent encounter before or on the specified date <strong>Should</strong> return
 	 *         the most recent encounter of the specified type <strong>Should</strong> return the most
@@ -249,11 +250,11 @@ public class VelocityFunctions {
 	public Encounter latestEncounterAtDate(String latestDateString) throws ParseException {
 		return getLatestEncounter(null, parseDate(latestDateString));
 	}
-
+	
 	public Encounter latestEncounterAtDate(Date latestDate) {
 		return getLatestEncounter(null, latestDate);
 	}
-
+	
 	/**
 	 * @return the most recent encounter of the specified type before or up to the specified date
 	 *         <strong>Should</strong> return the most recent encounter of the specified type
@@ -262,17 +263,17 @@ public class VelocityFunctions {
 	public Encounter latestEncounter(Integer encounterTypeId, Date latestDate) {
 		return latestEncounter(encounterTypeId.toString(), latestDate);
 	}
-
+	
 	public Encounter latestEncounter(String encounterTypeId, String latestDateString) throws ParseException {
 		return latestEncounter(encounterTypeId, parseDate(latestDateString));
 	}
-
+	
 	public Encounter latestEncounter(String encounterTypeId, Date latestDateString) {
 		EncounterType encounterType = null;
 		if (StringUtils.isNotEmpty(encounterTypeId)) {
 			encounterType = HtmlFormEntryUtil.getEncounterType(encounterTypeId);
 		}
-
+		
 		return getLatestEncounter(encounterType, latestDateString);
 	}
 	
@@ -356,13 +357,13 @@ public class VelocityFunctions {
 		}
 		return null;
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, String latestDateString)
 	        throws ParseException {
 		return currentProgramWorkflowStatus(programWorkflowId, parseDate(latestDateString));
 	}
-
+	
 	@SuppressWarnings("deprecation")
 	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, Date latestDate) {
 		if (latestDate == null) {
@@ -405,7 +406,7 @@ public class VelocityFunctions {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * @return patient's age given in months <strong>Should</strong> return the ageInMonths accurately
 	 *         to the nearest month
@@ -541,7 +542,7 @@ public class VelocityFunctions {
 		}
 		return matches;
 	}
-
+	
 	/**
 	 * Formats a date with the client timezone
 	 *
@@ -554,15 +555,19 @@ public class VelocityFunctions {
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
 		if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(clientTimezone)) {
-			return toClientTimezone(date, Context.getAdministrationService()
+			String returnDateWithClientTimezone = toClientTimezone(date, Context.getAdministrationService()
 			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME, "yyyy-MM-dd, HH:mm:ss"));
+			if (returnDateWithClientTimezone == null) {
+				throw new IllegalArgumentException(Context.getMessageSourceService()
+				        .getMessage("htmlformentry.error.formattingDateTimeToClientTimezone"));
+			}
+			return returnDateWithClientTimezone;
 		} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(clientTimezone)) {
-			throw new IllegalArgumentException(
+			throw new MissingRequiredPropertyException(
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 		} else {
 			return date.toString();
 		}
-
 	}
-
+	
 }

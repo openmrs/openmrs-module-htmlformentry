@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -113,7 +112,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				super.setupRequest(request, widgets);
-				request.removeParameter("w1timezone"); // not really possible when using ZonedDateTimeWidget
+				request.removeParameter("w1timezone");
 			}
 			
 			@Override
@@ -133,7 +132,7 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				super.setupRequest(request, widgets);
-				request.removeParameter("w1timezone"); // not really possible when using ZonedDateTimeWidget
+				request.removeParameter("w1timezone");
 			}
 			
 			@Override
