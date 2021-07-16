@@ -8,11 +8,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.platform.commons.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.messagesource.MessageSourceService;
