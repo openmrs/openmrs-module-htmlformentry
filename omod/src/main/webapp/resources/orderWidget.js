@@ -337,8 +337,8 @@
         var $widgetField = $('#' + config.fieldName);
         var $actionOption = orderWidget.getActionOption(config, 'NEW');
         var $newButton = orderWidget.createActionButton("", 'NEW', $actionOption.html());
-        var $newOrderSection = $widgetField.find('.orderwidget-new-order-section');
         $newButton.click(function () {
+            var $newOrderSection = $widgetField.find('.orderwidget-new-order-section');
             var idSuffix = '_' + orderWidget.nextActionButtonIndex();
             var $orderSection = orderWidget.addOrderSection($newOrderSection, config);
             var $orderForm = orderWidget.constructOrderForm($orderSection, idSuffix, config, 'NEW', $newButton);
