@@ -43,7 +43,8 @@ public class HtmlFormEntryConstants {
 	public static final String ANSWER_LOCATION_TAGS = "answerLocationTags";
 	
 	public static final String FORM_NAMESPACE = "HtmlFormEntry";
-	
+
+	public static final String DATETIME_FALLBACK_FORMAT = "dd-MM-yyyy, HH:mm:ss";
 	/**
 	 * The name of the user property that saves the client timezone TODO this GP should be removed once
 	 * the timezone.conversions GP is provided by Core.

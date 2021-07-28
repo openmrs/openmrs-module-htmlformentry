@@ -16,10 +16,11 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.DATETIME_FALLBACK_FORMAT;
 import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
 public class ZonedDateTimeWidget extends DateWidget implements Widget {
-	
+
 	/*
 	 * The encapsulated TimeWidget should not be registered with FormEntryContext, it is assumed that ZonedDateTimeWidget is the registered widget
 	 */
@@ -31,7 +32,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	private SimpleDateFormat datetimeFormat() {
 		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME,
-		    "dd-MM-yyyy, HH:mm:ss");
+				DATETIME_FALLBACK_FORMAT);
 		if (StringUtils.isNotBlank(df)) {
 			return new SimpleDateFormat(df, Context.getLocale());
 		} else {
@@ -65,7 +66,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			Calendar valAsCal = Calendar.getInstance();
 			if (initialValue != null) {
 				SimpleDateFormat sdf = new SimpleDateFormat(Context.getAdministrationService().getGlobalProperty(
-				    HtmlFormEntryConstants.FORMATTER_DATETIME, "dd-MM-yyyy, HH:mm:ss"), Context.getLocale());
+				    HtmlFormEntryConstants.FORMATTER_DATETIME, DATETIME_FALLBACK_FORMAT), Context.getLocale());
 				try {
 					String formatDateWithClientTZ = toClientTimezone(initialValue,
 					    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME));

@@ -4,6 +4,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.openmrs.module.htmlformentry.FormEntryContext.Mode.EDIT;
 import static org.openmrs.module.htmlformentry.FormEntryContext.Mode.VIEW;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.DATETIME_FALLBACK_FORMAT;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,7 +33,7 @@ public class ZonedDateTimeWidgetTest extends BaseHtmlFormEntryTest {
 		
 		when(formEntryContext.getFieldName(widget)).thenReturn("w1");
 		when(administrationService.getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS)).thenReturn("true");
-		when(administrationService.getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME, "dd-MM-yyyy, HH:mm:ss"))
+		when(administrationService.getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME, DATETIME_FALLBACK_FORMAT))
 		        .thenReturn("dd-MM-yyyy, HH:mm:ss");
 		
 		//Set Client Timezone

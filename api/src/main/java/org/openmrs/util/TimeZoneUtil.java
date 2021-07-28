@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.joda.time.DateTimeZone.UTC;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.DATETIME_FALLBACK_FORMAT;
 
 /**
  * Helps provide tools to support recommended OpenMRS time zones conventions.
@@ -44,7 +45,7 @@ public class TimeZoneUtil {
 		if (date != null && BooleanUtils.isTrue(timezoneConversions)) {
 			String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
 			if (StringUtils.isNotEmpty(clientTimezone)) {
-				format = format != null ? format : "dd-MM-yyyy, HH:mm:ss";
+				format = format != null ? format : DATETIME_FALLBACK_FORMAT;
 				SimpleDateFormat dateFormat = new SimpleDateFormat(format, Context.getLocale());
 				dateFormat.setTimeZone(TimeZone.getTimeZone(clientTimezone));
 				return dateFormat.format(date);
