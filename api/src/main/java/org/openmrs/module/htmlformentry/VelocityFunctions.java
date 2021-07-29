@@ -553,7 +553,7 @@ public class VelocityFunctions {
 	public String convertToClientTimezone(Date date) {
 		boolean timezoneConversions = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
+		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE);
 		if (timezoneConversions && StringUtils.isNotEmpty(clientTimezone)) {
 			String returnDateWithClientTimezone = toClientTimezone(date, Context.getAdministrationService()
 			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME, "yyyy-MM-dd, HH:mm:ss"));

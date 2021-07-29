@@ -46,10 +46,10 @@ public class HtmlFormEntryConstants {
 
 	public static final String DATETIME_FALLBACK_FORMAT = "dd-MM-yyyy, HH:mm:ss";
 	/**
-	 * The name of the user property that saves the client timezone TODO this GP should be removed once
-	 * the timezone.conversions GP is provided by Core.
+	 * The name of the user property that saves the client timezone TODO this UP should be removed once
+	 * the timezone.conversions UP is provided by Core.
 	 */
-	public static final String CLIENT_TIMEZONE = "clientTimezone";
+	public static final String UP_CLIENT_TIMEZONE = "clientTimezone";
 	
 	//The name of the global property that saves Datetime Format.
 	public static final String FORMATTER_DATETIME = "uiframework.formatter.dateAndTimeFormat";

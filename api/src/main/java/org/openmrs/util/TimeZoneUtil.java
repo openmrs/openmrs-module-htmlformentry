@@ -43,7 +43,7 @@ public class TimeZoneUtil {
 		Boolean timezoneConversions = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 		if (date != null && timezoneConversions) {
-			String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
+			String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE);
 			if (StringUtils.isNotEmpty(clientTimezone)) {
 				format = format != null ? format : DATETIME_FALLBACK_FORMAT;
 				SimpleDateFormat dateFormat = new SimpleDateFormat(format, Context.getLocale());

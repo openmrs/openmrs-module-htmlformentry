@@ -37,7 +37,7 @@ public class ZonedDateTimeWidgetTest extends BaseHtmlFormEntryTest {
 		        .thenReturn("dd-MM-yyyy, HH:mm:ss");
 		
 		//Set Client Timezone
-		Context.getAuthenticatedUser().setUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE, "Europe/Lisbon");
+		Context.getAuthenticatedUser().setUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE, "Europe/Lisbon");
 	}
 	
 	@Test

@@ -100,7 +100,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	 * @return The timezone string info saved as User Property.
 	 */
 	public String getClientTimezone() {
-		return Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
+		return Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE);
 	}
 	
 	/**
