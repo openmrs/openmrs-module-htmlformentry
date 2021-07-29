@@ -45,12 +45,12 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		if (context.getMode() == FormEntryContext.Mode.VIEW) {
 			boolean timezoneConversions = BooleanUtils.toBoolean(
 			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
-			if (BooleanUtils.isNotTrue(timezoneConversions)) {
+			if (!timezoneConversions) {
 				//The server and client are on the same timezone
 				return WidgetFactory.displayValue(datetimeFormat().format(initialValue));
 			}
 			//If Timezone.Conversions is true but the UP with client timezone is empty, it shows an error, because we dont know the client timezone.
-			if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(this.getClientTimezone())) {
+			if (timezoneConversions && StringUtils.isEmpty(this.getClientTimezone())) {
 				throw new MissingRequiredPropertyException(
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 			}
@@ -129,13 +129,13 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			
 			String timezoneToConvert = null;
 			
-			if (BooleanUtils.isTrue(timezoneConversions)) {
+			if (timezoneConversions) {
 				String timezoneParam = (String) HtmlFormEntryUtil.getParameterAsType(request,
 				    context.getFieldName(this) + "timezone", String.class);
 				if (StringUtils.isNotEmpty(timezoneParam)) {
 					//Use the client timezone submitted with the form
 					timezoneToConvert = timezoneParam;
-				} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(this.getClientTimezone())) {
+				} else if (timezoneConversions && StringUtils.isNotEmpty(this.getClientTimezone())) {
 					//Use the User Property with client timezone
 					timezoneToConvert = this.getClientTimezone();
 				}

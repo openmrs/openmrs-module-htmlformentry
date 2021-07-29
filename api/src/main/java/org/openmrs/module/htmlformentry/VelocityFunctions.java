@@ -554,7 +554,7 @@ public class VelocityFunctions {
 		boolean timezoneConversions = BooleanUtils.toBoolean(
 		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.CLIENT_TIMEZONE);
-		if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isNotEmpty(clientTimezone)) {
+		if (timezoneConversions && StringUtils.isNotEmpty(clientTimezone)) {
 			String returnDateWithClientTimezone = toClientTimezone(date, Context.getAdministrationService()
 			        .getGlobalProperty(HtmlFormEntryConstants.FORMATTER_DATETIME, "yyyy-MM-dd, HH:mm:ss"));
 			if (returnDateWithClientTimezone == null) {
@@ -562,7 +562,7 @@ public class VelocityFunctions {
 				        .getMessage("htmlformentry.error.formattingDateTimeToClientTimezone"));
 			}
 			return returnDateWithClientTimezone;
-		} else if (BooleanUtils.isTrue(timezoneConversions) && StringUtils.isEmpty(clientTimezone)) {
+		} else if (timezoneConversions && StringUtils.isEmpty(clientTimezone)) {
 			throw new MissingRequiredPropertyException(
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
 		} else {
