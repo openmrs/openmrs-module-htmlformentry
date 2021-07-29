@@ -700,7 +700,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				boolean convertTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
-				if (StringUtils.isEmpty(clientSubmittedTimezone) && BooleanUtils.isTrue(convertTimezones)) {
+				if (StringUtils.isEmpty(clientSubmittedTimezone) && convertTimezones) {
 					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
 				}
 				
