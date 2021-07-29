@@ -52,6 +52,6 @@ public class HtmlFormEntryConstants {
 	public static final String UP_CLIENT_TIMEZONE = "clientTimezone";
 	
 	//The name of the global property that saves Datetime Format.
-	public static final String FORMATTER_DATETIME = "uiframework.formatter.dateAndTimeFormat";
+	public static final String GP_FORMATTER_DATETIME = "uiframework.formatter.dateAndTimeFormat";
 	
 }
