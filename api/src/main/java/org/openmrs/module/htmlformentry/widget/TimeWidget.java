@@ -47,12 +47,12 @@ public class TimeWidget implements Widget {
 		
 		if (hidden) {
 			sb.append("<input type=\"hidden\" class=\"hfe-hours\" name=\"").append(fieldName).append("hours")
-			        .append("\" value=\"" + new SimpleDateFormat("HH").format(initialValue) + "\"/>");
+			        .append("\" value=\"" + valAsCal.get(Calendar.HOUR_OF_DAY) + "\"/>");
 			sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(fieldName).append("minutes")
-			        .append("\" value=\"" + new SimpleDateFormat("mm").format(initialValue) + "\"/>");
+			        .append("\" value=\"" + valAsCal.get(Calendar.MINUTE) + "\"/>");
 			if (!hideSeconds) {
 				sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds")
-				        .append("\" value=\"" + new SimpleDateFormat("ss").format(initialValue) + "\"/>");
+				        .append("\" value=\"" + valAsCal.get(Calendar.SECOND) + "\"/>");
 			}
 		} else {
 			sb.append("<select class=\"hfe-hours\" name=\"").append(fieldName).append("hours").append("\">");

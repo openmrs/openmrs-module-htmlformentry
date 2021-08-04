@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,6 +12,7 @@ import org.openmrs.LocationTag;
 import org.openmrs.Person;
 import org.openmrs.Role;
 import org.openmrs.Visit;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -35,6 +37,7 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.module.htmlformentry.widget.ZonedDateTimeWidget;
 import org.openmrs.util.OpenmrsUtil;
+import org.openmrs.util.PrivilegeConstants;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -600,7 +603,14 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			if (dateWidget != null) {
 				ret.append(dateWidget.generateHtml(context));
 			} else {
-				ret.append(zonedDateTimeWidget.generateHtml(context));
+				try {
+					ret.append(zonedDateTimeWidget.generateHtml(context));
+				}
+				catch (MissingRequiredPropertyException ex) {
+					ret.append(
+					    Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
+				}
+				
 			}
 		}
 		if (providerWidget != null) {
@@ -685,17 +695,13 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				validateDateWidget(context, dateWidget, submission);
 			} else if (zonedDateTimeWidget != null) {
 				
-				String clientTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
-				if (StringUtils.isEmpty(clientTimezone)) {
-					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
-				}
+				String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
 				
-				String serverTimezone = TimeZone.getDefault().getID();
 				boolean convertTimezones = Boolean.parseBoolean(
 				    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 				
-				if (!serverTimezone.equals(clientTimezone) && !convertTimezones) {
-					throw new IllegalStateException("htmlformentry.error.handleTimezones");
+				if (StringUtils.isEmpty(clientSubmittedTimezone) && convertTimezones) {
+					throw new IllegalArgumentException("htmlformentry.error.noClientTimezone");
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);

@@ -9,6 +9,7 @@
  */
 package org.openmrs.util;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -22,6 +23,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static org.joda.time.DateTimeZone.UTC;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.DATETIME_FALLBACK_FORMAT;
 
 /**
  * Helps provide tools to support recommended OpenMRS time zones conventions.
@@ -29,6 +31,28 @@ import static org.joda.time.DateTimeZone.UTC;
  * @see https://wiki.openmrs.org/display/docs/Time+Zones+Conventions
  */
 public class TimeZoneUtil {
+	
+	/**
+	 * Formats a date with the client timezone, using the User Property clientTimezone
+	 *
+	 * @param date The date.
+	 * @param format The output format of the date.
+	 * @return The date formated in client timezone.
+	 */
+	public static String toClientTimezone(Date date, String format) {
+		Boolean timezoneConversions = BooleanUtils.toBoolean(
+		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
+		if (date != null && timezoneConversions) {
+			String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE);
+			if (StringUtils.isNotEmpty(clientTimezone)) {
+				format = format != null ? format : DATETIME_FALLBACK_FORMAT;
+				SimpleDateFormat dateFormat = new SimpleDateFormat(format, Context.getLocale());
+				dateFormat.setTimeZone(TimeZone.getTimeZone(clientTimezone));
+				return dateFormat.format(date);
+			}
+		}
+		return null;
+	}
 	
 	/**
 	 * Formats a date as its RFC 3339 string representation.

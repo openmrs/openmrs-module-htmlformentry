@@ -1,5 +1,11 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -21,6 +27,7 @@ import org.openmrs.api.LocationService;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
@@ -31,6 +38,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
 public class VelocityFunctions {
 	
@@ -533,4 +542,32 @@ public class VelocityFunctions {
 		}
 		return matches;
 	}
+	
+	/**
+	 * Formats a date with the client timezone
+	 *
+	 * @param date The date to be converted.
+	 * @return The date formated in client timezone, unless the conversion function fail, on that case,
+	 *         send back the received date.
+	 */
+	public String convertToClientTimezone(Date date) {
+		boolean timezoneConversions = BooleanUtils.toBoolean(
+		    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
+		String clientTimezone = Context.getAuthenticatedUser().getUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE);
+		if (timezoneConversions && StringUtils.isNotEmpty(clientTimezone)) {
+			String returnDateWithClientTimezone = toClientTimezone(date, Context.getAdministrationService()
+			        .getGlobalProperty(HtmlFormEntryConstants.GP_FORMATTER_DATETIME, "yyyy-MM-dd, HH:mm:ss"));
+			if (returnDateWithClientTimezone == null) {
+				throw new IllegalArgumentException(Context.getMessageSourceService()
+				        .getMessage("htmlformentry.error.formattingDateTimeToClientTimezone"));
+			}
+			return returnDateWithClientTimezone;
+		} else if (timezoneConversions && StringUtils.isEmpty(clientTimezone)) {
+			throw new MissingRequiredPropertyException(
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.emptyClientTimezoneUserProperty"));
+		} else {
+			return date.toString();
+		}
+	}
+	
 }
