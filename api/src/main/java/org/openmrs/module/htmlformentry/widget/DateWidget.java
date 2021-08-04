@@ -102,7 +102,7 @@ public class DateWidget implements Widget {
 			    Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS));
 			
 			if (timezoneConversions) {
-				dateToDisplay = toClientTimezone(initialValue, "yyyy-MM-dd"); // Return null if Timezones GP are not true
+				dateToDisplay = toClientTimezone(initialValue, "yyyy-MM-dd");
 			} else {
 				if (initialValue != null) {
 					dateToDisplay = getHtmlDateFormat().format(initialValue);
