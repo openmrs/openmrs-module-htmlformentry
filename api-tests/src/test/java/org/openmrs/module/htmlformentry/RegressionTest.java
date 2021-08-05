@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.core.Is.is;
-
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TimeZone;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +15,17 @@ import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.obs.ComplexData;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
+import static org.hamcrest.core.Is.is;
 
 public class RegressionTest extends BaseHtmlFormEntryTest {
 	
@@ -792,7 +791,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 				
 				@Override
 				public void testViewingEncounter(Encounter encounter, String html) {
-					// assert that in the rendered form view the value for the ALLERGY CODED obs within the OTHER ALLERGY CONSTRUCT 
+					// assert that in the rendered form view the value for the ALLERGY CODED obs within the OTHER ALLERGY CONSTRUCT
 					// is OPENMRS (i.e., concept 1003)
 					TestUtil.assertFuzzyContains("Another Allergy Construct Allergy 1: OPENMRS", html);
 				}
@@ -874,7 +873,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 				@Override
 				public void testViewingEncounter(Encounter encounter, String html) {
 					// we can't control what order these two obs groups appear in, but we should make sure that the proper text answer is always linked to the proper date answer
-					// the "Dogs" entry should be linked to the 01/02/2003 date, while the "Cats" entry should be linked to the null date 
+					// the "Dogs" entry should be linked to the 01/02/2003 date, while the "Cats" entry should be linked to the null date
 					TestUtil.assertFuzzyContains("Cats Allergy Date \\d: ________", html);
 					TestUtil.assertFuzzyContains("Dogs Allergy Date \\d: 01/02/2003", html);
 				}
@@ -890,7 +889,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	 * TUBERCULOSIS DRUG SENSITIVITY TEST RESULT owns a result, and 'colonies' obs Yea yea, i know a
 	 * test should test one component, but this is the most complex single encounter obs model that
 	 * anyone will ever build with an htmlform in practice...
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -1049,7 +1048,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	
 	/**
 	 * These tests use a different patient so as no to create conflicts with other tests
-	 * 
+	 *
 	 * @throws Exception
 	 */
 	@Test
@@ -1467,7 +1466,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public String getFormName() {
-				locale = Context.getLocale(); //save off the locale 
+				locale = Context.getLocale(); //save off the locale
 				Context.setLocale(new java.util.Locale("fr")); //set it to fr
 				return "submitButtonLabelCodeForm";
 			}
@@ -2025,6 +2024,59 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
 				Assert.assertTrue(formEntrySession.getContext().isGuessingInd());
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void testMultipleObsGroupsWithOneAnswerThatDoesNotMatchForm() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "multipleObsGroupDifferentAnswerConceptIdForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
+				
+				// create three obsgroups with the identical structures but with different answer values for the obs;
+				// the answer values for the 1st and 3rd match the form, but the 2nd does not
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1001), new Date(), 80000,
+				    "foo1", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(656), new Date(), 80000,
+				    "foo2", new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1002), new Date(), 80000,
+				    "foo3", new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 1</span>", html);
+				TestUtil.assertFuzzyContains("foo1", html);
+				
+				TestUtil.assertContains("<span class=\"value\">\\[X]&#160;Label 2</span>", html);
+				TestUtil.assertFuzzyContains("foo3", html);
+				
+				// the third obs group on the form, with answer concept 1003 for concept 1000, should not be matched to obs group with answer concept 656 for concept 1000 we set above
+				TestUtil.assertContains("<span class=\"emptyValue\">\\[&#160;&#160;]&#160;Label 3</span>", html);
+				TestUtil.assertFuzzyDoesNotContain("foo2", html);
+			}
+			
+			@Override
+			public void testFormViewSessionAttribute(FormEntrySession formEntrySession) {
+				Assert.assertFalse(formEntrySession.getContext().isGuessingInd());
 			}
 			
 		}.run();

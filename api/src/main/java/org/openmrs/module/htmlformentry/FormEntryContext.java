@@ -5,13 +5,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
-import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
-import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
@@ -640,13 +638,16 @@ public class FormEntryContext {
 		return null;
 	}
 	
-	public Obs getNextUnmatchedObsGroup(String path) {
+	public Obs getNextUnmatchedObsGroup(List<ObsGroupComponent> questionsAndAnswers, String path) {
 		Obs ret = null;
 		int unmatchedContenterCount = 0;
 		for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet()) {
-			if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey()))) {
-				if (ret == null)
+			if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey()))
+			        && !(ObsGroupComponent.supportingRank(questionsAndAnswers, e.getValue()) < 0) // don't match an obs group if it's explicitly ranked as NOT a match for this obs group (ie has a rank < 0)
+			) {
+				if (ret == null) {
 					ret = e.getKey();
+				}
 				unmatchedContenterCount++;
 			}
 		}
@@ -677,15 +678,11 @@ public class FormEntryContext {
 	 * @param path the depth level of the obsGroup in the xml
 	 * @return the first matching {@see ObsGroup}
 	 */
-	public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String xmlObsGroupConcept,
-	        String path) {
+	public Obs findBestMatchingObsGroup(List<ObsGroupComponent> questionsAndAnswers, String path) {
 		Set<Obs> contenders = new HashSet<Obs>();
 		// first all obsGroups matching parentObs.concept at the right obsGroup hierarchy level in the encounter are
 		// saved as contenders
 		for (Map.Entry<Obs, Set<Obs>> e : existingObsInGroups.entrySet()) {
-			
-			log.debug("Comparing obsVal " + ObsGroupComponent.getObsGroupPath(e.getKey()) + " to xmlval " + path);
-			
 			if (path.equals(ObsGroupComponent.getObsGroupPath(e.getKey()))) {
 				contenders.add(e.getKey());
 			}
@@ -698,8 +695,7 @@ public class FormEntryContext {
 			int topRanking = 0;
 			
 			for (Obs parentObs : contenders) {
-				int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, parentObs,
-				    existingObsInGroups.get(parentObs));
+				int rank = ObsGroupComponent.supportingRank(questionsAndAnswers, existingObsInGroups.get(parentObs));
 				
 				if (rank > 0) {
 					if (rank > topRanking) {

@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.io.PrintWriter;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
@@ -19,6 +12,13 @@ import org.openmrs.module.htmlformentry.action.ObsGroupAction;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.w3c.dom.Node;
+
+import java.io.PrintWriter;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Handles the {@code <obsGroup>} tag
@@ -103,12 +103,13 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 	private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId) {
 		String path = ObsGroupComponent.getObsGroupPath(node);
 		
+		List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent
+		        .findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
+		
 		if (session.getContext().isUnmatchedMode()) {
-			return session.getContext().getNextUnmatchedObsGroup(path);
+			return session.getContext().getNextUnmatchedObsGroup(questionsAndAnswers, path);
 		} else {
-			List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent
-			        .findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
-			return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, parentGroupingConceptId, path);
+			return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, path);
 		}
 		
 	}
@@ -143,7 +144,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		//                    NamedNodeMap attrs = parent.getAttributes();
 		//                    try {
 		//                        question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue());
-		//                    } catch (Exception ex){}    
+		//                    } catch (Exception ex){}
 		//                }
 		session.getContext().endObsGroup();
 		session.getSubmissionController().addAction(ObsGroupAction.end(ogSchemaObj));
