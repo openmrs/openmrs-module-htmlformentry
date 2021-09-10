@@ -1,18 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.getControlId;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.CodedOrFreeText;
 import org.openmrs.Concept;
@@ -34,6 +21,18 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.WidgetFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.getControlId;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
 
 public class ConditionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
@@ -96,7 +95,8 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		
 		condition.setPatient(session.getPatient());
 		
-		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(getTagControlId(), 0));
+		condition.setFormField(FORM_NAMESPACE,
+		    HtmlFormEntryUtil.generateControlFormPath(session.getForm(), getTagControlId(), 0));
 		
 		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
 			// incomplete optional conditions are not submitted or are removed in EDIT mode

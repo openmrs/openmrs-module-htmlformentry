@@ -100,7 +100,7 @@ public class FormEntrySessionTest extends BaseHtmlFormEntryTest {
 		form.setVersion("1.0");
 		session.setForm(form);
 		
-		String formPath = session.generateControlFormPath("my_condition_tag", 0);
+		String formPath = HtmlFormEntryUtil.generateControlFormPath(session.getForm(), "my_condition_tag", 0);
 		
 		Assert.assertEquals("MyForm.1.0/my_condition_tag-0", formPath);
 	}

@@ -1,17 +1,11 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
+import org.openmrs.Form;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Obs;
@@ -26,7 +20,17 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
+import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.openmrs.util.OpenmrsUtil;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
+import java.util.Vector;
+
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually be
@@ -152,7 +156,7 @@ public class FormSubmissionActions {
 	 * @param group the Obs Group to add
 	 * @throws InvalidActionException
 	 */
-	public void beginObsGroup(Obs group) throws InvalidActionException {
+	public void beginObsGroup(Obs group, Form form, ObsGroup obsGroupSchema) throws InvalidActionException {
 		// there needs to be a Person on the stack before this
 		if (!stackContains(Person.class))
 			throw new InvalidActionException("No Person on the stack");
@@ -167,12 +171,28 @@ public class FormSubmissionActions {
 		}
 		//this is for obs groups within obs groups
 		Object o = stack.peek();
+		Obs oParent = null;
 		if (o instanceof Obs) {
-			Obs oParent = (Obs) o;
+			oParent = (Obs) o;
 			oParent.addGroupMember(group);
 		}
+		
+		if (obsGroupSchema != null && obsGroupSchema.getControlId() != null) {
+			if (oParent == null) {
+				group.setFormField(FORM_NAMESPACE,
+				    HtmlFormEntryUtil.generateControlFormPath(form, obsGroupSchema.getControlId(), 0));
+			} else {
+				group.setFormField(FORM_NAMESPACE,
+				    HtmlFormEntryUtil.generateControlFormPath(oParent, obsGroupSchema.getControlId(), 0));
+			}
+		}
+		
 		stack.push(group);
 		
+	}
+	
+	public void beginObsGroup(Obs group) throws InvalidActionException {
+		beginObsGroup(group, null, null);
 	}
 	
 	/**
@@ -271,31 +291,48 @@ public class FormSubmissionActions {
 	 * @param comment comment for the obs
 	 * @return the Obs to create
 	 */
-	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment) {
-		if (value == null || "".equals(value))
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment, Form form,
+	        String controlId) {
+		if (value == null || "".equals(value)) {
 			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
+		}
 		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
 		
 		Person person = highestOnStack(Person.class);
-		if (person == null)
+		if (person == null) {
 			throw new IllegalArgumentException("Cannot create an Obs outside of a Person.");
+		}
 		Encounter encounter = highestOnStack(Encounter.class);
 		Obs obsGroup = highestOnStack(Obs.class);
 		
-		if (person != null)
+		if (person != null) {
 			obs.setPerson(person);
-		
-		if (StringUtils.isNotBlank(comment))
+		}
+		if (StringUtils.isNotBlank(comment)) {
 			obs.setComment(comment);
+		}
 		
-		if (encounter != null)
+		if (StringUtils.isNotBlank(controlId)) {
+			if (obsGroup != null) {
+				obs.setFormField(FORM_NAMESPACE, HtmlFormEntryUtil.generateControlFormPath(obsGroup, controlId, 0));
+			} else {
+				obs.setFormField(FORM_NAMESPACE, HtmlFormEntryUtil.generateControlFormPath(form, controlId, 0));
+			}
+		}
+		
+		if (encounter != null) {
 			encounter.addObs(obs);
+		}
 		if (obsGroup != null) {
 			obsGroup.addGroupMember(obs);
 		} else {
 			obsToCreate.add(obs);
 		}
 		return obs;
+	}
+	
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment) {
+		return createObs(concept, value, datetime, accessionNumber, comment, null, null);
 	}
 	
 	/**

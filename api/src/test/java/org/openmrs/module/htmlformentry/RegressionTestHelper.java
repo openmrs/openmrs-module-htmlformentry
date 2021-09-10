@@ -1,5 +1,24 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.platform.commons.util.StringUtils;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterProvider;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.Person;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.ModuleUtil;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsConstants;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
@@ -17,26 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.platform.commons.util.StringUtils;
-import org.openmrs.Encounter;
-import org.openmrs.EncounterProvider;
-import org.openmrs.EncounterType;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.Person;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.ModuleUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
 public abstract class RegressionTestHelper {
 	
@@ -389,6 +388,9 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
+		fakeForm.getForm().setUuid("d32bb0c8-e880-457d-8b42-51d99b8e6b0d");
+		fakeForm.getForm().setName("FakeForm");
+		fakeForm.getForm().setVersion("2.0");
 		fakeForm.getForm().setEncounterType(new EncounterType(1));
 		FormEntrySession session = new FormEntrySession(patient, e, mode, fakeForm, new MockHttpSession());
 		session.setAttributes(getFormEntrySessionAttributes());

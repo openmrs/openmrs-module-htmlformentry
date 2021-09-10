@@ -19,6 +19,7 @@ import org.openmrs.Encounter;
 import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
+import org.openmrs.Form;
 import org.openmrs.FormField;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
@@ -2743,6 +2744,43 @@ public class HtmlFormEntryUtil {
 		return providerStubList;
 	}
 	
+	/**
+	 * Generates the form path based on the form name, form version, form field path and control
+	 * counter. The form path will have the following format: "MyForm.1.0/my_condition_tag-0"
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @param controlCounter The control counter, an integer
+	 * @return The constructed form path
+	 */
+	public static String generateControlFormPath(Form form, String controlId, Integer controlCounter) {
+		
+		String formField = "";
+		
+		// Validate if the form is not null
+		if (form == null) {
+			throw new IllegalStateException("The form entry session has a null form.");
+		}
+		
+		// Create form path
+		String formName = form.getName();
+		String formVersion = form.getVersion();
+		formField = formName + "." + formVersion + "/" + controlId + "-" + controlCounter;
+		
+		return formField;
+	}
+	
+	/**
+	 * Generates the form path based on the form name, form version, form field path and control
+	 * counter. The form path will have the following format: "MyForm.1.0/my_condition_tag-0"
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @param controlCounter The control counter, an integer
+	 * @return The constructed form path
+	 */
+	public static String generateControlFormPath(Obs obsGroup, String controlId, Integer controlCounter) {
+		return obsGroup.getFormFieldPath().split("-")[0] + "/" + controlId + "-" + controlCounter;
+	}
+	
 	public static List<ProviderStub> getProviderStubs(Collection<Provider> providers, String searchParam, MatchMode mode) {
 		if (mode != null && StringUtils.isNotBlank(searchParam)) {
 			ProviderTransformer transformer = new ProviderTransformer();
@@ -2835,3 +2873,19 @@ public class HtmlFormEntryUtil {
 		return ret;
 	}
 }
+
+/*	// if we are in a obs group path, need to query the stack to determine control path
+	if (context.getCurrentObsGroupControlIds() != null && context.getCurrentObsGroupControlIds().size() > 0) {
+		formField += String.join("/", context.getCurrentObsGroupControlIds());
+		// a bit of a hack, but we need this conditional (and the one below) to handle the obsgroup case where the control id is empty, because it's been placed on the stack
+		if (!org.springframework.util.StringUtils.isEmpty(controlId)) {
+			formField += "/";
+		}
+	}
+*/
+/*if (!org.springframework.util.StringUtils.isEmpty(controlId)) {
+	formField += controlId;
+}
+
+// Create control form path
+formField += "-" + controlCounter;*/

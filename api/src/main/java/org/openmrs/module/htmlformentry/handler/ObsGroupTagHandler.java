@@ -92,7 +92,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		}
 		
 		// sets up the obs group stack, sets current obs group to this one
-		ogSchemaObj = new ObsGroup(groupingConcept, name);
+		ogSchemaObj = new ObsGroup(groupingConcept, name, attributes.get("controlId"));
 		ogSchemaObj.sethiddenObs(gethiddenObs(attributes.get("hiddenConceptId"), attributes.get("hiddenAnswerConceptId")));
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack

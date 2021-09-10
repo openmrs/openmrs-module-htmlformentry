@@ -1,17 +1,16 @@
 package org.openmrs.module.htmlformentry.action;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.InvalidActionException;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Defines the actions to take when submitting or validating an ObsGroup
@@ -20,7 +19,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 	
 	/**
 	 * Creates an ObsGroupAction that should be applied at the start of an ObsGroup
-	 * 
+	 *
 	 * @param groupingConcept the concept of the parent Obs
 	 * @param existingGroup the parent Obs
 	 * @return a new ObsGroupAction
@@ -31,7 +30,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 	
 	/**
 	 * Creates an ObsGroupAction that should be applied at the end of an ObsGroup
-	 * 
+	 *
 	 * @return
 	 */
 	public static ObsGroupAction end(ObsGroup ogSchemaObj) {
@@ -73,7 +72,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 				} else {
 					Obs obsGroup = new Obs();
 					obsGroup.setConcept(groupingConcept);
-					session.getSubmissionActions().beginObsGroup(obsGroup);
+					session.getSubmissionActions().beginObsGroup(obsGroup, session.getForm(), obsGroupSchemaObject);
 				}
 			} else {
 				if (obsGroupSchemaObject.gethiddenObs() != null) {
@@ -83,7 +82,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					Concept hiddenObsValue = obsGroupSchemaObject.gethiddenObs().getValue();
 					// If the obs group will have any members, we want to ensure that the hidden obs is present.
 					// Otherwise, we want to ensure that the hidden obs is absent.
-					// 
+					//
 					// To do this, we construct a list of the expected members which are not the hidden obs.
 					// This is the current members (which includes those to be added), minus those that will
 					// be voided, minus the hidden obs. In the process we find out whether the hidden obs

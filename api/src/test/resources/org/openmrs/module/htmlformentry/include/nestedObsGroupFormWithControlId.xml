@@ -1,0 +1,15 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    <!-- nonsensical nesting, but for testing nested obs groups and control ids -->
+    <obsgroup controlId="allergy" groupingConceptId="70000">
+        Allergy: <obs controlId="coded" conceptId="80000"/>
+        Allergy Date: <obs controlId="date" conceptId="1119"/>
+        <obsgroup controlId="allergy" groupingConceptId="70000">
+            Another Allergy: <obs controlId="coded" conceptId="80000"/>
+            Another Allergy Date: <obs controlId="date" conceptId="1119"/>
+        </obsgroup>
+    </obsgroup>
+    <submit/>
+</htmlform>

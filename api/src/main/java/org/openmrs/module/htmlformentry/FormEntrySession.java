@@ -1,17 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
@@ -45,6 +33,18 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -1256,30 +1256,4 @@ public class FormEntrySession {
 		return StringEscapeUtils.escapeHtml(encounter.getLocation() == null ? "" : encounter.getLocation().getName());
 	}
 	
-	/**
-	 * Generates the form path based on the form name, form version, form field path and control
-	 * counter. The form path will have the following format: "MyForm.1.0/my_condition_tag-0"
-	 *
-	 * @param controlId The control id, eg "my_condition_tag"
-	 * @param controlCounter The control counter, an integer
-	 * @return The constructed form path
-	 */
-	public String generateControlFormPath(String controlId, Integer controlCounter) {
-		String formField = "";
-		
-		// Validate if the form is not null
-		if (this.getForm() == null) {
-			throw new IllegalStateException("The form entry session has a null form.");
-		}
-		
-		// Create form path
-		String formName = this.getForm().getName();
-		String formVersion = this.getForm().getVersion();
-		formField = formName + "." + formVersion + "/";
-		
-		// Create control form path
-		formField += controlId + "-" + controlCounter;
-		
-		return formField;
-	}
 }

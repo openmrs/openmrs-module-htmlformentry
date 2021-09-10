@@ -1,0 +1,11 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Weight: <obs conceptId="5089"/>
+    <obsgroup controlId="allergy" groupingConceptId="70000">
+        Allergy: <obs controlId="coded" conceptId="80000"/>
+        Allergy Date: <obs controlId="date" conceptId="1119"/>
+    </obsgroup>
+    <submit/>
+</htmlform>

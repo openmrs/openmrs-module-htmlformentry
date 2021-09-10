@@ -75,6 +75,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private String clazz;
 	
+	private String controlId;
+	
 	private Concept concept;
 	
 	private String valueLabel;
@@ -156,6 +158,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	private Double absoluteMinimum;
 	
 	public ObsSubmissionElement(FormEntryContext context, Map<String, String> parameters) {
+		
+		controlId = parameters.get("controlId");
+		
 		if (parameters.get("locale") != null) {
 			this.locale = LocaleUtility.fromSpecification(parameters.get("locale"));
 		}
@@ -1412,7 +1417,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 		} else {
 			if (concepts != null && value != null && !"".equals(value) && concept != null) {
-				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue, comment);
+				session.getSubmissionActions().createObs(concept, answerConcept, obsDatetime, accessionNumberValue, comment,
+				    session.getForm(), controlId);
 			} else if (value != null && !"".equals(value)) {
 				if (valueWidget instanceof DynamicAutocompleteWidget) {
 					
@@ -1421,7 +1427,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					    accessionNumberValue);
 					
 				} else {
-					session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment);
+					session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment,
+					    session.getForm(), controlId);
 				}
 			}
 		}
