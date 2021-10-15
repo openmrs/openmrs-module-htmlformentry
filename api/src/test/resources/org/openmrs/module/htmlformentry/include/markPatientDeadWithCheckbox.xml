@@ -1,0 +1,11 @@
+<htmlform>
+    MarkPatientDead: <markPatientDead causeOfDeathFromObs="1000" showCheckbox="true"/>
+
+    Date: <encounterDate default="today" />
+    Location: <encounterLocation default="1"/>
+    Provider: <encounterProvider role="Provider" />
+
+    Cause: <obs conceptId="1000"/>
+
+    <submit/>
+</htmlform>

@@ -21,6 +21,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -49,6 +50,7 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 	@Override
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
 	        Map<String, String> parameters) throws BadFormDesignException {
+		boolean showCheckbox = parseBooleanAttribute(parameters.get("showCheckbox"), false);
 		boolean deathDateFromEncounter = parseBooleanAttribute(parameters.get("deathDateFromEncounter"), true);
 		boolean preserveExistingDeathDate = parseBooleanAttribute(parameters.get("preserveExistingDeathDate"), false);
 		boolean preserveExistingCauseOfDeath = parseBooleanAttribute(parameters.get("preserveExistingCauseOfDeath"), false);
@@ -63,8 +65,18 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 		action.setPreserveExistingCauseOfDeath(preserveExistingCauseOfDeath);
 		action.setCauseOfDeathFromObs(causeOfDeathFromObs);
 		
-		controllerActions.addAction(action);
+		if (showCheckbox && session.getContext().getMode() != session.getContext().getMode().VIEW
+		        && !session.getPatient().isDead()) {
+			CheckboxWidget checkboxWidget = new CheckboxWidget();
+			session.getContext().registerWidget(checkboxWidget);
+			
+			action.setCheckboxWidget(checkboxWidget);
+			controllerActions.addAction(action);
+			
+			return checkboxWidget.generateHtml(session.getContext());
+		}
 		
+		controllerActions.addAction(action);
 		return "";
 	}
 	
@@ -83,7 +95,7 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 	
 	/**
 	 * This method is only for testing, e.g. to construct an action to match against
-	 * 
+	 *
 	 * @return
 	 */
 	public Action newAction() {
@@ -98,6 +110,10 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 		
 		private boolean preserveExistingCauseOfDeath;
 		
+		private boolean markPatientAsDeceased;
+		
+		private CheckboxWidget checkboxWidget;
+		
 		private Concept causeOfDeathFromObs;
 		
 		@Override
@@ -108,34 +124,49 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 		
 		@Override
 		public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+			shouldPatientBeMarkedAsDeceased(session, submission);
 			session.getSubmissionActions().addCustomFormSubmissionAction(this);
+		}
+		
+		public boolean shouldPatientBeMarkedAsDeceased(FormEntrySession session, HttpServletRequest submission) {
+			markPatientAsDeceased = false;
+			
+			if (checkboxWidget == null) {
+				markPatientAsDeceased = true;
+			} else if ("true".equals(checkboxWidget.getValue(session.getContext(), submission))) {
+				markPatientAsDeceased = true;
+			}
+			
+			return markPatientAsDeceased;
 		}
 		
 		@Override
 		public void applyAction(FormEntrySession session) {
-			Patient patient = session.getPatient();
-			Encounter encounter = session.getEncounter();
-			patient.setDead(true);
-			if (deathDateFromEncounter) {
-				if (patient.getDeathDate() == null || !preserveExistingDeathDate) {
-					patient.setDeathDate(encounter.getEncounterDatetime());
+			if (markPatientAsDeceased) {
+				Patient patient = session.getPatient();
+				Encounter encounter = session.getEncounter();
+				patient.setDead(true);
+				if (deathDateFromEncounter) {
+					if (patient.getDeathDate() == null || !preserveExistingDeathDate) {
+						patient.setDeathDate(encounter.getEncounterDatetime());
+					}
 				}
+				if (patient.getCauseOfDeath() == null || !preserveExistingCauseOfDeath) {
+					Concept causeOfDeath = null;
+					if (causeOfDeathFromObs != null) {
+						causeOfDeath = findObsCodedValue(encounter, causeOfDeathFromObs);
+					}
+					if (causeOfDeath == null) {
+						// don't overwrite with Unknown, even if we haven't specifically said to preserve existing
+						causeOfDeath = patient.getCauseOfDeath();
+					}
+					if (causeOfDeath == null) {
+						causeOfDeath = getUnknownConcept();
+					}
+					patient.setCauseOfDeath(causeOfDeath);
+				}
+				patientService.savePatient(patient);
 			}
-			if (patient.getCauseOfDeath() == null || !preserveExistingCauseOfDeath) {
-				Concept causeOfDeath = null;
-				if (causeOfDeathFromObs != null) {
-					causeOfDeath = findObsCodedValue(session.getEncounter(), causeOfDeathFromObs);
-				}
-				if (causeOfDeath == null) {
-					// don't overwrite with Unknown, even if we haven't specifically said to preserve existing
-					causeOfDeath = patient.getCauseOfDeath();
-				}
-				if (causeOfDeath == null) {
-					causeOfDeath = getUnknownConcept();
-				}
-				patient.setCauseOfDeath(causeOfDeath);
-			}
-			patientService.savePatient(patient);
 		}
 		
 		private Concept findObsCodedValue(Encounter encounter, Concept concept) {
@@ -178,6 +209,21 @@ public class MarkPatientDeadTagHandler extends SubstitutionTagHandler {
 		public void setCauseOfDeathFromObs(Concept causeOfDeathFromObs) {
 			this.causeOfDeathFromObs = causeOfDeathFromObs;
 		}
+		
+		public boolean isMarkPatientAsDeceased() {
+			return markPatientAsDeceased;
+		}
+		
+		public void setMarkPatientAsDeceased(boolean markPatientAsDeceased) {
+			this.markPatientAsDeceased = markPatientAsDeceased;
+		}
+		
+		public CheckboxWidget getCheckboxWidget() {
+			return checkboxWidget;
+		}
+		
+		public void setCheckboxWidget(CheckboxWidget checkboxWidget) {
+			this.checkboxWidget = checkboxWidget;
+		}
 	}
-	
 }
