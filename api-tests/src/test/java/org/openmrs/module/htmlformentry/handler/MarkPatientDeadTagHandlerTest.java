@@ -20,6 +20,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.api.PatientService;
+import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
@@ -27,6 +28,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore("javax.management.*")
@@ -95,6 +97,26 @@ public class MarkPatientDeadTagHandlerTest {
 	}
 	
 	@Test
+	public void testSetupWithShowCheckboxVisible() throws Exception {
+		Map<String, String> arguments = new HashMap<>();
+		arguments.put("showCheckbox", "true");
+		when(formEntrySession.getContext()).thenReturn(mock(FormEntryContext.class));
+		when(formEntrySession.getContext().getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+		Assert.assertEquals(
+		    "<input type=\"checkbox\" id=\"null\" name=\"null\" value=\"true\"/><input type=\"hidden\" name=\"_null\"/>",
+		    tagHandler.getSubstitution(formEntrySession, submissionController, arguments));
+	}
+	
+	@Test
+	public void testSetupWithShowCheckboxNotVisible() throws Exception {
+		Map<String, String> arguments = new HashMap<>();
+		arguments.put("showCheckbox", "false");
+		when(formEntrySession.getContext()).thenReturn(mock(FormEntryContext.class));
+		when(formEntrySession.getContext().getMode()).thenReturn(FormEntryContext.Mode.EDIT);
+		Assert.assertEquals("", tagHandler.getSubstitution(formEntrySession, submissionController, arguments));
+	}
+	
+	@Test
 	public void testSetupWithCauseOfDeath() throws Exception {
 		Map<String, String> arguments = new HashMap<>();
 		arguments.put("causeOfDeathFromObs", "12345");
@@ -109,6 +131,7 @@ public class MarkPatientDeadTagHandlerTest {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		action.setDeathDateFromEncounter(true);
 		
+		action.shouldPatientBeMarkedAsDeceased(formEntrySession, new MockMultipartHttpServletRequest());
 		action.applyAction(formEntrySession);
 		
 		Assert.assertEquals(true, patient.getDead());
@@ -126,6 +149,7 @@ public class MarkPatientDeadTagHandlerTest {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		action.setDeathDateFromEncounter(true);
 		
+		action.shouldPatientBeMarkedAsDeceased(formEntrySession, new MockMultipartHttpServletRequest());
 		action.applyAction(formEntrySession);
 		
 		Assert.assertEquals(true, patient.getDead());
@@ -144,6 +168,7 @@ public class MarkPatientDeadTagHandlerTest {
 		action.setDeathDateFromEncounter(true);
 		action.setPreserveExistingDeathDate(true);
 		
+		action.shouldPatientBeMarkedAsDeceased(formEntrySession, new MockMultipartHttpServletRequest());
 		action.applyAction(formEntrySession);
 		
 		Assert.assertEquals(true, patient.getDead());
@@ -156,6 +181,7 @@ public class MarkPatientDeadTagHandlerTest {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		action.setDeathDateFromEncounter(true);
 		
+		action.shouldPatientBeMarkedAsDeceased(formEntrySession, new MockMultipartHttpServletRequest());
 		action.applyAction(formEntrySession);
 		
 		Assert.assertEquals(true, patient.getDead());
@@ -167,6 +193,7 @@ public class MarkPatientDeadTagHandlerTest {
 	public void testNotSettingCauseOfDeath() {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		
+		action.shouldPatientBeMarkedAsDeceased(formEntrySession, new MockMultipartHttpServletRequest());
 		action.applyAction(formEntrySession);
 		
 		Assert.assertEquals(true, patient.getDead());
@@ -186,6 +213,7 @@ public class MarkPatientDeadTagHandlerTest {
 		MarkPatientDeadTagHandler.Action action = tagHandler.newAction();
 		action.setCauseOfDeathFromObs(causeOfDeath);
 		
+		action.shouldPatientBeMarkedAsDeceased(formEntrySession, new MockMultipartHttpServletRequest());
 		action.applyAction(formEntrySession);
 		
 		Assert.assertEquals(true, patient.getDead());

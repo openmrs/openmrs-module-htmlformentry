@@ -53,4 +53,34 @@ public class MarkPatientDeadTagHandlerComponentTest extends BaseHtmlFormEntryTes
 		}.run();
 	}
 	
+	@Test
+	public void testMarkPatientDeadWithCheckbox() throws Exception {
+		final Date date = Date.from(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant());
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "markPatientDeadWithCheckbox";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "MarkPatientDead:", "Date:", "Location:", "Provider:", "Cause:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Cause:"), "1001");
+				request.addParameter(widgets.get("MarkPatientDead:"), "false");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				assertThat(results.getPatient().isDead(), is(false));
+			}
+		}.run();
+	}
 }
