@@ -168,7 +168,10 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 							handleRequiredField(ret, ctx, fs, "quantityUnits", newDrugOrder.getQuantityUnits());
 						}
 						
-						validateNoOverlappingDrugOrders(ret, ctx, fs, "drug", newDrugOrder);
+						if (overlapsWithExistingDrugOrder(ctx.getExistingPatient(), newDrugOrder)) {
+							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
+							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForDrugOrder");
+						}
 					}
 				}
 				
@@ -313,12 +316,11 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 	 * 
 	 * @param order
 	 */
-	public void validateNoOverlappingDrugOrders(List<FormSubmissionError> ret, FormEntryContext ctx, String fieldSuffix,
-	        String prop, DrugOrder order) {
+	public boolean overlapsWithExistingDrugOrder(Patient patient, DrugOrder order) {
 		Set<Concept> orderConcepts = new HashSet<>();
 		orderConcepts.add(order.getConcept());
 		// Concepts Match
-		for (Order orderToCheck : HtmlFormEntryUtil.getOrdersForPatient(ctx.getExistingPatient(), orderConcepts)) {
+		for (Order orderToCheck : HtmlFormEntryUtil.getOrdersForPatient(patient, orderConcepts)) {
 			// Care Settings Match
 			if (OpenmrsUtil.nullSafeEquals(order.getCareSetting(), orderToCheck.getCareSetting())) {
 				// Orderables Match
@@ -329,14 +331,14 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 						if (order.getPreviousOrder() == null || !order.getPreviousOrder().equals(orderToCheck)) {
 							// Has an overlapping schedule
 							if (checkScheduleOverlap(order, orderToCheck)) {
-								String field = orderWidget.getFormErrorField(ctx, fieldSuffix, prop);
-								addError(ret, field, "htmlformentry.error.drugOrder.overlappingSchedule");
+								return true;
 							}
 						}
 					}
 				}
 			}
 		}
+		return false;
 	}
 	
 	private boolean checkScheduleOverlap(Order newOrder, Order existingOrder) {
@@ -368,6 +370,16 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 		}
 		
 		return false;
+	}
+	
+	private String getFirstFoundErrorField(FormEntryContext ctx, String fs, String... fieldNames) {
+		for (String fieldName : fieldNames) {
+			try {
+				return orderWidget.getFormErrorField(ctx, fs, fieldName);
+			}
+			catch (Exception e) {}
+		}
+		return null;
 	}
 	
 	public void addError(List<FormSubmissionError> ret, String field, String messageCode) {

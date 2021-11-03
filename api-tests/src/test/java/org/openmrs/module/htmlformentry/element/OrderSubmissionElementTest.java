@@ -133,7 +133,7 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
 		triomuneField.freeTextDosing("Triomune instructions");
 		FormResultsTester results = formSessionTester.submitForm();
-		results.assertErrorMessage("htmlformentry.error.drugOrder.overlappingSchedule");
+		results.assertErrorMessage("htmlformentry.orders.overlappingScheduleForDrugOrder");
 	}
 	
 	@Test
