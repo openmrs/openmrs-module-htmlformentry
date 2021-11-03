@@ -20,7 +20,7 @@ import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.DATETIME_F
 import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
 public class ZonedDateTimeWidget extends DateWidget implements Widget {
-
+	
 	/*
 	 * The encapsulated TimeWidget should not be registered with FormEntryContext, it is assumed that ZonedDateTimeWidget is the registered widget
 	 */
@@ -32,7 +32,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	
 	private SimpleDateFormat datetimeFormat() {
 		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_FORMATTER_DATETIME,
-				DATETIME_FALLBACK_FORMAT);
+		    DATETIME_FALLBACK_FORMAT);
 		if (StringUtils.isNotBlank(df)) {
 			return new SimpleDateFormat(df, Context.getLocale());
 		} else {
