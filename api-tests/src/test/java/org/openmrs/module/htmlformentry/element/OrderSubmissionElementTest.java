@@ -1,11 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.DrugOrder;
@@ -17,6 +11,12 @@ import org.openmrs.module.htmlformentry.tester.FormResultsTester;
 import org.openmrs.module.htmlformentry.tester.FormSessionTester;
 import org.openmrs.module.htmlformentry.tester.FormTester;
 import org.openmrs.module.htmlformentry.tester.OrderFieldTester;
+
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	
@@ -106,6 +106,34 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		revisedTriomuneField.freeTextDosing("My instructions");
 		FormResultsTester revisedResults = formSessionTester.submitForm();
 		revisedResults.assertErrorMessage("htmlformentry.orders.dosingChangedForRenew");
+	}
+	
+	@Test
+	public void shouldFailValidationIfOverlappingOrders() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		
+		// Enter an encounter with an order for drug 2
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+			TestUtil.assertDate(o1.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+			assertThat(o1.getDateStopped(), nullValue());
+		}
+		
+		// Now, enter an encounter a month later with another new order for drug 2.  This should fail validation
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-04-30", "2", "502");
+		OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertErrorMessage("htmlformentry.orders.overlappingScheduleForDrugOrder");
 	}
 	
 	@Test

@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -32,6 +25,15 @@ import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.OrderWidgetConfig;
 import org.openmrs.module.htmlformentry.widget.OrderWidgetValue;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the widgets used to represent orders for a configured set of orderables (concepts, drugs),
@@ -164,6 +166,11 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 						
 						if (newDrugOrder.getQuantity() != null) {
 							handleRequiredField(ret, ctx, fs, "quantityUnits", newDrugOrder.getQuantityUnits());
+						}
+						
+						if (overlapsWithExistingDrugOrder(ctx.getExistingPatient(), newDrugOrder)) {
+							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
+							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForDrugOrder");
 						}
 					}
 				}
@@ -300,6 +307,79 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 			String field = orderWidget.getFormErrorField(ctx, fieldSuffix, prop);
 			addError(ret, field, "htmlformentry.error.required");
 		}
+	}
+	
+	/**
+	 * Validate that the given DrugOrder does not overlap with other DrugOrders. The below logic is
+	 * essentially copied out of OrderServiceImpl in the 2.3.x branch It does not support the ability to
+	 * allow for parallel orders via the OrderContext
+	 * 
+	 * @param order
+	 */
+	public boolean overlapsWithExistingDrugOrder(Patient patient, DrugOrder order) {
+		Set<Concept> orderConcepts = new HashSet<>();
+		orderConcepts.add(order.getConcept());
+		// Concepts Match
+		for (Order orderToCheck : HtmlFormEntryUtil.getOrdersForPatient(patient, orderConcepts)) {
+			// Care Settings Match
+			if (OpenmrsUtil.nullSafeEquals(order.getCareSetting(), orderToCheck.getCareSetting())) {
+				// Orderables Match
+				if (order.hasSameOrderableAs(orderToCheck)) {
+					// Not the same order
+					if (!order.equals(orderToCheck)) {
+						// Not a revision of the order to check
+						if (order.getPreviousOrder() == null || !order.getPreviousOrder().equals(orderToCheck)) {
+							// Has an overlapping schedule
+							if (checkScheduleOverlap(order, orderToCheck)) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean checkScheduleOverlap(Order newOrder, Order existingOrder) {
+		Date newStart = newOrder.getEffectiveStartDate() == null ? new Date() : newOrder.getEffectiveStartDate();
+		Date newStop = newOrder.getEffectiveStopDate();
+		Date existingStart = existingOrder.getEffectiveStartDate();
+		Date existingStop = existingOrder.getEffectiveStopDate();
+		
+		// If both orders start on the same date, then they overlap
+		if (OpenmrsUtil.compareWithNullAsLatest(newStart, existingStart) == 0) {
+			return true;
+		}
+		
+		// If both orders end on the same date, or if they are both open-ended, then they overlap
+		if (OpenmrsUtil.compareWithNullAsLatest(newStop, existingStop) == 0) {
+			return true;
+		}
+		
+		// If the new order starts before the existing order, it must end before the existing order starts
+		if (OpenmrsUtil.compareWithNullAsLatest(newStart, existingStart) < 0
+		        && OpenmrsUtil.compareWithNullAsLatest(newStop, existingStart) >= 0) {
+			return true;
+		}
+		
+		// If the new order starts after the existing order, it must start after the existing order ends
+		if (OpenmrsUtil.compareWithNullAsLatest(newStart, existingStart) > 0
+		        && OpenmrsUtil.compareWithNullAsLatest(newStop, existingStop) <= 0) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private String getFirstFoundErrorField(FormEntryContext ctx, String fs, String... fieldNames) {
+		for (String fieldName : fieldNames) {
+			try {
+				return orderWidget.getFormErrorField(ctx, fs, fieldName);
+			}
+			catch (Exception e) {}
+		}
+		return null;
 	}
 	
 	public void addError(List<FormSubmissionError> ret, String field, String messageCode) {

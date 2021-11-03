@@ -618,9 +618,11 @@
         if (data.values && data.values.length > 0) {
             data.values.forEach(function (val) {
                 var config = data.config;
-                var fieldSuffix = val.fieldSuffix;
-                var action = val.action;
-                var $actionButton = $('#order-action-button-' + action + fieldSuffix);
+                var actionButtonId = val.action;
+                if (actionButtonId !== 'NEW') {
+                    actionButtonId += val.fieldSuffix;
+                }
+                var $actionButton = $('#order-action-button-' + actionButtonId);
                 $actionButton.click();
                 val.fields.forEach(function (field) {
                     setValueByName(field.name, field.value);
