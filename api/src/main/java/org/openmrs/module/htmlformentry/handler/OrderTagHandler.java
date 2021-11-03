@@ -473,7 +473,9 @@ public class OrderTagHandler extends AbstractTagHandler {
 						option.setCssClass(css.toString());
 						optionsInSet.add(option);
 						valuesAlreadyAdded.add(value);
-						config.getConceptsAndDrugsConfigured().computeIfAbsent(c, k -> new ArrayList<>());
+						if ("concept".equalsIgnoreCase(prop)) {
+							config.getConceptsAndDrugsConfigured().computeIfAbsent(c, k -> new ArrayList<>());
+						}
 					}
 				}
 				if (BooleanUtils.isTrue(optGroup.getSortAlphabetically())) {
