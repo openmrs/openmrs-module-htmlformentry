@@ -135,7 +135,7 @@
         // Set up watch for an encounter date change.  If date changes, re-initialize all drug sections
         var $encDateHidden = $('#encounterDate').find('input[type="hidden"]');
         $encDateHidden.change(function() {
-            if ($('.orderwidget-order-form').length > 1) { // More than 1, since the template is present
+            if ($widgetField.find('.orderwidget-order-form').length > 1) { // More than 1, since the template is present
                 alert(config.translations.encounterDateChangeWarning);
             }
             orderWidget.renderOrdersForRevision(config);
@@ -615,20 +615,21 @@
     }
 
     orderWidget.resetWidget = function(data) {
+        var config = data.config;
+        var $widgetField = $('#' + config.fieldName);
         if (data.values && data.values.length > 0) {
             data.values.forEach(function (val) {
-                var config = data.config;
                 var actionButtonId = val.action;
                 if (actionButtonId !== 'NEW') {
                     actionButtonId += val.fieldSuffix;
                 }
-                var $actionButton = $('#order-action-button-' + actionButtonId);
+                var $actionButton = $widgetField.find('#order-action-button-' + actionButtonId);
                 $actionButton.click();
                 val.fields.forEach(function (field) {
                     setValueByName(field.name, field.value);
                 });
             });
-            $('.order-field-widget.order-concept').find('select').change();
+            $widgetField.find('.order-field-widget.order-concept').find('select').change();
         }
     }
 
