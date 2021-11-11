@@ -137,6 +137,29 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void shouldFailValidationIfMultipleOrdersPlacedForSameOrderable() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		
+		{
+			OrderFieldTester triomuneField1 = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField1.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField1.freeTextDosing("Triomune instructions");
+		}
+		
+		{
+			OrderFieldTester triomuneField2 = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField2.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField2.freeTextDosing("Triomune instructions");
+		}
+		
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertErrorMessage("htmlformentry.orders.overlappingScheduleForDrugOrder");
+	}
+	
+	@Test
 	public void shouldCreateNewInpatientAndOutpatientOrders() {
 		for (String careSettingId : new String[] { "1", "2" }) {
 			FormTester formTester = FormTester.buildForm("orderTestForm.xml");
