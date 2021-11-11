@@ -169,10 +169,14 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 							handleRequiredField(ret, ctx, fs, "quantityUnits", newDrugOrder.getQuantityUnits());
 						}
 						
-						if (overlapsWithExistingDrugOrder(ctx.getExistingPatient(), newDrugOrder)
-						        || overlapsWithExistingDrugOrder(newOrders, newDrugOrder)) {
+						if (overlapsWithExistingDrugOrder(ctx.getExistingPatient(), newDrugOrder)) {
 							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
-							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForDrugOrder");
+							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleWithActiveOrder");
+						}
+						
+						if (overlapsWithExistingDrugOrder(newOrders, newDrugOrder)) {
+							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
+							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForNewOrders");
 						}
 					}
 				}
