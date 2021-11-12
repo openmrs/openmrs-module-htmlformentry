@@ -102,6 +102,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 		List<FormSubmissionError> ret = new ArrayList<>();
 		List<OrderWidgetValue> orderValues = orderWidget.getValue(ctx, submission);
 		Map<Concept, List<Drug>> conceptsAndDrugs = orderWidget.getWidgetConfig().getConceptsAndDrugsConfigured();
+		List<Order> newOrders = new ArrayList<>();
 		for (OrderWidgetValue v : orderValues) {
 			Order newOrder = v.getNewOrder();
 			if (newOrder != null) {
@@ -170,7 +171,12 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 						
 						if (overlapsWithExistingDrugOrder(ctx.getExistingPatient(), newDrugOrder)) {
 							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
-							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForDrugOrder");
+							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleWithActiveOrder");
+						}
+						
+						if (overlapsWithExistingDrugOrder(newOrders, newDrugOrder)) {
+							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
+							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForNewOrders");
 						}
 					}
 				}
@@ -191,6 +197,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 						}
 					}
 				}
+				newOrders.add(newOrder);
 			}
 		}
 		return ret;
@@ -319,8 +326,12 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 	public boolean overlapsWithExistingDrugOrder(Patient patient, DrugOrder order) {
 		Set<Concept> orderConcepts = new HashSet<>();
 		orderConcepts.add(order.getConcept());
-		// Concepts Match
-		for (Order orderToCheck : HtmlFormEntryUtil.getOrdersForPatient(patient, orderConcepts)) {
+		List<Order> existingOrders = HtmlFormEntryUtil.getOrdersForPatient(patient, orderConcepts);
+		return overlapsWithExistingDrugOrder(existingOrders, order);
+	}
+	
+	public boolean overlapsWithExistingDrugOrder(List<Order> existingOrders, DrugOrder order) {
+		for (Order orderToCheck : existingOrders) {
 			// Care Settings Match
 			if (OpenmrsUtil.nullSafeEquals(order.getCareSetting(), orderToCheck.getCareSetting())) {
 				// Orderables Match
