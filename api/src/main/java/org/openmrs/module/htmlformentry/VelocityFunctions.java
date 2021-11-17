@@ -1,10 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -24,10 +19,10 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.LocationService;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
@@ -35,9 +30,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
@@ -568,6 +565,52 @@ public class VelocityFunctions {
 		} else {
 			return date.toString();
 		}
+	}
+	
+	/**
+	 * Date computation funciton
+	 * 
+	 * @param date The date
+	 * @param interval as defined in the @see java.util.Calendar class
+	 * @param value
+	 * @return The new date
+	 */
+	public Date addInterval(String date, String interval, String value) {
+		
+		try {
+			return addInterval(parseDate(date), interval, value);
+		}
+		catch (ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+	public Date addInterval(Date date, String interval, String value) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
+		cal.add(Integer.parseInt(interval), Integer.parseInt(value));
+		
+		return cal.getTime();
+	}
+
+	/**
+	 * Date utility functions useful for HTML forms
+	 */
+	public Date yesterday(String date) {
+		return addInterval(date, "6", "-1");
+	}
+	
+	public Date yesterday(Date date) {
+		return addInterval(date, "6", "-1");
+	}
+	
+	public Date tomorrow(String date) {
+		return addInterval(date, "6", "1");
+	}
+	
+	public Date tomorrow(Date date) {
+		return addInterval(date, "6", "1");
 	}
 	
 }

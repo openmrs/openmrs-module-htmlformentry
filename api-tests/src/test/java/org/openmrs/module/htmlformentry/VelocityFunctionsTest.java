@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -301,5 +302,34 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Assert.assertNotNull(functions.location(locationNameIdentifier));
 		Assert.assertEquals(locationNameIdentifier, functions.location(locationNameIdentifier).getName());
 		
+	}
+	
+	@Test
+	public void testAddInterval() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(7);
+		
+		String dateString = "2021-11-01";
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date testDate = df.parse(dateString);
+		// add and subtract days
+		Assert.assertEquals("2021-11-05", df.format(functions.addInterval(dateString, "6", "4")));
+		Assert.assertEquals("2021-10-30", df.format(functions.addInterval(dateString, "6", "-2")));
+		// add and subtract months
+		Assert.assertEquals("2021-12-01", df.format(functions.addInterval(dateString, "2", "1")));
+		Assert.assertEquals("2021-07-01", df.format(functions.addInterval(dateString, "2", "-4")));
+		
+		// check utility methods - yesterday and tomorrow using both strings and date variables
+		Assert.assertEquals("2021-10-31", df.format(functions.yesterday(dateString)));
+		Assert.assertEquals("2021-11-02", df.format(functions.tomorrow(dateString)));
+		Assert.assertEquals("2021-11-02", df.format(functions.tomorrow(testDate)));
+		Assert.assertEquals("2021-10-31", df.format(functions.yesterday(testDate)));
+
+		// invalid interval should never get here
+		try {
+			Assert.assertNull(df.format(functions.addInterval(dateString, "99", "-4")));
+		} catch (IllegalArgumentException e) {
+			Assert.assertTrue(true);
+		}
+
 	}
 }
