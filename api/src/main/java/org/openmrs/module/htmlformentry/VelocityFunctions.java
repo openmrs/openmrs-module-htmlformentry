@@ -1,10 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
@@ -24,10 +19,10 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.LocationService;
+import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
-import org.openmrs.api.MissingRequiredPropertyException;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
 
@@ -35,9 +30,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
@@ -568,6 +565,67 @@ public class VelocityFunctions {
 		} else {
 			return date.toString();
 		}
+	}
+	
+	/**
+	 * Add days to a date
+	 * 
+	 * @param date The date
+	 * @param value
+	 * @return The new date
+	 */
+	public Date addDays(String date, String value) {
+		
+		try {
+			return addDays(parseDate(date), value);
+		}
+		catch (ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+	public Date addDays(Date date, String value) {
+		return LocalDate.fromDateFields(date).plusDays(Integer.parseInt(value)).toDate();
+	}
+	
+	/**
+	 * Add months to a date
+	 *
+	 * @param date The date
+	 * @param value
+	 * @return The new date
+	 */
+	public Date addMonths(String date, String value) {
+		
+		try {
+			return addMonths(parseDate(date), value);
+		}
+		catch (ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+	public Date addMonths(Date date, String value) {
+		return LocalDate.fromDateFields(date).plusMonths(Integer.parseInt(value)).toDate();
+	}
+	
+	/**
+	 * Date utility functions useful for HTML forms
+	 */
+	public Date yesterday(String date) {
+		return addDays(date, "-1");
+	}
+	
+	public Date yesterday(Date date) {
+		return addDays(date, "-1");
+	}
+	
+	public Date tomorrow(String date) {
+		return addDays(date, "1");
+	}
+	
+	public Date tomorrow(Date date) {
+		return addDays(date, "1");
 	}
 	
 }
