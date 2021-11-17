@@ -110,6 +110,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private boolean allowFutureDates = false;
 	
+	private boolean allowObsDateAfterEncounterDate = true;
+	
 	private Concept answerConcept;
 	
 	private Drug answerDrug;
@@ -211,9 +213,13 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 		}
 		
-		if ("true".equals(parameters.get("allowFutureDates")))
+		if ("true".equalsIgnoreCase(parameters.get("allowFutureDates"))) {
 			allowFutureDates = true;
-		if ("true".equals(parameters.get("required"))) {
+		}
+		if ("false".equalsIgnoreCase(parameters.get("allowObsDateAfterEncounterDate"))) {
+			allowObsDateAfterEncounterDate = false;
+		}
+		if ("true".equalsIgnoreCase(parameters.get("required"))) {
 			required = true;
 		}
 		if (parameters.get("id") != null) {
@@ -1330,6 +1336,15 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		if (value instanceof Date && !allowFutureDates && OpenmrsUtil.compare((Date) value, new Date()) > 0) {
 			ret.add(new FormSubmissionError(valueWidget,
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeInFuture")));
+		}
+		
+		if (value instanceof Date && !allowObsDateAfterEncounterDate) {
+			Date encounterDateToTest = context.getPendingEncounterDatetime() != null ? context.getPendingEncounterDatetime()
+			        : context.getExistingEncounter() != null ? context.getExistingEncounter().getEncounterDatetime() : null;
+			if (encounterDateToTest != null && OpenmrsUtil.compare((Date) value, encounterDateToTest) > 0) {
+				ret.add(new FormSubmissionError(valueWidget,
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+			}
 		}
 		
 		if (required) {

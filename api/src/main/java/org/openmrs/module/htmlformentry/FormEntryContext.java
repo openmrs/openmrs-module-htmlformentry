@@ -95,6 +95,8 @@ public class FormEntryContext {
 	
 	private Date previousEncounterDate; // if the encounter has been edited on a form, this stores the prior encounter date
 	
+	private Date pendingEncounterDatetime; // the validateSubmission method of the EncounterDetails sets this so that other validators have access to it to validate against
+	
 	private Location defaultLocation;
 	
 	private Date defaultEncounterDate;
@@ -963,5 +965,13 @@ public class FormEntryContext {
 	
 	public void setDefaultEncounterDate(Date defaultEncounterDate) {
 		this.defaultEncounterDate = defaultEncounterDate;
+	}
+	
+	public Date getPendingEncounterDatetime() {
+		return pendingEncounterDatetime;
+	}
+	
+	public void setPendingEncounterDatetime(Date pendingEncounterDatetime) {
+		this.pendingEncounterDatetime = pendingEncounterDatetime;
 	}
 }
