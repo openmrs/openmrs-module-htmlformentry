@@ -305,7 +305,7 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testAddInterval() throws Exception {
+	public void testAddDays_and_addMonths() throws Exception {
 		VelocityFunctions functions = setupFunctionsForPatient(7);
 		
 		String dateString = "2021-11-01";

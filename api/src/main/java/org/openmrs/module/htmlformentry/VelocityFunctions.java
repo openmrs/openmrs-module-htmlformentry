@@ -585,12 +585,7 @@ public class VelocityFunctions {
 	}
 	
 	public Date addDays(Date date, String value) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		
-		cal.add(Calendar.DATE, Integer.parseInt(value));
-		
-		return cal.getTime();
+		return LocalDate.fromDateFields(date).plusDays(Integer.parseInt(value)).toDate();
 	}
 	
 	/**
@@ -611,12 +606,7 @@ public class VelocityFunctions {
 	}
 	
 	public Date addMonths(Date date, String value) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
-		
-		cal.add(Calendar.MONTH, Integer.parseInt(value));
-		
-		return cal.getTime();
+		return LocalDate.fromDateFields(date).plusMonths(Integer.parseInt(value)).toDate();
 	}
 	
 	/**
