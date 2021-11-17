@@ -568,49 +568,74 @@ public class VelocityFunctions {
 	}
 	
 	/**
-	 * Date computation funciton
+	 * Add days to a date
 	 * 
 	 * @param date The date
-	 * @param interval as defined in the @see java.util.Calendar class
 	 * @param value
 	 * @return The new date
 	 */
-	public Date addInterval(String date, String interval, String value) {
+	public Date addDays(String date, String value) {
 		
 		try {
-			return addInterval(parseDate(date), interval, value);
+			return addDays(parseDate(date), value);
 		}
 		catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 	
-	public Date addInterval(Date date, String interval, String value) {
+	public Date addDays(Date date, String value) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		
-		cal.add(Integer.parseInt(interval), Integer.parseInt(value));
+		cal.add(Calendar.DATE, Integer.parseInt(value));
 		
 		return cal.getTime();
 	}
-
+	
+	/**
+	 * Add months to a date
+	 *
+	 * @param date The date
+	 * @param value
+	 * @return The new date
+	 */
+	public Date addMonths(String date, String value) {
+		
+		try {
+			return addMonths(parseDate(date), value);
+		}
+		catch (ParseException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+	
+	public Date addMonths(Date date, String value) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		
+		cal.add(Calendar.MONTH, Integer.parseInt(value));
+		
+		return cal.getTime();
+	}
+	
 	/**
 	 * Date utility functions useful for HTML forms
 	 */
 	public Date yesterday(String date) {
-		return addInterval(date, "6", "-1");
+		return addDays(date, "-1");
 	}
 	
 	public Date yesterday(Date date) {
-		return addInterval(date, "6", "-1");
+		return addDays(date, "-1");
 	}
 	
 	public Date tomorrow(String date) {
-		return addInterval(date, "6", "1");
+		return addDays(date, "1");
 	}
 	
 	public Date tomorrow(Date date) {
-		return addInterval(date, "6", "1");
+		return addDays(date, "1");
 	}
 	
 }

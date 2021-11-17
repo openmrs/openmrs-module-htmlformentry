@@ -312,24 +312,36 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		Date testDate = df.parse(dateString);
 		// add and subtract days
-		Assert.assertEquals("2021-11-05", df.format(functions.addInterval(dateString, "6", "4")));
-		Assert.assertEquals("2021-10-30", df.format(functions.addInterval(dateString, "6", "-2")));
+		Assert.assertEquals("2021-11-05", df.format(functions.addDays(dateString, "4")));
+		Assert.assertEquals("2021-10-30", df.format(functions.addDays(dateString, "-2")));
+		// end of year edge-cases
+		Assert.assertEquals("2022-01-04", df.format(functions.addDays(dateString, "64")));
+		Assert.assertEquals("2020-12-06", df.format(functions.addDays(dateString, "-330")));
+		
 		// add and subtract months
-		Assert.assertEquals("2021-12-01", df.format(functions.addInterval(dateString, "2", "1")));
-		Assert.assertEquals("2021-07-01", df.format(functions.addInterval(dateString, "2", "-4")));
+		Assert.assertEquals("2021-12-01", df.format(functions.addMonths(dateString, "1")));
+		Assert.assertEquals("2021-07-01", df.format(functions.addMonths(dateString, "-4")));
+		Assert.assertEquals("2022-03-01", df.format(functions.addMonths(dateString, "4")));
+		Assert.assertEquals("2020-10-01", df.format(functions.addMonths(dateString, "-13")));
 		
 		// check utility methods - yesterday and tomorrow using both strings and date variables
 		Assert.assertEquals("2021-10-31", df.format(functions.yesterday(dateString)));
 		Assert.assertEquals("2021-11-02", df.format(functions.tomorrow(dateString)));
 		Assert.assertEquals("2021-11-02", df.format(functions.tomorrow(testDate)));
 		Assert.assertEquals("2021-10-31", df.format(functions.yesterday(testDate)));
-
-		// invalid interval should never get here
+		
+		// invalid date format should never get here
 		try {
-			Assert.assertNull(df.format(functions.addInterval(dateString, "99", "-4")));
-		} catch (IllegalArgumentException e) {
+			Assert.assertNull(df.format(functions.addDays("Invalid Date", "-4")));
+		}
+		catch (IllegalArgumentException e) {
 			Assert.assertTrue(true);
 		}
-
+		try {
+			Assert.assertNull(df.format(functions.addMonths("Invalid Date", "-4")));
+		}
+		catch (IllegalArgumentException e) {
+			Assert.assertTrue(true);
+		}
 	}
 }
