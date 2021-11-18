@@ -2,7 +2,7 @@
 
     Location: <encounterLocation/>
     Provider: <encounterProvider role="Provider"/>
-    Obs date: <obs conceptId="1119"  allowObsDateAfterEncounterDate="false"/>
+    Obs date: <obs conceptId="1119"/>
 
     Date: <encounterDate/>
     <submit/>
