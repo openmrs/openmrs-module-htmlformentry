@@ -1332,9 +1332,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		if (value instanceof Date && !allowFutureDates) {
 			
-			// make sure obs date it not in front if of current encounter date
+			// make sure obs date is not before the current encounter date
 			
-			// if there's a pending update to the enocunter date, use that
+			// if there's a pending update to the encounter date, use that
 			Date encounterDateToTest = context.getPendingEncounterDatetime();
 			
 			// if no pending, but there's an existing encounter, use that encounter date
