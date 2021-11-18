@@ -211,9 +211,10 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			}
 		}
 		
-		if ("true".equals(parameters.get("allowFutureDates")))
+		if ("true".equalsIgnoreCase(parameters.get("allowFutureDates"))) {
 			allowFutureDates = true;
-		if ("true".equals(parameters.get("required"))) {
+		}
+		if ("true".equalsIgnoreCase(parameters.get("required"))) {
 			required = true;
 		}
 		if (parameters.get("id") != null) {
@@ -1319,17 +1320,37 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.add(new FormSubmissionError(dateWidget, ex.getMessage()));
 		}
 		
-		if (value == null && date != null)
+		if (value == null && date != null) {
 			ret.add(new FormSubmissionError(valueWidget,
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.dateWithoutValue")));
+		}
 		
-		if (date != null && OpenmrsUtil.compare((Date) date, new Date()) > 0)
+		if (date != null && OpenmrsUtil.compare((Date) date, new Date()) > 0) {
 			ret.add(new FormSubmissionError(dateWidget,
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeInFuture")));
+		}
 		
-		if (value instanceof Date && !allowFutureDates && OpenmrsUtil.compare((Date) value, new Date()) > 0) {
-			ret.add(new FormSubmissionError(valueWidget,
-			        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeInFuture")));
+		if (value instanceof Date && !allowFutureDates) {
+			
+			// make sure obs date is not before the current encounter date
+			
+			// if there's a pending update to the encounter date, use that
+			Date encounterDateToTest = context.getPendingEncounterDatetime();
+			
+			// if no pending, but there's an existing encounter, use that encounter date
+			if (encounterDateToTest == null && context.getExistingEncounter() != null) {
+				encounterDateToTest = context.getExistingEncounter().getEncounterDatetime();
+			}
+			
+			// finally, fall back to current date if nothing else (could occur if the encounter date tag is after obs tag on the form)
+			if (encounterDateToTest == null) {
+				encounterDateToTest = new Date();
+			}
+			
+			if (encounterDateToTest != null && OpenmrsUtil.compare((Date) value, encounterDateToTest) > 0) {
+				ret.add(new FormSubmissionError(valueWidget,
+				        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+			}
 		}
 		
 		if (required) {

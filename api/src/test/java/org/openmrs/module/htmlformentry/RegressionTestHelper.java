@@ -1,5 +1,24 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.platform.commons.util.StringUtils;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterProvider;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.Person;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.ModuleUtil;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.util.OpenmrsConstants;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
@@ -17,26 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.platform.commons.util.StringUtils;
-import org.openmrs.Encounter;
-import org.openmrs.EncounterProvider;
-import org.openmrs.EncounterType;
-import org.openmrs.Form;
-import org.openmrs.Obs;
-import org.openmrs.Patient;
-import org.openmrs.Person;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.ModuleUtil;
-import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
-import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.util.OpenmrsUtil;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
 public abstract class RegressionTestHelper {
 	
@@ -165,6 +164,14 @@ public abstract class RegressionTestHelper {
 	}
 	
 	/**
+	 * Override this and return false if you only want to test editing an existing encounter, not
+	 * creating a new one via initial form submission
+	 */
+	public boolean doCreateEncounter() {
+		return true;
+	}
+	
+	/**
 	 * Override this and return true if you want to have testEditFormHtml, testEditEncounter, etc run.
 	 * (If you override {@link #getEncounterToEdit()} to return a non-null value, you don't need to
 	 * override this one.)
@@ -272,22 +279,27 @@ public abstract class RegressionTestHelper {
 		String html = session.getHtmlToDisplay();
 		testBlankFormHtml(html);
 		
-		// submit some initial data and test it
-		Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
-		MockHttpServletRequest request = new MockMultipartHttpServletRequest();
-		request.setSession(session.getHttpSession());
-		setupRequest(request, labeledWidgets);
 		Patient patientToView = null;
 		Encounter encounterToView = null;
-		if (request.getParameterMap().size() > 0) {
-			SubmissionResults results = doSubmission(session, request);
-			testResults(results);
-			patientToView = results.getPatient();
-			encounterToView = results.getEncounterCreated();
+		Patient overridePatient = null;
+		Encounter overrideEncounter = null;
+		
+		if (doCreateEncounter()) {
+			// submit some initial data and test it
+			Map<String, String> labeledWidgets = getLabeledWidgets(html, widgetLabels());
+			MockHttpServletRequest request = new MockMultipartHttpServletRequest();
+			request.setSession(session.getHttpSession());
+			setupRequest(request, labeledWidgets);
+			if (request.getParameterMap().size() > 0) {
+				SubmissionResults results = doSubmission(session, request);
+				testResults(results);
+				patientToView = results.getPatient();
+				encounterToView = results.getEncounterCreated();
+			}
 		}
 		
 		// view that patient and run tests on it
-		Patient overridePatient = getPatientToView();
+		overridePatient = getPatientToView();
 		boolean doViewPatient = overridePatient != null || doViewPatient();
 		if (doViewPatient) {
 			if (overridePatient != null) {
@@ -300,11 +312,11 @@ public abstract class RegressionTestHelper {
 		}
 		
 		// view that encounter and run tests on that
-		Encounter override = getEncounterToView();
-		boolean doViewEncounter = override != null || doViewEncounter();
+		overrideEncounter = getEncounterToView();
+		boolean doViewEncounter = overrideEncounter != null || doViewEncounter();
 		if (doViewEncounter) {
-			if (override != null) {
-				encounterToView = override;
+			if (overrideEncounter != null) {
+				encounterToView = overrideEncounter;
 			}
 			session = setupFormEntrySession(patientToView, encounterToView, Mode.VIEW, getFormXml());
 			testFormViewSessionAttribute(session);
@@ -313,20 +325,21 @@ public abstract class RegressionTestHelper {
 		}
 		
 		// edit the encounter, and run tests on that
-		override = getEncounterToEdit();
-		boolean doEditEncounter = override != null || doEditEncounter();
+		overrideEncounter = getEncounterToEdit();
+		boolean doEditEncounter = overrideEncounter != null || doEditEncounter();
 		
 		overridePatient = getPatientToEdit();
 		boolean doEditPatient = overridePatient != null || doEditPatient();
 		
 		if (doEditEncounter || doEditPatient) {
 			Encounter toEdit = encounterToView;
-			if (override != null)
-				toEdit = override;
+			if (overrideEncounter != null)
+				toEdit = overrideEncounter;
 			
-			Patient patientToEdit = patientToView;
-			if (overridePatient != null)
+			Patient patientToEdit = patientToView != null ? patientToView : patient;
+			if (overridePatient != null) {
 				patientToEdit = overridePatient;
+			}
 			
 			session = setupFormEntrySession(patientToEdit, toEdit, Mode.EDIT, getFormXml());
 			testFormEditSessionAttribute(session);

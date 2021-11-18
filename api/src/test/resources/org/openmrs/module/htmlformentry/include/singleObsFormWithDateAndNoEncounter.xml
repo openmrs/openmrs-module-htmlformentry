@@ -1,0 +1,6 @@
+<htmlform>
+
+    Obs date: <obs conceptId="1119"  allowObsDateAfterEncounterDate="false"/>
+
+    <submit/>
+</htmlform>

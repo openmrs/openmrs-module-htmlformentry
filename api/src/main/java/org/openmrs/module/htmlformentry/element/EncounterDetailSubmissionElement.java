@@ -1,7 +1,6 @@
 package org.openmrs.module.htmlformentry.element;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,7 +36,6 @@ import org.openmrs.module.htmlformentry.widget.ToggleWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.openmrs.module.htmlformentry.widget.ZonedDateTimeWidget;
 import org.openmrs.util.OpenmrsUtil;
-import org.openmrs.util.PrivilegeConstants;
 import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +50,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 /**
  * Holds the widgets used to represent an Encounter details, and serves as both the
@@ -689,10 +686,12 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	 */
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
+		
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		try {
 			if (dateWidget != null) {
 				validateDateWidget(context, dateWidget, submission);
+				context.setPendingEncounterDatetime(dateWidget.getValue(context, submission));
 			} else if (zonedDateTimeWidget != null) {
 				
 				String clientSubmittedTimezone = zonedDateTimeWidget.getSubmittedTimezone(context, submission);
@@ -705,6 +704,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);
+				context.setPendingEncounterDatetime(zonedDateTimeWidget.getValue(context, submission));
 			}
 		}
 		catch (Exception ex) {
