@@ -633,7 +633,7 @@ function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, val
 		gotoCurrent: true,
 		changeMonth: true,
 		changeYear: true,
-    maxDate: maxDate !== null ? jQuery.datepicker.parseDate('yy-mm-dd', maxDate) : null,
+		maxDate: maxDate !== null ? jQuery.datepicker.parseDate('yy-mm-dd', maxDate) : null,
 		showOtherMonths: true,
 		selectOtherMonths: true,
         yearRange: '-'+range[0]+':+'+range[1],
