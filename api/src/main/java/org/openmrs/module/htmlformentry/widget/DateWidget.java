@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.BooleanUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -14,6 +7,12 @@ import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
@@ -28,6 +27,8 @@ public class DateWidget implements Widget {
 	private String onChangeFunction;
 	
 	private String dateFormat;
+	
+	private Date maxDate;
 	
 	private boolean hidden = false;
 	
@@ -129,13 +130,9 @@ public class DateWidget implements Widget {
 				}
 				
 				sb.append("<script>setupDatePicker('" + jsDateFormat() + "', '" + getYearsRange() + "','"
-				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "'");
-				if (initialValue != null) {
-					sb.append(", '");
-					sb.append(dateToDisplay);
-					sb.append("'");
-				}
-				sb.append(")</script>");
+				        + getLocaleForJquery() + "', '#" + fieldName + "-display', '#" + fieldName + "', "
+				        + (initialValue != null ? "'" + dateToDisplay + "'" : "null") + ", "
+				        + (maxDate != null ? "'" + getHtmlDateFormat().format(maxDate) + "'" : "null") + ")</script>");
 			}
 			
 			return sb.toString();
@@ -189,12 +186,21 @@ public class DateWidget implements Widget {
 		return dateFormat;
 	}
 	
+	public Date getMaxDate() {
+		return maxDate;
+	}
+	
+	public void setMaxDate(Date maxDate) {
+		this.maxDate = maxDate;
+	}
+	
 	public DateWidget clone() {
 		DateWidget clone = new DateWidget();
 		clone.setInitialValue(this.getInitialValue());
 		clone.setOnChangeFunction(this.getOnChangeFunction());
 		clone.setHidden(this.isHidden());
 		clone.setDateFormat(this.getDateFormat());
+		clone.setMaxDate(this.getMaxDate());
 		return clone;
 	}
 }

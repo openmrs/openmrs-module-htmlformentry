@@ -982,6 +982,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 				if (ConceptDatatype.DATE.equals(concept.getDatatype().getHl7Abbreviation())
 				        || (ConceptDatatype.DATETIME.equals(concept.getDatatype().getHl7Abbreviation()) && disableTime)) {
 					valueWidget = new DateWidget();
+					if (!allowFutureDates) {
+						((DateWidget) valueWidget).setMaxDate(getMaxDateForDateWidget(context, existingObs));
+					}
 				} else if (ConceptDatatype.TIME.equals(concept.getDatatype().getHl7Abbreviation())) {
 					valueWidget = new TimeWidget();
 					if (hideSeconds) {
@@ -989,6 +992,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					}
 				} else if (ConceptDatatype.DATETIME.equals(concept.getDatatype().getHl7Abbreviation())) {
 					dateWidget = new DateWidget();
+					if (!allowFutureDates) {
+						dateWidget.setMaxDate(getMaxDateForDateWidget(context, existingObs));
+					}
 					timeWidget = new TimeWidget();
 					if (hideSeconds) {
 						timeWidget.setHideSeconds(true);
@@ -1331,21 +1337,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		}
 		
 		if (value instanceof Date && !allowFutureDates) {
-			
 			// make sure obs date is not before the current encounter date
-			
-			// if there's a pending update to the encounter date, use that
-			Date encounterDateToTest = context.getPendingEncounterDatetime();
-			
-			// if no pending, but there's an existing encounter, use that encounter date
-			if (encounterDateToTest == null && context.getExistingEncounter() != null) {
-				encounterDateToTest = context.getExistingEncounter().getEncounterDatetime();
-			}
-			
-			// finally, fall back to current date if nothing else (could occur if the encounter date tag is after obs tag on the form)
-			if (encounterDateToTest == null) {
-				encounterDateToTest = new Date();
-			}
+			Date encounterDateToTest = getBestApproximationOfEncounterDate(context);
 			
 			if (encounterDateToTest != null && OpenmrsUtil.compare((Date) value, encounterDateToTest) > 0) {
 				ret.add(new FormSubmissionError(valueWidget,
@@ -1513,6 +1506,40 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		} else {
 			return new CheckboxWidget(label, value, null);
 		}
+	}
+	
+	private Date getMaxDateForDateWidget(FormEntryContext context, Obs existingObs) {
+		Date encounterDate = getBestApproximationOfEncounterDate(context);
+		
+		// if the existing obs value is outside the allowable range (ie after encounter date), which
+		// could somehow be possible if the encounter date was updated after obs value date was entered,
+		// increase the max value so that the widget won't inadvertently change the value; server-side validation will still catch the validaton error
+		if (existingObs != null && existingObs.getValueDate() != null && existingObs.getValueDate().after(encounterDate)) {
+			return existingObs.getValueDate();
+		} else if (existingObs != null && existingObs.getValueDatetime() != null
+		        && existingObs.getValueDatetime().after(encounterDate)) {
+			return existingObs.getValueDatetime();
+		} else {
+			return encounterDate;
+		}
+		
+	}
+	
+	private Date getBestApproximationOfEncounterDate(FormEntryContext context) {
+		// if there's a pending update to the encounter date, use that
+		Date encounterDateToTest = context.getPendingEncounterDatetime();
+		
+		// if no pending, but there's an existing encounter, use that encounter date
+		if (encounterDateToTest == null && context.getExistingEncounter() != null) {
+			encounterDateToTest = context.getExistingEncounter().getEncounterDatetime();
+		}
+		
+		// finally, fall back to current date if nothing else (could occur if the encounter date tag is after obs tag on the form)
+		if (encounterDateToTest == null) {
+			encounterDateToTest = new Date();
+		}
+		
+		return encounterDateToTest;
 	}
 	
 	/**
