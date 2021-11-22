@@ -1,5 +1,17 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.openmrs.Concept;
+import org.openmrs.Drug;
+import org.openmrs.Encounter;
+import org.openmrs.Obs;
+import org.openmrs.OpenmrsObject;
+import org.openmrs.api.context.Context;
+import org.openmrs.util.Format;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,18 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.openmrs.Concept;
-import org.openmrs.Drug;
-import org.openmrs.Encounter;
-import org.openmrs.Obs;
-import org.openmrs.OpenmrsObject;
-import org.openmrs.api.context.Context;
-import org.openmrs.util.Format;
 
 public class TestUtil {
 	
@@ -58,7 +58,7 @@ public class TestUtil {
 	
 	/**
 	 * Tests whether the child obs of this group exactly match 'expected'
-	 * 
+	 *
 	 * @param group
 	 * @param expected
 	 * @return
@@ -211,7 +211,7 @@ public class TestUtil {
 	
 	/**
 	 * Adds an Obs to the specified encounter.
-	 * 
+	 *
 	 * @param encounter the encounter to add the obs to
 	 * @param conceptId the concept id associated with the encounter
 	 * @param value the value of the obs (can be numeric, text, datetime, or coded)
@@ -227,7 +227,7 @@ public class TestUtil {
 	/**
 	 * Creates an obsgroup and adds it to the specified encounter. The obsDetails arguements should be
 	 * triplets of conceptId, concept value, and date created.
-	 * 
+	 *
 	 * @param encounter
 	 * @param groupingConceptId
 	 * @param date
@@ -250,7 +250,7 @@ public class TestUtil {
 	
 	/**
 	 * Utility to give us a ready-to-save (without violating foreign-key constraints) Obs
-	 * 
+	 *
 	 * @param encounter
 	 * @param conceptId
 	 * @param value
@@ -302,11 +302,11 @@ public class TestUtil {
 	 * minutes, seconds & milliseconds) removed
 	 */
 	public static Date clearTimeComponent(Date date) {
-		// Get Calendar object set to the date and time of the given Date object  
+		// Get Calendar object set to the date and time of the given Date object
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		
-		// Set time fields to zero  
+		// Set time fields to zero
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
@@ -373,9 +373,9 @@ public class TestUtil {
 			}
 		}
 		
-		// setupDatePicker(jsDateFormat, jsLocale, displaySelector, '#something', '2012-01-30')
+		// setupDatePicker(jsDateFormat, jsLocale, displaySelector, '#something', '2012-01-30', null)
 		{
-			Pattern forDatePicker = Pattern.compile("setupDatePicker\\(.*?, .*?, .*?, '#(.+?)', '(.+?)'\\)");
+			Pattern forDatePicker = Pattern.compile("setupDatePicker\\(.*?, .*?, .*?, '#(.+?)', '(.+?)', .*?\\)");
 			Matcher matcher = forDatePicker.matcher(html);
 			while (matcher.find()) {
 				String name = matcher.group(1);
