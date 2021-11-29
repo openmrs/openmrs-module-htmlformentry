@@ -454,7 +454,7 @@
             var valId = '#' + this.id.replace('-display', '');
             $(this).removeClass('hasDatepicker').removeData('datepicker').unbind();  // Reset cloned datepicker
             var dateConfig = config.dateWidgetConfig;
-            setupDatePicker(dateConfig.dateFormat, dateConfig.yearsRange, dateConfig.locale, dispId, valId, '');
+            setupDatePicker(dateConfig.dateFormat, dateConfig.yearsRange, dateConfig.locale, dispId, valId, '', null);
         });
 
         // Do not allow editing date activated, and always inherit encounter date.
