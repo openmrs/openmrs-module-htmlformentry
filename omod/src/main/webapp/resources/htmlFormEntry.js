@@ -616,7 +616,7 @@ function existingEncounterOnDate(item, instruction){
 	    }
 }
 
-function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, valueSelector, initialDateYMD, maxDate) {
+function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, valueSelector, initialDateYMD, maxDate = null) {
 
 	if (jsLocale && jsLocale != 'en' && jsLocale != 'en-US') {
 		if (!jQuery.datepicker.regional[jsLocale])
