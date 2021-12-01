@@ -1,10 +1,10 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Uses jQuery-ui, and uses handlebars for custom display and value templates
@@ -65,6 +65,7 @@ public class RemoteJsonAutocompleteWidget implements Widget {
 		}
 		sb.append("/>\n");
 		sb.append("<script type=\"text/javascript\">\n");
+		sb.append("var $j = jQuery.noConflict(); ");
 		sb.append("$j(function() {\n");
 		sb.append("  var displayTemplate" + formFieldName + " = htmlForm.compileMustacheTemplate('"
 		        + escapeJs(displayTemplate) + "');\n");
