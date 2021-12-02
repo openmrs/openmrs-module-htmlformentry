@@ -10,27 +10,27 @@ import javax.servlet.http.HttpServletRequest;
  * Uses jQuery-ui, and uses handlebars for custom display and value templates
  */
 public class RemoteJsonAutocompleteWidget implements Widget {
-
+	
 	private Option initialValue;
-
+	
 	private String remoteUrl;
-
+	
 	private String valueTemplate = "{{value}}";
-
+	
 	private String displayTemplate = "{{label}}";
-
+	
 	public RemoteJsonAutocompleteWidget(String remoteUrl) {
 		this.remoteUrl = remoteUrl;
 	}
-
+	
 	public void setValueTemplate(String valueTemplate) {
 		this.valueTemplate = valueTemplate;
 	}
-
+	
 	public void setDisplayTemplate(String displayTemplate) {
 		this.displayTemplate = displayTemplate;
 	}
-
+	
 	@Override
 	public void setInitialValue(Object initialValue) {
 		if (initialValue instanceof Drug) {
@@ -43,7 +43,7 @@ public class RemoteJsonAutocompleteWidget implements Widget {
 			this.initialValue = (Option) initialValue;
 		}
 	}
-
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (FormEntryContext.Mode.VIEW == context.getMode()) {
@@ -123,14 +123,14 @@ public class RemoteJsonAutocompleteWidget implements Widget {
 		sb.append("</script>\n");
 		return sb.toString();
 	}
-
+	
 	private String escapeJs(String input) {
 		input = input.replaceAll("\n", "\\\\n");
 		input = input.replaceAll("'", "\\\\'");
 		input = input.replaceAll("\"", "\\\\\"");
 		return input;
 	}
-
+	
 	/**
 	 * @see Widget#getValue(FormEntryContext, HttpServletRequest)
 	 */
@@ -138,5 +138,5 @@ public class RemoteJsonAutocompleteWidget implements Widget {
 	public Object getValue(FormEntryContext context, HttpServletRequest request) {
 		return request.getParameter(context.getFieldName(this));
 	}
-
+	
 }
