@@ -638,9 +638,9 @@ function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, val
 		selectOtherMonths: true,
         yearRange: '-'+range[0]+':+'+range[1],
 		onSelect: function () {
-            jQuery(valueSelector).change();
-
-        }
+      jQuery(valueSelector).change();
+      jQuery(displaySelector).change();
+    }
 	});
 	if (jsLocale && jQuery.datepicker.regional[jsLocale])
 		jq.datepicker('option', jQuery.datepicker.regional[jsLocale]);
