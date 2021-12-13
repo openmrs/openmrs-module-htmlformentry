@@ -110,6 +110,8 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 	
 	private boolean allowFutureDates = false;
 	
+	private boolean allowPastDates = true;
+	
 	private Concept answerConcept;
 	
 	private Drug answerDrug;
@@ -213,6 +215,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		
 		if ("true".equalsIgnoreCase(parameters.get("allowFutureDates"))) {
 			allowFutureDates = true;
+		}
+		if ("false".equalsIgnoreCase(parameters.get("allowPastDates"))) {
+			allowPastDates = false;
 		}
 		if ("true".equalsIgnoreCase(parameters.get("required"))) {
 			required = true;
@@ -985,6 +990,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					if (!allowFutureDates) {
 						((DateWidget) valueWidget).setMaxDate(getMaxDateForDateWidget(context, existingObs));
 					}
+					if (!allowPastDates) {
+						((DateWidget) valueWidget).setMinDate(getMinDateForDateWidget(context, existingObs));
+					}
 				} else if (ConceptDatatype.TIME.equals(concept.getDatatype().getHl7Abbreviation())) {
 					valueWidget = new TimeWidget();
 					if (hideSeconds) {
@@ -994,6 +1002,9 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 					dateWidget = new DateWidget();
 					if (!allowFutureDates) {
 						dateWidget.setMaxDate(getMaxDateForDateWidget(context, existingObs));
+					}
+					if (!allowPastDates) {
+						dateWidget.setMinDate(getMinDateForDateWidget(context, existingObs));
 					}
 					timeWidget = new TimeWidget();
 					if (hideSeconds) {
@@ -1336,13 +1347,24 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeInFuture")));
 		}
 		
-		if (value instanceof Date && !allowFutureDates) {
-			// make sure obs date is not before the current encounter date
-			Date encounterDateToTest = getBestApproximationOfEncounterDate(context);
-			
-			if (encounterDateToTest != null && OpenmrsUtil.compare((Date) value, encounterDateToTest) > 0) {
-				ret.add(new FormSubmissionError(valueWidget,
-				        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+		if (value instanceof Date) {
+			if (!allowFutureDates) {
+				// make sure obs date is not before the current encounter date
+				Date encounterDateToTest = getBestApproximationOfEncounterDate(context);
+				
+				if (encounterDateToTest != null && OpenmrsUtil.compare((Date) value, encounterDateToTest) > 0) {
+					ret.add(new FormSubmissionError(valueWidget,
+					        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+				}
+			}
+			if (!allowPastDates) {
+				// make sure obs date is not before the current encounter date
+				Date encounterDateToTest = getBestApproximationOfEncounterDate(context);
+				
+				if (encounterDateToTest != null && OpenmrsUtil.compare((Date) value, encounterDateToTest) < 0) {
+					ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService()
+					        .getMessage("htmlformentry.error.cannotBeBeforeEncounterDate")));
+				}
 			}
 		}
 		
@@ -1514,11 +1536,29 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		// if the existing obs value is outside the allowable range (ie after encounter date), which
 		// could be possible if the encounter date was somehow updated after obs value date was entered,
 		// increase the max value so that the widget won't inadvertently change the value;
-		// server-side validation will still catch the validaton error
+		// server-side validation will still catch the validation error
 		if (existingObs != null && existingObs.getValueDate() != null && existingObs.getValueDate().after(encounterDate)) {
 			return existingObs.getValueDate();
 		} else if (existingObs != null && existingObs.getValueDatetime() != null
 		        && existingObs.getValueDatetime().after(encounterDate)) {
+			return existingObs.getValueDatetime();
+		} else {
+			return encounterDate;
+		}
+		
+	}
+	
+	private Date getMinDateForDateWidget(FormEntryContext context, Obs existingObs) {
+		Date encounterDate = getBestApproximationOfEncounterDate(context);
+		
+		// if the existing obs value is outside the allowable range (ie before encounter date), which
+		// could be possible if the encounter date was somehow updated after obs value date was entered,
+		// decrease the min value so that the widget won't inadvertently change the value;
+		// server-side validation will still catch the validation error
+		if (existingObs != null && existingObs.getValueDate() != null && existingObs.getValueDate().before(encounterDate)) {
+			return existingObs.getValueDate();
+		} else if (existingObs != null && existingObs.getValueDatetime() != null
+		        && existingObs.getValueDatetime().before(encounterDate)) {
 			return existingObs.getValueDatetime();
 		} else {
 			return encounterDate;

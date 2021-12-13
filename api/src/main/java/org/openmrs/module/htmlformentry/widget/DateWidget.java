@@ -30,6 +30,8 @@ public class DateWidget implements Widget {
 	
 	private Date maxDate;
 	
+	private Date minDate;
+	
 	private boolean hidden = false;
 	
 	public DateWidget() {
@@ -194,6 +196,14 @@ public class DateWidget implements Widget {
 		this.maxDate = maxDate;
 	}
 	
+	public Date getMinDate() {
+		return minDate;
+	}
+	
+	public void setMinDate(Date minDate) {
+		this.minDate = minDate;
+	}
+	
 	public DateWidget clone() {
 		DateWidget clone = new DateWidget();
 		clone.setInitialValue(this.getInitialValue());
@@ -201,6 +211,7 @@ public class DateWidget implements Widget {
 		clone.setHidden(this.isHidden());
 		clone.setDateFormat(this.getDateFormat());
 		clone.setMaxDate(this.getMaxDate());
+		clone.setMinDate(this.getMinDate());
 		return clone;
 	}
 }

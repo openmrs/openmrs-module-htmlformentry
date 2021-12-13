@@ -2913,6 +2913,93 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void testSingleObsFormWithDateAndAllowPastDatesFalse_shouldPreventDateInPast() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithDateAndAllowPastDatesFalse";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Obs date:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Obs date:"), "2020-10-10");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(1);
+				List<FormSubmissionError> errors = results.getValidationErrors();
+				Assert.assertEquals("Cannot be before encounter date", errors.get(0).getError());
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testSingleObsFormWithDateAndAllowPastDatesFalse_shouldPreventDateInPastOnEdit() throws Exception {
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithDateAndAllowPastDatesFalse";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Obs date:" };
+			}
+			
+			// when creating form, use a valid value
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), "2010-10-10");
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Obs date:"), "2010-10-10");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertEncounterCreated();
+				results.assertNoErrors();
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Obs date:" };
+			};
+			
+			// now, while editing, set the obs date after the encounter date
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Obs date:"), "2009-10-10");
+			};
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertErrors(1);
+				List<FormSubmissionError> errors = results.getValidationErrors();
+				Assert.assertEquals("Cannot be before encounter date", errors.get(0).getError());
+			};
+		}.run();
+	}
+	
+	@Test
 	public void testSingleObsFormWithDate_shouldNotFailIfEncounterAndObsDateBothEditedWithValidValues() throws Exception {
 		
 		new RegressionTestHelper() {
