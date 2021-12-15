@@ -9,10 +9,11 @@ function radioDown(radioButton) {
 	tempRadioStatus = radioButton.checked;
 }
 
-// if the radio was already checked when we clicked on it, then uncheck it
+// if the radio was already checked when we clicked on it, then uncheck it (and trigger a change event)
 function radioClicked(radioButton) {
 	if (tempRadioStatus) {
 		radioButton.checked = false;
+    jQuery(radioButton).change();
 	}
 }
 
