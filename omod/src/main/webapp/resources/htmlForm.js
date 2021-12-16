@@ -19,10 +19,19 @@
         }
 
         if (whenValueThenDisplaySection) {
+
+            var displayedSection = null;
             $.each(whenValueThenDisplaySection, function(ifValue, thenSection) {
-                if (val == ifValue) {
+                if (val === ifValue) {
                     $(thenSection).show();
-                } else {
+                    displayedSection = thenSection;
+                }
+            });
+
+            // we do this in two separate blocks because we don't want to hide a section if multiple values are set to display the same section, see:
+            // https://issues.openmrs.org/browse/HTML-804
+            $.each(whenValueThenDisplaySection, function(ifValue, thenSection) {
+                if (val !== ifValue && thenSection !== displayedSection) {
                     $(thenSection).hide();
                     $(thenSection).find('input[type="hidden"], input:text, input:password, input:file, select, textarea').val('');
                     $(thenSection).find('input:checkbox, input:radio').removeAttr('checked').removeAttr('selected');
