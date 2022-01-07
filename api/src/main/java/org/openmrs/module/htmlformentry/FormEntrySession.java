@@ -1,17 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
@@ -45,6 +34,18 @@ import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This represents the multi-request transaction that begins the moment a user clicks on a form to
@@ -718,11 +719,16 @@ public class FormEntrySession {
 		
 		ObsService obsService = Context.getObsService();
 		
+		boolean patientUpdateRequired = submissionActions.getPatientUpdateRequired();
+		
 		if (submissionActions.getObsToVoid() != null) {
 			for (Obs o : submissionActions.getObsToVoid()) {
+				if (o.getEncounter() == null) {
+					patientUpdateRequired = true;
+				}
 				if (log.isDebugEnabled())
 					log.debug("voiding obs: " + o.getObsId());
-				obsService.voidObs(o, "htmlformentry");
+				voidObs(o);
 				// if o was in a group and that group has no obs left, void the group
 				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
 			}
@@ -764,7 +770,7 @@ public class FormEntrySession {
 		// we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
 		// sometimes a flush can be called before these methods are called. This should be resolved once we move save handling out of Spring AOP and
 		// into a Hibernate Interceptor (which happens in 1.9)
-		if (patient != null && submissionActions.getPatientUpdateRequired()) {
+		if (patient != null && patientUpdateRequired) {
 			Context.getPersonService().savePerson(patient);
 		}
 		
@@ -791,6 +797,15 @@ public class FormEntrySession {
 		
 	}
 	
+	private void voidObs(Obs obsToVoid) {
+		if (BooleanUtils.isNotTrue(obsToVoid.getVoided())) {
+			obsToVoid.setVoided(true);
+			obsToVoid.setDateVoided(new Date());
+			obsToVoid.setVoidedBy(Context.getAuthenticatedUser());
+			obsToVoid.setVoidReason("htmlformentry");
+		}
+	}
+	
 	/**
 	 * Returns true if group is an obs group that has no unvoided members.
 	 *
@@ -799,15 +814,14 @@ public class FormEntrySession {
 	 */
 	private void voidObsGroupIfAllChildObsVoided(Obs group) {
 		if (group != null) {
-			
-			// probably should be able to just tet if group.getGroupMembers() == 0 since
+			// probably should be able to just test if group.getGroupMembers() == 0 since
 			// getGroupMembers only returns non-voided members?
 			boolean allObsVoided = true;
 			for (Obs member : group.getGroupMembers()) {
-				allObsVoided = allObsVoided && member.isVoided();
+				allObsVoided = allObsVoided && BooleanUtils.isTrue(member.getVoided());
 			}
 			if (allObsVoided) {
-				Context.getObsService().voidObs(group, "htmlformentry");
+				voidObs(group);
 			}
 			voidObsGroupIfAllChildObsVoided(group.getObsGroup());
 		}
