@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider
+        role="Provider"/>
+
+    <obsgroup groupingConceptId="7">
+        <obs conceptId="1002" answerConceptId="1119" answerLabel="bar1" />
+        <obs conceptId="1000" answerConceptId="1001" answerLabel="foo1" labelText=""/>
+        <obs conceptId="1000" answerConceptId="1002" answerLabel="foo2" labelText=""/>
+        <obs conceptId="1000" answerConceptId="1003" answerLabel="foo3" labelText=""/>
+    </obsgroup>
+
+    <obsgroup groupingConceptId="7">
+        <obs conceptId="1002" answerConceptId="2474" answerLabel="bar2"/>
+        <obs conceptId="1000" answerConceptId="1001" answerLabel="foo4" labelText=""/>
+        <obs conceptId="1000" answerConceptId="1002" answerLabel="foo5" labelText=""/>
+        <obs conceptId="1000" answerConceptId="1003" answerLabel="foo6" labelText=""/>
+    </obsgroup>
+
+</htmlform>
+
+

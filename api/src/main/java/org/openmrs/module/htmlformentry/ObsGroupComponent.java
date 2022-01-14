@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,13 @@ public class ObsGroupComponent {
 	public ObsGroupComponent(Concept question, Concept answer, int remainingInSet) {
 		this.question = question;
 		this.answer = answer;
+		this.remainingInSet = remainingInSet;
+	}
+	
+	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug, int remainingInSet) {
+		this.question = question;
+		this.answer = answer;
+		this.answerDrug = answerDrug;
 		this.remainingInSet = remainingInSet;
 	}
 	
@@ -142,6 +150,7 @@ public class ObsGroupComponent {
 							return 0;
 						} else {
 							if (obsGroupComponent.isPartOfSet()) {
+								// this is the last member belonging to the set, and no matches were found
 								if (obsGroupComponent.getRemainingInSet() == 1) {
 									return -1000;
 								}
@@ -268,7 +277,7 @@ public class ObsGroupComponent {
 						obsGroupComponents.add(new ObsGroupComponent(c, answer, questions.size() - (setCounter++)));
 					}
 				} else {
-					obsGroupComponents.add(new ObsGroupComponent(question, answer, answerDrug));
+					addToObsGroupComponentList(obsGroupComponents, question, answer, answerDrug);
 				}
 			}
 		} else if ("obsgroup".equals(node.getNodeName())) {
@@ -286,6 +295,24 @@ public class ObsGroupComponent {
 		for (int i = 0; i < nl.getLength(); ++i) {
 			findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), obsGroupComponents);
 		}
+	}
+	
+	// see: https://issues.openmrs.org/browse/HTML-806
+	private static void addToObsGroupComponentList(List<ObsGroupComponent> list, Concept question, Concept answer,
+	        Drug answerDrug) {
+		boolean isSet = false;
+		Collections.reverse(list);
+		for (ObsGroupComponent component : list) {
+			if (component.getQuestion().equals(question)) {
+				if (!isSet) {
+					component.setRemainingInSet(1);
+					isSet = true;
+				}
+				component.setRemainingInSet(component.getRemainingInSet() + 1);
+			}
+		}
+		Collections.reverse(list);
+		list.add(new ObsGroupComponent(question, answer, answerDrug, isSet ? 1 : 0));
 	}
 	
 	/**
