@@ -22,73 +22,73 @@ import java.util.StringTokenizer;
  * Data object that represents a single component of an ObsGroup
  */
 public class ObsGroupComponent {
-
+	
 	private Concept question;
-
+	
 	private Concept answer;
-
+	
 	private Drug answerDrug;
-
+	
 	private int remainingInSet = 0;
-
+	
 	/** Logger for this class and subclasses */
 	protected final static Log log = LogFactory.getLog(ObsGroupComponent.class);
-
+	
 	public ObsGroupComponent() {
 	}
-
+	
 	public ObsGroupComponent(Concept question, Concept answer) {
 		this.question = question;
 		this.answer = answer;
 	}
-
+	
 	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug) {
 		this.question = question;
 		this.answer = answer;
 		this.answerDrug = answerDrug;
 	}
-
+	
 	public ObsGroupComponent(Concept question, Concept answer, int remainingInSet) {
 		this.question = question;
 		this.answer = answer;
 		this.remainingInSet = remainingInSet;
 	}
-
+	
 	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug, int remainingInSet) {
 		this.question = question;
 		this.answer = answer;
 		this.answerDrug = answerDrug;
 		this.remainingInSet = remainingInSet;
 	}
-
+	
 	/** Gets the concept that represents the component's question */
 	public Concept getQuestion() {
 		return question;
 	}
-
+	
 	/** Sets the concept that represents the component's question */
 	public void setQuestion(Concept question) {
 		this.question = question;
 	}
-
+	
 	/** Gets the concept that represents the component's answer */
 	public Concept getAnswer() {
 		return answer;
 	}
-
+	
 	/** Sets the concept that represents the component's answer */
 	public void setAnswer(Concept answer) {
 		this.answer = answer;
 	}
-
+	
 	public Drug getAnswerDrug() {
 		return answerDrug;
 	}
-
+	
 	public void setAnswerDrug(Drug answerDrug) {
 		this.answerDrug = answerDrug;
 	}
-
+	
 	@Deprecated
 	public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs parentObs, Set<Obs> group) {
 		for (Obs obs : group) {
@@ -97,12 +97,12 @@ public class ObsGroupComponent {
 				boolean questionMatches = test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
 				boolean answerMatches = test.getAnswer() == null || (obs.getValueCoded() != null
 				        && test.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
-
+				
 				if (questionMatches && !answerMatches) {
 					match = false;
 					break;
 				}
-
+				
 				if (questionMatches && answerMatches) {
 					match = true;
 				}
@@ -113,13 +113,13 @@ public class ObsGroupComponent {
 		}
 		return true;
 	}
-
+	
 	public static int supportingRank(List<ObsGroupComponent> obsGroupComponents, Set<Obs> obsSet) {
 		int rank = 0;
-
+		
 		for (Obs obs : obsSet) {
 			Set<Integer> obsGroupComponentMatchLog = new HashSet<Integer>();
-
+			
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
 				Concept groupComponentQuestion = obsGroupComponent.getQuestion();
 				if (groupComponentQuestion == null) {
@@ -127,10 +127,10 @@ public class ObsGroupComponent {
 					// https://github.com/openmrs/openmrs-module-htmlformentry/blob/e6188717db16fc681ac4ec5d1610f251f214c372/api/src/main/java/org/openmrs/module/htmlformentry/element/ObsSubmissionElement.java#L174
 					continue;
 				}
-
+				
 				boolean questionMatches = groupComponentQuestion.getConceptId().equals(obs.getConcept().getConceptId());
 				boolean answerMatches = false;
-
+				
 				if (obsGroupComponent.getAnswerDrug() == null) {
 					answerMatches = (obsGroupComponent.getAnswer() == null || // TODO: why do we consider a match if answer is null?
 					        (obs.getValueCoded() != null && obsGroupComponent.getAnswer().getConceptId()
@@ -139,7 +139,7 @@ public class ObsGroupComponent {
 					answerMatches = (obs.getValueDrug() != null
 					        && obsGroupComponent.getAnswerDrug().getDrugId().equals(obs.getValueDrug().getDrugId()));
 				}
-
+				
 				// TODO: what does this logic actually do????
 				if (questionMatches && !answerMatches) {
 					if (!obsGroupComponentMatchLog.contains(obsGroupComponent.getQuestion().getConceptId())) {
@@ -151,7 +151,7 @@ public class ObsGroupComponent {
 						} else {
 							if (obsGroupComponent.isPartOfSet()) {
 								if (obsGroupComponent.getRemainingInSet() == 1) {
-                                    // this is the last member belonging to the set, and no matches were found
+									// this is the last member belonging to the set, and no matches were found
 									return -1000;
 								}
 							} else {
@@ -172,16 +172,16 @@ public class ObsGroupComponent {
 		}
 		return rank;
 	}
-
+	
 	public static List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId, Node node) {
 		List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
 		findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, node, ret);
 		return ret;
 	}
-
+	
 	private static void findQuestionsAndAnswersForGroupHelper(String parentGroupingConceptId, Node node,
 	        List<ObsGroupComponent> obsGroupComponents) {
-
+		
 		if ("obs".equals(node.getNodeName())) {
 			Concept question = null;
 			List<Concept> questions = null;
@@ -243,11 +243,11 @@ public class ObsGroupComponent {
 					}
 				}
 			}
-
+			
 			//determine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
 			boolean thisObsInThisGroup = false;
 			Node pTmp = node.getParentNode();
-
+			
 			while (pTmp.getParentNode() != null) {
 				Map<String, String> attributes = new HashMap<String, String>();
 				NamedNodeMap map = pTmp.getAttributes();
@@ -260,11 +260,11 @@ public class ObsGroupComponent {
 					if (attributes.get("groupingConceptId").equals(parentGroupingConceptId))
 						thisObsInThisGroup = true;
 					break;
-
+					
 				}
 				pTmp = pTmp.getParentNode();
 			}
-
+			
 			if (thisObsInThisGroup) {
 				if (answersList != null && answersList.size() > 0) {
 					int setCounter = 0;
@@ -296,7 +296,7 @@ public class ObsGroupComponent {
 			findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), obsGroupComponents);
 		}
 	}
-
+	
 	// see: https://issues.openmrs.org/browse/HTML-806
 	private static void addToObsGroupComponentList(List<ObsGroupComponent> list, Concept question, Concept answer,
 	        Drug answerDrug) {
@@ -314,7 +314,7 @@ public class ObsGroupComponent {
 		Collections.reverse(list);
 		list.add(new ObsGroupComponent(question, answer, answerDrug, isSet ? 1 : 0));
 	}
-
+	
 	/**
 	 * returns the obsgroup hierarchy path of an obsgroup Obs, including itself
 	 *
@@ -329,7 +329,7 @@ public class ObsGroupComponent {
 		}
 		return st.toString();
 	}
-
+	
 	/**
 	 * returns the obsgroup hierarchy path of an obsgroup node in the xml, including itself
 	 *
@@ -353,17 +353,17 @@ public class ObsGroupComponent {
 		}
 		return st.toString();
 	}
-
+	
 	public boolean isPartOfSet() {
 		return remainingInSet > 0;
 	}
-
+	
 	public int getRemainingInSet() {
 		return remainingInSet;
 	}
-
+	
 	public void setRemainingInSet(int remainingInSet) {
 		this.remainingInSet = remainingInSet;
 	}
-
+	
 }
