@@ -12,6 +12,7 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,7 +29,9 @@ public class ObsGroupComponent {
 	
 	private Drug answerDrug;
 	
-	private int remainingInSet = 0;
+	private Boolean partOfSet = false;
+	
+	private Boolean lastInSet = false;
 	
 	/** Logger for this class and subclasses */
 	protected final static Log log = LogFactory.getLog(ObsGroupComponent.class);
@@ -47,10 +50,12 @@ public class ObsGroupComponent {
 		this.answerDrug = answerDrug;
 	}
 	
-	public ObsGroupComponent(Concept question, Concept answer, int remainingInSet) {
+	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug, Boolean partOfSet, Boolean lastInSet) {
 		this.question = question;
 		this.answer = answer;
-		this.remainingInSet = remainingInSet;
+		this.answerDrug = answerDrug;
+		this.partOfSet = partOfSet;
+		this.lastInSet = lastInSet;
 	}
 	
 	/** Gets the concept that represents the component's question */
@@ -109,9 +114,11 @@ public class ObsGroupComponent {
 	public static int supportingRank(List<ObsGroupComponent> obsGroupComponents, Set<Obs> obsSet) {
 		int rank = 0;
 		
+		// iterate through all obs in the set
 		for (Obs obs : obsSet) {
 			Set<Integer> obsGroupComponentMatchLog = new HashSet<Integer>();
 			
+			// iterate though all form obs elements for obs group we are testing for a match against
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
 				Concept groupComponentQuestion = obsGroupComponent.getQuestion();
 				if (groupComponentQuestion == null) {
@@ -132,21 +139,25 @@ public class ObsGroupComponent {
 					        && obsGroupComponent.getAnswerDrug().getDrugId().equals(obs.getValueDrug().getDrugId()));
 				}
 				
-				// TODO: what does this logic actually do????
+				// we've found a form obs element where the question matches an existing obs, but the answer does *not* match
 				if (questionMatches && !answerMatches) {
+					// confirm that we haven't previously found another match for this question
 					if (!obsGroupComponentMatchLog.contains(obsGroupComponent.getQuestion().getConceptId())) {
+						// TODO what does this clause do?
 						if (((obsGroupComponent.getAnswer() != null)
 						        && (obs.getValueCoded() == null || obs.getValueCoded().getConceptId() == null))
 						        || ((obsGroupComponent.getAnswerDrug() != null)
 						                && (obs.getValueDrug() == null || obs.getValueDrug().getDrugId() == null))) {
 							return 0;
 						} else {
+							// are there multiple obs group components for this question?
 							if (obsGroupComponent.isPartOfSet()) {
-								if (obsGroupComponent.getRemainingInSet() == 1) {
+								// this is the last member belonging to the set, (and no matches were found previously), return an insurmountable ranking
+								if (obsGroupComponent.isLastInSet()) {
 									return -1000;
 								}
 							} else {
-								// If this ever happens, this is NOT a match and we can stop checking and return an insurmountable ranking
+								//  not part of set and not a match, return an insurmountable ranking
 								return -1000;
 							}
 						}
@@ -258,17 +269,21 @@ public class ObsGroupComponent {
 			
 			if (thisObsInThisGroup) {
 				if (answersList != null && answersList.size() > 0) {
-					int setCounter = 0;
-					for (Concept c : answersList) {
-						obsGroupComponents.add(new ObsGroupComponent(question, c, answersList.size() - (setCounter++)));
+					Iterator<Concept> i = answersList.iterator();
+					while (i.hasNext()) {
+						Concept c = i.next();
+						// add all the answers as separate obs group components, flagging them all as part of a set, and flagging the last one as the last one in the set
+						obsGroupComponents.add(new ObsGroupComponent(question, c, null, true, !i.hasNext()));
 					}
 				} else if (questions != null && questions.size() > 0) {
-					int setCounter = 0;
-					for (Concept c : questions) {
-						obsGroupComponents.add(new ObsGroupComponent(c, answer, questions.size() - (setCounter++)));
+					Iterator<Concept> i = questions.iterator();
+					while (i.hasNext()) {
+						Concept c = i.next();
+						// add all the questions as separate obs group components, flagging them all as part of a set, and flagging the last one as the last one in the set
+						obsGroupComponents.add(new ObsGroupComponent(c, answer, null, true, !i.hasNext()));
 					}
 				} else {
-					obsGroupComponents.add(new ObsGroupComponent(question, answer, answerDrug));
+					addToObsGroupComponentList(obsGroupComponents, question, answer, answerDrug);
 				}
 			}
 		} else if ("obsgroup".equals(node.getNodeName())) {
@@ -286,6 +301,22 @@ public class ObsGroupComponent {
 		for (int i = 0; i < nl.getLength(); ++i) {
 			findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, nl.item(i), obsGroupComponents);
 		}
+	}
+	
+	// see: https://issues.openmrs.org/browse/HTML-806
+	private static void addToObsGroupComponentList(List<ObsGroupComponent> list, Concept question, Concept answer,
+	        Drug answerDrug) {
+		boolean isSet = false;
+		// if there are any existing components with the same question, make sure they are flagged as part of set, but *not* the last one in the set
+		for (ObsGroupComponent component : list) {
+			if (component.getQuestion().equals(question)) {
+				component.setPartOfSet(true);
+				component.setLastInSet(false);
+				isSet = true;
+			}
+		}
+		// if existing components with the same question were found, flag this new component as part of a set, *and* the last element in the set
+		list.add(new ObsGroupComponent(question, answer, answerDrug, isSet, isSet));
 	}
 	
 	/**
@@ -327,16 +358,19 @@ public class ObsGroupComponent {
 		return st.toString();
 	}
 	
-	public boolean isPartOfSet() {
-		return remainingInSet > 0;
+	public Boolean isPartOfSet() {
+		return partOfSet;
 	}
 	
-	public int getRemainingInSet() {
-		return remainingInSet;
+	public void setPartOfSet(Boolean partOfSet) {
+		this.partOfSet = partOfSet;
 	}
 	
-	public void setRemainingInSet(int remainingInSet) {
-		this.remainingInSet = remainingInSet;
+	public Boolean isLastInSet() {
+		return lastInSet;
 	}
 	
+	public void setLastInSet(Boolean lastInSet) {
+		this.lastInSet = lastInSet;
+	}
 }
