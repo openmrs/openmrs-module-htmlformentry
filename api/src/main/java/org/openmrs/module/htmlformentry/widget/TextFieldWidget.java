@@ -94,7 +94,7 @@ public class TextFieldWidget implements Widget {
 					toPrint = "";
 					for (int i = 0; i < textAreaRows; i += 2)
 						toPrint += "\n";
-					return WidgetFactory.displayValue(toPrint);
+					return WidgetFactory.displayEmptyValue(toPrint);
 				} else {
 					return WidgetFactory.displayDefaultEmptyValue();
 				}
