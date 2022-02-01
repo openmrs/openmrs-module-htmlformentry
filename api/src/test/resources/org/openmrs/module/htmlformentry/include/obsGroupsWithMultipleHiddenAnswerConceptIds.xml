@@ -1,0 +1,20 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    <table>
+        <repeat>
+            <template>
+                <obsgroup groupingConceptId="7" label="Left Neck Node Examination Finding" hiddenConceptId="1000" hiddenAnswerConceptId="{concept}">
+                    <tr>
+                        <td><obs id="{id}" conceptId="1002" answerConceptIds="1119, 2474, 3017" answerLabels="Option1,Option2,Option3"/></td>
+                    </tr>
+                </obsgroup>
+            </template>
+            <render concept="1004" id="1"/>
+            <render concept="1005" id="2"/>
+            <render concept="1008" id="3"/>
+        </repeat>
+    </table>
+    <submit/>
+</htmlform>

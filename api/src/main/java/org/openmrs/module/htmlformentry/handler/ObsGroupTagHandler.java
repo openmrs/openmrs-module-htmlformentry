@@ -56,6 +56,9 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 			        + " as grouping obs for an obsgroup tag");
 		}
 		
+		Map.Entry<Concept, Concept> hiddenObs = gethiddenObs(attributes.get("hiddenConceptId"),
+		    attributes.get("hiddenAnswerConceptId"));
+		
 		boolean ignoreIfEmpty = session.getContext().getMode() == Mode.VIEW && "false".equals(attributes.get("showIfEmpty"));
 		
 		// avoid lazy init exception
@@ -63,7 +66,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 		String name = attributes.get("label");
 		// find relevant obs group to display for this element
-		Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"));
+		Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"), hiddenObs);
 		
 		boolean digDeeper = true;
 		
@@ -75,7 +78,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 				ObsGroupEntity obsGroupEntity = new ObsGroupEntity();
 				obsGroupEntity.setPath(ObsGroupComponent.getObsGroupPath(node));
 				obsGroupEntity.setQuestionsAndAnswers(
-				    ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"), node));
+				    ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"), hiddenObs, node));
 				obsGroupEntity.setXmlObsGroupConcept(attributes.get("groupingConceptId"));
 				obsGroupEntity.setGroupingConcept(groupingConcept);
 				obsGroupEntity.setNode(node);
@@ -93,18 +96,19 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 		// sets up the obs group stack, sets current obs group to this one
 		ogSchemaObj = new ObsGroup(groupingConcept, name);
-		ogSchemaObj.sethiddenObs(gethiddenObs(attributes.get("hiddenConceptId"), attributes.get("hiddenAnswerConceptId")));
+		ogSchemaObj.sethiddenObs(hiddenObs);
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack
 		session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
 		return digDeeper;
 	}
 	
-	private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId) {
+	private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId,
+	        Map.Entry<Concept, Concept> hiddenObs) {
 		String path = ObsGroupComponent.getObsGroupPath(node);
 		
 		List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent
-		        .findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
+		        .findQuestionsAndAnswersForGroup(parentGroupingConceptId, hiddenObs, node);
 		
 		if (session.getContext().isUnmatchedMode()) {
 			return session.getContext().getNextUnmatchedObsGroup(questionsAndAnswers, path);

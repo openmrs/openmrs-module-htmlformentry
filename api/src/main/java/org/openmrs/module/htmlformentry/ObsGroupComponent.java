@@ -175,8 +175,12 @@ public class ObsGroupComponent {
 		return rank;
 	}
 	
-	public static List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId, Node node) {
+	public static List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId,
+	        Map.Entry<Concept, Concept> hiddenObs, Node node) {
 		List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
+		if (hiddenObs != null) { // consider the hidden obs when making a match
+			ret.add(new ObsGroupComponent(hiddenObs.getKey(), hiddenObs.getValue(), null, false, false));
+		}
 		findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, node, ret);
 		return ret;
 	}
