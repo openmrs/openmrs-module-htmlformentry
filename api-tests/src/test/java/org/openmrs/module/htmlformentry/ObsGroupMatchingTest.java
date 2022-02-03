@@ -1038,4 +1038,46 @@ public class ObsGroupMatchingTest extends BaseHtmlFormEntryTest {
 			
 		}.run();
 	}
+	
+	@Test
+	public void viewObsgroupsWithMultipleHiddenAnswerConceptIds() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupsWithMultipleHiddenAnswerConceptIds";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
+				
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1008), new Date(), 1002,
+				    Context.getConceptService().getConcept(3017), new Date());
+				TestUtil.addObsGroup(e, 7, new Date(), 1000, Context.getConceptService().getConcept(1005), new Date(), 1002,
+				    Context.getConceptService().getConcept(2474), new Date());
+				
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertContains(
+				    "<span id=\"1\" class=\"obs-field\"><span class=\"emptyValue\">____________</span></span>", html);
+				TestUtil.assertContains("<span id=\"2\" class=\"obs-field\"><span class=\"value\">Option2</span></span>",
+				    html);
+				TestUtil.assertContains("<span id=\"3\" class=\"obs-field\"><span class=\"value\">Option3</span></span>",
+				    html);
+			}
+			
+		}.run();
+	}
+	
 }
