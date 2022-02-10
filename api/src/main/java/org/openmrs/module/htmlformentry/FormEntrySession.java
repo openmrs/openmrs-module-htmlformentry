@@ -79,61 +79,61 @@ import java.util.Set;
  * </pre>
  */
 public class FormEntrySession {
-	
+
 	/**
 	 * Logger to use with this class
 	 */
 	protected final Log log = LogFactory.getLog(getClass());
-	
+
 	private Form form;
-	
+
 	private Encounter encounter;
-	
+
 	private long encounterModifiedTimestamp; // if two people try to edit this form simultaneously, we need to be able to panic
-	
+
 	private Patient patient;
-	
+
 	// The default url to go to after saving or canceling the form, and is typically set by the web application in its
 	// controller for filling out HTML Forms
 	private String returnUrl;
-	
+
 	// The url to go to after saving (but not canceling). May be set by a form through the <redirectOnSave/> tag or a
 	// post-submission action. Values will be substituted for {{patient.id}} and {{encounter.id}}.
 	private String afterSaveUrlTemplate;
-	
+
 	private HtmlForm htmlForm;
-	
+
 	private long formModifiedTimestamp; // if we are not using sessions, and the structure of the form is modified while a user is filling one out, we need to be able to panic
-	
+
 	private FormEntryContext context;
-	
+
 	private HtmlFormEntryGenerator htmlGenerator;
-	
+
 	private FormSubmissionController submissionController;
-	
+
 	private FormSubmissionActions submissionActions;
-	
+
 	// calling the getter will build this once, then cache it
 	private String htmlToDisplay;
-	
+
 	private VelocityEngine velocityEngine;
-	
+
 	private VelocityContext velocityContext;
-	
+
 	private boolean voidEncounter = false;
-	
+
 	private String hasChangedInd = "false";
-	
+
 	private HttpSession httpSession;
-	
+
 	private String xmlDefinition;
-	
+
 	/**
 	 * Applications and UI Frameworks that embed HTML Forms may store context variables as attributes to
 	 * make them available to tags
 	 */
 	private Map<String, Object> attributes = new HashMap<String, Object>();
-	
+
 	/**
 	 * Private constructor that creates a new Form Entry Session for the specified Patient in the
 	 * specified {@Mode}
@@ -150,10 +150,10 @@ public class FormEntrySession {
 		context.setHttpSession(httpSession);
 		this.httpSession = httpSession;
 		this.patient = patient;
-		
+
 		context.setupExistingData(patient);
 		velocityEngine = new VelocityEngine();
-		
+
 		// This code pattern is copied to HtmlFormEntryServiceImpl. Any bugfixes should be copied too.
 		// #1953 - Velocity errors in HTML form entry
 		velocityEngine.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS,
@@ -161,7 +161,7 @@ public class FormEntrySession {
 		velocityEngine.setProperty(CommonsLogLogChute.LOGCHUTE_COMMONS_LOG_NAME, "htmlformentry_velocity");
 		velocityEngine.setProperty(RuntimeConstants.UBERSPECT_CLASSNAME,
 		    "org.apache.velocity.util.introspection.SecureUberspector");
-		
+
 		try {
 			velocityEngine.init();
 		}
@@ -177,7 +177,7 @@ public class FormEntrySession {
 		velocityContext.put("context", context);
 		velocityContext.put("formGeneratedDatetime", new Date());
 		velocityContext.put("visit", context.getVisit());
-		
+
 		{
 			Map<String, List<String>> identifiers = new HashMap<String, List<String>>();
 			if (patient != null) {
@@ -193,7 +193,7 @@ public class FormEntrySession {
 			}
 			velocityContext.put("patientIdentifiers", identifiers);
 		}
-		
+
 		{
 			Map<String, Object> attributes = new HashMap<String, Object>();
 			if (patient != null) {
@@ -206,7 +206,7 @@ public class FormEntrySession {
 			}
 			velocityContext.put("personAttributes", attributes);
 		}
-		
+
 		// the relationship query only makes sense in the context of saved patients, so only call it if this patient
 		// has already been persisted (i.e., assigned an id and uuid)
 		if (patient != null && patient.getId() != null && patient.getUuid() != null
@@ -234,16 +234,16 @@ public class FormEntrySession {
 			velocityContext.put("relationshipList", rels);
 			velocityContext.put("relationshipMap", relMap);
 		}
-		
+
 		// finally allow modules to provide content to the velocity context
 		for (VelocityContextContentProvider provider : Context
 		        .getRegisteredComponents(VelocityContextContentProvider.class)) {
 			provider.populateContext(this, velocityContext);
 		}
-		
+
 		htmlGenerator = new HtmlFormEntryGenerator();
 	}
-	
+
 	/**
 	 * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the
 	 * specified xml string to create the HTML Form object
@@ -256,10 +256,10 @@ public class FormEntrySession {
 	public FormEntrySession(Patient patient, String xml, HttpSession httpSession) throws Exception {
 		this(patient, Mode.ENTER, null, httpSession);
 		submissionController = new FormSubmissionController();
-		
+
 		this.xmlDefinition = xml;
 	}
-	
+
 	/**
 	 * Creates a new HTML Form Entry session (in "Enter" mode) for the specified Patient, using the
 	 * specified HTML Form
@@ -272,11 +272,11 @@ public class FormEntrySession {
 	public FormEntrySession(Patient patient, HtmlForm htmlForm, HttpSession httpSession) throws Exception {
 		this(patient, htmlForm, Mode.ENTER, httpSession);
 	}
-	
+
 	public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, HttpSession httpSession) throws Exception {
 		this(patient, htmlForm, mode, null, httpSession, true, false);
 	}
-	
+
 	public FormEntrySession(Patient patient, HtmlForm htmlForm, Mode mode, Location defaultLocation, HttpSession httpSession,
 	    boolean automaticClientSideValidation, boolean clientSideValidationHints) throws Exception {
 		this(patient, mode, defaultLocation, httpSession);
@@ -286,17 +286,17 @@ public class FormEntrySession {
 		this.formModifiedTimestamp = (htmlForm.getDateChanged() == null ? htmlForm.getDateCreated()
 		        : htmlForm.getDateChanged()).getTime();
 		form = htmlForm.getForm();
-		
+
 		velocityContext.put("form", form);
 		submissionController = new FormSubmissionController();
-		
+
 		// avoid lazy initialization exceptions later
 		if (form.getEncounterType() != null)
 			form.getEncounterType().getName();
-		
+
 		xmlDefinition = htmlForm.getXmlData();
 	}
-	
+
 	/**
 	 * Creates a new HTML Form Entry session (in "Enter" mode) for the specified patient and using the
 	 * HTML Form associated with the specified Form
@@ -309,16 +309,16 @@ public class FormEntrySession {
 	public FormEntrySession(Patient patient, Form form, HttpSession httpSession) throws Exception {
 		this(patient, Mode.ENTER, null, httpSession);
 		this.form = form;
-		
+
 		velocityContext.put("form", form);
 		submissionController = new FormSubmissionController();
-		
+
 		HtmlForm temp = HtmlFormEntryUtil.getService().getHtmlFormByForm(form);
 		this.formModifiedTimestamp = (temp.getDateChanged() == null ? temp.getDateCreated() : temp.getDateChanged())
 		        .getTime();
 		xmlDefinition = temp.getXmlData();
 	}
-	
+
 	/**
 	 * Creates a new HTML Form Entry session for the specified patient, encounter, and {@see Mode},
 	 * using the specified HtmlForm and with default Location
@@ -334,7 +334,7 @@ public class FormEntrySession {
 	        throws Exception {
 		this(patient, encounter, mode, htmlForm, null, httpSession, true, false);
 	}
-	
+
 	/**
 	 * Creates a new HTML Form Entry session for the specified patient, encounter, and {@see Mode},
 	 * using the specified HtmlForm
@@ -363,18 +363,18 @@ public class FormEntrySession {
 			if (form != null && form.getEncounterType() != null)
 				form.getEncounterType().getName();
 		}
-		
+
 		this.encounter = encounter;
 		if (encounter != null) {
 			velocityContext.put("encounter", encounter);
 			encounterModifiedTimestamp = getEncounterModifiedDate(encounter);
 		}
-		
+
 		submissionController = new FormSubmissionController();
 		context.setupExistingData(encounter);
 		this.xmlDefinition = htmlForm.getXmlData();
 	}
-	
+
 	/**
 	 * Evaluates a velocity expression and returns the result as a string
 	 *
@@ -399,7 +399,7 @@ public class FormEntrySession {
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates the HTML for a HTML Form given the xml for the form. This method uses the
 	 * HtmlFormGenerator to process any HTML Form Entry-specific tags and returns pure HTML that can be
@@ -427,27 +427,27 @@ public class FormEntrySession {
 		xml = htmlGenerator.applyRepeats(xml);
 		xml = htmlGenerator.applyTranslations(xml, context);
 		xml = htmlGenerator.applyTags(this, xml);
-		
+
 		if (context.hasUnmatchedObsGroupEntities() && (context.getMode() == Mode.EDIT || context.getMode() == Mode.VIEW)) {
 			if (context.getUnmatchedObsGroupEntities().size() > 1 && context.getExistingObsInGroupsCount() > 0)
 				context.setGuessingInd(true);
 			context.setUnmatchedMode(true);
 			xml = htmlGenerator.applyUnmatchedTags(this, xml);
 		}
-		
+
 		xml = htmlGenerator.wrapInDiv(xml);
 		return xml;
 	}
-	
+
 	/**
 	 * If the html form contains both PatientTags and Encounter tags then initialize it with the Patient
 	 * and Encounter associated with the Form else if htmlform only contains PatientTags then initialize
 	 * it with the Patient associated with the Form.
 	 */
 	public void prepareForSubmit() {
-		
+
 		submissionActions = new FormSubmissionActions();
-		
+
 		if (hasPatientTag() && !hasEncouterTag()) {
 			try {
 				submissionActions.beginPerson(patient);
@@ -470,9 +470,9 @@ public class FormEntrySession {
 				log.error("Programming error: should be no errors starting a patient and encounter", e);
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * Applies all the actions associated with a form submission--that is, create/update any Persons,
 	 * Encounters, and Obs in the database as necessary, and enroll Patient in any programs as needed
@@ -487,7 +487,7 @@ public class FormEntrySession {
 		// is for when there was no widget in the first place.)
 		// the change here assumes that the encounterLocation and encounterProvider tags are validated elsewhere since they are
 		// not required
-		
+
 		{
 			for (Encounter e : submissionActions.getEncountersToCreate()) {
 				if (e.getEncounterDatetime() == null) {
@@ -496,7 +496,7 @@ public class FormEntrySession {
 				}
 			}
 		}
-		
+
 		//if we're un-voiding an existing voided encounter.  This won't get hit 99.9% of the time.  See EncounterDetailSubmissionElement
 		if (!voidEncounter && encounter != null && encounter.isVoided()) {
 			encounter.setVoided(false);
@@ -504,10 +504,10 @@ public class FormEntrySession {
 			encounter.setVoidReason(null);
 			encounter.setDateVoided(null);
 		}
-		
+
 		// remove any obs groups that don't contain children
 		HtmlFormEntryUtil.removeEmptyObs(submissionActions.getObsToCreate());
-		
+
 		// propagate encounterDatetime to Obs where necessary
 		if (submissionActions.getObsToCreate() != null) {
 			List<Obs> toCheck = new ArrayList<Obs>();
@@ -527,9 +527,9 @@ public class FormEntrySession {
 					toCheck.addAll(o.getGroupMembers());
 			}
 		}
-		
+
 		// Handle orders
-		
+
 		// First, we void any of the previous orders that are indicated, and keep track of which are voided
 		Set<Integer> voidedOrders = new HashSet<>();
 		if (submissionActions.getOrdersToVoid() != null) {
@@ -538,7 +538,7 @@ public class FormEntrySession {
 				voidedOrders.add(orderToVoid.getOrderId());
 			}
 		}
-		
+
 		// Next, we handle any new and revised orders
 		if (submissionActions.getOrdersToCreate() != null) {
 			for (Order order : submissionActions.getOrdersToCreate()) {
@@ -555,7 +555,7 @@ public class FormEntrySession {
 					} else {
 						order.setAction(Order.Action.NEW); // If this was a revision, now it is new as previous is voided
 					}
-					
+
 				}
 				if (processOrder) {
 					// If this is a RENEW, this isn't supported by the core OrderService, so we have to manually set dateStopped
@@ -572,7 +572,7 @@ public class FormEntrySession {
 				}
 			}
 		}
-		
+
 		// propagate encounterDatetime to PatientPrograms where necessary
 		if (submissionActions.getPatientProgramsToCreate() != null) {
 			for (PatientProgram pp : submissionActions.getPatientProgramsToCreate()) {
@@ -580,7 +580,7 @@ public class FormEntrySession {
 					pp.setDateEnrolled(encounter.getEncounterDatetime());
 			}
 		}
-		
+
 		if (submissionActions.getPatientProgramsToComplete() != null) {
 			for (PatientProgram pp : submissionActions.getPatientProgramsToComplete()) {
 				if (pp.getDateCompleted() == null) {
@@ -600,7 +600,7 @@ public class FormEntrySession {
 				}
 			}
 		}
-		
+
 		// TODO wrap this in a transaction
 		Person newlyCreatedPerson = null;
 		if (submissionActions.getPersonsToCreate() != null) {
@@ -634,11 +634,11 @@ public class FormEntrySession {
 						}
 					}
 				}
-				
+
 				Context.getEncounterService().saveEncounter(encounter);
 			}
 		}
-		
+
 		//deal with relationships
 		if (submissionActions.getRelationshipsToCreate() != null) {
 			for (Relationship r : submissionActions.getRelationshipsToCreate()) {
@@ -648,7 +648,7 @@ public class FormEntrySession {
 				Context.getPersonService().saveRelationship(r);
 			}
 		}
-		
+
 		if (submissionActions.getRelationshipsToVoid() != null) {
 			for (Relationship r : submissionActions.getRelationshipsToVoid()) {
 				if (log.isDebugEnabled()) {
@@ -657,7 +657,7 @@ public class FormEntrySession {
 				Context.getPersonService().voidRelationship(r, "htmlformentry");
 			}
 		}
-		
+
 		if (submissionActions.getRelationshipsToEdit() != null) {
 			for (Relationship r : submissionActions.getRelationshipsToCreate()) {
 				if (log.isDebugEnabled()) {
@@ -666,7 +666,7 @@ public class FormEntrySession {
 				Context.getPersonService().saveRelationship(r);
 			}
 		}
-		
+
 		// program enrollments are trickier since we need to make sure the patient isn't already enrolled
 		// 1. if the patient is already enrolled on the given date, just skip this
 		// 2. if the patient is enrolled *after* the given date, shift the existing enrollment to start earlier. (TODO decide if this is right)
@@ -703,24 +703,24 @@ public class FormEntrySession {
 				}
 			}
 		}
-		
+
 		//complete any necessary programs
 		if (submissionActions.getPatientProgramsToComplete() != null) {
 			for (PatientProgram toComplete : submissionActions.getPatientProgramsToComplete()) {
 				Context.getProgramWorkflowService().savePatientProgram(toComplete);
 			}
 		}
-		
+
 		if (submissionActions.getPatientProgramsToUpdate() != null) {
 			for (PatientProgram patientProgram : submissionActions.getPatientProgramsToUpdate()) {
 				Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 			}
 		}
-		
+
 		ObsService obsService = Context.getObsService();
-		
+
 		boolean patientUpdateRequired = submissionActions.getPatientUpdateRequired();
-		
+
 		if (submissionActions.getObsToVoid() != null) {
 			for (Obs o : submissionActions.getObsToVoid()) {
 				if (o.getEncounter() == null) {
@@ -733,7 +733,7 @@ public class FormEntrySession {
 				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
 			}
 		}
-		
+
 		// If we're in EDIT mode, we have to save the encounter so that any new obs are created.
 		// This feels a bit like a hack, but actually it's a good thing to update the encounter's dateChanged in this case. (PS- turns out there's no dateChanged on encounter up to 1.5.)
 		// If there is no encounter (impossible at the time of writing this comment) we save the obs manually
@@ -755,7 +755,7 @@ public class FormEntrySession {
 					obsService.saveObs(o, "Created by htmlformentry");
 			}
 		}
-		
+
 		if (submissionActions.getIdentifiersToVoid() != null) {
 			for (PatientIdentifier patientIdentifier : submissionActions.getIdentifiersToVoid()) {
 				patientIdentifier.setVoided(true);
@@ -764,7 +764,7 @@ public class FormEntrySession {
 				patientIdentifier.setDateVoided(new Date());
 			}
 		}
-		
+
 		// save the patient
 		// TODO: we are having some issues here when updating a Patient and an Encounter via an HTML form due recently discovered problems with the way
 		// we are using Hibernate.  We rely on Spring AOP saveHandlers and the save methods themselves to set some key parameters like date created--and
@@ -773,7 +773,7 @@ public class FormEntrySession {
 		if (patient != null && patientUpdateRequired) {
 			Context.getPersonService().savePerson(patient);
 		}
-		
+
 		// exit the patient from care or process patient's death
 		if (submissionActions.getExitFromCareProperty() != null) {
 			ExitFromCareProperty exitFromCareProperty = submissionActions.getExitFromCareProperty();
@@ -786,7 +786,7 @@ public class FormEntrySession {
 				    exitFromCareProperty.getReasonExitConcept());
 			}
 		}
-		
+
 		// handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
 		if (submissionActions.getCustomFormSubmissionActions() != null) {
 			for (CustomFormSubmissionAction customFormSubmissionAction : submissionActions
@@ -794,9 +794,18 @@ public class FormEntrySession {
 				customFormSubmissionAction.applyAction(this);
 			}
 		}
-		
+
 	}
-	
+
+    private void voidObs(Obs obsToVoid) {
+        if (BooleanUtils.isNotTrue(obsToVoid.getVoided())) {
+            obsToVoid.setVoided(true);
+            obsToVoid.setDateVoided(new Date());
+            obsToVoid.setVoidedBy(Context.getAuthenticatedUser());
+            obsToVoid.setVoidReason("htmlformentry");
+        }
+    }
+
 	private void voidObsAndChildren(Obs obsToVoid) {
 		if (BooleanUtils.isNotTrue(obsToVoid.getVoided())) {
 			obsToVoid.setVoided(true);
@@ -810,7 +819,7 @@ public class FormEntrySession {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns true if group is an obs group that has no unvoided members.
 	 *
@@ -826,12 +835,12 @@ public class FormEntrySession {
 				allObsVoided = allObsVoided && BooleanUtils.isTrue(member.getVoided());
 			}
 			if (allObsVoided) {
-				voidObsAndChildren(group);
+				voidObs(group);
 			}
 			voidObsGroupIfAllChildObsVoided(group.getObsGroup());
 		}
 	}
-	
+
 	/**
 	 * @return any obs from the passed list whose question is the passed concept
 	 */
@@ -846,28 +855,28 @@ public class FormEntrySession {
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Returns the submission controller associated with the session
 	 */
 	public FormSubmissionController getSubmissionController() {
 		return submissionController;
 	}
-	
+
 	/**
 	 * Returns the form entry context associated with the session
 	 */
 	public FormEntryContext getContext() {
 		return context;
 	}
-	
+
 	/**
 	 * Returns the submission actions associated with the session
 	 */
 	public FormSubmissionActions getSubmissionActions() {
 		return submissionActions;
 	}
-	
+
 	/**
 	 * Return the form display HTML associated with the session. This has the important side-effect of
 	 * having tags populate the submissionActions list, so you must ensure this is called before you
@@ -881,7 +890,7 @@ public class FormEntrySession {
 		}
 		return htmlToDisplay;
 	}
-	
+
 	/**
 	 * Creates the Javascript necessary to set form fields to the values entered during last submission
 	 * Used to maintain previously-entered field values when redisplaying a form with validation errors
@@ -892,7 +901,7 @@ public class FormEntrySession {
 			return "";
 		} else {
 			StringBuilder sb = new StringBuilder();
-			
+
 			// Get all of the widgets registered, but remove those Widgets that are handled directly by other widgets
 			Set<OrderWidget> orderWidgets = new HashSet<>();
 			Map<Widget, String> widgets = new HashMap<>(context.getFieldNames());
@@ -906,28 +915,28 @@ public class FormEntrySession {
 			for (OrderWidget orderWidget : orderWidgets) {
 				widgets.keySet().removeAll(orderWidget.getWidgets().values());
 			}
-			
+
 			// iterate through all the widgets and set their values based on the values in the last submission
 			// if there is no value in the last submission, explicitly set the value as empty to override any default values
 			for (Map.Entry<Widget, String> entry : widgets.entrySet()) {
 				Widget widget = entry.getKey();
 				String widgetFieldName = entry.getValue();
 				String val = lastSubmission.getParameter(widgetFieldName);
-				
+
 				// note that for each widget we set, we also trigger the change event on that widget
 				// this is so any custom change handlers that a widget or tag may configure are called
 				// when we set a value here; this is specifically used to make sure we trigger the change
 				// handlers configured by the <exitFromCare> tag
-				
+
 				if (val != null) {
 					// special case to set the display field when autocomplete is used
 					if (AutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
 						Class widgetClass = ((AutocompleteWidget) widget).getOptionClass();
-						
+
 						if (widgetClass != null) {
-							
+
 							Object returnedObj = HtmlFormEntryUtil.convertToType(val.trim(), widgetClass);
-							
+
 							if (widgetClass.getSimpleName().equals("Location")) {
 								Location location = null;
 								if (returnedObj != null) {
@@ -937,7 +946,7 @@ public class FormEntrySession {
 									//should set val(locationId) to blank so that the hidden form field is blank too
 									val = "";
 								}
-								
+
 								sb.append("$j('#" + widgetFieldName + "').val(\""
 								        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName()))
 								        + "\");\n");
@@ -947,7 +956,7 @@ public class FormEntrySession {
 								                    : JavaScriptUtils.javaScriptEscape(location.getId().toString()))
 								            + "\");\n");
 								sb.append("$j('#" + widgetFieldName + "').change();\n");
-								
+
 							} else if (widgetClass.getSimpleName().equals("Person")) {
 								Person provider = null;
 								if (returnedObj != null) {
@@ -970,10 +979,10 @@ public class FormEntrySession {
 							}
 						}
 					}
-					
+
 					// special case to set the display field of the obs value widget when autocomplete is used with <obs> tag
 					else if (ConceptSearchAutocompleteWidget.class.isAssignableFrom(entry.getKey().getClass())) {
-						
+
 						String conveptVal = lastSubmission.getParameter(widgetFieldName + "_hid");
 						Object returnedObj = HtmlFormEntryUtil.convertToType(conveptVal.trim(), Concept.class);
 						Concept concept = null;
@@ -997,7 +1006,7 @@ public class FormEntrySession {
 						    "setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
 					}
-					
+
 				} else {
 					if (AutocompleteWidget.class.isAssignableFrom(widget.getClass())) {
 						sb.append("$j('#" + widgetFieldName + "').val('');\n");
@@ -1013,7 +1022,7 @@ public class FormEntrySession {
 					}
 				}
 			}
-			
+
 			// Put these at the end to ensure they load after the encounterDate and other widgets
 			for (OrderWidget orderWidget : orderWidgets) {
 				sb.append(orderWidget.getLastSubmissionJavascript(context, lastSubmission));
@@ -1021,7 +1030,7 @@ public class FormEntrySession {
 			return sb.toString();
 		}
 	}
-	
+
 	/**
 	 * Returns a fragment of javascript that will display any error widgets that had errors on the last
 	 * submission.
@@ -1031,7 +1040,7 @@ public class FormEntrySession {
 			// in VIEW mode there are no error widgets
 			return "";
 		}
-		
+
 		StringBuilder sb = new StringBuilder();
 		List<FormSubmissionError> errs = submissionController.getLastSubmissionErrors();
 		if (errs != null && errs.size() > 0) {
@@ -1045,7 +1054,7 @@ public class FormEntrySession {
 		}
 		return sb.toString();
 	}
-	
+
 	/**
 	 * @return a fragment of javascript that tells the getValue and setValue methods how to work
 	 */
@@ -1056,42 +1065,42 @@ public class FormEntrySession {
 		}
 		return ret.toString();
 	}
-	
+
 	/**
 	 * Returns the Encounter associated with the session
 	 */
 	public Encounter getEncounter() {
 		return encounter;
 	}
-	
+
 	/**
 	 * Returns the Patient associated with the session
 	 */
 	public Patient getPatient() {
 		return patient;
 	}
-	
+
 	/**
 	 * Returns the Form associated with the session
 	 */
 	public Form getForm() {
 		return form;
 	}
-	
+
 	/**
 	 * Returns the id of the HtmlForm associated with the session
 	 */
 	public Integer getHtmlFormId() {
 		return htmlForm == null ? null : htmlForm.getId();
 	}
-	
+
 	/**
 	 * Returns the return Url associated with the session
 	 */
 	public String getReturnUrl() {
 		return returnUrl;
 	}
-	
+
 	/**
 	 * Sets the return Url associated with the session
 	 *
@@ -1100,7 +1109,7 @@ public class FormEntrySession {
 	public void setReturnUrl(String returnUrl) {
 		this.returnUrl = returnUrl;
 	}
-	
+
 	/**
 	 * Adds the patientId=xyz parameter to the returnUrl
 	 *
@@ -1117,21 +1126,21 @@ public class FormEntrySession {
 		ret += "patientId=" + getPatient().getPatientId();
 		return ret;
 	}
-	
+
 	/**
 	 * Returns form modified timestamp
 	 */
 	public long getFormModifiedTimestamp() {
 		return formModifiedTimestamp;
 	}
-	
+
 	/**
 	 * Returns the encounter modified timestamp
 	 */
 	public long getEncounterModifiedTimestamp() {
 		return encounterModifiedTimestamp;
 	}
-	
+
 	/**
 	 * Calculates the date an encounter was last modified by checking the creation and voided times of
 	 * all Obs and Orders associated with the Encounter
@@ -1155,7 +1164,7 @@ public class FormEntrySession {
 		}
 		return ret;
 	}
-	
+
 	public boolean hasEncouterTag() {
 		for (String tag : HtmlFormEntryConstants.ENCOUNTER_TAGS) {
 			tag = "<" + tag;
@@ -1165,7 +1174,7 @@ public class FormEntrySession {
 		}
 		return false;
 	}
-	
+
 	public boolean hasPatientTag() {
 		for (String tag : HtmlFormEntryConstants.PATIENT_TAGS) {
 			tag = "<" + tag;
@@ -1175,53 +1184,53 @@ public class FormEntrySession {
 		}
 		return false;
 	}
-	
+
 	public void setVoidEncounter(boolean voidEncounter) {
 		this.voidEncounter = voidEncounter;
 	}
-	
+
 	public String getHasChangedInd() {
 		return hasChangedInd;
 	}
-	
+
 	public void setHasChangedInd(String hasChangedInd) {
 		this.hasChangedInd = hasChangedInd;
 	}
-	
+
 	public HttpSession getHttpSession() {
 		return httpSession;
 	}
-	
+
 	public void setAutomaticClientSideValidation(boolean automaticClientSideValidation) {
 		context.setAutomaticClientSideValidation(automaticClientSideValidation);
 	}
-	
+
 	public void setClientSideValidationHints(boolean clientSideValidationHints) {
 		context.setClientSideValidationHints(true);
 	}
-	
+
 	public void setAttribute(String key, Object value) {
 		attributes.put(key, value);
 	}
-	
+
 	public Object getAttribute(String key) {
 		return attributes.get(key);
 	}
-	
+
 	public void setAttributes(Map<String, Object> moreAttributes) {
 		if (moreAttributes != null) {
 			attributes.putAll(moreAttributes);
 		}
 	}
-	
+
 	public void addToVelocityContext(String key, Object value) {
 		velocityContext.put(key, value);
 	}
-	
+
 	public String getAfterSaveUrlTemplate() {
 		return afterSaveUrlTemplate;
 	}
-	
+
 	/**
 	 * After successfully submitting and saving a form, go to this url. (Null means that the web
 	 * application should decide, based on its standard workflow.) This will be prepended with
@@ -1233,15 +1242,15 @@ public class FormEntrySession {
 	public void setAfterSaveUrlTemplate(String afterSaveUrlTemplate) {
 		this.afterSaveUrlTemplate = afterSaveUrlTemplate;
 	}
-	
+
 	public String getXmlDefinition() {
 		return xmlDefinition;
 	}
-	
+
 	public void setForm(Form form) {
 		this.form = form;
 	}
-	
+
 	public void setHtmlForm(HtmlForm htmlForm) {
 		this.htmlForm = htmlForm;
 		if (form != null) {
@@ -1250,31 +1259,31 @@ public class FormEntrySession {
 			this.form = htmlForm.getForm();
 		}
 	}
-	
+
 	public String getPatientPersonName() {
 		return StringEscapeUtils.escapeHtml(patient.getPersonName().getFullName());
 	}
-	
+
 	public String getFormName() {
 		return StringEscapeUtils.escapeHtml(form.getName());
 	}
-	
+
 	public String getEncounterFormName() {
 		return StringEscapeUtils.escapeHtml(encounter.getForm().getName());
 	}
-	
+
 	public String getFormEncounterTypeName() {
 		return StringEscapeUtils.escapeHtml(form.getEncounterType().getName());
 	}
-	
+
 	public String getEncounterEncounterTypeName() {
 		return StringEscapeUtils.escapeHtml(encounter.getEncounterType().getName());
 	}
-	
+
 	public String getEncounterLocationName() {
 		return StringEscapeUtils.escapeHtml(encounter.getLocation() == null ? "" : encounter.getLocation().getName());
 	}
-	
+
 	/**
 	 * Generates the form path based on the form name, form version, form field path and control
 	 * counter. The form path will have the following format: "MyForm.1.0/my_condition_tag-0"
@@ -1285,20 +1294,20 @@ public class FormEntrySession {
 	 */
 	public String generateControlFormPath(String controlId, Integer controlCounter) {
 		String formField = "";
-		
+
 		// Validate if the form is not null
 		if (this.getForm() == null) {
 			throw new IllegalStateException("The form entry session has a null form.");
 		}
-		
+
 		// Create form path
 		String formName = this.getForm().getName();
 		String formVersion = this.getForm().getVersion();
 		formField = formName + "." + formVersion + "/";
-		
+
 		// Create control form path
 		formField += controlId + "-" + controlCounter;
-		
+
 		return formField;
 	}
 }
