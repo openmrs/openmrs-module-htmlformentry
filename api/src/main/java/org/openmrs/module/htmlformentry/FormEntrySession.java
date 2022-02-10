@@ -728,7 +728,7 @@ public class FormEntrySession {
 				}
 				if (log.isDebugEnabled())
 					log.debug("voiding obs: " + o.getObsId());
-				voidObs(o);
+				voidObsAndChildren(o);
 				// if o was in a group and that group has no obs left, void the group
 				voidObsGroupIfAllChildObsVoided(o.getObsGroup());
 			}
@@ -803,6 +803,20 @@ public class FormEntrySession {
 			obsToVoid.setDateVoided(new Date());
 			obsToVoid.setVoidedBy(Context.getAuthenticatedUser());
 			obsToVoid.setVoidReason("htmlformentry");
+		}
+	}
+	
+	private void voidObsAndChildren(Obs obsToVoid) {
+		if (BooleanUtils.isNotTrue(obsToVoid.getVoided())) {
+			obsToVoid.setVoided(true);
+			obsToVoid.setDateVoided(new Date());
+			obsToVoid.setVoidedBy(Context.getAuthenticatedUser());
+			obsToVoid.setVoidReason("htmlformentry");
+		}
+		if (obsToVoid.isObsGrouping()) {
+			for (Obs childObs : obsToVoid.getGroupMembers()) {
+				voidObsAndChildren(childObs);
+			}
 		}
 	}
 	
