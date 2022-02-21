@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import org.openmrs.module.htmlformentry.handler.ConditionTagHandler;
+import org.openmrs.module.htmlformentry.handler.ObsTagHandler2_3;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -13,5 +14,6 @@ public class TagRegistrationComponent2_3 implements ApplicationContextAware {
 	public void setApplicationContext(ApplicationContext context) throws BeansException {
 		HtmlFormEntryService svc = (HtmlFormEntryService) context.getBean("htmlFormEntryServiceImpl");
 		svc.addHandler("condition", new ConditionTagHandler());
+		svc.addHandler("obs", new ObsTagHandler2_3());
 	}
 }

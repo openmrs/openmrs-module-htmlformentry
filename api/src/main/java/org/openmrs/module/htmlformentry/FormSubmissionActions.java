@@ -28,6 +28,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
 
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.*;
+
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually be
  * committed to the database in a unit. This class stores state about where in the form we are (e.g.
@@ -48,9 +50,9 @@ public class FormSubmissionActions {
 	
 	private List<Encounter> encountersToEdit = new Vector<Encounter>();
 	
-	private List<Obs> obsToCreate = new Vector<Obs>();
+	protected List<Obs> obsToCreate = new Vector<Obs>();
 	
-	private List<Obs> obsToVoid = new Vector<Obs>();
+	protected List<Obs> obsToVoid = new Vector<Obs>();
 	
 	private List<Order> ordersToCreate = new Vector<Order>();
 	
@@ -237,7 +239,7 @@ public class FormSubmissionActions {
 	 * stack
 	 */
 	@SuppressWarnings("unchecked")
-	private <T> T highestOnStack(Class<T> clazz) {
+	protected <T> T highestOnStack(Class<T> clazz) {
 		for (ListIterator<Object> iter = stack.listIterator(stack.size()); iter.hasPrevious();) {
 			Object o = iter.previous();
 			if (clazz.isAssignableFrom(o.getClass()))
@@ -303,6 +305,52 @@ public class FormSubmissionActions {
 	 */
 	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber) {
 		return createObs(concept, value, datetime, accessionNumber, null);
+	}
+	
+	/**
+	 * Creates an new Obs and associates with the most recently added Person, Encounter, and ObsGroup
+	 * (if applicable) on the stack.
+	 * <p/>
+	 * Note that this method does not actually commit the Obs to the database, but instead adds the Obs
+	 * to a list of Obs to be added. The changes are applied elsewhere in the framework.
+	 *
+	 * @param concept concept associated with the Obs
+	 * @param value value for the Obs
+	 * @param datetime date information for the Obs
+	 * @param accessionNumber accession number for the Obs
+	 * @param comment comment for the obs
+	 * @param controlFormPath The control id, eg "my_condition_tag"
+	 * @return the Obs to create
+	 */
+	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment,
+	        String controlFormPath) {
+		if (value == null || "".equals(value))
+			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
+		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
+		if (controlFormPath != null) {
+			obs.setFormField(FORM_NAMESPACE, controlFormPath);
+		}
+		
+		Person person = highestOnStack(Person.class);
+		if (person == null)
+			throw new IllegalArgumentException("Cannot create an Obs outside of a Person.");
+		Encounter encounter = highestOnStack(Encounter.class);
+		Obs obsGroup = highestOnStack(Obs.class);
+		
+		if (person != null)
+			obs.setPerson(person);
+		
+		if (StringUtils.isNotBlank(comment))
+			obs.setComment(comment);
+		
+		if (encounter != null)
+			encounter.addObs(obs);
+		if (obsGroup != null) {
+			obsGroup.addGroupMember(obs);
+		} else {
+			obsToCreate.add(obs);
+		}
+		return obs;
 	}
 	
 	/**
@@ -374,6 +422,73 @@ public class FormSubmissionActions {
 	 */
 	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
 		modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null);
+	}
+	
+	/**
+	 * Modifies an existing Obs.
+	 * <p/>
+	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs
+	 * to a list of Obs to create. Note that this method does not commit the changes to the
+	 * database--the changes are applied elsewhere in the framework.
+	 *
+	 * @param existingObs the Obs to modify
+	 * @param concept concept associated with the Obs
+	 * @param newValue the new value of the Obs
+	 * @param newDatetime the new date information for the Obs
+	 * @param accessionNumber new accession number for the Obs
+	 * @param comment comment for the obs
+	 */
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber,
+	        String comment, String controlFormPath) {
+		if (newValue == null || "".equals(newValue)) {
+			// we want to delete the existing obs
+			if (log.isDebugEnabled())
+				log.debug("VOID: " + printObsHelper(existingObs));
+			obsToVoid.add(existingObs);
+			return;
+		}
+		if (concept == null) {
+			// we want to delete the existing obs
+			if (log.isDebugEnabled())
+				log.debug("VOID: " + printObsHelper(existingObs));
+			obsToVoid.add(existingObs);
+			return;
+		}
+		Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime, accessionNumber);
+		if (controlFormPath != null) {
+			newObs.setFormField(FORM_NAMESPACE, controlFormPath);
+		}
+		String oldString = existingObs.getValueAsString(Context.getLocale());
+		String newString = newObs.getValueAsString(Context.getLocale());
+		if (log.isDebugEnabled() && concept != null) {
+			log.debug("For concept " + concept.getName(Context.getLocale()) + ": " + oldString + " -> " + newString);
+		}
+		boolean valueChanged = !newString.equals(oldString);
+		// TODO: handle dates that may equal encounter date
+		boolean dateChanged = dateChangedHelper(existingObs.getObsDatetime(), newObs.getObsDatetime());
+		boolean accessionNumberChanged = accessionNumberChangedHelper(existingObs.getAccessionNumber(),
+		    newObs.getAccessionNumber());
+		boolean conceptsHaveChanged = false;
+		if (!existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
+			conceptsHaveChanged = true;
+		}
+		if (valueChanged || dateChanged || accessionNumberChanged || conceptsHaveChanged) {
+			if (log.isDebugEnabled()) {
+				log.debug("CHANGED: " + printObsHelper(existingObs));
+			}
+			// TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
+			obsToVoid.add(existingObs);
+			
+			newObs = createObs(concept, newValue, newDatetime, accessionNumber, comment);
+			newObs.setPreviousVersion(existingObs);
+		} else {
+			if (existingObs != null && StringUtils.isNotBlank(comment))
+				existingObs.setComment(comment);
+			
+			if (log.isDebugEnabled()) {
+				log.debug("SAME: " + printObsHelper(existingObs));
+			}
+		}
 	}
 	
 	/**
@@ -562,18 +677,18 @@ public class FormSubmissionActions {
 	/**
 	 * This method compares Timestamps to plain Dates by dropping the nanosecond precision
 	 */
-	private boolean dateChangedHelper(Date oldVal, Date newVal) {
+	protected boolean dateChangedHelper(Date oldVal, Date newVal) {
 		if (newVal == null)
 			return false;
 		else
 			return oldVal.getTime() != newVal.getTime();
 	}
 	
-	private boolean accessionNumberChangedHelper(String oldVal, String newVal) {
+	protected boolean accessionNumberChangedHelper(String oldVal, String newVal) {
 		return !OpenmrsUtil.nullSafeEquals(oldVal, newVal);
 	}
 	
-	private String printObsHelper(Obs obs) {
+	protected String printObsHelper(Obs obs) {
 		return obs.getConcept().getName(Context.getLocale()) + " = " + obs.getValueAsString(Context.getLocale());
 	}
 	
