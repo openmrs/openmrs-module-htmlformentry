@@ -598,7 +598,11 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 							catch (Exception ex) {}
 							valueWidget = new TextFieldWidget(textFieldSize);
 						}
-						((TextFieldWidget) valueWidget).setPlaceholder(parameters.get("placeholder"));
+						String placeholder = parameters.get("placeholder");
+						if (StringUtils.isNotEmpty(placeholder)) {
+							placeholder = context.getTranslator().translate(userLocaleStr, placeholder);
+							((TextFieldWidget) valueWidget).setPlaceholder(placeholder);
+						}
 						
 						try {
 							Integer maxlength = Integer.valueOf(parameters.get("maxlength"));
