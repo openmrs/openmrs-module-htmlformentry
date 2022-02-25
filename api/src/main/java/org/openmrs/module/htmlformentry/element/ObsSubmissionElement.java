@@ -1319,6 +1319,7 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 		List<FormSubmissionError> ret = new ArrayList<FormSubmissionError>();
 		Object value = null;
 		Object date = null;
+		String comment = null;
 		
 		try {
 			value = valueWidget.getValue(context, submission);
@@ -1335,9 +1336,22 @@ public class ObsSubmissionElement implements HtmlGeneratorElement, FormSubmissio
 			ret.add(new FormSubmissionError(dateWidget, ex.getMessage()));
 		}
 		
+		try {
+			if (commentFieldWidget != null)
+				comment = commentFieldWidget.getValue(context, submission);
+		}
+		catch (Exception ex) {
+			ret.add(new FormSubmissionError(commentFieldWidget, ex.getMessage()));
+		}
+		
 		if (value == null && date != null) {
 			ret.add(new FormSubmissionError(valueWidget,
 			        Context.getMessageSourceService().getMessage("htmlformentry.error.dateWithoutValue")));
+		}
+		
+		if (value == null && StringUtils.isNotBlank(comment)) {
+			ret.add(new FormSubmissionError(valueWidget,
+			        Context.getMessageSourceService().getMessage("htmlformentry.error.commentWithoutValue")));
 		}
 		
 		if (date != null && OpenmrsUtil.compare((Date) date, new Date()) > 0) {
