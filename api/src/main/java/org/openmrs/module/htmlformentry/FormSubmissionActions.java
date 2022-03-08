@@ -333,8 +333,9 @@ public class FormSubmissionActions {
 		}
 		
 		Person person = highestOnStack(Person.class);
-		if (person == null)
+		if (person == null) {
 			throw new IllegalArgumentException("Cannot create an Obs outside of a Person.");
+		}
 		Encounter encounter = highestOnStack(Encounter.class);
 		Obs obsGroup = highestOnStack(Obs.class);
 		
