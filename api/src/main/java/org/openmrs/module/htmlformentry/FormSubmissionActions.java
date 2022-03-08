@@ -347,8 +347,10 @@ public class FormSubmissionActions {
 			obs.setComment(comment);
 		}
 		
-		if (encounter != null)
+		if (encounter != null) {
 			encounter.addObs(obs);
+		}
+		
 		if (obsGroup != null) {
 			obsGroup.addGroupMember(obs);
 		} else {
