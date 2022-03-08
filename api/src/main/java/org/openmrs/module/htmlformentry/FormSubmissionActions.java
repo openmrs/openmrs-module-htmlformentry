@@ -339,8 +339,9 @@ public class FormSubmissionActions {
 		Encounter encounter = highestOnStack(Encounter.class);
 		Obs obsGroup = highestOnStack(Obs.class);
 		
-		if (person != null)
+		if (person != null) {
 			obs.setPerson(person);
+		}
 		
 		if (StringUtils.isNotBlank(comment))
 			obs.setComment(comment);
