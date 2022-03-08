@@ -1555,11 +1555,11 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			if (concept.getDatatype().isBoolean() && "checkbox".equals(parameters.get("style"))) {
 				// since a checkbox has one value we need to look for an exact
 				// match for that value
-				if ("false".equals(parameters.get("value"))) {
-					existingObs = context.removeExistingObs(concept, false);
+				if (Boolean.parseValue(parameters.get("value"))) {
+					existingObs = context.removeExistingObs(concept, true);
 				} else {
 					// if not 'false' we treat as 'true'
-					existingObs = context.removeExistingObs(concept, true);
+					existingObs = context.removeExistingObs(concept, false);
 				}
 				// if we use 'checkbox' with numeric values, first find existing obs for each answer
 			} else if (concept.getDatatype().isNumeric() && "checkbox".equals(parameters.get("style"))) {
