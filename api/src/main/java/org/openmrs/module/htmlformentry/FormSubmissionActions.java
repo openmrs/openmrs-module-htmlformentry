@@ -343,8 +343,9 @@ public class FormSubmissionActions {
 			obs.setPerson(person);
 		}
 		
-		if (StringUtils.isNotBlank(comment))
+		if (StringUtils.isNotBlank(comment)) {
 			obs.setComment(comment);
+		}
 		
 		if (encounter != null)
 			encounter.addObs(obs);
