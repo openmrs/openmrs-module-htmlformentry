@@ -324,8 +324,9 @@ public class FormSubmissionActions {
 	 */
 	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment,
 	        String controlFormPath) {
-		if (value == null || "".equals(value))
+		if (StringUtils.isBlank(value)) {
 			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
+		}
 		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
 		if (controlFormPath != null) {
 			obs.setFormField(FORM_NAMESPACE, controlFormPath);
