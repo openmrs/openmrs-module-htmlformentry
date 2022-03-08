@@ -448,8 +448,9 @@ public class FormSubmissionActions {
 	        String comment, String controlFormPath) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
-			if (log.isDebugEnabled())
-				log.debug("VOID: " + printObsHelper(existingObs));
+		if (log.isDebugEnabled()) {
+			log.debug("VOID: {}", printObsHelper(existingObs));
+		}
 			obsToVoid.add(existingObs);
 			return;
 		}
