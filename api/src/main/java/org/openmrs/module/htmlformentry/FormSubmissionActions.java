@@ -324,7 +324,7 @@ public class FormSubmissionActions {
 	 */
 	public Obs createObs(Concept concept, Object value, Date datetime, String accessionNumber, String comment,
 	        String controlFormPath) {
-		if (StringUtils.isBlank(value)) {
+		if (value == null || "".equals(value)) {
 			throw new IllegalArgumentException("Cannot create Obs with null or blank value");
 		}
 		Obs obs = HtmlFormEntryUtil.createObs(concept, value, datetime, accessionNumber);
@@ -448,9 +448,9 @@ public class FormSubmissionActions {
 	        String comment, String controlFormPath) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
-		if (log.isDebugEnabled()) {
-			log.debug("VOID: {}", printObsHelper(existingObs));
-		}
+			if (log.isDebugEnabled()) {
+				log.debug("VOID: " + printObsHelper(existingObs));
+			}
 			obsToVoid.add(existingObs);
 			return;
 		}
