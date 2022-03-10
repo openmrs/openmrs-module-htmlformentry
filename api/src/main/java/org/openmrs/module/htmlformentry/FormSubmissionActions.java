@@ -28,7 +28,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
 
-import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.*;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
 /**
  * When you try to submit a form, this class is used to hold all the actions that will eventually be
