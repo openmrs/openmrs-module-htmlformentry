@@ -43,8 +43,8 @@ public class ObsSubmissionElement2_3 extends ObsSubmissionElement<FormEntryConte
 	}
 	
 	/**
-	 * Sets the existing obs as provided by the form entry context. Sets the existing obs to null if no
-	 * obs in the context's existing encounter could be matched by control id.
+	 * Sets the existing obs as provided by the form entry context. If the ControlId is not set,
+	 * it will use the previous version to set the existing obs.
 	 *
 	 * @param context The form entry context
 	 */
