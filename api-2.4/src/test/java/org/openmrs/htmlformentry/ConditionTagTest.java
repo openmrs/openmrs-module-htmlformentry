@@ -19,7 +19,7 @@ import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4;
 import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -97,7 +97,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testResults(SubmissionResults results) {
 				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
-				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
+				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_4.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
 				assertThat(conditions.size(), is(4));
@@ -159,7 +159,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
-				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_3.getControlId(c), c -> c));
+				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_4.getControlId(c), c -> c));
 				
 				results.assertNoErrors();
 				assertThat(conditions.size(), is(3));

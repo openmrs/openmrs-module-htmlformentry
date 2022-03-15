@@ -8,7 +8,7 @@ import org.openmrs.FormRecordable;
 /**
  * HTML Form Entry utility methods with Core 2.3 compatibility
  */
-public class HtmlFormEntryUtil2_3 {
+public class HtmlFormEntryUtil2_4 {
 	
 	/**
 	 * Returns the control id part out of an OpenMRS data object's form namespace and path. Eg:

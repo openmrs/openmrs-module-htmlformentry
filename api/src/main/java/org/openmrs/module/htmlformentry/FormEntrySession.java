@@ -145,6 +145,11 @@ public class FormEntrySession {
 	 */
 	private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation,
 	    HttpSession httpSession) {
+		List<FormEntryContextFactory> contextFactories = Context.getRegisteredComponents(FormEntryContextFactory.class);
+		if (contextFactories.size() == 0) {
+			throw new IllegalStateException("Could not load FormEntryContextFactory.");
+		}
+		
 		context = Context.getRegisteredComponent("formEntryContextFactoryImpl", FormEntryContextFactory.class).create(mode);
 		context.setDefaultLocation(defaultLocation);
 		context.setHttpSession(httpSession);

@@ -3,17 +3,17 @@ package org.openmrs.module.htmlformentry.element;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
-import org.openmrs.module.htmlformentry.FormEntryContext2_3;
+import org.openmrs.module.htmlformentry.FormEntryContext2_4;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 
 import java.util.Date;
 import java.util.Map;
 
-public class ObsSubmissionElement2_3 extends ObsSubmissionElement<FormEntryContext2_3> {
+public class ObsSubmissionElement2_3 extends ObsSubmissionElement<FormEntryContext2_4> {
 	
 	private String controlId;
 	
-	public ObsSubmissionElement2_3(FormEntryContext2_3 context, Map<String, String> parameters) {
+	public ObsSubmissionElement2_3(FormEntryContext2_4 context, Map<String, String> parameters) {
 		super(context, parameters);
 	}
 	
@@ -43,13 +43,13 @@ public class ObsSubmissionElement2_3 extends ObsSubmissionElement<FormEntryConte
 	}
 	
 	/**
-	 * Sets the existing obs as provided by the form entry context. If the ControlId is not set,
-	 * it will use the previous version to set the existing obs.
+	 * Sets the existing obs as provided by the form entry context. If the ControlId is not set, it will
+	 * use the previous version to set the existing obs.
 	 *
 	 * @param context The form entry context
 	 */
 	@Override
-	protected void setExistingObs(FormEntryContext2_3 context, Map<String, String> parameters, boolean isAutocomplete) {
+	protected void setExistingObs(FormEntryContext2_4 context, Map<String, String> parameters, boolean isAutocomplete) {
 		this.controlId = parameters.get("controlId");
 		
 		if (StringUtils.isBlank(this.controlId)) {

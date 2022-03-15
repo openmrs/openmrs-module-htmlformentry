@@ -44,7 +44,7 @@ public class ObsTagHandler extends AbstractTagHandler {
 	public boolean doStartTag(FormEntrySession session, PrintWriter out, Node parent, Node node)
 	        throws BadFormDesignException {
 		FormEntryContext context = session.getContext();
-		ObsSubmissionElement element = new ObsSubmissionElement(context, getAttributes(node));
+		ObsSubmissionElement<FormEntryContext> element = new ObsSubmissionElement<>(context, getAttributes(node));
 		session.getSubmissionController().addAction(element);
 		out.print(element.generateHtml(context));
 		
