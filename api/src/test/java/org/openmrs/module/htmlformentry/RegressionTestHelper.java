@@ -402,6 +402,9 @@ public abstract class RegressionTestHelper {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
+		fakeForm.getForm().setUuid("d32bb0c8-e880-457d-8b42-51d99b8e6b0d");
+		fakeForm.getForm().setName("FakeForm");
+		fakeForm.getForm().setVersion("2.0");
 		fakeForm.getForm().setEncounterType(new EncounterType(1));
 		FormEntrySession session = new FormEntrySession(patient, e, mode, fakeForm, new MockHttpSession());
 		session.setAttributes(getFormEntrySessionAttributes());

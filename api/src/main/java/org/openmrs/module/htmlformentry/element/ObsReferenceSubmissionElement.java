@@ -25,7 +25,7 @@ import org.openmrs.module.htmlformentry.widget.SingleOptionWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 
-public class ObsReferenceSubmissionElement extends ObsSubmissionElement {
+public class ObsReferenceSubmissionElement extends ObsSubmissionElement<FormEntryContext> {
 	
 	private Widget referenceDisplayWidget = null;
 	

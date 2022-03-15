@@ -91,7 +91,7 @@ public class ObsSubmissionElementTest {
 		params.put("showUnits", "true");
 		params.put("conceptId", "5089");
 		params.put("locale", "ht");
-		ObsSubmissionElement element = new ObsSubmissionElement(context, params);
+		ObsSubmissionElement element = new ObsSubmissionElement<FormEntryContext>(context, params);
 		String html = element.generateHtml(context);
 		
 		TestUtil.assertContains("<span class=\"units\">" + units + "</span>", html);

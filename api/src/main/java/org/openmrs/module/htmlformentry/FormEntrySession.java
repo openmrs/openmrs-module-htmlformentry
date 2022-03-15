@@ -105,7 +105,7 @@ public class FormEntrySession {
 	
 	private long formModifiedTimestamp; // if we are not using sessions, and the structure of the form is modified while a user is filling one out, we need to be able to panic
 	
-	private FormEntryContext context;
+	protected FormEntryContext context;
 	
 	private HtmlFormEntryGenerator htmlGenerator;
 	
@@ -145,7 +145,7 @@ public class FormEntrySession {
 	 */
 	private FormEntrySession(Patient patient, FormEntryContext.Mode mode, Location defaultLocation,
 	    HttpSession httpSession) {
-		context = new FormEntryContext(mode);
+		context = Context.getRegisteredComponent("formEntryContextFactoryImpl", FormEntryContextFactory.class).create(mode);
 		context.setDefaultLocation(defaultLocation);
 		context.setHttpSession(httpSession);
 		this.httpSession = httpSession;

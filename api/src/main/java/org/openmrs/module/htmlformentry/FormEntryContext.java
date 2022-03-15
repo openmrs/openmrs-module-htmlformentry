@@ -83,7 +83,7 @@ public class FormEntryContext {
 	
 	private Encounter existingEncounter;
 	
-	private Map<Concept, List<Obs>> existingObs;
+	protected Map<Concept, List<Obs>> existingObs;
 	
 	private Map<Concept, List<Order>> existingOrders;
 	
@@ -91,7 +91,7 @@ public class FormEntryContext {
 	
 	private Stack<Concept> currentObsGroupConcepts = new Stack<Concept>();
 	
-	private List<Obs> currentObsGroupMembers;
+	protected List<Obs> currentObsGroupMembers;
 	
 	private Date previousEncounterDate; // if the encounter has been edited on a form, this stores the prior encounter date
 	
@@ -375,7 +375,8 @@ public class FormEntryContext {
 			return null;
 		for (Iterator<Obs> iter = currentObsGroupMembers.iterator(); iter.hasNext();) {
 			Obs obs = iter.next();
-			if (!obs.isVoided() && (concept == null || concept.getConceptId().equals(obs.getConcept().getConceptId()))
+			if (!obs.isVoided() && obs.getFormFieldPath() == null
+			        && (concept == null || concept.getConceptId().equals(obs.getConcept().getConceptId()))
 			        && (answerConcept == null || equalConcepts(answerConcept, obs.getValueCoded()))) {
 				iter.remove();
 				return obs;
@@ -480,7 +481,7 @@ public class FormEntryContext {
 		if (list != null) {
 			for (Iterator<Obs> iter = list.iterator(); iter.hasNext();) {
 				Obs test = iter.next();
-				if (answer == null || equalDrug(answer, test.getValueDrug())) {
+				if (test.getFormFieldPath() == null && (answer == null || equalDrug(answer, test.getValueDrug()))) {
 					iter.remove();
 					if (list.size() == 0)
 						existingObs.remove(question);
@@ -504,7 +505,7 @@ public class FormEntryContext {
 		if (list != null) {
 			for (Iterator<Obs> iter = list.iterator(); iter.hasNext();) {
 				Obs test = iter.next();
-				if (answer == null || equalConcepts(answer, test.getValueCoded())) {
+				if (test.getFormFieldPath() == null && (answer == null || equalConcepts(answer, test.getValueCoded()))) {
 					iter.remove();
 					if (list.size() == 0)
 						existingObs.remove(question);
@@ -548,7 +549,7 @@ public class FormEntryContext {
 		if (list != null) {
 			for (Iterator<Obs> iter = list.iterator(); iter.hasNext();) {
 				Obs test = iter.next();
-				if (test.getValueNumeric().equals(numVal)) {
+				if (test.getFormFieldPath() == null && test.getValueNumeric().equals(numVal)) {
 					iter.remove();
 					if (list.size() == 0) {
 						existingObs.remove(question);
@@ -629,7 +630,7 @@ public class FormEntryContext {
 					throw new RuntimeException(
 					        "Invalid boolean value for concept " + question + "; possibly caused by TRUNK-3150");
 				}
-				if (answer == test.getValueAsBoolean()) {
+				if (test.getFormFieldPath() == null && answer == test.getValueAsBoolean()) {
 					iter.remove();
 					if (list.size() == 0)
 						existingObs.remove(question);
