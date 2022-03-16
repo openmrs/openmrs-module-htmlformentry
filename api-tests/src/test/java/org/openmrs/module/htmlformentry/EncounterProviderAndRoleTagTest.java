@@ -35,7 +35,7 @@ public class EncounterProviderAndRoleTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeVersionedDataSet("org/openmres/module/htmlformentry/data/encounterProviderAndRole.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterProviderAndRole.xml");
 		new HtmlFormEntryActivator().started();
 	}
 	
