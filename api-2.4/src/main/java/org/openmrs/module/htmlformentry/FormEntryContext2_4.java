@@ -6,12 +6,12 @@ import org.openmrs.Obs;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class FormEntryContext2_3 extends FormEntryContext {
+public class FormEntryContext2_4 extends FormEntryContext {
 	
-	public FormEntryContext2_3(Mode mode) {
+	public FormEntryContext2_4(Mode mode) {
 		super(mode);
 	}
 	
@@ -23,10 +23,10 @@ public class FormEntryContext2_3 extends FormEntryContext {
 	 */
 	public Obs getObsFromCurrentGroup(String controlId) {
 		return Optional.ofNullable(currentObsGroupMembers).orElse(Collections.emptyList()).stream()
-		        .filter(obs -> StringUtils.equals(HtmlFormEntryUtil2_3.getControlId(obs), controlId))
-		        .collect(Collectors.reducing((obs1, obs2) -> {
+		        .filter(obs -> StringUtils.equals(HtmlFormEntryUtil2_4.getControlId(obs), controlId))
+		        .reduce((obs1, obs2) -> {
 			        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
-		        })).orElse(null);
+		        }).orElse(null);
 	}
 	
 	/**
@@ -39,10 +39,10 @@ public class FormEntryContext2_3 extends FormEntryContext {
 		List<Obs> obsList = existingObs.get(concept);
 		
 		return Optional.ofNullable(obsList).orElse(Collections.emptyList()).stream()
-		        .filter(obs -> StringUtils.equals(HtmlFormEntryUtil2_3.getControlId(obs), controlId))
-		        .collect(Collectors.reducing((obs1, obs2) -> {
+		        .filter(obs -> StringUtils.equals(HtmlFormEntryUtil2_4.getControlId(obs), controlId))
+		        .reduce((obs1, obs2) -> {
 			        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
-		        })).orElse(null);
+		        }).orElse(null);
 	}
 	
 	/**
@@ -55,13 +55,13 @@ public class FormEntryContext2_3 extends FormEntryContext {
 		
 		return existingObs.entrySet().stream().map(entry -> {
 			return entry.getValue().stream()
-			        .filter(obs -> StringUtils.equals(HtmlFormEntryUtil2_3.getControlId(obs), controlId))
-			        .collect(Collectors.reducing((obs1, obs2) -> {
+			        .filter(obs -> StringUtils.equals(HtmlFormEntryUtil2_4.getControlId(obs), controlId))
+			        .reduce((obs1, obs2) -> {
 				        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
-			        })).orElse(null);
-		}).filter(obs -> obs != null).collect(Collectors.reducing((obs1, obs2) -> {
+			        }).orElse(null);
+		}).filter(Objects::nonNull).reduce((obs1, obs2) -> {
 			throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
-		})).orElse(null);
+		}).orElse(null);
 		
 	}
 }

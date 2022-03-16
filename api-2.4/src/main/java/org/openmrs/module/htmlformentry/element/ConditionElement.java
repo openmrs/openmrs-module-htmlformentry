@@ -1,8 +1,8 @@
 package org.openmrs.module.htmlformentry.element;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.getControlId;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3.isEmpty;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4.getControlId;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;

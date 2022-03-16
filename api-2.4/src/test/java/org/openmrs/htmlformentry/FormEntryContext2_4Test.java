@@ -8,8 +8,8 @@ import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.FormEntryContext2_3;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_3;
+import org.openmrs.module.htmlformentry.FormEntryContext2_4;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.HashSet;
@@ -18,9 +18,9 @@ import java.util.Set;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
 @RunWith(PowerMockRunner.class)
-public class FormEntryContext2_3Test {
+public class FormEntryContext2_4Test {
 	
-	private FormEntryContext2_3 context;
+	private FormEntryContext2_4 context;
 	
 	private Concept concept1;
 	
@@ -28,7 +28,7 @@ public class FormEntryContext2_3Test {
 	
 	@Before
 	public void setup() {
-		context = new FormEntryContext2_3(FormEntryContext.Mode.EDIT);
+		context = new FormEntryContext2_4(FormEntryContext.Mode.EDIT);
 		concept1 = createConceptMock(1);
 		concept2 = createConceptMock(2);
 	}
@@ -48,7 +48,7 @@ public class FormEntryContext2_3Test {
 		Obs obs = context.getObsFromCurrentGroup(controlId);
 		
 		// Validation
-		Assert.assertEquals(HtmlFormEntryUtil2_3.getControlId(obs), controlId);
+		Assert.assertEquals(HtmlFormEntryUtil2_4.getControlId(obs), controlId);
 		Assert.assertEquals(obs.getConcept(), concept1);
 	}
 	
@@ -109,7 +109,7 @@ public class FormEntryContext2_3Test {
 		Obs obs = context.getObsFromExistingObs(concept1, controlId);
 		
 		// Validation
-		Assert.assertEquals(HtmlFormEntryUtil2_3.getControlId(obs), controlId);
+		Assert.assertEquals(HtmlFormEntryUtil2_4.getControlId(obs), controlId);
 		Assert.assertEquals(obs.getConcept(), concept1);
 	}
 	
@@ -162,7 +162,7 @@ public class FormEntryContext2_3Test {
 		Obs obs = context.getObsFromExistingObs(controlId);
 		
 		// Validation
-		Assert.assertEquals(HtmlFormEntryUtil2_3.getControlId(obs), controlId);
+		Assert.assertEquals(HtmlFormEntryUtil2_4.getControlId(obs), controlId);
 		Assert.assertEquals(obs.getConcept(), concept1);
 	}
 	

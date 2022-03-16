@@ -24,7 +24,7 @@
 
     <modules>
         <module>api</module>
-        <module>api-2.3</module>
+        <module>api-2.4</module>
         <module>api-tests</module>
         <module>omod</module>
     </modules>
@@ -400,8 +400,15 @@
         <profile>
             <id>2.4</id>
             <properties>
-                <openMRSVersion>2.4.0-alpha</openMRSVersion>
+                <openMRSVersion>2.4.0</openMRSVersion>
                 <openMRSMinorVersion>2.4</openMRSMinorVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>2.5</id>
+            <properties>
+                <openMRSVersion>2.5.0</openMRSVersion>
+                <openMRSMinorVersion>2.5</openMRSMinorVersion>
             </properties>
         </profile>
         <profile>
