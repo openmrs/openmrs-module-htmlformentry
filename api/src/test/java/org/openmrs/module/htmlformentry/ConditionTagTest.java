@@ -1,4 +1,4 @@
-package org.openmrs.htmlformentry;
+package org.openmrs.module.htmlformentry;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,24 +18,19 @@ import org.openmrs.Condition;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
-import org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4;
-import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class ConditionTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		executeDataSet("org/openmrs/module/htmlformentry/data/conditions-data.xml");
 	}
 	
 	@Test
 	public void shouldRecordAndEditCondition() throws Exception {
-		new
-		
-		RegressionTestHelper() {
+		new RegressionTestHelper() {
 			
 			protected String add(String widget, int offset) {
 				return "w" + (Integer.parseInt(widget.substring(1)) + offset);
@@ -97,7 +92,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testResults(SubmissionResults results) {
 				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
-				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_4.getControlId(c), c -> c));
+				        .collect(Collectors.toMap(HtmlFormEntryUtil::getControlId, c -> c));
 				
 				results.assertNoErrors();
 				assertThat(conditions.size(), is(4));
@@ -159,7 +154,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
-				        .collect(Collectors.toMap(c -> HtmlFormEntryUtil2_4.getControlId(c), c -> c));
+				        .collect(Collectors.toMap(HtmlFormEntryUtil::getControlId, c -> c));
 				
 				results.assertNoErrors();
 				assertThat(conditions.size(), is(3));
@@ -230,7 +225,6 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 				// Verify the condition status - 'Inactive'
 				assertTrue(html.contains(
 				    "<input type=\"radio\" id=\"w20_1\" name=\"w20\" value=\"inactive\" checked=\"true\" onMouseDown=\"radioDown(this)\" onClick=\"radioClicked(this)\"/>"));
-				
 			}
 			
 		}.run();

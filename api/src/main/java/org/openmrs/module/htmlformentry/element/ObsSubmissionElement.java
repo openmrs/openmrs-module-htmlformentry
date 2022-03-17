@@ -157,6 +157,8 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	private Double absoluteMinimum;
 	
+	private String tagControlId;
+	
 	public ObsSubmissionElement(T context, Map<String, String> parameters) {
 		if (parameters.get("locale") != null) {
 			this.locale = LocaleUtility.fromSpecification(parameters.get("locale"));
@@ -241,6 +243,10 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		
 		if (parameters.get("labelCssClass") != null) {
 			labelCssClass = parameters.get("labelCssClass");
+		}
+		
+		if (parameters.containsKey("controlId")) {
+			this.tagControlId = parameters.get("controlId");
 		}
 		
 		prepareWidgets(context, parameters);
@@ -1496,22 +1502,20 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	protected void modifyObs(FormEntrySession session, Obs existingObs, Concept concept, Object value, Date obsDatetime,
 	        String accessionNumberValue, String comment) {
-		session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue, comment);
+		session.getSubmissionActions().modifyObs(existingObs, concept, value, obsDatetime, accessionNumberValue, comment,
+		    getControlFormPath(session));
 	}
 	
 	protected void createObs(FormEntrySession session, Concept concept, Object value, Date obsDatetime,
 	        String accessionNumberValue, String comment) {
-		session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment);
+		session.getSubmissionActions().createObs(concept, value, obsDatetime, accessionNumberValue, comment,
+		    getControlFormPath(session));
 	}
 	
-	private Comparator<Concept> conceptNameComparator = new Comparator<Concept>() {
-		
-		@Override
-		public int compare(Concept c1, Concept c2) {
-			String n1 = c1.getName(locale, false).getName();
-			String n2 = c2.getName(locale, false).getName();
-			return n1.compareTo(n2);
-		}
+	private final Comparator<Concept> conceptNameComparator = (c1, c2) -> {
+		String n1 = c1.getName(locale, false).getName();
+		String n2 = c2.getName(locale, false).getName();
+		return n1.compareTo(n2);
 	};
 	
 	private CheckboxWidget createCheckboxWidget(String label, String value, String toggleParameter) {
@@ -1559,37 +1563,58 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	}
 	
 	protected void setExistingObs(T context, Map<String, String> parameters, boolean isAutocomplete) {
-		if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
-			if (answerDrug == null) {
-				existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
+		String tagControlId = getTagControlId();
+		if (StringUtils.isNotBlank(tagControlId)) {
+			if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
+				existingObs = context.getObsFromCurrentGroup(tagControlId);
+			} else if (concept != null) {
+				existingObs = context.getObsFromExistingObs(concept, tagControlId);
 			} else {
-				existingObs = context.getObsFromCurrentGroup(concept, answerDrug);
-			}
-		} else if (concept != null) {
-			if (concept.getDatatype().isBoolean() && "checkbox".equals(parameters.get("style"))) {
-				// since a checkbox has one value we need to look for an exact
-				// match for that value
-				if (Boolean.parseBoolean(parameters.get("value"))) {
-					existingObs = context.removeExistingObs(concept, true);
-				} else {
-					existingObs = context.removeExistingObs(concept, false);
-				}
-				// if we use 'checkbox' with numeric values, first find existing obs for each answer
-			} else if (concept.getDatatype().isNumeric() && "checkbox".equals(parameters.get("style"))) {
-				String numericAns = parameters.get("answer");
-				existingObs = context.removeExistingObs(concept, numericAns);
-				//for dynamicAutocomplete if selectMulti is true
-			} else if (isAutocomplete && "true".equals(parameters.get("selectMulti"))) {
-				existingObsList = context.removeExistingObs(concept);
-			} else {
-				if (answerDrug == null) {
-					existingObs = context.removeExistingObs(concept, answerConcept);
-				} else {
-					existingObs = context.removeExistingObs(concept, answerDrug);
-				}
+				existingObs = context.getObsFromExistingObs(tagControlId);
 			}
 		} else {
-			existingObs = context.removeExistingObs(concepts, answerConcept);
+			if (context.getCurrentObsGroupConcepts() != null && context.getCurrentObsGroupConcepts().size() > 0) {
+				if (answerDrug == null) {
+					existingObs = context.getObsFromCurrentGroup(concept, answerConcept);
+				} else {
+					existingObs = context.getObsFromCurrentGroup(concept, answerDrug);
+				}
+			} else if (concept != null) {
+				if (concept.getDatatype().isBoolean() && "checkbox".equals(parameters.get("style"))) {
+					// since a checkbox has one value we need to look for an exact
+					// match for that value
+					if (Boolean.parseBoolean(parameters.get("value"))) {
+						existingObs = context.removeExistingObs(concept, true);
+					} else {
+						existingObs = context.removeExistingObs(concept, false);
+					}
+					// if we use 'checkbox' with numeric values, first find existing obs for each answer
+				} else if (concept.getDatatype().isNumeric() && "checkbox".equals(parameters.get("style"))) {
+					String numericAns = parameters.get("answer");
+					existingObs = context.removeExistingObs(concept, numericAns);
+					//for dynamicAutocomplete if selectMulti is true
+				} else if (isAutocomplete && "true".equals(parameters.get("selectMulti"))) {
+					existingObsList = context.removeExistingObs(concept);
+				} else {
+					if (answerDrug == null) {
+						existingObs = context.removeExistingObs(concept, answerConcept);
+					} else {
+						existingObs = context.removeExistingObs(concept, answerDrug);
+					}
+				}
+			} else {
+				existingObs = context.removeExistingObs(concepts, answerConcept);
+			}
+		}
+	}
+	
+	protected String getControlFormPath(FormEntrySession session) {
+		String controlId = getTagControlId();
+		
+		if (StringUtils.isBlank(controlId)) {
+			return null;
+		} else {
+			return session.generateControlFormPath(getTagControlId(), 0);
 		}
 	}
 	
@@ -1648,6 +1673,14 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	public Obs getExistingObs() {
 		return existingObs;
+	}
+	
+	public String getTagControlId() {
+		return tagControlId;
+	}
+	
+	public void setTagControlId(String tagControlId) {
+		this.tagControlId = tagControlId;
 	}
 	
 	public void whenValueThenDisplaySection(Object value, String thenSection) {

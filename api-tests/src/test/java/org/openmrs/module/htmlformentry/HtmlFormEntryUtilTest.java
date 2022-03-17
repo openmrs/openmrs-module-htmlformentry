@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -77,7 +76,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 	}
 	
 	/**
@@ -452,7 +451,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterVoided() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -481,7 +480,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterCorrectly() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -552,7 +551,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectly() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -604,7 +603,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderAndObsCorrectly() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -653,7 +652,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should delete encounter correctly", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldDeleteEncounter() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -825,7 +824,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should look up a workflow by a concept mapping", method = "getWorkflow(String)")
 	public void getWorkflow_shouldLookUpAWorkflowByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
 		    HtmlFormEntryUtil.getWorkflow("XYZ: Test Workflow Code").getUuid());
@@ -860,7 +859,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
 		    HtmlFormEntryUtil.getState("XYZ: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
@@ -899,7 +898,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
 		// load this data set so that we get the additional patient program with concept mapping
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		ProgramWorkflow wf = pws.getWorkflowByUuid("7c3e071a-53a7-11e1-8cb6-00248140a5eb");
@@ -981,7 +980,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
 	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
 		// load this data set so that we get the additional patient program created in this data case
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
@@ -1129,7 +1128,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "shouldFetchLocationTagByName", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagByName() throws Exception {
 		// this tag is in the regression test dataset
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
 		Assert.assertNotNull(tag);
@@ -1140,7 +1139,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "shouldFetchLocationTagById", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagById() throws Exception {
 		// this tag is in the regression test dataset
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
 		Assert.assertNotNull(tag);

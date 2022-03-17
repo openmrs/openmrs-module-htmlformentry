@@ -2,7 +2,6 @@ package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
@@ -19,7 +18,7 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 	}
 	
 	/**
@@ -68,7 +67,7 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithinRepeatTags() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		HtmlForm form = new HtmlForm();
 		
@@ -105,7 +104,7 @@ public class SubstitutionUtilsTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should convert ids to uuids within repeat tags", method = "replaceConceptIdsWithUuids(HtmlForm)")
 	public void replaceConceptIdsWithUuids_shouldReplaceConceptIdsWithUuidsWithMacros() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		
 		HtmlForm form = new HtmlForm();
 		

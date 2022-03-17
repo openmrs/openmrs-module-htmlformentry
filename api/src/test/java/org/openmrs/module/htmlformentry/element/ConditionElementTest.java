@@ -1,4 +1,4 @@
-package org.openmrs.htmlformentry.element;
+package org.openmrs.module.htmlformentry.element;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;

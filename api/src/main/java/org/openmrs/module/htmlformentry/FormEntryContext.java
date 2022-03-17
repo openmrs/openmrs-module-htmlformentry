@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -33,8 +34,12 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.getControlId;
 
 /**
  * This class holds the context data around generating html widgets from tags in an HtmlForm.
@@ -58,7 +63,9 @@ import java.util.Stack;
  */
 public class FormEntryContext {
 	
-	/** Logger for this class and subclasses */
+	/**
+	 * Logger for this class and subclasses
+	 */
 	protected final Log log = LogFactory.getLog(getClass());
 	
 	private Mode mode;
@@ -307,6 +314,51 @@ public class FormEntryContext {
 	
 	public void addFieldToActiveObsGroup(HtmlFormField field) {
 		getActiveObsGroup().getChildren().add(field);
+	}
+	
+	/**
+	 * Returns the Obs from the current {@see ObsGroup} with the specified concept and controlId
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @return the Obs from the current {@see ObsGroup} with the specified concept and answer concept
+	 */
+	public Obs getObsFromCurrentGroup(String controlId) {
+		return Optional.ofNullable(currentObsGroupMembers).orElse(Collections.emptyList()).stream()
+		        .filter(obs -> StringUtils.equals(getControlId(obs), controlId)).reduce((obs1, obs2) -> {
+			        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
+		        }).orElse(null);
+	}
+	
+	/**
+	 * Returns the Obs with the specified concept and controlId
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @return the Obs from the current {@see ObsGroup} with the specified concept and answer concept
+	 */
+	public Obs getObsFromExistingObs(Concept concept, String controlId) {
+		List<Obs> obsList = existingObs.get(concept);
+		
+		return Optional.ofNullable(obsList).orElse(Collections.emptyList()).stream()
+		        .filter(obs -> StringUtils.equals(getControlId(obs), controlId)).reduce((obs1, obs2) -> {
+			        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
+		        }).orElse(null);
+	}
+	
+	/**
+	 * Returns the Obs with the specified controlId
+	 *
+	 * @param controlId The control id, eg "my_condition_tag"
+	 * @return the Obs from the current {@see ObsGroup} with the specified concept and answer concept
+	 */
+	public Obs getObsFromExistingObs(String controlId) {
+		
+		return existingObs.values().stream()
+		        .map(obs -> obs.stream().filter(o -> StringUtils.equals(getControlId(o), controlId)).reduce((obs1, obs2) -> {
+			        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
+		        }).orElse(null)).filter(Objects::nonNull).reduce((obs1, obs2) -> {
+			        throw new IllegalStateException("Multiple obs are matching the control id '" + controlId + "'.");
+		        }).orElse(null);
+		
 	}
 	
 	/**
@@ -794,11 +846,17 @@ public class FormEntryContext {
 	 * Modes associated with the HTML Form context
 	 */
 	public enum Mode {
-		/** A new, unsaved form */
+		/**
+		 * A new, unsaved form
+		 */
 		ENTER,
-		/** A saved form in edit mode */
+		/**
+		 * A saved form in edit mode
+		 */
 		EDIT,
-		/** A saved form in view-only mode */
+		/**
+		 * A saved form in view-only mode
+		 */
 		VIEW
 	}
 	

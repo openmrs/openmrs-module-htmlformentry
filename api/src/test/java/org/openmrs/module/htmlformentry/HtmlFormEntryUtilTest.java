@@ -1,8 +1,10 @@
 package org.openmrs.module.htmlformentry;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
+import org.openmrs.Obs;
 import org.openmrs.PersonName;
 import org.openmrs.Provider;
 import org.openmrs.api.ProviderService;
@@ -18,6 +20,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.getControlId;
 
 public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	
@@ -182,7 +186,83 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations, parent);
 		assertThat(locations.size(), is(6));
 		assertThat(locations, not(hasItem(otherLocation)));
+	}
+	
+	@Test
+	public void getControlId_shouldReturnControlId() {
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-0");
 		
+		// Test
+		String controlId = getControlId(observation);
+		
+		// Validation
+		Assert.assertEquals("my_condition_tag", controlId);
+	}
+	
+	@Test
+	public void getControlId_shouldReturnControlIdWhenMoreThanOneDash() {
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my-condition-tag-0");
+		
+		// Test
+		String controlId = getControlId(observation);
+		
+		// Validation
+		Assert.assertEquals("my-condition-tag", controlId);
+	}
+	
+	@Test
+	public void getControlId_shouldReturnControlIdWhenNoControlCounter() {
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-X");
+		
+		// Test
+		String controlId = getControlId(observation);
+		
+		// Validation
+		Assert.assertEquals("my_condition_tag-X", controlId);
+	}
+	
+	@Test
+	public void getControlId_shouldReturnControlIdContainingWhenSuffixedWithInteger() {
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0/my_condition_tag-123-0");
+		
+		// Test
+		String controlId = getControlId(observation);
+		
+		// Validation
+		Assert.assertEquals("my_condition_tag-123", controlId);
+	}
+	
+	@Test
+	public void getControlId_shouldReturnControlIdWhenDashInFormVersion() {
+		// Prepare parameters
+		Obs observation = new Obs();
+		observation.setFormField(FORM_NAMESPACE, "MyForm.1.0-42fcd95f/my_condition_tag-0");
+		
+		// Test
+		String controlId = getControlId(observation);
+		
+		// Validation
+		Assert.assertEquals("my_condition_tag", controlId);
+	}
+	
+	@Test
+	public void getControlId_shouldReturnNullWhenFormFieldIsMissing() {
+		// Prepare parameters
+		Obs observation = new Obs();
+		
+		// Test
+		String controlId = getControlId(observation);
+		
+		// Validation
+		Assert.assertNull(controlId);
 	}
 	
 }
