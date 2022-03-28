@@ -1,15 +1,14 @@
 package org.openmrs.module.htmlformentry.element;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4.getControlId;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil2_4.isEmpty;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.getControlId;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.isEmpty;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -180,11 +179,10 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		final Encounter encounter = context.getExistingEncounter();
 		if (encounter != null) {
 			this.existingCondition = Optional.of(encounter.getConditions()).orElse(Collections.emptySet()).stream()
-			        .filter(c -> StringUtils.equals(getControlId(c), getTagControlId()))
-			        .collect(Collectors.reducing((c1, c2) -> {
+			        .filter(c -> StringUtils.equals(getControlId(c), getTagControlId())).reduce((c1, c2) -> {
 				        throw new IllegalStateException(
 				                "Mutliple conditions are matching the control id '" + controlId + "'.");
-			        })).orElse(null);
+			        }).orElse(null);
 		}
 	}
 	

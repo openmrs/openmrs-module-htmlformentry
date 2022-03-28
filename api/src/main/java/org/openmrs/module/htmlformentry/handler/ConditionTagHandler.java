@@ -7,6 +7,7 @@ import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.element.ConditionElement;
+import org.openmrs.module.htmlformentry.handler.SubstitutionTagHandler;
 
 public class ConditionTagHandler extends SubstitutionTagHandler {
 	

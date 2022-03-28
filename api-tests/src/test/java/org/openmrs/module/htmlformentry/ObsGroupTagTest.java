@@ -7,15 +7,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
-import org.openmrs.Patient;
-import org.openmrs.Person;
-import org.openmrs.RelationshipType;
 import org.openmrs.api.ConceptService;
-import org.openmrs.api.context.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -28,7 +23,7 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 	}
 	
 	@Test

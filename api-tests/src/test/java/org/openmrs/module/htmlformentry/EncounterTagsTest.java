@@ -11,7 +11,7 @@ public class EncounterTagsTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		patient = Context.getPatientService().getPatient(2);
 	}
 	

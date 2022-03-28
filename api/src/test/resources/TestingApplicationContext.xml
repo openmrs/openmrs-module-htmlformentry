@@ -15,9 +15,7 @@
 				<value>classpath:test-hibernate.cfg.xml</value>
 			</list>
 		</property>
-		<property name="mappingJarLocations">
-			<ref bean="mappingJarResources" />
-		</property>
+		<property name="mappingJarLocations" ref="mappingJarResources"/>
 		<property name="packagesToScan">
 			<list>
 				<value>org.openmrs</value>

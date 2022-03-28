@@ -4,9 +4,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
+import org.openmrs.CodedOrFreeText;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
 import org.openmrs.ConceptDatatype;
@@ -20,6 +22,7 @@ import org.openmrs.EncounterProvider;
 import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.FormField;
+import org.openmrs.FormRecordable;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Obs;
@@ -1498,6 +1501,57 @@ public class HtmlFormEntryUtil {
 			catch (Exception e) {}
 		}
 		return ret;
+	}
+	
+	/**
+	 * Returns the control id part out of an OpenMRS data object's form namespace and path. Eg:
+	 * "my_condition_tag" out of "HtmlFormEntry^MyForm.1.0/my_condition_tag-0"
+	 *
+	 * @param openmrsData The form recordable OpenMRS data object
+	 * @return The control id or null if the form recordable has no form namespace and path set
+	 */
+	public static String getControlId(FormRecordable openmrsData) {
+		
+		// Validate if getFormFieldPath exists.
+		if (StringUtils.isEmpty(openmrsData.getFormFieldPath())) {
+			return null;
+		}
+		
+		// Get the control id
+		String controlId = openmrsData.getFormFieldPath().split("/")[1];
+		String[] controlIdSplitted = controlId.split("-(?!.*-)");
+		
+		// Check if it has a control counter
+		if (NumberUtils.isDigits(controlIdSplitted[1])) {
+			return controlIdSplitted[0];
+		} else {
+			return controlId;
+		}
+	}
+	
+	/**
+	 * Tells whether a CodedOrFreeText instance is empty.
+	 *
+	 * @param codedOrFreeText The CodedOrFreeText instance to check.
+	 * @return true if the underlying coded concept is null
+	 * @return true if the underlying non-coded string value is blank
+	 * @return true if the underlying specific concept name is null
+	 */
+	public static boolean isEmpty(CodedOrFreeText codedOrFreeText) {
+		
+		if (codedOrFreeText.getCoded() != null) {
+			return false;
+		}
+		
+		if (StringUtils.isNotBlank(codedOrFreeText.getNonCoded())) {
+			return false;
+		}
+		
+		if (codedOrFreeText.getSpecificName() != null) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**

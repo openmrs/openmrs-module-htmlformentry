@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry;
 
 import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public abstract class BaseHtmlFormEntryTest extends BaseModuleContextSensitiveTe
 			InputStream is = OpenmrsClassLoader.getInstance().getResourceAsStream(datasetName);
 			String contents;
 			try {
-				contents = IOUtils.toString(is, "UTF-8");
+				contents = IOUtils.toString(is, StandardCharsets.UTF_8);
 			}
 			catch (Exception e) {
 				throw new RuntimeException("Unable to load " + datasetName, e);

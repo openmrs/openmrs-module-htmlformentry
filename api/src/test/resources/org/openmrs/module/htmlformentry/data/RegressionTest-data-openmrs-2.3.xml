@@ -76,9 +76,9 @@
     <concept_complex concept_id="6100" handler="ImageHandler" />
     <concept_complex concept_id="6101" handler="TextHandler" />
 
-    <concept_numeric concept_id="5090" hi_normal="300.0" low_critical="0.0" units="cm" precise="true" display_precision="10" />
-    <concept_numeric concept_id="50000" units="mg" precise="true" display_precision="10" />
-    <concept_numeric concept_id="3016" units="cols" precise="false" />
+    <concept_numeric concept_id="5090" hi_normal="300.0" low_critical="0.0" units="cm" allow_decimal="true" display_precision="10" />
+    <concept_numeric concept_id="50000" units="mg" allow_decimal="true" display_precision="10" />
+    <concept_numeric concept_id="3016" units="cols" allow_decimal="false" />
 
     <concept_name voided="false" concept_name_id="4200" concept_id="4200" name="REASON EXITED CARE" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>
     <concept_name voided="false" concept_name_id="4201" concept_id="4201" name="RECOVERED" locale="en" creator="1" date_created="2012-01-01 00:00:00.0" locale_preferred="true"/>

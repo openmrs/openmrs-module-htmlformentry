@@ -1,10 +1,8 @@
 package org.openmrs.module.htmlformentry;
 
-import org.openmrs.annotation.OpenmrsProfile;
 import org.springframework.stereotype.Component;
 
 @Component
-@OpenmrsProfile(openmrsPlatformVersion = "1.* - 2.3.*")
 public class FormEntryContextFactoryImpl implements FormEntryContextFactory {
 	
 	@Override

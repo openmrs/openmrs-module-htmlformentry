@@ -1,12 +1,10 @@
-package org.openmrs.htmlformentry;
+package org.openmrs.module.htmlformentry;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
-import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
-import org.openmrs.module.htmlformentry.RegressionTestHelper;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.awt.image.BufferedImage;
@@ -15,11 +13,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-public class RegressionTest extends BaseHtmlFormEntryTest {
+public class FormNamespaceAndPathRegressionTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadData() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.1.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 	}
 	
 	@Test

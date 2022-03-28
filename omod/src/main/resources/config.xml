@@ -226,11 +226,4 @@
 		HtmlFormEntryHtmlForm.hbm.xml
 	</mappingFiles>
 
-	<conditionalResources>
-        <conditionalResource>
-            <path>/lib/htmlformentry-api-2.3.*</path>
-            <openmrsVersion>2.3.*</openmrsVersion>
-        </conditionalResource>
-	</conditionalResources>
-
 </module>

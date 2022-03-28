@@ -36,6 +36,7 @@ public class ObsTagHandler extends AbstractTagHandler {
 		attributeDescriptors.add(new AttributeDescriptor("answerConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("answerDrugId", Drug.class));
 		attributeDescriptors.add(new AttributeDescriptor("answerConceptIds", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("controlId", String.class));
 		attributeDescriptors.add(new AttributeDescriptor(HtmlFormEntryConstants.ANSWER_LOCATION_TAGS, LocationTag.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
