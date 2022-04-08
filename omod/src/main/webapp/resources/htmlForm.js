@@ -18,6 +18,11 @@
           val = $("[name='" + widgetId + "']:checked").val();
         }
 
+        // handle check boxes differentially (only set value if checkbox is checked)
+        if ($(this).attr('type') === 'checkbox') {
+          val = $(this).is(':checked') ? $(this).val() : null;
+        }
+
         if (whenValueThenDisplaySection) {
 
             var displayedSection = null;
