@@ -92,17 +92,35 @@ public class ObsTagHandlerTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void validate_shouldRejectWhenObsHasValidConceptIdAndInvalidConceptAnswerId() throws Exception {
+	public void validate_shouldWarnWhenObsHasValidConceptIdAndNonAssociatedConceptAnswerId() throws Exception {
 		String xml = "<htmlform><obs conceptId=\"21\" answerConceptId=\"5\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
 		Assert.assertEquals(1, analysis.getWarnings().size());
+		Assert.assertEquals(0, analysis.getErrors().size());
 	}
 	
 	@Test
-	public void validate_shouldRejectWhenObsHasValidConceptIdAndInvalidConceptAnswerIds() throws Exception {
+	public void validate_shouldErrorWhenObsHasValidConceptIdAndInvalidConceptAnswerId() throws Exception {
+		String xml = "<htmlform><obs conceptId=\"21\" answerConceptId=\"500\">TEST</obs></htmlform>";
+		TagAnalysis analysis = validateObsTag(xml);
+		Assert.assertEquals(0, analysis.getWarnings().size());
+		Assert.assertEquals(1, analysis.getErrors().size());
+	}
+	
+	@Test
+	public void validate_shouldWarnWhenObsHasValidConceptIdAndNonAssociatedConceptAnswerIds() throws Exception {
 		String xml = "<htmlform><obs conceptId=\"21\" answerConceptIds=\"5,6\">TEST</obs></htmlform>";
 		TagAnalysis analysis = validateObsTag(xml);
+		Assert.assertEquals(0, analysis.getErrors().size());
 		Assert.assertEquals(2, analysis.getWarnings().size());
+	}
+	
+	@Test
+	public void validate_shouldErrorWhenObsHasValidConceptIdAndInvalidConceptAnswerIds() throws Exception {
+		String xml = "<htmlform><obs conceptId=\"21\" answerConceptIds=\"500,6\">TEST</obs></htmlform>";
+		TagAnalysis analysis = validateObsTag(xml);
+		Assert.assertEquals(1, analysis.getErrors().size());
+		Assert.assertEquals(1, analysis.getWarnings().size());
 	}
 	
 	@Test

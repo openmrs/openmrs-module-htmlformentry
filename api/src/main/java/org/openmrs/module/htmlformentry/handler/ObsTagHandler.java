@@ -124,17 +124,26 @@ public class ObsTagHandler extends AbstractTagHandler {
 				if (answerConceptIds != null) {
 					for (StringTokenizer st = new StringTokenizer(answerConceptIds, ","); st.hasMoreTokens();) {
 						String answerCId = st.nextToken();
-						if (!validAnswerConceptIDs.contains(HtmlFormEntryUtil.getConcept(answerCId).getConceptId())) {
-							analysis.addWarning(
-							    Context.getMessageSourceService().getMessage("htmlformentry.warning.invalidAnswerConcept",
-							        new Object[] { String.valueOf(answerCId) }, null));
+						Concept answerConcept = HtmlFormEntryUtil.getConcept(answerCId);
+						if (answerConcept == null) {
+							analysis.addError(Context.getMessageSourceService()
+							        .getMessage("htmlformentry.error.invalidConcept", new Object[] { answerCId }, null));
+						} else {
+							if (!validAnswerConceptIDs.contains(answerConcept.getConceptId())) {
+								analysis.addWarning(Context.getMessageSourceService().getMessage(
+								    "htmlformentry.warning.invalidAnswerConcept", new Object[] { answerCId }, null));
+							}
 						}
 					}
-				} else if (answerConceptId != null
-				        && !validAnswerConceptIDs.contains(HtmlFormEntryUtil.getConcept(answerConceptId).getConceptId())) {
-					analysis.addWarning(
-					    Context.getMessageSourceService().getMessage("htmlformentry.warning.invalidAnswerConcept",
-					        new Object[] { String.valueOf(answerConceptId) }, null));
+				} else if (answerConceptId != null) {
+					Concept answerConcept = HtmlFormEntryUtil.getConcept(answerConceptId);
+					if (answerConcept == null) {
+						analysis.addError(Context.getMessageSourceService().getMessage("htmlformentry.error.invalidConcept",
+						    new Object[] { answerConceptId }, null));
+					} else if (!validAnswerConceptIDs.contains(answerConcept.getConceptId())) {
+						analysis.addWarning(Context.getMessageSourceService().getMessage(
+						    "htmlformentry.warning.invalidAnswerConcept", new Object[] { answerConceptId }, null));
+					}
 				}
 			}
 		} else if (analysis.getErrors().size() == 0 && conceptIds != null) {
