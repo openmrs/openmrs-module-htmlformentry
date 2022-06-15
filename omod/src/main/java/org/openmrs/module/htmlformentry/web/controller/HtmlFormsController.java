@@ -24,7 +24,7 @@ public class HtmlFormsController {
 	/**
 	 * List all HTML Forms
 	 */
-	@RequestMapping("/module/htmlformentry/htmlForms")
+	@RequestMapping("/module/htmlformentry/htmlForms.list")
 	public void manageHtmlForms(Model model) {
 		model.addAttribute("forms", HtmlFormEntryUtil.getService().getAllHtmlForms());
 	}
