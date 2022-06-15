@@ -22,7 +22,7 @@ public class HtmlFormExportController {
 	/**
 	 * This exports all of the htmlforms to a zip file containing initializer-friendly xml files
 	 */
-	@RequestMapping(value = "/module/htmlformentry/exportAllFormsForInitializer", method = RequestMethod.GET)
+	@RequestMapping(value = "/module/htmlformentry/exportAllFormsForInitializer.form", method = RequestMethod.GET)
 	public void exportAllFormsForInitializer(HttpServletResponse response,
 	        @RequestParam(value = "useSubstitutions", required = false) boolean useSubstitutions) throws Exception {
 		
@@ -35,7 +35,7 @@ public class HtmlFormExportController {
 	/**
 	 * This exports the specified htmlform as an initializer-friendly xml file
 	 */
-	@RequestMapping(value = "/module/htmlformentry/exportFormForInitializer", method = RequestMethod.GET)
+	@RequestMapping(value = "/module/htmlformentry/exportFormForInitializer.form", method = RequestMethod.GET)
 	public void exportFormForInitializer(HttpServletResponse response, @RequestParam(value = "formId") Integer formId,
 	        @RequestParam(value = "useSubstitutions", required = false) boolean useSubstitutions) throws Exception {
 		

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 @Controller
-@RequestMapping("/module/htmlformentry/migrateNamesAndDescriptions")
+@RequestMapping("/module/htmlformentry/migrateNamesAndDescriptions.form")
 public class MigrateNamesAndDescriptionsController {
 	
 	/**

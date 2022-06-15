@@ -31,7 +31,7 @@ public class HtmlFormSchemaController {
 	/** Logger for this class and subclasses */
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	@RequestMapping("/module/htmlformentry/htmlFormSchema")
+	@RequestMapping("/module/htmlformentry/htmlFormSchema.form")
 	public void viewSchema(@RequestParam(value = "id", required = false) Integer id,
 	        @RequestParam(value = "filePath", required = false) String filePath, Model model, HttpSession httpSession)
 	        throws Exception {

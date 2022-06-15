@@ -50,7 +50,7 @@ public class HtmlFormSearchController {
 	/**
 	 * Concept Search
 	 */
-	@RequestMapping("/module/htmlformentry/conceptSearch")
+	@RequestMapping("/module/htmlformentry/conceptSearch.form")
 	public void conceptSearch(ModelMap model, HttpServletRequest request, HttpServletResponse response,
 	        @RequestParam(required = true, value = "term") String query,
 	        @RequestParam(required = false, value = "answerids") String allowedconceptids,
@@ -118,7 +118,7 @@ public class HtmlFormSearchController {
 		out.print("]");
 	}
 	
-	@RequestMapping("/module/htmlformentry/drugSearch")
+	@RequestMapping("/module/htmlformentry/drugSearch.form")
 	public void drugSearch(@RequestParam("term") String query,
 	        @RequestParam(value = "includeRetired", required = false) Boolean includeRetired, HttpServletResponse response)
 	        throws IOException {

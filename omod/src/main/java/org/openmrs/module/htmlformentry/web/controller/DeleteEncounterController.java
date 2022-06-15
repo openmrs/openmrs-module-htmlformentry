@@ -25,7 +25,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class DeleteEncounterController {
 	
-	@RequestMapping(method = RequestMethod.POST, value = "/module/htmlformentry/deleteEncounter")
+	@RequestMapping(method = RequestMethod.POST, value = "/module/htmlformentry/deleteEncounter.form")
 	public ModelAndView handleRequest(@RequestParam("encounterId") Integer encounterId,
 	        @RequestParam("htmlFormId") Integer htmlFormId, @RequestParam(value = "reason", required = false) String reason,
 	        @RequestParam(value = "returnUrl", required = false) String returnUrl, HttpServletRequest request)
