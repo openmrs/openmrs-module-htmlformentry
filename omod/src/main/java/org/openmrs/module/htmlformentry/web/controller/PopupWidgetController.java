@@ -28,7 +28,7 @@ public class PopupWidgetController {
 	}
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping("/module/htmlformentry/personResultTable.form")
+	@RequestMapping("/module/htmlformentry/personResultTable.list")
 	public void personSearch(ModelMap model, @RequestParam(value = "pSearch", required = false) String searchPhrase,
 	        @RequestParam(value = "pAttribute", required = false) String searchAttribute,
 	        @RequestParam(value = "pAttributeValue", required = false) String attributeValue,
