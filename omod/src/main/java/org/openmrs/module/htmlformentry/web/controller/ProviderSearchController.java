@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class ProviderSearchController {
 	
-	@RequestMapping("/module/htmlformentry/providers")
+	@RequestMapping("/module/htmlformentry/providers.form")
 	@ResponseBody
 	public Object getProviders(@RequestParam(value = "searchParam", required = false) String searchParam,
 	        @RequestParam(value = "matchMode", required = false) MatchMode matchMode,

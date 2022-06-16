@@ -65,7 +65,7 @@ public class HtmlFormController {
 	/**
 	 * Show a single HTML Form
 	 */
-	@RequestMapping(value = "/module/htmlformentry/htmlForm", method = RequestMethod.GET)
+	@RequestMapping(value = "/module/htmlformentry/htmlForm.form", method = RequestMethod.GET)
 	public void showHtmlForm(Model model, HttpSession httpSession, @ModelAttribute("htmlForm") HtmlForm htmlForm) {
 		HtmlForm hf = (HtmlForm) model.asMap().get("htmlForm");
 		if (hf.getId() == null) {
@@ -90,7 +90,7 @@ public class HtmlFormController {
 	/**
 	 * Save changes to an HTML Form
 	 */
-	@RequestMapping(value = "/module/htmlformentry/htmlForm", method = RequestMethod.POST)
+	@RequestMapping(value = "/module/htmlformentry/htmlForm.form", method = RequestMethod.POST)
 	public String saveHtmlForm(Model model, @ModelAttribute("htmlForm") HtmlForm htmlForm, BindingResult result,
 	        WebRequest request) {
 		HtmlFormEntryService service = HtmlFormEntryUtil.getService();

@@ -28,7 +28,7 @@ public class HtmlFormAjaxValidationController {
 	 * 
 	 * @throws IOException
 	 */
-	@RequestMapping("/module/htmlformentry/localizedMessage")
+	@RequestMapping("/module/htmlformentry/localizedMessage.form")
 	public void localizedMessage(ModelMap model, HttpServletRequest request, HttpServletResponse response,
 	        @RequestParam String messageCode) throws IOException {
 		response.setContentType("text/html");
@@ -39,7 +39,7 @@ public class HtmlFormAjaxValidationController {
 	/**
 	 * lastEnteredForm
 	 */
-	@RequestMapping("/module/htmlformentry/lastEnteredForm")
+	@RequestMapping("/module/htmlformentry/lastEnteredForm.form")
 	public void duplicateForm(ModelMap model, HttpServletRequest request, HttpServletResponse response,
 	        @RequestParam(required = true, value = "formId") Integer formId,
 	        @RequestParam(required = true, value = "patientId") Integer patientId,

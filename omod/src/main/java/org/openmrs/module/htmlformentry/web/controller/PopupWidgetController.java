@@ -22,13 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PopupWidgetController {
 	
-	@RequestMapping("/module/htmlformentry/personSearch")
+	@RequestMapping("/module/htmlformentry/personSearch.form")
 	public void patientSearch(ModelMap model) throws Exception {
 		
 	}
 	
 	@SuppressWarnings("unchecked")
-	@RequestMapping("/module/htmlformentry/personResultTable")
+	@RequestMapping("/module/htmlformentry/personResultTable.list")
 	public void personSearch(ModelMap model, @RequestParam(value = "pSearch", required = false) String searchPhrase,
 	        @RequestParam(value = "pAttribute", required = false) String searchAttribute,
 	        @RequestParam(value = "pAttributeValue", required = false) String attributeValue,
