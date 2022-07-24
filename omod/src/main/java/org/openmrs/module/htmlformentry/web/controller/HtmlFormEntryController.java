@@ -55,7 +55,7 @@ public class HtmlFormEntryController {
 	
 	public final static String FORM_IN_PROGRESS_VALUE = "HTML_FORM_IN_PROGRESS_VALUE";
 	
-	public final static String FORM_PATH = "/module/htmlformentry/htmlFormEntry";
+	public final static String FORM_PATH = "/module/htmlformentry/htmlFormEntry.form";
 	
 	// A place to store data that will persist longer than a session, but won't
 	// persist beyond application restart
