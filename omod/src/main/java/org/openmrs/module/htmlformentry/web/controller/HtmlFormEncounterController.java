@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.web.controller;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSection;
 import org.openmrs.module.htmlformentry.schema.ObsField;
 import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,15 +51,19 @@ public class HtmlFormEncounterController {
 	// TODO does not handle DrugOrder and Regimen schema objects--currently only works for obs and obsgroups
 	// TODO schema display still works?
 	@RequestMapping(value = "/module/htmlformentry/encounter.json", method = RequestMethod.GET)
-	@ResponseBody
-	public JsonNode encounterSchemaAsJson(@RequestParam(value = "encounter") Encounter encounter, HttpSession httpSession)
-	        throws Exception {
+	public void encounterSchemaAsJson(@RequestParam(value = "encounter") Encounter encounter, HttpSession httpSession,
+	        HttpServletResponse response) throws Exception {
 		
 		// TODO error handling-- no form?
 		ObjectMapper jackson = new ObjectMapper();
 		HtmlForm form = Context.getService(HtmlFormEntryService.class).getHtmlFormByForm(encounter.getForm());
 		HtmlFormSchema schema = generateSchema(form.getXmlData(), httpSession, encounter);
-		return buildSchemaAsJsonNode(schema, jackson);
+		JsonNode schemaNode = buildSchemaAsJsonNode(schema, jackson);
+		String schemaJson = jackson.writeValueAsString(schemaNode);
+		
+		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setHeader("Pragma", "no-cache");
+		response.getOutputStream().print(schemaJson);
 	}
 	
 	// is public to make it easier to test
