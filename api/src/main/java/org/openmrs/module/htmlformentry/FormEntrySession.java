@@ -18,8 +18,12 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.PersonAttribute;
+import org.openmrs.Program;
+import org.openmrs.ProgramWorkflow;
+import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
@@ -30,7 +34,6 @@ import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
-import org.openmrs.util.OpenmrsUtil;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.JavaScriptUtils;
@@ -43,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -573,35 +577,6 @@ public class FormEntrySession {
 			}
 		}
 		
-		// propagate encounterDatetime to PatientPrograms where necessary
-		if (submissionActions.getPatientProgramsToCreate() != null) {
-			for (PatientProgram pp : submissionActions.getPatientProgramsToCreate()) {
-				if (pp.getDateEnrolled() == null)
-					pp.setDateEnrolled(encounter.getEncounterDatetime());
-			}
-		}
-		
-		if (submissionActions.getPatientProgramsToComplete() != null) {
-			for (PatientProgram pp : submissionActions.getPatientProgramsToComplete()) {
-				if (pp.getDateCompleted() == null) {
-					pp.setDateCompleted(encounter.getEncounterDatetime());
-				}
-				// If an appropriate outcome has been recorded, set this on the patient program
-				Concept outcomesConcept = pp.getProgram().getOutcomesConcept();
-				if (outcomesConcept != null) {
-					List<Obs> outcomeObs = findObsForConcept(outcomesConcept, submissionActions.getObsToCreate());
-					if (outcomeObs.size() == 1) {
-						pp.setOutcome(outcomeObs.get(0).getValueCoded());
-					} else if (outcomeObs.size() > 1) {
-						throw new IllegalStateException(
-						        "Unable to complete patient program as multiple outcome observations are recorded: "
-						                + outcomeObs);
-					}
-				}
-			}
-		}
-		
-		// TODO wrap this in a transaction
 		Person newlyCreatedPerson = null;
 		if (submissionActions.getPersonsToCreate() != null) {
 			for (Person p : submissionActions.getPersonsToCreate()) {
@@ -667,54 +642,168 @@ public class FormEntrySession {
 			}
 		}
 		
-		// program enrollments are trickier since we need to make sure the patient isn't already enrolled
-		// 1. if the patient is already enrolled on the given date, just skip this
-		// 2. if the patient is enrolled *after* the given date, shift the existing enrollment to start earlier. (TODO decide if this is right)
-		// 3. otherwise just enroll them as requested
-		if (submissionActions.getPatientProgramsToCreate() != null) {
-			for (PatientProgram toCreate : submissionActions.getPatientProgramsToCreate()) {
-				boolean skip = false;
-				PatientProgram earliestAfter = null;
-				List<PatientProgram> already = Context.getProgramWorkflowService().getPatientPrograms(toCreate.getPatient(),
-				    toCreate.getProgram(), null, null, null, null, false);
-				for (PatientProgram pp : already) {
-					if (pp.getActive(toCreate.getDateEnrolled())) {
-						skip = true;
+		// Handle program enrollments and state transitions
+		
+		List<PatientProgram> programsToCreate = submissionActions.getPatientProgramsToCreate();
+		List<PatientProgram> programsToUpdate = submissionActions.getPatientProgramsToUpdate();
+		List<PatientProgram> programsToComplete = submissionActions.getPatientProgramsToComplete();
+		
+		/*
+		 * This iterates over the programsToCreate.  And for each of them, it compares the PatientProgram to the
+		 * existing PatientProgram enrollments for the same patient and program.  If the patient is already actively
+		 * enrolled in the on the new program's enrollment date, it removes the PatientProgram from the
+		 * programsToCreate list and adds the matching, existing program to the programsToUpdate list
+		 * If the patient does not have an active enrollment, but has an PatientProgram enrollment that starts later than
+		 * the enrollment date of the program to create, remove the program to create, update the existing future program
+		 * by shifting it's enrollment date to start when the new program was intended to start, then add to the
+		 * programs to update.
+		 * (TODO decide if this is the correct logic)
+		 */
+		for (Iterator<PatientProgram> ppCreateIter = programsToCreate.iterator(); ppCreateIter.hasNext();) {
+			PatientProgram toCreate = ppCreateIter.next();
+			if (toCreate.getDateEnrolled() == null) {
+				toCreate.setDateEnrolled(encounter.getEncounterDatetime());
+			}
+			PatientProgram existing = HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(toCreate.getPatient(),
+			    toCreate.getProgram(), toCreate.getDateEnrolled());
+			if (existing != null) {
+				// edit this enrollment to move its start date earlier
+				existing.setDateEnrolled(toCreate.getDateEnrolled());
+				programsToUpdate.add(existing);
+				ppCreateIter.remove();
+			}
+		}
+		
+		// Iterate over programs to complete and set completion date and outcome if necessary from Obs on form
+		for (PatientProgram pp : programsToComplete) {
+			if (pp.getDateCompleted() == null) {
+				pp.setDateCompleted(encounter.getEncounterDatetime());
+			}
+			// If an appropriate outcome has been recorded, set this on the patient program
+			Concept outcomesConcept = pp.getProgram().getOutcomesConcept();
+			if (outcomesConcept != null) {
+				List<Obs> outcomeObs = findObsForConcept(outcomesConcept, submissionActions.getObsToCreate());
+				if (outcomeObs.size() == 1) {
+					pp.setOutcome(outcomeObs.get(0).getValueCoded());
+				} else if (outcomeObs.size() > 1) {
+					throw new IllegalStateException(
+					        "Unable to complete patient program as multiple outcome observations are recorded: "
+					                + outcomeObs);
+				}
+			}
+		}
+		
+		// Update patient program updates with state changes
+		for (ProgramWorkflowState state : submissionActions.getProgramWorkflowStatesToTransition()) {
+			
+			ProgramWorkflow workflow = state.getProgramWorkflow();
+			Program program = workflow.getProgram();
+			Date encounterDate = encounter.getEncounterDatetime();
+			
+			// First determine if the associated PatientProgram is already set to be created, updated, or completed
+			PatientProgram pp = HtmlFormEntryUtil.getPatientProgramByProgram(programsToCreate, program);
+			if (pp == null) {
+				pp = HtmlFormEntryUtil.getPatientProgramByProgram(programsToUpdate, program);
+			}
+			if (pp == null) {
+				pp = HtmlFormEntryUtil.getPatientProgramByProgram(programsToComplete, program);
+			}
+			// If the PatientProgram is not already being actioned, update existing program or create new program
+			if (pp == null) {
+				
+				if (getContext().getMode() == Mode.EDIT) {
+					pp = HtmlFormEntryUtil.getPatientProgramByProgramOnDate(patient, program, encounterDate);
+				} else {
+					pp = HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(patient, program, encounterDate);
+				}
+				
+				if (pp != null) {
+					if (pp.getDateEnrolled().after(encounterDate)) {
+						pp.setDateEnrolled(encounterDate);
+					}
+					programsToUpdate.add(pp);
+				} else {
+					pp = new PatientProgram();
+					pp.setPatient(patient);
+					pp.setProgram(program);
+					pp.setDateEnrolled(encounterDate);
+					programsToCreate.add(pp);
+				}
+			}
+			
+			// If the state to transition into is not the same as the current state, transition into it
+			PatientState stateOnEncounterDate = HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, encounterDate);
+			if (stateOnEncounterDate == null || !stateOnEncounterDate.getState().equals(state)) {
+				
+				// Because htmlforms might update existing programs, and have retrospective entry, we do not
+				// simply call transitionToState here on the patientProgram.  Rather, we iterate over the states
+				// in the workflow, and try to insert the new state into the existing states where appropriate
+				
+				PatientState newState = new PatientState();
+				newState.setPatientProgram(pp);
+				newState.setState(state);
+				newState.setStartDate(encounterDate);
+				
+				PatientState previousState = null;
+				PatientState nextState = null;
+				
+				for (PatientState currentState : pp.statesInWorkflow(workflow, false)) {
+					
+					Date newStartDate = newState.getStartDate();
+					Date currentStartDate = currentState.getStartDate();
+					Date currentEndDate = currentState.getEndDate();
+					
+					if (currentEndDate != null) {
+						if (currentEndDate.after(newStartDate)) {
+							if (currentStartDate.after(newStartDate)) {
+								nextState = currentState;
+								break;
+							} else {
+								previousState = currentState;
+							}
+						} else {
+							previousState = currentState;
+						}
+					} else if (currentStartDate.after(newStartDate)) {
+						nextState = currentState;
+						break;
+					} else {
+						previousState = currentState;
+						nextState = null;
 						break;
 					}
-					// if the existing one starts after toCreate
-					if (OpenmrsUtil.compare(pp.getDateEnrolled(), toCreate.getDateEnrolled()) > 0) {
-						if (earliestAfter == null
-						        || OpenmrsUtil.compare(pp.getDateEnrolled(), earliestAfter.getDateEnrolled()) < 0) {
-							earliestAfter = pp;
-						}
+				}
+				
+				if (nextState == null) {
+					if (previousState != null) {
+						previousState.setEndDate(newState.getStartDate());
 					}
-				}
-				if (skip) {
-					continue;
-				}
-				if (earliestAfter != null) {
-					// edit this enrollment to move its start date earlier
-					earliestAfter.setDateEnrolled(toCreate.getDateEnrolled());
-					Context.getProgramWorkflowService().savePatientProgram(earliestAfter);
 				} else {
-					// just enroll as requested
-					Context.getProgramWorkflowService().savePatientProgram(toCreate);
+					if (previousState != null) {
+						previousState.setEndDate(newState.getStartDate());
+					}
+					newState.setEndDate(nextState.getStartDate());
+				}
+				
+				pp.getStates().add(newState);
+				
+				if (encounterDate.before(pp.getDateEnrolled())) {
+					pp.setDateEnrolled(encounterDate);
 				}
 			}
 		}
 		
-		//complete any necessary programs
-		if (submissionActions.getPatientProgramsToComplete() != null) {
-			for (PatientProgram toComplete : submissionActions.getPatientProgramsToComplete()) {
-				Context.getProgramWorkflowService().savePatientProgram(toComplete);
-			}
+		// Save all program changes to the database
+		for (PatientProgram pp : programsToCreate) {
+			Context.getProgramWorkflowService().savePatientProgram(pp);
 		}
 		
-		if (submissionActions.getPatientProgramsToUpdate() != null) {
-			for (PatientProgram patientProgram : submissionActions.getPatientProgramsToUpdate()) {
-				Context.getProgramWorkflowService().savePatientProgram(patientProgram);
-			}
+		for (PatientProgram pp : programsToComplete) {
+			Context.getProgramWorkflowService().savePatientProgram(pp);
+		}
+		
+		for (PatientProgram pp : programsToUpdate) {
+			Context.getProgramWorkflowService().savePatientProgram(pp);
 		}
 		
 		ObsService obsService = Context.getObsService();
