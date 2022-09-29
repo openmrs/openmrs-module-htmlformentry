@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -1034,7 +1035,7 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void editPatientProgram_shouldNotChangeEnrollmentDate() throws Exception {
+	public void enrollInPatientProgram_shouldNotChangeEnrollmentLocationForExistingProgram() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml"); // provides a hierarchy of locations and tags
 		
 		final Integer patientId = 2;
@@ -1067,9 +1068,93 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void testResults(SubmissionResults results) {
-				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(1);
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(patientProgramId);
 				Assert.assertNull(pp.getLocation());
 			}
 		}.run();
 	}
+
+	@Test
+	public void enrollInPatientProgram_withSimpleForm_shouldNotChangeEnrollmentDateIfEnrollmentDateBeforeEncounterDate() throws Exception {
+
+		final Integer patientId = 8;
+		final Integer patientProgramId = 102; // in Regression Test date set, for patient 8 in program 10
+		final Date currentEnrollmentDate = pws.getPatientProgram(patientProgramId).getDateEnrolled();
+
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "enrollPatientInProgramSimpleForm";
+			}
+
+			@Override
+			public Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(new Date()));
+				request.setParameter(widgets.get("Encounter Location:"), "1001");
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(patientProgramId);
+				Assert.assertEquals(currentEnrollmentDate, pp.getDateEnrolled());
+			}
+		}.run();
+	}
+
+	@Test
+	public void enrollInPatientProgram_withSimpleForm_shouldChangeEnrollmentDateIfEnrollmentDateAfterEncounterDate() throws Exception {
+
+		final Integer patientId = 8;
+		final Integer patientProgramId = 102; // in Regression Test date set, for patient 8 in program 10
+		final Date currentEnrollmentDate = pws.getPatientProgram(patientProgramId).getDateEnrolled();
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(currentEnrollmentDate);
+		cal.add(Calendar.DATE, -30);
+		final Date earlierEncounterDate = cal.getTime();
+
+
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "enrollPatientInProgramSimpleForm";
+			}
+
+			@Override
+			public Patient getPatient() {
+				return ps.getPatient(patientId);
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), dateAsString(earlierEncounterDate));
+				request.setParameter(widgets.get("Encounter Location:"), "1001");
+				request.setParameter(widgets.get("Encounter Provider:"), "502");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(patientProgramId);
+				Assert.assertEquals(earlierEncounterDate, pp.getDateEnrolled());
+			}
+		}.run();
+	}
+
 }
