@@ -355,6 +355,28 @@ public class VelocityFunctions {
 		return null;
 	}
 	
+	public PatientState currentProgramWorkflowStatus(String programWorkflowId) {
+		
+		ProgramWorkflow programWorkflow = HtmlFormEntryUtil.getWorkflow(programWorkflowId);
+		if (programWorkflow != null) {
+			return currentProgramWorkflowStatus(programWorkflow.getId());
+		}
+		return null;
+	}
+	
+	public PatientState currentProgramWorkflowStatus(String programWorkflowId, String latestDateString)
+	        throws ParseException {
+		return currentProgramWorkflowStatus(programWorkflowId, parseDate(latestDateString));
+	}
+	
+	public PatientState currentProgramWorkflowStatus(String programWorkflowId, Date latestDate) {
+		ProgramWorkflow programWorkflow = HtmlFormEntryUtil.getWorkflow(programWorkflowId);
+		if (programWorkflow != null) {
+			return currentProgramWorkflowStatus(programWorkflow.getId(), latestDate);
+		}
+		return null;
+	}
+	
 	@SuppressWarnings("deprecation")
 	public PatientState currentProgramWorkflowStatus(Integer programWorkflowId, String latestDateString)
 	        throws ParseException {
