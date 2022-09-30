@@ -18,7 +18,14 @@ import org.joda.time.Days;
 import org.joda.time.Months;
 import org.junit.Assert;
 import org.junit.Test;
-import org.openmrs.*;
+import org.openmrs.Concept;
+import org.openmrs.Encounter;
+import org.openmrs.EncounterType;
+import org.openmrs.Form;
+import org.openmrs.GlobalProperty;
+import org.openmrs.Obs;
+import org.openmrs.Patient;
+import org.openmrs.PatientState;
 import org.openmrs.api.context.Context;
 
 public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
