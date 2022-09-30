@@ -25,6 +25,7 @@ import org.openmrs.Form;
 import org.openmrs.GlobalProperty;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.PatientState;
 import org.openmrs.api.context.Context;
 
 public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
@@ -217,6 +218,15 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		    new DateTime(dateChanged.getTime()).toDateMidnight()).getMonths();
 		ageInDays = Days.daysBetween(new DateTime(birthdate.getTime()).toDateMidnight(),
 		    new DateTime(dateChanged.getTime()).toDateMidnight()).getDays();
+	}
+	
+	@Test
+	public void currentProgramWorkflowStatus_shouldReturnStateForGivenWorkflowUuid() throws Exception {
+		VelocityFunctions functions = setupFunctionsForPatient(2);
+		PatientState patientState = functions.currentProgramWorkflowStatus("84f0effa-dd73-46cb-b931-7cd6be6c5f81");
+		Assert.assertNotNull(patientState);
+		Concept concept = Context.getConceptService().getConceptByUuid("54d2dce5-0357-4253-a91a-85ce519137f5"); //name="WAITING FOR RESULTS"
+		Assert.assertEquals(patientState.getState().getConcept().getDisplayString(), concept.getDisplayString());
 	}
 	
 	/**
