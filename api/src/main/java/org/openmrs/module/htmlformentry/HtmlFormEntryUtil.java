@@ -2284,6 +2284,17 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
+	 * @return the state that is active in the given workflow, on the given date, for the given patient
+	 */
+	public static PatientState getPatientStateOnDate(Patient patient, ProgramWorkflow workflow, Date onDate) {
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
+		if (patientProgram == null) {
+			return null;
+		}
+		return getPatientStateOnDate(patientProgram, workflow, onDate);
+	}
+	
+	/**
 	 * Given a Date object, returns a Date object for the same date but with the time component (hours,
 	 * minutes, seconds & milliseconds) removed
 	 */

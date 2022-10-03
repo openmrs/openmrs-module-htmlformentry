@@ -394,7 +394,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateBeforeAnotherState() throws Exception {
-		//Given: Patient has a workflow state of X starting in Jan 2012
+		//Given: A patient has a program that started 2 years ago, with an initial state and an end state starting today
+		transitionToState(START_STATE, TWO_YEARS_AGO);
 		transitionToState(END_STATE, TODAY);
 		
 		new RegressionTestHelper() {
@@ -414,7 +415,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				
-				//When: Html form is being back entered with an encounter date of June 2011, in which the workflow state selected is Y
+				//When: Html form is being back entered with an encounter date during the enrollment that sets a middle state
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -426,9 +427,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: Workflow state Y is created with a start date of June 2011 and a stop date of Jan 2012.
-				// Workflow state X stays as is.
-				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				//Then: The initial state is ended, the middle state is added, and the end state stays as is
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
+				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
 				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, TODAY);
 				assertState(pp, END_STATE, TODAY, null);
 			}
@@ -528,8 +529,8 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateAfterCurrent() throws Exception {
-		//Given: Patient has a workflow state of X starting in Jan 2012 (still current)
-		transitionToState(START_STATE, TODAY);
+		//Given: Patient has an enrollment with start date starting two years ago and still active
+		transitionToState(START_STATE, TWO_YEARS_AGO);
 		new RegressionTestHelper() {
 			
 			@Override
@@ -546,9 +547,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of June 2011 in which workflow state X is selected
+				//When: Html form is entered with an encounter date of one year ago in which end state is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
-				request.addParameter(widgets.get("State:"), START_STATE);
+				request.addParameter(widgets.get("State:"), END_STATE);
 			}
 			
 			@Override
@@ -558,10 +559,10 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: A new workflow state X is created with a Start date of June 2011 and a stop date of Jan 2012
-				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
-				assertState(pp, START_STATE, ONE_YEAR_AGO, TODAY);
-				assertState(pp, START_STATE, TODAY, null);
+				//Then: This should end start state and start end state
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
+				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
+				assertState(pp, END_STATE, ONE_YEAR_AGO, null);
 			}
 		}.run();
 	}
@@ -1155,14 +1156,14 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				List<PatientProgram> pps = patientPrograms(results.getPatient(), TEST_PROGRAM);
 				Assert.assertEquals(2, pps.size());
 				
-				// now verify that new state is correct
-				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				// This should create a new enrollment with the given state, and it should end at the existing program start date
+				PatientProgram pp1 = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, TODAY);
+				Assert.assertEquals(1, nonVoidedStates(pp1));
+				assertState(pp1, START_STATE, ONE_YEAR_AGO, TODAY);
 				
-				// assert that the program has only one state
-				Assert.assertEquals(1, nonVoidedStates(pp));
-				
-				// assert that the start state of the state is correct
-				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+				PatientProgram pp2 = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
+				Assert.assertNotNull(pp2);
+				Assert.assertNotEquals(pp1, pp2);
 			}
 			
 		}.run();
