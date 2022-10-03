@@ -106,7 +106,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -117,8 +116,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
 
 /**
  * HTML Form Entry utility methods
@@ -2090,6 +2087,17 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
+	 * Return all non-voided PatientPrograms for the given patient and program
+	 *
+	 * @param patient
+	 * @param program
+	 * @return
+	 */
+	public static List<PatientProgram> getPatientPrograms(Patient patient, Program program) {
+		return Context.getProgramWorkflowService().getPatientPrograms(patient, program, null, null, null, null, false);
+	}
+	
+	/**
 	 * Given a patient and a program workflow, returns the first patient program that contains a state
 	 * in the specified workflow
 	 *
@@ -2227,6 +2235,63 @@ public class HtmlFormEntryUtil {
 		}
 		
 		return closestProgram;
+	}
+	
+	/**
+	 * Checks to see if the patient has a program enrollment in the specified program after the given
+	 * date If multiple patient programs, returns the earliest enrollment If no enrollments, returns
+	 * null
+	 */
+	public static PatientProgram getCurrentOrNextFutureProgramEnrollment(Patient patient, Program program, Date date) {
+		PatientProgram closest = null;
+		for (PatientProgram pp : getPatientPrograms(patient, program)) {
+			if (pp.getActive(date)) {
+				return pp;
+			}
+			if (pp.getDateEnrolled().compareTo(date) >= 0) {
+				if (closest == null) {
+					closest = pp;
+				} else {
+					if (pp.getDateEnrolled().before(closest.getDateEnrolled())) {
+						closest = pp;
+					} else if (pp.getDateEnrolled().equals(closest.getDateEnrolled())) {
+						if (OpenmrsUtil.compareWithNullAsLatest(pp.getDateCompleted(), closest.getDateCompleted()) > 0) {
+							closest = pp;
+						}
+					}
+				}
+			}
+		}
+		return closest;
+	}
+	
+	/**
+	 * The patient state that is active for the given patient program, in the given workflow, on the
+	 * given date
+	 * 
+	 * @param pp the PatientProgram associated with the PatientState
+	 * @param workflow the ProgramWorkflow associated with the PatientState
+	 * @param onDate the date on which the PatientState must be active
+	 * @return
+	 */
+	public static PatientState getPatientStateOnDate(PatientProgram pp, ProgramWorkflow workflow, Date onDate) {
+		for (PatientState patientState : pp.statesInWorkflow(workflow, false)) {
+			if (patientState.getActive(onDate)) {
+				return patientState;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * @return the state that is active in the given workflow, on the given date, for the given patient
+	 */
+	public static PatientState getPatientStateOnDate(Patient patient, ProgramWorkflow workflow, Date onDate) {
+		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
+		if (patientProgram == null) {
+			return null;
+		}
+		return getPatientStateOnDate(patientProgram, workflow, onDate);
 	}
 	
 	/**
@@ -2545,110 +2610,6 @@ public class HtmlFormEntryUtil {
 	
 	public static List<Provider> getAllProviders(boolean includeRetired) {
 		return Context.getProviderService().getAllProviders(includeRetired);
-	}
-	
-	/**
-	 * Transitions a {@code patient} enrolled in the specified {@code patientProgram} to the specified
-	 * {@code state}
-	 *
-	 * @param patient - the patient
-	 * @param patientProgram - the associated patient program
-	 * @param state - the state to transition to
-	 * @param encounter - the associated encounter
-	 */
-	public static void transitionToState(Patient patient, PatientProgram patientProgram, ProgramWorkflowState state,
-	        Encounter encounter) {
-		// if patient program is null, we need to create a new program
-		if (patientProgram == null) {
-			patientProgram = new PatientProgram();
-			patientProgram.setPatient(patient);
-			patientProgram.setProgram(state.getProgramWorkflow().getProgram());
-			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
-			// HACK: we need to set the date created, creator, and uuid here as a hack around a hibernate flushing issue
-			// (should be able to remove this once we move to Hibernate Interceptors instead of Spring AOP to set these parameters)
-			patientProgram.setDateCreated(new Date());
-			patientProgram.setCreator(Context.getAuthenticatedUser());
-			patientProgram.setUuid(UUID.randomUUID().toString());
-			
-		}
-		
-		for (PatientState patientState : patientProgram.statesInWorkflow(state.getProgramWorkflow(), false)) {
-			if (patientState.getActive(encounter.getEncounterDatetime())) {
-				if (patientState.getState().equals(state)) {
-					return;
-				}
-			}
-		}
-		
-		PatientState previousState = null;
-		PatientState nextState = null;
-		PatientState newState = new PatientState();
-		newState.setPatientProgram(patientProgram);
-		newState.setState(state);
-		newState.setStartDate(encounter.getEncounterDatetime());
-		// HACK: we need to set the date created, creator, and uuid here as a hack around a hibernate flushing issue
-		// (should be able to remove this once we move to Hibernate Interceptors instead of Spring AOP to set these parameters)
-		newState.setDateCreated(new Date());
-		newState.setCreator(Context.getAuthenticatedUser());
-		newState.setUuid(UUID.randomUUID().toString());
-		
-		Collection<PatientState> sortedStates = new TreeSet<PatientState>(new Comparator<PatientState>() {
-			
-			@Override
-			public int compare(PatientState o1, PatientState o2) {
-				int result = OpenmrsUtil.compareWithNullAsEarliest(o1.getStartDate(), o2.getStartDate());
-				if (result == 0) {
-					result = OpenmrsUtil.compareWithNullAsLatest(o1.getEndDate(), o2.getEndDate());
-				}
-				return result;
-			}
-			
-		});
-		sortedStates.addAll(patientProgram.statesInWorkflow(state.getProgramWorkflow(), false));
-		for (PatientState currentState : sortedStates) {
-			
-			Date newStartDate = newState.getStartDate();
-			Date currentStartDate = currentState.getStartDate();
-			Date currentEndDate = currentState.getEndDate();
-			
-			if (currentEndDate != null) {
-				if (currentEndDate.after(newStartDate)) {
-					if (currentStartDate.after(newStartDate)) {
-						nextState = currentState;
-						break;
-					} else {
-						previousState = currentState;
-					}
-				} else {
-					previousState = currentState;
-				}
-			} else if (currentStartDate.after(newStartDate)) {
-				nextState = currentState;
-				break;
-			} else {
-				previousState = currentState;
-				nextState = null;
-				break;
-			}
-		}
-		
-		if (nextState == null) {
-			if (previousState != null) {
-				previousState.setEndDate(newState.getStartDate());
-			}
-		} else {
-			if (previousState != null) {
-				previousState.setEndDate(newState.getStartDate());
-			}
-			newState.setEndDate(nextState.getStartDate());
-		}
-		
-		patientProgram.getStates().add(newState);
-		
-		if (encounter.getEncounterDatetime().before(patientProgram.getDateEnrolled())) {
-			patientProgram.setDateEnrolled(encounter.getEncounterDatetime());
-		}
-		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
 	
 	private static Object getProviderRoleById(Integer providerRoleId) {

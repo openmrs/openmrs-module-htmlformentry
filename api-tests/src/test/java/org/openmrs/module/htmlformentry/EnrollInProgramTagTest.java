@@ -1073,38 +1073,39 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 			}
 		}.run();
 	}
-
+	
 	@Test
-	public void enrollInPatientProgram_withSimpleForm_shouldNotChangeEnrollmentDateIfEnrollmentDateBeforeEncounterDate() throws Exception {
-
+	public void enrollInPatientProgram_withSimpleForm_shouldNotChangeEnrollmentDateIfEnrollmentDateBeforeEncounterDate()
+	        throws Exception {
+		
 		final Integer patientId = 8;
 		final Integer patientProgramId = 102; // in Regression Test date set, for patient 8 in program 10
 		final Date currentEnrollmentDate = pws.getPatientProgram(patientProgramId).getDateEnrolled();
-
+		
 		new RegressionTestHelper() {
-
+			
 			@Override
 			public String getFormName() {
 				return "enrollPatientInProgramSimpleForm";
 			}
-
+			
 			@Override
 			public Patient getPatient() {
 				return ps.getPatient(patientId);
 			}
-
+			
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
 			}
-
+			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Encounter Date:"), dateAsString(new Date()));
 				request.setParameter(widgets.get("Encounter Location:"), "1001");
 				request.setParameter(widgets.get("Encounter Provider:"), "502");
 			}
-
+			
 			@Override
 			public void testResults(SubmissionResults results) {
 				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(patientProgramId);
@@ -1112,10 +1113,11 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 			}
 		}.run();
 	}
-
+	
 	@Test
-	public void enrollInPatientProgram_withSimpleForm_shouldChangeEnrollmentDateIfEnrollmentDateAfterEncounterDate() throws Exception {
-
+	public void enrollInPatientProgram_withSimpleForm_shouldChangeEnrollmentDateIfEnrollmentDateAfterEncounterDate()
+	        throws Exception {
+		
 		final Integer patientId = 8;
 		final Integer patientProgramId = 102; // in Regression Test date set, for patient 8 in program 10
 		final Date currentEnrollmentDate = pws.getPatientProgram(patientProgramId).getDateEnrolled();
@@ -1123,32 +1125,31 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 		cal.setTime(currentEnrollmentDate);
 		cal.add(Calendar.DATE, -30);
 		final Date earlierEncounterDate = cal.getTime();
-
-
+		
 		new RegressionTestHelper() {
-
+			
 			@Override
 			public String getFormName() {
 				return "enrollPatientInProgramSimpleForm";
 			}
-
+			
 			@Override
 			public Patient getPatient() {
 				return ps.getPatient(patientId);
 			}
-
+			
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Enrollment Date:", "Encounter Date:", "Encounter Location:", "Encounter Provider:" };
 			}
-
+			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Encounter Date:"), dateAsString(earlierEncounterDate));
 				request.setParameter(widgets.get("Encounter Location:"), "1001");
 				request.setParameter(widgets.get("Encounter Provider:"), "502");
 			}
-
+			
 			@Override
 			public void testResults(SubmissionResults results) {
 				PatientProgram pp = Context.getProgramWorkflowService().getPatientProgram(patientProgramId);
@@ -1156,5 +1157,5 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 			}
 		}.run();
 	}
-
+	
 }

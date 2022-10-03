@@ -1,12 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +20,13 @@ import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Stack;
+import java.util.Vector;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
 
@@ -63,6 +63,8 @@ public class FormSubmissionActions {
 	private List<PatientProgram> patientProgramsToComplete = new Vector<PatientProgram>();
 	
 	private List<PatientProgram> patientProgramsToUpdate = new Vector<PatientProgram>();
+	
+	private List<ProgramWorkflowState> programWorkflowStatesToTransition = new Vector<>();
 	
 	private List<Relationship> relationshipsToCreate = new Vector<Relationship>();
 	
@@ -630,30 +632,18 @@ public class FormSubmissionActions {
 	}
 	
 	public void transitionToState(ProgramWorkflowState state) {
-		if (state == null)
+		if (state == null) {
 			throw new IllegalArgumentException("Cannot change to a blank state");
-		
+		}
 		Patient patient = highestOnStack(Patient.class);
-		if (patient == null)
+		if (patient == null) {
 			throw new IllegalArgumentException("Cannot change state without a patient");
+		}
 		Encounter encounter = highestOnStack(Encounter.class);
-		if (encounter == null)
+		if (encounter == null) {
 			throw new IllegalArgumentException("Cannot change state without an Encounter");
-		
-		// fetch any existing patient program with a state from this workflow
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, state.getProgramWorkflow());
-		
-		// if no existing patient program, see if a patient program for this program is already set to be created at part of this submission (HTML-416)
-		if (patientProgram == null) {
-			patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToCreate,
-			    state.getProgramWorkflow().getProgram());
 		}
-		
-		if (patientProgram == null) {
-			patientProgram = HtmlFormEntryUtil.getPatientProgramByProgram(patientProgramsToUpdate,
-			    state.getProgramWorkflow().getProgram());
-		}
-		HtmlFormEntryUtil.transitionToState(patient, patientProgram, state, encounter);
+		programWorkflowStatesToTransition.add(state);
 	}
 	
 	/**
@@ -839,6 +829,9 @@ public class FormSubmissionActions {
 	 * @return the patientProgramsToCreate the list of Programs to create
 	 */
 	public List<PatientProgram> getPatientProgramsToCreate() {
+		if (patientProgramsToCreate == null) {
+			patientProgramsToCreate = new Vector<>();
+		}
 		return patientProgramsToCreate;
 	}
 	
@@ -852,11 +845,31 @@ public class FormSubmissionActions {
 	}
 	
 	/**
+	 * @return the patientProgramsToUpdate
+	 */
+	public List<PatientProgram> getPatientProgramsToUpdate() {
+		if (patientProgramsToUpdate == null) {
+			patientProgramsToUpdate = new Vector<>();
+		}
+		return patientProgramsToUpdate;
+	}
+	
+	/**
+	 * @param patientProgramsToUpdate the patientProgramsToUpdate to set
+	 */
+	public void setPatientProgramsToUpdate(List<PatientProgram> patientProgramsToUpdate) {
+		this.patientProgramsToUpdate = patientProgramsToUpdate;
+	}
+	
+	/**
 	 * Returns the list of Patient Programs that need to be completed to process form submission
 	 *
 	 * @return the patientProgramsToComplete the list of Programs to completed
 	 */
 	public List<PatientProgram> getPatientProgramsToComplete() {
+		if (patientProgramsToComplete == null) {
+			patientProgramsToComplete = new Vector<>();
+		}
 		return patientProgramsToComplete;
 	}
 	
@@ -867,6 +880,28 @@ public class FormSubmissionActions {
 	 */
 	public void setPatientProgramsToComplete(List<PatientProgram> patientProgramsToComplete) {
 		this.patientProgramsToComplete = patientProgramsToComplete;
+	}
+	
+	/**
+	 * Returns the list of ProgramWorkflowStates to transition into for this form submission
+	 *
+	 * @return the programWorkflowStatesToTransition the list of ProgramWorkflowStates to transition
+	 *         into
+	 */
+	public List<ProgramWorkflowState> getProgramWorkflowStatesToTransition() {
+		if (programWorkflowStatesToTransition == null) {
+			programWorkflowStatesToTransition = new Vector<>();
+		}
+		return programWorkflowStatesToTransition;
+	}
+	
+	/**
+	 * Sets the list of ProgramWorkflowStates to transition into for this form submission
+	 *
+	 * @param programWorkflowStatesToTransition the list of ProgramWorkflowStates to transition into
+	 */
+	public void setProgramWorkflowStatesToTransition(List<ProgramWorkflowState> programWorkflowStatesToTransition) {
+		this.programWorkflowStatesToTransition = programWorkflowStatesToTransition;
 	}
 	
 	/**
@@ -921,20 +956,6 @@ public class FormSubmissionActions {
 	 */
 	public void setRelationshipsToEdit(List<Relationship> relationshipsToEdit) {
 		this.relationshipsToEdit = relationshipsToEdit;
-	}
-	
-	/**
-	 * @return the patientProgramsToUpdate
-	 */
-	public List<PatientProgram> getPatientProgramsToUpdate() {
-		return patientProgramsToUpdate;
-	}
-	
-	/**
-	 * @param patientProgramsToUpdate the patientProgramsToUpdate to set
-	 */
-	public void setPatientProgramsToUpdate(List<PatientProgram> patientProgramsToUpdate) {
-		this.patientProgramsToUpdate = patientProgramsToUpdate;
 	}
 	
 	/**

@@ -1,23 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.openmrs.Order.Urgency.ON_SCHEDULED_DATE;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -45,6 +27,7 @@ import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.PatientProgram;
+import org.openmrs.PatientState;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
@@ -59,6 +42,25 @@ import org.springframework.mock.web.MockHttpSession;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
+import static org.openmrs.Order.Urgency.ON_SCHEDULED_DATE;
 
 /***
  * Test agaist standardTestData.xml from org.openmrs.include + Data from HtmlFormEntryTest-data.xml
@@ -451,7 +453,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterVoided() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -480,7 +481,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldReturnEncounterCorrectly() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -551,7 +551,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderCorrectly() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -603,7 +602,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return encounter with all child objects voided according to schema", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldHandleDrugOrderAndObsCorrectly() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -652,7 +650,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should delete encounter correctly", method = "voidEncounterByHtmlFormSchema")
 	public void testVoidEncounterByHtmlFormSchema_shouldDeleteEncounter() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Encounter e = new Encounter();
 		e.setPatient(Context.getPatientService().getPatient(2));
 		Date date = Context.getDateFormat().parse("01/02/2003");
@@ -823,9 +820,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should look up a workflow by a concept mapping", method = "getWorkflow(String)")
 	public void getWorkflow_shouldLookUpAWorkflowByAConceptMapping() throws Exception {
-		// load this data set so that we get the additional patient program with concept mapping
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
-		
 		Assert.assertEquals("7c3e071a-53a7-11e1-8cb6-00248140a5eb",
 		    HtmlFormEntryUtil.getWorkflow("XYZ: Test Workflow Code").getUuid());
 	}
@@ -858,8 +852,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,Program)")
 	public void getStateProgram_shouldLookUpAStateByAConceptMapping() throws Exception {
-		// load this data set so that we get the additional patient program with concept mapping
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
 		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
 		    HtmlFormEntryUtil.getState("XYZ: Test Code", Context.getProgramWorkflowService().getProgram(10)).getUuid());
 	}
@@ -897,9 +889,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should look up a state by a concept mapping", method = "getState(String,ProgramWorkflow)")
 	public void getStateWorkflow_shouldLookUpAStateByAConceptMapping() throws Exception {
-		// load this data set so that we get the additional patient program with concept mapping
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
-		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		ProgramWorkflow wf = pws.getWorkflowByUuid("7c3e071a-53a7-11e1-8cb6-00248140a5eb");
 		Assert.assertEquals("67337cdc-53ad-11a1-8cb6-00248140a5eb",
@@ -979,9 +968,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "should return program enrollment after specified date", method = "getClosestFutureProgramEnrollment(Patient,Program,Date)")
 	public void shouldReturnPatientProgramWithEnrollmentAfterSpecifiedDate() throws Exception {
-		// load this data set so that we get the additional patient program created in this data case
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
-		
 		ProgramWorkflowService pws = Context.getProgramWorkflowService();
 		Patient patient = Context.getPatientService().getPatient(2);
 		Program program = pws.getProgram(1);
@@ -1009,6 +995,61 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Program program = pws.getProgram(1);
 		Date date = pws.getPatientProgram(1).getDateEnrolled();
 		Assert.assertNull(HtmlFormEntryUtil.getClosestFutureProgramEnrollment(patient, program, date));
+	}
+	
+	@Test
+	public void getPatientPrograms_shouldReturnAllNonVoidedPatientProgramsForPatientAndProgram() throws Exception {
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = pws.getProgram(1);
+		List<PatientProgram> l = HtmlFormEntryUtil.getPatientPrograms(patient, program);
+		Assert.assertEquals(l.size(), 2);
+		patient = Context.getPatientService().getPatient(8);
+		l = HtmlFormEntryUtil.getPatientPrograms(patient, program);
+		Assert.assertEquals(l.size(), 0);
+		program = pws.getProgram(10);
+		l = HtmlFormEntryUtil.getPatientPrograms(patient, program);
+		Assert.assertEquals(l.size(), 1);
+	}
+	
+	@Test
+	public void getCurrentOrNextFutureProgramEnrollment_shouldReturnCurrentOrNextEnrollment() throws Exception {
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		Patient patient = Context.getPatientService().getPatient(2);
+		Program program = pws.getProgram(1);
+		
+		PatientProgram pp1 = pws.getPatientProgram(1);
+		PatientProgram pp101 = pws.getPatientProgram(101);
+		
+		Assert.assertEquals(pp101,
+		    HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(patient, program, date("2000-12-01")));
+		Assert.assertEquals(pp101,
+		    HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(patient, program, date("2001-01-01")));
+		Assert.assertEquals(pp1,
+		    HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(patient, program, date("2003-05-01")));
+		Assert.assertEquals(pp1,
+		    HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(patient, program, date("2003-05-02")));
+		Assert.assertEquals(pp1,
+		    HtmlFormEntryUtil.getCurrentOrNextFutureProgramEnrollment(patient, program, date("2005-01-01")));
+	}
+	
+	@Test
+	public void getPatientStateOnDate_shouldReturnAPatientStateOnDate() throws Exception {
+		ProgramWorkflowService pws = Context.getProgramWorkflowService();
+		PatientProgram pp = pws.getPatientProgram(102);
+		ProgramWorkflow workflow = pws.getWorkflow(100);
+		
+		PatientState state101 = pws.getPatientStateByUuid("b0601496-6d33-4de9-8fa7-79b16b4cacd0");
+		PatientState state102 = pws.getPatientStateByUuid("f4b2cb72-1976-4b4c-ae55-6466b71dac4e");
+		PatientState state103 = pws.getPatientStateByUuid("5de5500c-e9cb-46db-9520-3f509343c286e");
+		;
+		Assert.assertEquals(state101, HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2005-01-01")));
+		Assert.assertEquals(state101, HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2005-06-29")));
+		Assert.assertNull(HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2005-06-30")));
+		Assert.assertEquals(state102, HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2005-07-01")));
+		Assert.assertEquals(state102, HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2005-10-30")));
+		Assert.assertEquals(state103, HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2005-11-01")));
+		Assert.assertEquals(state103, HtmlFormEntryUtil.getPatientStateOnDate(pp, workflow, date("2020-01-01")));
 	}
 	
 	@Test
@@ -1127,9 +1168,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "shouldFetchLocationTagByName", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagByName() throws Exception {
-		// this tag is in the regression test dataset
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
-		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("Some Tag");
 		Assert.assertNotNull(tag);
 		Assert.assertEquals("Some Tag", tag.getName());
@@ -1138,9 +1176,6 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "shouldFetchLocationTagById", method = "getLocationTag(String identifier)")
 	public void shouldFetchLocationTagById() throws Exception {
-		// this tag is in the regression test dataset
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
-		
 		LocationTag tag = HtmlFormEntryUtil.getLocationTag("1001");
 		Assert.assertNotNull(tag);
 		Assert.assertEquals("Some Tag", tag.getName());
@@ -1413,5 +1448,14 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 			}
 		}
 		Assert.assertTrue(found);
+	}
+	
+	protected Date date(String ymd) {
+		try {
+			return new SimpleDateFormat("yyyy-MM-dd").parse(ymd);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
