@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -37,6 +38,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Context.class)
+@PowerMockIgnore("javax.management.*")
 public class NumberFieldWidgetTest {
 	
 	FormEntryContext context;

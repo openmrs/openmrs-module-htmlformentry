@@ -42,6 +42,7 @@ import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.util.LocaleUtility;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -50,6 +51,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ HtmlFormEntryUtil.class, Context.class })
+@PowerMockIgnore("javax.management.*")
 public class ObsSubmissionElementTest {
 	
 	private FormEntryContext context;
