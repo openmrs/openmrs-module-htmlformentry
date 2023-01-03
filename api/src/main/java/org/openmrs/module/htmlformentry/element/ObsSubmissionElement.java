@@ -10,6 +10,7 @@ import org.openmrs.Drug;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Person;
+import org.openmrs.Provider;
 import org.openmrs.Role;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
@@ -141,10 +142,6 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	private String answerSeparator = null;
 	
-	// these are for location and provider options
-	
-	private List<Option> locationOptions = new ArrayList<Option>();
-	
 	private Map<Object, String> whenValueThenDisplaySection = new LinkedHashMap<Object, String>();
 	
 	private Map<Object, String> whenValueThenJavascript = new LinkedHashMap<Object, String>();
@@ -152,6 +149,8 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	private Map<Object, String> whenValueElseJavascript = new LinkedHashMap<Object, String>();
 	
 	protected Boolean isLocationObs; // determines whether the valueText for this obs should be a location_id;
+	
+	protected Boolean isProviderObs; // determines whether the valueText for this obs should be a provider_id;
 	
 	private Double absoluteMaximum;
 	
@@ -232,6 +231,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		}
 		
 		isLocationObs = "location".equals(parameters.get("style"));
+		isProviderObs = "provider".equals(parameters.get("style"));
 		
 		if (StringUtils.isNotEmpty(parameters.get("absoluteMaximum"))) {
 			absoluteMaximum = Double.parseDouble(parameters.get("absoluteMaximum"));
@@ -512,6 +512,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 						    ((Visit) context.getVisit()).getLocation());
 					}
 					
+					List<Option> locationOptions = new ArrayList<>();
 					for (Location location : locationList) {
 						String label = HtmlFormEntryUtil.format(location);
 						Option option = new Option(label, location.getId().toString(),
@@ -530,6 +531,37 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 							((DropdownWidget) valueWidget).addOption(option);
 					}
 					
+				}
+				// configure the special obs type that allows selection of a provider (the provider_id PK is stored as the valueText)
+				else if (isProviderObs) {
+					valueWidget = new DropdownWidget();
+					List<String> roleIds = new ArrayList<>();
+					String roleParam = parameters.get("providerRoles");
+					if (StringUtils.isNotBlank(roleParam)) {
+						for (String roleId : roleParam.split(",")) {
+							roleIds.add(roleId.trim());
+						}
+					}
+					List<Provider> providers = HtmlFormEntryUtil.getProviders(roleIds, true);
+					
+					List<Option> providerOptions = new ArrayList<>();
+					for (Provider provider : providers) {
+						String providerId = provider.getId().toString();
+						String label = HtmlFormEntryUtil.format(provider);
+						Option option = new Option(label, providerId, providerId.equals(initialValue));
+						providerOptions.add(option);
+					}
+					Collections.sort(providerOptions, new OptionComparator());
+					
+					// if initialValueIsSet=false, no initial/default provider, hence this shows the 'select input' field as first option
+					boolean initialValueIsSet = !(initialValue == null);
+					String label = Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider");
+					((DropdownWidget) valueWidget).addOption(new Option(label, "", !initialValueIsSet));
+					if (!providerOptions.isEmpty()) {
+						for (Option option : providerOptions) {
+							((DropdownWidget) valueWidget).addOption(option);
+						}
+					}
 				} else if ("person".equals(parameters.get("style"))) {
 					
 					List<PersonStub> options = new ArrayList<PersonStub>();
@@ -652,6 +684,12 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 							throw new RuntimeException("Cannot find Location: " + initialValue);
 						}
 						valueWidget.setInitialValue(l);
+					} else if (isProviderObs) {
+						Provider provider = HtmlFormEntryUtil.getProvider(initialValue);
+						if (provider == null) {
+							throw new RuntimeException("Cannot find Provider: " + initialValue);
+						}
+						valueWidget.setInitialValue(provider);
 					} else if ("person".equals(parameters.get("style"))) {
 						Person p = HtmlFormEntryUtil.getPerson(initialValue);
 						if (p == null) {
@@ -1409,10 +1447,12 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		if (commentFieldWidget != null)
 			comment = commentFieldWidget.getValue(session.getContext(), submission);
 		
-		// note that style=location cannot be used with showCommentField=true, since "org.openmrs.Location"
-		// will override any user-entered comment
+		// note that style=location or style=provider cannot be used with showCommentField=true,
+		// since "org.openmrs.Location" and "org.openmrs.Provider" will override any user-entered comment
 		if (isLocationObs) {
 			comment = "org.openmrs.Location";
+		} else if (isProviderObs) {
+			comment = "org.openmrs.Provider";
 		}
 		
 		if (existingObsList != null && session.getContext().getMode() == Mode.EDIT) {
