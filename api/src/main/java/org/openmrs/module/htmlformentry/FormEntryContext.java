@@ -11,6 +11,7 @@ import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Order;
 import org.openmrs.Patient;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
@@ -936,9 +937,19 @@ public class FormEntryContext {
 			encounterDateToTest = getExistingEncounter().getEncounterDatetime();
 		}
 		
-		// finally, fall back to current date if nothing else
 		if (encounterDateToTest == null) {
-			encounterDateToTest = new Date();
+			Date currentDate = (getDefaultEncounterDate() != null ? getDefaultEncounterDate() : new Date());
+			
+			// If there is a visit in the context and the current date is outside of this visit, use visit start date
+			if (getVisit() != null) {
+				Visit visit = (Visit) getVisit();
+				if (visit.getStopDatetime() != null && currentDate.after(visit.getStopDatetime())) {
+					encounterDateToTest = visit.getStartDatetime();
+				}
+			} else {
+				// finally, fall back to current date if nothing else
+				encounterDateToTest = currentDate;
+			}
 		}
 		
 		return encounterDateToTest;
