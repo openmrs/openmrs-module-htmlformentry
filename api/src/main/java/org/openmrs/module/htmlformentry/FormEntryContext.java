@@ -925,6 +925,26 @@ public class FormEntryContext {
 	}
 	
 	/**
+	 * @return the best approximation of the encounter date, based on pending and existing data
+	 */
+	public Date getBestApproximationOfEncounterDate() {
+		// if there's a pending update to the encounter date, use that
+		Date encounterDateToTest = getPendingEncounterDatetime();
+		
+		// if no pending, but there's an existing encounter, use that encounter date
+		if (encounterDateToTest == null && getExistingEncounter() != null) {
+			encounterDateToTest = getExistingEncounter().getEncounterDatetime();
+		}
+		
+		// finally, fall back to current date if nothing else
+		if (encounterDateToTest == null) {
+			encounterDateToTest = new Date();
+		}
+		
+		return encounterDateToTest;
+	}
+	
+	/**
 	 * @return the javascriptFieldAccessors
 	 */
 	public Map<String, String> getJavascriptFieldAccessorInfo() {

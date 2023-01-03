@@ -169,12 +169,12 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 							handleRequiredField(ret, ctx, fs, "quantityUnits", newDrugOrder.getQuantityUnits());
 						}
 						
-						if (overlapsWithExistingDrugOrder(ctx.getExistingPatient(), newDrugOrder)) {
+						if (overlapsWithExistingDrugOrder(ctx, newDrugOrder)) {
 							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
 							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleWithActiveOrder");
 						}
 						
-						if (overlapsWithExistingDrugOrder(newOrders, newDrugOrder)) {
+						if (overlapsWithExistingDrugOrder(ctx, newOrders, newDrugOrder)) {
 							String errorField = getFirstFoundErrorField(ctx, fs, "drug", "drugNonCoded", "concept");
 							addError(ret, errorField, "htmlformentry.orders.overlappingScheduleForNewOrders");
 						}
@@ -323,14 +323,14 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 	 * 
 	 * @param order
 	 */
-	public boolean overlapsWithExistingDrugOrder(Patient patient, DrugOrder order) {
+	public boolean overlapsWithExistingDrugOrder(FormEntryContext ctx, DrugOrder order) {
 		Set<Concept> orderConcepts = new HashSet<>();
 		orderConcepts.add(order.getConcept());
-		List<Order> existingOrders = HtmlFormEntryUtil.getOrdersForPatient(patient, orderConcepts);
-		return overlapsWithExistingDrugOrder(existingOrders, order);
+		List<Order> existingOrders = HtmlFormEntryUtil.getOrdersForPatient(ctx.getExistingPatient(), orderConcepts);
+		return overlapsWithExistingDrugOrder(ctx, existingOrders, order);
 	}
 	
-	public boolean overlapsWithExistingDrugOrder(List<Order> existingOrders, DrugOrder order) {
+	public boolean overlapsWithExistingDrugOrder(FormEntryContext ctx, List<Order> existingOrders, DrugOrder order) {
 		for (Order orderToCheck : existingOrders) {
 			// Care Settings Match
 			if (OpenmrsUtil.nullSafeEquals(order.getCareSetting(), orderToCheck.getCareSetting())) {
@@ -341,7 +341,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 						// Not a revision of the order to check
 						if (order.getPreviousOrder() == null || !order.getPreviousOrder().equals(orderToCheck)) {
 							// Has an overlapping schedule
-							if (checkScheduleOverlap(order, orderToCheck)) {
+							if (checkScheduleOverlap(ctx, order, orderToCheck)) {
 								return true;
 							}
 						}
@@ -352,11 +352,15 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 		return false;
 	}
 	
-	private boolean checkScheduleOverlap(Order newOrder, Order existingOrder) {
-		Date newStart = newOrder.getEffectiveStartDate() == null ? new Date() : newOrder.getEffectiveStartDate();
+	private boolean checkScheduleOverlap(FormEntryContext ctx, Order newOrder, Order existingOrder) {
+		Date newStart = newOrder.getEffectiveStartDate();
 		Date newStop = newOrder.getEffectiveStopDate();
 		Date existingStart = existingOrder.getEffectiveStartDate();
 		Date existingStop = existingOrder.getEffectiveStopDate();
+		
+		if (newStart == null) {
+			newStart = ctx.getBestApproximationOfEncounterDate();
+		}
 		
 		// If both orders start on the same date, then they overlap
 		if (OpenmrsUtil.compareWithNullAsLatest(newStart, existingStart) == 0) {

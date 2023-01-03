@@ -1337,7 +1337,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			Date valueToTest = (Date) value;
 			if (!allowFutureDates) {
 				// make sure obs date is not before the current encounter date
-				Date encounterDateToTest = getBestApproximationOfEncounterDate(context);
+				Date encounterDateToTest = context.getBestApproximationOfEncounterDate();
 				
 				if (OpenmrsUtil.compare(valueToTest, encounterDateToTest) > 0) {
 					ret.add(new FormSubmissionError(valueWidget,
@@ -1346,7 +1346,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			}
 			if (!allowPastDates) {
 				// make sure obs date is not before the current encounter date
-				Date encounterDateToTest = getBestApproximationOfEncounterDate(context);
+				Date encounterDateToTest = context.getBestApproximationOfEncounterDate();
 				Date valueToTestWithoutTime = HtmlFormEntryUtil.startOfDay(valueToTest);
 				if (valueToTest.equals(valueToTestWithoutTime)) {
 					encounterDateToTest = HtmlFormEntryUtil.startOfDay(encounterDateToTest);
@@ -1528,7 +1528,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	}
 	
 	private Date getMaxDateForDateWidget(FormEntryContext context, Obs existingObs) {
-		Date encounterDate = getBestApproximationOfEncounterDate(context);
+		Date encounterDate = context.getBestApproximationOfEncounterDate();
 		
 		// if the existing obs value is outside the allowable range (ie after encounter date), which
 		// could be possible if the encounter date was somehow updated after obs value date was entered,
@@ -1543,23 +1543,6 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			return encounterDate;
 		}
 		
-	}
-	
-	private Date getBestApproximationOfEncounterDate(FormEntryContext context) {
-		// if there's a pending update to the encounter date, use that
-		Date encounterDateToTest = context.getPendingEncounterDatetime();
-		
-		// if no pending, but there's an existing encounter, use that encounter date
-		if (encounterDateToTest == null && context.getExistingEncounter() != null) {
-			encounterDateToTest = context.getExistingEncounter().getEncounterDatetime();
-		}
-		
-		// finally, fall back to current date if nothing else
-		if (encounterDateToTest == null) {
-			encounterDateToTest = new Date();
-		}
-		
-		return encounterDateToTest;
 	}
 	
 	protected void setExistingObs(T context, Map<String, String> parameters, boolean isAutocomplete) {
