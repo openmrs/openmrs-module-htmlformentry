@@ -1,0 +1,7 @@
+<htmlform>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Binome: <obs conceptId="19" style="provider" providerRoles="da7f523f-27ce-4bb2-86d6-6d1d05312bd5 , 1002"/>   <!-- a concept of type value-text -->
+	<submit/>
+</htmlform>

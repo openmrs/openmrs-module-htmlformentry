@@ -6,10 +6,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
+import org.openmrs.EncounterRole;
 import org.openmrs.EncounterType;
 import org.openmrs.Form;
+import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
+import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -34,6 +37,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	@Before
 	public void loadData() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/providerRoles-dataset.xml");
 	}
 	
 	@Test
@@ -1448,6 +1452,143 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void viewFormWithProviderObs() throws Exception {
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleProviderObsForm";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterDatetime(date);
+				e.setLocation(getLocation(2));
+				e.addProvider(getEncounterRole(1), getProvider(1));
+				TestUtil.addObs(e, 19, "1003", null); // see providerRoles-dataset.xml
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				System.out.println(html);
+				TestUtil.assertFuzzyContains("Horatio", html);
+				TestUtil.assertFuzzyContains("Hornblower", html); // make sure provider name is on the form
+			}
+		}.run();
+	}
+	
+	@Test
+	public void saveFormWithProviderObs() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleProviderObsForm";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Binome:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Binome:"), "1005");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(1);
+				
+				Obs providerObs = results.getEncounterCreated().getObs().iterator().next();
+				
+				Assert.assertEquals("1005", providerObs.getValueText());
+				Assert.assertNull(providerObs.getValueCoded());
+				Assert.assertEquals("org.openmrs.Provider", providerObs.getComment());
+			}
+		}.run();
+	}
+	
+	@Test
+	public void editFormWithProviderObs() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleProviderObsForm";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Binome:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Binome:"), "1005");
+			}
+			
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Binome:" };
+			};
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Binome:"), "1003");
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				// Should contain empty option, and 4 options (2 roles, 2 non-retired providers per role)
+				TestUtil.assertContains("Choose a Provider", html);
+				TestUtil.assertContains("<option value=\"1003\">", html);
+				TestUtil.assertContains("<option value=\"1004\">", html);
+				TestUtil.assertContains("<option value=\"1005\" selected=\"true\">", html);
+				TestUtil.assertContains("<option value=\"1006\">", html);
+				System.out.println(html);
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				;
+				results.assertProvider(502);
+				results.assertLocation(2);
+				results.assertObsCreatedCount(1);
+				
+				Obs providerObs = results.getEncounterCreated().getObs().iterator().next();
+				
+				Assert.assertEquals("1003", providerObs.getValueText());
+				Assert.assertNull(providerObs.getValueCoded());
+				Assert.assertEquals("org.openmrs.Provider", providerObs.getComment());
+			};
+			
+		}.run();
+	}
+	
+	@Test
 	public void answerConceptIdsShouldMapToAnswerLabels() throws Exception {
 		new RegressionTestHelper() {
 			
@@ -2485,5 +2626,17 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 		}
 		
 		return image;
+	}
+	
+	private Provider getProvider(Integer providerId) {
+		return Context.getProviderService().getProvider(providerId);
+	}
+	
+	private Location getLocation(Integer locationId) {
+		return Context.getLocationService().getLocation(locationId);
+	}
+	
+	private EncounterRole getEncounterRole(Integer encounterRoleId) {
+		return Context.getEncounterService().getEncounterRole(encounterRoleId);
 	}
 }
