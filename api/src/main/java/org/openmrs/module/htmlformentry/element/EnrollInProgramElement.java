@@ -1,16 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.LocationTag;
 import org.openmrs.Patient;
@@ -27,6 +16,16 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.ToggleWidget;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Serves as both the HtmlGeneratorElement and the FormSubmissionControllerAction for a Program
@@ -69,8 +68,10 @@ public class EnrollInProgramElement implements HtmlGeneratorElement, FormSubmiss
 			checkToEnrollWidget = new CheckboxWidget();
 			{ // If patient is already enrolled, check and disable the checkbox
 				Patient patient = context.getExistingPatient();
-				Date encounterDate = (Date) ObjectUtils.defaultIfNull(context.getPreviousEncounterDate(),
-				    ObjectUtils.defaultIfNull(context.getDefaultEncounterDate(), new Date()));
+				Date encounterDate = context.getPreviousEncounterDate();
+				if (encounterDate == null) {
+					encounterDate = context.getBestApproximationOfEncounterDate();
+				}
 				if (HtmlFormEntryUtil.isEnrolledInProgramOnDate(patient, program, encounterDate)) {
 					checkToEnrollWidget.setInitialValue("true");
 					checkToEnrollWidget.setDisabled(true);
