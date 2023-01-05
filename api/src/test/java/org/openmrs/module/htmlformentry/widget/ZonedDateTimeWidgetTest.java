@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.widget;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,11 @@ public class ZonedDateTimeWidgetTest extends BaseHtmlFormEntryTest {
 		
 		//Set Client Timezone
 		Context.getAuthenticatedUser().setUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE, "Europe/Lisbon");
+	}
+	
+	@After
+	public void after() {
+		Context.getAuthenticatedUser().removeUserProperty(HtmlFormEntryConstants.UP_CLIENT_TIMEZONE);
 	}
 	
 	@Test

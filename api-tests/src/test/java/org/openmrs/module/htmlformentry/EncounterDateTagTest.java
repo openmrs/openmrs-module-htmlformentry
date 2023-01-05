@@ -27,16 +27,9 @@ public class EncounterDateTagTest extends BaseHtmlFormEntryTest {
 	@Autowired
 	private MessageSourceService messageSourceService;
 	
-	private TimeZone systemTimezone;
-	
-	@Before
-	public void before() {
-		systemTimezone = TimeZone.getDefault();
-	}
-	
 	@After
 	public void after() {
-		TimeZone.setDefault(systemTimezone);
+		TimeZone.setDefault(null);
 	}
 	
 	/**
