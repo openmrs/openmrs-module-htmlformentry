@@ -930,29 +930,26 @@ public class FormEntryContext {
 	 */
 	public Date getBestApproximationOfEncounterDate() {
 		// if there's a pending update to the encounter date, use that
-		Date encounterDateToTest = getPendingEncounterDatetime();
+		Date encounterDatetime = getPendingEncounterDatetime();
 		
 		// if no pending, but there's an existing encounter, use that encounter date
-		if (encounterDateToTest == null && getExistingEncounter() != null) {
-			encounterDateToTest = getExistingEncounter().getEncounterDatetime();
+		if (encounterDatetime == null && getExistingEncounter() != null) {
+			encounterDatetime = getExistingEncounter().getEncounterDatetime();
 		}
 		
-		if (encounterDateToTest == null) {
+		if (encounterDatetime == null) {
 			Date currentDate = (getDefaultEncounterDate() != null ? getDefaultEncounterDate() : new Date());
-			
 			// If there is a visit in the context and the current date is outside of this visit, use visit start date
-			if (getVisit() != null) {
-				Visit visit = (Visit) getVisit();
-				if (visit.getStopDatetime() != null && currentDate.after(visit.getStopDatetime())) {
-					encounterDateToTest = visit.getStartDatetime();
-				}
+			if (getVisit() != null && ((Visit) getVisit()).getStopDatetime() != null
+			        && currentDate.after(((Visit) getVisit()).getStopDatetime())) {
+				encounterDatetime = ((Visit) visit).getStartDatetime();
 			} else {
 				// finally, fall back to current date if nothing else
-				encounterDateToTest = currentDate;
+				encounterDatetime = currentDate;
 			}
 		}
 		
-		return encounterDateToTest;
+		return encounterDatetime;
 	}
 	
 	/**
