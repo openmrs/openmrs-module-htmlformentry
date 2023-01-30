@@ -149,7 +149,6 @@ public class OrderTagHandler extends AbstractTagHandler {
 		// Options valid for drug orders
 		if (HtmlFormEntryUtil.isADrugOrderType(orderType)) {
 			processDrugOptions(widgetConfig);
-			ensureConceptAndDrugOptionsAreConsistent(widgetConfig);
 			processConceptOptions(widgetConfig, "doseUnits");
 			processConceptOptions(widgetConfig, "route");
 			processOrderFrequencyOptions(widgetConfig);
@@ -157,6 +156,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 			processConceptOptions(widgetConfig, "durationUnits");
 			processConceptOptions(widgetConfig, "quantityUnits");
 		}
+		ensureConceptAndDrugOptionsAreConsistent(widgetConfig);
 		
 		log.trace("OrderTagHandler - constructing order widget");
 		OrderWidget orderWidget = new OrderWidget(context, widgetConfig);
@@ -497,6 +497,9 @@ public class OrderTagHandler extends AbstractTagHandler {
 		if (options.isEmpty()) {
 			for (Concept c : fullList) {
 				options.add(new Option(c.getDisplayString(), c.getId().toString(), false));
+				if ("concept".equalsIgnoreCase(prop)) {
+					config.getConceptsAndDrugsConfigured().computeIfAbsent(c, k -> new ArrayList<>());
+				}
 			}
 		} else {
 			for (Option option : options) {
@@ -513,6 +516,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 				ConceptOption conceptOption = new ConceptOption(option.getLabel(), c);
 				if ("concept".equalsIgnoreCase(prop)) {
 					config.getOrderField().addConceptOption(conceptOption);
+					config.getConceptsAndDrugsConfigured().computeIfAbsent(c, k -> new ArrayList<>());
 				} else if ("doseUnits".equalsIgnoreCase(prop)) {
 					config.getOrderField().addDoseUnitAnswer(conceptOption);
 				} else if ("route".equalsIgnoreCase(prop)) {
