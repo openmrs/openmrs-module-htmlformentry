@@ -96,7 +96,7 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					members.removeAll(session.getSubmissionActions().getObsToVoid());
 					Obs existinghiddenObs = null;
 					for (Obs member : members) {
-						if (member.getConcept() == hiddenObsConcept && member.getValueCoded() == hiddenObsValue) {
+						if (member.getConcept().equals(hiddenObsConcept) && member.getValueCoded().equals(hiddenObsValue)) {
 							existinghiddenObs = member;
 							members.remove(existinghiddenObs);
 							break;
