@@ -150,6 +150,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		//                        question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue());
 		//                    } catch (Exception ex){}
 		//                }
+		// TODO: should we flip these?
 		session.getContext().endObsGroup();
 		session.getSubmissionController().addAction(ObsGroupAction.end(ogSchemaObj));
 	}
