@@ -69,7 +69,7 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGrouphiddenObsDoesNotDisplay() throws Exception {
+	public void testObsGroupHiddenObsDoesNotDisplay() throws Exception {
 		new RegressionTestHelper() {
 			
 			@Override
@@ -94,7 +94,7 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupSubmitshiddenObs() throws Exception {
+	public void testObsGroupSubmitsHiddenObs() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
@@ -127,7 +127,7 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupDoesNotSavehiddenObsWhenEmpty() throws Exception {
+	public void testObsGroupDoesNotSaveHiddenObsWhenEmpty() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
@@ -159,7 +159,7 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testObsGroupDeleteshiddenObsWhenCleared() throws Exception {
+	public void testObsGroupDeletesHiddenObsWhenCleared() throws Exception {
 		final Date date = new Date();
 		new RegressionTestHelper() {
 			
@@ -212,6 +212,7 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsGroupCreatedCount(0);
+				results.assertObsVoided(23, null); // assure the grouping concept has been voided
 				results.assertObsVoided(1000, conceptService.getConcept(1004));
 			}
 			

@@ -873,10 +873,12 @@ public abstract class RegressionTestHelper {
 			Assert.assertNotNull(temp);
 			
 			String valueAsString = null;
-			if (value instanceof Date) {
-				valueAsString = formatObsValueDate((Date) value);
-			} else {
-				valueAsString = TestUtil.valueAsStringHelper(value);
+			if (value != null) {
+				if (value instanceof Date) {
+					valueAsString = formatObsValueDate((Date) value);
+				} else {
+					valueAsString = TestUtil.valueAsStringHelper(value);
+				}
 			}
 			for (Obs obs : temp) {
 				if (lookForVoided && !obs.isVoided())

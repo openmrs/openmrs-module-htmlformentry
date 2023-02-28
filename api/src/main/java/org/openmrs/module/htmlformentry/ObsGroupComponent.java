@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
@@ -176,7 +177,7 @@ public class ObsGroupComponent {
 	}
 	
 	public static List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId,
-	        Map.Entry<Concept, Concept> hiddenObs, Node node) {
+	        Pair<Concept, Concept> hiddenObs, Node node) {
 		List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
 		if (hiddenObs != null) { // consider the hidden obs when making a match
 			ret.add(new ObsGroupComponent(hiddenObs.getKey(), hiddenObs.getValue(), null, false, false));

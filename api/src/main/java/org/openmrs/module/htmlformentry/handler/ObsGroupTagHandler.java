@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
@@ -14,7 +16,6 @@ import org.openmrs.module.htmlformentry.schema.ObsGroup;
 import org.w3c.dom.Node;
 
 import java.io.PrintWriter;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 			        + " as grouping obs for an obsgroup tag");
 		}
 		
-		Map.Entry<Concept, Concept> hiddenObs = gethiddenObs(attributes.get("hiddenConceptId"),
+		Pair<Concept, Concept> hiddenObs = getHiddenObs(attributes.get("hiddenConceptId"),
 		    attributes.get("hiddenAnswerConceptId"));
 		
 		boolean ignoreIfEmpty = session.getContext().getMode() == Mode.VIEW && "false".equals(attributes.get("showIfEmpty"));
@@ -96,7 +97,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 		// sets up the obs group stack, sets current obs group to this one
 		ogSchemaObj = new ObsGroup(groupingConcept, name);
-		ogSchemaObj.sethiddenObs(hiddenObs);
+		ogSchemaObj.setHiddenObs(hiddenObs);
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack
 		session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
@@ -104,7 +105,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 	}
 	
 	private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId,
-	        Map.Entry<Concept, Concept> hiddenObs) {
+	        Pair<Concept, Concept> hiddenObs) {
 		String path = ObsGroupComponent.getObsGroupPath(node);
 		
 		List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent
@@ -118,7 +119,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 	}
 	
-	private Map.Entry<Concept, Concept> gethiddenObs(String hiddenConceptId, String hiddenAnswerConceptId)
+	private Pair<Concept, Concept> getHiddenObs(String hiddenConceptId, String hiddenAnswerConceptId)
 	        throws BadFormDesignException {
 		if (hiddenConceptId != null || hiddenAnswerConceptId != null) {
 			if (hiddenConceptId == null || hiddenAnswerConceptId == null) {
@@ -135,7 +136,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 				throw new BadFormDesignException("could not find concept " + hiddenAnswerConceptId
 				        + " as the hiddenAnswerConceptId for an obsgroup tag");
 			}
-			return new AbstractMap.SimpleEntry<>(question, answer);
+			return new ImmutablePair<>(question, answer);
 		} else {
 			return null;
 		}
@@ -150,6 +151,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		//                        question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue());
 		//                    } catch (Exception ex){}
 		//                }
+		// TODO: should we flip these?
 		session.getContext().endObsGroup();
 		session.getSubmissionController().addAction(ObsGroupAction.end(ogSchemaObj));
 	}
