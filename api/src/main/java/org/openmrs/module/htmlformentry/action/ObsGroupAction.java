@@ -76,11 +76,11 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					session.getSubmissionActions().beginObsGroup(obsGroup);
 				}
 			} else {
-				if (obsGroupSchemaObject.gethiddenObs() != null) {
+				if (obsGroupSchemaObject.getHiddenObs() != null) {
 					// existingGroup seems never to exist. Not sure if something needs to be done to handle it,
 					// as is done in the other `if` branches.
-					Concept hiddenObsConcept = obsGroupSchemaObject.gethiddenObs().getKey();
-					Concept hiddenObsValue = obsGroupSchemaObject.gethiddenObs().getValue();
+					Concept hiddenObsConcept = obsGroupSchemaObject.getHiddenObs().getKey();
+					Concept hiddenObsValue = obsGroupSchemaObject.getHiddenObs().getValue();
 					// If the obs group will have any members, we want to ensure that the hidden obs is present.
 					// Otherwise, we want to ensure that the hidden obs is absent.
 					// 

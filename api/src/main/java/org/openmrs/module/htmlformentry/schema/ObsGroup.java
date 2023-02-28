@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openmrs.Concept;
 
 /**
@@ -17,7 +18,7 @@ public class ObsGroup implements HtmlFormField {
 	
 	private String label;
 	
-	private Map.Entry<Concept, Concept> hiddenObs;
+	private Pair<Concept, Concept> hiddenObs;
 	
 	public ObsGroup(Concept concept) {
 		this.concept = concept;
@@ -73,12 +74,11 @@ public class ObsGroup implements HtmlFormField {
 		this.label = label;
 	}
 	
-	public Map.Entry<Concept, Concept> gethiddenObs() {
+	public Pair<Concept, Concept> getHiddenObs() {
 		return hiddenObs;
 	}
 	
-	public void sethiddenObs(Map.Entry<Concept, Concept> hiddenObs) {
+	public void setHiddenObs(Pair<Concept, Concept> hiddenObs) {
 		this.hiddenObs = hiddenObs;
 	}
-	
 }
