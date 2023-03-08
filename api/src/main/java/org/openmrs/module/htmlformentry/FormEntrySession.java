@@ -707,20 +707,19 @@ public class FormEntrySession {
 			Date encounterDate = encounter.getEncounterDatetime();
 			
 			// Try to determine if this is intended as an edit to an existing state
-			// by checking if a state in this workflow is active on the previous encounter date
+			// by checking if a state in this workflow started at the same date(time) as the previous encounter date
 			PatientState stateToEdit = null;
 			if (Mode.EDIT.equals(context.getMode()) && previousEncounterDate != null) {
-				PatientState possibleState = HtmlFormEntryUtil.getPatientStateOnDate(patient, workflow,
-				    previousEncounterDate);
-				if (possibleState != null && possibleState.getStartDate() != null) {
-					Date stateDate = possibleState.getStartDate();
+				PatientState ps = HtmlFormEntryUtil.getPatientStateOnDate(patient, workflow, previousEncounterDate);
+				if (ps != null && ps.getStartDate() != null) {
+					Date stateDate = ps.getStartDate();
 					if (HtmlFormEntryUtil.hasTimeComponent(stateDate)) {
 						if (stateDate.equals(previousEncounterDate)) {
-							stateToEdit = possibleState;
+							stateToEdit = ps;
 						}
 					} else {
 						if (DateUtils.isSameDay(stateDate, previousEncounterDate)) {
-							stateToEdit = possibleState;
+							stateToEdit = ps;
 						}
 					}
 				}

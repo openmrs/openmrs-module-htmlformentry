@@ -1504,7 +1504,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 		//Given: Patient has an enrollment starting 3 years ago, with start state from 3 years ago until 2 years ago, and from 1 year ago still active
 		transitionToState(START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
 		transitionToState(START_STATE, ONE_YEAR_AGO);
-
+		
 		PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
 		assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
 		assertState(pp, START_STATE, ONE_YEAR_AGO, null);
@@ -1976,12 +1976,12 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 		ProgramWorkflowState workflowState = Context.getProgramWorkflowService().getStateByUuid(state);
 		ProgramWorkflow workflow = workflowState.getProgramWorkflow();
 		Program program = workflow.getProgram();
-		List<PatientProgram> pps = programWorkflowService.getPatientPrograms(patient, program, null, null, null, null, false);
+		List<PatientProgram> pps = programWorkflowService.getPatientPrograms(patient, program, null, null, null, null,
+		    false);
 		PatientProgram patientProgram = null;
 		if (pps.size() == 1) {
 			patientProgram = pps.get(0);
-		}
-		else if (pps.size() > 1) {
+		} else if (pps.size() > 1) {
 			throw new IllegalArgumentException("Multiple patient programs found for patient");
 		}
 		if (pps.isEmpty()) {
