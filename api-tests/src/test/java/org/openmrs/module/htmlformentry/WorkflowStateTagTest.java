@@ -1499,6 +1499,82 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void shouldNotRemovePreviousStateOnEditIfEncounterDateDoesNotMatchStateStartDate() throws Exception {
+		
+		//Given: Patient has an enrollment starting 3 years ago, with start state from 3 years ago until 2 years ago, and from 1 year ago still active
+		transitionToState(START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
+
+		PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
+		assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+		assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today with no state selected
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.addParameter(widgets.get("State:"), "");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				//Then: nothing should have changed, since no state was entered.
+				PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
+				assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and submitted with the same encounter date (today), but with state Y selected
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				//Then: the existing enrollment and states should remain, with the most recent state X ending today, and state Y starting today with no end date
+				PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
+				assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, TODAY);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
+			}
+			
+		}.run();
+	}
+	
+	@Test
 	public void checkboxShouldAppearCheckedIfCurrentlyInSpecifiedState() throws Exception {
 		
 		transitionToState(START_STATE, TWO_YEARS_AGO);
@@ -1893,18 +1969,31 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	private void transitionToState(String state, Date date) {
+		transitionToState(state, date, null);
+	}
+	
+	private void transitionToState(String state, Date startDate, Date endDate) {
 		ProgramWorkflowState workflowState = Context.getProgramWorkflowService().getStateByUuid(state);
-		
-		PatientProgram patientProgram = getPatientProgramByWorkflow(patient, workflowState.getProgramWorkflow(), date);
-		if (patientProgram == null) {
+		ProgramWorkflow workflow = workflowState.getProgramWorkflow();
+		Program program = workflow.getProgram();
+		List<PatientProgram> pps = programWorkflowService.getPatientPrograms(patient, program, null, null, null, null, false);
+		PatientProgram patientProgram = null;
+		if (pps.size() == 1) {
+			patientProgram = pps.get(0);
+		}
+		else if (pps.size() > 1) {
+			throw new IllegalArgumentException("Multiple patient programs found for patient");
+		}
+		if (pps.isEmpty()) {
 			patientProgram = new PatientProgram();
 			patientProgram.setPatient(patient);
 			patientProgram.setProgram(workflowState.getProgramWorkflow().getProgram());
-			patientProgram.setDateEnrolled(date);
+			patientProgram.setDateEnrolled(startDate);
 		}
-		
-		patientProgram.transitionToState(workflowState, date);
-		
+		patientProgram.transitionToState(workflowState, startDate);
+		if (endDate != null) {
+			patientProgram.getCurrentState(workflowState.getProgramWorkflow()).setEndDate(endDate);
+		}
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
 	
