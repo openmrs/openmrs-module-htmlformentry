@@ -1431,7 +1431,72 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 	
-
+	// See HTML-321
+	@Test
+	public void shouldNotMoveStateIfDateDiffersFromOriginalEncounterDateOnEdit() throws Exception {
+		//Given: Patient has an enrollment with state X starting one year ago
+		transitionToState(START_STATE, ONE_YEAR_AGO);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state X is selected
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				//Then: the existing enrollment with state X remains the same, starting one year ago
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and submitted without changing anything (encounter date today, with state X)
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.setParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				//Then: the existing enrollment with state X remains the same, starting one year ago
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+			}
+			
+		}.run();
+	}
 	
 	@Test
 	public void checkboxShouldAppearCheckedIfCurrentlyInSpecifiedState() throws Exception {

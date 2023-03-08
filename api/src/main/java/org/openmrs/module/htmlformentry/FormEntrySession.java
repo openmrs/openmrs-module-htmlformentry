@@ -710,17 +710,30 @@ public class FormEntrySession {
 			// by checking if a state in this workflow is active on the previous encounter date
 			PatientState stateToEdit = null;
 			if (Mode.EDIT.equals(context.getMode()) && previousEncounterDate != null) {
-				stateToEdit = HtmlFormEntryUtil.getPatientStateOnDate(patient, workflow, previousEncounterDate);
-				if (stateToEdit != null) {
-					pp = stateToEdit.getPatientProgram();
-					if (!programsToUpdate.contains(pp)) {
-						programsToUpdate.add(pp);
+				PatientState possibleState = HtmlFormEntryUtil.getPatientStateOnDate(patient, workflow,
+				    previousEncounterDate);
+				if (possibleState != null && possibleState.getStartDate() != null) {
+					Date stateDate = possibleState.getStartDate();
+					if (HtmlFormEntryUtil.hasTimeComponent(stateDate)) {
+						if (stateDate.equals(previousEncounterDate)) {
+							stateToEdit = possibleState;
+						}
+					} else {
+						if (DateUtils.isSameDay(stateDate, previousEncounterDate)) {
+							stateToEdit = possibleState;
+						}
 					}
 				}
 			}
 			
 			// If this _is_ determined to be an edit to an existing state, edit it
 			if (stateToEdit != null) {
+				
+				// If we are editing a state, makes sure the associated patient program is marked to update
+				pp = stateToEdit.getPatientProgram();
+				if (!programsToUpdate.contains(pp)) {
+					programsToUpdate.add(pp);
+				}
 				
 				// If the encounter date has shifted earlier, and there is an existing patient state on the
 				// new encounter date, and it differs from the state on the old encounter date, end it, and void
