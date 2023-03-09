@@ -2312,6 +2312,14 @@ public class HtmlFormEntryUtil {
 		return cal.getTime();
 	}
 	
+	/**
+	 * @param date the date to check
+	 * @return true if the given date is not at midnight
+	 */
+	public static boolean hasTimeComponent(Date date) {
+		return date != null && !date.equals(clearTimeComponent(date));
+	}
+	
 	public static Date increment(Date date, int months, int days, int hours, int minutes, int seconds) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
