@@ -66,7 +66,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	public static final Date TWO_YEARS_AGO = DateUtils.addYears(TODAY, -2);
 	
-	public static final Date ONE_YEAR_IN_FUTURE = DateUtils.addYears(TODAY, 1);
+	public static final Date THREE_YEARS_AGO = DateUtils.addYears(TODAY, -3);
 	
 	public static final String RETIRED_STATE = "91f66ca8-5140-11e1-a3e3-00248140a5eb";
 	
@@ -394,7 +394,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateBeforeAnotherState() throws Exception {
-		//Given: A patient has a program that started 2 years ago, with an initial state and an end state starting today
+		//Given: A patient has a program that started 2 years ago, with state X, then a workflow state of Z from today to current
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		transitionToState(END_STATE, TODAY);
 		
@@ -415,7 +415,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
 				
-				//When: Html form is being back entered with an encounter date during the enrollment that sets a middle state
+				//When: Html form is being back entered with an encounter date of one year ago in which state Y is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -427,7 +427,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: The initial state is ended, the middle state is added, and the end state stays as is
+				//Then: State X end date is changed from today to one year ago, state Y is added from one year ago until today, and state Z remains the same
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
 				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, TODAY);
@@ -449,7 +449,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateAfterAnotherState() throws Exception {
-		//Given: Patient has a workflow state of X starting in June 2011
+		//Given: Patient has a workflow state of X starting one year ago
 		transitionToState(START_STATE, ONE_YEAR_AGO);
 		
 		new RegressionTestHelper() {
@@ -469,7 +469,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is being entered with an encounter date of Jan 2012, in which workflow state Y is selected
+				//When: Html form is being entered with an encounter date of today, in which workflow state Y is selected
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
@@ -490,7 +490,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldNotTransitionToSameState() throws Exception {
-		//Given: Patient has a workflow state of X starting in June 2011 (still current)
+		//Given: Patient has a workflow state of X starting one year ago and still active
 		transitionToState(START_STATE, ONE_YEAR_AGO);
 		new RegressionTestHelper() {
 			
@@ -508,7 +508,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state X is selected
+				//When: Html form is entered with an encounter date of today in which workflow state X is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
@@ -529,7 +529,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateAfterCurrent() throws Exception {
-		//Given: Patient has an enrollment with start date starting two years ago and still active
+		//Given: Patient has an enrollment with state X starting two years ago and still active
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		new RegressionTestHelper() {
 			
@@ -547,7 +547,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of one year ago in which end state is selected
+				//When: Html form is entered with an encounter date of one year ago in which state Z is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
@@ -559,7 +559,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: This should end start state and start end state
+				//Then: This should end state X one year ago and start state Z one year ago with no end date
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
 				assertState(pp, END_STATE, ONE_YEAR_AGO, null);
@@ -569,7 +569,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateAfterCurrentOnTheSameDay() throws Exception {
-		//Given: Patient has a workflow state of X starting in Jan 2012 (active) (still current)
+		//Given: Patient has no workflow state
 		new RegressionTestHelper() {
 			
 			@Override
@@ -586,6 +586,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state X is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
@@ -596,7 +597,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(2);
-				
+				//Then: This should enroll patient today with state X starting today
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				assertState(pp, START_STATE, TODAY, null);
 			}
@@ -639,7 +640,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of Jan 2012 in which workflow state Y is selected
+				//When: A second Html form / encounter is entered with an encounter date of today in which state Y is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -651,7 +652,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: Workflow state X is stopped with a stop date of Jan 2012, Workflow state Y is created with a start date of Jan 2012 and is still current
+				//Then: Workflow state X is stopped with a stop date of today, Workflow state Y is created with a start date of today and is still current
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				assertState(pp, START_STATE, TODAY, TODAY);
 				assertState(pp, MIDDLE_STATE, TODAY, null);
@@ -682,7 +683,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionToStateInBetweenStates() throws Exception {
-		//Given: Patient has a workflow state of X from June 2011 to Jan 2012, then a workflow state of Y from Jan 2012 to current
+		//Given: Patient has a workflow state of X from two years ago until today, then a workflow state of Z from today to current
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		transitionToState(END_STATE, TODAY);
 		new RegressionTestHelper() {
@@ -701,7 +702,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
-				//When: Html form is entered with an encounter date of Sept 2011 in which workflow state Z is selected
+				//When: Html form is entered with an encounter date of one year ago in which workflow state Y is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -713,7 +714,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				//Then: Workflow X is changed to a stop date of Sept 2011, Workflow Z is created with a start date of Sept 2011 and a stop date of Jan 2012
+				//Then: Workflow X is changed to a stop date of one year ago, Workflow Y is created with a start date of one year ago and a stop date of today, and workflow Z remains unchanged
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
 				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, TODAY);
@@ -811,6 +812,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldAllowToEditStateWithSameDate() throws Exception {
+		//Given: Patient has no workflow state
 		new RegressionTestHelper() {
 			
 			@Override
@@ -827,6 +829,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state X is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
@@ -837,7 +840,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(2);
-				
+				//Then: This should enroll patient today with state X starting today
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				assertState(pp, START_STATE, TODAY, null);
 			}
@@ -866,6 +869,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited with and state Y is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -875,7 +879,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertNoErrors();
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				assertState(pp, MIDDLE_STATE, TODAY, null);
-				// assert that the other state no longer exists
+				//Then: This should remove state X and add state Y starting today (replace state X with Y with same date)
 				assertNoState(pp, START_STATE);
 			}
 		}.run();
@@ -883,6 +887,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldMoveProgramEnrollmentAndProgramStateStartEarlier() throws Exception {
+		//Given: Patient has no workflow state
 		new RegressionTestHelper() {
 			
 			@Override
@@ -899,6 +904,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state X is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
@@ -909,7 +915,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(2);
-				
+				//Then: This should enroll patient today with state X starting today
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				assertState(pp, START_STATE, TODAY, null);
 			}
@@ -938,16 +944,16 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and encounter date is changed to one year ago and state Y is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
-				// assert that the start dates of the program and state have been moved
+				//Then: This should change the enrollment date to one year ago, remove state X, and add state Y starting one year ago
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
 				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, null);
-				// assert that the other state no longer exists
 				assertNoState(pp, START_STATE);
 			}
 			
@@ -956,6 +962,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldMoveProgramStateStartLater() throws Exception {
+		//Given: Patient has no workflow state
 		new RegressionTestHelper() {
 			
 			@Override
@@ -972,6 +979,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of one year ago in which state X is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), START_STATE);
 			}
@@ -982,7 +990,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(2);
-				
+				//Then: This should enroll patient with state X starting one year ago
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
 				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
 			}
@@ -1011,6 +1019,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited with and state Y is selected starting today
 				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -1018,11 +1027,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				// assert that the start date of the program is the same
+				//Then: This should keep the enrollment date as one year ago, remove state X, and add state Y starting today
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
-				// assert that the start date of the state has moved
 				assertState(pp, MIDDLE_STATE, TODAY, null);
-				// assert that the other state no longer exists
 				assertNoState(pp, START_STATE);
 			}
 			
@@ -1031,7 +1038,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldTransitionFromNoStateToSelectedStateOnEdit() throws Exception {
-		// first enroll the patient in the program
+		//Given: Patient has an enrollment starting today, with no state
 		enrollInProgram(START_STATE, TODAY);
 		new RegressionTestHelper() {
 			
@@ -1049,6 +1056,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of one year ago in which no state is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), ""); // set no state
 			}
@@ -1060,14 +1068,12 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertProvider(502);
 				results.assertLocation(2);
 				
-				// make sure the enrollment date has NOT been changed (since no state was set)
+				//Then: The enrollment date has NOT been changed (since no state was set)
 				List<PatientProgram> patientPrograms = patientPrograms(patient, TEST_PROGRAM);
 				Assert.assertEquals(1, patientPrograms.size());
 				PatientProgram patientProgram = patientPrograms.get(0);
 				Assert.assertNotNull(patientProgram);
 				Assert.assertEquals(dateAsString(TODAY), dateAsString(patientProgram.getDateEnrolled()));
-				
-				// assert that no states have been associated
 				Assert.assertEquals(0, patientProgram.getStates().size());
 			}
 			
@@ -1085,6 +1091,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and encounter date is changed to today and state X is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
@@ -1092,14 +1099,9 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				
-				// first verify that the existing patient program still exists and that the enrollment date has not been changed
+				//Then: the existing patient program still exists and the enrollment date has not been changed and there is one state X starting today
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
-				
-				// assert that the program has only one state
 				Assert.assertEquals(1, nonVoidedStates(pp));
-				
-				// assert that the start state of the state is correct
 				assertState(pp, START_STATE, TODAY, null);
 			}
 			
@@ -1108,7 +1110,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldCreateNewProgramIfEncounterDateNotDuringProgramEnrollmentOnEdit() throws Exception {
-		// first enroll the patient in the program
+		//Given: Patient has an enrollment with no state, starting today, and still active
 		enrollInProgram(START_STATE, TODAY);
 		new RegressionTestHelper() {
 			
@@ -1126,6 +1128,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which no state is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), ""); // set no state
 			}
@@ -1144,6 +1147,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and encounter date is changed to one year ago and state X is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
@@ -1152,15 +1156,12 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
-				// we should now have two program enrollments, one on PAST_DATE and one on DATE
+				//Then: we should now have two program enrollments, one from one year ago until today and one starting today
 				List<PatientProgram> pps = patientPrograms(results.getPatient(), TEST_PROGRAM);
 				Assert.assertEquals(2, pps.size());
-				
-				// This should create a new enrollment with the given state, and it should end at the existing program start date
 				PatientProgram pp1 = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, TODAY);
 				Assert.assertEquals(1, nonVoidedStates(pp1));
 				assertState(pp1, START_STATE, ONE_YEAR_AGO, TODAY);
-				
 				PatientProgram pp2 = assertProgram(results.getPatient(), TEST_PROGRAM, TODAY, null);
 				Assert.assertNotNull(pp2);
 				Assert.assertNotEquals(pp1, pp2);
@@ -1171,7 +1172,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldEndExistingStatesAsNeededWhenShiftingStateEarlier() throws Exception {
-		
+		//Given: Patient has an enrollment in state X starting two years ago, and still active
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		
 		new RegressionTestHelper() {
@@ -1190,6 +1191,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state Z is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
@@ -1200,8 +1202,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 				results.assertEncounterCreated();
 				results.assertProvider(502);
 				results.assertLocation(2);
-				
-				// do a sanity check here
+				//Then: one enrollment starting two years ago, with state X from two years ago until today, and state Z starting today
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
 				assertState(pp, END_STATE, TODAY, null);
 			}
@@ -1230,6 +1231,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and encounter date is changed to one year ago and state y is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
 			}
@@ -1238,15 +1240,10 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
 				
+				//Then: one enrollment starting two years ago, with state X from two years ago until one year ago, state Y starting one year ago, and no state Z
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
-				
-				// assert that the patient program only has two states
 				Assert.assertEquals(2, nonVoidedStates(pp));
-				
-				// verify that the start state now ends on PAST_DATE
 				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
-				
-				// verify that the middle state starts on PAST_DATE and has no current end date
 				assertState(pp, MIDDLE_STATE, ONE_YEAR_AGO, null);
 			}
 			
@@ -1255,7 +1252,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldRemoveExistingStatesAsNeededWhenShiftingStateEarlier() throws Exception {
-		
+		//Given: Patient has an enrollment in state X from two years ago until one year ago, state Y from one year ago, and still active
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		transitionToState(MIDDLE_STATE, ONE_YEAR_AGO);
 		
@@ -1275,6 +1272,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state Z is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
@@ -1298,6 +1296,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and encounter date is changed to one year ago and state Z is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.setParameter(widgets.get("State:"), END_STATE);
 			}
@@ -1305,20 +1304,11 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				
-				//Since moving into terminal state, this should end the program
+				//Then: one enrollment starting two years ago, with state X from two years ago until one year ago, state Z starting one year ago and still active, and no state Y
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
-				
-				// assert that the patient program only has two states
 				Assert.assertEquals(2, nonVoidedStates(pp));
-				
-				// verify that the start state
 				assertState(pp, START_STATE, TWO_YEARS_AGO, ONE_YEAR_AGO);
-				
-				// verify that the end state starts on PAST_DATE
 				assertState(pp, END_STATE, ONE_YEAR_AGO, null);
-				
-				// verify that the middle state no longer exists
 				assertNoState(pp, MIDDLE_STATE);
 			}
 			
@@ -1327,7 +1317,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldShiftExistingStateEndDateForwardAsNeededWhenShiftingStateLater() throws Exception {
-		
+		//Given: Patient has an enrollment in state X from two years ago nd still active
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		
 		new RegressionTestHelper() {
@@ -1346,6 +1336,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of one year ago in which state Z is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(ONE_YEAR_AGO));
 				request.addParameter(widgets.get("State:"), END_STATE);
 			}
@@ -1369,6 +1360,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited with an encounter date of today in which state Z is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), END_STATE);
 			}
@@ -1376,16 +1368,10 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				results.assertNoErrors();
-				
+				//Then: one enrollment starting two years ago, with state X from two years ago until today and state Z starting today and still active
 				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, TWO_YEARS_AGO, null);
-				
-				// assert that the patient program only has two states
 				Assert.assertEquals(2, nonVoidedStates(pp));
-				
-				// verify that the start state
 				assertState(pp, START_STATE, TWO_YEARS_AGO, TODAY);
-				
-				// verify that the end state starts on DATE
 				assertState(pp, END_STATE, TODAY, null);
 			}
 			
@@ -1394,7 +1380,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test(expected = FormEntryException.class)
 	public void shouldFailIfAttemptingToShiftStateStartDatePastEndDate() throws Exception {
-		
+		//Given: Patient has an enrollment in state X from two years ago until one year ago, state z from one year ago, and still active
 		transitionToState(START_STATE, TWO_YEARS_AGO);
 		transitionToState(END_STATE, ONE_YEAR_AGO);
 		
@@ -1414,6 +1400,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.addParameter(widgets.get("Location:"), "2");
 				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of two years ago in which no state is selected
 				request.addParameter(widgets.get("Date:"), dateAsString(TWO_YEARS_AGO));
 				request.addParameter(widgets.get("State:"), "");
 			}
@@ -1437,9 +1424,153 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited with an encounter date of today in which state X is selected
 				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
 				request.setParameter(widgets.get("State:"), START_STATE);
 			}
+		}.run();
+	}
+	
+	// See HTML-321
+	@Test
+	public void shouldNotMoveStateIfDateDiffersFromOriginalEncounterDateOnEdit() throws Exception {
+		//Given: Patient has an enrollment with state X starting one year ago
+		transitionToState(START_STATE, ONE_YEAR_AGO);
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today in which state X is selected
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.addParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				//Then: the existing enrollment with state X remains the same, starting one year ago
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and submitted without changing anything (encounter date today, with state X)
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.setParameter(widgets.get("State:"), START_STATE);
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				//Then: the existing enrollment with state X remains the same, starting one year ago
+				PatientProgram pp = assertProgram(results.getPatient(), TEST_PROGRAM, ONE_YEAR_AGO, null);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void shouldNotRemovePreviousStateOnEditIfEncounterDateDoesNotMatchStateStartDate() throws Exception {
+		
+		//Given: Patient has an enrollment starting 3 years ago, with start state from 3 years ago until 2 years ago, and from 1 year ago still active
+		transitionToState(START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+		transitionToState(START_STATE, ONE_YEAR_AGO);
+		
+		PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
+		assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+		assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+		
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return XML_FORM_NAME;
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				//When: Html form is entered with an encounter date of today with no state selected
+				request.addParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.addParameter(widgets.get("State:"), "");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+				//Then: nothing should have changed, since no state was entered.
+				PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
+				assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, null);
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Date:", "Location:", "Provider:", "State:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				//When: Html form is edited and submitted with the same encounter date (today), but with state Y selected
+				request.setParameter(widgets.get("Date:"), dateAsString(TODAY));
+				request.setParameter(widgets.get("State:"), MIDDLE_STATE);
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				//Then: the existing enrollment and states should remain, with the most recent state X ending today, and state Y starting today with no end date
+				PatientProgram pp = assertProgram(patient, TEST_PROGRAM, THREE_YEARS_AGO, null);
+				assertState(pp, START_STATE, THREE_YEARS_AGO, TWO_YEARS_AGO);
+				assertState(pp, START_STATE, ONE_YEAR_AGO, TODAY);
+				assertState(pp, MIDDLE_STATE, TODAY, null);
+			}
+			
 		}.run();
 	}
 	
@@ -1838,18 +1969,31 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	private void transitionToState(String state, Date date) {
+		transitionToState(state, date, null);
+	}
+	
+	private void transitionToState(String state, Date startDate, Date endDate) {
 		ProgramWorkflowState workflowState = Context.getProgramWorkflowService().getStateByUuid(state);
-		
-		PatientProgram patientProgram = getPatientProgramByWorkflow(patient, workflowState.getProgramWorkflow(), date);
-		if (patientProgram == null) {
+		ProgramWorkflow workflow = workflowState.getProgramWorkflow();
+		Program program = workflow.getProgram();
+		List<PatientProgram> pps = programWorkflowService.getPatientPrograms(patient, program, null, null, null, null,
+		    false);
+		PatientProgram patientProgram = null;
+		if (pps.size() == 1) {
+			patientProgram = pps.get(0);
+		} else if (pps.size() > 1) {
+			throw new IllegalArgumentException("Multiple patient programs found for patient");
+		}
+		if (pps.isEmpty()) {
 			patientProgram = new PatientProgram();
 			patientProgram.setPatient(patient);
 			patientProgram.setProgram(workflowState.getProgramWorkflow().getProgram());
-			patientProgram.setDateEnrolled(date);
+			patientProgram.setDateEnrolled(startDate);
 		}
-		
-		patientProgram.transitionToState(workflowState, date);
-		
+		patientProgram.transitionToState(workflowState, startDate);
+		if (endDate != null) {
+			patientProgram.getCurrentState(workflowState.getProgramWorkflow()).setEndDate(endDate);
+		}
 		Context.getProgramWorkflowService().savePatientProgram(patientProgram);
 	}
 	

@@ -12,7 +12,9 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.ProviderStub;
 import org.openmrs.module.htmlformentry.util.MatchMode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItem;
@@ -265,4 +267,18 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertNull(controlId);
 	}
 	
+	@Test
+	public void hasTimeComponentShouldReturnTrueOnlyIfTimeIsSet() throws Exception {
+		Assert.assertTrue(HtmlFormEntryUtil.hasTimeComponent(new Date()));
+		Assert.assertFalse(HtmlFormEntryUtil.hasTimeComponent(getDate("2023-02-14", "yyyy-MM-dd")));
+	}
+	
+	private Date getDate(String dateStr, String formatStr) {
+		try {
+			return new SimpleDateFormat(formatStr).parse(dateStr);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
