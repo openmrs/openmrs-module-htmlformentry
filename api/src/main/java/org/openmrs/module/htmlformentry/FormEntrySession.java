@@ -714,7 +714,7 @@ public class FormEntrySession {
 				if (ps != null && ps.getStartDate() != null) {
 					Date stateDate = ps.getStartDate();
 					if (HtmlFormEntryUtil.hasTimeComponent(stateDate)) {
-						if (stateDate.equals(previousEncounterDate)) {
+						if (DateUtils.isSameInstant(stateDate, previousEncounterDate)) {
 							stateToEdit = ps;
 						}
 					} else {
