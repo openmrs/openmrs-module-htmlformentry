@@ -2,6 +2,8 @@ package org.openmrs.module.htmlformentry.handler;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
@@ -25,6 +27,8 @@ import java.util.Map;
  * Handles the {@code <obsGroup>} tag
  */
 public class ObsGroupTagHandler extends AbstractTagHandler {
+	
+	protected final Log log = LogFactory.getLog(getClass());
 	
 	boolean unmatchedInd = false;
 	
@@ -97,6 +101,16 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 		// sets up the obs group stack, sets current obs group to this one
 		ogSchemaObj = new ObsGroup(groupingConcept, name);
+		try {
+			if (hiddenObs != null) {
+				log.error("DEBUG: Setting hidden obs "
+				        + (hiddenObs.getKey() != null ? hiddenObs.getKey().getDisplayString() : "") + " with value "
+				        + (hiddenObs.getValue() != null ? hiddenObs.getValue().getDisplayString() : ""));
+			}
+		}
+		catch (Exception e) {
+			log.error("DEBUG: exception fetching hidden obs ", e);
+		}
 		ogSchemaObj.setHiddenObs(hiddenObs);
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack
@@ -153,6 +167,28 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		//                }
 		// TODO: should we flip these?
 		session.getContext().endObsGroup();
+		
+		try {
+			if (ogSchemaObj != null) {
+				log.error("DEBUG: setting up end action for "
+				        + (ogSchemaObj.getConcept() != null ? ogSchemaObj.getConcept().getDisplayString() : ""));
+			}
+			if (ogSchemaObj != null && ogSchemaObj.getHiddenObs() != null) {
+				log.error("DEBUG: setting up end action  with hidden obs "
+				        + (ogSchemaObj.getHiddenObs().getKey() != null
+				                ? ogSchemaObj.getHiddenObs().getKey().getDisplayString()
+				                : "")
+				        + " with value "
+				        + (ogSchemaObj.getHiddenObs().getValue() != null
+				                ? ogSchemaObj.getHiddenObs().getValue().getDisplayString()
+				                : ""));
+			}
+			
+		}
+		catch (Exception e) {
+			log.error("DEBUG: exception setting up action ", e);
+		}
+		
 		session.getSubmissionController().addAction(ObsGroupAction.end(ogSchemaObj));
 	}
 	

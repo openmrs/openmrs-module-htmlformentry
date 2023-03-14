@@ -4,6 +4,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -17,6 +19,8 @@ import org.openmrs.module.htmlformentry.schema.ObsGroup;
  * Defines the actions to take when submitting or validating an ObsGroup
  */
 public class ObsGroupAction implements FormSubmissionControllerAction {
+	
+	protected final Log log = LogFactory.getLog(getClass());
 	
 	/**
 	 * Creates an ObsGroupAction that should be applied at the start of an ObsGroup
@@ -76,6 +80,17 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					session.getSubmissionActions().beginObsGroup(obsGroup);
 				}
 			} else {
+				try {
+					log.error("DEBUG: Handling end submission action for obs group with hidden obs with value "
+					        + (obsGroupSchemaObject.getHiddenObs() != null
+					                && obsGroupSchemaObject.getHiddenObs().getValue() != null
+					                        ? obsGroupSchemaObject.getHiddenObs().getValue().getDisplayString()
+					                        : "<no value found>"));
+				}
+				catch (Exception e) {
+					log.error("DEBUG: exception handling obs group end tag action ", e);
+				}
+				
 				if (obsGroupSchemaObject.getHiddenObs() != null) {
 					// existingGroup seems never to exist. Not sure if something needs to be done to handle it,
 					// as is done in the other `if` branches.
