@@ -714,7 +714,7 @@ public class FormEntrySession {
 				if (ps != null && ps.getStartDate() != null) {
 					Date stateDate = ps.getStartDate();
 					if (HtmlFormEntryUtil.hasTimeComponent(stateDate)) {
-						if (stateDate.equals(previousEncounterDate)) {
+						if (DateUtils.isSameInstant(stateDate, previousEncounterDate)) {
 							stateToEdit = ps;
 						}
 					} else {
@@ -724,10 +724,10 @@ public class FormEntrySession {
 					}
 				}
 			}
-			
+
 			// If this _is_ determined to be an edit to an existing state, edit it
 			if (stateToEdit != null) {
-				
+
 				// If we are editing a state, makes sure the associated patient program is marked to update
 				pp = stateToEdit.getPatientProgram();
 				if (!programsToUpdate.contains(pp)) {

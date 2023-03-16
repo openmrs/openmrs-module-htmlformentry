@@ -101,7 +101,7 @@ public class FormEntryContext {
 	
 	protected List<Obs> currentObsGroupMembers;
 	
-	private Date previousEncounterDate; // if the encounter has been edited on a form, this stores the prior encounter date
+	private Date previousEncounterDate; // stores the encounter date of any existing encounter, prior to any editing that may happen
 	
 	private Date pendingEncounterDatetime; // the validateSubmission method of the EncounterDetails sets this so that other validators have access to it to validate against
 	
@@ -479,6 +479,9 @@ public class FormEntryContext {
 	 */
 	public void setupExistingData(Encounter encounter) {
 		existingEncounter = encounter;
+		if (existingEncounter != null && existingEncounter.getEncounterDatetime() != null) {
+			previousEncounterDate = new Date(existingEncounter.getEncounterDatetime().getTime());
+		}
 		existingObs = new HashMap<Concept, List<Obs>>();
 		existingOrders = new HashMap<Concept, List<Order>>();
 		if (encounter != null) {
@@ -987,10 +990,6 @@ public class FormEntryContext {
 	
 	public Date getPreviousEncounterDate() {
 		return previousEncounterDate;
-	}
-	
-	public void setPreviousEncounterDate(Date previousEncounterDate) {
-		this.previousEncounterDate = previousEncounterDate;
 	}
 	
 	public boolean hasUnmatchedObsGroupEntities() {

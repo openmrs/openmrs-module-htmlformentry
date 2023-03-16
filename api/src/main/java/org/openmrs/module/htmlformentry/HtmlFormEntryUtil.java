@@ -5,6 +5,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
@@ -2317,9 +2318,9 @@ public class HtmlFormEntryUtil {
 	 * @return true if the given date is not at midnight
 	 */
 	public static boolean hasTimeComponent(Date date) {
-		return date != null && !date.equals(clearTimeComponent(date));
+		return date != null && !DateUtils.isSameInstant(date, clearTimeComponent(date));
 	}
-	
+
 	public static Date increment(Date date, int months, int days, int hours, int minutes, int seconds) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
