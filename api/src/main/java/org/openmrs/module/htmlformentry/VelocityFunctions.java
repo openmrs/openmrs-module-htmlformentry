@@ -654,22 +654,4 @@ public class VelocityFunctions {
 		}
 		return new SimpleDateFormat(pattern).format(date);
 	}
-	
-	public Integer patientAgeOnDate(Date date) {
-		Patient patient = session.getPatient();
-		if (patient != null && patient.getBirthdate() != null && date != null) {
-			return patient.getAge(date);
-		}
-		return null; // if there is error in patient's data return age as null
-	}
-	
-	public Integer patientAgeOnEncounterDate() {
-		if (session.getEncounter() != null) {
-			Date encounterDate = session.getEncounter().getEncounterDatetime();
-			if (encounterDate != null) {
-				return patientAgeOnDate(encounterDate);
-			}
-		}
-		return null; // if there is error in patient's data return age as null
-	}
 }

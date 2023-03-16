@@ -393,25 +393,4 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Assertions.assertEquals("05/29/2022", functions.formatDate(df.parse("2022-05-29"), "MM/dd/yyyy"));
 		Assertions.assertEquals("", functions.formatDate(null, "yyyy-MM-dd"));
 	}
-	
-	@Test
-	public void formatDate_shouldReturnPatientAgeOnDate() throws Exception {
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		Patient patient = Context.getPatientService().getPatient(7);
-		Assertions.assertEquals("1976-08-25", df.format(patient.getBirthdate()));
-		Assertions.assertNull(patient.getDeathDate());
-		VelocityFunctions functions = setupFunctionsForPatient(patient);
-		Assertions.assertEquals(44, functions.patientAgeOnDate(df.parse("2021-08-24")));
-		Assertions.assertEquals(45, functions.patientAgeOnDate(df.parse("2021-08-25")));
-		Assertions.assertEquals(null, functions.patientAgeOnDate(null));
-	}
-	
-	@Test
-	public void formatDate_shouldReturnPatientAgeOnEncounterDate() throws Exception {
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		Encounter encounter = Context.getEncounterService().getEncounter(3);
-		Assertions.assertEquals("2008-08-01", df.format(encounter.getEncounterDatetime()));
-		VelocityFunctions functions = setupFunctionsForEncounter(encounter);
-		Assertions.assertEquals(31, functions.patientAgeOnEncounterDate());
-	}
 }
