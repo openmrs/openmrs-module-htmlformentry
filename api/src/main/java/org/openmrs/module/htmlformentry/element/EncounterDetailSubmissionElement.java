@@ -794,7 +794,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		if (dateWidget != null) {
 			Date date = (Date) dateWidget.getValue(session.getContext(), submission);
-			Date previousDate = session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime();
+			Date previousDate = session.getContext().getPreviousEncounterDate();
 			
 			if (previousDate == null) {
 				session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
@@ -802,11 +802,7 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				// we don't want to lose any time information just because we edited it with a form that only collects date,
 				// so we only update the date if the date has a time component or the actual date has changed
 				if (hasTimeComponent(date) || !stripTimeComponent(date).equals(stripTimeComponent(previousDate))) {
-					session.getContext().setPreviousEncounterDate(
-					    new Date(session.getSubmissionActions().getCurrentEncounter().getEncounterDatetime().getTime()));
 					session.getSubmissionActions().getCurrentEncounter().setEncounterDatetime(date);
-				} else {
-					session.getContext().setPreviousEncounterDate(previousDate);
 				}
 			}
 		}
