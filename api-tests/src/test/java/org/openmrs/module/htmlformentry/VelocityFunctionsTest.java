@@ -1,16 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.joda.time.DateTime;
@@ -18,6 +7,7 @@ import org.joda.time.Days;
 import org.joda.time.Months;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
@@ -27,6 +17,16 @@ import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientState;
 import org.openmrs.api.context.Context;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.junit.Assert.assertThat;
 
 public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 	
@@ -213,6 +213,35 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		return new VelocityFunctions(session);
 	}
 	
+	/**
+	 * @return a new VelocityFunctions instance for the given patientId
+	 */
+	private VelocityFunctions setupFunctionsForPatient(Patient patient) throws Exception {
+		HtmlForm htmlform = new HtmlForm();
+		Form form = new Form();
+		form.setEncounterType(new EncounterType(1));
+		htmlform.setForm(form);
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData("<htmlform></htmlform>");
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		return new VelocityFunctions(session);
+	}
+	
+	/**
+	 * @return a new VelocityFunctions instance for the given patientId
+	 */
+	private VelocityFunctions setupFunctionsForEncounter(Encounter encounter) throws Exception {
+		HtmlForm htmlform = new HtmlForm();
+		Form form = new Form();
+		form.setEncounterType(new EncounterType(1));
+		htmlform.setForm(form);
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData("<htmlform></htmlform>");
+		FormEntrySession session = new FormEntrySession(encounter.getPatient(), encounter, FormEntryContext.Mode.EDIT,
+		        htmlform, null);
+		return new VelocityFunctions(session);
+	}
+	
 	private void measureAgeInDaysAndMonths(Date dateChanged, Date birthdate) {
 		ageInMonths = Months.monthsBetween(new DateTime(birthdate.getTime()).toDateMidnight(),
 		    new DateTime(dateChanged.getTime()).toDateMidnight()).getMonths();
@@ -353,5 +382,36 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		catch (IllegalArgumentException e) {
 			Assert.assertTrue(true);
 		}
+	}
+	
+	@Test
+	public void formatDate_shouldFormatDateInSpecifiedFormat() throws Exception {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Patient patient = Context.getPatientService().getPatient(7);
+		VelocityFunctions functions = setupFunctionsForPatient(patient);
+		Assertions.assertEquals("2022-05-29", functions.formatDate(df.parse("2022-05-29"), "yyyy-MM-dd"));
+		Assertions.assertEquals("05/29/2022", functions.formatDate(df.parse("2022-05-29"), "MM/dd/yyyy"));
+		Assertions.assertEquals("", functions.formatDate(null, "yyyy-MM-dd"));
+	}
+	
+	@Test
+	public void formatDate_shouldReturnPatientAgeOnDate() throws Exception {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Patient patient = Context.getPatientService().getPatient(7);
+		Assertions.assertEquals("1976-08-25", df.format(patient.getBirthdate()));
+		Assertions.assertNull(patient.getDeathDate());
+		VelocityFunctions functions = setupFunctionsForPatient(patient);
+		Assertions.assertEquals(44, functions.patientAgeOnDate(df.parse("2021-08-24")));
+		Assertions.assertEquals(45, functions.patientAgeOnDate(df.parse("2021-08-25")));
+		Assertions.assertEquals(null, functions.patientAgeOnDate(null));
+	}
+	
+	@Test
+	public void formatDate_shouldReturnPatientAgeOnEncounterDate() throws Exception {
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Encounter encounter = Context.getEncounterService().getEncounter(3);
+		Assertions.assertEquals("2008-08-01", df.format(encounter.getEncounterDatetime()));
+		VelocityFunctions functions = setupFunctionsForEncounter(encounter);
+		Assertions.assertEquals(31, functions.patientAgeOnEncounterDate());
 	}
 }
