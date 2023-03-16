@@ -2320,7 +2320,7 @@ public class HtmlFormEntryUtil {
 	public static boolean hasTimeComponent(Date date) {
 		return date != null && !DateUtils.isSameInstant(date, clearTimeComponent(date));
 	}
-
+	
 	public static Date increment(Date date, int months, int days, int hours, int minutes, int seconds) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);

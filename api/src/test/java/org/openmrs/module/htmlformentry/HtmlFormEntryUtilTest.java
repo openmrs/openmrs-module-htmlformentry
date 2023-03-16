@@ -273,13 +273,13 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 		Assert.assertTrue(HtmlFormEntryUtil.hasTimeComponent(new Date()));
 		Assert.assertFalse(HtmlFormEntryUtil.hasTimeComponent(getDate("2023-02-14", "yyyy-MM-dd")));
 	}
-
+	
 	@Test
 	public void hasTimeComponentShouldWorkForTimeStamps() {
 		Timestamp timestamp = new Timestamp(TestUtil.parseYmd("2000-01-01").getTime());
 		Assert.assertFalse(HtmlFormEntryUtil.hasTimeComponent(timestamp));
 	}
-
+	
 	private Date getDate(String dateStr, String formatStr) {
 		try {
 			return new SimpleDateFormat(formatStr).parse(dateStr);
