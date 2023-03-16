@@ -26,10 +26,6 @@ import java.util.Map;
  */
 public class ObsGroupTagHandler extends AbstractTagHandler {
 	
-	boolean unmatchedInd = false;
-	
-	ObsGroup ogSchemaObj;
-	
 	@Override
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
 		List<AttributeDescriptor> attributeDescriptors = new ArrayList<AttributeDescriptor>();
@@ -74,8 +70,6 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		if (thisGroup == null
 		        && (session.getContext().getMode() == Mode.EDIT || session.getContext().getMode() == Mode.VIEW)) {
 			if (!session.getContext().isUnmatchedMode()) {
-				unmatchedInd = true;
-				
 				ObsGroupEntity obsGroupEntity = new ObsGroupEntity();
 				obsGroupEntity.setPath(ObsGroupComponent.getObsGroupPath(node));
 				obsGroupEntity.setQuestionsAndAnswers(
@@ -87,8 +81,6 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 				out.print(String.format("<unmatched id=\"%s\" />", unmatchedObsGroupId));
 				digDeeper = false;
 			}
-		} else {
-			unmatchedInd = false;
 		}
 		
 		if (ignoreIfEmpty && thisGroup == null) {
@@ -96,6 +88,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		}
 		
 		// sets up the obs group stack, sets current obs group to this one
+		ObsGroup ogSchemaObj;
 		ogSchemaObj = new ObsGroup(groupingConcept, name);
 		ogSchemaObj.setHiddenObs(hiddenObs);
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
@@ -144,16 +137,8 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 	
 	@Override
 	public void doEndTag(FormEntrySession session, PrintWriter out, Node parent, Node node) {
-		//                Concept question = null;
-		//                if (parent != null){
-		//                    NamedNodeMap attrs = parent.getAttributes();
-		//                    try {
-		//                        question = HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue());
-		//                    } catch (Exception ex){}
-		//                }
-		// TODO: should we flip these?
+		session.getSubmissionController().addAction(ObsGroupAction.end(session.getContext().getActiveObsGroup()));
 		session.getContext().endObsGroup();
-		session.getSubmissionController().addAction(ObsGroupAction.end(ogSchemaObj));
 	}
 	
 	@Override
