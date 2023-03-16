@@ -30,11 +30,9 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import static org.openmrs.util.TimeZoneUtil.toClientTimezone;
 
@@ -650,4 +648,10 @@ public class VelocityFunctions {
 		return addDays(date, "1");
 	}
 	
+	public String formatDate(Date date, String pattern) {
+		if (date == null) {
+			return "";
+		}
+		return new SimpleDateFormat(pattern).format(date);
+	}
 }
