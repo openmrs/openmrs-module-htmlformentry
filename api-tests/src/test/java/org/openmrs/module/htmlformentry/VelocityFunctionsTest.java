@@ -393,4 +393,24 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Assertions.assertEquals("05/29/2022", functions.formatDate(df.parse("2022-05-29"), "MM/dd/yyyy"));
 		Assertions.assertEquals("", functions.formatDate(null, "yyyy-MM-dd"));
 	}
+	
+	@Test
+	public void aMomentBefore_shouldReturnDateFromAMomentBefore() throws Exception {
+		Patient patient = Context.getPatientService().getPatient(7);
+		VelocityFunctions functions = setupFunctionsForPatient(patient);
+		Date date = new Date();
+		Date aMomentBefore = new DateTime(date).minusMillis(1).toDate();
+		Assertions.assertEquals(aMomentBefore, functions.aMomentBefore(date));
+		;
+	}
+	
+	@Test
+	public void aMomentAfter_shouldReturnDateFromAMomentAfter() throws Exception {
+		Patient patient = Context.getPatientService().getPatient(7);
+		VelocityFunctions functions = setupFunctionsForPatient(patient);
+		Date date = new Date();
+		Date aMomentAfter = new DateTime(date).plusMillis(1).toDate();
+		Assertions.assertEquals(aMomentAfter, functions.aMomentAfter(date));
+		;
+	}
 }

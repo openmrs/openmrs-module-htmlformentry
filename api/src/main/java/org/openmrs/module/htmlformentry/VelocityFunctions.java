@@ -648,6 +648,20 @@ public class VelocityFunctions {
 		return addDays(date, "1");
 	}
 	
+	public Date aMomentBefore(Date date) {
+		if (date != null) {
+			return new DateTime(date).minusMillis(1).toDate();
+		}
+		return null;
+	}
+	
+	public Date aMomentAfter(Date date) {
+		if (date != null) {
+			return new DateTime(date).plusMillis(1).toDate();
+		}
+		return null;
+	}
+	
 	public String formatDate(Date date, String pattern) {
 		if (date == null) {
 			return "";
