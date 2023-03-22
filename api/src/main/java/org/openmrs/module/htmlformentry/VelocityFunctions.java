@@ -650,14 +650,14 @@ public class VelocityFunctions {
 	
 	public Date aMomentBefore(Date date) {
 		if (date != null) {
-			return new DateTime(date).minusSeconds(1).toDate();
+			return new DateTime(date).minusMillis(1).toDate();
 		}
 		return null;
 	}
 	
 	public Date aMomentAfter(Date date) {
 		if (date != null) {
-			return new DateTime(date).plusSeconds(1).toDate();
+			return new DateTime(date).plusMillis(1).toDate();
 		}
 		return null;
 	}

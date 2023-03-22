@@ -399,7 +399,7 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Patient patient = Context.getPatientService().getPatient(7);
 		VelocityFunctions functions = setupFunctionsForPatient(patient);
 		Date date = new Date();
-		Date aMomentBefore = new DateTime(date).minusSeconds(1).toDate();
+		Date aMomentBefore = new DateTime(date).minusMillis(1).toDate();
 		Assertions.assertEquals(aMomentBefore, functions.aMomentBefore(date));
 		;
 	}
@@ -409,7 +409,7 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Patient patient = Context.getPatientService().getPatient(7);
 		VelocityFunctions functions = setupFunctionsForPatient(patient);
 		Date date = new Date();
-		Date aMomentAfter = new DateTime(date).plusSeconds(1).toDate();
+		Date aMomentAfter = new DateTime(date).plusMillis(1).toDate();
 		Assertions.assertEquals(aMomentAfter, functions.aMomentAfter(date));
 		;
 	}
