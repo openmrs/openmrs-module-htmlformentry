@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.Condition;
 import org.openmrs.Encounter;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
@@ -57,6 +58,10 @@ public class FormSubmissionActions {
 	private List<Order> ordersToCreate = new Vector<Order>();
 	
 	private List<Order> ordersToVoid = new Vector<>();
+	
+	private List<Condition> conditionsToCreate = new Vector<>();
+	
+	private List<Condition> conditionsToVoid = new Vector<>();
 	
 	private List<PatientProgram> patientProgramsToCreate = new Vector<PatientProgram>();
 	
@@ -821,6 +826,22 @@ public class FormSubmissionActions {
 	
 	public void setOrdersToVoid(List<Order> ordersToVoid) {
 		this.ordersToVoid = ordersToVoid;
+	}
+	
+	public List<Condition> getConditionsToCreate() {
+		return conditionsToCreate;
+	}
+	
+	public void setConditionsToCreate(List<Condition> conditionsToCreate) {
+		this.conditionsToCreate = conditionsToCreate;
+	}
+	
+	public List<Condition> getConditionsToVoid() {
+		return conditionsToVoid;
+	}
+	
+	public void setConditionsToVoid(List<Condition> conditionsToVoid) {
+		this.conditionsToVoid = conditionsToVoid;
 	}
 	
 	/**

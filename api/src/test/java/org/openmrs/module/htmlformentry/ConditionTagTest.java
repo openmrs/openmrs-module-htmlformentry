@@ -2,22 +2,36 @@ package org.openmrs.module.htmlformentry;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertTrue;
 import static org.openmrs.ConditionClinicalStatus.ACTIVE;
 import static org.openmrs.ConditionClinicalStatus.HISTORY_OF;
 import static org.openmrs.ConditionClinicalStatus.INACTIVE;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Condition;
+import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.element.ConditionElement;
+import org.openmrs.module.htmlformentry.tester.FormResultsTester;
+import org.openmrs.module.htmlformentry.tester.FormSessionTester;
+import org.openmrs.module.htmlformentry.tester.FormTester;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 public class ConditionTagTest extends BaseHtmlFormEntryTest {
@@ -154,6 +168,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public void testEditedResults(SubmissionResults results) {
 				final Map<String, Condition> conditions = results.getEncounterCreated().getConditions().stream()
+				        .filter(c -> BooleanUtils.isNotTrue(c.getVoided()))
 				        .collect(Collectors.toMap(HtmlFormEntryUtil::getControlId, c -> c));
 				
 				results.assertNoErrors();
@@ -228,6 +243,55 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 		}.run();
+	}
+	
+	@Test
+	public void shouldRetrieveAllConditionElements() {
+		FormTester formTester = FormTester.buildForm("conditionForm.xml");
+		FormSessionTester formSessionTester = formTester.openExistingToView(3);
+		List<ConditionElement> conditionElements = formSessionTester.getSubmissionAction(ConditionElement.class);
+		assertThat(conditionElements.size(), Matchers.is(5));
+	}
+	
+	@Test
+	public void shouldSaveAndEditACondition() {
+		FormTester formTester = FormTester.buildForm("conditionFormSingleCondition.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(2);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		formSessionTester.setFieldWithLabel("optional_coded_condition", 1, 0, "3476");
+		formSessionTester.setFieldWithLabel("condition-status-optional_coded_condition", "history-of");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertErrors(0);
+		Set<Condition> conditions = formSessionTester.getFormEntrySession().getEncounter().getConditions();
+		assertThat(conditions.size(), equalTo(1));
+		assertCondition(conditions, 0, "3476", HISTORY_OF, false);
+		
+		// Edit
+		formSessionTester = formSessionTester.reopenForEditing(results);
+		formSessionTester.setFieldWithLabel("condition-status-optional_coded_condition", "inactive");
+		results = formSessionTester.submitForm();
+		results.assertErrors(0);
+		conditions = formSessionTester.getFormEntrySession().getEncounter().getConditions();
+		assertThat(conditions.size(), equalTo(2));
+		assertCondition(conditions, 0, "3476", HISTORY_OF, true);
+		assertCondition(conditions, 1, "3476", INACTIVE, false);
+	}
+	
+	protected void assertCondition(Set<Condition> conditionSet, int index, String conceptId, ConditionClinicalStatus status,
+	        boolean voided) {
+		assertThat(conditionSet.size(), greaterThan(index));
+		List<Condition> conditions = new ArrayList<>(conditionSet);
+		conditions.sort(Comparator.comparing(Condition::getConditionId));
+		Condition c = conditions.get(index);
+		assertThat(c, notNullValue());
+		assertThat(c.getCondition(), notNullValue());
+		assertThat(c.getCondition().getCoded(), notNullValue());
+		assertThat(c.getCondition().getCoded().getConceptId().toString(), equalTo(conceptId));
+		assertThat(c.getClinicalStatus(), equalTo(status));
+		assertThat(c.getVoided(), equalTo(voided));
+		if (index > 0) {
+			assertThat(c.getPreviousVersion(), equalTo(conditions.get(index - 1)));
+		}
 	}
 	
 }

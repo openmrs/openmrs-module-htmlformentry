@@ -10,6 +10,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
+import org.openmrs.Condition;
 import org.openmrs.Encounter;
 import org.openmrs.Form;
 import org.openmrs.Location;
@@ -574,6 +575,19 @@ public class FormEntrySession {
 					order.setEncounter(encounter);
 					encounter.addOrder(order);
 				}
+			}
+		}
+		
+		// Handle conditions
+		if (submissionActions.getConditionsToVoid() != null) {
+			for (Condition condition : submissionActions.getConditionsToVoid()) {
+				Context.getConditionService().voidCondition(condition, "Voided by htmlformentry");
+			}
+		}
+		if (submissionActions.getConditionsToCreate() != null) {
+			for (Condition condition : submissionActions.getConditionsToCreate()) {
+				condition.setEncounter(encounter);
+				encounter.addCondition(condition);
 			}
 		}
 		

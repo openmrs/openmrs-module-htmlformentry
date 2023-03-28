@@ -1,21 +1,5 @@
 package org.openmrs.module.htmlformentry.element;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,8 +23,8 @@ import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
+import org.openmrs.module.htmlformentry.FormSubmissionActions;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
-import org.openmrs.module.htmlformentry.element.ConditionElement;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
@@ -48,6 +32,22 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
+
+import java.util.List;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Context.class)
@@ -87,6 +87,8 @@ public class ConditionElementTest {
 	
 	private Encounter encounter;
 	
+	private FormSubmissionActions actions = new FormSubmissionActions();
+	
 	@Before
 	public void setup() {
 		// Stub services
@@ -122,6 +124,7 @@ public class ConditionElementTest {
 		when(session.getContext()).thenReturn(context);
 		when(session.getEncounter()).thenReturn(new Encounter());
 		when(session.getPatient()).thenReturn(new Patient(1));
+		when(session.getSubmissionActions()).thenReturn(actions);
 		
 		// setup condition element
 		element = spy(new ConditionElement());
@@ -142,10 +145,10 @@ public class ConditionElementTest {
 		element.handleSubmission(session, request);
 		
 		// verify		
-		Set<Condition> conditions = encounter.getConditions();
+		List<Condition> conditions = session.getSubmissionActions().getConditionsToCreate();
 		Assert.assertEquals(1, conditions.size());
 		
-		Condition condition = conditions.iterator().next();
+		Condition condition = conditions.get(0);
 		Assert.assertEquals(ConditionClinicalStatus.ACTIVE, condition.getClinicalStatus());
 		Assert.assertThat(condition.getCondition().getCoded().getId(), is(1519));
 		
@@ -161,7 +164,7 @@ public class ConditionElementTest {
 		element.handleSubmission(session, request);
 		
 		// verify
-		Set<Condition> conditions = encounter.getConditions();
+		List<Condition> conditions = session.getSubmissionActions().getConditionsToCreate();
 		Assert.assertEquals(1, conditions.size());
 		
 		Condition condition = conditions.iterator().next();
@@ -181,7 +184,7 @@ public class ConditionElementTest {
 		element.handleSubmission(session, request);
 		
 		// verify
-		Set<Condition> conditions = encounter.getConditions();
+		List<Condition> conditions = session.getSubmissionActions().getConditionsToCreate();
 		Assert.assertEquals(1, conditions.size());
 		
 		Condition condition = conditions.iterator().next();
@@ -200,7 +203,7 @@ public class ConditionElementTest {
 		element.handleSubmission(session, request);
 		
 		// verify
-		Set<Condition> conditions = encounter.getConditions();
+		List<Condition> conditions = session.getSubmissionActions().getConditionsToCreate();
 		Assert.assertEquals(1, conditions.size());
 		
 		Condition condition = conditions.iterator().next();
@@ -238,7 +241,7 @@ public class ConditionElementTest {
 		element.handleSubmission(session, request);
 		
 		// verify
-		Set<Condition> conditions = encounter.getConditions();
+		List<Condition> conditions = session.getSubmissionActions().getConditionsToCreate();
 		Assert.assertEquals(1, conditions.size());
 		
 		Condition condition = conditions.iterator().next();

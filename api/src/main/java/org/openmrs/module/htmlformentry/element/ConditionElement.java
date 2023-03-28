@@ -1,21 +1,10 @@
 package org.openmrs.module.htmlformentry.element;
 
-import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.getControlId;
-import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.isEmpty;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.CodedOrFreeText;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
+import org.openmrs.ConceptName;
 import org.openmrs.Condition;
 import org.openmrs.ConditionClinicalStatus;
 import org.openmrs.Encounter;
@@ -33,6 +22,18 @@ import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.WidgetFactory;
+import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAMESPACE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.getControlId;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryUtil.isEmpty;
 
 public class ConditionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 	
@@ -68,8 +69,6 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		FormEntryContext context = session.getContext();
-		Condition condition = bootstrap(context);
-		Condition copy = Condition.newInstance(condition);
 		
 		CodedOrFreeText codedOrFreeText = new CodedOrFreeText();
 		if (presetConcept != null) {
@@ -84,27 +83,48 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 				        .ifPresent(fieldName -> codedOrFreeText.setNonCoded(submission.getParameter(fieldName)));
 			}
 		}
-		condition.setCondition(codedOrFreeText);
 		
 		ConditionClinicalStatus status = getStatus(context, submission);
-		condition.setClinicalStatus(status);
+		String additionalDetail = isAdditionalDetailVisible ? additionalDetailWidget.getValue(context, submission) : null;
+		String formFieldPath = session.generateControlFormPath(getTagControlId(), 0);
 		
-		if (isAdditionalDetailVisible) {
-			condition.setAdditionalDetail(additionalDetailWidget.getValue(context, submission));
-		}
+		Condition existingCondition = bootstrap(context);
 		
-		condition.setPatient(session.getPatient());
-		
-		condition.setFormField(FORM_NAMESPACE, session.generateControlFormPath(getTagControlId(), 0));
-		
-		if (!required && (isEmpty(codedOrFreeText) || (!isEmpty(codedOrFreeText) && status == null))) {
-			// incomplete optional conditions are not submitted or are removed in EDIT mode
+		// If the condition is removed in edit mode, remove from the encounter
+		if (isEmpty(codedOrFreeText) || (presetConcept != null && status == null)) {
 			if (context.getMode() == Mode.EDIT) {
-				Condition.copy(copy, condition);
-				session.getEncounter().removeCondition(condition);
+				session.getSubmissionActions().getConditionsToVoid().add(existingCondition);
 			}
 		} else {
-			session.getEncounter().addCondition(condition);
+			CodedOrFreeText existingCoft = existingCondition.getCondition();
+			Concept existingCoded = existingCoft == null ? null : existingCoft.getCoded();
+			String existingNonCoded = existingCoft == null ? null : existingCoft.getNonCoded();
+			ConceptName existingName = existingCoft == null ? null : existingCoft.getSpecificName();
+			
+			boolean isChanged = !(OpenmrsUtil.nullSafeEquals(existingCoded, codedOrFreeText.getCoded()))
+			        || !(OpenmrsUtil.nullSafeEquals(existingNonCoded, codedOrFreeText.getNonCoded()))
+			        || !(OpenmrsUtil.nullSafeEquals(existingName, codedOrFreeText.getSpecificName()))
+			        || !(OpenmrsUtil.nullSafeEquals(existingCondition.getClinicalStatus(), status))
+			        || !(OpenmrsUtil.nullSafeEquals(existingCondition.getAdditionalDetail(), additionalDetail))
+			        || !(OpenmrsUtil.nullSafeEquals(existingCondition.getFormFieldPath(), formFieldPath));
+			
+			if (isChanged) {
+				Condition newCondition = new Condition();
+				if (existingCondition.getConditionId() != null) {
+					Condition.copy(existingCondition, newCondition);
+					newCondition.setPreviousVersion(existingCondition);
+					session.getSubmissionActions().getConditionsToVoid().add(existingCondition);
+				}
+				
+				// Populate the condition from the form submission.
+				newCondition.setPatient(session.getPatient());
+				// Setting the encounter is done within the FormEntrySession
+				newCondition.setCondition(codedOrFreeText);
+				newCondition.setClinicalStatus(status);
+				newCondition.setAdditionalDetail(additionalDetail);
+				newCondition.setFormField(FORM_NAMESPACE, formFieldPath);
+				session.getSubmissionActions().getConditionsToCreate().add(newCondition);
+			}
 		}
 	}
 	
@@ -181,7 +201,7 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 			this.existingCondition = Optional.of(encounter.getConditions()).orElse(Collections.emptySet()).stream()
 			        .filter(c -> StringUtils.equals(getControlId(c), getTagControlId())).reduce((c1, c2) -> {
 				        throw new IllegalStateException(
-				                "Mutliple conditions are matching the control id '" + controlId + "'.");
+				                "Multiple conditions are matching the control id '" + controlId + "'.");
 			        }).orElse(null);
 		}
 	}
@@ -223,10 +243,9 @@ public class ConditionElement implements HtmlGeneratorElement, FormSubmissionCon
 		if (presetConcept == null) {
 			if (existingCondition != null && context.getMode() != Mode.ENTER) {
 				CodedOrFreeText codedOrFreeText = existingCondition.getCondition();
+				freeTextVal = codedOrFreeText.getNonCoded();
 				if (codedOrFreeText.getCoded() != null) {
 					conceptSearchWidget.setInitialValue(codedOrFreeText.getCoded());
-				} else {
-					freeTextVal = codedOrFreeText.getNonCoded();
 				}
 			}
 		} else {
