@@ -10,6 +10,7 @@ import static org.openmrs.ConditionClinicalStatus.ACTIVE;
 import static org.openmrs.ConditionClinicalStatus.HISTORY_OF;
 import static org.openmrs.ConditionClinicalStatus.INACTIVE;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -262,7 +263,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 		formSessionTester.setFieldWithLabel("condition-status-optional_coded_condition", "history-of");
 		FormResultsTester results = formSessionTester.submitForm();
 		results.assertErrors(0);
-		Set<Condition> conditions = formSessionTester.getFormEntrySession().getEncounter().getConditions();
+		Set<Condition> conditions = getConditions(formSessionTester.getFormEntrySession().getEncounter());
 		assertThat(conditions.size(), equalTo(1));
 		assertCondition(conditions, 0, "3476", HISTORY_OF, false);
 		
@@ -271,7 +272,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 		formSessionTester.setFieldWithLabel("condition-status-optional_coded_condition", "inactive");
 		results = formSessionTester.submitForm();
 		results.assertErrors(0);
-		conditions = formSessionTester.getFormEntrySession().getEncounter().getConditions();
+		conditions = getConditions(formSessionTester.getFormEntrySession().getEncounter());
 		assertThat(conditions.size(), equalTo(2));
 		assertCondition(conditions, 0, "3476", HISTORY_OF, true);
 		assertCondition(conditions, 1, "3476", INACTIVE, false);
@@ -294,4 +295,21 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 		}
 	}
 	
+	/**
+	 * In 2.3.x, getConditions() includes voided In 2.4.x+, it excludes voided and a new
+	 * getConditions(includeVoided) was added
+	 */
+	protected Set<Condition> getConditions(Encounter encounter) {
+		try {
+			for (Method m : Encounter.class.getMethods()) {
+				if (m.getName().equals("getConditions") && m.getParameterCount() == 1) {
+					return (Set<Condition>) m.invoke(encounter, true);
+				}
+			}
+			return (Set<Condition>) Encounter.class.getMethod("getConditions").invoke(encounter);
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
