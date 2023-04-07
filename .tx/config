@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com/
 
-[OpenMRS.htmlformentry-module]
+[o:openmrs:p:OpenMRS:r:htmlformentry-module]
 source_file = api/src/main/resources/messages.properties
 source_lang = en
 trans.ar = api/src/main/resources/messages_ar.properties
@@ -23,4 +23,6 @@ trans.ru = api/src/main/resources/messages_ru.properties
 trans.si = api/src/main/resources/messages_si.properties
 trans.sw = api/src/main/resources/messages_sw.properties
 trans.te = api/src/main/resources/messages_te.properties
+file_filter = api/src/main/resources/messages_<lang>.properties
+type = UNICODEPROPERTIES
 
