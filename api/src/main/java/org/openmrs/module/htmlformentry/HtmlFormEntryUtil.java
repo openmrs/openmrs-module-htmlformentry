@@ -2288,7 +2288,7 @@ public class HtmlFormEntryUtil {
 	 * @return the state that is active in the given workflow, on the given date, for the given patient
 	 */
 	public static PatientState getPatientStateOnDate(Patient patient, ProgramWorkflow workflow, Date onDate) {
-		PatientProgram patientProgram = HtmlFormEntryUtil.getPatientProgramByWorkflow(patient, workflow);
+		PatientProgram patientProgram = getPatientProgramByProgramOnDate(patient, workflow.getProgram(), onDate);
 		if (patientProgram == null) {
 			return null;
 		}
