@@ -283,6 +283,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		
 		String answerConceptSetIds = parameters.get("answerConceptSetIds");
 		boolean isAutocomplete = "autocomplete".equals(parameters.get("style"));
+		String toggleParam = parameters.get("toggle");
 		
 		setExistingObs(context, parameters, isAutocomplete);
 		
@@ -402,7 +403,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 								if (number != null) {
 									valueWidget = createCheckboxWidget(answerLabel,
 									    isPrecise ? number.toString() : Integer.valueOf(number.intValue()).toString(),
-									    parameters.get("toggle"));
+									    toggleParam);
 								}
 								
 							}
@@ -758,8 +759,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 							answerLabel = answerConcept.getName(locale, false).getName();
 						}
 					}
-					valueWidget = createCheckboxWidget(answerLabel, answerConcept.getConceptId().toString(),
-					    parameters.get("toggle"));
+					valueWidget = createCheckboxWidget(answerLabel, answerConcept.getConceptId().toString(), toggleParam);
 					if (existingObsList != null && !existingObsList.isEmpty()) {
 						for (int i = 0; i < existingObsList.size(); i++) {
 							((DynamicAutocompleteWidget) valueWidget)
@@ -876,7 +876,8 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 								throw new IllegalArgumentException("Cannot find Drug for answerDrugId: " + answerDrugId
 								        + " in answerDrugId attribute value. Parameters: " + parameters);
 							}
-							valueWidget = createCheckboxWidget(drug.getName(), "Drug:" + drug.getId().toString(), null);
+							valueWidget = createCheckboxWidget(drug.getName(), "Drug:" + drug.getId().toString(),
+							    toggleParam);
 							if (existingObs != null && existingObs.getValueDrug() != null) {
 								valueWidget.setInitialValue(true);
 							}
@@ -946,7 +947,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 				
 				if ("checkbox".equals(parameters.get("style"))) {
 					valueWidget = createCheckboxWidget(valueLabel,
-					    parameters.get("value") != null ? parameters.get("value") : "true", parameters.get("toggle"));
+					    parameters.get("value") != null ? parameters.get("value") : "true", toggleParam);
 					valueLabel = "";
 				} else if ("no_yes".equals(parameters.get("style"))) {
 					valueWidget = new RadioButtonsWidget();
