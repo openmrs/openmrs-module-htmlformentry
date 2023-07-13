@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.element;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptClass;
@@ -111,6 +112,8 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	private boolean allowFutureDates = false;
 	
+	private boolean allowFutureTimes = false;
+	
 	private boolean allowPastDates = true;
 	
 	protected Concept answerConcept;
@@ -216,6 +219,9 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		
 		if ("true".equalsIgnoreCase(parameters.get("allowFutureDates"))) {
 			allowFutureDates = true;
+		}
+		if ("true".equalsIgnoreCase(parameters.get("allowFutureTimes"))) {
+			allowFutureTimes = true;
 		}
 		if ("false".equalsIgnoreCase(parameters.get("allowPastDates"))) {
 			allowPastDates = false;
@@ -1379,8 +1385,11 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 				Date encounterDateToTest = context.getBestApproximationOfEncounterDate();
 				
 				if (OpenmrsUtil.compare(valueToTest, encounterDateToTest) > 0) {
-					ret.add(new FormSubmissionError(valueWidget,
-					        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+					// If allow future dates is false, but allowFutureTimes is true, do not fail if same date
+					if (!allowFutureTimes || !DateUtils.isSameDay(valueToTest, encounterDateToTest)) {
+						ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService()
+						        .getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+					}
 				}
 			}
 			if (!allowPastDates) {
