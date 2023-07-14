@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Before;
@@ -30,6 +32,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 
 public class RegressionTest extends BaseHtmlFormEntryTest {
@@ -2117,6 +2122,91 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 				results.assertNoErrors();
 				results.assertEncounterCreated();
 				results.assertObsCreated(1119, "3000-10-10");
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testSingleObsFormWithDateAndAllowFutureTimesTrue_shouldAllowTimeInFuture() throws Exception {
+		final Date date = DateUtils.parseDate("2010-05-19", "yyyy-MM-dd");
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithDateAndAllowFutureTimesTrue";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Obs date:" };
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				super.testBlankFormHtml(html);
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Obs date:"), "2010-05-19");
+				request.setParameter("w9hours", "13");
+				request.setParameter("w9minutes", "42");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				Set<Obs> obsSet = results.getEncounterCreated().getObs();
+				assertThat(obsSet.size(), equalTo(1));
+				Obs obs = obsSet.iterator().next();
+				assertThat(obs, notNullValue());
+				assertThat(obs.getConcept().getConceptId(), equalTo(1007));
+				assertThat(obs.getValueDatetime(), notNullValue());
+				String datetime = DateFormatUtils.format(obs.getValueDatetime(), "yyyy-MM-dd-HH-mm");
+				assertThat(datetime, equalTo("2010-05-19-13-42"));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testSingleObsFormWithDateAndAllowFutureTimesTrue_shouldNotAllowDateInFuture() throws Exception {
+		final Date date = DateUtils.parseDate("2010-05-19", "yyyy-MM-dd");
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithDateAndAllowFutureTimesTrue";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Obs date:" };
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				super.testBlankFormHtml(html);
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Obs date:"), "2010-05-20");
+				request.setParameter("w9hours", "13");
+				request.setParameter("w9minutes", "42");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(1);
+				List<FormSubmissionError> errors = results.getValidationErrors();
+				Assert.assertEquals("Cannot be after encounter date", errors.get(0).getError());
 			}
 		}.run();
 	}

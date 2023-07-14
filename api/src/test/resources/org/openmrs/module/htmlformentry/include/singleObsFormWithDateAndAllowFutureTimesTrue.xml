@@ -1,0 +1,8 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    <!-- 1007 has datatype datetime, which will render date and time picker -->
+    Obs date: <obs conceptId="1007" allowFutureDates="false" allowFutureTimes="true"/>
+    <submit/>
+</htmlform>
