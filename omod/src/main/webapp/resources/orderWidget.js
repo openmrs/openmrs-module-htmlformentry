@@ -124,8 +124,6 @@
      */
     orderWidget.initialize = function(config) {
 
-        console.log(config);
-
         // Get the section containing the html for this section
         var $widgetField = $('#' + config.fieldName);
 
