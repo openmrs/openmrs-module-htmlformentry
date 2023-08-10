@@ -119,7 +119,7 @@
     }
 
     /**
-     * Default function called by the <orders> tag tag to initialize and render the contents in all modes
+     * Default function called by the <orders> tag to initialize and render the contents in all modes
      * Primary purpose is to ensure each configured section is re-rendered on load and on encounter date change
      */
     orderWidget.initialize = function(config) {

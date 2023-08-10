@@ -505,7 +505,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 			for (Option option : options) {
 				Concept c = HtmlFormEntryUtil.getConcept(option.getValue());
 				if (c == null) {
-					throw new BadFormDesignException("Unable to find concept option value: " + defaultValue);
+					throw new BadFormDesignException("Unable to find concept option value: " + option.getValue());
 				}
 				if (!fullList.isEmpty() && !fullList.contains(c) && !prop.equalsIgnoreCase("concept")) {
 					throw new BadFormDesignException(option.getValue() + " does not refer to a valid concept for " + prop);
