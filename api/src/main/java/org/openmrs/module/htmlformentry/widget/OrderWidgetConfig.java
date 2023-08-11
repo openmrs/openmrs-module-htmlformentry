@@ -32,7 +32,7 @@ public class OrderWidgetConfig {
 	
 	// Serves to provide access to the orderables configured
 	
-	private Map<Concept, List<Drug>> conceptsAndDrugsConfigured = new HashMap<>();
+	private Map<Concept, List<Drug>> conceptsAndDrugsConfigured = new LinkedHashMap<>();
 	
 	public OrderWidgetConfig() {
 	}
