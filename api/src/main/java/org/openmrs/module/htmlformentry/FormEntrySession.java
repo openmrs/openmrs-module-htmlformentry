@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -573,6 +574,14 @@ public class FormEntrySession {
 					}
 					order.setPreviousOrder(previousOrder);
 					order.setEncounter(encounter);
+					if (encounter.getEncounterDatetime().after(order.getDateActivated())) {
+						// HTML-834, the encounterDate time got reset to current time but the order.dateActicated was set at midnight
+						if (DateUtils.isSameDay(encounter.getEncounterDatetime(), order.getDateActivated())
+						        && "00:00:00".equals(new SimpleDateFormat("HH:mm:ss").format(order.getDateActivated()))) {
+							// if encounter and order are on the same date and the dateActivated is midnight
+							order.setDateActivated(encounter.getEncounterDatetime());
+						}
+					}
 					encounter.addOrder(order);
 				}
 			}
