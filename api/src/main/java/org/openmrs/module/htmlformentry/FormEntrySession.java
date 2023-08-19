@@ -577,7 +577,7 @@ public class FormEntrySession {
 					if (encounter.getEncounterDatetime().after(order.getDateActivated())) {
 						// HTML-834, the encounterDate time got reset to current time but the order.dateActicated was set at midnight
 						if (DateUtils.isSameDay(encounter.getEncounterDatetime(), order.getDateActivated())
-						        && "00:00:00".equals(new SimpleDateFormat("HH:mm:ss").format(order.getDateActivated()))) {
+						        && !HtmlFormEntryUtil.hasTimeComponent(order.getDateActivated())) {
 							// if encounter and order are on the same date and the dateActivated is midnight
 							order.setDateActivated(encounter.getEncounterDatetime());
 						}
