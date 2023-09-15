@@ -1,15 +1,6 @@
 package org.openmrs.module.htmlformentry.impl;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -45,6 +36,17 @@ import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
 import org.openmrs.util.PrivilegeConstants;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Standard implementation of the HtmlFormEntryService
@@ -105,6 +107,14 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	 * @return the basicFormXmlTemplate
 	 */
 	public String getBasicFormXmlTemplate() {
+		if (basicFormXmlTemplate == null) {
+			try (InputStream is = getClass().getClassLoader().getResourceAsStream("basicFormXmlTemplate.xml")) {
+				basicFormXmlTemplate = IOUtils.toString(is, "UTF-8");
+			}
+			catch (Exception e) {
+				log.warn("Unable to load basic form template from classpath", e);
+			}
+		}
 		return basicFormXmlTemplate;
 	}
 	

@@ -1,7 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.util.Date;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +12,8 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.test.Verifies;
 import org.openmrs.util.OpenmrsClassLoader;
+
+import java.util.Date;
 
 public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 	
@@ -116,5 +116,11 @@ public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 		Assert.assertNull(concept);
 		concept = service.getConceptByMapping("XYZ123:HT");
 		Assert.assertNull(concept);
+	}
+	
+	@Test
+	public void getStartingFormXml_shouldGetBasicFormXmlTemplate() throws Exception {
+		String xmlTemplate = service.getStartingFormXml(new HtmlForm());
+		Assert.assertTrue(xmlTemplate.contains("2. Demographic Information"));
 	}
 }
