@@ -611,6 +611,9 @@ public class OrderTagHandler extends AbstractTagHandler {
 		if (!conceptsExplicitlyDefined) {
 			concepts.sort(Comparator.comparing(option -> option.getLabel().toLowerCase()));
 		}
+		if (!drugsExplicitlyDefined) {
+			drugs.sort(Comparator.comparing(option -> option.getLabel().toLowerCase()));
+		}
 	}
 	
 	protected List<Concept> getConceptsForOptionGroup(ConceptOptionGroup optionGroup) {
