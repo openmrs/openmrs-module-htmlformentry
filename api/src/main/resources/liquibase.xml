@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
-                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+				   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
 
     <changeSet id="htmlformentry_html_form_create_table" author="Darius Jazayeri">
@@ -147,7 +147,7 @@
     <changeSet id="htmlformentry_html_form_add_foreign_key_to_retired_by" author="Mark Goodrich">
         <preConditions onFail="MARK_RAN">
             <not>
-                <foreignKeyConstraintExists foreignKeyName="user_who_retired_html_form"/>
+                <foreignKeyConstraintExists foreignKeyTableName="htmlformentry_html_form" foreignKeyName="user_who_retired_html_form"/>
             </not>
         </preConditions>
 
