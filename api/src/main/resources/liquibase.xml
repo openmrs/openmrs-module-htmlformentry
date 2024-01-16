@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
-                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
 
 
     <changeSet id="htmlformentry_html_form_create_table" author="Darius Jazayeri">
@@ -147,7 +147,7 @@
     <changeSet id="htmlformentry_html_form_add_foreign_key_to_retired_by" author="Mark Goodrich">
         <preConditions onFail="MARK_RAN">
             <not>
-                <foreignKeyConstraintExists foreignKeyName="user_who_retired_html_form"/>
+                <foreignKeyConstraintExists foreignKeyTableName="htmlformentry_html_form" foreignKeyName="user_who_retired_html_form"/>
             </not>
         </preConditions>
 
@@ -161,6 +161,8 @@
     </changeSet>
 
     <changeSet id="htmlformentry_html_form_update_uuid" author="Mark Goodrich">
+    	<validCheckSum>8:b69558e4552d66b2aeab4b759a2de314</validCheckSum> <!-- old checksum with modifyColumn -->
+    	<validCheckSum>8:3d323e2f73558a8d06bb22f04f273177</validCheckSum> <!-- new checksum with addNotNullConstraint -->
         <preConditions onFail="MARK_RAN">
             <columnExists tableName="htmlformentry_html_form" columnName="uuid"/>
         </preConditions>
@@ -173,11 +175,7 @@
             UPDATE htmlformentry_html_form SET uuid = UUID() WHERE uuid is null;
         </sql>
 
-        <modifyColumn tableName="htmlformentry_html_form">
-            <column name="uuid" type="char(38)">
-                <constraints nullable="false"/>
-            </column>
-        </modifyColumn>
+        <addNotNullConstraint tableName="htmlformentry_html_form" columnName="uuid" columnDataType="char(38)"/>
     </changeSet>
 
     <changeSet id="htmlformentry_html_form_create_index_for_uuid" author="Mark Goodrich">
