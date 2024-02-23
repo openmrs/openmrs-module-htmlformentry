@@ -36,7 +36,7 @@ public class HtmlFormEntryConstants {
 	
 	public static final String GP_RESTRICT_ENCOUNTER_LOCATION_TO_CURRENT_VISIT_LOCATION = "htmlformentry.restrictEncounterLocationToCurrentVisitLocation";
 	
-	public static final String GP_TIME_WIDGET_HIDE_SECONDS_DEFAULT = "htmlformenty.timeWidgetHideSecondsDefault";
+	public static final String GP_TIME_WIDGET_HIDE_SECONDS_DEFAULT = "htmlformentry.timeWidgetHideSecondsDefault";
 	
 	public final static String GP_TIMEZONE_CONVERSIONS = "timezone.conversions";
 	

@@ -98,7 +98,7 @@
         <description>When set to true and an encounter is being entered in the context of a visit, the encounter location will be restricted to the current visit location (and it's descendents)</description>
     </globalProperty>
 	<globalProperty>
-		<property>htmlformenty.timeWidgetHideSecondsDefault</property>
+		<property>htmlformentry.timeWidgetHideSecondsDefault</property>
 		<defaultValue>false</defaultValue>
 		<description>When rendering the time widget, whether to hide the seconds widget by default</description>
 	</globalProperty>
