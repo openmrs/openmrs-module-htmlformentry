@@ -97,6 +97,11 @@
         <defaultValue>false</defaultValue>
         <description>When set to true and an encounter is being entered in the context of a visit, the encounter location will be restricted to the current visit location (and it's descendents)</description>
     </globalProperty>
+	<globalProperty>
+		<property>htmlformentry.timeWidgetHideSecondsDefault</property>
+		<defaultValue>false</defaultValue>
+		<description>When rendering the time widget, whether to hide the seconds widget by default</description>
+	</globalProperty>
 	<!-- /Required Global Properties -->
 	//TODO this GP should be removed once the timezone.conversions GP is provided by Core.
 	<globalProperty>

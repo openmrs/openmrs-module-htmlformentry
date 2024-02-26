@@ -25,12 +25,13 @@ public class TimeWidget implements Widget {
 	
 	private boolean hidden;
 	
-	private boolean hideSeconds = false;
+	private boolean hideSeconds;
 	
 	private String timeFormat;
 	
 	public TimeWidget() {
-		
+		hideSeconds = "true".equalsIgnoreCase(Context.getAdministrationService()
+		        .getGlobalProperty(HtmlFormEntryConstants.GP_TIME_WIDGET_HIDE_SECONDS_DEFAULT, "false"));
 	}
 	
 	private SimpleDateFormat timeFormat() {
