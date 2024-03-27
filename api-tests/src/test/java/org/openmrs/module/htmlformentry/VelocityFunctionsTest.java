@@ -16,6 +16,8 @@ import org.openmrs.GlobalProperty;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientState;
+import org.openmrs.Visit;
+import org.openmrs.VisitType;
 import org.openmrs.api.context.Context;
 
 import java.text.DateFormat;
@@ -401,7 +403,6 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Date date = new Date();
 		Date aMomentBefore = new DateTime(date).minusMillis(1).toDate();
 		Assertions.assertEquals(aMomentBefore, functions.aMomentBefore(date));
-		;
 	}
 	
 	@Test
@@ -411,6 +412,98 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Date date = new Date();
 		Date aMomentAfter = new DateTime(date).plusMillis(1).toDate();
 		Assertions.assertEquals(aMomentAfter, functions.aMomentAfter(date));
-		;
+	}
+	
+	@Test
+	public void latestObsBeforeCurrentEncounter_shouldReturnTheMostRecentObsGivenThePassedConceptUuid() throws Exception {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		VisitType visitType = Context.getVisitService().getVisitType(1);
+		EncounterType encounterType = Context.getEncounterService().getEncounterType(1);
+		Concept weightConcept = Context.getConceptService().getConceptByUuid("c607c80f-1ea9-4da3-bb88-6276ce8868dd");
+		
+		HtmlForm htmlform = new HtmlForm();
+		Form form = new Form();
+		form.setEncounterType(encounterType);
+		htmlform.setForm(form);
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData("<htmlform></htmlform>");
+		
+		Date visitDate = df.parse("2023-03-04");
+		Date encounter1Date = df.parse("2023-03-04");
+		Date encounter2Date = df.parse("2023-03-05");
+		Date encounter3Date = df.parse("2023-03-06");
+		
+		Patient patient = Context.getPatientService().getPatient(7);
+		Visit v1 = new Visit();
+		v1.setPatient(patient);
+		v1.setVisitType(visitType);
+		v1.setStartDatetime(visitDate);
+		Context.getVisitService().saveVisit(v1);
+		
+		Encounter e1;
+		Encounter e2;
+		Encounter e3;
+		
+		{
+			Encounter e = new Encounter();
+			e.setPatient(patient);
+			e.setEncounterType(encounterType);
+			e.setEncounterDatetime(encounter1Date);
+			Obs o = new Obs();
+			o.setConcept(weightConcept);
+			o.setValueNumeric(30.1);
+			e.addObs(o);
+			e.setVisit(v1);
+			e1 = Context.getEncounterService().saveEncounter(e);
+		}
+		{
+			Encounter e = new Encounter();
+			e.setPatient(patient);
+			e.setEncounterType(encounterType);
+			e.setEncounterDatetime(encounter2Date);
+			Obs o = new Obs();
+			o.setConcept(weightConcept);
+			o.setValueNumeric(30.2);
+			e.addObs(o);
+			e2 = Context.getEncounterService().saveEncounter(e);
+		}
+		{
+			Encounter e = new Encounter();
+			e.setPatient(patient);
+			e.setEncounterType(encounterType);
+			e.setEncounterDatetime(encounter3Date);
+			Obs o = new Obs();
+			o.setConcept(weightConcept);
+			o.setValueNumeric(30.3);
+			e.addObs(o);
+			e.setVisit(v1);
+			e3 = Context.getEncounterService().saveEncounter(e);
+		}
+		
+		Patient p = new Patient(7);
+		FormEntrySession session = new FormEntrySession(p, htmlform, null);
+		VelocityFunctions functions = new VelocityFunctions(session);
+		session.getContext().setVisit(v1);
+		
+		// Encounter 1: should get the most recent result not in this encounter, or null if limited to visit
+		session.getContext().setupExistingData(e1);
+		Obs o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), false);
+		Assert.assertEquals(61, o.getValueNumeric().intValue());
+		o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), true);
+		Assert.assertNull(o);
+		
+		// Encounter 2:  should get the result from encounter 1, or null if limited to visit
+		session.getContext().setupExistingData(e2);
+		o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), false);
+		Assert.assertEquals(Double.valueOf(30.1), o.getValueNumeric());
+		o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), true);
+		Assert.assertNull(o);
+		
+		// Encounter 3:  should get the result from encounter 2, or encounter 1 if limited to visit
+		session.getContext().setupExistingData(e3);
+		o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), false);
+		Assert.assertEquals(Double.valueOf(30.2), o.getValueNumeric());
+		o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), true);
+		Assert.assertEquals(Double.valueOf(30.1), o.getValueNumeric());
 	}
 }

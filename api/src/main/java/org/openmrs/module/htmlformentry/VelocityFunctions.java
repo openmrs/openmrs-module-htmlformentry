@@ -17,6 +17,7 @@ import org.openmrs.PatientState;
 import org.openmrs.Person;
 import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
+import org.openmrs.Visit;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.MissingRequiredPropertyException;
@@ -25,6 +26,7 @@ import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.parameter.EncounterSearchCriteriaBuilder;
 import org.openmrs.util.LocaleUtility;
+import org.openmrs.util.OpenmrsUtil;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -157,6 +159,28 @@ public class VelocityFunctions {
 		} else {
 			return obs.get(0);
 		}
+	}
+	
+	public Obs latestObsBeforeCurrentEncounter(String conceptId, boolean onlyInCurrentVisit) throws ParseException {
+		Encounter currentEncounter = session.getContext().getExistingEncounter();
+		Visit currentVisit = (Visit) session.getContext().getVisit();
+		Date maxDate = null;
+		if (currentEncounter != null) {
+			currentVisit = currentEncounter.getVisit();
+			maxDate = currentEncounter.getEncounterDatetime();
+		}
+		List<Obs> obs = allObs(conceptId, maxDate);
+		if (obs != null) {
+			for (Obs o : obs) {
+				if (!OpenmrsUtil.nullSafeEquals(currentEncounter, o.getEncounter())) {
+					Visit obsVisit = (o.getEncounter() != null ? o.getEncounter().getVisit() : null);
+					if (!onlyInCurrentVisit || (currentVisit != null && currentVisit.equals(obsVisit))) {
+						return o;
+					}
+				}
+			}
+		}
+		return null;
 	}
 	
 	public Obs latestObs(Integer conceptId) {
