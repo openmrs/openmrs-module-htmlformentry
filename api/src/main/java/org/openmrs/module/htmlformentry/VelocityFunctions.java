@@ -161,7 +161,7 @@ public class VelocityFunctions {
 		}
 	}
 	
-	public Obs latestObsBeforeCurrentEncounter(String conceptId, boolean onlyInCurrentVisit) throws ParseException {
+	public Obs latestObsBeforeCurrentEncounter(String conceptId, boolean onlyInCurrentVisit) {
 		Encounter currentEncounter = session.getContext().getExistingEncounter();
 		Visit currentVisit = (Visit) session.getContext().getVisit();
 		Date maxDate = null;
@@ -176,6 +176,33 @@ public class VelocityFunctions {
 					Visit obsVisit = (o.getEncounter() != null ? o.getEncounter().getVisit() : null);
 					if (!onlyInCurrentVisit || (currentVisit != null && currentVisit.equals(obsVisit))) {
 						return o;
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public Obs latestObsInVisitPriorToEncounter(String conceptId, String valueCodedConceptId) {
+		Encounter currentEncounter = session.getContext().getExistingEncounter();
+		Visit currentVisit = (Visit) session.getContext().getVisit();
+		Date maxDate = null;
+		if (currentEncounter != null) {
+			currentVisit = currentEncounter.getVisit();
+			maxDate = currentEncounter.getEncounterDatetime();
+		}
+		if (currentVisit != null) {
+			Concept valCoded = (valueCodedConceptId == null ? null : HtmlFormEntryUtil.getConcept(valueCodedConceptId));
+			List<Obs> obs = allObs(conceptId, maxDate);
+			if (obs != null) {
+				for (Obs o : obs) {
+					if (!OpenmrsUtil.nullSafeEquals(currentEncounter, o.getEncounter())) {
+						Visit obsVisit = (o.getEncounter() != null ? o.getEncounter().getVisit() : null);
+						if (currentVisit.equals(obsVisit)) {
+							if (valCoded == null || valCoded.equals(o.getValueCoded())) {
+								return o;
+							}
+						}
 					}
 				}
 			}

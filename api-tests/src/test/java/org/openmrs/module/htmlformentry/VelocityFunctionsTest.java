@@ -18,7 +18,9 @@ import org.openmrs.Patient;
 import org.openmrs.PatientState;
 import org.openmrs.Visit;
 import org.openmrs.VisitType;
+import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,6 +33,9 @@ import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
+	
+	@Autowired
+	ConceptService conceptService;
 	
 	private Integer ageInMonths;
 	
@@ -419,7 +424,7 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		VisitType visitType = Context.getVisitService().getVisitType(1);
 		EncounterType encounterType = Context.getEncounterService().getEncounterType(1);
-		Concept weightConcept = Context.getConceptService().getConceptByUuid("c607c80f-1ea9-4da3-bb88-6276ce8868dd");
+		Concept weightConcept = conceptService.getConceptByUuid("c607c80f-1ea9-4da3-bb88-6276ce8868dd");
 		
 		HtmlForm htmlform = new HtmlForm();
 		Form form = new Form();
@@ -505,5 +510,108 @@ public class VelocityFunctionsTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(Double.valueOf(30.2), o.getValueNumeric());
 		o = functions.latestObsBeforeCurrentEncounter(weightConcept.getUuid(), true);
 		Assert.assertEquals(Double.valueOf(30.1), o.getValueNumeric());
+	}
+	
+	@Test
+	public void latestObsInVisitPriorToEncounter_shouldReturnTheMostRecentObsGivenThePassedConceptUuid() throws Exception {
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		VisitType visitType = Context.getVisitService().getVisitType(1);
+		EncounterType encounterType = Context.getEncounterService().getEncounterType(1);
+		Concept civilStatus = conceptService.getConcept(4);
+		Concept married = conceptService.getConcept(5);
+		Concept single = conceptService.getConcept(6);
+		
+		HtmlForm htmlform = new HtmlForm();
+		Form form = new Form();
+		form.setEncounterType(encounterType);
+		htmlform.setForm(form);
+		htmlform.setDateChanged(new Date());
+		htmlform.setXmlData("<htmlform></htmlform>");
+		
+		Date visitDate = df.parse("2023-03-04");
+		Date encounter1Date = df.parse("2023-03-04");
+		Date encounter2Date = df.parse("2023-03-05");
+		Date encounter3Date = df.parse("2023-03-06");
+		
+		Patient patient = Context.getPatientService().getPatient(7);
+		Visit v1 = new Visit();
+		v1.setPatient(patient);
+		v1.setVisitType(visitType);
+		v1.setStartDatetime(visitDate);
+		Context.getVisitService().saveVisit(v1);
+		
+		Encounter e1;
+		Encounter e2;
+		Encounter e3;
+		
+		{
+			Encounter e = new Encounter();
+			e.setPatient(patient);
+			e.setEncounterType(encounterType);
+			e.setEncounterDatetime(encounter1Date);
+			Obs o = new Obs();
+			o.setConcept(civilStatus);
+			o.setValueCoded(single);
+			e.addObs(o);
+			e.setVisit(v1);
+			e1 = Context.getEncounterService().saveEncounter(e);
+		}
+		{
+			Encounter e = new Encounter();
+			e.setPatient(patient);
+			e.setEncounterType(encounterType);
+			e.setEncounterDatetime(encounter2Date);
+			Obs o = new Obs();
+			o.setConcept(civilStatus);
+			o.setValueCoded(married);
+			e.addObs(o);
+			e2 = Context.getEncounterService().saveEncounter(e);
+		}
+		{
+			Encounter e = new Encounter();
+			e.setPatient(patient);
+			e.setEncounterType(encounterType);
+			e.setEncounterDatetime(encounter3Date);
+			Obs o = new Obs();
+			o.setConcept(civilStatus);
+			o.setValueCoded(married);
+			e.addObs(o);
+			e.setVisit(v1);
+			e3 = Context.getEncounterService().saveEncounter(e);
+		}
+		
+		Patient p = new Patient(7);
+		FormEntrySession session = new FormEntrySession(p, htmlform, null);
+		VelocityFunctions functions = new VelocityFunctions(session);
+		session.getContext().setVisit(v1);
+		
+		// Encounter 1: should return null for all answers, no prior data in this visit
+		session.getContext().setupExistingData(e1);
+		Obs o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), null);
+		Assert.assertNull(o);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), married.getUuid());
+		Assert.assertNull(o);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), single.getUuid());
+		Assert.assertNull(o);
+		
+		// Encounter 2: should return null for all answers, no visit
+		session.getContext().setupExistingData(e2);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), null);
+		Assert.assertNull(o);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), married.getUuid());
+		Assert.assertNull(o);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), single.getUuid());
+		Assert.assertNull(o);
+		
+		// Encounter 3: should return data from encounter 1
+		session.getContext().setupExistingData(e3);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), null);
+		Assert.assertEquals(single, o.getValueCoded());
+		Assert.assertEquals(encounter1Date, o.getObsDatetime());
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), married.getUuid());
+		Assert.assertNull(o);
+		o = functions.latestObsInVisitPriorToEncounter(civilStatus.getUuid(), single.getUuid());
+		Assert.assertEquals(single, o.getValueCoded());
+		Assert.assertEquals(encounter1Date, o.getObsDatetime());
 	}
 }
