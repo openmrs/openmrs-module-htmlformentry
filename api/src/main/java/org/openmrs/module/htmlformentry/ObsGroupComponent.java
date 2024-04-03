@@ -92,8 +92,7 @@ public class ObsGroupComponent {
 	public void setAnswerDrug(Drug answerDrug) {
 		this.answerDrug = answerDrug;
 	}
-	
-	// TODO update the supporting rank to take form field path into account and prioritize
+
 	public static int supportingRank(List<ObsGroupComponent> obsGroupComponents, Set<Obs> obsSet) {
 		int rank = 0;
 		
@@ -103,7 +102,6 @@ public class ObsGroupComponent {
 			
 			// iterate though all form obs elements for obs group we are testing for a match against
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
-				;
 				
 				// if any one of the obs group components have a control id, and it matches the obs control id, return an insurmountable ranking
 				if (obsGroupComponent.getControlId() != null
