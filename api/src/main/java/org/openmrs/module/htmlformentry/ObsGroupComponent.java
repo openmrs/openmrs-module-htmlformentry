@@ -30,6 +30,8 @@ public class ObsGroupComponent {
 	
 	private Drug answerDrug;
 	
+	private String controlId = null;
+	
 	private Boolean partOfSet = false;
 	
 	private Boolean lastInSet = false;
@@ -40,21 +42,25 @@ public class ObsGroupComponent {
 	public ObsGroupComponent() {
 	}
 	
-	public ObsGroupComponent(Concept question, Concept answer) {
+	public ObsGroupComponent(Concept question, Concept answer, String controlId) {
 		this.question = question;
 		this.answer = answer;
+		this.controlId = controlId;
 	}
 	
-	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug) {
+	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug, String controlId) {
 		this.question = question;
 		this.answer = answer;
 		this.answerDrug = answerDrug;
+		this.controlId = controlId;
 	}
 	
-	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug, Boolean partOfSet, Boolean lastInSet) {
+	public ObsGroupComponent(Concept question, Concept answer, Drug answerDrug, String controlId, Boolean partOfSet,
+	    Boolean lastInSet) {
 		this.question = question;
 		this.answer = answer;
 		this.answerDrug = answerDrug;
+		this.controlId = controlId;
 		this.partOfSet = partOfSet;
 		this.lastInSet = lastInSet;
 	}
@@ -86,32 +92,7 @@ public class ObsGroupComponent {
 	public void setAnswerDrug(Drug answerDrug) {
 		this.answerDrug = answerDrug;
 	}
-	
-	@Deprecated
-	public static boolean supports(List<ObsGroupComponent> questionsAndAnswers, Obs parentObs, Set<Obs> group) {
-		for (Obs obs : group) {
-			boolean match = false;
-			for (ObsGroupComponent test : questionsAndAnswers) {
-				boolean questionMatches = test.getQuestion().getConceptId().equals(obs.getConcept().getConceptId());
-				boolean answerMatches = test.getAnswer() == null || (obs.getValueCoded() != null
-				        && test.getAnswer().getConceptId().equals(obs.getValueCoded().getConceptId()));
-				
-				if (questionMatches && !answerMatches) {
-					match = false;
-					break;
-				}
-				
-				if (questionMatches && answerMatches) {
-					match = true;
-				}
-			}
-			if (!match) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
+
 	public static int supportingRank(List<ObsGroupComponent> obsGroupComponents, Set<Obs> obsSet) {
 		int rank = 0;
 		
@@ -121,6 +102,13 @@ public class ObsGroupComponent {
 			
 			// iterate though all form obs elements for obs group we are testing for a match against
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
+				
+				// if any one of the obs group components have a control id, and it matches the obs control id, just return 1000 to force a match
+				if (obsGroupComponent.getControlId() != null
+				        && obsGroupComponent.getControlId().equals(HtmlFormEntryUtil.getControlId(obs))) {
+					return 1000;
+				}
+				
 				Concept groupComponentQuestion = obsGroupComponent.getQuestion();
 				if (groupComponentQuestion == null) {
 					// The correct error should be thrown with useful contextual information from ObsSubmissionElement:174
@@ -180,7 +168,7 @@ public class ObsGroupComponent {
 	        Pair<Concept, Concept> hiddenObs, Node node) {
 		List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
 		if (hiddenObs != null) { // consider the hidden obs when making a match
-			ret.add(new ObsGroupComponent(hiddenObs.getKey(), hiddenObs.getValue(), null, false, false));
+			ret.add(new ObsGroupComponent(hiddenObs.getKey(), hiddenObs.getValue(), null, null, false, false));
 		}
 		findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, node, ret);
 		return ret;
@@ -195,6 +183,7 @@ public class ObsGroupComponent {
 			Concept answer = null;
 			Drug answerDrug = null;
 			List<Concept> answersList = null;
+			String controlId = null;
 			NamedNodeMap attrs = node.getAttributes();
 			try {
 				String questionsStr = attrs.getNamedItem("conceptIds").getNodeValue();
@@ -250,6 +239,12 @@ public class ObsGroupComponent {
 					}
 				}
 			}
+			try {
+				controlId = attrs.getNamedItem("controlId").getNodeValue();
+			}
+			catch (Exception ex) {
+				// this is fine
+			}
 			
 			//determine whether or not the obs group parent of this obs is the obsGroup obs that we're looking at.
 			boolean thisObsInThisGroup = false;
@@ -278,17 +273,17 @@ public class ObsGroupComponent {
 					while (i.hasNext()) {
 						Concept c = i.next();
 						// add all the answers as separate obs group components, flagging them all as part of a set, and flagging the last one as the last one in the set
-						obsGroupComponents.add(new ObsGroupComponent(question, c, null, true, !i.hasNext()));
+						obsGroupComponents.add(new ObsGroupComponent(question, c, null, controlId, true, !i.hasNext()));
 					}
 				} else if (questions != null && questions.size() > 0) {
 					Iterator<Concept> i = questions.iterator();
 					while (i.hasNext()) {
 						Concept c = i.next();
 						// add all the questions as separate obs group components, flagging them all as part of a set, and flagging the last one as the last one in the set
-						obsGroupComponents.add(new ObsGroupComponent(c, answer, null, true, !i.hasNext()));
+						obsGroupComponents.add(new ObsGroupComponent(c, answer, null, controlId, true, !i.hasNext()));
 					}
 				} else {
-					addToObsGroupComponentList(obsGroupComponents, question, answer, answerDrug);
+					addToObsGroupComponentList(obsGroupComponents, question, answer, answerDrug, controlId);
 				}
 			}
 		} else if ("obsgroup".equals(node.getNodeName())) {
@@ -296,7 +291,7 @@ public class ObsGroupComponent {
 				NamedNodeMap attrs = node.getAttributes();
 				attrs.getNamedItem("groupingConceptId").getNodeValue();
 				obsGroupComponents.add(new ObsGroupComponent(
-				        HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue()), null));
+				        HtmlFormEntryUtil.getConcept(attrs.getNamedItem("groupingConceptId").getNodeValue()), null, null));
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Unable to get groupingConcept out of obsgroup tag.");
@@ -310,7 +305,7 @@ public class ObsGroupComponent {
 	
 	// see: https://issues.openmrs.org/browse/HTML-806
 	private static void addToObsGroupComponentList(List<ObsGroupComponent> list, Concept question, Concept answer,
-	        Drug answerDrug) {
+	        Drug answerDrug, String controlId) {
 		boolean isSet = false;
 		// if there are any existing components with the same question, make sure they are flagged as part of set, but *not* the last one in the set
 		for (ObsGroupComponent component : list) {
@@ -321,7 +316,7 @@ public class ObsGroupComponent {
 			}
 		}
 		// if existing components with the same question were found, flag this new component as part of a set, *and* the last element in the set
-		list.add(new ObsGroupComponent(question, answer, answerDrug, isSet, isSet));
+		list.add(new ObsGroupComponent(question, answer, answerDrug, controlId, isSet, isSet));
 	}
 	
 	/**
@@ -377,5 +372,9 @@ public class ObsGroupComponent {
 	
 	public void setLastInSet(Boolean lastInSet) {
 		this.lastInSet = lastInSet;
+	}
+	
+	public String getControlId() {
+		return controlId;
 	}
 }

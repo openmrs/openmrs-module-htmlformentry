@@ -381,83 +381,11 @@ public class FormSubmissionActions {
 	 * @param comment comment for the obs
 	 */
 	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber,
-	        String comment) {
-		if (newValue == null || "".equals(newValue)) {
-			// we want to delete the existing obs
-			if (log.isDebugEnabled())
-				log.debug("VOID: " + printObsHelper(existingObs));
-			obsToVoid.add(existingObs);
-			return;
-		}
-		if (concept == null) {
-			// we want to delete the existing obs
-			if (log.isDebugEnabled())
-				log.debug("VOID: " + printObsHelper(existingObs));
-			obsToVoid.add(existingObs);
-			return;
-		}
-		Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime, accessionNumber);
-		String oldString = existingObs.getValueAsString(Context.getLocale());
-		String newString = newObs.getValueAsString(Context.getLocale());
-		if (log.isDebugEnabled() && concept != null) {
-			log.debug("For concept " + concept.getName(Context.getLocale()) + ": " + oldString + " -> " + newString);
-		}
-		boolean valueChanged = !newString.equals(oldString);
-		// TODO: handle dates that may equal encounter date
-		boolean dateChanged = dateChangedHelper(existingObs.getObsDatetime(), newObs.getObsDatetime());
-		boolean accessionNumberChanged = accessionNumberChangedHelper(existingObs.getAccessionNumber(),
-		    newObs.getAccessionNumber());
-		boolean conceptsHaveChanged = false;
-		if (!existingObs.getConcept().getConceptId().equals(concept.getConceptId())) {
-			conceptsHaveChanged = true;
-		}
-		if (valueChanged || dateChanged || accessionNumberChanged || conceptsHaveChanged) {
-			if (log.isDebugEnabled()) {
-				log.debug("CHANGED: " + printObsHelper(existingObs));
-			}
-			// TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
-			obsToVoid.add(existingObs);
-			
-			newObs = createObs(concept, newValue, newDatetime, accessionNumber, comment);
-			newObs.setPreviousVersion(existingObs);
-		} else {
-			if (existingObs != null && StringUtils.isNotBlank(comment))
-				existingObs.setComment(comment);
-			
-			if (log.isDebugEnabled()) {
-				log.debug("SAME: " + printObsHelper(existingObs));
-			}
-		}
-	}
-	
-	/**
-	 * Legacy modifyObs methods without the comment argument
-	 */
-	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
-		modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null);
-	}
-	
-	/**
-	 * Modifies an existing Obs.
-	 * <p/>
-	 * This method works by adding the current Obs to a list of Obs to void, and then adding the new Obs
-	 * to a list of Obs to create. Note that this method does not commit the changes to the
-	 * database--the changes are applied elsewhere in the framework.
-	 *
-	 * @param existingObs the Obs to modify
-	 * @param concept concept associated with the Obs
-	 * @param newValue the new value of the Obs
-	 * @param newDatetime the new date information for the Obs
-	 * @param accessionNumber new accession number for the Obs
-	 * @param comment comment for the obs
-	 */
-	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber,
 	        String comment, String controlFormPath) {
 		if (newValue == null || "".equals(newValue)) {
 			// we want to delete the existing obs
-			if (log.isDebugEnabled()) {
+			if (log.isDebugEnabled())
 				log.debug("VOID: " + printObsHelper(existingObs));
-			}
 			obsToVoid.add(existingObs);
 			return;
 		}
@@ -469,9 +397,7 @@ public class FormSubmissionActions {
 			return;
 		}
 		Obs newObs = HtmlFormEntryUtil.createObs(concept, newValue, newDatetime, accessionNumber);
-		if (controlFormPath != null) {
-			newObs.setFormField(FORM_NAMESPACE, controlFormPath);
-		}
+		// random note... it is possible that the existing obs has changed even though the value as string is the same (probably not?)
 		String oldString = existingObs.getValueAsString(Context.getLocale());
 		String newString = newObs.getValueAsString(Context.getLocale());
 		if (log.isDebugEnabled() && concept != null) {
@@ -493,7 +419,7 @@ public class FormSubmissionActions {
 			// TODO: really the voided obs should link to the new one, but this is a pain to implement due to the dreaded error: org.hibernate.NonUniqueObjectException: a different object with the same identifier value was already associated with the session
 			obsToVoid.add(existingObs);
 			
-			newObs = createObs(concept, newValue, newDatetime, accessionNumber, comment);
+			newObs = createObs(concept, newValue, newDatetime, accessionNumber, comment, controlFormPath);
 			newObs.setPreviousVersion(existingObs);
 		} else {
 			if (existingObs != null && StringUtils.isNotBlank(comment))
@@ -503,6 +429,15 @@ public class FormSubmissionActions {
 				log.debug("SAME: " + printObsHelper(existingObs));
 			}
 		}
+	}
+	
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber,
+	        String comment) {
+		modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, comment, null);
+	}
+	
+	public void modifyObs(Obs existingObs, Concept concept, Object newValue, Date newDatetime, String accessionNumber) {
+		modifyObs(existingObs, concept, newValue, newDatetime, accessionNumber, null, null);
 	}
 	
 	/**
