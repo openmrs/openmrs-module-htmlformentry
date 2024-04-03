@@ -103,7 +103,7 @@ public class ObsGroupComponent {
 			// iterate though all form obs elements for obs group we are testing for a match against
 			for (ObsGroupComponent obsGroupComponent : obsGroupComponents) {
 				
-				// if any one of the obs group components have a control id, and it matches the obs control id, return an insurmountable ranking
+				// if any one of the obs group components have a control id, and it matches the obs control id, just return 1000 to force a match
 				if (obsGroupComponent.getControlId() != null
 				        && obsGroupComponent.getControlId().equals(HtmlFormEntryUtil.getControlId(obs))) {
 					return 1000;
