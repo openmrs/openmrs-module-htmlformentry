@@ -2,16 +2,21 @@ package org.openmrs.module.htmlformentry;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
+import org.openmrs.api.APIException;
+import org.openmrs.api.context.Context;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FormNamespaceAndPathRegressionTest extends BaseHtmlFormEntryTest {
 	
@@ -129,6 +134,185 @@ public class FormNamespaceAndPathRegressionTest extends BaseHtmlFormEntryTest {
 					Assert.assertNull(childObs.getFormFieldPath());
 				}
 			}
+		}.run();
+	}
+	
+	@Test
+	public void testDoubleObsGroupFormWithControlIdSavesNamespaceAndPath() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "doubleObsGroupFormWithControlId";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Allergy 1:", "Allergy 1 Date:", "Allergy 2:",
+				        "Allergy 2 Date:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Allergy 1:"), "Bee stings");
+				request.addParameter(widgets.get("Allergy 1 Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Allergy 2:"), "Lactose");
+				request.addParameter(widgets.get("Allergy 2 Date:"), dateAsString(date));
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				Encounter encounter = results.getEncounterCreated();
+				Assert.assertEquals(4, encounter.getObs().size());
+				
+				List<String> formFieldPaths = encounter.getObs().stream().map(Obs::getFormFieldPath)
+				        .collect(Collectors.toList());
+				
+				// note that "FakeForm and 2.0" are just hardcoded into the Regression Test Helper context setup
+				Assert.assertTrue(formFieldPaths.contains("FakeForm.2.0/allergy-1-0"));
+				Assert.assertTrue(formFieldPaths.contains("FakeForm.2.0/allergy-2-0"));
+				Assert.assertTrue(formFieldPaths.contains("FakeForm.2.0/allergy-date-1-0"));
+				Assert.assertTrue(formFieldPaths.contains("FakeForm.2.0/allergy-date-2-0"));
+				
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testDoubleObsGroupFormWithControlIdCorrectlyReloadsObs() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "doubleObsGroupFormWithControlId";
+			}
+			
+			@Override
+			public Encounter getEncounterToView() throws Exception {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date = Context.getDateFormat().parse("01/02/2003");
+				e.setDateCreated(new Date());
+				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
+				
+				// first create the second allergies obs group
+				Obs allergy2Parent = TestUtil.createObs(e, 70000, null, date);
+				e.addObs(allergy2Parent);
+				Obs allergy2 = TestUtil.createObs(e, 80000, "Lactose", date);
+				allergy2.setFormField(null, "FakeForm.2.0/allergy-2-0");
+				allergy2Parent.addGroupMember(allergy2);
+				
+				// then create the first allergies obs group
+				Obs allergy1Parent = TestUtil.createObs(e, 70000, null, date);
+				e.addObs(allergy1Parent);
+				Obs allergy1 = TestUtil.createObs(e, 80000, "Bee stings", date);
+				allergy1.setFormField(null, "FakeForm.2.0/allergy-1-0");
+				allergy1Parent.addGroupMember(allergy1);
+				
+				e = Context.getEncounterService().saveEncounter(e);
+				return e;
+			}
+			
+			@Override
+			public void testViewingEncounter(Encounter encounter, String html) {
+				TestUtil.assertFuzzyContains("Allergy 1:Bee stings", html);
+				TestUtil.assertFuzzyContains("Allergy 2:Lactose", html);
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testDoubleObsGroupFormWithControlIdCorrectlyEditsObs() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "doubleObsGroupFormWithControlId";
+			}
+			
+			@Override
+			public Encounter getEncounterToEdit() {
+				Encounter e = new Encounter();
+				e.setPatient(getPatient());
+				Date date;
+				try {
+					date = Context.getDateFormat().parse("01/02/2003");
+				}
+				catch (Exception ex) {
+					throw new APIException();
+				}
+				
+				e.setDateCreated(new Date());
+				e.setEncounterType(Context.getEncounterService().getEncounterType(1));
+				e.setEncounterDatetime(date);
+				e.setLocation(Context.getLocationService().getLocation(2));
+				e.addProvider(Context.getEncounterService().getEncounterRole(1),
+				    Context.getProviderService().getProvider(1));
+				
+				// first create the second allergies obs group
+				Obs allergy2Parent = TestUtil.createObs(e, 70000, null, date);
+				e.addObs(allergy2Parent);
+				Obs allergy2 = TestUtil.createObs(e, 80000, "Lactose", date);
+				allergy2.setFormField(null, "FakeForm.2.0/allergy-2-0");
+				allergy2Parent.addGroupMember(allergy2);
+				
+				// then create the first allergies obs group
+				Obs allergy1Parent = TestUtil.createObs(e, 70000, null, date);
+				e.addObs(allergy1Parent);
+				Obs allergy1 = TestUtil.createObs(e, 80000, "Bee stings", date);
+				allergy1.setFormField(null, "FakeForm.2.0/allergy-1-0");
+				allergy1Parent.addGroupMember(allergy1);
+				
+				e = Context.getEncounterService().saveEncounter(e);
+				return e;
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Allergy 1:", "Allergy 2:" };
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Allergy 1:"), "Wasp stings");
+				request.setParameter(widgets.get("Allergy 2:"), "Milk");
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				Encounter encounter = results.getEncounterCreated();
+				Assert.assertEquals(2, encounter.getObs().size());
+				
+				List<String> obsValues = encounter.getObs().stream().map(Obs::getValueText).collect(Collectors.toList());
+				Assert.assertTrue(obsValues.contains("Wasp stings"));
+				Assert.assertTrue(obsValues.contains("Milk"));
+				
+				List<String> formFieldPaths = encounter.getObs().stream().map(Obs::getFormFieldPath)
+				        .collect(Collectors.toList());
+				
+				// testing that the form field paths were preserved, see https://openmrs.atlassian.net/browse/HTML-841
+				// note that "FakeForm and 2.0" are just hardcoded into the Regression Test Helper context setup
+				Assert.assertTrue(formFieldPaths.contains("FakeForm.2.0/allergy-1-0"));
+				Assert.assertTrue(formFieldPaths.contains("FakeForm.2.0/allergy-2-0"));
+			}
+			
 		}.run();
 	}
 	
