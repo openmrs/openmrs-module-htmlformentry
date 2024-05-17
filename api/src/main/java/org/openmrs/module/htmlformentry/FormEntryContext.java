@@ -151,19 +151,29 @@ public class FormEntryContext {
 	 * @param widget the widget to register
 	 * @return the field id used to identify this widget in the HTML Form
 	 */
-	public String registerWidget(Widget widget) {
+	// TODO update documentation
+	public String registerWidget(Widget widget, String fieldName) {
 		if (fieldNames.containsKey(widget))
 			throw new IllegalArgumentException("This widget is already registered");
-		int thisVal = 0;
-		synchronized (sequenceNextVal) {
-			thisVal = sequenceNextVal;
-			sequenceNextVal = sequenceNextVal + 1;
+		
+		if (StringUtils.isBlank(fieldName)) {
+			int thisVal = 0;
+			synchronized (sequenceNextVal) {
+				thisVal = sequenceNextVal;
+				sequenceNextVal = sequenceNextVal + 1;
+			}
+			fieldName = "w" + thisVal;
 		}
-		String fieldName = "w" + thisVal;
+		
 		fieldNames.put(widget, fieldName);
 		if (log.isTraceEnabled())
 			log.trace("Registered widget " + widget.getClass() + " as " + fieldName);
 		return fieldName;
+	}
+	
+	// TODO document
+	public String registerWidget(Widget widget) {
+		return registerWidget(widget, null);
 	}
 	
 	/**

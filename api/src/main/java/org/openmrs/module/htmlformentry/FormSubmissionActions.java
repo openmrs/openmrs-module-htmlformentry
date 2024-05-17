@@ -19,6 +19,7 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appointments.model.Appointment;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.util.OpenmrsUtil;
 
@@ -78,6 +79,10 @@ public class FormSubmissionActions {
 	private List<Relationship> relationshipsToEdit = new Vector<Relationship>();
 	
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
+	
+	private List<Appointment> appointmentsToMarkCheckedInAndAssociateWithEncounter = new Vector<Appointment>();
+	
+	private List<Appointment> appointmentsToDisassociateFromEncounter = new Vector<Appointment>();
 	
 	private ExitFromCareProperty exitFromCareProperty;
 	
@@ -945,5 +950,22 @@ public class FormSubmissionActions {
 	
 	public void setCustomFormSubmissionActions(List<CustomFormSubmissionAction> customFormSubmissionActions) {
 		this.customFormSubmissionActions = customFormSubmissionActions;
+	}
+	
+	public List<Appointment> getAppointmentsToMarkCheckedInAndAssociateWithEncounter() {
+		return appointmentsToMarkCheckedInAndAssociateWithEncounter;
+	}
+	
+	public void setAppointmentsToMarkCheckedInAndAssociateWithEncounter(
+	        List<Appointment> appointmentsToMarkCheckedInAndAssociateWithEncounter) {
+		this.appointmentsToMarkCheckedInAndAssociateWithEncounter = appointmentsToMarkCheckedInAndAssociateWithEncounter;
+	}
+	
+	public List<Appointment> getAppointmentsToDisassociateFromEncounter() {
+		return appointmentsToDisassociateFromEncounter;
+	}
+	
+	public void setAppointmentsToDisassociateFromEncounter(List<Appointment> appointmentsToDisassociateFromEncounter) {
+		this.appointmentsToDisassociateFromEncounter = appointmentsToDisassociateFromEncounter;
 	}
 }

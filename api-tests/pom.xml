@@ -62,6 +62,10 @@
 			<artifactId>providermanagement-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.bahmni.module</groupId>
+			<artifactId>appointments-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.openmrs.test</groupId>
 			<artifactId>openmrs-test</artifactId>
 			<version>${openMRSVersion}</version>

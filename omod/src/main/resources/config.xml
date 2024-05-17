@@ -22,6 +22,7 @@
 	    <aware_of_module>org.openmrs.module.legacyui</aware_of_module>
 		<aware_of_module>org.openmrs.module.metadatamapping</aware_of_module>
 		<aware_of_module>org.openmrs.module.providermanagement</aware_of_module>
+		<aware_of_module>org.bahmni.module.appointments</aware_of_module>
 	</aware_of_modules>
 
 	<!-- Extensions -->

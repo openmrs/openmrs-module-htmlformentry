@@ -28,6 +28,9 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.appointments.model.Appointment;
+import org.openmrs.module.appointments.model.AppointmentStatus;
+import org.openmrs.module.appointments.service.AppointmentsService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
@@ -44,6 +47,7 @@ import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -636,6 +640,31 @@ public class FormEntrySession {
 			}
 		}
 		
+		// handle appointments (needs to happen after encounter is saved?)
+		if (submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter() != null) {
+			for (Appointment appointment : submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter()) {
+				if (appointment.getStatus() == AppointmentStatus.Scheduled) {
+					Context.getService(AppointmentsService.class).changeStatus(appointment,
+					    AppointmentStatus.CheckedIn.toString(), encounter.getEncounterDatetime());
+				}
+				if (appointment.getFulfillingEncounters() != null) {
+					appointment.getFulfillingEncounters().add(encounter);
+				} else {
+					appointment.setFulfillingEncounters(Collections.singleton(encounter));
+				}
+				Context.getService(AppointmentsService.class).validateAndSave(appointment);
+			}
+		}
+		
+		if (submissionActions.getAppointmentsToDisassociateFromEncounter() != null) {
+			for (Appointment appointment : submissionActions.getAppointmentsToDisassociateFromEncounter()) {
+				if (appointment.getFulfillingEncounters() != null) {
+					appointment.getFulfillingEncounters().remove(encounter);
+					Context.getService(AppointmentsService.class).validateAndSave(appointment);
+				}
+			}
+		}
+		
 		//deal with relationships
 		if (submissionActions.getRelationshipsToCreate() != null) {
 			for (Relationship r : submissionActions.getRelationshipsToCreate()) {
@@ -986,7 +1015,7 @@ public class FormEntrySession {
 				    exitFromCareProperty.getReasonExitConcept());
 			}
 		}
-		
+
 		// handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
 		if (submissionActions.getCustomFormSubmissionActions() != null) {
 			for (CustomFormSubmissionAction customFormSubmissionAction : submissionActions
