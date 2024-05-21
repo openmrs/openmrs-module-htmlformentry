@@ -20,7 +20,7 @@ public class AppointmentsTagHandler extends SubstitutionTagHandler {
 	@Override
 	protected String getSubstitution(FormEntrySession session, FormSubmissionController controllerActions,
 	        Map<String, String> parameters) {
-		AppointmentsElement element = new AppointmentsElement(session.getContext());
+		AppointmentsElement element = new AppointmentsElement(session.getContext(), parameters);
 		session.getSubmissionController().addAction(element);
 		return element.generateHtml(session.getContext());
 	}

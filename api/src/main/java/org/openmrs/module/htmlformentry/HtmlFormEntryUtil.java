@@ -2314,6 +2314,19 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
+	 * @return a SimpleDateFormat object for the current locale, using the global property
+	 */
+	public static SimpleDateFormat getDateTimeFormat() {
+		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_FORMATTER_DATETIME,
+		    "yyyy-MM-dd, HH:mm:ss");
+		if (StringUtils.isNotBlank(df)) {
+			return new SimpleDateFormat(df, Context.getLocale());
+		} else {
+			return Context.getDateTimeFormat();
+		}
+	}
+	
+	/**
 	 * @param date the date to check
 	 * @return true if the given date is not at midnight
 	 */
@@ -2697,6 +2710,22 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
+	 * Given a provider, returns the provider name by first looking at the name of any associated person
+	 * and, if none, falling back to provider.getName()
+	 * 
+	 * @param provider
+	 * @return
+	 */
+	public static String getProviderName(Provider provider) {
+		if (provider != null) {
+			return provider.getPerson() != null
+			        ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName())
+			        : provider.getName();
+		}
+		return "";
+	}
+	
+	/**
 	 * Convenience method to get all the names of this PersonName and concatonating them together with
 	 * family name compoenents first, separated by a comma from given and middle names. If any part of
 	 * {@link PersonName#getPrefix()}, {@link PersonName#getGivenName()},
@@ -2858,4 +2887,5 @@ public class HtmlFormEntryUtil {
 		}
 		return ret;
 	}
+	
 }

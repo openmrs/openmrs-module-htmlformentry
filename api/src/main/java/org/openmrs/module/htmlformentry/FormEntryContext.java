@@ -146,12 +146,14 @@ public class FormEntryContext {
 	private Integer sequenceNextVal = 1;
 	
 	/**
-	 * Registers a widget within the Context
+	 * Registers a widget within the Context If a field id is passed in, register with that field id,
+	 * otherwise generate a unique field id using a sequence number and appending 'w' to the front
+	 * (Generally you do not want to pass in a field id, but rather defer to this method to generate one
+	 * for you)
 	 *
 	 * @param widget the widget to register
 	 * @return the field id used to identify this widget in the HTML Form
 	 */
-	// TODO update documentation
 	public String registerWidget(Widget widget, String fieldName) {
 		if (fieldNames.containsKey(widget))
 			throw new IllegalArgumentException("This widget is already registered");
@@ -171,7 +173,9 @@ public class FormEntryContext {
 		return fieldName;
 	}
 	
-	// TODO document
+	/**
+	 * Registeres a widget within the Context, generating a unique field id
+	 */
 	public String registerWidget(Widget widget) {
 		return registerWidget(widget, null);
 	}

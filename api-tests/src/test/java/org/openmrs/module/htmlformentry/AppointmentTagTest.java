@@ -61,10 +61,10 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
 			}
 			
 			@Override
@@ -103,11 +103,11 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
-				request.addParameter(widgets.get("Appointments:").replace("_1", "_2"),
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
+				request.setParameter(widgets.get("Appointments:").replace("_1", "_2"),
 				    "75504r42-3ca8-11e3-bf2b-0800271c1111");
 			}
 			
@@ -149,10 +149,10 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
 			}
 			
 			@Override
@@ -166,8 +166,8 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 			}
 			
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Appointments:"), "");
-				request.addParameter(widgets.get("Appointments:").replace("_1", "_2"),
+				request.setParameter(widgets.get("Appointments:"), "");
+				request.setParameter(widgets.get("Appointments:").replace("_1", "_2"),
 				    "75504r42-3ca8-11e3-bf2b-0800271c1111");
 			}
 			
@@ -203,7 +203,6 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 				Appointment appointment1 = Context.getService(AppointmentsService.class)
 				        .getAppointmentByUuid("05f2ad92-1cc8-4cec-bf54-9cac0200746d");
 				Assert.assertEquals(AppointmentStatus.CheckedIn, appointment1.getStatus()); // Note that we are NOT changing the status back to Scheduled
-				// TODO debug after testing IRL
 				Assert.assertEquals(0, appointment1.getFulfillingEncounters().size()); // but encounter should be removed
 				
 				Appointment appointment2 = Context.getService(AppointmentsService.class)
@@ -232,10 +231,10 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 			
 			@Override
 			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.addParameter(widgets.get("Date:"), dateAsString(date));
-				request.addParameter(widgets.get("Location:"), "2");
-				request.addParameter(widgets.get("Provider:"), "502");
-				request.addParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
+				request.setParameter(widgets.get("Date:"), dateAsString(date));
+				request.setParameter(widgets.get("Location:"), "2");
+				request.setParameter(widgets.get("Provider:"), "502");
+				request.setParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
 			}
 			
 			@Override
@@ -250,7 +249,7 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 			
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				// upon edit keep the same checked
-				request.addParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
+				request.setParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
 			}
 			
 			@Override
@@ -280,8 +279,3 @@ public class AppointmentTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 }
-
-// TODOS: make sure test to remove works
-// TODOs: review specs
-// TODOs: add to check in form for SL and format/test IRL!
-// TODOs ticket separate functionality to pass in appointment to automatically mark as checked in

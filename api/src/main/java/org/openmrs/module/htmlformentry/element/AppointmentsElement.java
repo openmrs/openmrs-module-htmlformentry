@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.openmrs.Patient;
@@ -26,26 +27,36 @@ public class AppointmentsElement implements HtmlGeneratorElement, FormSubmission
 	
 	private List<Appointment> appointments = new ArrayList<>();
 	
-	public AppointmentsElement(FormEntryContext context) {
+	private String clazz;
+	
+	public AppointmentsElement(FormEntryContext context, Map<String, String> parameters) {
+		
+		if (parameters.get("class") != null) {
+			clazz = parameters.get("class");
+		}
+		
 		Patient patient = context.getExistingPatient();
 		if (patient != null) {
 			
 			// first, get all scheduled appointments for this patient
 			AppointmentSearchRequest request = new AppointmentSearchRequest();
 			request.setPatientUuid(patient.getUuid());
-			request.setStartDate(new DateTime().minusYears(1000).toDate()); // TODO hack, we want all appts for patient regardless of start date, but start date is required, this will start to fail in a thousand years
+			request.setStartDate(new DateTime().minusYears(1000).toDate()); // TODO hack, we want all appts for patient regardless of start date, but the search method always returns null if start date is null; this will start to fail in a thousand years
 			appointments = Context.getService(AppointmentsService.class).search(request);
 			
 			appointments.sort(Comparator.comparing(Appointment::getStartDateTime).reversed());
-			appointments.removeIf(appointment -> appointment.getStatus() != AppointmentStatus.Scheduled
+			
+			// in VIEW mode, only show appointments linked to encounter; in EDIT mode show those linked to encounter and all scheduled appts
+			appointments.removeIf(appointment -> (context.getMode() == FormEntryContext.Mode.VIEW
+			        || appointment.getStatus() != AppointmentStatus.Scheduled)
 			        && (appointment.getFulfillingEncounters() == null
-			                && !appointment.getFulfillingEncounters().contains(context.getExistingEncounter())));
+			                || !appointment.getFulfillingEncounters().contains(context.getExistingEncounter())));
 		}
 	}
 	
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		appointmentsWidget = new AppointmentsWidget(appointments, context);
+		appointmentsWidget = new AppointmentsWidget(appointments, context, clazz);
 		return appointmentsWidget.generateHtml(context);
 	}
 	

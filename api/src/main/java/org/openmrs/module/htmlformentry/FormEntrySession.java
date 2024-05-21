@@ -652,7 +652,7 @@ public class FormEntrySession {
 				} else {
 					appointment.setFulfillingEncounters(Collections.singleton(encounter));
 				}
-				Context.getService(AppointmentsService.class).validateAndSave(appointment);
+				Context.getService(AppointmentsService.class).validateAndSave(() -> appointment);
 			}
 		}
 		
@@ -660,7 +660,7 @@ public class FormEntrySession {
 			for (Appointment appointment : submissionActions.getAppointmentsToDisassociateFromEncounter()) {
 				if (appointment.getFulfillingEncounters() != null) {
 					appointment.getFulfillingEncounters().remove(encounter);
-					Context.getService(AppointmentsService.class).validateAndSave(appointment);
+					Context.getService(AppointmentsService.class).validateAndSave(() -> appointment);
 				}
 			}
 		}
@@ -1015,7 +1015,7 @@ public class FormEntrySession {
 				    exitFromCareProperty.getReasonExitConcept());
 			}
 		}
-
+		
 		// handle any custom actions (for an example of a custom action, see: https://github.com/PIH/openmrs-module-appointmentschedulingui/commit/e2cda8de1caa8a45d319ae4fbf7714c90c9adb8b)
 		if (submissionActions.getCustomFormSubmissionActions() != null) {
 			for (CustomFormSubmissionAction customFormSubmissionAction : submissionActions

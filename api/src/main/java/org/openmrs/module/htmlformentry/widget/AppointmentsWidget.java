@@ -4,9 +4,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.joda.time.DateTime;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.Appointment;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -20,17 +23,34 @@ public class AppointmentsWidget implements Widget {
 	
 	private List<CheckboxWidget> checkboxWidgets = new ArrayList<CheckboxWidget>();
 	
-	public AppointmentsWidget(List<Appointment> appointments, FormEntryContext context) {
+	private String clazz = null;
+	
+	public AppointmentsWidget(List<Appointment> appointments, FormEntryContext context, String clazz) {
+		
+		this.clazz = clazz;
+		
 		this.appointments = appointments;
 		String fieldName = context.registerWidget(this);
 		
-		// TODO: document why we need the special registration for form consistency
+		// note that we are relying on the register widget to generate a single unique field name,
+		// and then we are appending _1, _2, _3, etc to that field name to create unique field names for each checkbox
+		// this is to ensure that this widet consistently increments the field name sequential value once,
+		// for consistency among page reloads; otherws, if the number of matches appointments changed between, for example,
+		// when the form was opened and the form was saved, widget names might be inconsistent, wreaking havoc on the form
 		int i = 1;
 		for (Appointment appointment : appointments) {
+			
+			// compare dates so that we can highlight any that match the encounter darw
+			boolean appointmentDateMatchesEncounterDate = appointment.getStartDateTime() != null
+			        && new DateTime(appointment.getStartDateTime()).withTimeAtStartOfDay()
+			                .equals(new DateTime(context.getBestApproximationOfEncounterDate()).withTimeAtStartOfDay());
+			
 			CheckboxWidget checkboxWidget = new CheckboxWidget();
-			checkboxWidget.setLabel(
-			    dateTimeFormat().format(appointment.getStartDateTime()) + " - " + renderProviderNames(appointment) + " - "
-			            + (appointment.getLocation() != null ? appointment.getLocation().getName() : ""));
+			checkboxWidget.setLabel((appointmentDateMatchesEncounterDate ? "<strong>" : "")
+			        + HtmlFormEntryUtil.getDateTimeFormat().format(appointment.getStartDateTime()) + " - "
+			        + renderProviderNames(appointment) + " - "
+			        + (appointment.getLocation() != null ? appointment.getLocation().getName() : "")
+			        + (appointmentDateMatchesEncounterDate ? "</strong>" : ""));
 			checkboxWidget.setValue(appointment.getUuid());
 			if (appointment.getFulfillingEncounters() != null && context.getExistingEncounter() != null
 			        && appointment.getFulfillingEncounters().contains(context.getExistingEncounter())) {
@@ -44,18 +64,19 @@ public class AppointmentsWidget implements Widget {
 	
 	@Override
 	public void setInitialValue(Object initialValue) {
-		// TODO?
+		// the constructor takes care of setting the initial value for each checkbox
 	}
-
+	
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (appointments == null || appointments.isEmpty()) {
-			return "No appointments found"; // TODO translate, style
+			return Context.getMessageSourceService().getMessage("appointmentsui.noAppointmentsFound");
 		}
 		
 		return checkboxWidgets.stream().map(checkboxWidget -> {
 			return checkboxWidget.generateHtml(context);
-		}).collect(Collectors.joining());
+		}).map((html) -> "<div" + (clazz != null ? " class=\"" + clazz + "\" " : "") + "/>" + html + "</div>")
+		        .collect(Collectors.joining());
 	}
 	
 	@Override
@@ -70,25 +91,12 @@ public class AppointmentsWidget implements Widget {
 		return selectedAppointmentUuids;
 	}
 	
-	// TODO move to util method?
-	private SimpleDateFormat dateTimeFormat() {
-		String df = Context.getAdministrationService().getGlobalProperty(HtmlFormEntryConstants.GP_FORMATTER_DATETIME,
-		    "yyyy-MM-dd, HH:mm:ss");
-		if (StringUtils.hasText(df)) {
-			return new SimpleDateFormat(df, Context.getLocale());
-		} else {
-			return Context.getDateTimeFormat();
-		}
-	}
-	
 	private String renderProviderNames(Appointment appointment) {
 		if (appointment.getProviders() != null) {
 			return appointment.getProviders().stream().map(provider -> {
-				return provider.getProvider().getPerson() != null ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(
-				    provider.getProvider().getPerson().getPersonName()) : provider.getProvider().getName();
+				return HtmlFormEntryUtil.getProviderName(provider.getProvider());
 			}).collect(Collectors.joining("; "));
 		}
 		return "";
-		
 	}
 }
