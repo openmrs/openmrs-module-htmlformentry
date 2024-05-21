@@ -41,7 +41,7 @@ public class AppointmentsElement implements HtmlGeneratorElement, FormSubmission
 			// first, get all scheduled appointments for this patient
 			AppointmentSearchRequest request = new AppointmentSearchRequest();
 			request.setPatientUuid(patient.getUuid());
-			request.setStartDate(new DateTime().minusYears(1000).toDate()); // TODO hack, we want all appts for patient regardless of start date, but the search method always returns null if start date is null; this will start to fail in a thousand years
+			request.setStartDate(new DateTime().minusYears(1000).toDate()); // hack, we want all appts for patient regardless of start date, but the search method always returns null if start date is null; this will start to fail in a thousand years
 			appointments = Context.getService(AppointmentsService.class).search(request);
 			
 			appointments.sort(Comparator.comparing(Appointment::getStartDateTime).reversed());

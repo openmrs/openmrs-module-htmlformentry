@@ -2,20 +2,15 @@ package org.openmrs.module.htmlformentry.widget;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.joda.time.DateTime;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.Appointment;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.springframework.util.StringUtils;
 
 public class AppointmentsWidget implements Widget {
 	
@@ -34,9 +29,9 @@ public class AppointmentsWidget implements Widget {
 		
 		// note that we are relying on the register widget to generate a single unique field name,
 		// and then we are appending _1, _2, _3, etc to that field name to create unique field names for each checkbox
-		// this is to ensure that this widet consistently increments the field name sequential value once,
-		// for consistency among page reloads; otherws, if the number of matches appointments changed between, for example,
-		// when the form was opened and the form was saved, widget names might be inconsistent, wreaking havoc on the form
+		// this is to ensure that this widget consistently increments the field name sequential value only once,
+		// otherwise, if the number of matches appointments changed between when the form was opened and the form was saved,
+		// widget names would be inconsistent, wreaking havoc on the form
 		int i = 1;
 		for (Appointment appointment : appointments) {
 			

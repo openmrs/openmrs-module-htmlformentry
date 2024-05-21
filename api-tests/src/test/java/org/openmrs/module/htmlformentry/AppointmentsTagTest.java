@@ -12,7 +12,7 @@ import org.openmrs.module.appointments.model.AppointmentStatus;
 import org.openmrs.module.appointments.service.AppointmentsService;
 import org.springframework.mock.web.MockHttpServletRequest;
 
-public class AppointmentTagTest extends BaseHtmlFormEntryTest {
+public class AppointmentsTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void loadTestData() throws Exception {

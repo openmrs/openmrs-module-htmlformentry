@@ -652,6 +652,7 @@ public class FormEntrySession {
 				} else {
 					appointment.setFulfillingEncounters(Collections.singleton(encounter));
 				}
+				// see: https://bahmni.atlassian.net/browse/BAH-3855 for why we need to call the Supplier<Appointment> version of validateAndSave
 				Context.getService(AppointmentsService.class).validateAndSave(() -> appointment);
 			}
 		}
@@ -660,6 +661,7 @@ public class FormEntrySession {
 			for (Appointment appointment : submissionActions.getAppointmentsToDisassociateFromEncounter()) {
 				if (appointment.getFulfillingEncounters() != null) {
 					appointment.getFulfillingEncounters().remove(encounter);
+					// see: https://bahmni.atlassian.net/browse/BAH-3855 for why we need to call the Supplier<Appointment> version of validateAndSave
 					Context.getService(AppointmentsService.class).validateAndSave(() -> appointment);
 				}
 			}

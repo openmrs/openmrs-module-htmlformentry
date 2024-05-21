@@ -174,7 +174,7 @@ public class FormEntryContext {
 	}
 	
 	/**
-	 * Registeres a widget within the Context, generating a unique field id
+	 * Registers a widget within the Context, generating a unique field id
 	 */
 	public String registerWidget(Widget widget) {
 		return registerWidget(widget, null);
