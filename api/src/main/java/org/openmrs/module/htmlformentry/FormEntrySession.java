@@ -28,10 +28,8 @@ import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.appointments.model.Appointment;
-import org.openmrs.module.appointments.model.AppointmentStatus;
-import org.openmrs.module.appointments.service.AppointmentsService;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.appointment.AppointmentsAbstractor;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
@@ -47,7 +45,6 @@ import javax.servlet.http.HttpSession;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -642,29 +639,13 @@ public class FormEntrySession {
 		
 		// handle appointments (needs to happen after encounter is saved?)
 		if (submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter() != null) {
-			for (Appointment appointment : submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter()) {
-				if (appointment.getStatus() == AppointmentStatus.Scheduled) {
-					Context.getService(AppointmentsService.class).changeStatus(appointment,
-					    AppointmentStatus.CheckedIn.toString(), encounter.getEncounterDatetime());
-				}
-				if (appointment.getFulfillingEncounters() != null) {
-					appointment.getFulfillingEncounters().add(encounter);
-				} else {
-					appointment.setFulfillingEncounters(Collections.singleton(encounter));
-				}
-				// see: https://bahmni.atlassian.net/browse/BAH-3855 for why we need to call the Supplier<Appointment> version of validateAndSave
-				Context.getService(AppointmentsService.class).validateAndSave(() -> appointment);
-			}
+			new AppointmentsAbstractor().markAppointmentsAsCheckedInAndAssociateWithEncounter(
+			    submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter(), encounter);
 		}
 		
 		if (submissionActions.getAppointmentsToDisassociateFromEncounter() != null) {
-			for (Appointment appointment : submissionActions.getAppointmentsToDisassociateFromEncounter()) {
-				if (appointment.getFulfillingEncounters() != null) {
-					appointment.getFulfillingEncounters().remove(encounter);
-					// see: https://bahmni.atlassian.net/browse/BAH-3855 for why we need to call the Supplier<Appointment> version of validateAndSave
-					Context.getService(AppointmentsService.class).validateAndSave(() -> appointment);
-				}
-			}
+			new AppointmentsAbstractor().disassociateAppointmentsFromEncounter(
+			    submissionActions.getAppointmentsToDisassociateFromEncounter(), encounter);
 		}
 		
 		//deal with relationships

@@ -80,9 +80,9 @@ public class FormSubmissionActions {
 	
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
 	
-	private List<Appointment> appointmentsToMarkCheckedInAndAssociateWithEncounter = new Vector<Appointment>();
+	private List<Object> appointmentsToMarkCheckedInAndAssociateWithEncounter = new Vector<Object>();
 	
-	private List<Appointment> appointmentsToDisassociateFromEncounter = new Vector<Appointment>();
+	private List<Object> appointmentsToDisassociateFromEncounter = new Vector<Object>();
 	
 	private ExitFromCareProperty exitFromCareProperty;
 	
@@ -952,20 +952,20 @@ public class FormSubmissionActions {
 		this.customFormSubmissionActions = customFormSubmissionActions;
 	}
 	
-	public List<Appointment> getAppointmentsToMarkCheckedInAndAssociateWithEncounter() {
+	public List<Object> getAppointmentsToMarkCheckedInAndAssociateWithEncounter() {
 		return appointmentsToMarkCheckedInAndAssociateWithEncounter;
 	}
 	
 	public void setAppointmentsToMarkCheckedInAndAssociateWithEncounter(
-	        List<Appointment> appointmentsToMarkCheckedInAndAssociateWithEncounter) {
+	        List<Object> appointmentsToMarkCheckedInAndAssociateWithEncounter) {
 		this.appointmentsToMarkCheckedInAndAssociateWithEncounter = appointmentsToMarkCheckedInAndAssociateWithEncounter;
 	}
 	
-	public List<Appointment> getAppointmentsToDisassociateFromEncounter() {
+	public List<Object> getAppointmentsToDisassociateFromEncounter() {
 		return appointmentsToDisassociateFromEncounter;
 	}
 	
-	public void setAppointmentsToDisassociateFromEncounter(List<Appointment> appointmentsToDisassociateFromEncounter) {
+	public void setAppointmentsToDisassociateFromEncounter(List<Object> appointmentsToDisassociateFromEncounter) {
 		this.appointmentsToDisassociateFromEncounter = appointmentsToDisassociateFromEncounter;
 	}
 }

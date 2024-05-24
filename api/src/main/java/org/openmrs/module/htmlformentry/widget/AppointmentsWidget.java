@@ -28,11 +28,10 @@ public class AppointmentsWidget implements Widget {
 		String fieldName = context.registerWidget(this);
 		
 		// note that we are relying on the register widget to generate a single unique field name,
-		// and then we are appending _1, _2, _3, etc to that field name to create unique field names for each checkbox
+		// and then we are appending the uuid to that field name to create unique field names for each checkbox
 		// this is to ensure that this widget consistently increments the field name sequential value only once,
 		// otherwise, if the number of matches appointments changed between when the form was opened and the form was saved,
 		// widget names would be inconsistent, wreaking havoc on the form
-		int i = 1;
 		for (Appointment appointment : appointments) {
 			
 			// compare dates so that we can highlight any that match the encounter darw
@@ -51,7 +50,7 @@ public class AppointmentsWidget implements Widget {
 			        && appointment.getFulfillingEncounters().contains(context.getExistingEncounter())) {
 				checkboxWidget.setInitialValue(appointment.getUuid());
 			}
-			context.registerWidget(checkboxWidget, fieldName + "_" + i++);
+			context.registerWidget(checkboxWidget, fieldName + "_" + appointment.getUuid());
 			checkboxWidgets.add(checkboxWidget);
 		}
 		

@@ -41,16 +41,22 @@ public class AppointmentsElement implements HtmlGeneratorElement, FormSubmission
 			// first, get all scheduled appointments for this patient
 			AppointmentSearchRequest request = new AppointmentSearchRequest();
 			request.setPatientUuid(patient.getUuid());
-			request.setStartDate(new DateTime().minusYears(1000).toDate()); // hack, we want all appts for patient regardless of start date, but the search method always returns null if start date is null; this will start to fail in a thousand years
+			request.setStartDate(new DateTime().minusYears(1000).toDate()); // hack, see: https://bahmni.atlassian.net/browse/BAH-3867; this will start to fail in a thousand years
 			appointments = Context.getService(AppointmentsService.class).search(request);
 			
 			appointments.sort(Comparator.comparing(Appointment::getStartDateTime).reversed());
 			
-			// in VIEW mode, only show appointments linked to encounter; in EDIT mode show those linked to encounter and all scheduled appts
-			appointments.removeIf(appointment -> (context.getMode() == FormEntryContext.Mode.VIEW
-			        || appointment.getStatus() != AppointmentStatus.Scheduled)
-			        && (appointment.getFulfillingEncounters() == null
-			                || !appointment.getFulfillingEncounters().contains(context.getExistingEncounter())));
+			// in VIEW mode, only show appointments linked to encounter;
+			if (context.getMode() == FormEntryContext.Mode.VIEW) {
+				appointments.removeIf(appointment -> appointment.getFulfillingEncounters() == null
+				        || !appointment.getFulfillingEncounters().contains(context.getExistingEncounter()));
+			}
+			// in ENTER and EDIT mode show those linked to encounter, as well as all scheduled appts
+			else {
+				appointments.removeIf(appointment -> (appointment.getFulfillingEncounters() == null
+				        || !appointment.getFulfillingEncounters().contains(context.getExistingEncounter()))
+				        && appointment.getStatus() != AppointmentStatus.Scheduled);
+			}
 		}
 	}
 	
@@ -68,8 +74,8 @@ public class AppointmentsElement implements HtmlGeneratorElement, FormSubmission
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		List<String> selectedAppointmentUuids = (List<String>) appointmentsWidget.getValue(session.getContext(), submission);
-		List<Appointment> appointmentsToMarkCheckedIn = new ArrayList<>();
-		List<Appointment> appointmentsToDisassociateFromEncounter = new ArrayList<>();
+		List<Object> appointmentsToMarkCheckedIn = new ArrayList<>();
+		List<Object> appointmentsToDisassociateFromEncounter = new ArrayList<>();
 		
 		// find appointments that need to be marked as checked in
 		for (String uuid : selectedAppointmentUuids) {
