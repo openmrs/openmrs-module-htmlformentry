@@ -50,7 +50,7 @@ public class AppointmentsWidget implements Widget {
 			        && appointment.getFulfillingEncounters().contains(context.getExistingEncounter())) {
 				checkboxWidget.setInitialValue(appointment.getUuid());
 			}
-			context.registerWidget(checkboxWidget, fieldName + "_" + appointment.getUuid());
+			context.registerWidget(checkboxWidget, fieldName + "_" + appointment.getId());
 			checkboxWidgets.add(checkboxWidget);
 		}
 		
