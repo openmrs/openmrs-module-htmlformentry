@@ -113,6 +113,9 @@
                 <entry key="obsreference">
                     <bean class="org.openmrs.module.htmlformentry.handler.ObsReferenceTagHandler"/>
                 </entry>
+                <entry key="appointments">
+                    <bean class="org.openmrs.module.htmlformentry.handler.AppointmentsTagHandler"/>
+                </entry>
             </map>
         </property>
     </bean>

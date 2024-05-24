@@ -104,10 +104,7 @@ public class ProviderWidget implements Widget {
 				sb.append("\n<option ");
 				if (initialValue != null && initialValue.equals(provider))
 					sb.append("selected=\"true\" ");
-				sb.append("value=\"" + provider.getId() + "\">")
-				        .append(provider.getPerson() != null
-				                ? HtmlFormEntryUtil.getFullNameWithFamilyNameFirst(provider.getPerson().getPersonName())
-				                : provider.getName())
+				sb.append("value=\"" + provider.getId() + "\">").append(HtmlFormEntryUtil.getProviderName(provider))
 				        .append("</option>");
 			}
 		}

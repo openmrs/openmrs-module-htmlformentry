@@ -79,6 +79,10 @@ public class FormSubmissionActions {
 	
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
 	
+	private List<Object> appointmentsToMarkCheckedInAndAssociateWithEncounter = new Vector<Object>();
+	
+	private List<Object> appointmentsToDisassociateFromEncounter = new Vector<Object>();
+	
 	private ExitFromCareProperty exitFromCareProperty;
 	
 	private List<CustomFormSubmissionAction> customFormSubmissionActions;
@@ -945,5 +949,22 @@ public class FormSubmissionActions {
 	
 	public void setCustomFormSubmissionActions(List<CustomFormSubmissionAction> customFormSubmissionActions) {
 		this.customFormSubmissionActions = customFormSubmissionActions;
+	}
+	
+	public List<Object> getAppointmentsToMarkCheckedInAndAssociateWithEncounter() {
+		return appointmentsToMarkCheckedInAndAssociateWithEncounter;
+	}
+	
+	public void setAppointmentsToMarkCheckedInAndAssociateWithEncounter(
+	        List<Object> appointmentsToMarkCheckedInAndAssociateWithEncounter) {
+		this.appointmentsToMarkCheckedInAndAssociateWithEncounter = appointmentsToMarkCheckedInAndAssociateWithEncounter;
+	}
+	
+	public List<Object> getAppointmentsToDisassociateFromEncounter() {
+		return appointmentsToDisassociateFromEncounter;
+	}
+	
+	public void setAppointmentsToDisassociateFromEncounter(List<Object> appointmentsToDisassociateFromEncounter) {
+		this.appointmentsToDisassociateFromEncounter = appointmentsToDisassociateFromEncounter;
 	}
 }

@@ -29,6 +29,7 @@ import org.openmrs.Relationship;
 import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
+import org.openmrs.module.htmlformentry.appointment.AppointmentsAbstractor;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
@@ -634,6 +635,17 @@ public class FormEntrySession {
 				
 				Context.getEncounterService().saveEncounter(encounter);
 			}
+		}
+		
+		// handle appointments (needs to happen after encounter is saved?)
+		if (submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter() != null) {
+			new AppointmentsAbstractor().markAppointmentsAsCheckedInAndAssociateWithEncounter(
+			    submissionActions.getAppointmentsToMarkCheckedInAndAssociateWithEncounter(), encounter);
+		}
+		
+		if (submissionActions.getAppointmentsToDisassociateFromEncounter() != null) {
+			new AppointmentsAbstractor().disassociateAppointmentsFromEncounter(
+			    submissionActions.getAppointmentsToDisassociateFromEncounter(), encounter);
 		}
 		
 		//deal with relationships

@@ -92,7 +92,7 @@ public class ObsGroupComponent {
 	public void setAnswerDrug(Drug answerDrug) {
 		this.answerDrug = answerDrug;
 	}
-
+	
 	public static int supportingRank(List<ObsGroupComponent> obsGroupComponents, Set<Obs> obsSet) {
 		int rank = 0;
 		
