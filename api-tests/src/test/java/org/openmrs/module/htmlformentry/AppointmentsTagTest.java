@@ -107,8 +107,8 @@ public class AppointmentsTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(widgets.get("Location:"), "2");
 				request.setParameter(widgets.get("Provider:"), "502");
 				request.setParameter(widgets.get("Appointments:"), "05f2ad92-1cc8-4cec-bf54-9cac0200746d");
-				request.setParameter(widgets.get("Appointments:").replace("_1",
-				    "_2"), "75504r42-3ca8-11e3-bf2b-0800271c1111");
+				request.setParameter(widgets.get("Appointments:").replace("_1", "_2"),
+				    "75504r42-3ca8-11e3-bf2b-0800271c1111");
 			}
 			
 			@Override
@@ -167,8 +167,8 @@ public class AppointmentsTagTest extends BaseHtmlFormEntryTest {
 			
 			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
 				request.setParameter(widgets.get("Appointments:"), "");
-				request.setParameter(widgets.get("Appointments:").replace("_1",
-				    "_2"), "75504r42-3ca8-11e3-bf2b-0800271c1111");
+				request.setParameter(widgets.get("Appointments:").replace("_1", "_2"),
+				    "75504r42-3ca8-11e3-bf2b-0800271c1111");
 			}
 			
 			@Override

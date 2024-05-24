@@ -64,7 +64,7 @@ public class AppointmentsWidget implements Widget {
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (appointments == null || appointments.isEmpty()) {
-			return Context.getMessageSourceService().getMessage("appointmentsui.noAppointmentsFound");
+			return Context.getMessageSourceService().getMessage("htmlformentry.appointments.noAppointmentsFound");
 		}
 		
 		return checkboxWidgets.stream().map(checkboxWidget -> {
