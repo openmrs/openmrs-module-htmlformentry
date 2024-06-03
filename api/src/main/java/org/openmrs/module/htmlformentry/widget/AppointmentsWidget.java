@@ -69,7 +69,7 @@ public class AppointmentsWidget implements Widget {
 		
 		return checkboxWidgets.stream().map(checkboxWidget -> {
 			return checkboxWidget.generateHtml(context);
-		}).map((html) -> "<span" + (clazz != null ? " class=\"" + clazz + "\" " : "") + ">" + html + "</span>")
+		}).map((html) -> "<field" + (clazz != null ? " class=\"" + clazz + "\" " : "") + ">" + html + "</field>")
 		        .collect(Collectors.joining());
 	}
 	
