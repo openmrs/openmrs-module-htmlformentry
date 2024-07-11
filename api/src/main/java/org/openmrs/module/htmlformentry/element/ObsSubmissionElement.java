@@ -155,6 +155,8 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	protected Boolean isProviderObs; // determines whether the valueText for this obs should be a provider_id;
 	
+	protected Boolean isRadioSet = false; // determines whether the obs should be rendered as a radio set
+	
 	private Double absoluteMaximum;
 	
 	private Double absoluteMinimum;
@@ -236,8 +238,12 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			clazz = parameters.get("class");
 		}
 		
-		isLocationObs = "location".equals(parameters.get("style"));
-		isProviderObs = "provider".equals(parameters.get("style"));
+		isLocationObs = "location".equals(parameters.get("style")) || "location_radio".equals(parameters.get("style"))
+		        || "location_dropdown".equals(parameters.get("style"));
+		isProviderObs = "provider".equals(parameters.get("style")) || "provider_radio".equals(parameters.get("style"))
+		        || "provider_dropdown".equals(parameters.get("style"));
+		isRadioSet = "radio".equals(parameters.get("style")) || "location_radio".equals(parameters.get("style"))
+		        || "provider_radio".equals(parameters.get("style"));
 		
 		if (StringUtils.isNotEmpty(parameters.get("absoluteMaximum"))) {
 			absoluteMaximum = Double.parseDouble(parameters.get("absoluteMaximum"));
@@ -331,7 +337,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 				throw new IllegalArgumentException(
 				        "If you want to use the conceptLabels attribute, you must to provide the same number of conceptLabels as there are conceptIds.  Parameters: "
 				                + parameters);
-			if ("radio".equals(parameters.get("style"))) {
+			if (isRadioSet) {
 				valueWidget = new RadioButtonsWidget();
 				if (answerSeparator != null) {
 					((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
@@ -420,7 +426,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 						}
 					}
 				} else {
-					if ("radio".equals(parameters.get("style"))) {
+					if (isRadioSet) {
 						valueWidget = new RadioButtonsWidget();
 						if (answerSeparator != null) {
 							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
@@ -503,7 +509,19 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 				// configure the special obs type that allows selection of a location (the location_id PK is stored as the valueText)
 				if (isLocationObs) {
 					
-					valueWidget = new DropdownWidget();
+					if (isRadioSet) {
+						valueWidget = new RadioButtonsWidget();
+						if (answerSeparator != null) {
+							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+						}
+					} else { // dropdown
+						valueWidget = new DropdownWidget();
+						// if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+						boolean initialValueIsSet = !(initialValue == null);
+						((SingleOptionWidget) valueWidget).addOption(
+						    new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "",
+						            !initialValueIsSet));
+					}
 					// if "answerLocationTags" attribute is present try to get locations by tags
 					List<Location> locationList = HtmlFormEntryUtil
 					        .getLocationsByTags(HtmlFormEntryConstants.ANSWER_LOCATION_TAGS, parameters);
@@ -528,20 +546,27 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 					}
 					Collections.sort(locationOptions, new OptionComparator());
 					
-					// if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
-					boolean initialValueIsSet = !(initialValue == null);
-					((DropdownWidget) valueWidget).addOption(
-					    new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseALocation"), "",
-					            !initialValueIsSet));
 					if (!locationOptions.isEmpty()) {
 						for (Option option : locationOptions)
-							((DropdownWidget) valueWidget).addOption(option);
+							((SingleOptionWidget) valueWidget).addOption(option);
 					}
 					
 				}
 				// configure the special obs type that allows selection of a provider (the provider_id PK is stored as the valueText)
 				else if (isProviderObs) {
-					valueWidget = new DropdownWidget();
+					if (isRadioSet) {
+						valueWidget = new RadioButtonsWidget();
+						if (answerSeparator != null) {
+							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+						}
+					} else { // dropdown
+						valueWidget = new DropdownWidget();
+						// if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+						boolean initialValueIsSet = !(initialValue == null);
+						((SingleOptionWidget) valueWidget).addOption(
+						    new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"), "",
+						            !initialValueIsSet));
+					}
 					List<String> roleIds = new ArrayList<>();
 					String roleParam = parameters.get("providerRoles");
 					if (StringUtils.isNotBlank(roleParam)) {
@@ -560,13 +585,9 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 					}
 					Collections.sort(providerOptions, new OptionComparator());
 					
-					// if initialValueIsSet=false, no initial/default provider, hence this shows the 'select input' field as first option
-					boolean initialValueIsSet = !(initialValue == null);
-					String label = Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider");
-					((DropdownWidget) valueWidget).addOption(new Option(label, "", !initialValueIsSet));
 					if (!providerOptions.isEmpty()) {
 						for (Option option : providerOptions) {
-							((DropdownWidget) valueWidget).addOption(option);
+							((SingleOptionWidget) valueWidget).addOption(option);
 						}
 					}
 				} else if ("person".equals(parameters.get("style"))) {
@@ -655,7 +676,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 						}
 						catch (Exception ex) {}
 					} else {
-						if ("radio".equals(parameters.get("style"))) {
+						if (isRadioSet) {
 							valueWidget = new RadioButtonsWidget();
 							if (answerSeparator != null) {
 								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
@@ -891,8 +912,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 					} else {
 						// Show Radio Buttons if specified, otherwise default to Drop
 						// Down
-						boolean isRadio = "radio".equals(parameters.get("style"));
-						if (isRadio) {
+						if (isRadioSet) {
 							valueWidget = new RadioButtonsWidget();
 							if (answerSeparator != null) {
 								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
