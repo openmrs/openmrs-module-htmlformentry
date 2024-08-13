@@ -163,4 +163,7 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 		timeWidget.setHideSeconds(hideSeconds);
 	}
 	
+	public boolean getHideSeconds() {
+		return timeWidget.getHideSeconds();
+	}
 }
