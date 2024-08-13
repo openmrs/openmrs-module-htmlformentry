@@ -40,6 +40,7 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -704,7 +705,11 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				}
 				
 				validateDateWidget(context, zonedDateTimeWidget, submission);
-				context.setPendingEncounterDatetime(zonedDateTimeWidget.getValue(context, submission));
+				Date pendingEncounterDatetime = zonedDateTimeWidget.getValue(context, submission);
+				if (zonedDateTimeWidget.getHideSeconds()) {
+					pendingEncounterDatetime = adjustEncounterDate(pendingEncounterDatetime, (Visit) context.getVisit());
+				}
+				context.setPendingEncounterDatetime(pendingEncounterDatetime);
 			}
 		}
 		catch (Exception ex) {
@@ -807,7 +812,10 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 			}
 		}
 		if (zonedDateTimeWidget != null) {
-			Date dateTime = (Date) zonedDateTimeWidget.getValue(session.getContext(), submission);
+			Date dateTime = zonedDateTimeWidget.getValue(session.getContext(), submission);
+			if (zonedDateTimeWidget.getHideSeconds()) {
+				dateTime = adjustEncounterDate(dateTime, (Visit) session.getContext().getVisit());
+			}
 			Encounter e = session.getSubmissionActions().getCurrentEncounter();
 			e.setEncounterDatetime(dateTime);
 		}
@@ -867,4 +875,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		return locations;
 	}
 	
+	/**
+	 * This method checks whether the encounter date matches the visit start date down to the minute If
+	 * it does but is after the visit start date (i.e. the seconds are in the future), then it returns
+	 * the visit start date, otherwise it returns the given encounter date.
+	 */
+	private Date adjustEncounterDate(Date encounterDate, Visit visit) {
+		if (encounterDate != null && visit != null && visit.getStartDatetime() != null) {
+			DateFormat dfToMinutes = new SimpleDateFormat("yyyy-MM-dd-HH-mm");
+			if (dfToMinutes.format(encounterDate).equals(dfToMinutes.format(visit.getStartDatetime()))) {
+				if (encounterDate.before(visit.getStartDatetime())) {
+					return visit.getStartDatetime();
+				}
+			}
+		}
+		return encounterDate;
+	}
 }
