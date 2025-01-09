@@ -7,6 +7,14 @@
         if (!encDate || encDate === '') {
             encDate = defaultDate;
         }
+        if (encDate.length === 10) {
+            if (defaultDate.startsWith(encDate)) {
+                encDate = defaultDate;
+            }
+            else {
+                encDate += 'T00:00:00';
+            }
+        }
         return encDate;
     }
 
