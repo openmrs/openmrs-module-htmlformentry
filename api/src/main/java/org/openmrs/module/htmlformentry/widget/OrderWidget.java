@@ -118,7 +118,7 @@ public class OrderWidget implements Widget {
 		
 		JsonObject jsonConfig = new JsonObject();
 		jsonConfig.addString("fieldName", fieldName);
-		jsonConfig.addString("defaultDate", new SimpleDateFormat("yyyy-MM-dd").format(defaultDate));
+		jsonConfig.addString("defaultDate", getValueForProperty(defaultDate));
 		jsonConfig.addString("patientId", patId.toString());
 		jsonConfig.addString("encounterId", encId == null ? "" : encId.toString());
 		jsonConfig.addString("mode", context.getMode().name());
@@ -263,7 +263,7 @@ public class OrderWidget implements Widget {
 				val = ((OpenmrsObject) propertyValue).getId().toString();
 			} else if (propertyValue instanceof Date) {
 				Date dateVal = (Date) propertyValue;
-				val = new SimpleDateFormat("yyyy-MM-dd").format(dateVal);
+				val = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(dateVal);
 			} else if (propertyValue instanceof Class) {
 				Class classValue = (Class) propertyValue;
 				val = classValue.getName();
