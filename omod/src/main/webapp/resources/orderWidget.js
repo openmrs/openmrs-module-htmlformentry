@@ -369,7 +369,7 @@
             var idSuffix = '_' + orderWidget.nextActionButtonIndex();
 
             var orderInCurrentEncounter = orderWidget.isOrderInCurrentEncounter(order, config);
-            var isVoidAndEdit = orderInCurrentEncounter && (action === 'REVISE' && ['NEW','REVISE'].includes(order.action.value)) || (action === 'RENEW' && order.action.value === 'RENEW');
+            var isVoidAndEdit = orderInCurrentEncounter && ((action === 'REVISE' && ['NEW','REVISE'].includes(order.action.value)) || (action === 'RENEW' && order.action.value === 'RENEW'));
             var isVoid = (orderInCurrentEncounter && action === 'DISCONTINUE');
 
             var actionLabel = isVoidAndEdit ? config.translations.editOrder : isVoid ? config.translations.deleteOrder : $actionOption.html();
