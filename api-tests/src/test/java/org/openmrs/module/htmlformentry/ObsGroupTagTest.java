@@ -219,4 +219,271 @@ public class ObsGroupTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 	
+	@Test
+	public void testObsGroupSubmitsHiddenObsOfTypeNumeric() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupWithHiddenNumericObs";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Value:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Value:"), "Bee stings");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(1);
+				results.assertObsGroupCreated(23, 80000, "Bee stings", 50000, 2.0);
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testObsGroupDoesNotSaveHiddenObsOfTypeNumericWhenEmpty() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupWithHiddenNumericObs";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Value:", "Other:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Other:"), "160");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(0);
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testObsGroupDeletesHiddenObsOfTypeNumericWhenCleared() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupWithHiddenNumericObs";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Value:", "Other:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Value:"), "Bee stings");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(1);
+				results.assertObsGroupCreated(23, 80000, "Bee stings", 50000, 2.0);
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				String obsGroupHtml = html.split("obsgroup start")[1];
+				String[] tags = obsGroupHtml.split("<");
+				ArrayList<String> inputTags = new ArrayList<String>();
+				for (String tag : tags) {
+					if (tag.contains("input") && tag.contains("type=\"text\"")) {
+						inputTags.add(tag);
+					}
+				}
+				assertTrue("Should display only one input box within the obs group, found " + inputTags.size() + ": "
+				        + obsGroupHtml,
+				    inputTags.size() == 1);
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Value:"), "");
+				request.addParameter(widgets.get("Other:"), "170");
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(0);
+				results.assertObsVoided(23, null); // assure the grouping concept has been voided
+				results.assertObsVoided(50000, 2.0);
+			}
+			
+		}.run();
+	}
+	
+	@Test
+	public void testObsGroupSubmitsHiddenObsOfTypeText() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupWithHiddenTextObs";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Value:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Value:"), "Bee stings");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(1);
+				results.assertObsGroupCreated(23, 80000, "Bee stings", 60000, "Bob");
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testObsGroupDoesNotSaveHiddenObsOfTypeTextWhenEmpty() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupWithHiddenTextObs";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Value:", "Other:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Other:"), "160");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(0);
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testObsGroupDeletesHiddenObsOfTypeTextWhenCleared() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "obsGroupWithHiddenTextObs";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Value:", "Other:" };
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Value:"), "Bee stings");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(1);
+				results.assertObsGroupCreated(23, 80000, "Bee stings", 60000, "Bob");
+			}
+			
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+			
+			@Override
+			public void testEditFormHtml(String html) {
+				String obsGroupHtml = html.split("obsgroup start")[1];
+				String[] tags = obsGroupHtml.split("<");
+				ArrayList<String> inputTags = new ArrayList<String>();
+				for (String tag : tags) {
+					if (tag.contains("input") && tag.contains("type=\"text\"")) {
+						inputTags.add(tag);
+					}
+				}
+				assertTrue("Should display only one input box within the obs group, found " + inputTags.size() + ": "
+				        + obsGroupHtml,
+				    inputTags.size() == 1);
+			}
+			
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Value:"), "");
+				request.addParameter(widgets.get("Other:"), "170");
+			}
+			
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertObsGroupCreatedCount(0);
+				results.assertObsVoided(23, null); // assure the grouping concept has been voided
+				results.assertObsVoided(60000, "Bob");
+			}
+			
+		}.run();
+	}
 }

@@ -18,7 +18,10 @@ public class ObsGroup implements HtmlFormField {
 	
 	private String label;
 	
-	private Pair<Concept, Concept> hiddenObs;
+	// the following fields are used to store a hidden obs that may be associated with this obs group
+	private Concept hiddenQuestion;
+	
+	private Object hiddenAnswer;
 	
 	public ObsGroup(Concept concept) {
 		this.concept = concept;
@@ -74,11 +77,19 @@ public class ObsGroup implements HtmlFormField {
 		this.label = label;
 	}
 	
-	public Pair<Concept, Concept> getHiddenObs() {
-		return hiddenObs;
+	public Concept getHiddenQuestion() {
+		return hiddenQuestion;
 	}
 	
-	public void setHiddenObs(Pair<Concept, Concept> hiddenObs) {
-		this.hiddenObs = hiddenObs;
+	public void setHiddenQuestion(Concept hiddenQuestion) {
+		this.hiddenQuestion = hiddenQuestion;
+	}
+	
+	public Object getHiddenAnswer() {
+		return hiddenAnswer;
+	}
+	
+	public void setHiddenAnswer(Object hiddenAnswer) {
+		this.hiddenAnswer = hiddenAnswer;
 	}
 }

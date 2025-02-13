@@ -76,11 +76,9 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					session.getSubmissionActions().beginObsGroup(obsGroup);
 				}
 			} else {
-				if (obsGroupSchemaObject.getHiddenObs() != null) {
+				if (obsGroupSchemaObject.getHiddenQuestion() != null) {
 					// existingGroup seems never to exist. Not sure if something needs to be done to handle it,
 					// as is done in the other `if` branches.
-					Concept hiddenObsConcept = obsGroupSchemaObject.getHiddenObs().getKey();
-					Concept hiddenObsValue = obsGroupSchemaObject.getHiddenObs().getValue();
 					// If the obs group will have any members, we want to ensure that the hidden obs is present.
 					// Otherwise, we want to ensure that the hidden obs is absent.
 					// 
@@ -96,17 +94,25 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					members.removeAll(session.getSubmissionActions().getObsToVoid());
 					Obs existinghiddenObs = null;
 					for (Obs member : members) {
-						if (member.getConcept().equals(hiddenObsConcept) && member.getValueCoded().equals(hiddenObsValue)) {
-							existinghiddenObs = member;
-							members.remove(existinghiddenObs);
-							break;
+						if (member.getConcept().equals(obsGroupSchemaObject.getHiddenQuestion())) {
+							if ((member.getConcept().getDatatype().isCoded()
+							        && member.getValueCoded().equals(obsGroupSchemaObject.getHiddenAnswer()))
+							        || (member.getConcept().getDatatype().isNumeric()
+							                && member.getValueNumeric().equals(obsGroupSchemaObject.getHiddenAnswer()))
+							        || (member.getConcept().getDatatype().isText()
+							                && member.getValueText().equals(obsGroupSchemaObject.getHiddenAnswer()))) {
+								existinghiddenObs = member;
+								members.remove(existinghiddenObs);
+								break;
+							}
 						}
 					}
 					if (!members.isEmpty() && existinghiddenObs == null) {
-						session.getSubmissionActions().createObs(hiddenObsConcept, hiddenObsValue, null, null, null);
+						session.getSubmissionActions().createObs(obsGroupSchemaObject.getHiddenQuestion(),
+						    obsGroupSchemaObject.getHiddenAnswer(), null, null, null);
 					} else if (members.isEmpty() && existinghiddenObs != null) {
-						session.getSubmissionActions().modifyObs(existinghiddenObs, hiddenObsConcept, null, null, null,
-						    null);
+						session.getSubmissionActions().modifyObs(existinghiddenObs, obsGroupSchemaObject.getHiddenQuestion(),
+						    null, null, null, null);
 					}
 				}
 				session.getSubmissionActions().endObsGroup();
