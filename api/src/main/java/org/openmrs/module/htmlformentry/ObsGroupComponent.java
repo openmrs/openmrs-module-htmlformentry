@@ -164,11 +164,15 @@ public class ObsGroupComponent {
 		return rank;
 	}
 	
+	public static List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId, Node node) {
+		return findQuestionsAndAnswersForGroup(parentGroupingConceptId, null, null, node);
+	}
+	
 	public static List<ObsGroupComponent> findQuestionsAndAnswersForGroup(String parentGroupingConceptId,
-	        Pair<Concept, Concept> hiddenObs, Node node) {
+	        Concept hiddenQuestion, Concept hiddenAnswer, Node node) {
 		List<ObsGroupComponent> ret = new ArrayList<ObsGroupComponent>();
-		if (hiddenObs != null) { // consider the hidden obs when making a match
-			ret.add(new ObsGroupComponent(hiddenObs.getKey(), hiddenObs.getValue(), null, null, false, false));
+		if (hiddenQuestion != null) { // consider the hidden obs when making a match
+			ret.add(new ObsGroupComponent(hiddenQuestion, hiddenAnswer, null, null, false, false));
 		}
 		findQuestionsAndAnswersForGroupHelper(parentGroupingConceptId, node, ret);
 		return ret;

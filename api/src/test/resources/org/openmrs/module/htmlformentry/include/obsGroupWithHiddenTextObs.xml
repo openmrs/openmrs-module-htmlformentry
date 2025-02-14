@@ -1,0 +1,13 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Other: <obs conceptId="5090"/>
+    <span>obsgroup start</span>
+    <obsgroup groupingConceptId="23" hiddenConceptId="60000" hiddenAnswer="Bob">
+        Value: <obs conceptId="80000"/>
+    </obsgroup>
+
+    <submit/>
+
+</htmlform>

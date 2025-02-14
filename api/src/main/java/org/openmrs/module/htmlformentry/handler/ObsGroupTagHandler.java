@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry.handler;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openmrs.Concept;
@@ -32,6 +33,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		attributeDescriptors.add(new AttributeDescriptor("groupingConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("hiddenConceptId", Concept.class));
 		attributeDescriptors.add(new AttributeDescriptor("hiddenAnswerConceptId", Concept.class));
+		attributeDescriptors.add(new AttributeDescriptor("hiddenAnswer", String.class));
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
@@ -53,8 +55,39 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 			        + " as grouping obs for an obsgroup tag");
 		}
 		
-		Pair<Concept, Concept> hiddenObs = getHiddenObs(attributes.get("hiddenConceptId"),
-		    attributes.get("hiddenAnswerConceptId"));
+		// handle the "hidden" obs that may be associated with this obs group
+		Concept hiddenQuestion = StringUtils.isNotBlank(attributes.get("hiddenConceptId"))
+		        ? HtmlFormEntryUtil.getConcept(attributes.get("hiddenConceptId"))
+		        : null;
+		String hiddenAnswerStr = StringUtils.isNotBlank(attributes.get("hiddenAnswerConceptId"))
+		        ? attributes.get("hiddenAnswerConceptId")
+		        : (StringUtils.isNotBlank(attributes.get("hiddenAnswer")) ? attributes.get("hiddenAnswer") : null);
+		
+		if ((hiddenQuestion != null && hiddenAnswerStr == null) || (hiddenQuestion == null && hiddenAnswerStr != null)) {
+			throw new BadFormDesignException("hiddenConcept and hiddenAnswer must be used together");
+		}
+		
+		Object hiddenAnswer = null;
+		if (hiddenQuestion != null) {
+			if (hiddenQuestion.getDatatype().isNumeric()) {
+				try {
+					hiddenAnswer = Double.parseDouble(hiddenAnswerStr);
+				}
+				catch (NumberFormatException e) {
+					throw new BadFormDesignException("hiddenAnswer must be a number for numeric datatype");
+				}
+			}
+			if (hiddenQuestion.getDatatype().isText()) {
+				hiddenAnswer = hiddenAnswerStr;
+			}
+			if (hiddenQuestion.getDatatype().isCoded()) {
+				hiddenAnswer = HtmlFormEntryUtil.getConcept(hiddenAnswerStr);
+				if (hiddenAnswer == null) {
+					throw new BadFormDesignException(
+					        "could not find concept " + hiddenAnswerStr + " as hiddenAnswer for an obsgroup tag");
+				}
+			}
+		}
 		
 		boolean ignoreIfEmpty = session.getContext().getMode() == Mode.VIEW && "false".equals(attributes.get("showIfEmpty"));
 		
@@ -63,7 +96,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		
 		String name = attributes.get("label");
 		// find relevant obs group to display for this element
-		Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"), hiddenObs);
+		Obs thisGroup = findObsGroup(session, node, attributes.get("groupingConceptId"), hiddenQuestion, hiddenAnswer);
 		
 		boolean digDeeper = true;
 		
@@ -72,8 +105,10 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 			if (!session.getContext().isUnmatchedMode()) {
 				ObsGroupEntity obsGroupEntity = new ObsGroupEntity();
 				obsGroupEntity.setPath(ObsGroupComponent.getObsGroupPath(node));
-				obsGroupEntity.setQuestionsAndAnswers(
-				    ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"), hiddenObs, node));
+				obsGroupEntity.setQuestionsAndAnswers(hiddenQuestion != null && hiddenQuestion.getDatatype().isCoded()
+				        ? ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"),
+				            hiddenQuestion, (Concept) hiddenAnswer, node)
+				        : ObsGroupComponent.findQuestionsAndAnswersForGroup(attributes.get("groupingConceptId"), node));
 				obsGroupEntity.setXmlObsGroupConcept(attributes.get("groupingConceptId"));
 				obsGroupEntity.setGroupingConcept(groupingConcept);
 				obsGroupEntity.setNode(node);
@@ -90,19 +125,22 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		// sets up the obs group stack, sets current obs group to this one
 		ObsGroup ogSchemaObj;
 		ogSchemaObj = new ObsGroup(groupingConcept, name);
-		ogSchemaObj.setHiddenObs(hiddenObs);
+		ogSchemaObj.setHiddenQuestion(hiddenQuestion);
+		ogSchemaObj.setHiddenAnswer(hiddenAnswer);
 		session.getContext().beginObsGroup(groupingConcept, thisGroup, ogSchemaObj);
 		//adds the obsgroup action to the controller stack
 		session.getSubmissionController().addAction(ObsGroupAction.start(groupingConcept, thisGroup, ogSchemaObj));
 		return digDeeper;
 	}
 	
-	private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId,
-	        Pair<Concept, Concept> hiddenObs) {
+	private Obs findObsGroup(FormEntrySession session, Node node, String parentGroupingConceptId, Concept hiddenQuestion,
+	        Object hiddenAnswer) {
 		String path = ObsGroupComponent.getObsGroupPath(node);
 		
-		List<ObsGroupComponent> questionsAndAnswers = ObsGroupComponent
-		        .findQuestionsAndAnswersForGroup(parentGroupingConceptId, hiddenObs, node);
+		List<ObsGroupComponent> questionsAndAnswers = hiddenQuestion != null && hiddenQuestion.getDatatype().isCoded()
+		        ? ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, hiddenQuestion,
+		            (Concept) hiddenAnswer, node)
+		        : ObsGroupComponent.findQuestionsAndAnswersForGroup(parentGroupingConceptId, node);
 		
 		if (session.getContext().isUnmatchedMode()) {
 			return session.getContext().getNextUnmatchedObsGroup(questionsAndAnswers, path);
@@ -110,29 +148,6 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 			return session.getContext().findBestMatchingObsGroup(questionsAndAnswers, path);
 		}
 		
-	}
-	
-	private Pair<Concept, Concept> getHiddenObs(String hiddenConceptId, String hiddenAnswerConceptId)
-	        throws BadFormDesignException {
-		if (hiddenConceptId != null || hiddenAnswerConceptId != null) {
-			if (hiddenConceptId == null || hiddenAnswerConceptId == null) {
-				throw new BadFormDesignException(
-				        "obsgroup tags 'hiddenConceptId' and 'hiddenAnswerConceptId' must be used together");
-			}
-			Concept question = HtmlFormEntryUtil.getConcept(hiddenConceptId);
-			if (question == null) {
-				throw new BadFormDesignException(
-				        "could not find concept " + hiddenConceptId + " as the hiddenConceptId for an obsgroup tag");
-			}
-			Concept answer = HtmlFormEntryUtil.getConcept(hiddenAnswerConceptId);
-			if (answer == null) {
-				throw new BadFormDesignException("could not find concept " + hiddenAnswerConceptId
-				        + " as the hiddenAnswerConceptId for an obsgroup tag");
-			}
-			return new ImmutablePair<>(question, answer);
-		} else {
-			return null;
-		}
 	}
 	
 	@Override
