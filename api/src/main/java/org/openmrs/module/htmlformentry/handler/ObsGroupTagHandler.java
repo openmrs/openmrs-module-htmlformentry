@@ -63,7 +63,7 @@ public class ObsGroupTagHandler extends AbstractTagHandler {
 		        ? attributes.get("hiddenAnswerConceptId")
 		        : (StringUtils.isNotBlank(attributes.get("hiddenAnswer")) ? attributes.get("hiddenAnswer") : null);
 		
-		if (hiddenQuestion != null && hiddenAnswerStr == null || hiddenQuestion == null && hiddenAnswerStr != null) {
+		if ((hiddenQuestion != null && hiddenAnswerStr == null) || (hiddenQuestion == null && hiddenAnswerStr != null)) {
 			throw new BadFormDesignException("hiddenConcept and hiddenAnswer must be used together");
 		}
 		

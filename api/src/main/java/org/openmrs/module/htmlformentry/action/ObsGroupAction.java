@@ -95,11 +95,11 @@ public class ObsGroupAction implements FormSubmissionControllerAction {
 					Obs existinghiddenObs = null;
 					for (Obs member : members) {
 						if (member.getConcept().equals(obsGroupSchemaObject.getHiddenQuestion())) {
-							if ((member.getConcept().getDatatype().isCoded()
+							if ((member.getValueCoded() != null
 							        && member.getValueCoded().equals(obsGroupSchemaObject.getHiddenAnswer()))
-							        || (member.getConcept().getDatatype().isNumeric()
+							        || (member.getValueNumeric() != null
 							                && member.getValueNumeric().equals(obsGroupSchemaObject.getHiddenAnswer()))
-							        || (member.getConcept().getDatatype().isText()
+							        || (member.getValueText() != null
 							                && member.getValueText().equals(obsGroupSchemaObject.getHiddenAnswer()))) {
 								existinghiddenObs = member;
 								members.remove(existinghiddenObs);
