@@ -1126,4 +1126,23 @@ public class ObsTagTest extends BaseHtmlFormEntryTest {
 			}
 		}.run();
 	}
+	
+	@Test
+	public void shouldDisplayObsPropertyAccessors() throws Exception {
+		String htmlform = "<htmlform><obs id=\"myObs\" conceptId=\"1000\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		session.getHtmlToDisplay();
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myObs.value'\\]", session.getFieldAccessorJavascript());
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myObs.error'\\]", session.getFieldAccessorJavascript());
+	}
+	
+	@Test
+	public void shouldDisplayObsPropertyAccessorsForDateAndTimeForObsOfTypeDateTime() throws Exception {
+		String htmlform = "<htmlform><obs id=\"myObs\" conceptId=\"1007\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
+		session.getHtmlToDisplay();
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myObs.value.date'\\]", session.getFieldAccessorJavascript());
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myObs.value.time'\\]", session.getFieldAccessorJavascript());
+		TestUtil.assertFuzzyContains("propertyAccessorInfo\\['myObs.error'\\]", session.getFieldAccessorJavascript());
+	}
 }
