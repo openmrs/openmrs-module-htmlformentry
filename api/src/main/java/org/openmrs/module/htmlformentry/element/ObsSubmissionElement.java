@@ -1208,8 +1208,22 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		if (id != null || clazz != null) {
 			ret.append("<span " + (id != null ? "id=\"" + id + "\" " : "") + "class=\"obs-field"
 			        + (clazz != null ? " " + clazz : "") + "\">");
-			context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget),
-			    getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
+			
+			// register the property accessors for this obs field
+			if (!(valueWidget instanceof DateTimeWidget)) {
+				context.registerPropertyAccessorInfo(id + ".value", context.getFieldNameIfRegistered(valueWidget),
+				    getFieldFunction(valueWidget), getGetterFunction(valueWidget), getSetterFunction(valueWidget));
+			}
+			// special case for DateTime composite widget where we need to register the accessors for the date and time widgets
+			// (and we don't have an accessor for the composite widget itself)
+			else {
+				DateWidget date = ((DateTimeWidget) valueWidget).getDateWidget();
+				TimeWidget time = ((DateTimeWidget) valueWidget).getTimeWidget();
+				context.registerPropertyAccessorInfo(id + ".value.date", context.getFieldNameIfRegistered(date),
+				    getFieldFunction(date), getGetterFunction(date), getSetterFunction(date));
+				context.registerPropertyAccessorInfo(id + ".value.time", context.getFieldNameIfRegistered(time),
+				    getFieldFunction(time), getGetterFunction(time), getSetterFunction(time));
+			}
 			context.registerPropertyAccessorInfo(id + ".date", context.getFieldNameIfRegistered(dateWidget),
 			    "dateFieldGetterFunction", null, "dateSetterFunction");
 			context.registerPropertyAccessorInfo(id + ".error", context.getFieldNameIfRegistered(errorWidget), null, null,
