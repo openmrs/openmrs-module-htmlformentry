@@ -1423,6 +1423,9 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 					if (!allowFutureTimes || !DateUtils.isSameDay(valueToTest, encounterDateToTest)) {
 						ret.add(new FormSubmissionError(valueWidget, Context.getMessageSourceService()
 						        .getMessage("htmlformentry.error.cannotBeAfterEncounterDate")));
+					} else if (OpenmrsUtil.compare(valueToTest, new Date()) > 0) {
+						ret.add(new FormSubmissionError(valueWidget,
+						        Context.getMessageSourceService().getMessage("htmlformentry.error.cannotBeInFuture")));
 					}
 				}
 			}
