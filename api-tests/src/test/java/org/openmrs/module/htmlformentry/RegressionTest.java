@@ -2127,7 +2127,7 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void testSingleObsFormWithDateAndAllowFutureTimesTrue_shouldAllowTimeInFuture() throws Exception {
+	public void testSingleObsFormWithDateAndAllowFutureTimesTrue_shouldAllowTimeInFutureOfEncounterDate() throws Exception {
 		final Date date = DateUtils.parseDate("2010-05-19", "yyyy-MM-dd");
 		new RegressionTestHelper() {
 			
@@ -2168,6 +2168,46 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 				assertThat(obs.getValueDatetime(), notNullValue());
 				String datetime = DateFormatUtils.format(obs.getValueDatetime(), "yyyy-MM-dd-HH-mm");
 				assertThat(datetime, equalTo("2010-05-19-13-42"));
+			}
+		}.run();
+	}
+	
+	@Test
+	public void testSingleObsFormWithDateAndAllowFutureTimesTrue_shouldNotAllowTimeInFutureOfCurrentDate() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+			
+			@Override
+			public String getFormName() {
+				return "singleObsFormWithDateAndAllowFutureTimesTrue";
+			}
+			
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Obs date:" };
+			}
+			
+			@Override
+			public void testBlankFormHtml(String html) {
+				super.testBlankFormHtml(html);
+			}
+			
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				request.addParameter(widgets.get("Obs date:"), dateAsString(date));
+				// note: theoretically this test will fail if run at 23:59:59
+				request.setParameter("w9hours", "23");
+				request.setParameter("w9minutes", "59");
+			}
+			
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors(1);
+				List<FormSubmissionError> errors = results.getValidationErrors();
+				Assert.assertEquals("Cannot be in the future", errors.get(0).getError());
 			}
 		}.run();
 	}
