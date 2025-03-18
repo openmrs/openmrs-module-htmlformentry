@@ -762,6 +762,38 @@ function setupDatePickerLocalization(locale) {
 	}
 }
 
+propertyAccessorInfo["yourTimeWidgetId.time"] = {
+    id: "yourTimeWidgetId",
+    getter: timeGetterFunction,
+    setter: timeSetterFunction
+};
+
+function timeGetterFunction(widgetId) {
+    var hourElement = document.getElementById(widgetId + "_hour");
+    var minuteElement = document.getElementById(widgetId + "_minute");
+
+    if (hourElement && minuteElement) {
+        var hour = hourElement.value;
+        var minute = minuteElement.value;
+        return hour + ":" + minute;
+    } else {
+        return null; // Or handle the error appropriately
+    }
+}
+
+function timeSetterFunction(widgetId, timeValue) {
+    var parts = timeValue.split(":");
+    if (parts.length === 2) {
+        var hourElement = document.getElementById(widgetId + "_hour");
+        var minuteElement = document.getElementById(widgetId + "_minute");
+
+        if (hourElement && minuteElement) {
+            hourElement.value = parts[0];
+            minuteElement.value = parts[1];
+        }
+    }
+}
+
 openmrs = document.openmrs || {};
 openmrs.htmlformentry = openmrs.htmlformentry || {};
 //used for dynamicAutocomplete widget
