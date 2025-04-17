@@ -7,8 +7,16 @@
 		formRetired="false"
 		formEncounterType="61ae96f4-6afe-4351-b6f8-cd4fc383cce1"
 		htmlformUuid="26ddfe02-28f3-11eb-bc37-0242ac110002"
-		renderPage="standardUi"
-		category="Test Forms"
+		resource-1-name="renderPage"
+		resource-1-value="standardUi"
+		resource-2-name="category"
+		resource-2-value="Test Forms"
+		resource-3-name="maxNumberPerDay"
+		resource-3-value="2"
+		resource-3-datatype-class="org.openmrs.customdatatype.datatype.RegexValidatedTextDatatype"
+		resource-3-datatype-config="^\\d+$"
+		resource-3-handler-class="org.openmrs.module.htmlformentry.TestDataTypeHandler"
+		resource-3-handler-config="xxx"
 >
 	Date: <encounterDate/>
 	Location: <encounterLocation/>

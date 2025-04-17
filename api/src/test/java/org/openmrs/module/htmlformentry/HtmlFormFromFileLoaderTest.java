@@ -4,6 +4,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.openmrs.FormResource;
 import org.openmrs.api.FormService;
+import org.openmrs.customdatatype.datatype.FreeTextDatatype;
+import org.openmrs.customdatatype.datatype.RegexValidatedTextDatatype;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -18,23 +20,30 @@ public class HtmlFormFromFileLoaderTest extends BaseHtmlFormEntryTest {
 	
 	@Autowired
 	private HtmlFormFromFileLoader htmlFormFromFileLoader;
-
+	
 	@Autowired
 	FormService formService;
-
+	
 	@Autowired
 	private HtmlFormEntryService htmlFormEntryService;
-
+	
 	// Expected values from form xml
 	String formUuid = "203fa4f8-28f3-11eb-bc37-0242ac110002";
+	
 	String formName = "Test Form 1";
+	
 	String formDescription = "Test Form With All Attributes";
+	
 	String formVersion = "1.3";
+	
 	String formEncounterType = "61ae96f4-6afe-4351-b6f8-cd4fc383cce1";
+	
 	String htmlformUuid = "26ddfe02-28f3-11eb-bc37-0242ac110002";
+	
 	String renderPageValue = "standardUi";
+	
 	String categoryValue = "Test Forms";
-
+	
 	private File getFormFile(String resourcePath) {
 		String path = Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).getPath();
 		return new File(path);
@@ -57,15 +66,24 @@ public class HtmlFormFromFileLoaderTest extends BaseHtmlFormEntryTest {
 		assertThat(f.getRetired(), equalTo(false));
 		assertThat(f.getForm().getEncounterType().getUuid(), equalTo(formEncounterType));
 		assertThat(f.getXmlData().trim(), equalTo(FileUtils.readFileToString(formFile, "UTF-8").trim()));
-		assertThat(formService.getFormResourcesForForm(f.getForm()).size(), equalTo(2));
+		assertThat(formService.getFormResourcesForForm(f.getForm()).size(), equalTo(3));
 		FormResource renderPage = formService.getFormResource(f.getForm(), "renderPage");
 		assertThat(renderPage, notNullValue());
 		assertThat(renderPage.getValueReference(), equalTo(renderPageValue));
+		assertThat(renderPage.getDatatypeClassname(), equalTo(FreeTextDatatype.class.getName()));
 		FormResource category = formService.getFormResource(f.getForm(), "category");
 		assertThat(category, notNullValue());
 		assertThat(category.getValueReference(), equalTo(categoryValue));
+		assertThat(category.getDatatypeClassname(), equalTo(FreeTextDatatype.class.getName()));
+		FormResource maxNum = formService.getFormResource(f.getForm(), "maxNumberPerDay");
+		assertThat(maxNum, notNullValue());
+		assertThat(maxNum.getValueReference(), equalTo("2"));
+		assertThat(maxNum.getDatatypeClassname(), equalTo(RegexValidatedTextDatatype.class.getName()));
+		assertThat(maxNum.getDatatypeConfig(), equalTo("^\\\\d+$"));
+		assertThat(maxNum.getPreferredHandlerClassname(), equalTo(TestDataTypeHandler.class.getName()));
+		assertThat(maxNum.getHandlerConfig(), equalTo("xxx"));
 	}
-
+	
 	@Test
 	public void saveHtmlForm_shouldUpdateForm() throws Exception {
 		assertThat(formService.getForm(formUuid), nullValue());

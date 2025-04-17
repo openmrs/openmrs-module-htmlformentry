@@ -7,8 +7,10 @@
 		formRetired="false"
 		formEncounterType="61ae96f4-6afe-4351-b6f8-cd4fc383cce1"
 		htmlformUuid="26ddfe02-28f3-11eb-bc37-0242ac110002"
-		renderPage="simpleUi"
-		condition="${patient.gender === 'F'}"
+		resource-1-name="renderPage"
+		resource-1-value="simpleUi"
+		resource-2-name="condition"
+		resource-2-value="${patient.gender === 'F'}"
 >
 	Date: <encounterDate/>
 	Location: <encounterLocation/>
