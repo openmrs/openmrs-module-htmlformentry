@@ -9,6 +9,7 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
 import org.openmrs.Form;
+import org.openmrs.FormResource;
 import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.OpenmrsMetadata;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -150,6 +152,23 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 		}
 		Context.getFormService().saveForm(htmlForm.getForm());
 		return dao.saveHtmlForm(htmlForm);
+	}
+
+	@Override
+	@Transactional
+	public HtmlForm saveHtmlForm(HtmlForm htmlForm, Collection<FormResource> formResources) {
+		htmlForm = Context.getService(HtmlFormEntryService.class).saveHtmlForm(htmlForm);
+		Set<String> savedResourceNames = new HashSet<>();
+		for (FormResource formResource : formResources) {
+			Context.getFormService().saveFormResource(formResource);
+			savedResourceNames.add(formResource.getName());
+		}
+		for (FormResource formResource : Context.getFormService().getFormResourcesForForm(htmlForm.getForm())) {
+			if (!savedResourceNames.contains(formResource.getName())) {
+				Context.getFormService().purgeFormResource(formResource);
+			}
+		}
+		return htmlForm;
 	}
 	
 	@Override

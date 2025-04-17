@@ -1,0 +1,18 @@
+<htmlform
+		formUuid="203fa4f8-28f3-11eb-bc37-0242ac110002"
+		formName="Test Form 2"
+		formDescription="Test Form With All Attributes Modified"
+		formVersion="2.0"
+		formPublished="true"
+		formRetired="false"
+		formEncounterType="61ae96f4-6afe-4351-b6f8-cd4fc383cce1"
+		htmlformUuid="26ddfe02-28f3-11eb-bc37-0242ac110002"
+		renderPage="simpleUi"
+		condition="${patient.gender === 'F'}"
+>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	Weight: <obs conceptId="5089"/>
+	<submit/>
+</htmlform>
