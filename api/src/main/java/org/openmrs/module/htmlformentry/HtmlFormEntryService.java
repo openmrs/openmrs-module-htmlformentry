@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,7 @@ import java.util.Set;
 
 import org.openmrs.Concept;
 import org.openmrs.Form;
+import org.openmrs.FormResource;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Patient;
@@ -57,6 +59,15 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	 * @return the HTML Form saved
 	 */
 	HtmlForm saveHtmlForm(HtmlForm form);
+	
+	/**
+	 * Saves the specified HTML Form to the database along with the associated Form Resources
+	 *
+	 * @param form the HTML Form to save
+	 * @param formResources the Form Resources to save
+	 * @return the HTML Form saved
+	 */
+	HtmlForm saveHtmlForm(HtmlForm form, Collection<FormResource> formResources);
 	
 	/**
 	 * Purges the specified HTML Form from the database
