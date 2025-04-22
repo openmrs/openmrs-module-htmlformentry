@@ -14,7 +14,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.io.File;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -67,31 +66,26 @@ public class HtmlFormFromFileLoader {
 	private HtmlFormEntryService htmlFormEntryService;
 	
 	/**
-	 * For the given form definition located at the given path relative to the application data
-	 * directory, parse it and update a Form, HtmlForm, and any related FormResources
-	 */
-	public HtmlForm saveHtmlForm(String filePathRelativeToAppDataDir) {
-		File formFile = Paths.get(OpenmrsUtil.getApplicationDataDirectory(), filePathRelativeToAppDataDir).toFile();
-		if (!formFile.exists()) {
-			throw new RuntimeException("Form file does not exist: " + formFile.getAbsolutePath());
-		}
-		return saveHtmlForm(formFile);
-	}
-	
-	/**
 	 * For the given form definition file, parse it and update a Form, HtmlForm, and any related
 	 * FormResources
 	 */
 	public HtmlForm saveHtmlForm(File file) {
-		boolean isNewForm = false;
-		boolean hasChanges = false;
 		String xmlData;
 		try {
 			xmlData = FileUtils.readFileToString(file, "UTF-8");
+			return saveHtmlForm(xmlData);
 		}
 		catch (Exception e) {
 			throw new RuntimeException("Error reading file: " + file.getAbsolutePath(), e);
 		}
+	}
+	
+	/**
+	 * For the given form xml, parse this into an htmlform and save
+	 */
+	public HtmlForm saveHtmlForm(String xmlData) {
+		boolean isNewForm = false;
+		boolean hasChanges = false;
 		Document doc;
 		try {
 			doc = HtmlFormEntryUtil.stringToDocument(xmlData);
