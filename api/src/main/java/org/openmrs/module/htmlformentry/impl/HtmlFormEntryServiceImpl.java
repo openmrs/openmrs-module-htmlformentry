@@ -286,11 +286,7 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 		Map<String, FormResource> resourcesByName = new HashMap<>();
 		if (!isNewForm) {
 			for (FormResource formResource : Context.getFormService().getFormResourcesForForm(form)) {
-				if (formResourceNamesToAttributePrefixes.containsKey(formResource.getName())) {
-					resourcesByName.put(formResource.getName(), formResource);
-				} else {
-					hasChanges = true;
-				}
+				resourcesByName.put(formResource.getName(), formResource);
 			}
 		}
 		
@@ -320,29 +316,34 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 				resourcesByName.put(resourceName, resource);
 				hasChanges = true;
 			} else {
-				if (!resourceValue.equals(resource.getValueReference())) {
-					resource.setValueReferenceInternal(resourceValue);
+				if (StringUtils.isBlank(resourceValue)) {
+					resourcesByName.remove(resourceName);
 					hasChanges = true;
-				}
-				if (!resourceValue.equals(resource.getValueReference())) {
-					resource.setValueReferenceInternal(resourceValue);
-					hasChanges = true;
-				}
-				if (!OpenmrsUtil.nullSafeEquals(resource.getDatatypeClassname(), resourceDataTypeClass)) {
-					resource.setDatatypeClassname(resourceDataTypeClass);
-					hasChanges = true;
-				}
-				if (!OpenmrsUtil.nullSafeEquals(resource.getDatatypeConfig(), resourceDataTypeConfig)) {
-					resource.setDatatypeConfig(resourceDataTypeConfig);
-					hasChanges = true;
-				}
-				if (!OpenmrsUtil.nullSafeEquals(resource.getPreferredHandlerClassname(), resourceHandlerClass)) {
-					resource.setPreferredHandlerClassname(resourceHandlerClass);
-					hasChanges = true;
-				}
-				if (!OpenmrsUtil.nullSafeEquals(resource.getHandlerConfig(), resourceHandlerConfig)) {
-					resource.setHandlerConfig(resourceHandlerConfig);
-					hasChanges = true;
+				} else {
+					if (!resourceValue.equals(resource.getValueReference())) {
+						resource.setValueReferenceInternal(resourceValue);
+						hasChanges = true;
+					}
+					if (!resourceValue.equals(resource.getValueReference())) {
+						resource.setValueReferenceInternal(resourceValue);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getDatatypeClassname(), resourceDataTypeClass)) {
+						resource.setDatatypeClassname(resourceDataTypeClass);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getDatatypeConfig(), resourceDataTypeConfig)) {
+						resource.setDatatypeConfig(resourceDataTypeConfig);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getPreferredHandlerClassname(), resourceHandlerClass)) {
+						resource.setPreferredHandlerClassname(resourceHandlerClass);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getHandlerConfig(), resourceHandlerConfig)) {
+						resource.setHandlerConfig(resourceHandlerConfig);
+						hasChanges = true;
+					}
 				}
 			}
 		}

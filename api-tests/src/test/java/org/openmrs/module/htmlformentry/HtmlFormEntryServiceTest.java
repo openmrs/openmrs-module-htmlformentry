@@ -188,13 +188,8 @@ public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 	@Test
 	public void saveHtmlForm_shouldUpdateForm() throws Exception {
 		String formUuid = "203fa4f8-28f3-11eb-bc37-0242ac110002";
-		String formName = "Test Form 1";
-		String formDescription = "Test Form With All Attributes";
-		String formVersion = "1.3";
 		String formEncounterType = "61ae96f4-6afe-4351-b6f8-cd4fc383cce1";
 		String htmlformUuid = "26ddfe02-28f3-11eb-bc37-0242ac110002";
-		String renderPageValue = "standardUi";
-		String categoryValue = "Test Forms";
 		assertThat(formService.getForm(formUuid), nullValue());
 		assertThat(htmlFormEntryService.getHtmlFormByUuid(htmlformUuid), nullValue());
 		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormFromFile1.xml");
@@ -212,12 +207,19 @@ public class HtmlFormEntryServiceTest extends BaseHtmlFormEntryTest {
 		assertThat(f.getRetired(), equalTo(false));
 		assertThat(f.getForm().getEncounterType().getUuid(), equalTo(formEncounterType));
 		assertThat(f.getXmlData().trim(), equalTo(updatedXml.trim()));
-		assertThat(formService.getFormResourcesForForm(f.getForm()).size(), equalTo(2));
+		assertThat(formService.getFormResourcesForForm(f.getForm()).size(), equalTo(3));
+		// Test changed resource value
 		FormResource renderPage = formService.getFormResource(f.getForm(), "renderPage");
 		assertThat(renderPage, notNullValue());
 		assertThat(renderPage.getValueReference(), equalTo("simpleUi"));
+		// Test existing resource that is not present in the form is left alone
 		FormResource category = formService.getFormResource(f.getForm(), "category");
-		assertThat(category, nullValue());
+		assertThat(category, notNullValue());
+		assertThat(category.getValueReference(), equalTo("Test Forms"));
+		// Test existing resource that is present with no value is deleted
+		FormResource maxNum = formService.getFormResource(f.getForm(), "maxNumberPerDay");
+		assertThat(maxNum, nullValue());
+		// Test new resource is added
 		FormResource condition = formService.getFormResource(f.getForm(), "condition");
 		assertThat(condition, notNullValue());
 		assertThat(condition.getValueReference(), equalTo("${patient.gender === 'F'}"));

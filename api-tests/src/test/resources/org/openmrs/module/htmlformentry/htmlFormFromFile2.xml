@@ -9,8 +9,11 @@
 		htmlformUuid="26ddfe02-28f3-11eb-bc37-0242ac110002"
 		resource-1-name="renderPage"
 		resource-1-value="simpleUi"
-		resource-2-name="condition"
-		resource-2-value="${patient.gender === 'F'}"
+		resource-2-name="maxNumberPerDay"
+		resource-2-value=""
+		resource-3-name="condition"
+		resource-3-value="${patient.gender === 'F'}"
+
 >
 	Date: <encounterDate/>
 	Location: <encounterLocation/>
