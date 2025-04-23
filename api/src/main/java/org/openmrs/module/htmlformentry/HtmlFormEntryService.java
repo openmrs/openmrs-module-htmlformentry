@@ -53,6 +53,14 @@ public interface HtmlFormEntryService extends OpenmrsService {
 	List<HtmlForm> getAllHtmlForms();
 	
 	/**
+	 * Parses the given xmlData and creates a new or updates an existing form and htmlform based on the
+	 * attribute values in the xml data
+	 * 
+	 * @return htmlform for the given xml data
+	 */
+	HtmlForm saveHtmlFormFromXml(String xmlData);
+	
+	/**
 	 * Saves the specified HTML Form to the database
 	 * 
 	 * @param form the HTML Form to save
