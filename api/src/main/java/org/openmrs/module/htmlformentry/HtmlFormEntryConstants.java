@@ -57,4 +57,37 @@ public class HtmlFormEntryConstants {
 	//The name of the global property that saves Datetime Format.
 	public static final String GP_FORMATTER_DATETIME = "uiframework.formatter.dateAndTimeFormat";
 	
+	public static final String HTML_FORM_TAG = "htmlform";
+	
+	public static final String FORM_UUID_ATTRIBUTE = "formUuid";
+	
+	public static final String FORM_NAME_ATTRIBUTE = "formName";
+	
+	public static final String FORM_DESCRIPTION_ATTRIBUTE = "formDescription";
+	
+	public static final String FORM_VERSION_ATTRIBUTE = "formVersion";
+	
+	public static final String FORM_PUBLISHED_ATTRIBUTE = "formPublished";
+	
+	public static final String FORM_RETIRED_ATTRIBUTE = "formRetired";
+	
+	public static final String FORM_ENCOUNTER_TYPE_ATTRIBUTE = "formEncounterType";
+	
+	public static final String HTML_FORM_UUID_ATTRIBUTE = "htmlformUuid";
+	
+	public static final String FORM_RESOURCE_PREFIX = "resource";
+	
+	public static final String FORM_RESOURCE_DELIMITER = "-";
+	
+	public static final String FORM_RESOURCE_NAME = "name";
+	
+	public static final String FORM_RESOURCE_VALUE = "value";
+	
+	public static final String FORM_RESOURCE_DATA_TYPE_CLASS = "datatype-class";
+	
+	public static final String FORM_RESOURCE_DATA_TYPE_CONFIG = "datatype-config";
+	
+	public static final String FORM_RESOURCE_HANDLER_CLASS = "handler-class";
+	
+	public static final String FORM_RESOURCE_HANDLER_CONFIG = "handler-config";
 }

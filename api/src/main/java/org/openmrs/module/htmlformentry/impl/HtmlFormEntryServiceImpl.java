@@ -1,6 +1,7 @@
 package org.openmrs.module.htmlformentry.impl;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.VelocityContext;
@@ -8,6 +9,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.openmrs.Concept;
+import org.openmrs.EncounterType;
 import org.openmrs.Form;
 import org.openmrs.FormResource;
 import org.openmrs.Location;
@@ -26,6 +28,7 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.ProgramWorkflowService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
+import org.openmrs.customdatatype.datatype.FreeTextDatatype;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.HtmlForm;
@@ -35,8 +38,11 @@ import org.openmrs.module.htmlformentry.SerializableFormObject;
 import org.openmrs.module.htmlformentry.db.HtmlFormEntryDAO;
 import org.openmrs.module.htmlformentry.element.PersonStub;
 import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.PrivilegeConstants;
 import org.springframework.transaction.annotation.Transactional;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -49,6 +55,23 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_DESCRIPTION_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_ENCOUNTER_TYPE_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_PUBLISHED_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_DATA_TYPE_CLASS;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_DATA_TYPE_CONFIG;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_DELIMITER;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_HANDLER_CLASS;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_HANDLER_CONFIG;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_NAME;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_PREFIX;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_VALUE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RETIRED_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_UUID_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_VERSION_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.HTML_FORM_TAG;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.HTML_FORM_UUID_ATTRIBUTE;
 
 /**
  * Standard implementation of the HtmlFormEntryService
@@ -137,6 +160,198 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 	@Transactional(readOnly = true)
 	public HtmlForm getHtmlFormByUuid(String uuid) {
 		return dao.getHtmlFormByUuid(uuid);
+	}
+	
+	/**
+	 * For the given form xml, parse this into an htmlform and save
+	 */
+	@Override
+	@Transactional
+	public HtmlForm saveHtmlFormFromXml(String xmlData) {
+		boolean isNewForm = false;
+		boolean hasChanges = false;
+		Document doc;
+		try {
+			doc = HtmlFormEntryUtil.stringToDocument(xmlData);
+		}
+		catch (Exception e) {
+			throw new RuntimeException("Error parsing XML: " + xmlData, e);
+		}
+		Node htmlFormNode = HtmlFormEntryUtil.findChild(doc, HTML_FORM_TAG);
+		if (htmlFormNode == null) {
+			throw new RuntimeException("Could not find tag: " + HTML_FORM_TAG);
+		}
+		
+		Map<String, String> htmlFormAttributes = HtmlFormEntryUtil.getNodeAttributes(htmlFormNode);
+		
+		// Create or update the form
+		
+		String formUuid = htmlFormAttributes.remove(FORM_UUID_ATTRIBUTE);
+		if (formUuid == null) {
+			throw new IllegalArgumentException(FORM_UUID_ATTRIBUTE + " is required");
+		}
+		Form form = Context.getFormService().getFormByUuid(formUuid);
+		if (form == null) {
+			form = new Form();
+			form.setUuid(formUuid);
+			isNewForm = true;
+			hasChanges = true;
+		}
+		String formName = htmlFormAttributes.remove("formName");
+		if (!OpenmrsUtil.nullSafeEquals(form.getName(), formName)) {
+			form.setName(formName);
+			hasChanges = true;
+		}
+		String formDescription = htmlFormAttributes.remove(FORM_DESCRIPTION_ATTRIBUTE);
+		if (!OpenmrsUtil.nullSafeEquals(form.getDescription(), formDescription)) {
+			form.setDescription(formDescription);
+			hasChanges = true;
+		}
+		String formVersion = htmlFormAttributes.remove(FORM_VERSION_ATTRIBUTE);
+		if (!OpenmrsUtil.nullSafeEquals(form.getVersion(), formVersion)) {
+			form.setVersion(formVersion);
+			hasChanges = true;
+		}
+		Boolean formPublished = "true".equalsIgnoreCase(htmlFormAttributes.remove(FORM_PUBLISHED_ATTRIBUTE));
+		if (!OpenmrsUtil.nullSafeEquals(form.getPublished(), formPublished)) {
+			form.setPublished(formPublished);
+			hasChanges = true;
+		}
+		Boolean formRetired = "true".equalsIgnoreCase(htmlFormAttributes.remove(FORM_RETIRED_ATTRIBUTE));
+		if (!OpenmrsUtil.nullSafeEquals(form.getRetired(), formRetired)) {
+			form.setRetired(formRetired);
+			if (formRetired && StringUtils.isBlank(form.getRetireReason())) {
+				form.setRetireReason("Retired set in form xml");
+			}
+			hasChanges = true;
+		}
+		String formEncounterType = htmlFormAttributes.remove(FORM_ENCOUNTER_TYPE_ATTRIBUTE);
+		EncounterType encounterType = null;
+		if (formEncounterType != null) {
+			encounterType = HtmlFormEntryUtil.getEncounterType(formEncounterType);
+		}
+		if (encounterType != null && !OpenmrsUtil.nullSafeEquals(form.getEncounterType(), encounterType)) {
+			form.setEncounterType(encounterType);
+			hasChanges = true;
+		}
+		
+		// Create or update the htmlform
+		
+		HtmlForm htmlForm = (isNewForm ? null : getHtmlFormByForm(form));
+		if (htmlForm == null) {
+			htmlForm = new HtmlForm();
+			hasChanges = true;
+		}
+		if (hasChanges) {
+			htmlForm.setForm(form);
+		}
+		
+		// if there is a html form uuid specified, make sure the htmlform uuid is set to that value
+		String htmlformUuid = htmlFormAttributes.remove(HTML_FORM_UUID_ATTRIBUTE);
+		if (StringUtils.isNotBlank(htmlformUuid) && !OpenmrsUtil.nullSafeEquals(htmlformUuid, htmlForm.getUuid())) {
+			htmlForm.setUuid(htmlformUuid);
+			hasChanges = true;
+		}
+		
+		if (!OpenmrsUtil.nullSafeEquals(htmlForm.getRetired(), formRetired)) {
+			htmlForm.setRetired(formRetired);
+			if (formRetired && StringUtils.isBlank(htmlForm.getRetireReason())) {
+				htmlForm.setRetireReason("Retired set in form xml");
+			}
+			hasChanges = true;
+		}
+		
+		if (!StringUtils.trimToEmpty(htmlForm.getXmlData()).equals(StringUtils.trimToEmpty(xmlData))) {
+			// trim because if the file ends with a newline the db will have trimmed it
+			htmlForm.setXmlData(xmlData);
+			hasChanges = true;
+		}
+		
+		// Form resources are defined via attributes that start with resource-<unique-key>-<resource-property>
+		
+		Map<String, String> formResourceNamesToAttributePrefixes = new LinkedHashMap<>();
+		for (String attribute : htmlFormAttributes.keySet()) {
+			if (attribute.startsWith(FORM_RESOURCE_PREFIX + FORM_RESOURCE_DELIMITER)) {
+				String[] parts = attribute.split(FORM_RESOURCE_DELIMITER, 3);
+				if (parts.length < 3) {
+					throw new RuntimeException("Could not parse form resource attribute: " + attribute);
+				}
+				if (parts[2].equals(FORM_RESOURCE_NAME)) {
+					String prefix = parts[0] + FORM_RESOURCE_DELIMITER + parts[1] + FORM_RESOURCE_DELIMITER;
+					formResourceNamesToAttributePrefixes.put(htmlFormAttributes.get(attribute), prefix);
+				}
+			}
+		}
+		
+		Map<String, FormResource> resourcesByName = new HashMap<>();
+		if (!isNewForm) {
+			for (FormResource formResource : Context.getFormService().getFormResourcesForForm(form)) {
+				resourcesByName.put(formResource.getName(), formResource);
+			}
+		}
+		
+		for (String resourceName : formResourceNamesToAttributePrefixes.keySet()) {
+			String prefix = formResourceNamesToAttributePrefixes.get(resourceName);
+			htmlFormAttributes.remove(prefix + FORM_RESOURCE_NAME);
+			String resourceValue = htmlFormAttributes.remove(prefix + FORM_RESOURCE_VALUE);
+			String resourceDataTypeClass = htmlFormAttributes.remove(prefix + FORM_RESOURCE_DATA_TYPE_CLASS);
+			String resourceDataTypeConfig = htmlFormAttributes.remove(prefix + FORM_RESOURCE_DATA_TYPE_CONFIG);
+			String resourceHandlerClass = htmlFormAttributes.remove(prefix + FORM_RESOURCE_HANDLER_CLASS);
+			String resourceHandlerConfig = htmlFormAttributes.remove(prefix + FORM_RESOURCE_HANDLER_CONFIG);
+			
+			if (StringUtils.isBlank(resourceDataTypeClass)) {
+				resourceDataTypeClass = FreeTextDatatype.class.getName();
+			}
+			
+			FormResource resource = resourcesByName.get(resourceName);
+			if (resource == null) {
+				resource = new FormResource();
+				resource.setName(resourceName);
+				resource.setForm(form);
+				resource.setValueReferenceInternal(resourceValue);
+				resource.setDatatypeClassname(resourceDataTypeClass);
+				resource.setDatatypeConfig(resourceDataTypeConfig);
+				resource.setPreferredHandlerClassname(resourceHandlerClass);
+				resource.setHandlerConfig(resourceHandlerConfig);
+				resourcesByName.put(resourceName, resource);
+				hasChanges = true;
+			} else {
+				if (StringUtils.isBlank(resourceValue)) {
+					resourcesByName.remove(resourceName);
+					hasChanges = true;
+				} else {
+					if (!resourceValue.equals(resource.getValueReference())) {
+						resource.setValueReferenceInternal(resourceValue);
+						hasChanges = true;
+					}
+					if (!resourceValue.equals(resource.getValueReference())) {
+						resource.setValueReferenceInternal(resourceValue);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getDatatypeClassname(), resourceDataTypeClass)) {
+						resource.setDatatypeClassname(resourceDataTypeClass);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getDatatypeConfig(), resourceDataTypeConfig)) {
+						resource.setDatatypeConfig(resourceDataTypeConfig);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getPreferredHandlerClassname(), resourceHandlerClass)) {
+						resource.setPreferredHandlerClassname(resourceHandlerClass);
+						hasChanges = true;
+					}
+					if (!OpenmrsUtil.nullSafeEquals(resource.getHandlerConfig(), resourceHandlerConfig)) {
+						resource.setHandlerConfig(resourceHandlerConfig);
+						hasChanges = true;
+					}
+				}
+			}
+		}
+		
+		if (!hasChanges) {
+			return htmlForm;
+		}
+		return saveHtmlForm(htmlForm, resourcesByName.values());
 	}
 	
 	@Override
