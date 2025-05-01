@@ -4,6 +4,7 @@ import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,6 +98,7 @@ public class HtmlFormController {
 		if (htmlForm.getId() == null && StringUtils.isBlank(htmlForm.getXmlData())) {
 			htmlForm.setXmlData(service.getStartingFormXml(htmlForm));
 		}
+		htmlForm.setXmlData(StringEscapeUtils.unescapeXml(htmlForm.getXmlData()));
 		HtmlFormValidator validator = new HtmlFormValidator();
 		validator.validate(htmlForm, result);
 		if (validator.getHtmlFormWarnings().size() > 0) {
