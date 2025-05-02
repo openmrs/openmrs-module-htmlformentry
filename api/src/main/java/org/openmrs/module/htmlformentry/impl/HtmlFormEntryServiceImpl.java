@@ -58,6 +58,7 @@ import java.util.Set;
 
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_DESCRIPTION_ATTRIBUTE;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_ENCOUNTER_TYPE_ATTRIBUTE;
+import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_NAME_ATTRIBUTE;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_PUBLISHED_ATTRIBUTE;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_DATA_TYPE_CLASS;
 import static org.openmrs.module.htmlformentry.HtmlFormEntryConstants.FORM_RESOURCE_DATA_TYPE_CONFIG;
@@ -197,42 +198,54 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 			isNewForm = true;
 			hasChanges = true;
 		}
-		String formName = htmlFormAttributes.remove("formName");
-		if (!OpenmrsUtil.nullSafeEquals(form.getName(), formName)) {
-			form.setName(formName);
-			hasChanges = true;
-		}
-		String formDescription = htmlFormAttributes.remove(FORM_DESCRIPTION_ATTRIBUTE);
-		if (!OpenmrsUtil.nullSafeEquals(form.getDescription(), formDescription)) {
-			form.setDescription(formDescription);
-			hasChanges = true;
-		}
-		String formVersion = htmlFormAttributes.remove(FORM_VERSION_ATTRIBUTE);
-		if (!OpenmrsUtil.nullSafeEquals(form.getVersion(), formVersion)) {
-			form.setVersion(formVersion);
-			hasChanges = true;
-		}
-		Boolean formPublished = "true".equalsIgnoreCase(htmlFormAttributes.remove(FORM_PUBLISHED_ATTRIBUTE));
-		if (!OpenmrsUtil.nullSafeEquals(form.getPublished(), formPublished)) {
-			form.setPublished(formPublished);
-			hasChanges = true;
-		}
-		Boolean formRetired = "true".equalsIgnoreCase(htmlFormAttributes.remove(FORM_RETIRED_ATTRIBUTE));
-		if (!OpenmrsUtil.nullSafeEquals(form.getRetired(), formRetired)) {
-			form.setRetired(formRetired);
-			if (formRetired && StringUtils.isBlank(form.getRetireReason())) {
-				form.setRetireReason("Retired set in form xml");
+		if (htmlFormAttributes.containsKey(FORM_NAME_ATTRIBUTE)) {
+			String formName = htmlFormAttributes.remove(FORM_NAME_ATTRIBUTE);
+			if (!OpenmrsUtil.nullSafeEquals(form.getName(), formName)) {
+				form.setName(formName);
+				hasChanges = true;
 			}
-			hasChanges = true;
 		}
-		String formEncounterType = htmlFormAttributes.remove(FORM_ENCOUNTER_TYPE_ATTRIBUTE);
-		EncounterType encounterType = null;
-		if (formEncounterType != null) {
-			encounterType = HtmlFormEntryUtil.getEncounterType(formEncounterType);
+		if (htmlFormAttributes.containsKey(FORM_DESCRIPTION_ATTRIBUTE)) {
+			String formDescription = htmlFormAttributes.remove(FORM_DESCRIPTION_ATTRIBUTE);
+			if (!OpenmrsUtil.nullSafeEquals(form.getDescription(), formDescription)) {
+				form.setDescription(formDescription);
+				hasChanges = true;
+			}
 		}
-		if (encounterType != null && !OpenmrsUtil.nullSafeEquals(form.getEncounterType(), encounterType)) {
-			form.setEncounterType(encounterType);
-			hasChanges = true;
+		if (htmlFormAttributes.containsKey(FORM_VERSION_ATTRIBUTE)) {
+			String formVersion = htmlFormAttributes.remove(FORM_VERSION_ATTRIBUTE);
+			if (!OpenmrsUtil.nullSafeEquals(form.getVersion(), formVersion)) {
+				form.setVersion(formVersion);
+				hasChanges = true;
+			}
+		}
+		if (htmlFormAttributes.containsKey(FORM_PUBLISHED_ATTRIBUTE)) {
+			Boolean formPublished = "true".equalsIgnoreCase(htmlFormAttributes.remove(FORM_PUBLISHED_ATTRIBUTE));
+			if (!OpenmrsUtil.nullSafeEquals(form.getPublished(), formPublished)) {
+				form.setPublished(formPublished);
+				hasChanges = true;
+			}
+		}
+		if (htmlFormAttributes.containsKey(FORM_RETIRED_ATTRIBUTE)) {
+			Boolean formRetired = "true".equalsIgnoreCase(htmlFormAttributes.remove(FORM_RETIRED_ATTRIBUTE));
+			if (!OpenmrsUtil.nullSafeEquals(form.getRetired(), formRetired)) {
+				form.setRetired(formRetired);
+				if (formRetired && StringUtils.isBlank(form.getRetireReason())) {
+					form.setRetireReason("Retired set in form xml");
+				}
+				hasChanges = true;
+			}
+		}
+		if (htmlFormAttributes.containsKey(FORM_ENCOUNTER_TYPE_ATTRIBUTE)) {
+			String formEncounterType = htmlFormAttributes.remove(FORM_ENCOUNTER_TYPE_ATTRIBUTE);
+			EncounterType encounterType = null;
+			if (formEncounterType != null) {
+				encounterType = HtmlFormEntryUtil.getEncounterType(formEncounterType);
+			}
+			if (encounterType != null && !OpenmrsUtil.nullSafeEquals(form.getEncounterType(), encounterType)) {
+				form.setEncounterType(encounterType);
+				hasChanges = true;
+			}
 		}
 		
 		// Create or update the htmlform
@@ -253,9 +266,9 @@ public class HtmlFormEntryServiceImpl extends BaseOpenmrsService implements Html
 			hasChanges = true;
 		}
 		
-		if (!OpenmrsUtil.nullSafeEquals(htmlForm.getRetired(), formRetired)) {
-			htmlForm.setRetired(formRetired);
-			if (formRetired && StringUtils.isBlank(htmlForm.getRetireReason())) {
+		if (!OpenmrsUtil.nullSafeEquals(htmlForm.getRetired(), form.getRetired())) {
+			htmlForm.setRetired(form.getRetired());
+			if (form.getRetired() && StringUtils.isBlank(htmlForm.getRetireReason())) {
 				htmlForm.setRetireReason("Retired set in form xml");
 			}
 			hasChanges = true;
