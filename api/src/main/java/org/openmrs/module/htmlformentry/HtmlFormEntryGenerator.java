@@ -1,18 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.io.ByteArrayInputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Role;
 import org.openmrs.User;
@@ -26,12 +13,27 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.ByteArrayInputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Provides methods to take a {@code <htmlform>...</htmlform>} xml block and turns it into HTML to
  * be displayed as a form in a web browser. It can apply the {@code <macros>...</macros>} section,
  * and replace tags like {@code <obs/>}.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
+	
+	private TagRegister tagRegister = new TagRegister();
 	
 	/**
 	 * @see #applyMacros(FormEntrySession, String) This method simply delegates to the
@@ -608,10 +610,13 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 		}
 		
-		if (handler == null)
+		if (handler == null) {
 			handler = this; // do default actions
-			
+		}
+		
 		try {
+			boolean isRegisteredTag = (handler != this);
+			tagRegister.startTag(node, isRegisteredTag);
 			boolean handleContents = handler.doStartTag(session, out, parent, node);
 			
 			// Unless the handler told us to skip them, then iterate over any children
@@ -635,6 +640,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 			
 			handler.doEndTag(session, out, parent, node);
+			tagRegister.endTag(node, isRegisteredTag);
 		}
 		catch (BadFormDesignException e) {
 			out.print("<div class=\"error\">" + handler
@@ -857,6 +863,10 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		return sb;
 	}
 	
+	public TagRegister getTagRegister() {
+		return tagRegister;
+	}
+	
 	/**
 	 * Deprecated methods
 	 */
@@ -868,5 +878,4 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String applyTemplates(String xml) throws Exception {
 		return applyRepeats(xml);
 	}
-	
 }
