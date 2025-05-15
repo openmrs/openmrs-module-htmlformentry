@@ -8,6 +8,12 @@
 			<orderProperty name="concept">
 				<option value="5497" label="CD4 Test"/>
 			</orderProperty>
+			<orderProperty name="specimenSource"/>
+			<orderProperty name="laterality"/>
+			<orderProperty name="clinicalHistory" textArea="true" textAreaRows="10" textAreaColumns="20"/>
+			<orderProperty name="frequency"/>
+			<orderProperty name="numberOfRepeats"/>
+			<orderProperty name="location"/>
 		</orderTemplate>
 	</order>
 

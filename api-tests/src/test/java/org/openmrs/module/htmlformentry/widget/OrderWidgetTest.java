@@ -55,4 +55,26 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
 		}
 	}
+	
+	@Test
+	public void shouldRenderTemplateWithWidgetsForTestOrder() {
+		FormTester formTester = FormTester.buildForm("orderLabTestForm.xml");
+		FormSessionTester fst = formTester.openNewForm(2);
+		OrderWidget widget = fst.getWidgets(OrderWidget.class).get(0);
+		String[] properties = { "concept", "action", "previousOrder", "careSetting", "orderReason", "orderReasonNonCoded",
+		        "instructions", "urgency", "dateActivated", "scheduledDate", "specimenSource", "laterality",
+		        "clinicalHistory", "frequency", "numberOfRepeats", "location", "discontinueReason",
+		        "discontinueReasonNonCoded" };
+		
+		assertThat(widget.getWidgets().size(), is(properties.length));
+		List<Widget> widgets = new ArrayList<>(widget.getWidgets().values());
+		for (int i = 0; i < widgets.size(); i++) {
+			String property = properties[i];
+			Widget propertyWidget = widgets.get(i);
+			fst.assertHtmlContains("<div class=\"order-field order-" + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-label order-" + property + "\"");
+			fst.assertHtmlContains("<div class=\"order-field-widget order-" + property);
+			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
+		}
+	}
 }
