@@ -303,6 +303,7 @@
             orderWidget.enableServiceOrderWidgets($orderForm);
         } else if (action === 'REVISE' || action === 'NEW') {
             $orderForm.find('.order-orderReason').show();
+            $orderForm.find('.order-orderReasonNonCoded').show();
             orderWidget.enableOrderDoseWidgets($orderForm);
             $orderForm.find('.order-urgency').show();
             orderWidget.enableOrderDurationWidgets($orderForm);
