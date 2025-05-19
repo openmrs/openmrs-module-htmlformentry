@@ -46,6 +46,7 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Provider;
+import org.openmrs.ServiceOrder;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptNameType;
@@ -682,6 +683,18 @@ public class HtmlFormEntryUtil {
 	public static boolean isADrugOrderType(OrderType orderType) {
 		try {
 			return DrugOrder.class.isAssignableFrom(orderType.getJavaClass());
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * @return true if a given Order Type represents a Service Order
+	 */
+	public static boolean isAServiceOrderType(OrderType orderType) {
+		try {
+			return ServiceOrder.class.isAssignableFrom(orderType.getJavaClass());
 		}
 		catch (Exception e) {
 			return false;

@@ -23,6 +23,7 @@ import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.OrderType;
+import org.openmrs.ServiceOrder;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.CapturingPrintWriter;
 import org.openmrs.module.htmlformentry.FormEntryContext;
@@ -73,6 +74,13 @@ public class OrderWidget implements Widget {
 			configureNumericWidget(context, "quantity", true);
 			configureOptionWidget(context, "quantityUnits", "dropdown");
 			configureNumericWidget(context, "numRefills", false);
+		} else if (isServiceOrder()) {
+			configureOptionWidget(context, "specimenSource", "dropdown");
+			configureOptionWidget(context, "laterality", "dropdown");
+			configureTextWidget(context, "clinicalHistory");
+			configureOptionWidget(context, "frequency", "dropdown");
+			configureNumericWidget(context, "numberOfRepeats", false);
+			configureOptionWidget(context, "location", "dropdown");
 		}
 	}
 	
@@ -199,6 +207,8 @@ public class OrderWidget implements Widget {
 					jho.addString("previousOrderId", pd == null ? "" : pd.getOrderId().toString());
 					jho.addString("orderClass", o.getClass().getName());
 					jho.addString("isDrugOrder", Boolean.toString(HtmlFormEntryUtil.isADrugOrderType(o.getOrderType())));
+					jho.addString("isServiceOrder",
+					    Boolean.toString(HtmlFormEntryUtil.isAServiceOrderType(o.getOrderType())));
 					addToJsonObject(jho, "action", o.getAction());
 					JsonObject conceptObj = jho.addObject("concept");
 					conceptObj.addString("value", c.getId().toString());
@@ -230,6 +240,14 @@ public class OrderWidget implements Widget {
 						addToJsonObject(jho, "quantity", d.getQuantity());
 						addToJsonObject(jho, "quantityUnits", d.getQuantityUnits());
 						addToJsonObject(jho, "numRefills", d.getNumRefills());
+					} else if (o instanceof ServiceOrder) {
+						ServiceOrder serviceOrder = (ServiceOrder) o;
+						addToJsonObject(jho, "specimenSource", serviceOrder.getSpecimenSource());
+						addToJsonObject(jho, "laterality", serviceOrder.getLaterality());
+						addToJsonObject(jho, "clinicalHistory", serviceOrder.getClinicalHistory());
+						addToJsonObject(jho, "frequency", serviceOrder.getFrequency());
+						addToJsonObject(jho, "numberOfRepeats", serviceOrder.getNumberOfRepeats());
+						addToJsonObject(jho, "location", serviceOrder.getLocation());
 					}
 					
 					if (o.getAction() == Order.Action.DISCONTINUE) {
@@ -502,6 +520,15 @@ public class OrderWidget implements Widget {
 							newDrugOrder.setQuantityUnits(parseValue(getValue(c, r, fs, "quantityUnits"), Concept.class));
 						}
 						newDrugOrder.setNumRefills(parseValue(getValue(c, r, fs, "numRefills"), Integer.class));
+					} else if (newOrder instanceof ServiceOrder) {
+						ServiceOrder newServiceOrder = (ServiceOrder) newOrder;
+						newServiceOrder.setSpecimenSource(parseValue(getValue(c, r, fs, "specimenSource"), Concept.class));
+						newServiceOrder
+						        .setLaterality(parseValue(getValue(c, r, fs, "laterality"), ServiceOrder.Laterality.class));
+						newServiceOrder.setClinicalHistory(parseValue(getValue(c, r, fs, "clinicalHistory"), String.class));
+						newServiceOrder.setFrequency(parseValue(getValue(c, r, fs, "frequency"), OrderFrequency.class));
+						newServiceOrder.setNumberOfRepeats(parseValue(getValue(c, r, fs, "numberOfRepeats"), Integer.class));
+						newServiceOrder.setLocation(parseValue(getValue(c, r, fs, "location"), Concept.class));
 					}
 					v.setNewOrder(newOrder);
 					ret.add(v);
@@ -684,6 +711,10 @@ public class OrderWidget implements Widget {
 	
 	protected boolean isDrugOrder() {
 		return HtmlFormEntryUtil.isADrugOrderType(widgetConfig.getOrderField().getOrderType());
+	}
+	
+	protected boolean isServiceOrder() {
+		return HtmlFormEntryUtil.isAServiceOrderType(widgetConfig.getOrderField().getOrderType());
 	}
 	
 	protected String translate(String code) {
