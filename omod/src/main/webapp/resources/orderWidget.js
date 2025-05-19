@@ -300,13 +300,13 @@
             $orderForm.find('.order-discontinueReasonNonCoded').show();
         } else if (action === 'RENEW') {
             orderWidget.enableOrderDurationWidgets($orderForm);
-            orderWidget.enableTestOrderWidgets($orderForm);
+            orderWidget.enableServiceOrderWidgets($orderForm);
         } else if (action === 'REVISE' || action === 'NEW') {
             $orderForm.find('.order-orderReason').show();
             orderWidget.enableOrderDoseWidgets($orderForm);
             $orderForm.find('.order-urgency').show();
             orderWidget.enableOrderDurationWidgets($orderForm);
-            orderWidget.enableTestOrderWidgets($orderForm);
+            orderWidget.enableServiceOrderWidgets($orderForm);
         }
 
         // Set up ability to toggle between free-text and simple dosing instructions
@@ -519,7 +519,7 @@
         $orderForm.find('.order-numRefills').show();
     }
 
-    orderWidget.enableTestOrderWidgets = function($orderForm) {
+    orderWidget.enableServiceOrderWidgets = function($orderForm) {
         $orderForm.find('.order-specimenSource').show();
         $orderForm.find('.order-laterality').show();
         $orderForm.find('.order-clinicalHistory').show();
@@ -554,7 +554,7 @@
             $orderForm.find('.order-field-widget.order-quantityUnits').find(':input').val(order.quantityUnits.value);
             $orderForm.find('.order-field-widget.order-numRefills').find(':input').val(order.numRefills.value);
         }
-        if (order.isTestOrder === 'true') {
+        if (order.isServiceOrder === 'true') {
             $orderForm.find('.order-field-widget.order-specimenSource').find(':input').val(order.specimenSource.value);
             $orderForm.find('.order-field-widget.order-laterality').find(':input').val(order.laterality.value);
             $orderForm.find('.order-field-widget.order-clinicalHistory').find(':input').val(order.clinicalHistory.value);
