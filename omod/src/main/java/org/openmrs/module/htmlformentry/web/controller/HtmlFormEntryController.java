@@ -282,7 +282,7 @@ public class HtmlFormEntryController {
 		}
 		
 		if (errors.hasErrors()) {
-			return new ModelAndView(FORM_PATH, "command", session);
+			return new ModelAndView("/module/htmlformentry/htmlFormEntry", "command", session);
 		}
 		
 		// no form validation errors, proceed with submission
@@ -334,7 +334,7 @@ public class HtmlFormEntryController {
 		}
 		
 		// if we get here it's because we caught an error trying to submit/apply
-		return new ModelAndView(FORM_PATH, "command", session);
+		return new ModelAndView("/module/htmlformentry/htmlFormEntry", "command", session);
 	}
 	
 	protected String getQueryPrameters(HttpServletRequest request, FormEntrySession formEntrySession) {
