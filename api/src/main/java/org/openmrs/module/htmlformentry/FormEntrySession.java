@@ -1522,4 +1522,8 @@ public class FormEntrySession {
 		
 		return formField;
 	}
+	
+	public TagRegister getTagRegister() {
+		return htmlGenerator.getTagRegister();
+	}
 }
