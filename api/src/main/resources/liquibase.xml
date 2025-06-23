@@ -160,6 +160,14 @@
                                  referencedTableName="users" referencedColumnNames="user_id"/>
     </changeSet>
 
+    <changeSet id="HTML-865-20250619--add-uuid-function-wrapper-postgresql" author="mherman22" dbms="postgresql">
+        <comment> Extension to use UUID functions with PostgreSQL and creating an alias similar to MySQL</comment>
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS "uuid-ossp" SCHEMA public;
+            CREATE FUNCTION UUID() RETURNS UUID LANGUAGE SQL AS $$ SELECT uuid_generate_v1() $$;
+        </sql>
+    </changeSet>
+
     <changeSet id="htmlformentry_html_form_update_uuid" author="Mark Goodrich">
     	<validCheckSum>8:b69558e4552d66b2aeab4b759a2de314</validCheckSum> <!-- old checksum with modifyColumn -->
     	<validCheckSum>8:3d323e2f73558a8d06bb22f04f273177</validCheckSum> <!-- new checksum with addNotNullConstraint -->
