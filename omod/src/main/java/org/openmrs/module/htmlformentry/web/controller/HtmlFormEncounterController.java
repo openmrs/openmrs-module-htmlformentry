@@ -2,9 +2,11 @@ package org.openmrs.module.htmlformentry.web.controller;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
@@ -62,8 +64,9 @@ public class HtmlFormEncounterController {
 		String schemaJson = jackson.writeValueAsString(schemaNode);
 		
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		response.setCharacterEncoding("UTF-8");
 		response.setHeader("Pragma", "no-cache");
-		response.getOutputStream().print(schemaJson);
+		IOUtils.write(schemaJson, response.getOutputStream(), StandardCharsets.UTF_8);
 	}
 	
 	// is public to make it easier to test
