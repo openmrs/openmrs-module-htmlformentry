@@ -58,10 +58,6 @@
 			<artifactId>metadatamapping-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>providermanagement-api</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.bahmni.module</groupId>
 			<artifactId>appointments-api</artifactId>
 		</dependency>
@@ -106,14 +102,6 @@
 		<dependency>
 			<groupId>org.joda</groupId>
 			<artifactId>joda-convert</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-core-asl</artifactId>
 		</dependency>
 	</dependencies>
 

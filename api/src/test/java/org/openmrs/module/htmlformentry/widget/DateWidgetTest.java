@@ -8,34 +8,22 @@ import static org.mockito.Mockito.when;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.openmrs.test.jupiter.BaseModuleContextSensitiveTest;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ Context.class })
-@PowerMockIgnore("javax.management.*")
-public class DateWidgetTest {
+public class DateWidgetTest extends BaseModuleContextSensitiveTest {
 	
-	@Mock
 	private AdministrationService administrationService;
 	
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		
-		// Prepare static mocks
-		PowerMockito.mockStatic(Context.class);
+		administrationService = Context.getAdministrationService();
 		administrationService.setGlobalProperty(HtmlFormEntryConstants.GP_TIMEZONE_CONVERSIONS, "false");
-		PowerMockito.when(Context.getAdministrationService()).thenReturn(administrationService);
 		
 	}
 	
