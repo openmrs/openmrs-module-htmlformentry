@@ -36,11 +36,6 @@
             <artifactId>openmrs-test</artifactId>
             <type>pom</type>
         </dependency>
-        <dependency>
-			<groupId>org.openmrs.module</groupId>
-			<artifactId>legacyui-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.openmrs.module</groupId>
 			<artifactId>legacyui-omod</artifactId>
