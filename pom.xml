@@ -4,7 +4,7 @@
 
     <groupId>org.openmrs.module</groupId>
     <artifactId>htmlformentry</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>HTML Form Entry</name>
     <description>Parent project for HTML Form Entry</description>
@@ -13,7 +13,7 @@
 
     <!-- default property values, required for eclipse build path configuration -->
     <properties>
-        <openMRSVersion>2.8.0-SNAPSHOT</openMRSVersion>
+        <openMRSVersion>2.8.0</openMRSVersion>
         <openMRSMinorVersion>2.8</openMRSMinorVersion>
         <legacyuiVersion>2.0.0-SNAPSHOT</legacyuiVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
