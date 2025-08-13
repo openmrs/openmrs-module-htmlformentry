@@ -123,8 +123,8 @@ Release to Maven:
   artifact-subscriptions: []
 variables:
   build.docker.image.id: maven:3.9.9-amazoncorretto-8
-  maven.development.version: 6.0.0-SNAPSHOT
-  maven.release.version: 5.6.0
+  maven.development.version: 6.1.0-SNAPSHOT
+  maven.release.version: 6.0.0
   refapp.distro.property: htmlformentryVersion
 repositories:
 - Git:
