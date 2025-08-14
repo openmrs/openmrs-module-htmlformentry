@@ -17,17 +17,19 @@ package org.openmrs.module.htmlformentry.element;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
 import org.openmrs.ConceptDatatype;
@@ -41,25 +43,24 @@ import org.openmrs.module.htmlformentry.TestUtil;
 import org.openmrs.module.htmlformentry.Translator;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.util.LocaleUtility;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ HtmlFormEntryUtil.class, Context.class })
-@PowerMockIgnore("javax.management.*")
 public class ObsSubmissionElementTest {
 	
 	private FormEntryContext context;
 	
 	private Map<String, String> params;
 	
+	private MockedStatic<Context> mockedContext;
+	
+	private MockedStatic<HtmlFormEntryUtil> mockedHtmlFormEntryUtil;
+	
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
+		mockedContext = mockStatic(Context.class);
+		mockedHtmlFormEntryUtil = mockStatic(HtmlFormEntryUtil.class);
 		HtmlFormSchema schema = new HtmlFormSchema();
 		Translator translator = new Translator() {
 			
@@ -69,11 +70,17 @@ public class ObsSubmissionElementTest {
 			}
 		};
 		
-		params = new HashMap<String, String>();
+		params = new HashMap<>();
 		
 		context = mock(FormEntryContext.class);
 		when(context.getSchema()).thenReturn(schema);
 		when(context.getTranslator()).thenReturn(translator);
+	}
+	
+	@After
+	public void tearDown() {
+		mockedContext.close();
+		mockedHtmlFormEntryUtil.close();
 	}
 	
 	@Test
@@ -86,14 +93,12 @@ public class ObsSubmissionElementTest {
 		weight.setUnits(units);
 		weight.setDatatype(numeric);
 		
-		mockStatic(HtmlFormEntryUtil.class);
-		mockStatic(Context.class);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
+		when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
 		
 		params.put("showUnits", "true");
 		params.put("conceptId", "5089");
 		params.put("locale", "ht");
-		ObsSubmissionElement element = new ObsSubmissionElement<FormEntryContext>(context, params);
+		ObsSubmissionElement element = new ObsSubmissionElement<>(context, params);
 		String html = element.generateHtml(context);
 		
 		TestUtil.assertContains("<span class=\"units\">" + units + "</span>", html);
@@ -109,8 +114,7 @@ public class ObsSubmissionElementTest {
 		weight.setUnits("kg");
 		weight.setDatatype(numeric);
 		
-		mockStatic(HtmlFormEntryUtil.class);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
+		when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
 		
 		String unitsCode = "units.kg";
 		params.put("showUnits", unitsCode);
@@ -137,9 +141,7 @@ public class ObsSubmissionElementTest {
 		weight.addName(primaryName);
 		weight.addName(new ConceptName("Pwa", LocaleUtility.fromSpecification("ht")));
 		
-		mockStatic(HtmlFormEntryUtil.class);
-		mockStatic(Context.class);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
+		when(HtmlFormEntryUtil.getConcept(anyString())).thenReturn(weight);
 		
 		params.put("conceptId", "5089");
 		params.put("locale", "ht");
@@ -163,9 +165,8 @@ public class ObsSubmissionElementTest {
 		options.setDatatype(coded);
 		options.addAnswer(new ConceptAnswer(option));
 		
-		mockStatic(HtmlFormEntryUtil.class);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept("123")).thenReturn(options);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept("456")).thenReturn(option);
+		when(HtmlFormEntryUtil.getConcept("123")).thenReturn(options);
+		when(HtmlFormEntryUtil.getConcept("456")).thenReturn(option);
 		
 		params.put("conceptId", "123");
 		params.put("answerConceptId", "456");
@@ -194,10 +195,9 @@ public class ObsSubmissionElementTest {
 		options.addAnswer(new ConceptAnswer(option1));
 		options.addAnswer(new ConceptAnswer(option2));
 		
-		mockStatic(HtmlFormEntryUtil.class);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept("123")).thenReturn(options);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept("1")).thenReturn(option1);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept("2")).thenReturn(option2);
+		when(HtmlFormEntryUtil.getConcept("123")).thenReturn(options);
+		when(HtmlFormEntryUtil.getConcept("1")).thenReturn(option1);
+		when(HtmlFormEntryUtil.getConcept("2")).thenReturn(option2);
 		
 		params.put("conceptId", "123");
 		params.put("answerConceptIds", "1,2");

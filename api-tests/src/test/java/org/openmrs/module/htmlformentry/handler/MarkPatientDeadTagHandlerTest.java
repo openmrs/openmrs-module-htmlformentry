@@ -2,19 +2,21 @@ package org.openmrs.module.htmlformentry.handler;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
+import org.mockito.MockedStatic;
 import org.openmrs.Concept;
 import org.openmrs.Encounter;
 import org.openmrs.Obs;
@@ -24,15 +26,8 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.management.*")
-@PrepareForTest(HtmlFormEntryUtil.class)
 public class MarkPatientDeadTagHandlerTest {
 	
 	private FormSubmissionController submissionController;
@@ -51,6 +46,8 @@ public class MarkPatientDeadTagHandlerTest {
 	
 	private Concept codedCauseOfDeath;
 	
+	private MockedStatic<HtmlFormEntryUtil> mockedHtmlFormEntryUtil;
+	
 	@Before
 	public void setUp() {
 		patient = new Patient();
@@ -68,8 +65,8 @@ public class MarkPatientDeadTagHandlerTest {
 		when(formEntrySession.getPatient()).thenReturn(patient);
 		when(formEntrySession.getEncounter()).thenReturn(encounter);
 		
-		mockStatic(HtmlFormEntryUtil.class);
-		PowerMockito.when(HtmlFormEntryUtil.getConcept("12345")).thenReturn(codedCauseOfDeath);
+		mockedHtmlFormEntryUtil = mockStatic(HtmlFormEntryUtil.class);
+		when(HtmlFormEntryUtil.getConcept("12345")).thenReturn(codedCauseOfDeath);
 		
 		tagHandler = new MarkPatientDeadTagHandler() {
 			
@@ -79,6 +76,11 @@ public class MarkPatientDeadTagHandlerTest {
 			}
 		};
 		tagHandler.setPatientService(patientService);
+	}
+	
+	@After
+	public void tearDown() {
+		mockedHtmlFormEntryUtil.close();
 	}
 	
 	@Test
