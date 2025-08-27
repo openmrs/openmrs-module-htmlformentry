@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.OrderFrequency;
 import org.openmrs.module.htmlformentry.schema.OrderField;
 
 /**
@@ -33,6 +34,8 @@ public class OrderWidgetConfig {
 	// Serves to provide access to the orderables configured
 	
 	private Map<Concept, List<Drug>> conceptsAndDrugsConfigured = new LinkedHashMap<>();
+	
+	private List<OrderFrequency> orderFrequencies = new ArrayList<>();
 	
 	public OrderWidgetConfig() {
 	}
@@ -134,5 +137,16 @@ public class OrderWidgetConfig {
 	
 	public void setConceptsAndDrugsConfigured(Map<Concept, List<Drug>> conceptsAndDrugsConfigured) {
 		this.conceptsAndDrugsConfigured = conceptsAndDrugsConfigured;
+	}
+	
+	public List<OrderFrequency> getOrderFrequencies() {
+		if (orderFrequencies == null) {
+			orderFrequencies = new ArrayList<>();
+		}
+		return orderFrequencies;
+	}
+	
+	public void setOrderFrequencies(List<OrderFrequency> orderFrequencies) {
+		this.orderFrequencies = orderFrequencies;
 	}
 }

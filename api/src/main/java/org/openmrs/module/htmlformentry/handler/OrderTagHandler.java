@@ -397,6 +397,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 		if (options.isEmpty()) {
 			for (OrderFrequency f : getOrderService().getOrderFrequencies(false)) {
 				options.add(new Option(f.getConcept().getDisplayString(), f.getId().toString(), false));
+				config.getOrderFrequencies().add(f);
 			}
 		} else {
 			for (Option option : options) {
@@ -407,6 +408,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 				option.setValue(freq.getOrderFrequencyId().toString());
 				option.setLabel(getLabel(option.getLabel(), freq.getConcept().getDisplayString()));
 				config.getOrderField().addOrderFrequencyAnswer(new OrderFrequencyAnswer(freq, option.getLabel()));
+				config.getOrderFrequencies().add(freq);
 			}
 		}
 		if (defaultOrderFrequency != null) {

@@ -172,6 +172,17 @@ public class OrderWidget implements Widget {
 			translations.addTranslation(prefix, messageCode);
 		}
 		
+		List<JsonObject> orderFrequencyArray = jsonConfig.getObjectArray("orderFrequencies");
+		for (OrderFrequency orderFrequency : widgetConfig.getOrderFrequencies()) {
+			JsonObject jsonFrequency = new JsonObject();
+			jsonFrequency.addString("id", orderFrequency.getOrderFrequencyId().toString());
+			jsonFrequency.addString("name", orderFrequency.getName());
+			jsonFrequency.addString("conceptId", orderFrequency.getConcept().getConceptId().toString());
+			jsonFrequency.addString("frequencyPerDay",
+			    orderFrequency.getFrequencyPerDay() == null ? "" : orderFrequency.getFrequencyPerDay().toString());
+			orderFrequencyArray.add(jsonFrequency);
+		}
+		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
 		
