@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.DrugIngredient;
 import org.openmrs.DrugOrder;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
@@ -195,6 +196,14 @@ public class OrderWidget implements Widget {
 				jsonDrug.addString("strength", d.getStrength());
 				String dosageForm = d.getDosageForm() == null ? "" : d.getDosageForm().getConceptId().toString();
 				jsonDrug.addString("dosageForm", dosageForm);
+				List<JsonObject> jsonIngredientsArray = jsonDrug.getObjectArray("ingredients");
+				for (DrugIngredient di : d.getIngredients()) {
+					JsonObject jsonIngredient = new JsonObject();
+					jsonIngredient.addString("ingredient", di.getIngredient().getId().toString());
+					jsonIngredient.addString("strength", di.getStrength() == null ? "" : di.getStrength().toString());
+					jsonIngredient.addString("units", di.getUnits() == null ? "" : di.getUnits().getId().toString());
+					jsonIngredientsArray.add(jsonIngredient);
+				}
 				jsonConceptDrugs.add(jsonDrug);
 			}
 			
