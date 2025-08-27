@@ -251,7 +251,7 @@
     orderWidget.constructOrderForm = function($sectionToAppendTo, idSuffix, config, action, $actionButton) {
 
         // Clone the order form template, ensuring ids and names of widgets are configured for this specific orderable
-        var $orderForm = $('#' + config.fieldName + '_template').clone();
+        var $orderForm = $('#' + config.fieldName + '_template').clone(true);
         $orderForm.find("[id]").add($orderForm).each(function () {
             this.id = this.id + idSuffix;
         });

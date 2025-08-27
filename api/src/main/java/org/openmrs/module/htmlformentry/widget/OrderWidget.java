@@ -1,16 +1,5 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,6 +8,7 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugIngredient;
 import org.openmrs.DrugOrder;
+import org.openmrs.Duration;
 import org.openmrs.OpenmrsMetadata;
 import org.openmrs.OpenmrsObject;
 import org.openmrs.Order;
@@ -34,6 +24,17 @@ import org.openmrs.module.htmlformentry.schema.OrderField;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.JsonObject;
 import org.openmrs.util.OpenmrsUtil;
+
+import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class OrderWidget implements Widget {
 	
@@ -173,15 +174,24 @@ public class OrderWidget implements Widget {
 		}
 		
 		List<JsonObject> orderFrequencyArray = jsonConfig.getObjectArray("orderFrequencies");
-		for (OrderFrequency orderFrequency : widgetConfig.getOrderFrequencies()) {
+		for (OrderFrequency frequency : widgetConfig.getOrderFrequencies()) {
 			JsonObject jsonFrequency = new JsonObject();
-			jsonFrequency.addString("id", orderFrequency.getOrderFrequencyId().toString());
-			jsonFrequency.addString("name", orderFrequency.getName());
-			jsonFrequency.addString("conceptId", orderFrequency.getConcept().getConceptId().toString());
-			jsonFrequency.addString("frequencyPerDay",
-			    orderFrequency.getFrequencyPerDay() == null ? "" : orderFrequency.getFrequencyPerDay().toString());
+			jsonFrequency.addString("id", frequency.getOrderFrequencyId().toString());
+			jsonFrequency.addString("name", frequency.getName());
+			jsonFrequency.addString("conceptId", frequency.getConcept().getConceptId().toString());
+			Double perDay = frequency.getFrequencyPerDay();
+			jsonFrequency.addString("frequencyPerDay", perDay == null ? "" : perDay.toString());
 			orderFrequencyArray.add(jsonFrequency);
 		}
+		
+		List<JsonObject> durations = jsonConfig.getObjectArray("durations");
+		addDurationToJsonObject(durations, "seconds", Duration.SNOMED_CT_SECONDS_CODE);
+		addDurationToJsonObject(durations, "minutes", Duration.SNOMED_CT_MINUTES_CODE);
+		addDurationToJsonObject(durations, "hours", Duration.SNOMED_CT_HOURS_CODE);
+		addDurationToJsonObject(durations, "days", Duration.SNOMED_CT_DAYS_CODE);
+		addDurationToJsonObject(durations, "weeks", Duration.SNOMED_CT_WEEKS_CODE);
+		addDurationToJsonObject(durations, "months", Duration.SNOMED_CT_MONTHS_CODE);
+		addDurationToJsonObject(durations, "years", Duration.SNOMED_CT_YEARS_CODE);
 		
 		List<JsonObject> historyArray = jsonConfig.getObjectArray("history");
 		List<JsonObject> conceptArray = jsonConfig.getObjectArray("concepts");
@@ -286,6 +296,17 @@ public class OrderWidget implements Widget {
 			}
 		}
 		return jsonConfig;
+	}
+	
+	protected void addDurationToJsonObject(List<JsonObject> durations, String key, String snomedCtCode) {
+		Concept c = HtmlFormEntryUtil.getConcept(Duration.SNOMED_CT_CONCEPT_SOURCE_HL7_CODE + ":" + snomedCtCode);
+		if (c != null && c.getConceptId() != null) {
+			JsonObject durationObject = new JsonObject();
+			durationObject.addString("conceptId", c.getConceptId().toString());
+			durationObject.addString("code", key);
+			durationObject.addString("sctCode", snomedCtCode);
+			durations.add(durationObject);
+		}
 	}
 	
 	public void addToJsonObject(JsonObject jho, String property, Object propertyValue) {
