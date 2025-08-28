@@ -23,8 +23,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
  */
 public class CompleteProgramTagTest extends BaseHtmlFormEntryTest {
 	
-	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc",
-	        "1.3.4");
+	private static Module module = new Module("metadatamapping", "metadatamapping", "packageName", "author", "desc", "1.3.4",
+	        "");
 	
 	@Before
 	public void loadConcepts() throws Exception {

@@ -61,13 +61,13 @@ public class ComplexObsTagTest extends BaseHtmlFormEntryTest {
 				Encounter e = results.getEncounterCreated();
 				Assert.assertNotNull(e);
 				
-				List<Obs> obs = new ArrayList<Obs>(e.getAllObs());
+				List<Obs> obs = new ArrayList<>(e.getAllObs());
 				Assert.assertThat(obs.size(), is(1));
 				
 				Obs o = obs.get(0);
 				String valueComplex = o.getValueComplex();
-				Assert.assertTrue(valueComplex.startsWith("png image |test-image"));
-				Assert.assertTrue(valueComplex.endsWith(".png"));
+				Assert.assertTrue(valueComplex.startsWith("png image |complex_obs"));
+				Assert.assertTrue(valueComplex.endsWith("test-image.png"));
 			}
 			
 		}.run();

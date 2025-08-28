@@ -1,12 +1,14 @@
 package org.openmrs.module.htmlformentry.element;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.openmrs.Concept;
 import org.openmrs.ConceptClass;
@@ -28,9 +30,6 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.RadioButtonsWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import java.util.List;
@@ -43,15 +42,13 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
-@PowerMockIgnore("javax.management.*")
+@RunWith(MockitoJUnitRunner.class)
 public class ConditionElementTest {
 	
 	private ConditionElement element;
@@ -89,33 +86,24 @@ public class ConditionElementTest {
 	
 	private FormSubmissionActions actions = new FormSubmissionActions();
 	
+	private MockedStatic<Context> mockedContext;
+	
 	@Before
 	public void setup() {
 		// Stub services
-		mockStatic(Context.class);
+		mockedContext = mockStatic(Context.class);
 		when(Context.getConditionService()).thenReturn(conditionService);
 		when(Context.getMessageSourceService()).thenReturn(messageSourceService);
 		when(Context.getConceptService()).thenReturn(conceptService);
 		when(Context.getAdministrationService()).thenReturn(adminService);
 		
-		doAnswer(new Answer<Concept>() {
-			
-			@Override
-			public Concept answer(InvocationOnMock invocation) throws Throwable {
-				return new Concept((Integer) invocation.getArguments()[0]);
-			}
-			
-		}).when(conceptService).getConcept(any(Integer.class));
+		doAnswer((Answer<Concept>) invocation -> new Concept((Integer) invocation.getArguments()[0])).when(conceptService)
+		        .getConcept(any(Integer.class));
 		
-		doAnswer(new Answer<ConceptClass>() {
-			
-			@Override
-			public ConceptClass answer(InvocationOnMock invocation) throws Throwable {
-				ConceptClass conceptClass = new ConceptClass();
-				conceptClass.setName((String) invocation.getArguments()[0]);
-				return conceptClass;
-			}
-			
+		doAnswer((Answer<ConceptClass>) invocation -> {
+			ConceptClass conceptClass = new ConceptClass();
+			conceptClass.setName((String) invocation.getArguments()[0]);
+			return conceptClass;
 		}).when(conceptService).getConceptClassByName(any(String.class));
 		
 		// Setup html form session context
@@ -133,6 +121,11 @@ public class ConditionElementTest {
 		element.setAdditionalDetailWidget(additionalDetailWidget);
 		encounter = session.getEncounter();
 		element.setTagControlId("my_condition_tag");
+	}
+	
+	@After
+	public void teardown() {
+		mockedContext.close();
 	}
 	
 	@Test
@@ -252,10 +245,6 @@ public class ConditionElementTest {
 	
 	@Test
 	public void handleSubmission_shouldNotSubmitTagWithPresetConceptAndWithoutStatus() {
-		
-		// Mock condition search widget
-		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
-		
 		// Test
 		element.setPresetConcept(new Concept());
 		element.handleSubmission(session, request);
@@ -310,11 +299,6 @@ public class ConditionElementTest {
 	
 	@Test
 	public void generateHtml_shouldThrowWhenMultipleConditionsWithSameControlId() {
-		// setup
-		when(conditionSearchWidget.getValue(context, request)).thenReturn("1519");
-		when(conditionStatusesWidget.getValue(context, request)).thenReturn("active");
-		when(context.getMode()).thenReturn(Mode.VIEW);
-		
 		// an encounter with two conditions located with the same control id
 		Encounter encounter = new Encounter();
 		Condition c1 = new Condition();
@@ -329,7 +313,6 @@ public class ConditionElementTest {
 		Form form = new Form();
 		form.setName("MyForm");
 		form.setVersion("1.0");
-		when(session.getForm()).thenReturn(form);
 		
 		// replay
 		assertThrows(IllegalStateException.class, () -> element.generateHtml(context));

@@ -19,26 +19,21 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
-@PowerMockIgnore("javax.management.*")
 public class NumberFieldWidgetTest {
 	
 	FormEntryContext context;
@@ -49,6 +44,8 @@ public class NumberFieldWidgetTest {
 	
 	NumberFieldWidget integerWidget;
 	
+	private MockedStatic<Context> mockedContext;
+	
 	@Before
 	public void setUp() throws Exception {
 		context = mock(FormEntryContext.class);
@@ -56,13 +53,18 @@ public class NumberFieldWidgetTest {
 		when(context.isClientSideValidationHints()).thenReturn(true);
 		
 		messageSourceService = mock(MessageSourceService.class);
-		mockStatic(Context.class);
-		when(Context.getMessageSourceService()).thenReturn(messageSourceService);
+		mockedContext = mockStatic(Context.class);
+		mockedContext.when(Context::getMessageSourceService).thenReturn(messageSourceService);
 		
 		doubleWidget = new NumberFieldWidget(null, null, true);
 		integerWidget = new NumberFieldWidget(null, null, false);
 		when(context.getFieldName(doubleWidget)).thenReturn("doubleWidget");
 		when(context.getFieldName(integerWidget)).thenReturn("integerWidget");
+	}
+	
+	@After
+	public void tearDown() {
+		mockedContext.close();
 	}
 	
 	@Test
