@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>htmlformentry</artifactId>
-		<version>6.0.0-SNAPSHOT</version>
+		<version>6.0.0</version>
 	</parent>
 
 	<artifactId>htmlformentry-api</artifactId>
