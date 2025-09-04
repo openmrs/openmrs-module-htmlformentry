@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    This Source Code Form is subject to the terms of the Mozilla Public License,
+    v. 2.0. If a copy of the MPL was not distributed with this file, You can
+    obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+    the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+
+    Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+    graphic logo is a trademark of OpenMRS Inc.
+
+-->
+
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
+	<Properties>
+		<!-- The default pattern is stored as a property so that it's only defined once.
+		     It's also quite challenging to escape using Log4j2's variable substitution. -->
+		<Property name="defaultPattern">%p - %C{1}.%M(%L) |%d{ISO8601}| %m%n</Property>
+	</Properties>
+	<Appenders>
+		<!-- the console appender is not required but usually a good idea -->
+		<Console name="CONSOLE" target="SYSTEM_OUT">
+			<PatternLayout pattern="${openmrs:logLayout:-${defaultPattern}}" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="org.openmrs.module.htmlformentry" level="INFO" />
+		<Logger name="org.springframework" additivity="false" level="WARN" />
+		<Logger name="org.hibernate" additivity="false" level="ERROR" />
+		<Root level="WARN">
+			<AppenderRef ref="CONSOLE" />
+		</Root>
+	</Loggers>
+</Configuration>

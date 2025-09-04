@@ -1,0 +1,14 @@
+<htmlform
+		formUuid="a4096adf-89b0-11f0-bfe8-827b4c299cbd"
+		formName="Form with Subforms"
+		formVersion="1.0"
+		formPublished="true"
+		formEncounterType="61ae96f4-6afe-4351-b6f8-cd4fc383cce1"
+		htmlformUuid="c0cee7e3-89b0-11f0-bfe8-827b4c299cbd"
+>
+	Date: <encounterDate/>
+	Location: <encounterLocation/>
+	Provider: <encounterProvider role="Provider"/>
+	<subform htmlformUuid="8dee49b5-89a9-11f0-bfe8-827b4c299cbd"/>
+	<submit/>
+</htmlform>

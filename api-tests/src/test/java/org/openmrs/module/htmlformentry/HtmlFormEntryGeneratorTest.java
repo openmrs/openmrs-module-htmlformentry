@@ -1,5 +1,6 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,8 +8,17 @@ import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.Verifies;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
+
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
+	
+	@Autowired
+	HtmlFormEntryService htmlFormEntryService;
 	
 	private Patient patient = null;
 	
@@ -368,5 +378,38 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	String removeWhiteSpaces(String input) {
 		return input.replaceAll("\\s+", "");
+	}
+	
+	@Test
+	public void processSubforms_shouldLoadSubforms() throws Exception {
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms1.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		HtmlForm subform = htmlFormEntryService.saveHtmlFormFromXml(subformXml);
+		Assert.assertNotNull(form);
+		Assert.assertNotNull(subform);
+	}
+	
+	@Test
+	public void processSubforms_shouldIncludeSubformXml() throws Exception {
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms1.xml");
+		htmlFormEntryService.saveHtmlFormFromXml(subformXml);
+		htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		System.out.println(processedFormXml);
+		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
+		Assert.assertTrue(processedFormXml.contains("id=\"subform-8dee49b5-89a9-11f0-bfe8-827b4c299cbd\""));
+		Assert.assertTrue(processedFormXml.contains("class=\"subform\""));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
+	}
+	
+	private String getFormXml(String resourcePath) throws Exception {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+			return IOUtils.toString(Objects.requireNonNull(in), StandardCharsets.UTF_8);
+		}
 	}
 }
