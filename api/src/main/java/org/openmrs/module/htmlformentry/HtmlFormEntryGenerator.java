@@ -1,5 +1,20 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openmrs.Role;
+import org.openmrs.User;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
+import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -13,25 +28,14 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.openmrs.Role;
-import org.openmrs.User;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
-import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
-import org.openmrs.module.htmlformentry.handler.TagHandler;
-import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 /**
  * Provides methods to take a {@code <htmlform>...</htmlform>} xml block and turns it into HTML to
  * be displayed as a form in a web browser. It can apply the {@code <macros>...</macros>} section,
  * and replace tags like {@code <obs/>}.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
+	
+	public static Log log = LogFactory.getLog(HtmlFormEntryGenerator.class);
 	
 	/**
 	 * @see #applyMacros(FormEntrySession, String) This method simply delegates to the
@@ -429,6 +433,48 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			
 		}
 		
+		return xml;
+	}
+	
+	/**
+	 * Processes tags on the form with this syntax: <subform htmlformUuid="html-form-uuid"/> and
+	 * replaces it with the xmlData of the form with this uuid that is within the htmlform tag,
+	 * replacing this tag with the contents of the htmlform tag within the referenced htmlform, where
+	 * the htmlform tag is replace with a div of class subform and with id=subform-uuid-of-html-form
+	 */
+	public String processSubforms(String xml) throws Exception {
+		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
+		NodeList nodesToReplace = doc.getElementsByTagName("subform");
+		if (nodesToReplace.getLength() > 0) {
+			for (int i = 0; i < nodesToReplace.getLength(); i++) {
+				Node subformTagNode = nodesToReplace.item(i);
+				Node parentNode = subformTagNode.getParentNode();
+				if (parentNode != null) {
+					String formUuid = HtmlFormEntryUtil.getNodeAttribute(subformTagNode, "htmlformUuid", null);
+					if (formUuid == null) {
+						throw new IllegalArgumentException(
+						        "All <subform> elements must contain a <htmlformUuid> attribute.");
+					}
+					log.debug("Replacing subform tag with form contents: " + formUuid);
+					HtmlForm subform = Context.getService(HtmlFormEntryService.class).getHtmlFormByUuid(formUuid);
+					if (subform == null) {
+						String message = "Subform cannot be processed, no htmlform found with uuid: " + formUuid;
+						throw new IllegalArgumentException(message);
+					}
+					String subformXml = subform.getXmlData().trim();
+					log.trace("Subform xml " + subformXml);
+					subformXml = processSubforms(subformXml);
+					subformXml = subformXml.replaceAll(
+					    "(?s)<htmlform(?:\\s+[a-zA-Z_:][\\w:.-]*\\s*=\\s*(?:\"[^\"]*\"|'[^']*'))*>(.*?)</htmlform>",
+					    "<div id=\"subform-" + formUuid + "\" class=\"subform\">$1</div>");
+					log.trace("Processed xml " + subformXml);
+					Document subformDocument = HtmlFormEntryUtil.stringToDocument(subformXml);
+					Node subformContentsNode = doc.importNode(subformDocument.getFirstChild(), true);
+					parentNode.replaceChild(subformContentsNode, subformTagNode);
+				}
+			}
+			xml = HtmlFormEntryUtil.documentToString(doc);
+		}
 		return xml;
 	}
 	

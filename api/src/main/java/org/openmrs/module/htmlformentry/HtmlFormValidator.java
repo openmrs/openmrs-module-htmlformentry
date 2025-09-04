@@ -79,6 +79,7 @@ public class HtmlFormValidator implements Validator {
 				xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
 				xml = htmlGenerator.applyRoleRestrictions(xml);
 				xml = htmlGenerator.applyMacros(session, xml);
+				xml = htmlGenerator.processSubforms(xml);
 				xml = htmlGenerator.applyRepeats(xml);
 				Document document = HtmlFormEntryUtil.stringToDocument(xml);
 				validateTags(document, errors, null);

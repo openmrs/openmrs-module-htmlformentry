@@ -429,6 +429,7 @@ public class FormEntrySession {
 		xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
 		xml = htmlGenerator.applyRoleRestrictions(xml);
 		xml = htmlGenerator.applyMacros(this, xml);
+		xml = htmlGenerator.processSubforms(xml);
 		xml = htmlGenerator.processPages(this, xml);
 		xml = htmlGenerator.applyRepeats(xml);
 		xml = htmlGenerator.applyTranslations(xml, context);

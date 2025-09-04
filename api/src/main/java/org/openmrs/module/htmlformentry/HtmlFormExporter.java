@@ -91,6 +91,7 @@ public class HtmlFormExporter {
 		
 		try {
 			xml = generator.applyMacros(xml);
+			xml = generator.processSubforms(xml);
 			xml = generator.applyRepeats(xml);
 		}
 		catch (Exception e) {
