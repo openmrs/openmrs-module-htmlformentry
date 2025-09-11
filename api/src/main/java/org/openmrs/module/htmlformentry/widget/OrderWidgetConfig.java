@@ -21,7 +21,7 @@ public class OrderWidgetConfig {
 	
 	private OrderField orderField;
 	
-	private Map<String, String> attributes;
+	private Map<String, String> attributes = new HashMap<>();
 	
 	private Map<String, String> templateAttributes;
 	
