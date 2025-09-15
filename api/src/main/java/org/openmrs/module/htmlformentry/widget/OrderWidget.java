@@ -148,6 +148,7 @@ public class OrderWidget implements Widget {
 		}
 		
 		jsonConfig.put("orderPropertyAttributes", widgetConfig.getOrderPropertyAttributes());
+		jsonConfig.put("orderPropertyOptions", widgetConfig.getOrderPropertyOptions());
 		
 		// In order to re-configure date widgets, add some additional configuration
 		DateWidget w = (DateWidget) widgets.getOrDefault("dateActivated", new DateWidget());
