@@ -318,7 +318,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String stripComments(String xml) throws Exception {
 		
 		String regex = "<!\\s*--.*?--\\s*>"; // this is the regEx for html comment tag <!-- .* -->
-		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 		
 		Matcher matcher = pattern.matcher(xml);
 		xml = matcher.replaceAll("");
