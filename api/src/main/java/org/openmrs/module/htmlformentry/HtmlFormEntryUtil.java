@@ -443,11 +443,9 @@ public class HtmlFormEntryUtil {
 	public static Map<String, String> getNodeAttributes(Node node) {
 		Map<String, String> ret = new HashMap<String, String>();
 		NamedNodeMap atts = node.getAttributes();
-		if (atts != null) {
-			for (int i = 0; i < atts.getLength(); i++) {
-				Node attribute = atts.item(i);
-				ret.put(attribute.getNodeName(), attribute.getNodeValue());
-			}
+		for (int i = 0; i < atts.getLength(); i++) {
+			Node attribute = atts.item(i);
+			ret.put(attribute.getNodeName(), attribute.getNodeValue());
 		}
 		return ret;
 	}

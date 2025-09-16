@@ -447,7 +447,6 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		Assert.assertNotNull(form);
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
-		System.out.println(processedFormXml);
 		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
 		Assert.assertFalse(processedFormXml.contains("Weight:"));
 		Assert.assertTrue(processedFormXml.contains("Weight Kgs:"));

@@ -424,10 +424,10 @@ public class FormEntrySession {
 			context.getSchema().setName(htmlForm.getName());
 			context.setUnmatchedMode(false);
 		}
-		xml = htmlGenerator.processSubforms(xml);
 		xml = htmlGenerator.substituteCharacterCodesWithAsciiCodes(xml);
 		xml = htmlGenerator.stripComments(xml);
 		xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
+		xml = htmlGenerator.processSubforms(xml);
 		xml = htmlGenerator.applyRoleRestrictions(xml);
 		xml = htmlGenerator.applyMacros(this, xml);
 		xml = htmlGenerator.processPages(this, xml);

@@ -478,6 +478,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 						subformXml = "<script type=\"text/javascript\">" + subformXml + "</script>";
 					} else if (formPath.toLowerCase().endsWith(".css")) {
 						subformXml = "<style>" + subformXml + "</style>";
+					} else {
+						// Apply the same rules to the loaded subform that have already been applied to the overall document
+						subformXml = substituteCharacterCodesWithAsciiCodes(subformXml);
+						subformXml = stripComments(subformXml);
+						subformXml = convertSpecialCharactersWithinLogicAndVelocityTests(subformXml);
 					}
 					
 					// Recursively process the loaded xml to enable subforms to contain subforms
@@ -539,9 +544,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			}
 			for (int i = 0; i < potentialNodeToReplace.getChildNodes().getLength(); i++) {
 				Node childNode = potentialNodeToReplace.getChildNodes().item(i);
-				boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, nodeReplacement);
-				if (childReplaced) {
-					replaced = true;
+				if (childNode.hasAttributes()) {
+					boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, nodeReplacement);
+					if (childReplaced) {
+						replaced = true;
+					}
 				}
 			}
 		}
