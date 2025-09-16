@@ -101,6 +101,18 @@ public class OrderTagHandler extends AbstractTagHandler {
 		return Collections.unmodifiableList(attributeDescriptors);
 	}
 	
+	protected OrderField createOrderField() {
+		return new OrderField();
+	}
+	
+	protected OrderWidget createOrderWidget(FormEntryContext context, OrderWidgetConfig widgetConfig) {
+		return new OrderWidget(context, widgetConfig);
+	}
+	
+	protected OrderWidgetConfig createOrderWidgetConfig() {
+		return new OrderWidgetConfig();
+	}
+	
 	/**
 	 * Process a <order> tag, and nested tags
 	 */
@@ -109,10 +121,10 @@ public class OrderTagHandler extends AbstractTagHandler {
 		
 		log.trace("OrderTagHandler - started");
 		FormEntryContext context = session.getContext();
-		OrderField orderField = new OrderField();
-		OrderWidgetConfig widgetConfig = new OrderWidgetConfig();
+		OrderField orderField = createOrderField();
+		OrderWidgetConfig widgetConfig = createOrderWidgetConfig();
 		widgetConfig.setOrderField(orderField);
-		widgetConfig.setAttributes(getAttributes(node));
+		widgetConfig.getAttributes().putAll(getAttributes(node));
 		
 		// <order>
 		log.trace("OrderTagHandler - loading order tag elements and attributes");
@@ -155,11 +167,11 @@ public class OrderTagHandler extends AbstractTagHandler {
 			processDosingTypeOptions(widgetConfig);
 			processConceptOptions(widgetConfig, "durationUnits");
 			processConceptOptions(widgetConfig, "quantityUnits");
+			ensureConceptAndDrugOptionsAreConsistent(widgetConfig);
 		}
-		ensureConceptAndDrugOptionsAreConsistent(widgetConfig);
 		
 		log.trace("OrderTagHandler - constructing order widget");
-		OrderWidget orderWidget = new OrderWidget(context, widgetConfig);
+		OrderWidget orderWidget = createOrderWidget(context, widgetConfig);
 		
 		log.trace("OrderTagHandler - constructing order submission element");
 		OrderSubmissionElement element = new OrderSubmissionElement(context, orderWidget);

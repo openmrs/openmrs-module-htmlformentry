@@ -536,6 +536,7 @@
         $orderForm.find('.order-field-widget.order-orderReasonNonCoded').find(':input').val(order.orderReasonNonCoded.value);
         $orderForm.find('.order-field-widget.order-careSetting').find(':input').val(order.careSetting.value);
         $orderForm.find('.order-field-widget.order-instructions').find(':input').val(order.instructions.value);
+        $orderForm.find('.order-field-widget.order-urgency').find('input[type="radio"][value="' + order.urgency.value + '"]').attr('checked', 'true');
         if (order.isDrugOrder === 'true') {
             $orderForm.find('.order-field-widget.order-drug').find(':input').val(order.drug.value);
             $orderForm.find('.order-field-widget.order-drugNonCoded').find(':input').val(order.drugNonCoded.value);
