@@ -428,7 +428,28 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
 		Assert.assertEquals(2, document.getElementsByTagName("obs").getLength());
 		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
-		System.out.println(HtmlFormEntryUtil.documentToString(document));
+	}
+
+	@Test
+	public void processSubforms_shouldSupportParameterizingSubforms() throws Exception {
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/formWithParameterizedSubform.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/parameterizableSubform.xml");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "formWithParameterizedSubform.xml"), formXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "parameterizableSubform.xml"), subformXml, "UTF-8");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		Assert.assertNotNull(form);
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		System.out.println(processedFormXml);
+		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
+		Assert.assertFalse(processedFormXml.contains("Weight:"));
+		Assert.assertTrue(processedFormXml.contains("Weight Kgs:"));
+		Assert.assertFalse(processedFormXml.contains("<obs conceptId=\"5089\"/>"));
+		Assert.assertTrue(processedFormXml.contains("<obs conceptId=\"5089\" showUnits=\"true\"/>"));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("obs").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
 	}
 
 	private String getFormXml(String resourcePath) throws Exception {

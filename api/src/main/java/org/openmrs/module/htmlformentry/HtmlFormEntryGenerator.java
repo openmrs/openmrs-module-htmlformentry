@@ -476,16 +476,61 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					// Recursively process the loaded xml to enable subforms to contain subforms
 					subformXml = processSubforms(subformXml);
 
-					// Load the subform contents as xml and insert into the source document
+					// Load the subform contents as xml
 					Document subformDocument = HtmlFormEntryUtil.stringToDocument(subformXml);
+
+					// If the subform tag has nested replacement nodes, apply these to the subform document
+					if (subformTagNode.getChildNodes().getLength() > 0) {
+						for (int i=0; i < subformTagNode.getChildNodes().getLength() ; i++) {
+							Node subformChildNode = subformTagNode.getChildNodes().item(i);
+							if (subformChildNode.hasAttributes()) {
+								String sourceNodeId = HtmlFormEntryUtil.getNodeAttribute(subformChildNode, "id", null);
+								if (StringUtils.isBlank(sourceNodeId)) {
+									throw new BadFormDesignException("Children of subform elements must have an id attribute.");
+								}
+								log.debug("Replacing subform contents for id: " + sourceNodeId);
+								boolean replaced = applyReplacementByIdInSubform(subformDocument, subformDocument.getFirstChild(), subformChildNode);
+								if (!replaced) {
+									throw new BadFormDesignException("Unable to apply replacement for id: " + sourceNodeId);
+								}
+							}
+						}
+					}
+
+					//  Insert the subform into the source document, replacing the subform tag node
 					Node subformContentsNode = doc.importNode(subformDocument.getFirstChild(), true);
 					parentNode.replaceChild(subformContentsNode, subformTagNode);
+
 					nodesToReplace = doc.getElementsByTagName("subform");
 				}
 			}
 			xml = HtmlFormEntryUtil.documentToString(doc);
 		}
 		return xml;
+	}
+
+	/**
+	 * Any direct child of the tag with an id element will replace any element with that id
+	 * @return true if any replacements are made, false otherwise
+	 */
+	private boolean applyReplacementByIdInSubform(Document subformDocument, Node potentialNodeToReplace, Node nodeReplacement) {
+		String sourceNodeId = HtmlFormEntryUtil.getNodeAttribute(nodeReplacement, "id", null);
+		if (StringUtils.isNotBlank(sourceNodeId)) {
+			String targetNodeId = HtmlFormEntryUtil.getNodeAttribute(potentialNodeToReplace, "id", null);
+			if (sourceNodeId.equals(targetNodeId)) {
+				Node importedReplacement = subformDocument.importNode(nodeReplacement, true);
+				potentialNodeToReplace.getParentNode().replaceChild(importedReplacement, potentialNodeToReplace);
+				return true;
+			}
+			for (int i=0; i < potentialNodeToReplace.getChildNodes().getLength() ; i++) {
+				Node childNode = potentialNodeToReplace.getChildNodes().item(i);
+				boolean replaced = applyReplacementByIdInSubform(subformDocument, childNode, nodeReplacement);
+				if (replaced) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private void loadRenderElementsForEachRepeatElement(Node node, List<List<Map<String, String>>> renderMaps)
