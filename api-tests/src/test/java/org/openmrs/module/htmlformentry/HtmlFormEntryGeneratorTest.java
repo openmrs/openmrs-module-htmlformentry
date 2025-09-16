@@ -256,9 +256,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
-		
-		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
-		    returnedXml);
+		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
 	}
 	
 	/**
@@ -270,9 +268,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String htmlform = "<htmlform><section><!--\r\n<repeat><template></template><render/></repeat>\r\n--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
-		
-		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
-		    returnedXml);
+		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
 	}
 	
 	/**
