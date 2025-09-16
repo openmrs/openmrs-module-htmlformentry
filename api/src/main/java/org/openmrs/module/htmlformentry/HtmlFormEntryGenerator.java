@@ -512,7 +512,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	}
 
 	/**
-	 * Any direct child of the tag with an id element will replace any element with that id
+	 * Any direct child of the tag with an id element will replace the first located element with that id
 	 * @return true if any replacements are made, false otherwise
 	 */
 	private boolean applyReplacementByIdInSubform(Document subformDocument, Node potentialNodeToReplace, Node nodeReplacement) {
