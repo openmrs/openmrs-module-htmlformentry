@@ -260,7 +260,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
 		    returnedXml);
 	}
-
+	
 	/**
 	 * @see {@link HtmlFormEntryGenerator#stripComments(String)}
 	 * @verifies filters out all the comments in the input string
@@ -270,9 +270,9 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String htmlform = "<htmlform><section><!--\r\n<repeat><template></template><render/></repeat>\r\n--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
-
+		
 		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
-				returnedXml);
+		    returnedXml);
 	}
 	
 	/**
