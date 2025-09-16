@@ -540,9 +540,9 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				potentialNodeToReplace.getParentNode().replaceChild(importedReplacement, potentialNodeToReplace);
 				replaced = true;
 			}
-			for (int i = 0; i < potentialNodeToReplace.getChildNodes().getLength(); i++) {
-				Node childNode = potentialNodeToReplace.getChildNodes().item(i);
-				if (childNode.hasAttributes()) {
+			else {
+				for (int i = 0; i < potentialNodeToReplace.getChildNodes().getLength(); i++) {
+					Node childNode = potentialNodeToReplace.getChildNodes().item(i);
 					boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, nodeReplacement);
 					if (childReplaced) {
 						replaced = true;
