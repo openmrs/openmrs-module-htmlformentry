@@ -37,9 +37,15 @@ import java.util.regex.Pattern;
  * and replace tags like {@code <obs/>}.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
-
+	
 	private static final Logger log = LoggerFactory.getLogger(HtmlFormEntryGenerator.class);
-
+	
+	public static final String SUBFORM = "subform";
+	
+	public static final String PATH = "path";
+	
+	public static final String SUBFORM_PARAMETER = "subform-parameter";
+	
 	/**
 	 * @see #applyMacros(FormEntrySession, String) This method simply delegates to the
 	 *      applyMacros(FormEntrySession, String) method with a null FormEntry session. This is retained
@@ -438,28 +444,27 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		
 		return xml;
 	}
-
+	
 	/**
-	 * Processes tags on the form with this syntax: <subform path="path/to/subform"/> and
-	 * replaces it with the contents of the file located at this path.
-	 * There are 3 file types supported:
-	 *  - If the file has a ".js" extension, then the contents are wrapped in a script tag
-	 *  - If the file has a ".css" extension, then the contents are wrapped in a style tag
-	 *  - Otherwise the file in assumed to be xml and is loaded as xml
-	 *  Subform tags may include nested tags, which can serve to override sections in the reference subform.
-	 *  Any top-level tag with an id attribute will replace any element in the reference subform with the same id attribute
+	 * Processes tags on the form with this syntax: <subform path="path/to/subform"/> and replaces it
+	 * with the contents of the file located at this path. There are 3 file types supported: - If the
+	 * file has a ".js" extension, then the contents are wrapped in a script tag - If the file has a
+	 * ".css" extension, then the contents are wrapped in a style tag - Otherwise the file in assumed to
+	 * be xml and is loaded as xml Subform tags may include nested tags, which can serve to override
+	 * sections in the reference subform. Any top-level tag with a subform-parameter attribute will
+	 * replace any element in the reference subform with the same subform-parameter attribute
 	 */
 	public String processSubforms(String xml) throws Exception {
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
-		NodeList nodesToReplace = doc.getElementsByTagName("subform");
+		NodeList nodesToReplace = doc.getElementsByTagName(SUBFORM);
 		if (nodesToReplace.getLength() > 0) {
 			while (nodesToReplace.getLength() > 0) {
 				Node subformTagNode = nodesToReplace.item(0);
 				Node parentNode = subformTagNode.getParentNode();
 				if (parentNode != null) {
-					String formPath = HtmlFormEntryUtil.getNodeAttribute(subformTagNode, "path", null);
+					String formPath = HtmlFormEntryUtil.getNodeAttribute(subformTagNode, PATH, null);
 					if (formPath == null) {
-						throw new IllegalArgumentException("All <subform> elements must contain a 'path' attribute.");
+						throw new IllegalArgumentException("All subform elements must contain a " + PATH + " attribute.");
 					}
 					log.debug("Replacing subform tag with contents of file at: " + formPath);
 					File subform = new File(OpenmrsUtil.getApplicationDataDirectory(), formPath);
@@ -467,76 +472,83 @@ public class HtmlFormEntryGenerator implements TagHandler {
 						throw new IllegalArgumentException("Subform cannot be processed, no file found at: " + formPath);
 					}
 					String subformXml = FileUtils.readFileToString(subform, "UTF-8").trim();
-
+					
 					// If the loaded contents are javascript or css, wrap these in the appropriate xml tags
 					if (formPath.toLowerCase().endsWith(".js")) {
 						subformXml = "<script type=\"text/javascript\">" + subformXml + "</script>";
 					} else if (formPath.toLowerCase().endsWith(".css")) {
 						subformXml = "<style>" + subformXml + "</style>";
 					}
-
+					
 					// Recursively process the loaded xml to enable subforms to contain subforms
 					subformXml = processSubforms(subformXml);
-
+					
 					// Load the subform contents as xml
 					Document subformDocument = HtmlFormEntryUtil.stringToDocument(subformXml);
-
+					
 					// If the subform tag has nested replacement nodes, apply these to the subform document
 					if (subformTagNode.getChildNodes().getLength() > 0) {
-						for (int i=0; i < subformTagNode.getChildNodes().getLength() ; i++) {
+						for (int i = 0; i < subformTagNode.getChildNodes().getLength(); i++) {
 							Node subformChildNode = subformTagNode.getChildNodes().item(i);
 							if (subformChildNode.hasAttributes()) {
-								String sourceNodeId = HtmlFormEntryUtil.getNodeAttribute(subformChildNode, "id", null);
-								if (StringUtils.isBlank(sourceNodeId)) {
-									throw new BadFormDesignException("Children of subform elements must have an id attribute.");
+								String sourceNodeParam = HtmlFormEntryUtil.getNodeAttribute(subformChildNode,
+								    SUBFORM_PARAMETER, null);
+								if (StringUtils.isBlank(sourceNodeParam)) {
+									throw new BadFormDesignException(
+									        "Children of subform elements must have a " + SUBFORM_PARAMETER + " attribute.");
 								}
-								log.debug("Replacing subform contents for id: " + sourceNodeId);
-								boolean replaced = applyReplacementByIdInSubform(subformDocument, subformDocument.getFirstChild(), subformChildNode);
+								log.debug("Replacing subform contents for selector: " + sourceNodeParam);
+								boolean replaced = applyReplacementInSubform(subformDocument,
+								    subformDocument.getFirstChild(), subformChildNode);
 								if (!replaced) {
-									throw new BadFormDesignException("Unable to apply replacement for id: " + sourceNodeId);
+									throw new BadFormDesignException(
+									        "Unable to apply replacement for selector: " + sourceNodeParam);
 								}
 							}
 						}
 					}
-
+					
 					//  Insert the subform into the source document, replacing the subform tag node
 					Node subformContentsNode = doc.importNode(subformDocument.getFirstChild(), true);
 					parentNode.replaceChild(subformContentsNode, subformTagNode);
-
-					nodesToReplace = doc.getElementsByTagName("subform");
+					
+					nodesToReplace = doc.getElementsByTagName(SUBFORM);
 				}
 			}
 			xml = HtmlFormEntryUtil.documentToString(doc);
 		}
 		return xml;
 	}
-
+	
 	/**
-	 * Any direct child of the tag with an id element will replace the first located element with that id
+	 * Any direct child of the tag with a subform-selector attribute will replace any located element
+	 * with that attribute
+	 * 
 	 * @return true if any replacements are made, false otherwise
 	 */
-	private boolean applyReplacementByIdInSubform(Document subformDocument, Node potentialNodeToReplace, Node nodeReplacement) {
-		String sourceNodeId = HtmlFormEntryUtil.getNodeAttribute(nodeReplacement, "id", null);
-		if (StringUtils.isNotBlank(sourceNodeId)) {
-			String targetNodeId = HtmlFormEntryUtil.getNodeAttribute(potentialNodeToReplace, "id", null);
-			if (sourceNodeId.equals(targetNodeId)) {
+	private boolean applyReplacementInSubform(Document subformDocument, Node potentialNodeToReplace, Node nodeReplacement) {
+		boolean replaced = false;
+		String sourceNodeSelector = HtmlFormEntryUtil.getNodeAttribute(nodeReplacement, SUBFORM_PARAMETER, null);
+		if (StringUtils.isNotBlank(sourceNodeSelector)) {
+			String targetNodeSelector = HtmlFormEntryUtil.getNodeAttribute(potentialNodeToReplace, SUBFORM_PARAMETER, null);
+			if (sourceNodeSelector.equals(targetNodeSelector)) {
+				nodeReplacement.getAttributes().removeNamedItem(SUBFORM_PARAMETER);
 				Node importedReplacement = subformDocument.importNode(nodeReplacement, true);
 				potentialNodeToReplace.getParentNode().replaceChild(importedReplacement, potentialNodeToReplace);
-				return true;
+				replaced = true;
 			}
-			for (int i=0; i < potentialNodeToReplace.getChildNodes().getLength() ; i++) {
+			for (int i = 0; i < potentialNodeToReplace.getChildNodes().getLength(); i++) {
 				Node childNode = potentialNodeToReplace.getChildNodes().item(i);
-				boolean replaced = applyReplacementByIdInSubform(subformDocument, childNode, nodeReplacement);
-				if (replaced) {
-					return true;
+				boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, nodeReplacement);
+				if (childReplaced) {
+					replaced = true;
 				}
 			}
 		}
-		return false;
+		return replaced;
 	}
 	
-	private void loadRenderElementsForEachRepeatElement(Node node, List<List<Map<String, String>>> renderMaps)
-	        throws Exception {
+	private void loadRenderElementsForEachRepeatElement(Node node, List<List<Map<String, String>>> renderMaps) {
 		
 		NodeList list = node.getChildNodes();
 		for (int i = 0; i < list.getLength(); i++) {

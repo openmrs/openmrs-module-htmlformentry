@@ -12,8 +12,8 @@
 	Provider: <encounterProvider role="Provider"/>
 
 	<subform path="parameterizableSubform.xml">
-		<div id="weight-title">Weight Kgs:</div>
-		<div id="weight-widget"><obs conceptId="5089" showUnits="true"/></div>
+		<div subform-parameter="weight-title">Weight Kgs:</div>
+		<div subform-parameter="weight-widget"><obs conceptId="5089" showUnits="true"/></div>
 	</subform>
 
 	<submit/>

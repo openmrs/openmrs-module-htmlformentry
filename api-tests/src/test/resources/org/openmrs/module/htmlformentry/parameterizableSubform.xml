@@ -1,5 +1,5 @@
 <div>
 	This is my weight form
-	<div id="weight-title">Weight:</div>
-	<div id="weight-widget"><obs conceptId="5089"/></div>
+	<div subform-parameter="weight-title">Weight:</div>
+	<div subform-parameter="weight-widget"><obs conceptId="5089"/></div>
 </div>
