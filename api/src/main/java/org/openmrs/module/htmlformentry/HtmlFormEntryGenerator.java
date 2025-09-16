@@ -452,7 +452,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	public String processSubforms(String xml) throws Exception {
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
 		NodeList nodesToReplace = doc.getElementsByTagName("subform");
-		if (nodesToReplace.getLength() >= 0) {
+		if (nodesToReplace.getLength() > 0) {
 			while (nodesToReplace.getLength() > 0) {
 				Node subformTagNode = nodesToReplace.item(0);
 				Node parentNode = subformTagNode.getParentNode();
