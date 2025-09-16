@@ -74,6 +74,7 @@ public class HtmlFormValidator implements Validator {
 				}
 				HtmlFormEntryGenerator htmlGenerator = new HtmlFormEntryGenerator();
 				String xml = hf.getXmlData();
+				xml = htmlGenerator.processSubforms(xml);
 				xml = htmlGenerator.substituteCharacterCodesWithAsciiCodes(xml);
 				xml = htmlGenerator.stripComments(xml);
 				xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);

@@ -1,6 +1,24 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.openmrs.Role;
+import org.openmrs.User;
+import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
+import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
+import org.openmrs.module.htmlformentry.handler.TagHandler;
+import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
+import org.openmrs.util.OpenmrsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -13,26 +31,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
-import org.openmrs.Role;
-import org.openmrs.User;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.htmlformentry.handler.AttributeDescriptor;
-import org.openmrs.module.htmlformentry.handler.IteratingTagHandler;
-import org.openmrs.module.htmlformentry.handler.TagHandler;
-import org.openmrs.module.htmlformentry.matching.ObsGroupEntity;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 /**
  * Provides methods to take a {@code <htmlform>...</htmlform>} xml block and turns it into HTML to
  * be displayed as a form in a web browser. It can apply the {@code <macros>...</macros>} section,
  * and replace tags like {@code <obs/>}.
  */
 public class HtmlFormEntryGenerator implements TagHandler {
-	
+
+	private static final Logger log = LoggerFactory.getLogger(HtmlFormEntryGenerator.class);
+
 	/**
 	 * @see #applyMacros(FormEntrySession, String) This method simply delegates to the
 	 *      applyMacros(FormEntrySession, String) method with a null FormEntry session. This is retained
@@ -429,6 +436,55 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			
 		}
 		
+		return xml;
+	}
+
+	/**
+	 * Processes tags on the form with this syntax: <subform path="path/to/subform"/> and
+	 * replaces it with the contents of the file located at this path.
+	 * There are 3 file types supported:
+	 *  - If the file has a ".js" extension, then the contents are wrapped in a script tag
+	 *  - If the file has a ".css" extension, then the contents are wrapped in a style tag
+	 *  - Otherwise the file in assumed to be xml and is loaded as xml
+	 */
+	public String processSubforms(String xml) throws Exception {
+		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
+		NodeList nodesToReplace = doc.getElementsByTagName("subform");
+		if (nodesToReplace.getLength() >= 0) {
+			while (nodesToReplace.getLength() > 0) {
+				Node subformTagNode = nodesToReplace.item(0);
+				Node parentNode = subformTagNode.getParentNode();
+				if (parentNode != null) {
+					String formPath = HtmlFormEntryUtil.getNodeAttribute(subformTagNode, "path", null);
+					if (formPath == null) {
+						throw new IllegalArgumentException("All <subform> elements must contain a 'path' attribute.");
+					}
+					log.debug("Replacing subform tag with contents of file at: " + formPath);
+					File subform = new File(OpenmrsUtil.getApplicationDataDirectory(), formPath);
+					if (!subform.exists()) {
+						throw new IllegalArgumentException("Subform cannot be processed, no file found at: " + formPath);
+					}
+					String subformXml = FileUtils.readFileToString(subform, "UTF-8").trim();
+
+					// If the loaded contents are javascript or css, wrap these in the appropriate xml tags
+					if (formPath.toLowerCase().endsWith(".js")) {
+						subformXml = "<script type=\"text/javascript\">" + subformXml + "</script>";
+					} else if (formPath.toLowerCase().endsWith(".css")) {
+						subformXml = "<style>" + subformXml + "</style>";
+					}
+
+					// Recursively process the loaded xml to enable subforms to contain subforms
+					subformXml = processSubforms(subformXml);
+
+					// Load the subform contents as xml and insert into the source document
+					Document subformDocument = HtmlFormEntryUtil.stringToDocument(subformXml);
+					Node subformContentsNode = doc.importNode(subformDocument.getFirstChild(), true);
+					parentNode.replaceChild(subformContentsNode, subformTagNode);
+					nodesToReplace = doc.getElementsByTagName("subform");
+				}
+			}
+			xml = HtmlFormEntryUtil.documentToString(doc);
+		}
 		return xml;
 	}
 	

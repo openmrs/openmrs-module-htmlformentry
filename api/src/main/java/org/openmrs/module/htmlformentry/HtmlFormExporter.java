@@ -90,6 +90,7 @@ public class HtmlFormExporter {
 		HtmlFormEntryGenerator generator = new HtmlFormEntryGenerator();
 		
 		try {
+			xml = generator.processSubforms(xml);
 			xml = generator.applyMacros(xml);
 			xml = generator.applyRepeats(xml);
 		}

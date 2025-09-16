@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,9 +9,20 @@ import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.Verifies;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
+
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
+	@Autowired
+	HtmlFormEntryService htmlFormEntryService;
+
 	private Patient patient = null;
 	
 	private String pageCss = "<style>.pageHeader {overflow: hidden;border: 1px solid #ccc;border-bottom: 5px solid #66a3ff;background-color: #f1f1f1;}.pageHeader button {border-radius: 15px 15px 0px 0px;background-color: lightblue;border-top: 5px solid #f1f1f1;float: left;outline: none;cursor: pointer;padding: 14px 16px;transition: 0.3s;}.pageHeader button.active {background-color: #66a3ff;}.pageHeader button:hover {background-color: #ddd;}.content {display: none;overflow: hidden;padding: 10px;}.next {float: right;}.previous {float: left;}</style>";
@@ -368,5 +381,36 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	String removeWhiteSpaces(String input) {
 		return input.replaceAll("\\s+", "");
+	}
+
+	@Test
+	public void processSubforms_shouldIncludeSubforms() throws Exception {
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms1.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
+		String subformJs = getFormXml("org/openmrs/module/htmlformentry/subform1.js");
+		String subformCss = getFormXml("org/openmrs/module/htmlformentry/subform1.css");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.js"), subformJs, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.css"), subformCss, "UTF-8");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		Assert.assertNotNull(form);
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
+		Assert.assertTrue(processedFormXml.contains(subformXml));
+		Assert.assertTrue(processedFormXml.contains(subformJs));
+		Assert.assertTrue(processedFormXml.contains(subformCss));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("script").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("style").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("obs").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
+	}
+
+	private String getFormXml(String resourcePath) throws Exception {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+			return IOUtils.toString(Objects.requireNonNull(in), StandardCharsets.UTF_8);
+		}
 	}
 }
