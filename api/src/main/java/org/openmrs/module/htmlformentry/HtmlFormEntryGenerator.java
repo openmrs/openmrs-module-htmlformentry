@@ -446,6 +446,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 *  - If the file has a ".js" extension, then the contents are wrapped in a script tag
 	 *  - If the file has a ".css" extension, then the contents are wrapped in a style tag
 	 *  - Otherwise the file in assumed to be xml and is loaded as xml
+	 *  Subform tags may include nested tags, which can serve to override sections in the reference subform.
+	 *  Any top-level tag with an id attribute will replace any element in the reference subform with the same id attribute
 	 */
 	public String processSubforms(String xml) throws Exception {
 		Document doc = HtmlFormEntryUtil.stringToDocument(xml);
