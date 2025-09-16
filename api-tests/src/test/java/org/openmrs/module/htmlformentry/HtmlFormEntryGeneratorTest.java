@@ -408,6 +408,29 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
 	}
 
+	@Test
+	public void processSubforms_shouldIncludeNestedSubforms() throws Exception {
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms2.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
+		String subformWithNestedSubformXml = getFormXml("org/openmrs/module/htmlformentry/subformWithNestedSubform.xml");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "htmlFormWithSubforms2.xml"), formXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subformWithNestedSubform.xml"), subformWithNestedSubformXml, "UTF-8");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		Assert.assertNotNull(form);
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
+		Assert.assertTrue(processedFormXml.contains(subformXml));
+		Assert.assertTrue(processedFormXml.contains("Height"));
+		Assert.assertTrue(processedFormXml.contains("Weight"));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(2, document.getElementsByTagName("obs").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
+		System.out.println(HtmlFormEntryUtil.documentToString(document));
+	}
+
 	private String getFormXml(String resourcePath) throws Exception {
 		try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
 			return IOUtils.toString(Objects.requireNonNull(in), StandardCharsets.UTF_8);
