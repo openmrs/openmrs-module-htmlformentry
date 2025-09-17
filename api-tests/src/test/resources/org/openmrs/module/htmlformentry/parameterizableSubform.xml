@@ -1,0 +1,9 @@
+<div>
+	This is my weight form
+	<table>
+		<tr>
+			<th subform-parameter="weight-title">Weight:</th>
+			<td subform-parameter="weight-widget"><obs conceptId="5089"/></td>
+		</tr>
+	</table>
+</div>

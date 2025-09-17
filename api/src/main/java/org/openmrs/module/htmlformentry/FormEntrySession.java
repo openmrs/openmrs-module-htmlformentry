@@ -427,6 +427,7 @@ public class FormEntrySession {
 		xml = htmlGenerator.substituteCharacterCodesWithAsciiCodes(xml);
 		xml = htmlGenerator.stripComments(xml);
 		xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
+		xml = htmlGenerator.processSubforms(xml);
 		xml = htmlGenerator.applyRoleRestrictions(xml);
 		xml = htmlGenerator.applyMacros(this, xml);
 		xml = htmlGenerator.processPages(this, xml);

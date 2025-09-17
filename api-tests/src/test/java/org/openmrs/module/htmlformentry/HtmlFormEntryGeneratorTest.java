@@ -1,5 +1,7 @@
 package org.openmrs.module.htmlformentry;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,8 +9,19 @@ import org.openmrs.Patient;
 import org.openmrs.Role;
 import org.openmrs.api.context.Context;
 import org.openmrs.test.Verifies;
+import org.openmrs.util.OpenmrsUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.w3c.dom.Document;
+
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
+	
+	@Autowired
+	HtmlFormEntryService htmlFormEntryService;
 	
 	private Patient patient = null;
 	
@@ -243,9 +256,19 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
-		
-		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
-		    returnedXml);
+		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
+	}
+	
+	/**
+	 * @see {@link HtmlFormEntryGenerator#stripComments(String)}
+	 * @verifies filters out all the comments in the input string
+	 */
+	@Test
+	public void stripComments_shouldStripOutCommentsSpanningMultipleLInes() throws Exception {
+		String htmlform = "<htmlform><section><!--\r\n<repeat><template></template><render/></repeat>\r\n--><repeat><template></template><render/></repeat></section></htmlform>";
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
+		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
 	}
 	
 	/**
@@ -368,5 +391,85 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	String removeWhiteSpaces(String input) {
 		return input.replaceAll("\\s+", "");
+	}
+	
+	@Test
+	public void processSubforms_shouldIncludeSubforms() throws Exception {
+		// Set up
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms1.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
+		String subformJs = getFormXml("org/openmrs/module/htmlformentry/subform1.js");
+		String subformCss = getFormXml("org/openmrs/module/htmlformentry/subform1.css");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.js"), subformJs, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.css"), subformCss, "UTF-8");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		Assert.assertNotNull(form);
+
+		// Test
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		Assert.assertTrue(processedFormXml.contains(subformXml));
+		Assert.assertTrue(processedFormXml.contains(subformJs));
+		Assert.assertTrue(processedFormXml.contains(subformCss));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("script").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("style").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("obs").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
+	}
+	
+	@Test
+	public void processSubforms_shouldIncludeNestedSubforms() throws Exception {
+		// Set up
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms2.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
+		String subformWithNestedSubformXml = getFormXml("org/openmrs/module/htmlformentry/subformWithNestedSubform.xml");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "htmlFormWithSubforms2.xml"), formXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subformWithNestedSubform.xml"), subformWithNestedSubformXml, "UTF-8");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		Assert.assertNotNull(form);
+
+		// Test
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		Assert.assertTrue(processedFormXml.contains(subformXml));
+		Assert.assertTrue(processedFormXml.contains("Height"));
+		Assert.assertTrue(processedFormXml.contains("Weight"));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(2, document.getElementsByTagName("obs").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
+	}
+	
+	@Test
+	public void processSubforms_shouldSupportParameterizingSubforms() throws Exception {
+		// Set up
+		String formXml = getFormXml("org/openmrs/module/htmlformentry/formWithParameterizedSubform.xml");
+		String subformXml = getFormXml("org/openmrs/module/htmlformentry/parameterizableSubform.xml");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "formWithParameterizedSubform.xml"), formXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "parameterizableSubform.xml"), subformXml, "UTF-8");
+		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
+		Assert.assertNotNull(form);
+
+		// Test
+		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
+		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
+		Assert.assertFalse(processedFormXml.contains("Weight:"));
+		Assert.assertTrue(processedFormXml.contains("Weight Kgs:"));
+		Assert.assertFalse(processedFormXml.contains("<obs conceptId=\"5089\"/>"));
+		Assert.assertTrue(processedFormXml.contains("<obs conceptId=\"5089\" showUnits=\"true\"/>"));
+		Document document = HtmlFormEntryUtil.stringToDocument(processedFormXml);
+		Assert.assertEquals(1, document.getElementsByTagName("htmlform").getLength());
+		Assert.assertEquals(1, document.getElementsByTagName("obs").getLength());
+		Assert.assertEquals(0, document.getElementsByTagName("subform").getLength());
+	}
+	
+	private String getFormXml(String resourcePath) throws Exception {
+		try (InputStream in = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
+			return IOUtils.toString(Objects.requireNonNull(in), StandardCharsets.UTF_8);
+		}
 	}
 }

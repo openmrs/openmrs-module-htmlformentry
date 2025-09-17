@@ -77,6 +77,7 @@ public class HtmlFormValidator implements Validator {
 				xml = htmlGenerator.substituteCharacterCodesWithAsciiCodes(xml);
 				xml = htmlGenerator.stripComments(xml);
 				xml = htmlGenerator.convertSpecialCharactersWithinLogicAndVelocityTests(xml);
+				xml = htmlGenerator.processSubforms(xml);
 				xml = htmlGenerator.applyRoleRestrictions(xml);
 				xml = htmlGenerator.applyMacros(session, xml);
 				xml = htmlGenerator.applyRepeats(xml);
