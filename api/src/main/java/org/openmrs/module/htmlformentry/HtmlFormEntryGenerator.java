@@ -496,16 +496,16 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					// If the subform tag has nested replacement nodes, apply these to the subform document
 					if (subformTagNode.getChildNodes().getLength() > 0) {
 						for (int i = 0; i < subformTagNode.getChildNodes().getLength(); i++) {
-							Node subformChildNode = subformTagNode.getChildNodes().item(i);
-							if (subformChildNode.hasAttributes()) {
-								String sourceNodeParam = HtmlFormEntryUtil.getNodeAttribute(subformChildNode, SUBFORM_PARAMETER, null);
-								if (StringUtils.isBlank(sourceNodeParam)) {
+							Node replacementNode = subformTagNode.getChildNodes().item(i);
+							if (replacementNode.hasAttributes()) {
+								String replacementId = HtmlFormEntryUtil.getNodeAttribute(replacementNode, SUBFORM_PARAMETER, null);
+								if (StringUtils.isBlank(replacementId)) {
 									throw new BadFormDesignException("Children of subform elements must have a " + SUBFORM_PARAMETER + " attribute.");
 								}
-								log.debug("Replacing subform contents for selector: " + sourceNodeParam);
-								boolean replaced = applyReplacementInSubform(subformDocument, subformDocument.getFirstChild(), subformChildNode);
+								log.debug("Replacing subform contents for selector: " + replacementId);
+								boolean replaced = applyReplacementInSubform(subformDocument, subformDocument.getFirstChild(), replacementNode);
 								if (!replaced) {
-									throw new BadFormDesignException("Unable to apply replacement for selector: " + sourceNodeParam);
+									throw new BadFormDesignException("Unable to apply replacement for selector: " + replacementId);
 								}
 							}
 						}
@@ -529,21 +529,21 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 * 
 	 * @return true if any replacements are made, false otherwise
 	 */
-	private boolean applyReplacementInSubform(Document subformDocument, Node potentialNodeToReplace, Node nodeReplacement) {
+	private boolean applyReplacementInSubform(Document subformDocument, Node potentialNodeToReplace, Node replacementNode) {
 		boolean replaced = false;
-		String sourceNodeSelector = HtmlFormEntryUtil.getNodeAttribute(nodeReplacement, SUBFORM_PARAMETER, null);
-		if (StringUtils.isNotBlank(sourceNodeSelector)) {
-			String targetNodeSelector = HtmlFormEntryUtil.getNodeAttribute(potentialNodeToReplace, SUBFORM_PARAMETER, null);
-			if (sourceNodeSelector.equals(targetNodeSelector)) {
-				nodeReplacement.getAttributes().removeNamedItem(SUBFORM_PARAMETER);
-				Node importedReplacement = subformDocument.importNode(nodeReplacement, true);
+		String replacementId = HtmlFormEntryUtil.getNodeAttribute(replacementNode, SUBFORM_PARAMETER, null);
+		if (StringUtils.isNotBlank(replacementId)) {
+			String targetReplacementId = HtmlFormEntryUtil.getNodeAttribute(potentialNodeToReplace, SUBFORM_PARAMETER, null);
+			if (replacementId.equals(targetReplacementId)) {
+				replacementNode.getAttributes().removeNamedItem(SUBFORM_PARAMETER);
+				Node importedReplacement = subformDocument.importNode(replacementNode, true);
 				potentialNodeToReplace.getParentNode().replaceChild(importedReplacement, potentialNodeToReplace);
 				replaced = true;
 			}
 			else {
 				for (int i = 0; i < potentialNodeToReplace.getChildNodes().getLength(); i++) {
 					Node childNode = potentialNodeToReplace.getChildNodes().item(i);
-					boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, nodeReplacement);
+					boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, replacementNode);
 					if (childReplaced) {
 						replaced = true;
 					}
