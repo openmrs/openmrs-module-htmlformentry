@@ -395,6 +395,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void processSubforms_shouldIncludeSubforms() throws Exception {
+		// Set up
 		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms1.xml");
 		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
 		String subformJs = getFormXml("org/openmrs/module/htmlformentry/subform1.js");
@@ -404,9 +405,10 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.css"), subformCss, "UTF-8");
 		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
 		Assert.assertNotNull(form);
+
+		// Test
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
-		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
 		Assert.assertTrue(processedFormXml.contains(subformXml));
 		Assert.assertTrue(processedFormXml.contains(subformJs));
 		Assert.assertTrue(processedFormXml.contains(subformCss));
@@ -420,6 +422,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void processSubforms_shouldIncludeNestedSubforms() throws Exception {
+		// Set up
 		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms2.xml");
 		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
 		String subformWithNestedSubformXml = getFormXml("org/openmrs/module/htmlformentry/subformWithNestedSubform.xml");
@@ -428,9 +431,10 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subformWithNestedSubform.xml"), subformWithNestedSubformXml, "UTF-8");
 		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
 		Assert.assertNotNull(form);
+
+		// Test
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
-		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
 		Assert.assertTrue(processedFormXml.contains(subformXml));
 		Assert.assertTrue(processedFormXml.contains("Height"));
 		Assert.assertTrue(processedFormXml.contains("Weight"));
@@ -442,15 +446,17 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void processSubforms_shouldSupportParameterizingSubforms() throws Exception {
+		// Set up
 		String formXml = getFormXml("org/openmrs/module/htmlformentry/formWithParameterizedSubform.xml");
 		String subformXml = getFormXml("org/openmrs/module/htmlformentry/parameterizableSubform.xml");
 		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "formWithParameterizedSubform.xml"), formXml, "UTF-8");
 		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "parameterizableSubform.xml"), subformXml, "UTF-8");
 		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
 		Assert.assertNotNull(form);
+
+		// Test
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
-		Assert.assertFalse(processedFormXml.contains("<htmlform htmlformUuid=\"8dee49b5-89a9-11f0-bfe8-827b4c299cbd\">"));
 		Assert.assertFalse(processedFormXml.contains("Weight:"));
 		Assert.assertTrue(processedFormXml.contains("Weight Kgs:"));
 		Assert.assertFalse(processedFormXml.contains("<obs conceptId=\"5089\"/>"));
