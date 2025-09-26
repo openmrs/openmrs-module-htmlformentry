@@ -3,27 +3,22 @@ package org.openmrs.module.htmlformentry.handler;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.MockedStatic;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionController;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Context.class)
-@PowerMockIgnore("javax.management.*")
 public class SubmitButtonHandlerTest {
 	
 	private FormEntrySession session;
@@ -35,6 +30,8 @@ public class SubmitButtonHandlerTest {
 	private MessageSourceService messageSourceService;
 	
 	private SubmitButtonHandler submitButtonHandler = new SubmitButtonHandler();
+	
+	private MockedStatic<Context> mockedContext;
 	
 	@Before
 	public void setup() {
@@ -49,9 +46,14 @@ public class SubmitButtonHandlerTest {
 		when(messageSourceService.getMessage("htmlformentry.saveChangesButton")).thenReturn("Save");
 		when(messageSourceService.getMessage("htmlformentry.enterFormButton")).thenReturn("Enter");
 		
-		PowerMockito.mockStatic(Context.class);
-		PowerMockito.when(Context.getMessageSourceService()).thenReturn(messageSourceService);
+		mockedContext = mockStatic(Context.class);
+		when(Context.getMessageSourceService()).thenReturn(messageSourceService);
 		
+	}
+	
+	@After
+	public void tearDown() {
+		mockedContext.close();
 	}
 	
 	@Test
