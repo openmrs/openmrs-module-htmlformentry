@@ -2602,7 +2602,7 @@ public class HtmlFormEntryUtil {
 			
 			try {
 				providerRoleId = Integer.parseInt(id);
-				providerRole = getProviderRoleById(providerRoleId);
+				providerRole = Context.getProviderService().getProviderRole(providerRoleId);
 				
 				if (providerRole != null) {
 					return providerRole;
@@ -2614,7 +2614,7 @@ public class HtmlFormEntryUtil {
 			}
 			
 			// if no match by id, look up by uuid
-			providerRole = getProviderRoleByUuid(id);
+			providerRole = Context.getProviderService().getProviderRoleByUuid(id);
 			
 		}
 		
@@ -2649,23 +2649,13 @@ public class HtmlFormEntryUtil {
 		return Context.getProviderService().getAllProviders(includeRetired);
 	}
 	
-	private static Object getProviderRoleById(Integer providerRoleId) {
-		return Context.getProviderService().getProviderRole(providerRoleId);
-	}
-	
-	private static Object getProviderRoleByUuid(String providerRoleUuid) {
-		return Context.getProviderService().getProviderRoleByUuid(providerRoleUuid);
-	}
-	
 	public static List<Provider> getProviders(List<ProviderRole> providerRoles) {
 		
 		if (providerRoles == null || providerRoles.isEmpty()) {
 			return new ArrayList<>();
 		}
 		
-		ProviderService providerManagementService = Context.getProviderService();
-		//Service returns list of org.openmrs.module.providermanagement.Provider, not org.openmrs.Provider
-		return new ArrayList<>(providerManagementService.getProvidersByRoles(providerRoles));
+		return Context.getProviderService().getProvidersByRoles(providerRoles);
 	}
 	
 	/**
