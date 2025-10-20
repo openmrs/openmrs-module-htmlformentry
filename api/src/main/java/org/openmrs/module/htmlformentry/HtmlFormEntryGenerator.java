@@ -476,9 +476,11 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					// If the loaded contents are javascript or css, wrap these in the appropriate xml tags
 					if (formPath.toLowerCase().endsWith(".js")) {
 						subformXml = "<script type=\"text/javascript\">" + subformXml + "</script>";
-					} else if (formPath.toLowerCase().endsWith(".css")) {
+					}
+					else if (formPath.toLowerCase().endsWith(".css")) {
 						subformXml = "<style>" + subformXml + "</style>";
-					} else {
+					}
+					else {
 						// Apply the same rules to the loaded subform that have already been applied to the overall document
 						subformXml = substituteCharacterCodesWithAsciiCodes(subformXml);
 						subformXml = stripComments(subformXml);
@@ -496,18 +498,14 @@ public class HtmlFormEntryGenerator implements TagHandler {
 						for (int i = 0; i < subformTagNode.getChildNodes().getLength(); i++) {
 							Node replacementNode = subformTagNode.getChildNodes().item(i);
 							if (replacementNode.hasAttributes()) {
-								String replacementId = HtmlFormEntryUtil.getNodeAttribute(replacementNode, SUBFORM_PARAMETER,
-								    null);
+								String replacementId = HtmlFormEntryUtil.getNodeAttribute(replacementNode, SUBFORM_PARAMETER, null);
 								if (StringUtils.isBlank(replacementId)) {
-									throw new BadFormDesignException(
-									        "Children of subform elements must have a " + SUBFORM_PARAMETER + " attribute.");
+									throw new BadFormDesignException("Children of subform elements must have a " + SUBFORM_PARAMETER + " attribute.");
 								}
 								log.debug("Replacing subform contents for selector: " + replacementId);
-								boolean replaced = applyReplacementInSubform(subformDocument,
-								    subformDocument.getFirstChild(), replacementNode);
+								boolean replaced = applyReplacementInSubform(subformDocument, subformDocument.getFirstChild(), replacementNode);
 								if (!replaced) {
-									throw new BadFormDesignException(
-									        "Unable to apply replacement for selector: " + replacementId);
+									throw new BadFormDesignException("Unable to apply replacement for selector: " + replacementId);
 								}
 							}
 						}
@@ -541,7 +539,8 @@ public class HtmlFormEntryGenerator implements TagHandler {
 				Node importedReplacement = subformDocument.importNode(replacementNode, true);
 				potentialNodeToReplace.getParentNode().replaceChild(importedReplacement, potentialNodeToReplace);
 				replaced = true;
-			} else {
+			}
+			else {
 				for (int i = 0; i < potentialNodeToReplace.getChildNodes().getLength(); i++) {
 					Node childNode = potentialNodeToReplace.getChildNodes().item(i);
 					boolean childReplaced = applyReplacementInSubform(subformDocument, childNode, replacementNode);
