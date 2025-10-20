@@ -27,7 +27,7 @@ public class FormEntrySessionTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setupDatabase() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.8.xml");
 		patient = Context.getPatientService().getPatient(2);
 	}
 	

@@ -4,7 +4,7 @@
 
     <groupId>org.openmrs.module</groupId>
     <artifactId>htmlformentry</artifactId>
-    <version>6.2.0-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>HTML Form Entry</name>
     <description>Parent project for HTML Form Entry</description>
@@ -13,12 +13,9 @@
 
     <!-- default property values, required for eclipse build path configuration -->
     <properties>
-        <openMRSVersion>2.5.0</openMRSVersion>
-        <openMRSMinorVersion>2.3</openMRSMinorVersion>
-        <legacyuiVersion>1.7.0</legacyuiVersion>
-        <jacksonVersion>1.5.0</jacksonVersion>
-        <junitJupiterVersion>5.7.0</junitJupiterVersion>
-        <mockitoVersion>3.5.11</mockitoVersion>
+        <openMRSVersion>2.8.0-SNAPSHOT</openMRSVersion>
+        <openMRSMinorVersion>2.8</openMRSMinorVersion>
+        <legacyuiVersion>2.0.0-SNAPSHOT</legacyuiVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -77,32 +74,12 @@
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
-                        <artifactId>mockito-all</artifactId>
-                        <groupId>org.mockito</groupId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>junit</groupId>
-                        <artifactId>junit</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.mockito</groupId>
-                        <artifactId>mockito-core</artifactId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.powermock</groupId>
                         <artifactId>powermock-module-junit4</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>org.powermock</groupId>
                         <artifactId>powermock-api-mockito</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hamcrest</groupId>
-                        <artifactId>hamcrest-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.hamcrest</groupId>
-                        <artifactId>hamcrest-library</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -111,6 +88,16 @@
                 <artifactId>openmrs-web</artifactId>
                 <version>${openMRSVersion}</version>
                 <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jsp-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.openmrs.web</groupId>
@@ -118,31 +105,21 @@
                 <version>${openMRSVersion}</version>
                 <type>test-jar</type>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.openmrs.module</groupId>
-                <artifactId>providermanagement-api</artifactId>
-                <version>2.11.0</version>
-                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>jsp-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.bahmni.module</groupId>
                 <artifactId>appointments-api</artifactId>
                 <version>2.0.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jacksonVersion}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>${jacksonVersion}</version>
-                <type>jar</type>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -190,72 +167,11 @@
                 <version>${legacyuiVersion}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>javax.servlet-api</artifactId>
-                <version>3.1.0</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
         <!-- Test Libraries:  We want to use the same versions of test libraries regardless of OpenMRS version -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junitJupiterVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junitJupiterVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-params</artifactId>
-            <version>${junitJupiterVersion}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>${junitJupiterVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockitoVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockitoVersion}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>2.0.7</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <version>2.0.7</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-core</artifactId>
@@ -266,22 +182,23 @@
             <artifactId>hamcrest-library</artifactId>
             <version>2.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>4.8.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <pluginManagement>
             <plugins>
-                <plugin>
-                    <groupId>net.revelc.code.formatter</groupId>
-                    <artifactId>formatter-maven-plugin</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.openmrs.tools</groupId>
-                            <artifactId>openmrs-tools</artifactId>
-                            <version>2.5.0</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -327,6 +244,7 @@
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -371,20 +289,6 @@
 
     <!-- different profiles for building/testing against different version of openmrs -->
     <profiles>
-        <profile>
-            <id>2.4</id>
-            <properties>
-                <openMRSVersion>2.4.0</openMRSVersion>
-                <openMRSMinorVersion>2.4</openMRSMinorVersion>
-            </properties>
-        </profile>
-        <profile>
-            <id>2.5</id>
-            <properties>
-                <openMRSVersion>2.5.0</openMRSVersion>
-                <openMRSMinorVersion>2.5</openMRSMinorVersion>
-            </properties>
-        </profile>
         <profile>
             <id>release-tests</id>
             <modules>

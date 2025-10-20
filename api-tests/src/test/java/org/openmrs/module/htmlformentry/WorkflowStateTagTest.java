@@ -80,7 +80,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void before() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.8.xml");
 		patient = Context.getPatientService().getPatient(2);
 	}
 	
@@ -207,7 +207,7 @@ public class WorkflowStateTagTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void shouldDisplayStateSpecifiedByMapping() throws Exception {
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.8.xml");
 		String htmlform = "<htmlform><workflowState workflowId=\"107\" stateId=\"XYZ:Test Code\"/></htmlform>";
 		FormEntrySession session = new FormEntrySession(patient, htmlform, null);
 		assertPresent(session, MAPPED_STATE);

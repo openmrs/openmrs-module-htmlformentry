@@ -46,10 +46,12 @@ import org.openmrs.Program;
 import org.openmrs.ProgramWorkflow;
 import org.openmrs.ProgramWorkflowState;
 import org.openmrs.Provider;
+import org.openmrs.ProviderRole;
 import org.openmrs.ServiceOrder;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptNameType;
+import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.db.hibernate.HibernateUtil;
 import org.openmrs.messagesource.MessageSourceService;
@@ -64,8 +66,6 @@ import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
 import org.openmrs.module.htmlformentry.util.MatchMode;
 import org.openmrs.module.htmlformentry.util.Predicate;
 import org.openmrs.module.htmlformentry.util.ProviderTransformer;
-import org.openmrs.module.providermanagement.ProviderRole;
-import org.openmrs.module.providermanagement.api.ProviderManagementService;
 import org.openmrs.obs.ComplexData;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.DrugEditor;
@@ -2602,7 +2602,7 @@ public class HtmlFormEntryUtil {
 			
 			try {
 				providerRoleId = Integer.parseInt(id);
-				providerRole = getProviderRoleById(providerRoleId);
+				providerRole = Context.getProviderService().getProviderRole(providerRoleId);
 				
 				if (providerRole != null) {
 					return providerRole;
@@ -2614,7 +2614,7 @@ public class HtmlFormEntryUtil {
 			}
 			
 			// if no match by id, look up by uuid
-			providerRole = getProviderRoleByUuid(id);
+			providerRole = Context.getProviderService().getProviderRoleByUuid(id);
 			
 		}
 		
@@ -2649,53 +2649,13 @@ public class HtmlFormEntryUtil {
 		return Context.getProviderService().getAllProviders(includeRetired);
 	}
 	
-	private static Object getProviderRoleById(Integer providerRoleId) {
-		
-		// we have to fetch the provider role by reflection, since the provider management module is not a required dependency
-		
-		try {
-			Class<?> providerManagementServiceClass = Context
-			        .loadClass("org.openmrs.module.providermanagement.api.ProviderManagementService");
-			Object providerManagementService = Context.getService(providerManagementServiceClass);
-			Method getProviderRole = providerManagementServiceClass.getMethod("getProviderRole", Integer.class);
-			return getProviderRole.invoke(providerManagementService, providerRoleId);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(
-			        "Unable to get provider role by id; the Provider Management module needs to be installed if using the providerRoles attribute",
-			        e);
-		}
-		
-	}
-	
-	private static Object getProviderRoleByUuid(String providerRoleUuid) {
-		
-		// we have to fetch the provider roles by reflection, since the provider management module is not a required dependency
-		
-		try {
-			Class<?> providerManagementServiceClass = Context
-			        .loadClass("org.openmrs.module.providermanagement.api.ProviderManagementService");
-			Object providerManagementService = Context.getService(providerManagementServiceClass);
-			Method getProviderRoleByUuid = providerManagementServiceClass.getMethod("getProviderRoleByUuid", String.class);
-			return getProviderRoleByUuid.invoke(providerManagementService, providerRoleUuid);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(
-			        "Unable to get provider role by uuid; the Provider Management module needs to be installed if using the providerRoles attribute",
-			        e);
-		}
-		
-	}
-	
 	public static List<Provider> getProviders(List<ProviderRole> providerRoles) {
 		
-		if (providerRoles == null || providerRoles.size() == 0) {
-			return new ArrayList<Provider>();
+		if (providerRoles == null || providerRoles.isEmpty()) {
+			return new ArrayList<>();
 		}
 		
-		ProviderManagementService providerManagementService = Context.getService(ProviderManagementService.class);
-		//Service returns list of org.openmrs.module.providermanagement.Provider, not org.openmrs.Provider
-		return new ArrayList<Provider>(providerManagementService.getProvidersByRoles(providerRoles));
+		return Context.getProviderService().getProvidersByRoles(providerRoles);
 	}
 	
 	/**

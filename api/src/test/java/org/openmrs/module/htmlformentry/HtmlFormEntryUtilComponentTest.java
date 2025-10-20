@@ -11,12 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Provider;
+import org.openmrs.ProviderRole;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.providermanagement.ProviderRole;
-import org.openmrs.module.providermanagement.api.ProviderManagementService;
 
 public class HtmlFormEntryUtilComponentTest extends BaseHtmlFormEntryTest {
 	
@@ -53,7 +51,7 @@ public class HtmlFormEntryUtilComponentTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void getProviders_shouldReturnProvidersForSingleRole() {
-		ProviderRole providerRole = Context.getService(ProviderManagementService.class).getProviderRole(1002);
+		ProviderRole providerRole = Context.getProviderService().getProviderRole(1002);
 		List<Provider> providers = HtmlFormEntryUtil.getProviders(Collections.singletonList(providerRole));
 		assertThat(providers.size(), is(1));
 		assertThat(providers.get(0).getId(), is(1006));
@@ -63,8 +61,8 @@ public class HtmlFormEntryUtilComponentTest extends BaseHtmlFormEntryTest {
 	public void getProviders_shouldReturnProvidersForMultipleRole() {
 		
 		List<ProviderRole> providerRoles = new ArrayList<ProviderRole>();
-		providerRoles.add(Context.getService(ProviderManagementService.class).getProviderRole(1001));
-		providerRoles.add(Context.getService(ProviderManagementService.class).getProviderRole(1002));
+		providerRoles.add(Context.getProviderService().getProviderRole(1001));
+		providerRoles.add(Context.getProviderService().getProviderRole(1002));
 		
 		List<Provider> providers = HtmlFormEntryUtil.getProviders(providerRoles);
 		assertThat(providers.size(), is(4));
@@ -78,7 +76,7 @@ public class HtmlFormEntryUtilComponentTest extends BaseHtmlFormEntryTest {
 	
 	@Test
 	public void getProviders_shouldReturnEmptyListIfNoMatches() {
-		ProviderRole providerRole = Context.getService(ProviderManagementService.class).getProviderRole(1004);
+		ProviderRole providerRole = Context.getProviderService().getProviderRole(1004);
 		List<Provider> providers = HtmlFormEntryUtil.getProviders(Collections.singletonList(providerRole));
 		assertThat(providers.size(), is(0));
 	}
