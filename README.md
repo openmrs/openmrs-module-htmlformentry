@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/openmrs/openmrs-module-htmlformentry.svg?branch=master)](https://travis-ci.org/openmrs/openmrs-module-htmlformentry)
-
 HTML Form Entry
 =========
 
