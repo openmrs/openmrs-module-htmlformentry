@@ -316,7 +316,7 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Verifies(value = "should find a concept by its uuid", method = "getConcept(String)")
 	public void getConcept_shouldFindAConceptWithNonStandardUuid() throws Exception {
 		// concept from HtmlFormEntryTest-data.xml
-		String id = "1001BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+		String id = "1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		Assert.assertEquals(id, HtmlFormEntryUtil.getConcept(id).getUuid());
 	}
 	
@@ -437,8 +437,8 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	@Test
 	@Verifies(value = "shoud return true valid uuid format", method = "isValidUuidFormat(String)")
 	public void isValidUuidFormat_shouldReturnTrueIfNotValidUuidFormat() throws Exception {
-		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1001BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")); // 36 characters
-		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1001BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")); // 38 characters
+		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")); // 36 characters
+		Assert.assertTrue(HtmlFormEntryUtil.isValidUuidFormat("1000AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")); // 38 characters
 	}
 	
 	@Test
