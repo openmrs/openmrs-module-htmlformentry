@@ -1,6 +1,5 @@
 package org.openmrs.module.htmlformentry;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +33,7 @@ public class EnrollInProgramTagTest extends BaseHtmlFormEntryTest {
 	public void loadConcepts() throws Exception {
 		ps = Context.getPatientService();
 		pws = Context.getProgramWorkflowService();
-		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.8.xml");
 	}
 	
 	@Test

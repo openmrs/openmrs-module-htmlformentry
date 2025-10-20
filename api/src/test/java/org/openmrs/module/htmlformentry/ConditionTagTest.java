@@ -39,7 +39,7 @@ public class ConditionTagTest extends BaseHtmlFormEntryTest {
 	
 	@Before
 	public void setup() throws Exception {
-		executeDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.3.xml");
+		executeDataSet("org/openmrs/module/htmlformentry/data/RegressionTest-data-openmrs-2.8.xml");
 		executeDataSet("org/openmrs/module/htmlformentry/data/conditions-data.xml");
 	}
 	
