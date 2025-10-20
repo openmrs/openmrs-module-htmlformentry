@@ -1,7 +1,5 @@
 package org.openmrs.module.htmlformentry.widget;
 
-import java.io.File;
-
 import org.apache.commons.lang3.StringUtils;
 import org.openmrs.ConceptComplex;
 import org.openmrs.ConceptDatatype;
@@ -14,7 +12,6 @@ import org.openmrs.obs.handler.AbstractHandler;
 import org.openmrs.obs.handler.ImageHandler;
 import org.openmrs.util.OpenmrsConstants;
 import org.openmrs.web.WebConstants;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Contains shortcut methods to instantiate Widgets, and related utility methods.
@@ -37,9 +34,6 @@ public class WidgetFactory {
 		DATE,
 		DATE_TIME
 	}
-	
-	@Autowired
-	private static AbstractHandler abstractHandler;
 	
 	/**
 	 * Given a FormField, infers the related widget from the ConceptDatatype associated with that
@@ -114,7 +108,7 @@ public class WidgetFactory {
 	/**
 	 * Formats a value for display as a simple HTML span.
 	 * 
-	 * @param the value to display
+	 * @param value the value to display
 	 * @return the HTML to display the value
 	 */
 	public static String displayValue(String value) {
@@ -180,7 +174,7 @@ public class WidgetFactory {
 			catch (ClassNotFoundException e) {}
 		}
 		
-		String fileName = abstractHandler.parseDataKey(obs);
+		String fileName = obs.getValueComplex();
 		String value = "<p class=\"value\">" + fileName + "<br/><a href=\"" + hyperlink + "\" target=\"_blank\">"
 		        + Context.getMessageSourceService().getMessage("htmlformentry.form.complex.view") + "</a> | <a href=\""
 		        + getDownloadHyperlink(obs) + "\" target=\"_blank\">"
