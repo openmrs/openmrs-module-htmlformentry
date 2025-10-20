@@ -19,7 +19,9 @@ Currently, a form submission creates one encounter for one patient.
 
 Requirements
 ----------
-+ OpenMRS 2.1.0+
+
+* Html Form Entry 6.x requires OpenMRS 2.5.0+ (development branch 6.x)
+* Html Form Entry 7.x requires OpenMRS 2.8.0+ (development branch master)
 
 Instructions
 ---------
