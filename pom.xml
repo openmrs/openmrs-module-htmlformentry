@@ -244,15 +244,14 @@
                         <tagNameFormat>@{project.version}</tagNameFormat>
                     </configuration>
                 </plugin>
-                <!-- The 2.10 version of this plugin released in Sept 2014 leads to opaque errors and a lot of:
-+                 [ERROR] java.lang.ClassCastException: com.sun.tools.javadoc.ClassDocImpl cannot be cast to com.sun.javadoc.AnnotationTypeDoc
-+                 We manually override to use the prior version which works fine.
-+                 See: http://jira.codehaus.org/browse/MJAVADOC-408
-+                 -->
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.11.2</version>
+                    <configuration>
+                        <additionalJOption>-Xdoclint:none</additionalJOption>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

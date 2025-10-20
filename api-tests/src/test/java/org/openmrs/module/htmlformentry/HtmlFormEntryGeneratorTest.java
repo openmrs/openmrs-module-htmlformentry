@@ -256,8 +256,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String htmlform = "<htmlform><section><!--<repeat><template></template><render/></repeat>--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
-		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
-		    returnedXml);
+		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
 	}
 	
 	/**
@@ -269,8 +268,7 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String htmlform = "<htmlform><section><!--\r\n<repeat><template></template><render/></repeat>\r\n--><repeat><template></template><render/></repeat></section></htmlform>";
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String returnedXml = htmlFormEntryGenerator.stripComments(htmlform);
-		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>",
-		    returnedXml);
+		Assert.assertEquals("<htmlform><section><repeat><template></template><render/></repeat></section></htmlform>", returnedXml);
 	}
 	
 	/**
@@ -402,14 +400,12 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
 		String subformJs = getFormXml("org/openmrs/module/htmlformentry/subform1.js");
 		String subformCss = getFormXml("org/openmrs/module/htmlformentry/subform1.css");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml,
-		    "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml, "UTF-8");
 		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.js"), subformJs, "UTF-8");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.css"), subformCss,
-		    "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.css"), subformCss, "UTF-8");
 		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
 		Assert.assertNotNull(form);
-		
+
 		// Test
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
@@ -430,15 +426,12 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		String formXml = getFormXml("org/openmrs/module/htmlformentry/htmlFormWithSubforms2.xml");
 		String subformXml = getFormXml("org/openmrs/module/htmlformentry/subform1.xml");
 		String subformWithNestedSubformXml = getFormXml("org/openmrs/module/htmlformentry/subformWithNestedSubform.xml");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "htmlFormWithSubforms2.xml"),
-		    formXml, "UTF-8");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml,
-		    "UTF-8");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subformWithNestedSubform.xml"),
-		    subformWithNestedSubformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "htmlFormWithSubforms2.xml"), formXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subform1.xml"), subformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "subformWithNestedSubform.xml"), subformWithNestedSubformXml, "UTF-8");
 		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
 		Assert.assertNotNull(form);
-		
+
 		// Test
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
@@ -456,13 +449,11 @@ public class HtmlFormEntryGeneratorTest extends BaseHtmlFormEntryTest {
 		// Set up
 		String formXml = getFormXml("org/openmrs/module/htmlformentry/formWithParameterizedSubform.xml");
 		String subformXml = getFormXml("org/openmrs/module/htmlformentry/parameterizableSubform.xml");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "formWithParameterizedSubform.xml"),
-		    formXml, "UTF-8");
-		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "parameterizableSubform.xml"),
-		    subformXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "formWithParameterizedSubform.xml"), formXml, "UTF-8");
+		FileUtils.writeStringToFile(new File(OpenmrsUtil.getApplicationDataDirectory(), "parameterizableSubform.xml"), subformXml, "UTF-8");
 		HtmlForm form = htmlFormEntryService.saveHtmlFormFromXml(formXml);
 		Assert.assertNotNull(form);
-		
+
 		// Test
 		HtmlFormEntryGenerator htmlFormEntryGenerator = new HtmlFormEntryGenerator();
 		String processedFormXml = htmlFormEntryGenerator.processSubforms(formXml);
