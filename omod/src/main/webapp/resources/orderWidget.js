@@ -293,6 +293,7 @@
         orderWidget.enableDateWidgets(config, $orderForm, encDate);
 
         if (action === 'DISCONTINUE') {
+            $orderForm.find('.order-dateActivated').hide();
             var $discontinueReasonSelect = $orderForm.find('.order-field-widget.order-discontinueReason').find('select');
             if ($discontinueReasonSelect.find('option').length > 1) {
                 $orderForm.find('.order-discontinueReason').show();
