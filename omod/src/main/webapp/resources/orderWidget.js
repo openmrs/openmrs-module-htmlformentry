@@ -305,7 +305,7 @@
         } else if (action === 'REVISE' || action === 'NEW') {
             $orderForm.find('.order-orderReason').show();
             $orderForm.find('.order-orderReasonNonCoded').show();
-            orderWidget.enableOrderDoseWidgets($orderForm);
+            orderWidget.enableOrderDoseWidgets($orderForm, false);
             $orderForm.find('.order-urgency').show();
             orderWidget.enableOrderDurationWidgets($orderForm);
             orderWidget.enableServiceOrderWidgets($orderForm);
@@ -314,7 +314,7 @@
         // Set up ability to toggle between free-text and simple dosing instructions
         $orderForm.find('.order-dosingType').find('input:radio').change(function () {
             if (action === 'REVISE' || action === 'NEW') {
-                orderWidget.enableOrderDoseWidgets($orderForm);
+                orderWidget.enableOrderDoseWidgets($orderForm, true);
             }
         });
 
@@ -489,17 +489,19 @@
         }
     };
 
-    orderWidget.enableOrderDoseWidgets = function($orderForm) {
+    orderWidget.enableOrderDoseWidgets = function($orderForm, clearExistingValues) {
         var $dosingTypeSection = $orderForm.find('.order-dosingType');
         var dosingTypeVal = $dosingTypeSection.find('input:checked').val();
 
-        $orderForm.find('.order-field-widget.order-dose').find(':input').val("");
-        $orderForm.find('.order-field-widget.order-doseUnits').find(':input').val("");
-        $orderForm.find('.order-field-widget.order-frequency').find(':input').val("");
-        $orderForm.find('.order-field-widget.order-route').find(':input').val("");
-        $orderForm.find('.order-field-widget.order-asNeeded').find(':input').removeAttr("checked");
-        $orderForm.find('.order-field-widget.order-instructions').find(':input').val("");
-        $orderForm.find('.order-field-widget.order-dosingInstructions').find(':input').val("");
+        if (clearExistingValues) {
+            $orderForm.find('.order-field-widget.order-dose').find(':input').val("");
+            $orderForm.find('.order-field-widget.order-doseUnits').find(':input').val("");
+            $orderForm.find('.order-field-widget.order-frequency').find(':input').val("");
+            $orderForm.find('.order-field-widget.order-route').find(':input').val("");
+            $orderForm.find('.order-field-widget.order-asNeeded').find(':input').removeAttr("checked");
+            $orderForm.find('.order-field-widget.order-instructions').find(':input').val("");
+            $orderForm.find('.order-field-widget.order-dosingInstructions').find(':input').val("");
+        }
 
         if (dosingTypeVal === 'org.openmrs.FreeTextDosingInstructions') {
             $orderForm.find('.order-dose').hide();
