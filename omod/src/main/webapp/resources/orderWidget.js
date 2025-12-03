@@ -492,6 +492,15 @@
     orderWidget.enableOrderDoseWidgets = function($orderForm) {
         var $dosingTypeSection = $orderForm.find('.order-dosingType');
         var dosingTypeVal = $dosingTypeSection.find('input:checked').val();
+
+        $orderForm.find('.order-field-widget.order-dose').find(':input').val("");
+        $orderForm.find('.order-field-widget.order-doseUnits').find(':input').val("");
+        $orderForm.find('.order-field-widget.order-frequency').find(':input').val("");
+        $orderForm.find('.order-field-widget.order-route').find(':input').val("");
+        $orderForm.find('.order-field-widget.order-asNeeded').find(':input').removeAttr("checked");
+        $orderForm.find('.order-field-widget.order-instructions').find(':input').val("");
+        $orderForm.find('.order-field-widget.order-dosingInstructions').find(':input').val("");
+
         if (dosingTypeVal === 'org.openmrs.FreeTextDosingInstructions') {
             $orderForm.find('.order-dose').hide();
             $orderForm.find('.order-doseUnits').hide();
