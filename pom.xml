@@ -15,7 +15,7 @@
     <properties>
         <openMRSVersion>2.8.0</openMRSVersion>
         <openMRSMinorVersion>2.8</openMRSMinorVersion>
-        <legacyuiVersion>2.0.0-SNAPSHOT</legacyuiVersion>
+        <legacyuiVersion>2.0.0</legacyuiVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
