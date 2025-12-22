@@ -680,6 +680,15 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		if (OpenmrsUtil.compare((Date) date, new Date()) > 0) {
 			throw new Exception("htmlformentry.error.cannotBeInFuture");
 		}
+
+        if (context.getVisit() != null) {
+            if (date.before(((Visit) context.getVisit()).getStartDatetime())) {
+                throw new Exception("htmlformentry.error.cannotBeBeforeVisitStart");
+            }
+            if (((Visit) context.getVisit()).getStopDatetime() != null && date.after(((Visit) context.getVisit()).getStopDatetime())) {
+                throw new Exception("htmlformentry.error.cannotBeAfterVisitStop");
+            }
+        }
 	}
 	
 	/**
