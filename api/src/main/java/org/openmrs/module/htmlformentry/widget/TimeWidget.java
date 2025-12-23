@@ -51,10 +51,8 @@ public class TimeWidget implements Widget {
 			        .append("\" value=\"" + valAsCal.get(Calendar.HOUR_OF_DAY) + "\"/>");
 			sb.append("<input type=\"hidden\" class=\"hfe-minutes\" name=\"").append(fieldName).append("minutes")
 			        .append("\" value=\"" + valAsCal.get(Calendar.MINUTE) + "\"/>");
-			if (!hideSeconds) {
-				sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds")
-				        .append("\" value=\"" + valAsCal.get(Calendar.SECOND) + "\"/>");
-			}
+            sb.append("<input type=\"hidden\" class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds")
+                    .append("\" value=\"" + valAsCal.get(Calendar.SECOND) + "\"/>");
 		} else {
 			sb.append("<select class=\"hfe-hours\" name=\"").append(fieldName).append("hours").append("\">");
 			for (int i = 0; i <= 23; ++i) {
@@ -83,21 +81,23 @@ public class TimeWidget implements Widget {
 				sb.append(">" + label + "</option>");
 			}
 			sb.append("</select>");
-			if (!hideSeconds) {
-				sb.append("<select class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds").append("\">");
-				for (int i = 0; i <= 59; ++i) {
-					String label = "" + i;
-					if (label.length() == 1)
-						label = "0" + label;
-					sb.append("<option value=\"" + i + "\"");
-					if (valAsCal != null) {
-						if (valAsCal.get(Calendar.SECOND) == i)
-							sb.append(" selected=\"true\"");
-					}
-					sb.append(">" + label + "</option>");
-				}
-				sb.append("</select>");
-			}
+            sb.append("<select class=\"hfe-seconds\"name=\"").append(fieldName).append("seconds").append("\"");
+            if (hideSeconds) {
+                sb.append(" style=\"display:none\"");
+            }
+            sb.append(">");
+            for (int i = 0; i <= 59; ++i) {
+                String label = "" + i;
+                if (label.length() == 1)
+                    label = "0" + label;
+                sb.append("<option value=\"" + i + "\"");
+                if (valAsCal != null) {
+                    if (valAsCal.get(Calendar.SECOND) == i)
+                        sb.append(" selected=\"true\"");
+                }
+                sb.append(">" + label + "</option>");
+            }
+            sb.append("</select>");
 		}
 		
 		return sb.toString();
