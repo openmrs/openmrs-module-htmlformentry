@@ -4,6 +4,10 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.map.ext.JodaDeserializers;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
 import org.openmrs.Location;
@@ -682,9 +686,17 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 		}
 
         if (context.getVisit() != null) {
-            if (date.before(((Visit) context.getVisit()).getStartDatetime())) {
-                throw new Exception("htmlformentry.error.cannotBeBeforeVisitStart");
+            // if the date is at midnight, just compare date components, on the assumption that HFE-UI will adjust as needed
+            if (new DateTime(date).getMillisOfDay() == 0) {
+                if (new DateTime(date).isBefore((new DateTime(((Visit) context.getVisit()).getStartDatetime()).withTimeAtStartOfDay()))) {
+                    throw new Exception("htmlformentry.error.cannotBeBeforeVisitStart");
+                }
+            } else {
+                if (date.before(((Visit) context.getVisit()).getStartDatetime())) {
+                    throw new Exception("htmlformentry.error.cannotBeBeforeVisitStart");
+                }
             }
+
             if (((Visit) context.getVisit()).getStopDatetime() != null && date.after(((Visit) context.getVisit()).getStopDatetime())) {
                 throw new Exception("htmlformentry.error.cannotBeAfterVisitStop");
             }
