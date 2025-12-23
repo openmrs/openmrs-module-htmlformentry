@@ -11,6 +11,7 @@ import org.openmrs.Form;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Person;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -115,7 +116,15 @@ public abstract class RegressionTestHelper {
 	public Patient getPatientToView() throws Exception {
 		return null;
 	}
-	
+
+    /**
+     * Optionally override this if you want to operate in the context of a specific visit
+     * @return
+     */
+    public Visit getVisit() {
+        return null;
+    }
+
 	/**
 	 * Override this and return true if you want to have testViewingPatient run. (If you override
 	 * getPatientToView to return something non-null, then you do not need to override this method --
@@ -274,7 +283,8 @@ public abstract class RegressionTestHelper {
 	public void run() throws Exception {
 		// setup the blank form for the specified patient
 		Patient patient = getPatient();
-		FormEntrySession session = setupFormEntrySession(patient, null, Mode.ENTER, getFormXml());
+        Visit visit = getVisit();
+		FormEntrySession session = setupFormEntrySession(patient, null, visit, Mode.ENTER, getFormXml());
 		testFormEntrySessionAttribute(session);
 		String html = session.getHtmlToDisplay();
 		testBlankFormHtml(html);
@@ -305,7 +315,7 @@ public abstract class RegressionTestHelper {
 			if (overridePatient != null) {
 				patientToView = overridePatient;
 			}
-			session = setupFormEntrySession(patientToView, null, Mode.VIEW, getFormXml());
+			session = setupFormEntrySession(patientToView, null, visit, Mode.VIEW, getFormXml());
 			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingPatient(patientToView, html);
@@ -318,7 +328,7 @@ public abstract class RegressionTestHelper {
 			if (overrideEncounter != null) {
 				encounterToView = overrideEncounter;
 			}
-			session = setupFormEntrySession(patientToView, encounterToView, Mode.VIEW, getFormXml());
+			session = setupFormEntrySession(patientToView, encounterToView, visit, Mode.VIEW, getFormXml());
 			testFormViewSessionAttribute(session);
 			html = session.getHtmlToDisplay();
 			testViewingEncounter(encounterToView, html);
@@ -341,7 +351,7 @@ public abstract class RegressionTestHelper {
 				patientToEdit = overridePatient;
 			}
 			
-			session = setupFormEntrySession(patientToEdit, toEdit, Mode.EDIT, getFormXml());
+			session = setupFormEntrySession(patientToEdit, toEdit, visit, Mode.EDIT, getFormXml());
 			testFormEditSessionAttribute(session);
 			String editHtml = session.getHtmlToDisplay();
 			testEditFormHtml(editHtml);
@@ -398,7 +408,7 @@ public abstract class RegressionTestHelper {
 		return null;
 	}
 	
-	private FormEntrySession setupFormEntrySession(Patient patient, Encounter e, Mode mode, String xml) throws Exception {
+	private FormEntrySession setupFormEntrySession(Patient patient, Encounter e, Visit visit, Mode mode, String xml) throws Exception {
 		HtmlForm fakeForm = new HtmlForm();
 		fakeForm.setXmlData(xml);
 		fakeForm.setForm(new Form(1));
@@ -407,6 +417,7 @@ public abstract class RegressionTestHelper {
 		fakeForm.getForm().setVersion("2.0");
 		fakeForm.getForm().setEncounterType(new EncounterType(1));
 		FormEntrySession session = new FormEntrySession(patient, e, mode, fakeForm, new MockHttpSession());
+        session.getContext().setVisit(visit);
 		session.setAttributes(getFormEntrySessionAttributes());
 		session.getHtmlToDisplay();
 		return session;

@@ -15,6 +15,7 @@ import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.schema.HtmlFormField;
 import org.openmrs.module.htmlformentry.schema.HtmlFormSchema;
@@ -999,7 +1000,37 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 				request.addParameter(widgets.get("Date:"), dateAsString(date));
 				request.addParameter(widgets.get("Location:"), "2");
 				
-			};
+			};	@Test
+	public void testSimplestFormSuccess() throws Exception {
+		final Date date = new Date();
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "simplestForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(date));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				results.assertEncounterCreated();
+				results.assertProvider(502);
+				results.assertLocation(2);
+			}
+		}.run();
+	}
 			
 			@Override
 			public void testEditedResults(SubmissionResults results) {
@@ -2694,7 +2725,275 @@ public class RegressionTest extends BaseHtmlFormEntryTest {
 			}
 		}.run();
 	}
-	
+
+    @Test
+    public void testShouldFailIfEncounterDateBeforeVisitStartDate() throws Exception {
+        Date visitStartDate = new DateTime(2010, 10, 10, 0, 0, 0).toDate();
+        Date encounterDate = new DateTime(2009, 10, 9, 0, 0, 0).toDate();
+        Visit visit = new Visit();
+        visit.setStartDatetime(visitStartDate);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public Visit getVisit() {
+                return visit;
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestForm";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(encounterDate));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoEncounterCreated();
+                results.assertErrors(1);
+                List<FormSubmissionError> errors = results.getValidationErrors();
+                Assert.assertEquals("Cannot be before visit start date", errors.get(0).getError());
+            }
+        }.run();
+    }
+
+    @Test
+    public void testShouldFailIfEncounterDateAfterVisitEndDate() throws Exception {
+        Date visitStartDate = new DateTime(2010, 10, 10, 0, 0, 0).toDate();
+        Date visitEndDate = new DateTime(2010, 10, 12, 0, 0, 0).toDate();
+        Date encounterDate = new DateTime(2010, 10, 13, 0, 0, 0).toDate();
+        Visit visit = new Visit();
+        visit.setStartDatetime(visitStartDate);
+        visit.setStopDatetime(visitEndDate);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public Visit getVisit() {
+                return visit;
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestForm";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(encounterDate));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoEncounterCreated();
+                results.assertErrors(1);
+                List<FormSubmissionError> errors = results.getValidationErrors();
+                Assert.assertEquals("Cannot be after visit stop date", errors.get(0).getError());
+            }
+        }.run();
+    }
+
+    @Test
+    public void testShouldNotFailIfEncounterDateWithinVisitDates() throws Exception {
+        Date visitStartDate = new DateTime(2010, 10, 10, 0, 0, 0).toDate();
+        Date visitEndDate = new DateTime(2010, 10, 12, 0, 0, 0).toDate();
+        Date encounterDate = new DateTime(2010, 10, 11, 0, 0, 0).toDate();
+        Visit visit = new Visit();
+        visit.setStartDatetime(visitStartDate);
+        visit.setStopDatetime(visitEndDate);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public Visit getVisit() {
+                return visit;
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestForm";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(encounterDate));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+            }
+        }.run();
+    }
+
+    @Test
+    public void testShouldNotFailIfEncounterDateAfterVisitStartDateAndVisitActive() throws Exception {
+        Date visitStartDate = new DateTime(2010, 10, 10, 0, 0, 0).toDate();
+        Date encounterDate = new DateTime(2010, 10, 11, 0, 0, 0).toDate();
+        Visit visit = new Visit();
+        visit.setStartDatetime(visitStartDate);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public Visit getVisit() {
+                return visit;
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestForm";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                request.addParameter(widgets.get("Date:"), dateAsString(encounterDate));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+            }
+        }.run();
+    }
+
+    @Test
+    public void testShouldNotFailIfEncounterDateSameDayAsVisitStartDateAndHasNoTimeComponent() throws Exception {
+        Date visitStartDate = new DateTime(2010, 10, 10, 10, 10, 0).toDate();
+        Date encounterDate = new DateTime(2010, 10, 10, 0, 0, 0).toDate();
+        Visit visit = new Visit();
+        visit.setStartDatetime(visitStartDate);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public Visit getVisit() {
+                return visit;
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestFormWithTimeComponent";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(encounterDate);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                request.addParameter(widgets.get("Date:"), dateAsString(encounterDate));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                // hack since time components don't have labels, have to specify actual widget names
+                request.addParameter("w1hours", String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
+                request.addParameter("w1minutes", String.valueOf(cal.get(Calendar.MINUTE)));
+                request.addParameter("w1seconds", String.valueOf(cal.get(Calendar.SECOND)));
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoErrors();
+                results.assertEncounterCreated();
+                results.assertProvider(502);
+                results.assertLocation(2);
+            }
+        }.run();
+    }
+
+    @Test
+    public void testShouldFailIfEncounterDateBeforeVisitStartDateOnSameDayAndHasTimeComponent() throws Exception {
+        Date visitStartDate = new DateTime(2010, 10, 10, 10, 10, 0).toDate();
+        Date encounterDate = new DateTime(2010, 10, 10, 8, 0, 0).toDate();
+        Visit visit = new Visit();
+        visit.setStartDatetime(visitStartDate);
+
+        new RegressionTestHelper() {
+
+            @Override
+            public Visit getVisit() {
+                return visit;
+            }
+
+            @Override
+            public String getFormName() {
+                return "simplestFormWithTimeComponent";
+            }
+
+            @Override
+            public String[] widgetLabels() {
+                return new String[] { "Date:", "Location:", "Provider:" };
+            }
+
+            @Override
+            public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(encounterDate);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                request.addParameter(widgets.get("Date:"), dateAsString(encounterDate));
+                request.addParameter(widgets.get("Location:"), "2");
+                request.addParameter(widgets.get("Provider:"), "502");
+
+                // hack since time components don't have labels, have to specify actual widget names
+                request.addParameter("w1hours", String.valueOf(cal.get(Calendar.HOUR_OF_DAY)));
+                request.addParameter("w1minutes", String.valueOf(cal.get(Calendar.MINUTE)));
+                request.addParameter("w1seconds", String.valueOf(cal.get(Calendar.SECOND)));
+            }
+
+            @Override
+            public void testResults(SubmissionResults results) {
+                results.assertNoEncounterCreated();
+                results.assertErrors(1);
+                List<FormSubmissionError> errors = results.getValidationErrors();
+                Assert.assertEquals("Cannot be before visit start date", errors.get(0).getError());
+            }
+        }.run();
+    }
+
 	// this test currently fails because Encounter Date tag is after Obs tag on the form; should be fixed or ticketed
 	@Test
 	@Ignore

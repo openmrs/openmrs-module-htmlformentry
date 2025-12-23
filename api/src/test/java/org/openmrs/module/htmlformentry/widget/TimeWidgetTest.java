@@ -34,8 +34,43 @@ public class TimeWidgetTest extends BaseHtmlFormEntryTest {
 		assertTrue(html.contains("<input type=\"hidden\" class=\"hfe-minutes\" name=\"w1minutes\" value=\"9\"/>"));
 		assertTrue(html.contains("<input type=\"hidden\" class=\"hfe-seconds\" name=\"w1seconds\" value=\"35\"/>"));
 	}
-	
-	@Test
+
+    @Test
+    public void testHideSeconds() throws Exception {
+        Date date = new SimpleDateFormat("HH:mm:ss").parse("18:09:35");
+
+        TimeWidget widget = new TimeWidget();
+        widget.setHideSeconds(true);
+        widget.setInitialValue(date);
+
+        FormEntryContext formEntryContext = mock(FormEntryContext.class);
+        when(formEntryContext.getFieldName(widget)).thenReturn("w1");
+
+        String html = widget.generateHtml(formEntryContext);
+        System.out.println(html);
+
+        assertTrue(html.contains("<select class=\"hfe-seconds\" name=\"w1seconds\" style=\"display:none\">"));
+    }
+
+    @Test
+    public void testShowSeconds() throws Exception {
+        Date date = new SimpleDateFormat("HH:mm:ss").parse("18:09:35");
+
+        TimeWidget widget = new TimeWidget();
+        widget.setInitialValue(date);
+
+        FormEntryContext formEntryContext = mock(FormEntryContext.class);
+        when(formEntryContext.getFieldName(widget)).thenReturn("w1");
+
+        String html = widget.generateHtml(formEntryContext);
+        System.out.println(html);
+
+        assertTrue(html.contains("<select class=\"hfe-seconds\" name=\"w1seconds\">"));
+    }
+
+
+
+    @Test
 	public void testTimeFormat() throws Exception {
 		Date date = new SimpleDateFormat("HH:mm:ss").parse("18:09:35");
 		
