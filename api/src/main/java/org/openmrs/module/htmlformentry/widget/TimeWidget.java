@@ -81,7 +81,7 @@ public class TimeWidget implements Widget {
 				sb.append(">" + label + "</option>");
 			}
 			sb.append("</select>");
-            sb.append("<select class=\"hfe-seconds\"name=\"").append(fieldName).append("seconds").append("\"");
+            sb.append("<select class=\"hfe-seconds\" name=\"").append(fieldName).append("seconds").append("\"");
             if (hideSeconds) {
                 sb.append(" style=\"display:none\"");
             }
