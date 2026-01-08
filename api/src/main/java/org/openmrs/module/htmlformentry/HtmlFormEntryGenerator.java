@@ -837,6 +837,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 	 */
 	public String wrapInDiv(String xml) {
 		xml = xml.trim();
+        // TODO not sure if this really does anything anymore since htmlform usually has attributes now
 		xml = xml.replaceAll("(?s)<htmlform>(.*)</htmlform>", "<div class=\"htmlform\">$1</div>");
 		return xml;
 	}
