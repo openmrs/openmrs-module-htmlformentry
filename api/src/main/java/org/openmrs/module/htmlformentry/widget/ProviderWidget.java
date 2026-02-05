@@ -34,7 +34,7 @@ import org.springframework.util.StringUtils;
 public class ProviderWidget implements Widget {
 	
 	private Provider initialValue;
-	
+
 	private List<Provider> providers;
 	
 	public ProviderWidget(List<Provider> providers) {
@@ -64,6 +64,11 @@ public class ProviderWidget implements Widget {
 			else
 				return "";
 		}
+
+		// Ensure that if the form restricts providers, but a provider is already saved, it is present in the widget
+		if (context.getExistingEncounter() != null && initialValue != null && !providers.contains(initialValue)) {
+			providers.add(initialValue);
+		}
 		
 		List<Provider> retiredProviders = new ArrayList<>();
 		List<Provider> nonRetiredProviders = new ArrayList<>();
@@ -76,6 +81,7 @@ public class ProviderWidget implements Widget {
 				nonRetiredProviders.add(provider);
 			}
 		}
+
 		Collections.sort(nonRetiredProviders, new ProviderByPersonNameComparator());
 		Collections.sort(retiredProviders, new ProviderByPersonNameComparator());
 		
