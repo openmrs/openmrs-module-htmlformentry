@@ -368,9 +368,7 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement, Form
 							rel.setPersonA(relatedPerson);
 						}
 						rel.setRelationshipType(r);
-						
-						Context.getPersonService().saveRelationship(rel);
-						//session.getSubmissionActions().getRelationshipsToCreate().add(rel);
+						session.getSubmissionActions().getRelationshipsToCreate().add(rel);
 					}
 				}
 			}
