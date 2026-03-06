@@ -135,8 +135,70 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		FormResultsTester results = formSessionTester.submitForm();
 		results.assertErrorMessage("htmlformentry.orders.overlappingScheduleWithActiveOrder");
 	}
-	
-	@Test
+
+    @Test
+    public void shouldAllowEarlierOrderIfNonOverlappingByCalculatedExpiryDate() {
+        FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+
+        // Enter an encounter with an order for drug 2
+        {
+            FormSessionTester formSessionTester = formTester.openNewForm(6);
+            formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+            OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+            triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+            triomuneField.freeTextDosing("Triomune instructions");
+            FormResultsTester results = formSessionTester.submitForm();
+            results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+            DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+            TestUtil.assertDate(o1.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+            assertThat(o1.getDateStopped(), nullValue());
+        }
+
+        // Now, enter an encounter month earlier, but with a duration of only 20 days
+        FormSessionTester formSessionTester = formTester.openNewForm(6);
+        formSessionTester.setEncounterFields("2020-02-28", "2", "502");
+        OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+        triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+        triomuneField.freeTextDosing("Triomune instructions");
+        triomuneField.duration("20");
+        triomuneField.durationUnits("28");  // duration concept for days
+        FormResultsTester results = formSessionTester.submitForm();
+        results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+    }
+
+    @Test
+    public void shouldNotAllowEarlierOrderIfOverlappingByCalculatedExpiryDate() {
+        FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+
+        // Enter an encounter with an order for drug 2
+        {
+            FormSessionTester formSessionTester = formTester.openNewForm(6);
+            formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+            OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+            triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+            triomuneField.freeTextDosing("Triomune instructions");
+            FormResultsTester results = formSessionTester.submitForm();
+            results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+            DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+            TestUtil.assertDate(o1.getDateActivated(), "yyyy-MM-dd HH:mm:ss", "2020-03-30 00:00:00");
+            assertThat(o1.getDateStopped(), nullValue());
+        }
+
+        // Now, enter an encounter month earlier, with a duration of 40 days
+        FormSessionTester formSessionTester = formTester.openNewForm(6);
+        formSessionTester.setEncounterFields("2020-02-28", "2", "502");
+        OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+        triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+        triomuneField.freeTextDosing("Triomune instructions");
+        triomuneField.duration("40");
+        triomuneField.durationUnits("28");  // duration concept for days
+        FormResultsTester results = formSessionTester.submitForm();
+        results.assertErrorMessage("htmlformentry.orders.overlappingScheduleWithActiveOrder");
+    }
+
+
+
+    @Test
 	public void shouldFailValidationIfMultipleOrdersPlacedForSameOrderable() {
 		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
 		
