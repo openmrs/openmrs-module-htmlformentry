@@ -8,6 +8,7 @@ import org.openmrs.CareSetting;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.Duration;
 import org.openmrs.Encounter;
 import org.openmrs.FreeTextDosingInstructions;
 import org.openmrs.Order;
@@ -34,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.apache.commons.lang3.time.DateUtils.addSeconds;
 
 /**
  * Holds the widgets used to represent orders for a configured set of orderables (concepts, drugs),
@@ -352,7 +355,7 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 		return false;
 	}
 	
-	private boolean checkScheduleOverlap(FormEntryContext ctx, Order newOrder, Order existingOrder) {
+	private boolean checkScheduleOverlap(FormEntryContext ctx, DrugOrder newOrder, Order existingOrder) {
 		Date newStart = newOrder.getEffectiveStartDate();
 		Date newStop = newOrder.getEffectiveStopDate();
 		Date existingStart = existingOrder.getEffectiveStartDate();
@@ -361,7 +364,18 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 		if (newStart == null) {
 			newStart = ctx.getBestApproximationOfEncounterDate();
 		}
-		
+
+        // attempt to estimate the stop date based on the auto-expire date
+        if (newStop == null) {
+            if (newOrder.getDuration() != null && newOrder.getDurationUnits() != null) {
+                String durationCode = Duration.getCode(newOrder.getDurationUnits());
+                if (durationCode != null) {
+                    Duration duration = new Duration(newOrder.getDuration(), durationCode);
+                    newStop = addSeconds(duration.addToDate(newStart, newOrder.getFrequency()),-1);
+                }
+            }
+        }
+
 		// If both orders start on the same date, then they overlap
 		if (OpenmrsUtil.compareWithNullAsLatest(newStart, existingStart) == 0) {
 			return true;
