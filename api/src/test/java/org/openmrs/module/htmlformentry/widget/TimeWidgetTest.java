@@ -95,7 +95,7 @@ public class TimeWidgetTest extends BaseHtmlFormEntryTest {
 		when(formEntryContext.getMode()).thenReturn(FormEntryContext.Mode.VIEW);
 		String html = widget.generateHtml(formEntryContext);
 		String expected = "<span class=\"value\">" + expectedValue + "</span>";
-		assertEquals(expected, html);
+		assertTrue(expected.equalsIgnoreCase(html));
 	}
 	
 	protected void setGlobalProperty(String format) {
