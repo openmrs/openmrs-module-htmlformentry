@@ -49,3 +49,21 @@ Project Resources
 [HTML Reference]: http://archive.openmrs.org/wiki/HTML_Form_Entry_Module_HTML_Reference
 [Wiki page]: https://wiki.openmrs.org/display/docs/HTML+Form+Entry+Module
 [Java's SimpleDateFormat]: http://docs.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html
+
+## Important Note for OpenMRS 3 (SPA) Users
+
+HTML Form Entry currently works only with the **Legacy UI / Reference Application**.
+
+If you are using **OpenMRS 3 (Single Page Application – SPA)**:
+- The “Manage HTML Forms” page will not be visible
+- HTML Form Entry admin pages are not supported
+- This is expected behavior, not a setup error
+
+To develop or test HTML Form Entry:
+- Use OpenMRS 2.x with the Reference Application
+- Or ensure the legacy UI is enabled
+
+
+
+
+
