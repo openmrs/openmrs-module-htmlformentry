@@ -1,0 +1,5 @@
+package org.openmrs.module.htmlformentry.element;
+
+public class SaveRelationshipAction {
+	
+}
