@@ -242,6 +242,81 @@ public class EncounterLocationTagTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void shouldRestrictToSessionVisitLocationAndChildrenIfRestrictToSessionVisitLocationEnabledAndUserLoginLocationIsVisitLocation()
+	        throws Exception {
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
+
+		// "outpatient" (id=1002) is itself tagged as a Visit Location
+		Location loginLocation = Context.getLocationService().getLocation(1002);
+		Context.getUserContext().setLocation(loginLocation);
+
+		String htmlform = "<htmlform><encounterLocation restrictToSessionVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+		String htmlToDisplay = session.getHtmlToDisplay();
+
+		// "outpatient" and its descendants should be included
+		TestUtil.assertFuzzyContains("out patient", htmlToDisplay);
+		TestUtil.assertFuzzyContains("pharmacy", htmlToDisplay);
+		TestUtil.assertFuzzyContains("dentist room", htmlToDisplay);
+		TestUtil.assertFuzzyContains("nurse's room", htmlToDisplay);
+		TestUtil.assertFuzzyContains("dispensary", htmlToDisplay);
+
+		// ancestors and locations outside the subtree should not appear
+		TestUtil.assertFuzzyDoesNotContain("amani hospital", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("in patient", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("opd", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("casuality", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("intensive care", htmlToDisplay);
+	}
+
+	@Test
+	public void shouldRestrictToNearestVisitLocationAncestorIfRestrictToSessionVisitLocationEnabledAndUserLoginLocationIsNotVisitLocation()
+	        throws Exception {
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
+
+		// "intensive care" (id=1010) is NOT tagged as a Visit Location; its parent "in patient" (id=1003) is
+		Location loginLocation = Context.getLocationService().getLocation(1010);
+		Context.getUserContext().setLocation(loginLocation);
+
+		String htmlform = "<htmlform><encounterLocation restrictToSessionVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+		String htmlToDisplay = session.getHtmlToDisplay();
+
+		// the nearest visit-location ancestor ("in patient") and its descendants should be included
+		TestUtil.assertFuzzyContains("in patient", htmlToDisplay);
+		TestUtil.assertFuzzyContains("casuality", htmlToDisplay);
+		TestUtil.assertFuzzyContains("intensive care", htmlToDisplay);
+
+		TestUtil.assertFuzzyDoesNotContain("amani hospital", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("out patient", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("opd", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("pharmacy", htmlToDisplay);
+		TestUtil.assertFuzzyDoesNotContain("dentist room", htmlToDisplay);
+	}
+
+	@Test
+	public void shouldNotRestrictLocationsIfRestrictToSessionVisitLocationEnabledButUserHasNoLoginLocation()
+	        throws Exception {
+		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
+
+		Context.getUserContext().setLocation(null);
+
+		String htmlform = "<htmlform><encounterLocation restrictToSessionVisitLocation=\"true\"/></htmlform>";
+		FormEntrySession session = new FormEntrySession(null, htmlform, null);
+
+		String htmlToDisplay = session.getHtmlToDisplay();
+
+		// no restriction applied - all non-retired locations should be present
+		TestUtil.assertFuzzyContains("amani hospital", htmlToDisplay);
+		TestUtil.assertFuzzyContains("out patient", htmlToDisplay);
+		TestUtil.assertFuzzyContains("in patient", htmlToDisplay);
+		TestUtil.assertFuzzyContains("opd", htmlToDisplay);
+		TestUtil.assertFuzzyContains("intensive care", htmlToDisplay);
+	}
+
+	@Test
 	public void getAllVisitsAndChildLocations_shouldReturnAllVisitsAndTheirChildLocations() throws Exception {
 		executeVersionedDataSet("org/openmrs/module/htmlformentry/data/encounterLocationTest.xml");
 		Set<Location> traversedLocations = new HashSet<Location>();

@@ -536,6 +536,17 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 						HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locationList,
 						    ((Visit) context.getVisit()).getLocation());
 					}
+                    // if "restrictToSessionVisitLocation" parameter remove all locations that aren't children of the login Visit location
+                    if ("true".equalsIgnoreCase(parameters.get("restrictToSessionVisitLocation"))) {
+                        Location loginLocation = Context.getUserContext().getLocation();
+                        if (loginLocation != null) {
+                            //find the nearest Visit location
+                            Location visitLocation = HtmlFormEntryUtil.getFirstAncestorWithTag(loginLocation, HtmlFormEntryUtil.getLocationTag("Visit Location"));
+                            if (visitLocation != null) {
+                                HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locationList, visitLocation);
+                            }
+                        }
+                    }
 					
 					List<Option> locationOptions = new ArrayList<>();
 					for (Location location : locationList) {
