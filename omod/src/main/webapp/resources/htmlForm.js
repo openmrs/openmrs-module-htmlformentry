@@ -1,6 +1,31 @@
 //Uses the namespace pattern from http://stackoverflow.com/a/5947280
 (function( htmlForm, $, undefined) {
 
+    var getHiddenFieldsTracker = function() {
+        return $('form input[name="hfeHiddenFields"]');
+    };
+
+    // Adds or removes field names within a section from the hidden-fields tracker.
+    // The tracker is a comma-separated hidden input read server-side to skip required
+    // validation on fields that were hidden by when/then controls at submission time.
+    var updateHiddenFieldsTracker = function(section, isHiding) {
+        var $tracker = getHiddenFieldsTracker();
+        if (!$tracker.length) return;
+
+        var hidden = $tracker.val() ? $tracker.val().split(',') : [];
+        $(section).find(':input[name]').each(function() {
+            var name = $(this).attr('name');
+            if (!name) return;
+            var idx = hidden.indexOf(name);
+            if (isHiding) {
+                if (idx === -1) hidden.push(name);
+            } else {
+                if (idx > -1) hidden.splice(idx, 1);
+            }
+        });
+        $tracker.val(hidden.join(','));
+    };
+
     var onObsChangedCheck = function() {
         var whenValueThenDisplaySection = $(this).data('whenValueThenDisplaySection');
 
@@ -30,6 +55,7 @@
                 if (val === ifValue) {
                     $(thenSection).show();
                     displayedSection = thenSection;
+                    updateHiddenFieldsTracker(thenSection, false);
                 }
             });
 
@@ -38,6 +64,7 @@
             $.each(whenValueThenDisplaySection, function(ifValue, thenSection) {
                 if (val !== ifValue && thenSection !== displayedSection) {
                     $(thenSection).hide();
+                    updateHiddenFieldsTracker(thenSection, true);
                     $(thenSection).find('input[type="hidden"], input:text, input:password, input:file, select, textarea').val('');
                     $(thenSection).find('input:checkbox, input:radio').removeAttr('checked').removeAttr('selected');
                 }
@@ -68,6 +95,9 @@
     }
 
     htmlForm.setupWhenThen = function(obsId, valueToSection, valueToThenJs, valueToElseJs) {
+        if (getHiddenFieldsTracker().length === 0) {
+            $('form').append('<input type="hidden" name="hfeHiddenFields" value="">');
+        }
         var field = getField(obsId + '.value');
         field.data('whenValueThenDisplaySection', valueToSection);
         field.data('whenValueThenJs', valueToThenJs);

@@ -1444,7 +1444,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			}
 		}
 		
-		if (required) {
+		if (required && !isFieldHiddenByControls(context, submission)) {
 			if (value == null) {
 				ret.add(new FormSubmissionError(valueWidget,
 				        Context.getMessageSourceService().getMessage("htmlformentry.error.required")));
@@ -1459,7 +1459,16 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		
 		return ret;
 	}
-	
+
+	private boolean isFieldHiddenByControls(FormEntryContext context, HttpServletRequest submission) {
+		String hiddenFields = submission.getParameter("hfeHiddenFields");
+		if (StringUtils.isEmpty(hiddenFields)) {
+			return false;
+		}
+		String fieldName = context.getFieldNameIfRegistered(valueWidget);
+		return fieldName != null && Arrays.asList(hiddenFields.split(",")).contains(fieldName);
+	}
+
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
 		Object value = valueWidget.getValue(session.getContext(), submission);

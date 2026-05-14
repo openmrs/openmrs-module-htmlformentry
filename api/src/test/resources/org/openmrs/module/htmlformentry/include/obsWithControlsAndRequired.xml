@@ -1,0 +1,14 @@
+<htmlform>
+    Date: <encounterDate default="today"/>
+    Location: <encounterLocation default="2"/>
+    Provider: <encounterProvider role="Provider"/>
+    Allergy: <obs conceptId="1000" id="allergy" answerConceptIds="1001,1002">
+        <controls>
+            <when value="1002" thenDisplay="#allergy-followup"/>
+        </controls>
+    </obs>
+    <div id="allergy-followup">
+        Details: <obs conceptId="60000" required="true"/>
+    </div>
+    <submit/>
+</htmlform>
