@@ -374,6 +374,20 @@ public class EncounterDetailSubmissionElement implements HtmlGeneratorElement, F
 				locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations,
 				    ((Visit) context.getVisit()).getLocation());
 			}
+
+            // restrict to visit locations associated with the user login location
+            if (parameters.get("restrictToSessionVisitLocation") != null
+                    && "true".equalsIgnoreCase(parameters.get("restrictToSessionVisitLocation").toString())
+                    ) {
+                Location loginLocation = Context.getUserContext().getLocation();
+                if (loginLocation != null) {
+                    //find the nearest Visit location
+                    Location visitLocation = HtmlFormEntryUtil.getFirstAncestorWithTag(loginLocation, HtmlFormEntryUtil.getLocationTag("Visit Location"));
+                    if (visitLocation != null) {
+                        locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations, visitLocation);
+                    }
+                }
+            }
 			
 			// now create the actual location options
 			for (Location location : locations) {
