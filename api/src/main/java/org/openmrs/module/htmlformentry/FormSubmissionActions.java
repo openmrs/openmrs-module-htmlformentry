@@ -80,8 +80,10 @@ public class FormSubmissionActions {
 	private List<PatientIdentifier> identifiersToVoid = new Vector<PatientIdentifier>();
 	
 	private List<Object> appointmentsToMarkCheckedInAndAssociateWithEncounter = new Vector<Object>();
-	
+
 	private List<Object> appointmentsToDisassociateFromEncounter = new Vector<Object>();
+
+	private List<Object> appointmentsToCreate = new Vector<Object>();
 	
 	private ExitFromCareProperty exitFromCareProperty;
 	
@@ -966,5 +968,13 @@ public class FormSubmissionActions {
 	
 	public void setAppointmentsToDisassociateFromEncounter(List<Object> appointmentsToDisassociateFromEncounter) {
 		this.appointmentsToDisassociateFromEncounter = appointmentsToDisassociateFromEncounter;
+	}
+
+	public List<Object> getAppointmentsToCreate() {
+		return appointmentsToCreate;
+	}
+
+	public void addAppointmentToCreate(Object appointment) {
+		appointmentsToCreate.add(appointment);
 	}
 }

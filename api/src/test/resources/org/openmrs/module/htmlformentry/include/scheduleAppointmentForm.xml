@@ -1,0 +1,4 @@
+<htmlform>
+    <scheduleAppointment locationTag="Some Tag"/>
+    <submit/>
+</htmlform>
