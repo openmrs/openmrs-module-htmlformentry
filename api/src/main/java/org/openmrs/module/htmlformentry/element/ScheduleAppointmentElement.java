@@ -41,7 +41,9 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	private static final String DEFAULT_LOCATION_TAG = "Appointment Location";
 
-	private static final int DEFAULT_DURATION_MINUTES = 30;
+	private boolean optional;
+
+	private TextFieldWidget scheduleChoiceWidget;
 
 	private DropdownWidget locationWidget;
 
@@ -69,6 +71,12 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	public ScheduleAppointmentElement(FormEntryContext context, Map<String, String> parameters) {
 		if (context.getMode() != Mode.ENTER) {
 			return;
+		}
+
+		optional = "true".equalsIgnoreCase(parameters.get("optional"));
+		if (optional) {
+			scheduleChoiceWidget = new TextFieldWidget();
+			context.registerWidget(scheduleChoiceWidget);
 		}
 
 		// --- Location ---
@@ -150,10 +158,31 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	@Override
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() != Mode.ENTER) {
-			return "";
+			return "<p>" + Context.getMessageSourceService().getMessage(
+			    "htmlformentry.scheduleAppointment.viewModeMessage", null,
+			    "To view or manage appointments for this patient, use the Appointments app.",
+			    Context.getLocale()) + "</p>";
 		}
 
 		StringBuilder sb = new StringBuilder();
+
+		if (optional) {
+			String fieldName = context.getFieldName(scheduleChoiceWidget);
+			String divId = "schedule-appt-fields-" + fieldName;
+			String scheduleLabel = Context.getMessageSourceService().getMessage(
+			    "htmlformentry.scheduleAppointment.doSchedule", null, "Schedule appointment", Context.getLocale());
+			String skipLabel = Context.getMessageSourceService().getMessage(
+			    "htmlformentry.scheduleAppointment.skip", null, "Skip for now", Context.getLocale());
+			sb.append("<p>");
+			sb.append("<label><input type=\"radio\" name=\"").append(fieldName).append("\" value=\"yes\"")
+			        .append(" onchange=\"document.getElementById('").append(divId).append("').style.display='block'\"> ")
+			        .append(scheduleLabel).append("</label> ");
+			sb.append("<label><input type=\"radio\" name=\"").append(fieldName).append("\" value=\"no\" checked")
+			        .append(" onchange=\"document.getElementById('").append(divId).append("').style.display='none'\"> ")
+			        .append(skipLabel).append("</label>");
+			sb.append("</p>");
+			sb.append("<div id=\"").append(divId).append("\" style=\"display:none\">");
+		}
 
 		sb.append(fieldRow(
 		    Context.getMessageSourceService().getMessage("htmlformentry.scheduleAppointment.location", null, "Location",
@@ -192,12 +221,20 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		        Context.getLocale()),
 		    noteWidget.generateHtml(context)));
 
+		if (optional) {
+			sb.append("</div>");
+		}
+
 		return sb.toString();
 	}
 
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
 		if (context.getMode() != Mode.ENTER) {
+			return Collections.emptyList();
+		}
+
+		if (optional && !"yes".equals(scheduleChoiceWidget.getValue(context, submission))) {
 			return Collections.emptyList();
 		}
 
@@ -244,6 +281,10 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		FormEntryContext context = session.getContext();
 
+		if (optional && !"yes".equals(scheduleChoiceWidget.getValue(context, submission))) {
+			return;
+		}
+
 		String locationUuid = (String) locationWidget.getValue(context, submission);
 		String serviceUuid = (String) serviceWidget.getValue(context, submission);
 		String typeValue = typeWidget.getOptions().size() == 1
@@ -258,19 +299,15 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		        .findFirst()
 		        .orElse(null);
 
-		int durationMins = (service != null && service.getDurationMins() != null)
-		        ? service.getDurationMins()
-		        : DEFAULT_DURATION_MINUTES;
-
-		Date endDateTime = new Date(startDateTime.getTime() + (long) durationMins * 60 * 1000);
-
 		Appointment appointment = new Appointment();
 		appointment.setPatient(session.getPatient());
 		appointment.setLocation(Context.getLocationService().getLocationByUuid(locationUuid));
 		appointment.setService(service);
 		appointment.setAppointmentKind(AppointmentKind.valueOf(typeValue));
 		appointment.setStartDateTime(startDateTime);
-		appointment.setEndDateTime(endDateTime);
+		if (service != null && service.getDurationMins() != null) {
+			appointment.setEndDateTime(new Date(startDateTime.getTime() + (long) service.getDurationMins() * 60 * 1000));
+		}
 		appointment.setComments(note);
 
 		if (providerUuid != null && !providerUuid.isEmpty()) {

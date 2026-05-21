@@ -1,4 +1,5 @@
 <htmlform>
+    Encounter Date: <encounterDate/>
     <scheduleAppointment locationTag="Some Tag"/>
     <submit/>
 </htmlform>
