@@ -26,7 +26,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	private static final String CONSULTATION_UUID = "c36006e5-9fbb-4f20-866b-0ece245615a6";
 
 	// Provider 1 from standard test dataset
-	private static final String PROVIDER_UUID = "c2299800-cca9-11e0-9572-0800200c9a66";
+	private static final String PROVIDER_ID = "1";
 
 	// Patient 2 (person_id=2) from standard test dataset
 	private static final String PATIENT_UUID = "da7f524f-27ce-4bb2-86d6-6d1d05312bd5";
@@ -97,7 +97,8 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(timeWidgetBase + "minutes", "30");
 				request.setParameter(timeWidgetBase + "seconds", "0");
 
-				request.setParameter(widgets.get("Provider"), PROVIDER_UUID);
+				// ProviderAjaxAutoCompleteWidget submits integer provider ID via the _hid hidden field
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
 			}
 
 			@Override
@@ -117,7 +118,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				Assert.assertEquals(AppointmentKind.Scheduled, appt.getAppointmentKind());
 				Assert.assertEquals(KIGALI_UUID, appt.getLocation().getUuid());
 				Assert.assertEquals(CONSULTATION_UUID, appt.getService().getUuid());
-				Assert.assertEquals(PROVIDER_UUID, appt.getProviders().iterator().next().getProvider().getUuid());
+				Assert.assertEquals(Integer.parseInt(PROVIDER_ID), (int) appt.getProviders().iterator().next().getProvider().getProviderId());
 
 				// Verify start time is 2025-01-15 10:30
 				Calendar startCal = Calendar.getInstance();
@@ -136,7 +137,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	}
 
 	@Test
-	public void scheduleAppointmentTag_shouldHideTypeDropdownWhenSingleTypeSpecified() throws Exception {
+	public void scheduleAppointmentTag_shouldPreselectTypeWhenSingleTypeSpecified() throws Exception {
 		new RegressionTestHelper() {
 
 			@Override
@@ -146,7 +147,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"[Scheduled]\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"Scheduled\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -156,7 +157,6 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public void testBlankFormHtml(String html) {
-				// With a single fixed type, show the label and type name as text — no dropdown
 				TestUtil.assertFuzzyContains("Appointment Type", html);
 				TestUtil.assertFuzzyContains(AppointmentKind.Scheduled.getValue(), html);
 				TestUtil.assertFuzzyDoesNotContain(AppointmentKind.WalkIn.getValue(), html);
@@ -176,7 +176,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"[Scheduled,WalkIn]\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"Scheduled,WalkIn\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -220,7 +220,8 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(timeWidgetBase + "minutes", "30");
 				request.setParameter(timeWidgetBase + "seconds", "0");
 
-				request.setParameter(widgets.get("Provider"), PROVIDER_UUID);
+				// ProviderAjaxAutoCompleteWidget submits integer provider ID via the _hid hidden field
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
 			}
 
 			@Override
