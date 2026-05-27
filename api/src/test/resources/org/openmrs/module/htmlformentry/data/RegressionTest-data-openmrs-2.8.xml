@@ -299,7 +299,18 @@
 
     <patient_identifier patient_identifier_id="2" patient_id="2" creator="1" date_created="2005-01-01 00:00:00.0" identifier="a-D" identifier_type="1" preferred="1" voided="false" location_id="1" />
 
+    <!-- Location-type PersonAttributeType for personAttribute tag tests (must appear before person_attribute rows) -->
+    <person_attribute_type person_attribute_type_id="19" name="Birthplace Location"
+        description="Location of birth" format="org.openmrs.Location"
+        searchable="false" creator="1" date_created="2024-01-01 00:00:00.0"
+        retired="false" uuid="a6e61b61-5f1a-4a19-8a4c-test00000001" sort_weight="10"/>
+
     <person_attribute person_attribute_id="14" person_id="8" value="6" person_attribute_type_id="8" creator="1" date_created="2008-08-18 11:56:42.0" voided="false" uuid="63a5a4a0-dd44-46ac-b8c0-c6bfb5a5f878"/>
+
+    <!-- Two non-voided Civil Status (type 8) attributes for patient 2 used in multiple-attribute warning tests.
+         id=22 (date_created=2024-01-01) is more recent; its value "1001" (PENICILLIN) should be selected. -->
+    <person_attribute person_attribute_id="21" person_id="2" value="6" person_attribute_type_id="8" creator="1" date_created="2020-01-01 00:00:00.0" voided="false" uuid="aaa00001-5f1a-4a19-8a4c-test00000021"/>
+    <person_attribute person_attribute_id="22" person_id="2" value="1001" person_attribute_type_id="8" creator="1" date_created="2024-01-01 00:00:00.0" voided="false" uuid="aaa00002-5f1a-4a19-8a4c-test00000022"/>
 
     <patient_program patient_program_id="1" patient_id="2" program_id="1" creator="1" date_enrolled="2005-01-01 00:00:00.0" date_created="2005-01-01 00:00:00.0" voided="false" uuid="32296060-03aa-102d-b0e3-001ec94a0cc5"/>
     <patient_program patient_program_id="101" patient_id="2" program_id="1" creator="1" date_enrolled="2001-01-01 00:00:00.0" date_created="2001-01-01 00:00:00.0" date_completed="2003-05-01 00:00:00.0" voided="false" uuid="32596060-03aa-102d-b0e3-001ec94a0cc5"/>
@@ -322,5 +333,11 @@
 
     <role role="System Administrator" description="Blah" uuid="92b70b00-58b1-11e0-80e3-0800200c9a66"/>
     <role role="Data Clerk" description="Blah" uuid="a238c500-58b1-11e0-80e3-0800200c9a66"/>
+
+    <!-- Location attribute for patient 2 (person_id=2), value = location_id 1 -->
+    <person_attribute person_attribute_id="20" person_id="2" value="1"
+        person_attribute_type_id="19" creator="1"
+        date_created="2024-01-01 00:00:00.0" voided="false"
+        uuid="b7f72c72-6f2b-5b2b-9b5d-test00000002"/>
 
 </dataset>
