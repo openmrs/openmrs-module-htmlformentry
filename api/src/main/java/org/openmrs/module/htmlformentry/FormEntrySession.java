@@ -30,7 +30,6 @@ import org.openmrs.api.ObsService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.appointment.AppointmentsAbstractor;
-import org.openmrs.module.htmlformentry.appointment.ScheduleAppointmentAbstractor;
 import org.openmrs.module.htmlformentry.property.ExitFromCareProperty;
 import org.openmrs.module.htmlformentry.velocity.VelocityContextContentProvider;
 import org.openmrs.module.htmlformentry.widget.AutocompleteWidget;
@@ -651,7 +650,7 @@ public class FormEntrySession {
 		}
 
 		if (!submissionActions.getAppointmentsToCreate().isEmpty()) {
-			new ScheduleAppointmentAbstractor().createAppointments(submissionActions.getAppointmentsToCreate());
+			new AppointmentsAbstractor().createAppointments(submissionActions.getAppointmentsToCreate());
 		}
 		
 		//deal with relationships

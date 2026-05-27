@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.Appointment;
 import org.openmrs.module.appointments.model.AppointmentKind;
@@ -189,6 +190,79 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				TestUtil.assertFuzzyContains(AppointmentKind.Scheduled.getValue(), html);
 				TestUtil.assertFuzzyContains(AppointmentKind.WalkIn.getValue(), html);
 				TestUtil.assertFuzzyDoesNotContain(AppointmentKind.Virtual.getValue(), html);
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldRestrictLocationsToVisitLocationAndDescendants() throws Exception {
+		// Boston (1004) has one child: Jamaica Plain (1007). Neither is tagged with "Appointment Location",
+		// so the element falls back to all non-retired locations.
+		// With restrictToCurrentVisitLocation="true" and visit at Boston, only Boston and Jamaica Plain should appear.
+		final Visit visit = new Visit();
+		visit.setLocation(Context.getLocationService().getLocationByUuid("9356400c-a5a2-4588-8f2b-2361b3446eb8")); // Boston
+
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform><scheduleAppointment restrictToCurrentVisitLocation=\"true\"/><submit/></htmlform>";
+			}
+
+			@Override
+			public Visit getVisit() {
+				return visit;
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Boston", html);
+				TestUtil.assertFuzzyContains("Jamaica Plain", html);
+
+				TestUtil.assertFuzzyDoesNotContain("Kigali", html);
+				TestUtil.assertFuzzyDoesNotContain("Mirebalais", html);
+				TestUtil.assertFuzzyDoesNotContain("Scituate", html);
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldNotRestrictLocationsWhenNoVisitInContext() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform><scheduleAppointment restrictToCurrentVisitLocation=\"true\"/><submit/></htmlform>";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				// No visit in context, so all non-retired locations should appear
+				TestUtil.assertFuzzyContains("Kigali", html);
+				TestUtil.assertFuzzyContains("Mirebalais", html);
+				TestUtil.assertFuzzyContains("Boston", html);
+				TestUtil.assertFuzzyContains("Scituate", html);
+				TestUtil.assertFuzzyContains("Jamaica Plain", html);
 			}
 		}.run();
 	}

@@ -1,6 +1,5 @@
 package org.openmrs.module.htmlformentry.handler;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ public class ScheduleAppointmentTagHandler extends SubstitutionTagHandler {
 
 	@Override
 	protected List<AttributeDescriptor> createAttributeDescriptors() {
-		return Collections.unmodifiableList(new ArrayList<AttributeDescriptor>());
+		return Collections.emptyList();
 	}
 
 	@Override

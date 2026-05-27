@@ -43,4 +43,11 @@ public class AppointmentsAbstractor {
 			}
 		}
 	}
+	
+	public void createAppointments(List<Object> appointments) {
+		for (Object obj : appointments) {
+			Appointment appointment = (Appointment) obj;
+			Context.getService(AppointmentsService.class).validateAndSave(appointment);
+		}
+	}
 }

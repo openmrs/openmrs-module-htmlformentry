@@ -15,6 +15,7 @@ import java.util.Set;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Provider;
+import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.Appointment;
 import org.openmrs.module.appointments.model.AppointmentKind;
@@ -26,6 +27,7 @@ import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
+import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.MatchMode;
@@ -93,6 +95,13 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		List<Location> locations = locationTag != null
 		        ? Context.getLocationService().getLocationsByTag(locationTag)
 		        : Context.getLocationService().getAllLocations(false);
+
+		if ("true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation"))
+		        && context.getVisit() != null) {
+			locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations,
+			    ((Visit) context.getVisit()).getLocation());
+		}
+
 		for (Location loc : locations) {
 			locationWidget.addOption(new Option(loc.getName(), loc.getUuid(), false));
 		}
