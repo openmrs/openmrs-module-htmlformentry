@@ -32,7 +32,6 @@ import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
-import org.openmrs.module.htmlformentry.widget.WidgetFactory;
 import org.springframework.util.StringUtils;
 
 /**
@@ -61,10 +60,10 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 	/** The resolved attribute type. */
 	private final PersonAttributeType attributeType;
 
-	/** The widget used in ENTER / EDIT modes (null in VIEW mode). */
+	/** The widget used to render and submit the attribute value. */
 	private Widget valueWidget;
 
-	/** The error widget (null in VIEW mode). */
+	/** The error widget (rendered in ENTER / EDIT modes only). */
 	private ErrorWidget errorWidget;
 
 	/** The existing non-voided attribute (most recent if there are several), or null. */
@@ -107,12 +106,7 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 			existingAttribute = matching.isEmpty() ? null : matching.get(0);
 		}
 
-		// ---- 3. VIEW mode: no widget needed -------------------------------------------
-		if (context.getMode() == Mode.VIEW) {
-			return;
-		}
-
-		// ---- 4. ENTER / EDIT modes: build widget by format ----------------------------
+		// ---- 3. Build widget by format (all modes, including VIEW) --------------------
 		errorWidget = new ErrorWidget();
 
 		if (FORMAT_STRING.equals(format)) {
@@ -234,53 +228,12 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() == Mode.VIEW) {
-			return generateViewHtml();
-		}
-		// ENTER / EDIT
 		StringBuilder sb = new StringBuilder();
 		sb.append(valueWidget.generateHtml(context));
-		sb.append(errorWidget.generateHtml(context));
+		if (context.getMode() != Mode.VIEW) {
+			sb.append(errorWidget.generateHtml(context));
+		}
 		return sb.toString();
-	}
-
-	private String generateViewHtml() {
-		if (existingAttribute == null) {
-			return WidgetFactory.displayDefaultEmptyValue();
-		}
-		String value = existingAttribute.getValue();
-		if (!StringUtils.hasText(value)) {
-			return WidgetFactory.displayDefaultEmptyValue();
-		}
-
-		if (FORMAT_CONCEPT.equals(format)) {
-			try {
-				Concept concept = Context.getConceptService().getConcept(Integer.parseInt(value));
-				if (concept != null && concept.getName() != null) {
-					return WidgetFactory.displayValue(concept.getName().getName());
-				}
-			}
-			catch (NumberFormatException e) {
-				log.warn("Invalid concept ID stored in PersonAttribute: " + value);
-			}
-			return WidgetFactory.displayValue(value);
-
-		} else if (FORMAT_LOCATION.equals(format)) {
-			try {
-				Location location = Context.getLocationService().getLocation(Integer.parseInt(value));
-				if (location != null) {
-					return WidgetFactory.displayValue(location.getName());
-				}
-			}
-			catch (NumberFormatException e) {
-				log.warn("Invalid location ID stored in PersonAttribute: " + value);
-			}
-			return WidgetFactory.displayValue(value);
-
-		} else {
-			// String
-			return WidgetFactory.displayValue(value);
-		}
 	}
 
 	// ---------------------------------------------------------------------------------
@@ -289,7 +242,7 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		// Person attributes are always optional; no validation required.
+		// No current validation
 		return Collections.emptyList();
 	}
 
