@@ -150,9 +150,7 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 		}
 
 		DropdownWidget w = new DropdownWidget();
-
-		// blank / choose prompt
-		w.addOption(new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseOption"), "", false));
+		w.addOption(new Option());
 
 		for (String idOrUuid : answerConceptIds.split(",")) {
 			String trimmed = idOrUuid.trim();
