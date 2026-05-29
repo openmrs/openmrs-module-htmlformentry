@@ -210,6 +210,30 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 	}
 
 	// ---------------------------------------------------------------------------------
+	// Helpers
+	// ---------------------------------------------------------------------------------
+
+	/**
+	 * Converts the raw submitted string from the widget into the canonical storage value for
+	 * the attribute. For Concept and Location types, we look up the actual typed object and call
+	 * its {@link org.openmrs.Attributable#serialize()} method so that core controls the format.
+	 */
+	private String toStorageValue(String rawValue) {
+		if (!StringUtils.hasText(rawValue)) {
+			return rawValue;
+		}
+		String format = attributeType.getFormat();
+		if (Concept.class.getName().equals(format)) {
+			Concept concept = Context.getConceptService().getConcept(Integer.parseInt(rawValue));
+			return concept != null ? concept.serialize() : rawValue;
+		} else if (Location.class.getName().equals(format)) {
+			Location location = Context.getLocationService().getLocation(Integer.parseInt(rawValue));
+			return location != null ? location.serialize() : rawValue;
+		}
+		return rawValue;
+	}
+
+	// ---------------------------------------------------------------------------------
 	// HtmlGeneratorElement
 	// ---------------------------------------------------------------------------------
 
@@ -247,23 +271,20 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 
 		if (existingAttribute != null) {
 			if (!StringUtils.hasText(value)) {
-				// Blank submission → void the existing attribute
 				existingAttribute.setVoided(true);
 				existingAttribute.setVoidedBy(Context.getAuthenticatedUser());
 				existingAttribute.setVoidReason("Cleared via htmlformentry form submission");
 				existingAttribute.setDateVoided(new Date());
 			} else {
-				// Update existing attribute in place
-				existingAttribute.setValue(value);
+				existingAttribute.setValue(toStorageValue(value));
 				existingAttribute.setChangedBy(Context.getAuthenticatedUser());
 				existingAttribute.setDateChanged(new Date());
 			}
 		} else {
 			if (StringUtils.hasText(value)) {
-				// Create a new attribute
 				PersonAttribute newAttribute = new PersonAttribute();
 				newAttribute.setAttributeType(attributeType);
-				newAttribute.setValue(value);
+				newAttribute.setValue(toStorageValue(value));
 				patient.addAttribute(newAttribute);
 			}
 		}
