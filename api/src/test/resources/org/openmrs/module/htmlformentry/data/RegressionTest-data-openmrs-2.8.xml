@@ -305,6 +305,24 @@
         searchable="false" creator="1" date_created="2024-01-01 00:00:00.0"
         retired="false" uuid="a6e61b61-5f1a-4a19-8a4c-test00000001" sort_weight="10"/>
 
+    <!-- PersonAttributeType 20: Concept-type attribute; foreignKey → concept set 1004 -->
+    <person_attribute_type person_attribute_type_id="20"
+        name="Test Concept Set Attribute"
+        description="Test attribute type whose answers come from a concept set"
+        format="org.openmrs.Concept"
+        foreign_key="1004"
+        searchable="false" creator="1" date_created="2024-01-01 00:00:00.0"
+        retired="false" uuid="b1e61b61-5f1a-4a19-8a4c-test00000020" sort_weight="20"/>
+
+    <!-- PersonAttributeType 21: Concept-type attribute; foreignKey → question concept 1000 -->
+    <person_attribute_type person_attribute_type_id="21"
+        name="Test Concept Answer Attribute"
+        description="Test attribute type whose answers come from a question concept's answers"
+        format="org.openmrs.Concept"
+        foreign_key="1000"
+        searchable="false" creator="1" date_created="2024-01-01 00:00:00.0"
+        retired="false" uuid="c2e61b61-5f1a-4a19-8a4c-test00000021" sort_weight="21"/>
+
     <person_attribute person_attribute_id="14" person_id="8" value="6" person_attribute_type_id="8" creator="1" date_created="2008-08-18 11:56:42.0" voided="false" uuid="63a5a4a0-dd44-46ac-b8c0-c6bfb5a5f878"/>
 
     <!-- Two non-voided Civil Status (type 8) attributes for patient 2 used in multiple-attribute warning tests.
