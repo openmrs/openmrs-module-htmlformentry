@@ -42,7 +42,11 @@ import org.springframework.util.StringUtils;
  * <p>Supports three PersonAttributeType formats:
  * <ul>
  *   <li>{@code java.lang.String} – plain text input</li>
- *   <li>{@code org.openmrs.Concept} – dropdown of concepts specified via {@code answerConceptIds}</li>
+ *   <li>{@code org.openmrs.Concept} – dropdown whose answer concepts are resolved in priority order:
+ *       (1) explicit {@code answerConceptIds} tag attribute (comma-separated IDs or UUIDs),
+ *       (2) {@code PersonAttributeType.foreignKey} pointing to a concept set (set members used)
+ *       or a question concept (concept answers used),
+ *       (3) {@link BadFormDesignException} if neither is configured</li>
  *   <li>{@code org.openmrs.Location} – dropdown of locations, optionally filtered by {@code tags}</li>
  * </ul>
  *
