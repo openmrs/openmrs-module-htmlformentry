@@ -49,12 +49,6 @@ import org.springframework.util.StringUtils;
  */
 public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
-	private static final String FORMAT_STRING = "java.lang.String";
-
-	private static final String FORMAT_CONCEPT = "org.openmrs.Concept";
-
-	private static final String FORMAT_LOCATION = "org.openmrs.Location";
-
 	protected final Log log = LogFactory.getLog(getClass());
 
 	/** The resolved attribute type. */
@@ -69,9 +63,6 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 	/** The existing non-voided attribute (most recent if there are several), or null. */
 	private PersonAttribute existingAttribute;
 
-	/** Format of the attribute type (java.lang.String / org.openmrs.Concept / org.openmrs.Location). */
-	private final String format;
-
 	public PersonAttributeSubmissionElement(FormEntryContext context, Map<String, String> parameters)
 	        throws BadFormDesignException {
 
@@ -85,8 +76,6 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 			throw new BadFormDesignException(
 			        "<personAttribute> tag: PersonAttributeType not found for uuid=\"" + attributeTypeUuid + "\"");
 		}
-
-		format = attributeType.getFormat();
 
 		// ---- 2. Find existing attribute on the patient ---------------------------------
 		Patient patient = context.getExistingPatient();
@@ -109,19 +98,19 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 		// ---- 3. Build widget by format (all modes, including VIEW) --------------------
 		errorWidget = new ErrorWidget();
 
-		if (FORMAT_STRING.equals(format)) {
+		if (String.class.getName().equals(attributeType.getFormat())) {
 			valueWidget = buildStringWidget(context);
 
-		} else if (FORMAT_CONCEPT.equals(format)) {
+		} else if (Concept.class.getName().equals(attributeType.getFormat())) {
 			valueWidget = buildConceptWidget(context, parameters);
 
-		} else if (FORMAT_LOCATION.equals(format)) {
+		} else if (Location.class.getName().equals(attributeType.getFormat())) {
 			valueWidget = buildLocationWidget(context, parameters);
 
 		} else {
-			throw new BadFormDesignException("<personAttribute> tag: unsupported attribute format \"" + format
+			throw new BadFormDesignException("<personAttribute> tag: unsupported attribute format \"" + attributeType.getFormat()
 			        + "\" for type \"" + attributeType.getName() + "\". Supported formats: "
-			        + FORMAT_STRING + ", " + FORMAT_CONCEPT + ", " + FORMAT_LOCATION);
+			        + String.class.getName() + ", " + Concept.class.getName() + ", " + Location.class.getName());
 		}
 
 		context.registerWidget(valueWidget);
@@ -146,7 +135,7 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 		String answerConceptIds = parameters.get("answerConceptIds");
 		if (!StringUtils.hasText(answerConceptIds)) {
 			throw new BadFormDesignException("<personAttribute> tag: \"answerConceptIds\" is required "
-			        + "for PersonAttributeType \"" + attributeType.getName() + "\" (format=" + FORMAT_CONCEPT + ")");
+			        + "for PersonAttributeType \"" + attributeType.getName() + "\" (format=" + Concept.class.getName() + ")");
 		}
 
 		DropdownWidget w = new DropdownWidget();
