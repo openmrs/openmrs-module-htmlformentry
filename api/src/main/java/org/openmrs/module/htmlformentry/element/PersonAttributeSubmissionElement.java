@@ -7,12 +7,14 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
+import org.openmrs.ConceptAnswer;
 import org.openmrs.Location;
 import org.openmrs.LocationTag;
 import org.openmrs.Patient;
@@ -132,25 +134,10 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 	private Widget buildConceptWidget(FormEntryContext context, Map<String, String> parameters)
 	        throws BadFormDesignException {
 
-		String answerConceptIds = parameters.get("answerConceptIds");
-		if (!StringUtils.hasText(answerConceptIds)) {
-			throw new BadFormDesignException("<personAttribute> tag: \"answerConceptIds\" is required "
-			        + "for PersonAttributeType \"" + attributeType.getName() + "\" (format=" + Concept.class.getName() + ")");
-		}
-
 		DropdownWidget w = new DropdownWidget();
 		w.addOption(new Option());
 
-		for (String idOrUuid : answerConceptIds.split(",")) {
-			String trimmed = idOrUuid.trim();
-			if (trimmed.isEmpty()) {
-				continue;
-			}
-			Concept concept = HtmlFormEntryUtil.getConcept(trimmed);
-			if (concept == null) {
-				throw new BadFormDesignException(
-				        "<personAttribute> tag: cannot find concept for answerConceptIds value \"" + trimmed + "\"");
-			}
+		for (Concept concept : resolveAnswerConcepts(parameters)) {
 			w.addOption(new Option(concept.getName().getName(), concept.getConceptId().toString(), false));
 		}
 
@@ -159,6 +146,52 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 		}
 
 		return w;
+	}
+
+	private List<Concept> resolveAnswerConcepts(Map<String, String> parameters) throws BadFormDesignException {
+		String answerConceptIds = parameters.get("answerConceptIds");
+		if (StringUtils.hasText(answerConceptIds)) {
+			return resolveConceptsFromIdList(answerConceptIds);
+		}
+		if (attributeType.getForeignKey() != null) {
+			return resolveConceptsFromForeignKey(attributeType.getForeignKey());
+		}
+		throw new BadFormDesignException(
+		    "<personAttribute> tag: PersonAttributeType \"" + attributeType.getName()
+		    + "\" (format=" + Concept.class.getName() + ") requires either an \"answerConceptIds\" "
+		    + "tag attribute or a foreignKey on the attribute type pointing to a concept set or question concept");
+	}
+
+	private List<Concept> resolveConceptsFromIdList(String answerConceptIds) throws BadFormDesignException {
+		List<Concept> concepts = new ArrayList<>();
+		for (String idOrUuid : answerConceptIds.split(",")) {
+			String trimmed = idOrUuid.trim();
+			if (trimmed.isEmpty()) {
+				continue;
+			}
+			Concept concept = HtmlFormEntryUtil.getConcept(trimmed);
+			if (concept == null) {
+				throw new BadFormDesignException(
+				    "<personAttribute> tag: cannot find concept for answerConceptIds value \"" + trimmed + "\"");
+			}
+			concepts.add(concept);
+		}
+		return concepts;
+	}
+
+	private List<Concept> resolveConceptsFromForeignKey(Integer foreignKey) throws BadFormDesignException {
+		Concept fk = Context.getConceptService().getConcept(foreignKey);
+		if (fk == null) {
+			throw new BadFormDesignException(
+			    "<personAttribute> tag: cannot find concept for foreignKey=" + foreignKey
+			    + " on PersonAttributeType \"" + attributeType.getName() + "\"");
+		}
+		if (Boolean.TRUE.equals(fk.getSet())) {
+			return fk.getSetMembers(false);
+		}
+		return fk.getAnswers(false).stream()
+		         .map(ConceptAnswer::getAnswerConcept)
+		         .collect(Collectors.toList());
 	}
 
 	private Widget buildLocationWidget(FormEntryContext context, Map<String, String> parameters)
