@@ -138,7 +138,7 @@ public class PersonAttributeSubmissionElement implements HtmlGeneratorElement, F
 		w.addOption(new Option());
 
 		for (Concept concept : resolveAnswerConcepts(parameters)) {
-			w.addOption(new Option(concept.getName().getName(), concept.getConceptId().toString(), false));
+			w.addOption(new Option(concept.getName(Context.getLocale(), false).getName(), concept.getConceptId().toString(), false));
 		}
 
 		if (existingAttribute != null && StringUtils.hasText(existingAttribute.getValue())) {
