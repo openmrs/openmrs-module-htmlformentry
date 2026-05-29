@@ -45,6 +45,12 @@ public class PersonAttributeTagTest extends BaseHtmlFormEntryTest {
 	/** PersonAttributeType 19 – Birthplace Location – format=org.openmrs.Location */
 	private static final String LOCATION_ATTR_TYPE_UUID = "a6e61b61-5f1a-4a19-8a4c-test00000001";
 
+	/** PersonAttributeType 20 – format=org.openmrs.Concept, foreignKey → concept set 1004 */
+	private static final String CONCEPT_SET_FK_ATTR_TYPE_UUID = "b1e61b61-5f1a-4a19-8a4c-test00000020";
+
+	/** PersonAttributeType 21 – format=org.openmrs.Concept, foreignKey → question concept 1000 */
+	private static final String CONCEPT_ANSWER_FK_ATTR_TYPE_UUID = "c2e61b61-5f1a-4a19-8a4c-test00000021";
+
 	/** Patient 7 has null-valued attributes and is safe to use for ENTER/EDIT tests. */
 	private static final int PATIENT_ID = 7;
 
@@ -393,6 +399,119 @@ public class PersonAttributeTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 
+	/**
+	 * When a Concept-type PersonAttributeType has a foreignKey pointing to a concept set,
+	 * the dropdown should contain the set's non-retired members and submission should save
+	 * the selected member's concept ID.
+	 *
+	 * <p>PersonAttributeType 20 has foreignKey=1004 (concept set "ANOTHER ALLERGY CONSTRUCT").
+	 * Set members: 80000/ALLERGY, 1119/ALLERGY DATE, 1000/ALLERGY CODED, 1005/HYPER-ALLERGY CODED.
+	 */
+	@Test
+	public void shouldBuildConceptDropdownFromForeignKeyConceptSet() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public Patient getPatient() {
+				return Context.getPatientService().getPatient(PATIENT_ID);
+			}
+
+			@Override
+			public String getFormName() {
+				return "personAttributeConceptSetForeignKeyForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Attr:" };
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				// Verify that set members appear as dropdown options
+				assertTrue("Expected ALLERGY DATE (concept 1119) in dropdown", html.contains("ALLERGY DATE"));
+				assertTrue("Expected HYPER-ALLERGY CODED (concept 1005) in dropdown", html.contains("HYPER-ALLERGY CODED"));
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				// Submit concept 80000 (ALLERGY) — a member of set 1004
+				request.addParameter(widgets.get("Attr:"), "80000");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				Patient patient = Context.getPatientService().getPatient(PATIENT_ID);
+				PersonAttributeType type = Context.getPersonService()
+				        .getPersonAttributeTypeByUuid(CONCEPT_SET_FK_ATTR_TYPE_UUID);
+				PersonAttribute attr = patient.getAttribute(type);
+				assertNotNull("Expected attribute to be created after ENTER", attr);
+				assertEquals("Stored value should be the submitted concept ID", "80000", attr.getValue());
+			}
+		}.run();
+	}
+
+	/**
+	 * When a Concept-type PersonAttributeType has a foreignKey pointing to a question concept,
+	 * the dropdown should contain that concept's non-retired answer concepts and submission
+	 * should save the selected answer concept's ID.
+	 *
+	 * <p>PersonAttributeType 21 has foreignKey=1000 (concept "ALLERGY CODED", not a set).
+	 * Answers: 1001/PENICILLIN, 1002/CATS, 1003/OPENMRS.
+	 */
+	@Test
+	public void shouldBuildConceptDropdownFromForeignKeyConceptAnswers() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public Patient getPatient() {
+				return Context.getPatientService().getPatient(PATIENT_ID);
+			}
+
+			@Override
+			public String getFormName() {
+				return "personAttributeConceptAnswerForeignKeyForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Date:", "Location:", "Provider:", "Attr:" };
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				// Verify that answer concepts appear as dropdown options
+				assertTrue("Expected PENICILLIN (answer concept 1001) in dropdown", html.contains("PENICILLIN"));
+				assertTrue("Expected CATS (answer concept 1002) in dropdown", html.contains("CATS"));
+				assertTrue("Expected OPENMRS (answer concept 1003) in dropdown", html.contains("OPENMRS"));
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.addParameter(widgets.get("Date:"), dateAsString(new Date()));
+				request.addParameter(widgets.get("Location:"), "2");
+				request.addParameter(widgets.get("Provider:"), "502");
+				// Submit concept 1002 (CATS) — an answer of question concept 1000
+				request.addParameter(widgets.get("Attr:"), "1002");
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertNoErrors();
+				Patient patient = Context.getPatientService().getPatient(PATIENT_ID);
+				PersonAttributeType type = Context.getPersonService()
+				        .getPersonAttributeTypeByUuid(CONCEPT_ANSWER_FK_ATTR_TYPE_UUID);
+				PersonAttribute attr = patient.getAttribute(type);
+				assertNotNull("Expected attribute to be created after ENTER", attr);
+				assertEquals("Stored value should be the submitted concept ID", "1002", attr.getValue());
+			}
+		}.run();
+	}
+
 	// =========================================================================
 	// Location attribute type tests
 	// =========================================================================
@@ -737,12 +856,13 @@ public class PersonAttributeTagTest extends BaseHtmlFormEntryTest {
 	}
 
 	/**
-	 * A Concept-type PersonAttributeType without the mandatory {@code answerConceptIds} attribute
-	 * results in a rendered form-design error.
+	 * A Concept-type PersonAttributeType with neither {@code answerConceptIds} on the tag
+	 * nor a {@code foreignKey} set on the attribute type results in a rendered form-design error.
+	 * Civil Status (type 8) has no foreignKey, so this case exercises the third branch.
 	 */
 	@Test
-	public void shouldRenderFormDesignErrorForConceptTypeWithoutAnswerConceptIds() throws Exception {
-		// Civil Status (type 8) has format=org.openmrs.Concept; answerConceptIds is mandatory
+	public void shouldRenderFormDesignErrorForConceptTypeWithoutAnswerConceptIdsOrForeignKey() throws Exception {
+		// Civil Status (type 8) has format=org.openmrs.Concept and no foreignKey set.
 		String xml = "<htmlform><encounterDate/><encounterLocation/><encounterProvider/>"
 		        + "<personAttribute attributeType=\"" + CONCEPT_ATTR_TYPE_UUID + "\"/></htmlform>";
 		Patient patient = Context.getPatientService().getPatient(PATIENT_ID);
