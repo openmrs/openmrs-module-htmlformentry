@@ -498,7 +498,7 @@
             $orderForm.find('.order-field-widget.order-doseUnits').find(':input').val("");
             $orderForm.find('.order-field-widget.order-frequency').find(':input').val("");
             $orderForm.find('.order-field-widget.order-route').find(':input').val("");
-            $orderForm.find('.order-field-widget.order-asNeeded').find(':input').removeAttr("checked");
+            $orderForm.find('.order-field-widget.order-asNeeded').find(':input').prop("checked", false);
             $orderForm.find('.order-field-widget.order-instructions').find(':input').val("");
             $orderForm.find('.order-field-widget.order-dosingInstructions').find(':input').val("");
         }
@@ -548,7 +548,7 @@
         $orderForm.find('.order-field-widget.order-orderReasonNonCoded').find(':input').val(order.orderReasonNonCoded.value);
         $orderForm.find('.order-field-widget.order-careSetting').find(':input').val(order.careSetting.value);
         $orderForm.find('.order-field-widget.order-instructions').find(':input').val(order.instructions.value);
-        $orderForm.find('.order-field-widget.order-urgency').find('input[type="radio"][value="' + order.urgency.value + '"]').attr('checked', 'true');
+        $orderForm.find('.order-field-widget.order-urgency').find('input[type="radio"][value="' + order.urgency.value + '"]').prop('checked', true);
         if (order.isDrugOrder === 'true') {
             $orderForm.find('.order-field-widget.order-drug').find(':input').val(order.drug.value);
             $orderForm.find('.order-field-widget.order-drugNonCoded').find(':input').val(order.drugNonCoded.value);
@@ -560,7 +560,7 @@
             $orderForm.find('.order-field-widget.order-route').find(':input').val(order.route.value);
             $orderForm.find('.order-field-widget.order-frequency').find(':input').val(order.frequency.value);
             if (order.asNeeded.value === 'true') {
-                $orderForm.find('.order-field-widget.order-asNeeded').find(':input').attr('checked', 'true');
+                $orderForm.find('.order-field-widget.order-asNeeded').find(':input').prop('checked', true);
             }
             $orderForm.find('.order-field-widget.order-duration').find(':input').val(order.duration.value);
             $orderForm.find('.order-field-widget.order-durationUnits').find(':input').val(order.durationUnits.value);
