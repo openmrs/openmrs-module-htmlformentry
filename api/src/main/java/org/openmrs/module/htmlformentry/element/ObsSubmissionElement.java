@@ -30,8 +30,10 @@ import org.openmrs.module.htmlformentry.widget.CheckboxWidget;
 import org.openmrs.module.htmlformentry.widget.ConceptSearchAutocompleteWidget;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
+import org.openmrs.module.htmlformentry.util.MatchMode;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.DynamicAutocompleteWidget;
+import org.openmrs.module.htmlformentry.widget.ProviderAjaxAutoCompleteWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
@@ -241,7 +243,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		isLocationObs = "location".equals(parameters.get("style")) || "location_radio".equals(parameters.get("style"))
 		        || "location_dropdown".equals(parameters.get("style"));
 		isProviderObs = "provider".equals(parameters.get("style")) || "provider_radio".equals(parameters.get("style"))
-		        || "provider_dropdown".equals(parameters.get("style"));
+		        || "provider_dropdown".equals(parameters.get("style")) || "provider_autocomplete".equals(parameters.get("style"));
 		isRadioSet = "radio".equals(parameters.get("style")) || "location_radio".equals(parameters.get("style"))
 		        || "provider_radio".equals(parameters.get("style"));
 		
@@ -565,19 +567,6 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 				}
 				// configure the special obs type that allows selection of a provider (the provider_id PK is stored as the valueText)
 				else if (isProviderObs) {
-					if (isRadioSet) {
-						valueWidget = new RadioButtonsWidget();
-						if (answerSeparator != null) {
-							((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
-						}
-					} else { // dropdown
-						valueWidget = new DropdownWidget();
-						// if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
-						boolean initialValueIsSet = !(initialValue == null);
-						((SingleOptionWidget) valueWidget).addOption(
-						    new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"), "",
-						            !initialValueIsSet));
-					}
 					List<String> roleIds = new ArrayList<>();
 					String roleParam = parameters.get("providerRoles");
 					if (StringUtils.isNotBlank(roleParam)) {
@@ -585,20 +574,48 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 							roleIds.add(roleId.trim());
 						}
 					}
-					List<Provider> providers = HtmlFormEntryUtil.getProviders(roleIds, true);
-					
-					List<Option> providerOptions = new ArrayList<>();
-					for (Provider provider : providers) {
-						String providerId = provider.getId().toString();
-						String label = HtmlFormEntryUtil.format(provider);
-						Option option = new Option(label, providerId, providerId.equals(initialValue));
-						providerOptions.add(option);
-					}
-					Collections.sort(providerOptions, new OptionComparator());
-					
-					if (!providerOptions.isEmpty()) {
-						for (Option option : providerOptions) {
-							((SingleOptionWidget) valueWidget).addOption(option);
+					if ("provider_autocomplete".equals(parameters.get("style"))) {
+						MatchMode matchMode = MatchMode.ANYWHERE;
+						if (StringUtils.isNotBlank(parameters.get("providerMatchMode"))) {
+							try {
+								matchMode = MatchMode.valueOf(parameters.get("providerMatchMode").toUpperCase());
+							}
+							catch (IllegalArgumentException e) {
+								throw new IllegalArgumentException(
+									"Invalid providerMatchMode '" + parameters.get("providerMatchMode")
+									+ "'. Valid values are: " + Arrays.toString(MatchMode.values()));
+							}
+						}
+						valueWidget = new ProviderAjaxAutoCompleteWidget(matchMode, roleIds);
+					} else {
+						if (isRadioSet) {
+							valueWidget = new RadioButtonsWidget();
+							if (answerSeparator != null) {
+								((RadioButtonsWidget) valueWidget).setAnswerSeparator(answerSeparator);
+							}
+						} else { // dropdown
+							valueWidget = new DropdownWidget();
+							// if initialValueIsSet=false, no initial/default location, hence this shows the 'select input' field as first option
+							boolean initialValueIsSet = !(initialValue == null);
+							((SingleOptionWidget) valueWidget).addOption(
+								new Option(Context.getMessageSourceService().getMessage("htmlformentry.chooseAProvider"), "",
+									!initialValueIsSet));
+						}
+						List<Provider> providers = HtmlFormEntryUtil.getProviders(roleIds, true);
+
+						List<Option> providerOptions = new ArrayList<>();
+						for (Provider provider : providers) {
+							String providerId = provider.getId().toString();
+							String label = HtmlFormEntryUtil.format(provider);
+							Option option = new Option(label, providerId, providerId.equals(initialValue));
+							providerOptions.add(option);
+						}
+						Collections.sort(providerOptions, new OptionComparator());
+
+						if (!providerOptions.isEmpty()) {
+							for (Option option : providerOptions) {
+								((SingleOptionWidget) valueWidget).addOption(option);
+							}
 						}
 					}
 				} else if ("person".equals(parameters.get("style"))) {

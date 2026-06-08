@@ -33,6 +33,10 @@ public class ProviderSearchController {
 		
 		List<Provider> providerList = HtmlFormEntryUtil.getProviders(providerRoleIds, true);
 		
+		if (matchMode == null) {
+			matchMode = MatchMode.ANYWHERE;
+		}
+
 		List<ProviderStub> stubs;
 		if (searchParam == null) {
 			stubs = HtmlFormEntryUtil.getProviderStubs(providerList);
