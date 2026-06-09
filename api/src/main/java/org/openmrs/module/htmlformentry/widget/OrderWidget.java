@@ -28,8 +28,10 @@ import org.openmrs.util.OpenmrsUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -380,7 +382,14 @@ public class OrderWidget implements Widget {
 		writer.println("<div id=\"" + fieldName + "\" class=\"orderwidget-element\">");
 		
 		// Add a section that will contain the selected orders
-		writer.println("<div id=\"" + fieldName + "_orders\" class=\"orderwidget-order-section\"></div>");
+		// In VIEW mode, pre-render orders as static HTML so the widget is usable without JavaScript
+		if (context.getMode() == FormEntryContext.Mode.VIEW) {
+			writer.println("<div id=\"" + fieldName + "_orders\" class=\"orderwidget-order-section\">");
+			writer.println(generateStaticOrdersHtml(context));
+			writer.println("</div>");
+		} else {
+			writer.println("<div id=\"" + fieldName + "_orders\" class=\"orderwidget-order-section\"></div>");
+		}
 		
 		// Add a section that can contain a selector
 		writer.println("<div id=\"" + fieldName + "_header\" class=\"orderwidget-selector-section\"></div>");
@@ -444,14 +453,17 @@ public class OrderWidget implements Widget {
 		writer.println(StringUtils.isBlank(viewTemplateContent) ? defaultViewContent : viewTemplateContent);
 		writer.println("</div>");
 		
-		// Add javascript function to initialize widget as appropriate
-		String defaultLoadFn = "orderWidget.initialize";
-		String onLoadFn = widgetConfig.getAttributes().getOrDefault("onLoadFunction", defaultLoadFn);
-		writer.println("<script type=\"text/javascript\">");
-		writer.println("jQuery(function() { " + onLoadFn + "(");
-		writer.println(constructJavascriptConfig(context).toJson());
-		writer.println(")});");
-		writer.println("</script>");
+		// In ENTER/EDIT modes, initialize the widget via JavaScript
+		// VIEW mode is pre-rendered as static HTML above and does not require JavaScript
+		if (context.getMode() != FormEntryContext.Mode.VIEW) {
+			String defaultLoadFn = "orderWidget.initialize";
+			String onLoadFn = widgetConfig.getAttributes().getOrDefault("onLoadFunction", defaultLoadFn);
+			writer.println("<script type=\"text/javascript\">");
+			writer.println("jQuery(function() { " + onLoadFn + "(");
+			writer.println(constructJavascriptConfig(context).toJson());
+			writer.println(")});");
+			writer.println("</script>");
+		}
 		
 		writer.println("</div>");
 		
@@ -459,13 +471,251 @@ public class OrderWidget implements Widget {
 	}
 	
 	/**
+	 * Generates static HTML for all existing orders in VIEW mode, replicating the section structure
+	 * that orderWidget.js renderOrdersForRevision() produces so that CSS rules continue to apply correctly.
+	 * Only orders from the current encounter are shown (mirrors shouldRenderOrder() in VIEW mode).
+	 */
+	protected String generateStaticOrdersHtml(FormEntryContext context) {
+		StringBuilder html = new StringBuilder();
+		if (initialValue == null || initialValue.isEmpty()) {
+			return html.toString();
+		}
+		Date encDate = context.getExistingEncounter() != null ? context.getExistingEncounter().getEncounterDatetime() : new Date();
+		Integer currentEncId = context.getExistingEncounter() != null ? context.getExistingEncounter().getEncounterId() : null;
+
+		// Flat map of all known orders by id, for previous-order lookup
+		Map<Integer, Order> allOrdersById = new LinkedHashMap<>();
+		for (List<Order> orders : initialValue.values()) {
+			for (Order o : orders) {
+				allOrdersById.put(o.getOrderId(), o);
+			}
+		}
+
+		// In VIEW mode, shouldRenderOrder() only shows orders from the current encounter.
+		// Split into existing (REVISE/RENEW/DISCONTINUE) vs new (NEW) — mirrors renderOrdersForRevision().
+		List<Order> existingOrders = new ArrayList<>();
+		List<Order> newOrders = new ArrayList<>();
+		for (Concept c : widgetConfig.getConceptsAndDrugsConfigured().keySet()) {
+			List<Order> conceptOrders = getInitialValueForConcept(c);
+			if (conceptOrders == null) {
+				continue;
+			}
+			for (Order order : conceptOrders) {
+				boolean inCurrentEncounter = currentEncId != null && currentEncId.equals(order.getEncounter().getEncounterId());
+				if (!inCurrentEncounter) {
+					continue;
+				}
+				if (order.getAction() == Order.Action.NEW) {
+					newOrders.add(order);
+				} else {
+					existingOrders.add(order);
+				}
+			}
+		}
+
+		appendOrderSection(html, "orderwidget-existing-order-section",
+		    translate("htmlformentry.orders.existingOrdersViewTitle"),
+		    translate("htmlformentry.orders.noOrders"),
+		    existingOrders, allOrdersById, encDate, currentEncId, context);
+
+		appendOrderSection(html, "orderwidget-new-order-section",
+		    translate("htmlformentry.orders.newOrdersTitle"),
+		    translate("htmlformentry.orders.noOrders"),
+		    newOrders, allOrdersById, encDate, currentEncId, context);
+
+		return html.toString();
+	}
+
+	private void appendOrderSection(StringBuilder html, String sectionClass, String title, String noOrdersText,
+	        List<Order> orders, Map<Integer, Order> allOrdersById, Date encDate, Integer currentEncId,
+	        FormEntryContext context) {
+		String sectionHidden = orders.isEmpty() ? " style=\"display:none;\"" : "";
+		String noOrdersHidden = orders.isEmpty() ? "" : " style=\"display:none;\"";
+		html.append("<div class=\"").append(sectionClass).append("\"").append(sectionHidden).append(">");
+		html.append("<div class=\"orderwidget-section-header\">").append(title).append("</div>");
+		html.append("<div class=\"orderwidget-section-no-orders\"").append(noOrdersHidden).append(">").append(noOrdersText).append("</div>");
+		for (Order order : orders) {
+			html.append("<div class=\"orderwidget-orderable-section\">");
+			html.append("<div class=\"orderwidget-history-section\">");
+			// Mirror shouldRenderPreviousOrder() + the check that the previous is from a different encounter
+			if (order.getPreviousOrder() != null && order.getAction() != Order.Action.NEW) {
+				Integer prevId = order.getPreviousOrder().getOrderId();
+				Order prevOrder = allOrdersById.getOrDefault(prevId, order.getPreviousOrder());
+				boolean prevInCurrentEncounter = currentEncId != null && currentEncId.equals(prevOrder.getEncounter().getEncounterId());
+				if (!prevInCurrentEncounter) {
+					html.append(buildOrderItemHtml(prevOrder, encDate, currentEncId, context));
+				}
+			}
+			html.append(buildOrderItemHtml(order, encDate, currentEncId, context));
+			html.append("</div>");
+			html.append("</div>");
+		}
+		html.append("</div>");
+	}
+
+	private String buildOrderItemHtml(Order order, Date encDate, Integer currentEncId, FormEntryContext context) {
+		boolean isActive = isOrderActive(order, encDate);
+		boolean inCurrentEncounter = currentEncId != null && currentEncId.equals(order.getEncounter().getEncounterId());
+		String activeClass = isActive ? "order-view-active" : "order-view-inactive";
+		String encounterClass = inCurrentEncounter ? "order-view-current-encounter" : "order-view-different-encounter";
+		StringBuilder html = new StringBuilder();
+		html.append("<div class=\"orderwidget-order-history-item ").append(activeClass).append(" ").append(encounterClass).append("\">");
+		Map<String, String> displayValues = getOrderPropertyDisplayValues(order);
+		Set<String> hiddenProperties = getHiddenPropertiesForAction(order.getAction(), inCurrentEncounter);
+		// Mirror the same template-building loop used in generateHtml() for _view_template,
+		// so layout, field order, and custom templates stay consistent with ENTER/EDIT modes.
+		String templateContent = widgetConfig.getTemplateContent();
+		StringBuilder defaultContent = new StringBuilder();
+		for (String property : widgets.keySet()) {
+			Map<String, String> attrs = widgetConfig.getAttributes(property);
+			if (attrs == null) {
+				continue;
+			}
+			String display = displayValues.getOrDefault(property, "");
+			boolean hidden = hiddenProperties.contains(property) || StringUtils.isBlank(display);
+			String fieldHtml = generateHtmlForWidget(property, null, attrs, context, display, hidden);
+			if (StringUtils.isBlank(templateContent)) {
+				defaultContent.append(fieldHtml);
+			} else {
+				templateContent = templateContent.replace(attrs.toString(), fieldHtml);
+			}
+		}
+		html.append(StringUtils.isBlank(templateContent) ? defaultContent : templateContent);
+		html.append("</div>");
+		return html.toString();
+	}
+
+	/**
+	 * @return a map of property name to display string for all properties of the given order
+	 */
+	protected Map<String, String> getOrderPropertyDisplayValues(Order order) {
+		Map<String, String> values = new LinkedHashMap<>();
+		values.put("action", getLabelForProperty("action", order.getAction()));
+		values.put("concept", getLabelForProperty("concept", order.getConcept()));
+		values.put("careSetting", getLabelForProperty("careSetting", order.getCareSetting()));
+		values.put("instructions", getLabelForProperty("instructions", order.getInstructions()));
+		values.put("urgency", getLabelForProperty("urgency", order.getUrgency()));
+		values.put("dateActivated", getLabelForProperty("dateActivated", order.getDateActivated()));
+		values.put("scheduledDate", getLabelForProperty("scheduledDate", order.getScheduledDate()));
+		values.put("effectiveStartDate", getLabelForProperty("effectiveStartDate", order.getEffectiveStartDate()));
+		values.put("autoExpireDate", getLabelForProperty("autoExpireDate", order.getAutoExpireDate()));
+		values.put("dateStopped", getLabelForProperty("dateStopped", order.getDateStopped()));
+		values.put("effectiveStopDate", getLabelForProperty("effectiveStopDate", order.getEffectiveStopDate()));
+		if (order instanceof DrugOrder) {
+			DrugOrder d = (DrugOrder) order;
+			values.put("drug", getLabelForProperty("drug", d.getDrug()));
+			values.put("drugNonCoded", getLabelForProperty("drugNonCoded", d.getDrugNonCoded()));
+			values.put("dosingType", getLabelForProperty("dosingType", d.getDosingType()));
+			values.put("dosingInstructions", getLabelForProperty("dosingInstructions", d.getDosingInstructions()));
+			values.put("dose", getLabelForProperty("dose", d.getDose()));
+			values.put("doseUnits", getLabelForProperty("doseUnits", d.getDoseUnits()));
+			values.put("route", getLabelForProperty("route", d.getRoute()));
+			values.put("frequency", getLabelForProperty("frequency", d.getFrequency()));
+			values.put("asNeeded", getLabelForProperty("asNeeded", d.getAsNeeded()));
+			values.put("duration", getLabelForProperty("duration", d.getDuration()));
+			values.put("durationUnits", getLabelForProperty("durationUnits", d.getDurationUnits()));
+			values.put("quantity", getLabelForProperty("quantity", d.getQuantity()));
+			values.put("quantityUnits", getLabelForProperty("quantityUnits", d.getQuantityUnits()));
+			values.put("numRefills", getLabelForProperty("numRefills", d.getNumRefills()));
+		} else if (order instanceof ServiceOrder) {
+			ServiceOrder s = (ServiceOrder) order;
+			values.put("specimenSource", getLabelForProperty("specimenSource", s.getSpecimenSource()));
+			values.put("laterality", getLabelForProperty("laterality", s.getLaterality()));
+			values.put("clinicalHistory", getLabelForProperty("clinicalHistory", s.getClinicalHistory()));
+			values.put("frequency", getLabelForProperty("frequency", s.getFrequency()));
+			values.put("numberOfRepeats", getLabelForProperty("numberOfRepeats", s.getNumberOfRepeats()));
+			values.put("location", getLabelForProperty("location", s.getLocation()));
+		}
+		if (order.getAction() == Order.Action.DISCONTINUE) {
+			values.put("discontinueReason", getLabelForProperty("discontinueReason", order.getOrderReason()));
+			values.put("discontinueReasonNonCoded", getLabelForProperty("discontinueReasonNonCoded", order.getOrderReasonNonCoded()));
+		} else {
+			values.put("orderReason", getLabelForProperty("orderReason", order.getOrderReason()));
+			values.put("orderReasonNonCoded", getLabelForProperty("orderReasonNonCoded", order.getOrderReasonNonCoded()));
+		}
+		return values;
+	}
+
+	/**
+	 * @return the set of property names that should be hidden for the given action type,
+	 *         mirroring the visibility logic in orderWidget.js formatOrder()
+	 */
+	protected Set<String> getHiddenPropertiesForAction(Order.Action action, boolean inCurrentEncounter) {
+		List<String> orderableProperties = Arrays.asList("careSetting", "concept", "drug", "drugNonCoded");
+		List<String> dosingProperties = Arrays.asList("dosingType", "dose", "doseUnits", "route", "frequency",
+		    "asNeeded", "asNeededCondition", "instructions", "dosingInstructions");
+		List<String> dispensingProperties = Arrays.asList("quantity", "quantityUnits", "numRefills");
+		List<String> discontinueProperties = Arrays.asList("discontinueReason", "discontinueReasonNonCoded");
+		Set<String> hidden = new HashSet<>();
+		if (action == Order.Action.NEW) {
+			hidden.addAll(discontinueProperties);
+			hidden.add("action");
+		} else if (action == Order.Action.REVISE) {
+			hidden.addAll(discontinueProperties);
+			if (inCurrentEncounter) {
+				hidden.addAll(orderableProperties);
+			} else {
+				hidden.add("action");
+			}
+		} else if (action == Order.Action.RENEW) {
+			hidden.addAll(dosingProperties);
+			hidden.addAll(discontinueProperties);
+			if (inCurrentEncounter) {
+				hidden.addAll(orderableProperties);
+			} else {
+				hidden.add("action");
+			}
+		} else if (action == Order.Action.DISCONTINUE) {
+			hidden.addAll(dosingProperties);
+			hidden.addAll(dispensingProperties);
+			hidden.add("orderReason");
+			hidden.add("orderReasonNonCoded");
+			hidden.add("duration");
+			hidden.add("durationUnits");
+			if (inCurrentEncounter) {
+				hidden.addAll(orderableProperties);
+			} else {
+				hidden.add("action");
+			}
+		}
+		return hidden;
+	}
+
+	/**
+	 * @return true if the order is currently active as of the given date
+	 */
+	protected boolean isOrderActive(Order order, Date asOfDate) {
+		if (order.getDateActivated() != null && order.getDateActivated().after(asOfDate)) {
+			return false;
+		}
+		Date effectiveStopDate = order.getEffectiveStopDate();
+		if (effectiveStopDate != null && !effectiveStopDate.after(asOfDate)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * @return the html to render for each found property widget
 	 */
 	public String generateHtmlForWidget(String property, Widget w, Map<String, String> attrs, FormEntryContext context) {
+		return generateHtmlForWidget(property, w, attrs, context, null, false);
+	}
+
+	/**
+	 * Renders a single order property field. When displayValue is non-null the field is rendered as
+	 * static text (VIEW mode); otherwise the interactive widget is used (ENTER/EDIT mode).
+	 */
+	public String generateHtmlForWidget(String property, Widget w, Map<String, String> attrs, FormEntryContext context,
+	        String displayValue, boolean hidden) {
 		StringBuilder ret = new StringBuilder();
 		String labelCode = attrs.getOrDefault(OrderTagHandler.LABEL_ATTRIBUTE, "htmlformentry.orders." + property);
 		String label = translate(labelCode);
-		ret.append("<div class=\"order-field order-").append(property).append("\">");
+		ret.append("<div class=\"order-field order-").append(property);
+		if (hidden) {
+			ret.append(" order-field-hidden");
+		}
+		ret.append("\">");
 		ret.append("<div class=\"order-field-label order-").append(property).append("\">");
 		ret.append(label);
 		ret.append("</div>");
@@ -474,7 +724,9 @@ public class OrderWidget implements Widget {
 			ret.append(" order-field-radio-group");
 		}
 		ret.append("\">");
-		if (w != null) {
+		if (displayValue != null) {
+			ret.append(displayValue);
+		} else if (w != null) {
 			ret.append(w.generateHtml(context));
 			ErrorWidget ew = context.getErrorWidget(w);
 			if (ew != null) {

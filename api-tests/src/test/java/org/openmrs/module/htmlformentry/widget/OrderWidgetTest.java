@@ -1,7 +1,9 @@
 package org.openmrs.module.htmlformentry.widget;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,28 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 		}
 	}
 	
+	@Test
+	public void shouldRenderStaticHtmlForExistingOrdersInViewMode() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		FormSessionTester fst = formTester.openExistingToView(3);
+		String html = fst.getHtmlToDisplay();
+		// Orders should be pre-rendered as static HTML — no script tag needed
+		assertThat(html, not(containsString("orderWidget.initialize")));
+		// Section structure must mirror what renderOrdersForRevision() produces so CSS rules apply correctly
+		assertThat(html, containsString("orderwidget-existing-order-section"));
+		assertThat(html, containsString("orderwidget-new-order-section"));
+		assertThat(html, containsString("orderwidget-orderable-section"));
+		assertThat(html, containsString("orderwidget-history-section"));
+		// Active/inactive and encounter-context CSS classes should be applied
+		// Encounter 3 date is 2008-08-01, but orders' dateActivated are after that date,
+		// so isOrderActive() correctly classifies them as inactive
+		assertThat(html, containsString("order-view-inactive"));
+		assertThat(html, containsString("order-view-current-encounter"));
+		// Configured fields and their values should be rendered
+		assertThat(html, containsString("order-field-widget order-drug"));
+		assertThat(html, containsString("Drug 3"));
+	}
+
 	@Test
 	public void shouldRenderTemplateWithWidgetsForTestOrder() {
 		FormTester formTester = FormTester.buildForm("orderLabTestForm.xml");
