@@ -119,6 +119,9 @@
                 <entry key="personAttribute">
                     <bean class="org.openmrs.module.htmlformentry.handler.PersonAttributeTagHandler"/>
                 </entry>
+                <entry key="appointmentServiceObs">
+                    <bean class="org.openmrs.module.htmlformentry.handler.AppointmentServiceObsTagHandler"/>
+                </entry>
             </map>
         </property>
     </bean>
