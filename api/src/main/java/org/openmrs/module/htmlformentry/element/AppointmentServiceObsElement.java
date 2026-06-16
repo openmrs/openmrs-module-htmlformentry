@@ -51,10 +51,20 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 			tagControlId = parameters.get("controlId");
 		}
 
+		boolean insideObsGroup = context.getCurrentObsGroupConcepts() != null
+		        && context.getCurrentObsGroupConcepts().size() > 0;
 		if (StringUtils.isNotBlank(tagControlId)) {
-			existingObs = context.getObsFromExistingObs(concept, tagControlId);
+			if (insideObsGroup) {
+				existingObs = context.getObsFromCurrentGroup(tagControlId);
+			} else {
+				existingObs = context.getObsFromExistingObs(concept, tagControlId);
+			}
 		} else {
-			existingObs = context.removeExistingObs(concept, (Concept) null);
+			if (insideObsGroup) {
+				existingObs = context.getObsFromCurrentGroup(concept, (Concept) null);
+			} else {
+				existingObs = context.removeExistingObs(concept, (Concept) null);
+			}
 		}
 		String existingValue = existingObs != null ? existingObs.getValueText() : null;
 

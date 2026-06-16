@@ -244,6 +244,39 @@ public class AppointmentServiceObsElementTest {
 		assertEquals(0, actions.getObsToCreate().size());
 	}
 
+	// --- VIEW mode display ---
+
+	@Test
+	public void generateHtml_shouldDisplayServiceNameInViewModeWhenInsideObsGroup() throws Exception {
+		Obs existingObs = new Obs();
+		existingObs.setConcept(concept);
+		existingObs.setValueText(SERVICE_VALUE);
+		when(context.getCurrentObsGroupConcepts()).thenReturn(Collections.singletonList(new Concept()));
+		when(context.getObsFromCurrentGroup(concept, (Concept) null)).thenReturn(existingObs);
+		when(context.getMode()).thenReturn(Mode.VIEW);
+
+		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
+
+		String html = element.generateHtml(context);
+
+		assertThat(html, is("<span class=\"value\">Cardiology</span>"));
+	}
+
+	@Test
+	public void generateHtml_shouldDisplayServiceNameInViewMode() throws Exception {
+		Obs existingObs = new Obs();
+		existingObs.setConcept(concept);
+		existingObs.setValueText(SERVICE_VALUE);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(existingObs);
+		when(context.getMode()).thenReturn(Mode.VIEW);
+
+		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
+
+		String html = element.generateHtml(context);
+
+		assertThat(html, is("<span class=\"value\">Cardiology</span>"));
+	}
+
 	// --- handleSubmission: VIEW mode ---
 
 	@Test
