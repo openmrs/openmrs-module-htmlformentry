@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.AppointmentServiceDefinition;
 import org.openmrs.module.appointments.service.AppointmentServiceDefinitionService;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -29,22 +31,32 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 
 	private Obs existingObs;
 
-	private DropdownWidget serviceWidget;
+	DropdownWidget serviceWidget;
 
 	private ErrorWidget errorWidget;
 
-	public AppointmentServiceObsElement(FormEntryContext context, Map<String, String> parameters) {
+	private String tagControlId;
+
+	public AppointmentServiceObsElement(FormEntryContext context, Map<String, String> parameters) throws BadFormDesignException{
 		String conceptId = parameters.get("conceptId");
 		if (conceptId == null) {
-			throw new IllegalArgumentException("appointmentServiceObs requires a conceptId parameter");
+			throw new BadFormDesignException("appointmentServiceObs requires a conceptId parameter");
 		}
 		concept = HtmlFormEntryUtil.getConcept(conceptId);
 		if (concept == null) {
-			throw new IllegalArgumentException("Could not find concept: " + conceptId);
+			throw new BadFormDesignException("Could not find concept: " + conceptId);
 		}
 
-		existingObs = context.removeExistingObs(concept, (Concept) null);
-		String existingUuid = existingObs != null ? existingObs.getValueText() : null;
+		if (parameters.containsKey("controlId")) {
+			tagControlId = parameters.get("controlId");
+		}
+
+		if (StringUtils.isNotBlank(tagControlId)) {
+			existingObs = context.getObsFromExistingObs(concept, tagControlId);
+		} else {
+			existingObs = context.removeExistingObs(concept, (Concept) null);
+		}
+		String existingValue = existingObs != null ? existingObs.getValueText() : null;
 
 		List<String> specialityFilter = TagUtil.parseListParameter(parameters, "specialities", String.class).stream()
 		        .map(String::toLowerCase).map(String::trim).collect(Collectors.toList());
@@ -65,10 +77,10 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 
 		serviceWidget.addOption(new Option("", "", false));
 		for (AppointmentServiceDefinition svc : services) {
-			serviceWidget.addOption(new Option(svc.getName(), svc.getUuid(), false));
+			serviceWidget.addOption(new Option(svc.getName(), svc.getId() + " - " + svc.getName(), false));
 		}
-		if (existingUuid != null) {
-			serviceWidget.setInitialValue(existingUuid);
+		if (existingValue != null) {
+			serviceWidget.setInitialValue(existingValue);
 		}
 
 		context.registerWidget(serviceWidget);
@@ -80,7 +92,6 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 		StringBuilder sb = new StringBuilder();
 		sb.append(serviceWidget.generateHtml(context));
 		if (context.getMode() != Mode.VIEW) {
-			sb.append("<span class='required'>*</span>");
 			sb.append(errorWidget.generateHtml(context));
 		}
 		return sb.toString();
@@ -101,10 +112,17 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 		String value = (String) serviceWidget.getValue(context, submission);
 
 		if (existingObs != null && context.getMode() == Mode.EDIT) {
-			session.getSubmissionActions().modifyObs(existingObs, concept, value, null, null, null);
+			session.getSubmissionActions().modifyObs(existingObs, concept, value, null, null, null, getControlFormPath(session));
 		} else if (value != null && !value.isEmpty()) {
-			session.getSubmissionActions().createObs(concept, value, null, null, null);
+			session.getSubmissionActions().createObs(concept, value, null, null, null, getControlFormPath(session));
 		}
+	}
+
+	private String getControlFormPath(FormEntrySession session) {
+		if (StringUtils.isBlank(tagControlId)) {
+			return null;
+		}
+		return session.generateControlFormPath(tagControlId, 0);
 	}
 
 }
