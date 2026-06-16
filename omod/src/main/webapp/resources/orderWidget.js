@@ -168,13 +168,11 @@
 
         $existingOrderSection.append('<div class="orderwidget-section-header">' + existingOrdersTitle + '</div>');
         $existingOrderSection.append('<div class="orderwidget-section-no-orders">' + noOrdersTitle + '</div>');
-        $existingOrderSection.hide();
         $orderSection.append($existingOrderSection);
 
         var $newOrderSection = $('<div class="orderwidget-new-order-section"></div>');
         $newOrderSection.append('<div class="orderwidget-section-header">' + newOrdersTitle + '</div>');
         $newOrderSection.append('<div class="orderwidget-section-no-orders">' + noOrdersTitle + '</div>');
-        $newOrderSection.hide();
         $orderSection.append($newOrderSection);
 
         config.history.forEach(function(order) {
@@ -191,7 +189,6 @@
     }
 
     orderWidget.addOrderSection = function($sectionToAddTo, config) {
-        $sectionToAddTo.show();
         $sectionToAddTo.find(".orderwidget-section-no-orders").hide();
         var orderableSectionId = 'orderwidget-orderable-section-' + orderWidget.nextOrderableSectionIndex();
         var $orderableSection = $('<div id="' + orderableSectionId + '" class="orderwidget-orderable-section"></div>');
