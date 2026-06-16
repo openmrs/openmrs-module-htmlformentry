@@ -33,6 +33,14 @@ public class ProviderSearchController {
 		
 		List<Provider> providerList = HtmlFormEntryUtil.getProviders(providerRoleIds, true);
 		
+		/*
+		 * A frontend bug makes it possible for the matchMode to be null, when the element is considered rendered with <controls>;
+		 * see HTML-887. In that case, we default to MatchMode.ANYWHERE.
+		 */
+		if (matchMode == null) {
+			matchMode = MatchMode.ANYWHERE;
+		}
+
 		List<ProviderStub> stubs;
 		if (searchParam == null) {
 			stubs = HtmlFormEntryUtil.getProviderStubs(providerList);
