@@ -15,6 +15,7 @@ import org.openmrs.Provider;
 import org.openmrs.Role;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
@@ -165,7 +166,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 	
 	private String tagControlId;
 	
-	public ObsSubmissionElement(T context, Map<String, String> parameters) {
+	public ObsSubmissionElement(T context, Map<String, String> parameters) throws BadFormDesignException {
 		if (parameters.get("locale") != null) {
 			this.locale = LocaleUtility.fromSpecification(parameters.get("locale"));
 		}
@@ -275,7 +276,7 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 		return dropdownWidget;
 	}
 	
-	private void prepareWidgets(T context, Map<String, String> parameters) {
+	private void prepareWidgets(T context, Map<String, String> parameters) throws BadFormDesignException {
 		String userLocaleStr = locale.toString();
 		try {
 			if (answerConcept == null)
@@ -580,10 +581,10 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 							try {
 								matchMode = MatchMode.valueOf(parameters.get("providerMatchMode").toUpperCase());
 							}
-							catch (IllegalArgumentException e) {
-								throw new IllegalArgumentException(
+							catch (Exception e) {
+								throw new BadFormDesignException(
 									"Invalid providerMatchMode '" + parameters.get("providerMatchMode")
-									+ "'. Valid values are: " + Arrays.toString(MatchMode.values()));
+									+ "'. Valid values are: " + Arrays.toString(MatchMode.values()), e);
 							}
 						}
 						valueWidget = new ProviderAjaxAutoCompleteWidget(matchMode, roleIds);
