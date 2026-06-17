@@ -78,7 +78,8 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 		if (!specialityFilter.isEmpty()) {
 			services = services.stream()
 			        .filter(s -> s.getSpeciality() != null
-			                && specialityFilter.contains(s.getSpeciality().getName().toLowerCase().trim()))
+			                && (specialityFilter.contains(s.getSpeciality().getName().toLowerCase().trim())
+			                        || specialityFilter.contains(s.getSpeciality().getUuid().toLowerCase().trim())))
 			        .collect(Collectors.toList());
 		}
 
@@ -87,7 +88,7 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 
 		serviceWidget.addOption(new Option("", "", false));
 		for (AppointmentServiceDefinition svc : services) {
-			serviceWidget.addOption(new Option(svc.getName(), svc.getId() + " - " + svc.getName(), false));
+			serviceWidget.addOption(new Option(svc.getName(), svc.getUuid(), false));
 		}
 		if (existingValue != null) {
 			serviceWidget.setInitialValue(existingValue);

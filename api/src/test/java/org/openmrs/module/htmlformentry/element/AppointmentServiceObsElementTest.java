@@ -49,10 +49,6 @@ public class AppointmentServiceObsElementTest {
 
 	private static final String SERVICE_UUID = "service-uuid-1";
 
-	private static final Integer SERVICE_ID = 1;
-
-	private static final String SERVICE_VALUE = SERVICE_ID + " - Cardiology";
-
 	private static final String CONCEPT_ID = "5090";
 
 	@Mock
@@ -89,7 +85,7 @@ public class AppointmentServiceObsElementTest {
 		mockedContext.when(Context::getLocale).thenReturn(Locale.ENGLISH);
 
 		when(appointmentServiceDefinitionService.getAllAppointmentServices(false))
-		        .thenReturn(Collections.singletonList(makeService("Cardiology", SERVICE_ID, SERVICE_UUID, null)));
+		        .thenReturn(Collections.singletonList(makeService("Cardiology", 1, SERVICE_UUID, null)));
 
 		when(context.getMode()).thenReturn(Mode.ENTER);
 		when(session.getContext()).thenReturn(context);
@@ -124,22 +120,22 @@ public class AppointmentServiceObsElementTest {
 	@Test
 	public void constructor_shouldIncludeAllServicesWhenNoSpecialityFilterGiven() throws Exception {
 		when(appointmentServiceDefinitionService.getAllAppointmentServices(false)).thenReturn(
-		    Arrays.asList(makeService("Ortho", 1, "uuid-ortho", makeSpeciality("Orthopaedics")),
-		        makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology"))));
+		    Arrays.asList(makeService("Ortho", 1, "uuid-ortho", makeSpeciality("Orthopaedics", "spec-uuid-ortho")),
+		        makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology", "spec-uuid-cardio"))));
 
 		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
 		stubFieldName(element, "field");
 		String html = element.generateHtml(context);
 
-		assertThat(html.contains("1 - Ortho"), is(true));
-		assertThat(html.contains("2 - Cardiology"), is(true));
+		assertThat(html.contains("uuid-ortho"), is(true));
+		assertThat(html.contains("uuid-cardio"), is(true));
 	}
 
 	@Test
 	public void constructor_shouldFilterServicesBySpeciality() throws Exception {
 		when(appointmentServiceDefinitionService.getAllAppointmentServices(false)).thenReturn(
-		    Arrays.asList(makeService("Ortho", 1, "uuid-ortho", makeSpeciality("Orthopaedics")),
-		        makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology"))));
+		    Arrays.asList(makeService("Ortho", 1, "uuid-ortho", makeSpeciality("Orthopaedics", "spec-uuid-ortho")),
+		        makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology", "spec-uuid-cardio"))));
 
 		Map<String, String> p = params("conceptId", CONCEPT_ID);
 		p.put("specialities", "Cardiology");
@@ -147,14 +143,14 @@ public class AppointmentServiceObsElementTest {
 		stubFieldName(element, "field");
 		String html = element.generateHtml(context);
 
-		assertThat(html.contains("2 - Cardiology"), is(true));
-		assertThat(html.contains("1 - Ortho"), is(false));
+		assertThat(html.contains("uuid-cardio"), is(true));
+		assertThat(html.contains("uuid-ortho"), is(false));
 	}
 
 	@Test
 	public void constructor_shouldMatchSpecialityFilterCaseInsensitively() throws Exception {
 		when(appointmentServiceDefinitionService.getAllAppointmentServices(false))
-		        .thenReturn(Collections.singletonList(makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology"))));
+		        .thenReturn(Collections.singletonList(makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology", "spec-uuid-cardio"))));
 
 		Map<String, String> p = params("conceptId", CONCEPT_ID);
 		p.put("specialities", "CARDIOLOGY");
@@ -162,7 +158,23 @@ public class AppointmentServiceObsElementTest {
 		stubFieldName(element, "field");
 		String html = element.generateHtml(context);
 
-		assertThat(html.contains("2 - Cardiology"), is(true));
+		assertThat(html.contains("uuid-cardio"), is(true));
+	}
+
+	@Test
+	public void constructor_shouldFilterServicesBySpecialityUuid() throws Exception {
+		when(appointmentServiceDefinitionService.getAllAppointmentServices(false)).thenReturn(
+		    Arrays.asList(makeService("Ortho", 1, "uuid-ortho", makeSpeciality("Orthopaedics", "spec-uuid-ortho")),
+		        makeService("Cardiology", 2, "uuid-cardio", makeSpeciality("Cardiology", "spec-uuid-cardio"))));
+
+		Map<String, String> p = params("conceptId", CONCEPT_ID);
+		p.put("specialities", "spec-uuid-cardio");
+		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, p);
+		stubFieldName(element, "field");
+		String html = element.generateHtml(context);
+
+		assertThat(html.contains("uuid-cardio"), is(true));
+		assertThat(html.contains("uuid-ortho"), is(false));
 	}
 
 	@Test
@@ -176,7 +188,7 @@ public class AppointmentServiceObsElementTest {
 		stubFieldName(element, "field");
 		String html = element.generateHtml(context);
 
-		assertThat(html.contains("3 - General"), is(false));
+		assertThat(html.contains("uuid-general"), is(false));
 	}
 
 	// --- handleSubmission: ENTER mode ---
@@ -184,14 +196,14 @@ public class AppointmentServiceObsElementTest {
 	@Test
 	public void handleSubmission_shouldCreateObsInEnterMode() throws Exception {
 		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
-		HttpServletRequest request = requestWithService(SERVICE_VALUE, element);
+		HttpServletRequest request = requestWithService(SERVICE_UUID, element);
 
 		element.handleSubmission(session, request);
 
 		List<Obs> obsToCreate = actions.getObsToCreate();
 		assertEquals(1, obsToCreate.size());
 		assertEquals(concept, obsToCreate.get(0).getConcept());
-		assertEquals(SERVICE_VALUE, obsToCreate.get(0).getValueText());
+		assertEquals(SERVICE_UUID, obsToCreate.get(0).getValueText());
 	}
 
 	@Test
@@ -215,7 +227,7 @@ public class AppointmentServiceObsElementTest {
 		when(context.getMode()).thenReturn(Mode.EDIT);
 
 		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
-		HttpServletRequest request = requestWithService(SERVICE_VALUE, element);
+		HttpServletRequest request = requestWithService(SERVICE_UUID, element);
 
 		element.handleSubmission(session, request);
 
@@ -223,7 +235,7 @@ public class AppointmentServiceObsElementTest {
 		assertEquals(1, actions.getObsToVoid().size());
 		assertEquals(existingObs, actions.getObsToVoid().get(0));
 		assertEquals(1, actions.getObsToCreate().size());
-		assertEquals(SERVICE_VALUE, actions.getObsToCreate().get(0).getValueText());
+		assertEquals(SERVICE_UUID, actions.getObsToCreate().get(0).getValueText());
 	}
 
 	@Test
@@ -250,7 +262,7 @@ public class AppointmentServiceObsElementTest {
 	public void generateHtml_shouldDisplayServiceNameInViewModeWhenInsideObsGroup() throws Exception {
 		Obs existingObs = new Obs();
 		existingObs.setConcept(concept);
-		existingObs.setValueText(SERVICE_VALUE);
+		existingObs.setValueText(SERVICE_UUID);
 		when(context.getCurrentObsGroupConcepts()).thenReturn(Collections.singletonList(new Concept()));
 		when(context.getObsFromCurrentGroup(concept, (Concept) null)).thenReturn(existingObs);
 		when(context.getMode()).thenReturn(Mode.VIEW);
@@ -266,7 +278,7 @@ public class AppointmentServiceObsElementTest {
 	public void generateHtml_shouldDisplayServiceNameInViewMode() throws Exception {
 		Obs existingObs = new Obs();
 		existingObs.setConcept(concept);
-		existingObs.setValueText(SERVICE_VALUE);
+		existingObs.setValueText(SERVICE_UUID);
 		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(existingObs);
 		when(context.getMode()).thenReturn(Mode.VIEW);
 
@@ -284,7 +296,7 @@ public class AppointmentServiceObsElementTest {
 		when(context.getMode()).thenReturn(Mode.VIEW);
 
 		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
-		HttpServletRequest request = requestWithService(SERVICE_VALUE, element);
+		HttpServletRequest request = requestWithService(SERVICE_UUID, element);
 
 		element.handleSubmission(session, request);
 
@@ -304,7 +316,7 @@ public class AppointmentServiceObsElementTest {
 		Map<String, String> p = params("conceptId", CONCEPT_ID);
 		p.put("controlId", "appt_service_obs");
 		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, p);
-		HttpServletRequest request = requestWithService(SERVICE_VALUE, element);
+		HttpServletRequest request = requestWithService(SERVICE_UUID, element);
 
 		element.handleSubmission(session, request);
 
@@ -317,7 +329,7 @@ public class AppointmentServiceObsElementTest {
 	@Test
 	public void handleSubmission_shouldNotStampObsWithFormPathWhenNoControlId() throws Exception {
 		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, params("conceptId", CONCEPT_ID));
-		HttpServletRequest request = requestWithService(SERVICE_VALUE, element);
+		HttpServletRequest request = requestWithService(SERVICE_UUID, element);
 
 		element.handleSubmission(session, request);
 
@@ -331,7 +343,7 @@ public class AppointmentServiceObsElementTest {
 	public void constructor_shouldLookUpExistingObsByControlIdWhenSet() throws Exception {
 		Obs existingObs = new Obs();
 		existingObs.setConcept(concept);
-		existingObs.setValueText(SERVICE_VALUE);
+		existingObs.setValueText(SERVICE_UUID);
 		when(context.getObsFromExistingObs(concept, "appt_service_obs")).thenReturn(existingObs);
 
 		Map<String, String> p = params("conceptId", CONCEPT_ID);
@@ -373,9 +385,10 @@ public class AppointmentServiceObsElementTest {
 		return svc;
 	}
 
-	private Speciality makeSpeciality(String name) {
+	private Speciality makeSpeciality(String name, String uuid) {
 		Speciality speciality = new Speciality();
 		speciality.setName(name);
+		speciality.setUuid(uuid);
 		return speciality;
 	}
 }
