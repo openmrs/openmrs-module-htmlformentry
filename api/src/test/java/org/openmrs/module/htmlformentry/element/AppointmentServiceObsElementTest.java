@@ -36,6 +36,7 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.AppointmentServiceDefinition;
 import org.openmrs.module.appointments.model.Speciality;
 import org.openmrs.module.appointments.service.AppointmentServiceDefinitionService;
+import org.openmrs.module.appointments.service.SpecialityService;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -60,6 +61,9 @@ public class AppointmentServiceObsElementTest {
 	@Mock
 	private AppointmentServiceDefinitionService appointmentServiceDefinitionService;
 
+	@Mock
+	private SpecialityService specialityService;
+
 	private FormSubmissionActions actions;
 
 	private MockedStatic<Context> mockedContext;
@@ -82,7 +86,12 @@ public class AppointmentServiceObsElementTest {
 		mockedHtmlFormEntryUtil.when(() -> HtmlFormEntryUtil.createObs(any(Concept.class), any(), any(), any())).thenCallRealMethod();
 		mockedContext.when(() -> Context.getService(AppointmentServiceDefinitionService.class))
 		        .thenReturn(appointmentServiceDefinitionService);
+		mockedContext.when(() -> Context.getService(SpecialityService.class))
+		        .thenReturn(specialityService);
 		mockedContext.when(Context::getLocale).thenReturn(Locale.ENGLISH);
+		when(specialityService.getAllSpecialities()).thenReturn(
+		    Arrays.asList(makeSpeciality("Cardiology", "spec-uuid-cardio"),
+		        makeSpeciality("Orthopaedics", "spec-uuid-ortho")));
 
 		when(appointmentServiceDefinitionService.getAllAppointmentServices(false))
 		        .thenReturn(Collections.singletonList(makeService("Cardiology", 1, SERVICE_UUID, null)));
@@ -159,6 +168,28 @@ public class AppointmentServiceObsElementTest {
 		String html = element.generateHtml(context);
 
 		assertThat(html.contains("uuid-cardio"), is(true));
+	}
+
+	@Test
+	public void constructor_shouldSortServicesBySpecialityOrderThenByName() throws Exception {
+		Speciality cardiology = makeSpeciality("Cardiology", "spec-uuid-cardio");
+		Speciality orthopaedics = makeSpeciality("Orthopaedics", "spec-uuid-ortho");
+		when(specialityService.getAllSpecialities()).thenReturn(Arrays.asList(cardiology, orthopaedics));
+		when(appointmentServiceDefinitionService.getAllAppointmentServices(false)).thenReturn(
+		    Arrays.asList(
+		        makeService("Cardio B", 1, "uuid-cardio-b", cardiology),
+		        makeService("Ortho A", 2, "uuid-ortho-a", orthopaedics),
+		        makeService("Cardio A", 3, "uuid-cardio-a", cardiology)));
+
+		Map<String, String> p = params("conceptId", CONCEPT_ID);
+		p.put("specialities", "Cardiology,Orthopaedics");
+		p.put("sortBy", "specialitiesOrder");
+		AppointmentServiceObsElement element = new AppointmentServiceObsElement(context, p);
+		stubFieldName(element, "field");
+		String html = element.generateHtml(context);
+
+		assertThat(html.indexOf("uuid-cardio-a") < html.indexOf("uuid-cardio-b"), is(true));
+		assertThat(html.indexOf("uuid-cardio-b") < html.indexOf("uuid-ortho-a"), is(true));
 	}
 
 	@Test

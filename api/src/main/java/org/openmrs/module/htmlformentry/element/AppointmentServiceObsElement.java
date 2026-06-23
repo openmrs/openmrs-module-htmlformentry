@@ -1,10 +1,13 @@
 package org.openmrs.module.htmlformentry.element;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,7 +15,9 @@ import org.openmrs.Concept;
 import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.AppointmentServiceDefinition;
+import org.openmrs.module.appointments.model.Speciality;
 import org.openmrs.module.appointments.service.AppointmentServiceDefinitionService;
+import org.openmrs.module.appointments.service.SpecialityService;
 import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -37,6 +42,14 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 
 	private String tagControlId;
 
+	private static final String ATTRIBUTE_SPECIALITIES = "specialities";
+	private static final String ATTRIBUTE_SORT_BY = "sortBy";
+
+	private static final String ATTRIBUTE_SORT_BY_SPECIALITIES_ORDER_THEN_SERVICE_NAME = "specialitiesOrderThenServiceName";
+
+	@SuppressWarnings("unused")
+	private static final String ATTRIBUTE_SORT_BY_SERVICE_NAME = "serviceName"; // default sort order
+	
 	public AppointmentServiceObsElement(FormEntryContext context, Map<String, String> parameters) throws BadFormDesignException{
 		String conceptId = parameters.get("conceptId");
 		if (conceptId == null) {
@@ -68,20 +81,35 @@ public class AppointmentServiceObsElement implements HtmlGeneratorElement, FormS
 		}
 		String existingValue = existingObs != null ? existingObs.getValueText() : null;
 
-		List<String> specialityFilter = TagUtil.parseListParameter(parameters, "specialities", String.class).stream()
+		List<String> specialityFilterStr = TagUtil.parseListParameter(parameters, ATTRIBUTE_SPECIALITIES, String.class).stream()
 		        .map(String::toLowerCase).map(String::trim).collect(Collectors.toList());
 
+		List<Speciality> allSpecialities = Context.getService(SpecialityService.class).getAllSpecialities();
+		List<String> specialityFilter = specialityFilterStr.stream()
+				.map(s -> allSpecialities.stream().filter(sp -> sp.getName().equalsIgnoreCase(s) || sp.getUuid().equalsIgnoreCase(s)).findFirst())
+	        .filter(Optional::isPresent)
+			.map(Optional::get)
+			.map(Speciality::getUuid)
+			.collect(Collectors.toList());
+
+
+		Comparator<AppointmentServiceDefinition> compareServicesByServiceName = Comparator.comparing(AppointmentServiceDefinition::getName, String.CASE_INSENSITIVE_ORDER);
+		Comparator<AppointmentServiceDefinition> compareServicesBySpecialityOrder = Comparator.comparingInt(svc -> {
+			Speciality speciality = svc.getSpeciality();
+			return speciality != null ? specialityFilter.indexOf(speciality.getUuid()) : -1;
+		});
 		List<AppointmentServiceDefinition> services = Context.getService(AppointmentServiceDefinitionService.class)
 		        .getAllAppointmentServices(false);
-		services.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
 
-		if (!specialityFilter.isEmpty()) {
-			services = services.stream()
-			        .filter(s -> s.getSpeciality() != null
-			                && (specialityFilter.contains(s.getSpeciality().getName().toLowerCase().trim())
-			                        || specialityFilter.contains(s.getSpeciality().getUuid().toLowerCase().trim())))
-			        .collect(Collectors.toList());
-		}
+		String sortBy = parameters.get(ATTRIBUTE_SORT_BY);
+		boolean sortBySpecialitiesOrder = ATTRIBUTE_SORT_BY_SPECIALITIES_ORDER_THEN_SERVICE_NAME.equalsIgnoreCase(sortBy);
+		services = services.stream()
+			.filter(service -> specialityFilterStr.isEmpty()
+					|| (service.getSpeciality() != null && specialityFilter.contains(service.getSpeciality().getUuid())))
+			.sorted(sortBySpecialitiesOrder
+					? compareServicesBySpecialityOrder.thenComparing(compareServicesByServiceName)
+					: compareServicesByServiceName)
+			.collect(Collectors.toList());
 
 		serviceWidget = new DropdownWidget();
 		errorWidget = new ErrorWidget();
