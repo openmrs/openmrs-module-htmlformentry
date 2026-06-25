@@ -95,6 +95,8 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	// Config params
 	private String appointmentUuidConceptMapping;
 
+	private String tagControlId;
+
 	// stored for duration lookup at submission time
 	private List<AppointmentServiceDefinition> services = new ArrayList<>();
 
@@ -103,6 +105,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	public ScheduleAppointmentElement(FormEntryContext context, Map<String, String> parameters) {
 		appointmentUuidConceptMapping = parameters.get("appointmentUuidConcept");
+		tagControlId = parameters.get("controlId");
 
 		if (context.getMode() != Mode.ENTER) {
 			// VIEW/EDIT: claim the UUID obs so HFE doesn't warn about an unmatched obs,
@@ -110,8 +113,9 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			if (appointmentUuidConceptMapping != null) {
 				Concept uuidConcept = HtmlFormEntryUtil.getConcept(appointmentUuidConceptMapping);
 				if (uuidConcept != null) {
-					List<Obs> existing = context.removeExistingObs(uuidConcept);
-					Obs uuidObs = existing.isEmpty() ? null : existing.get(0);
+					Obs uuidObs = StringUtils.isNotBlank(tagControlId)
+					        ? context.getObsFromExistingObs(uuidConcept, tagControlId)
+					        : (context.removeExistingObs(uuidConcept).stream().findFirst().orElse(null));
 					if (uuidObs != null && uuidObs.getValueText() != null) {
 						try {
 							existingAppointment = Context.getService(AppointmentsService.class)
@@ -611,9 +615,16 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			Concept uuidConcept = HtmlFormEntryUtil.getConcept(appointmentUuidConceptMapping);
 			if (uuidConcept != null) {
 				session.getSubmissionActions().createObs(uuidConcept, appointment.getUuid(),
-				    session.getEncounter().getEncounterDatetime(), null);
+				    session.getEncounter().getEncounterDatetime(), null, null, getControlFormPath(session));
 			}
 		}
+	}
+
+	private String getControlFormPath(FormEntrySession session) {
+		if (StringUtils.isBlank(tagControlId)) {
+			return null;
+		}
+		return session.generateControlFormPath(tagControlId, 0);
 	}
 
 	/** Returns true when the appointment spans an entire day (midnight-to-23:59). */
