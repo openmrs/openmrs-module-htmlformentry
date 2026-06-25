@@ -37,6 +37,7 @@ import org.openmrs.ConceptName;
 import org.openmrs.ConceptNumeric;
 import org.openmrs.api.ConceptNameType;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.TestUtil;
@@ -84,7 +85,7 @@ public class ObsSubmissionElementTest {
 	}
 	
 	@Test
-	public void testShowUnitsUsingTrue() {
+	public void testShowUnitsUsingTrue() throws Exception {
 		ConceptDatatype numeric = new ConceptDatatype();
 		numeric.setUuid(ConceptDatatype.NUMERIC_UUID);
 		
@@ -106,7 +107,7 @@ public class ObsSubmissionElementTest {
 	
 	@Test
 	@Ignore
-	public void testShowUnitsUsingCode() {
+	public void testShowUnitsUsingCode() throws Exception {
 		ConceptDatatype numeric = new ConceptDatatype();
 		numeric.setUuid(ConceptDatatype.NUMERIC_UUID);
 		
@@ -211,31 +212,31 @@ public class ObsSubmissionElementTest {
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testNoConceptId_shouldThrowException() {
+	public void testNoConceptId_shouldThrowException() throws Exception {
 		new ObsSubmissionElement(context, params);
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testDuplicateConceptIds_shouldThrowException() {
+	public void testDuplicateConceptIds_shouldThrowException() throws Exception {
 		params.put("conceptId", "1");
 		params.put("conceptIds", "2");
 		new ObsSubmissionElement(context, params);
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testInvalidConceptIds_shouldThrowException() {
+	public void testInvalidConceptIds_shouldThrowException() throws Exception{
 		params.put("conceptIds", "adas,asda");
 		new ObsSubmissionElement(context, params);
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testEmptyConceptIds_shouldThrowException() {
+	public void testEmptyConceptIds_shouldThrowException() throws Exception {
 		params.put("conceptIds", "");
 		new ObsSubmissionElement(context, params);
 	}
 	
 	@Test(expected = RuntimeException.class)
-	public void testInvalidAnswerConceptIds_shouldThrowException() {
+	public void testInvalidAnswerConceptIds_shouldThrowException() throws Exception {
 		params.put("answerConceptIds", "adas,asda");
 		new ObsSubmissionElement(context, params);
 	}

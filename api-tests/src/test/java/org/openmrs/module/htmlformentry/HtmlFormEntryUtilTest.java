@@ -1115,6 +1115,21 @@ public class HtmlFormEntryUtilTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	@Verifies(value = "shouldSetValueTextToProviderIdGivenAProvider", method = "createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
+	public void createObs_shouldSetValueTextToProviderIdGivenAProvider() {
+		Provider provider = new Provider();
+		provider.setId(42);
+
+		Concept c = new Concept();
+		ConceptDatatype cd = new ConceptDatatype();
+		cd.setUuid("8d4a4ab4-c2cc-11de-8d13-0010c6dffd0f");
+		c.setDatatype(cd);
+
+		Obs o = HtmlFormEntryUtil.createObs(c, provider, null, null);
+		Assert.assertEquals("42", o.getValueText());
+	}
+
+	@Test
 	@Verifies(value = "shouldSetTheValueComplexOfObsIfConceptIsComplex", method = "createObs(Concept concept, Object value, Date datetime, String accessionNumber)")
 	public void createObs_shouldSetTheValueComplexOfObsIfConceptIsComplex() {
 		

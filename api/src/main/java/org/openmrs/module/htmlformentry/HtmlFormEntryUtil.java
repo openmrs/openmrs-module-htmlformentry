@@ -282,6 +282,8 @@ public class HtmlFormEntryUtil {
 			} else if (value instanceof Person) {
 				Person person = (Person) value;
 				obs.setValueText(person.getId().toString() + " - " + person.getPersonName().toString());
+			} else if (value instanceof Provider) {
+				obs.setValueText(((Provider) value).getId().toString());
 			} else {
 				obs.setValueText(value.toString());
 			}

@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Civil Status: <personAttribute attributeType="a0f5521c-dbbd-4c10-81b2-1b7ab18330df" answerConceptIds="1001,1002,1003"/>
+    <submit/>
+</htmlform>

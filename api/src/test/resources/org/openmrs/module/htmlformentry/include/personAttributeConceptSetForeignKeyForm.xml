@@ -1,0 +1,7 @@
+<htmlform>
+    Date: <encounterDate/>
+    Location: <encounterLocation/>
+    Provider: <encounterProvider role="Provider"/>
+    Attr: <personAttribute attributeType="b1e61b61-5f1a-4a19-8a4c-test00000020"/>
+    <submit/>
+</htmlform>
