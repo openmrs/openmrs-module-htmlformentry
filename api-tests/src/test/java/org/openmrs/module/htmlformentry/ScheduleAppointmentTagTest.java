@@ -317,56 +317,6 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 
-	@Test
-	public void scheduleAppointmentTag_shouldFallBackToServiceDurationWhenNoneEntered() throws Exception {
-		// Duration is optional — when omitted, the service's duration_mins (30) is used.
-		new RegressionTestHelper() {
-
-			@Override
-			public String getFormName() {
-				return "scheduleAppointmentForm";
-			}
-
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Provider" };
-			}
-
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Encounter Date:"), "2025-01-15");
-				request.setParameter(widgets.get("Location"), KIGALI_UUID);
-				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
-				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
-
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
-				request.setParameter(timeBase + "hours", "9");
-				request.setParameter(timeBase + "minutes", "0");
-				request.setParameter(timeBase + "seconds", "0");
-
-				// Duration intentionally omitted — service default of 30 min should be used
-				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
-			}
-
-			@Override
-			public void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-
-				AppointmentSearchRequest searchRequest = new AppointmentSearchRequest();
-				searchRequest.setPatientUuid(PATIENT_UUID);
-				searchRequest.setStartDate(new Date(0));
-				List<Appointment> appointments = Context.getService(AppointmentsService.class).search(searchRequest);
-				Assert.assertEquals(1, appointments.size());
-
-				long durationMs = appointments.get(0).getEndDateTime().getTime()
-				        - appointments.get(0).getStartDateTime().getTime();
-				Assert.assertEquals(30 * 60 * 1000L, durationMs);
-			}
-		}.run();
-	}
 
 	// ---------------------------------------------------------------
 	// Submission tests — all-day appointment

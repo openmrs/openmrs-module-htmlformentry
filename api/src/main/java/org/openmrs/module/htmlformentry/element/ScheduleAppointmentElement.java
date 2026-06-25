@@ -359,7 +359,8 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		sb.append(fieldRow("schedule-appointment-duration",
 		    msg("htmlformentry.scheduleAppointment.duration"),
 		    "<input type=\"number\" name=\"" + durFieldName + "\" id=\"" + durFieldName
-		            + "\" min=\"1\" style=\"width:5em\"/>" + durationErrorWidget.generateHtml(context)));
+		            + "\" min=\"1\" style=\"width:5em\"/>" + durationErrorWidget.generateHtml(context),
+		    true));
 		sb.append("</div>");
 
 		// Provider
@@ -489,7 +490,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			        msg("htmlformentry.scheduleAppointment.error.dateRequired")));
 		}
 
-		// Time required only for specific-time appointments
+		// Time and duration required only for specific-time appointments
 		String allDayValue = (String) allDayWidget.getValue(context, submission);
 		boolean isAllDay = "allday".equals(allDayValue);
 		if (!isAllDay) {
@@ -497,6 +498,21 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			if (time == null) {
 				errors.add(new FormSubmissionError(context.getFieldName(timeErrorWidget),
 				        msg("htmlformentry.scheduleAppointment.error.timeRequired")));
+			}
+
+			String durStr = (String) durationWidget.getValue(context, submission);
+			boolean validDuration = false;
+			if (StringUtils.isNotBlank(durStr)) {
+				try {
+					validDuration = Integer.parseInt(durStr.trim()) > 0;
+				}
+				catch (NumberFormatException e) {
+					// falls through to error
+				}
+			}
+			if (!validDuration) {
+				errors.add(new FormSubmissionError(context.getFieldName(durationErrorWidget),
+				        msg("htmlformentry.scheduleAppointment.error.durationRequired")));
 			}
 		}
 
