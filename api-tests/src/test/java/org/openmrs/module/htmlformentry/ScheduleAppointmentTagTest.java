@@ -179,6 +179,96 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	}
 
 	@Test
+	public void scheduleAppointmentTag_shouldFilterServiceOptionsBySpecialities() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" specialities=\"Ortho\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				// Consultation is tagged with the Ortho speciality
+				TestUtil.assertFuzzyContains("Consultation", html);
+				// Zzz Cardio Follow-up is tagged with the Cardio speciality, filtered out
+				TestUtil.assertFuzzyDoesNotContain("Zzz Cardio Follow-up", html);
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldSortServiceOptionsBySpecialityOrderWhenRequested() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" specialities=\"Cardio,Ortho\" sortServicesBy=\"specialityOrder\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("Zzz Cardio Follow-up", html);
+				TestUtil.assertFuzzyContains("Consultation", html);
+
+				// specialities="Cardio,Ortho" puts Cardio first, so its service must appear
+				// before Consultation (Ortho) even though "Consultation" sorts first alphabetically.
+				int cardioIndex = html.indexOf("Zzz Cardio Follow-up");
+				int orthoIndex = html.indexOf("Consultation");
+				Assert.assertTrue("Expected Cardio service to appear before Ortho service in speciality order",
+				        cardioIndex < orthoIndex);
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldShowErrorForUnknownSpeciality() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" specialities=\"NonExistentSpeciality\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("error", html);
+				TestUtil.assertFuzzyContains("No appointment speciality found matching: NonExistentSpeciality", html);
+			}
+		}.run();
+	}
+
+	@Test
 	public void scheduleAppointmentTag_shouldRestrictLocationsToVisitLocationAndDescendants() throws Exception {
 		final Visit visit = new Visit();
 		visit.setLocation(Context.getLocationService().getLocationByUuid("9356400c-a5a2-4588-8f2b-2361b3446eb8")); // Boston
