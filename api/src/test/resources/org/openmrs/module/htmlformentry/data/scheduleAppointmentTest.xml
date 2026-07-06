@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <appointment_speciality speciality_id="1" name="Ortho" uuid="c36006e5-9fbb-4f20-866b-0ece245615a1" creator="1"/>
+    <appointment_speciality speciality_id="2" name="Cardio" uuid="c36006e5-9fbb-4f20-866b-0ece245615aa" creator="1"/>
+    <appointment_service appointment_service_id="1" name="Consultation" description="Consultation" start_time="09:00:00" end_time="17:00:00" location_id="1"
+                         speciality_id="1" max_appointments_limit="4" duration_mins="30" creator="1" uuid="c36006e5-9fbb-4f20-866b-0ece245615a6" voided="false"/>
+    <appointment_service appointment_service_id="2" name="Zzz Cardio Follow-up" description="Cardio Follow-up" start_time="09:00:00" end_time="17:00:00" location_id="1"
+                         speciality_id="2" max_appointments_limit="4" duration_mins="20" creator="1" uuid="c36006e5-9fbb-4f20-866b-0ece245615ab" voided="false"/>
+    <!-- Text concept for storing appointment UUIDs as obs in view-mode tests -->
+    <concept concept_id="88001" creator="1" date_created="2005-01-01 00:00:00.0" retired="false" is_set="false" datatype_id="3" uuid="c36006e5-9fbb-4f20-866b-0ece245615a7"/>
+    <concept_name voided="false" concept_name_id="88001" concept_id="88001" name="SCHEDULE APPOINTMENT UUID" locale="en" creator="1" date_created="2005-01-01 00:00:00.0" locale_preferred="true" uuid="c36006e5-9fbb-4f20-866b-0ece245615a8"/>
+</dataset>

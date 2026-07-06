@@ -434,14 +434,14 @@ public class FormEntrySession {
 		xml = htmlGenerator.applyRepeats(xml);
 		xml = htmlGenerator.applyTranslations(xml, context);
 		xml = htmlGenerator.applyTags(this, xml);
-		
+
 		if (context.hasUnmatchedObsGroupEntities() && (context.getMode() == Mode.EDIT || context.getMode() == Mode.VIEW)) {
 			if (context.getUnmatchedObsGroupEntities().size() > 1 && context.getExistingObsInGroupsCount() > 0)
 				context.setGuessingInd(true);
 			context.setUnmatchedMode(true);
 			xml = htmlGenerator.applyUnmatchedTags(this, xml);
 		}
-		
+
 		xml = htmlGenerator.wrapInDiv(xml);
 		return xml;
 	}
@@ -647,6 +647,10 @@ public class FormEntrySession {
 		if (submissionActions.getAppointmentsToDisassociateFromEncounter() != null) {
 			new AppointmentsAbstractor().disassociateAppointmentsFromEncounter(
 			    submissionActions.getAppointmentsToDisassociateFromEncounter(), encounter);
+		}
+
+		if (!submissionActions.getAppointmentsToCreate().isEmpty()) {
+			new AppointmentsAbstractor().createAppointments(submissionActions.getAppointmentsToCreate());
 		}
 		
 		//deal with relationships

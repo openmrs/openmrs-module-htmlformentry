@@ -1,0 +1,5 @@
+<htmlform>
+    Encounter Date: <encounterDate/>
+    <scheduleAppointment locationTag="Some Tag" appointmentUuidConcept="c36006e5-9fbb-4f20-866b-0ece245615a7"/>
+    <submit/>
+</htmlform>

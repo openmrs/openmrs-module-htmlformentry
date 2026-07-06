@@ -122,6 +122,9 @@
                 <entry key="appointmentServiceObs">
                     <bean class="org.openmrs.module.htmlformentry.handler.AppointmentServiceObsTagHandler"/>
                 </entry>
+                <entry key="scheduleAppointment">
+                    <bean class="org.openmrs.module.htmlformentry.handler.ScheduleAppointmentTagHandler"/>
+                </entry>
             </map>
         </property>
     </bean>
