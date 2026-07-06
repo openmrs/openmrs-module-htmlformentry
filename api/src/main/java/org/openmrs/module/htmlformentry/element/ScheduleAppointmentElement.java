@@ -52,6 +52,7 @@ import org.openmrs.module.htmlformentry.widget.ProviderAjaxAutoCompleteWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
+import org.openmrs.util.OpenmrsUtil;
 
 public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
@@ -99,9 +100,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	private String tagControlId;
 
-	// stored for duration lookup at submission time
-	private List<AppointmentServiceDefinition> services = new ArrayList<>();
-
 	// Appointment fetched in VIEW/EDIT mode constructor
 	private Appointment existingAppointment;
 
@@ -133,150 +131,148 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 					// appointments module unavailable
 				}
 			}
-			return;
 		}
+		else {
+			// ENTER mode: set up all widgets
+			optional = "true".equalsIgnoreCase(parameters.get("optional"));
+			id = parameters.get("id");
+			scheduleChoiceWidget = new TextFieldWidget();
+			context.registerWidget(scheduleChoiceWidget);
 
-		// ENTER mode: set up all widgets
-		optional = "true".equalsIgnoreCase(parameters.get("optional"));
-		id = parameters.get("id");
-		scheduleChoiceWidget = new TextFieldWidget();
-		context.registerWidget(scheduleChoiceWidget);
+			// --- Location ---
+			locationWidget = new DropdownWidget();
+			locationErrorWidget = new ErrorWidget();
+			locationWidget.addOption(new Option(Context.getMessageSourceService().getMessage(
+				"htmlformentry.scheduleAppointment.chooseLocation"), "", false));
+			String locationTagName = parameters.getOrDefault("locationTag", DEFAULT_LOCATION_TAG);
+			LocationTag locationTag = Context.getLocationService().getLocationTagByName(locationTagName);
+			List<Location> locations = locationTag != null
+					? Context.getLocationService().getLocationsByTag(locationTag)
+					: Context.getLocationService().getAllLocations(false);
 
-		// --- Location ---
-		locationWidget = new DropdownWidget();
-		locationErrorWidget = new ErrorWidget();
-		locationWidget.addOption(new Option(Context.getMessageSourceService().getMessage(
-		    "htmlformentry.scheduleAppointment.chooseLocation"), "", false));
-		String locationTagName = parameters.getOrDefault("locationTag", DEFAULT_LOCATION_TAG);
-		LocationTag locationTag = Context.getLocationService().getLocationTagByName(locationTagName);
-		List<Location> locations = locationTag != null
-		        ? Context.getLocationService().getLocationsByTag(locationTag)
-		        : Context.getLocationService().getAllLocations(false);
-
-		if ("true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation"))
-		        && context.getVisit() != null) {
-			locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations,
-			    ((Visit) context.getVisit()).getLocation());
-		}
-
-		List<Option> locationOptions = new ArrayList<>();
-		for (Location loc : locations) {
-			locationOptions.add(new Option(HtmlFormEntryUtil.format(loc), loc.getUuid(), false));
-		}
-		Collections.sort(locationOptions, new OptionComparator());
-		for (Option opt : locationOptions) {
-			locationWidget.addOption(opt);
-		}
-		context.registerWidget(locationWidget);
-		context.registerErrorWidget(locationWidget, locationErrorWidget);
-
-		// --- Service ---
-		serviceWidget = new DropdownWidget();
-		serviceErrorWidget = new ErrorWidget();
-		serviceWidget.addOption(new Option(Context.getMessageSourceService().getMessage(
-		    "htmlformentry.scheduleAppointment.chooseService"), "", false));
-
-		// Resolve speciality filter (also defines the order for the "specialityOrder" sort key)
-		List<String> specialityFilterNames = TagUtil.parseListParameter(parameters, "specialities", String.class)
-		        .stream().map(String::trim).collect(Collectors.toList());
-		List<Speciality> allSpecialities = Context.getService(SpecialityService.class).getAllSpecialities();
-		List<String> specialityFilterUuids = new ArrayList<>();
-		for (String filter : specialityFilterNames) {
-			Speciality match = allSpecialities.stream()
-			        .filter(sp -> sp.getName().equalsIgnoreCase(filter) || sp.getUuid().equalsIgnoreCase(filter))
-			        .findFirst().orElse(null);
-			if (match == null) {
-				throw new BadFormDesignException("No appointment speciality found matching: " + filter);
+			if ("true".equalsIgnoreCase(parameters.get("restrictToCurrentVisitLocation"))
+					&& context.getVisit() != null) {
+				locations = HtmlFormEntryUtil.removeLocationsNotEqualToOrDescendentOf(locations,
+					((Visit) context.getVisit()).getLocation());
 			}
-			specialityFilterUuids.add(match.getUuid());
-		}
 
-		// Build comparator from sortBy list (e.g. sortBy="specialityOrder,serviceName")
-		List<String> sortByKeys = TagUtil.parseListParameter(parameters, "sortServicesBy", String.class);
-		if (sortByKeys.isEmpty()) {
-			sortByKeys = Collections.singletonList("serviceName");
-		}
-		Comparator<AppointmentServiceDefinition> comparator = null;
-		for (String key : sortByKeys) {
-			Comparator<AppointmentServiceDefinition> next;
-			if ("specialityOrder".equalsIgnoreCase(key)) {
-				final List<String> uuids = specialityFilterUuids;
-				next = Comparator.comparingInt((AppointmentServiceDefinition svc) -> {
-					Speciality sp = svc.getSpeciality();
-					return sp != null ? uuids.indexOf(sp.getUuid()) : -1;
-				});
-			} else {
-				next = Comparator.comparing(AppointmentServiceDefinition::getName, String.CASE_INSENSITIVE_ORDER);
+			List<Option> locationOptions = new ArrayList<>();
+			for (Location loc : locations) {
+				locationOptions.add(new Option(HtmlFormEntryUtil.format(loc), loc.getUuid(), false));
 			}
-			comparator = comparator == null ? next : comparator.thenComparing(next);
+			Collections.sort(locationOptions, new OptionComparator());
+			for (Option opt : locationOptions) {
+				locationWidget.addOption(opt);
+			}
+			context.registerWidget(locationWidget);
+			context.registerErrorWidget(locationWidget, locationErrorWidget);
+
+			// --- Service ---
+			serviceWidget = new DropdownWidget();
+			serviceErrorWidget = new ErrorWidget();
+			serviceWidget.addOption(new Option(Context.getMessageSourceService().getMessage(
+				"htmlformentry.scheduleAppointment.chooseService"), "", false));
+
+			// Resolve speciality filter (also defines the order for the "specialityOrder" sort key)
+			List<String> specialityFilterNames = TagUtil.parseListParameter(parameters, "specialities", String.class)
+					.stream().map(String::trim).collect(Collectors.toList());
+			List<Speciality> allSpecialities = Context.getService(SpecialityService.class).getAllSpecialities();
+			List<String> specialityFilterUuids = new ArrayList<>();
+			for (String filter : specialityFilterNames) {
+				Speciality match = allSpecialities.stream()
+						.filter(sp -> sp.getName().equalsIgnoreCase(filter) || sp.getUuid().equalsIgnoreCase(filter))
+						.findFirst().orElse(null);
+				if (match == null) {
+					throw new BadFormDesignException("No appointment speciality found matching: " + filter);
+				}
+				specialityFilterUuids.add(match.getUuid());
+			}
+
+			// Build comparator from sortBy list (e.g. sortBy="specialityOrder,serviceName")
+			List<String> sortByKeys = TagUtil.parseListParameter(parameters, "sortServicesBy", String.class);
+			if (sortByKeys.isEmpty()) {
+				sortByKeys = Collections.singletonList("serviceName");
+			}
+			Comparator<AppointmentServiceDefinition> comparator = null;
+			for (String key : sortByKeys) {
+				Comparator<AppointmentServiceDefinition> next;
+				if ("specialityOrder".equalsIgnoreCase(key)) {
+					final List<String> uuids = specialityFilterUuids;
+					next = Comparator.comparingInt((AppointmentServiceDefinition svc) -> {
+						Speciality sp = svc.getSpeciality();
+						return sp != null ? uuids.indexOf(sp.getUuid()) : -1;
+					});
+				} else {
+					next = Comparator.comparing(AppointmentServiceDefinition::getName, String.CASE_INSENSITIVE_ORDER);
+				}
+				comparator = comparator == null ? next : comparator.thenComparing(next);
+			}
+
+			List<AppointmentServiceDefinition> services = Context.getService(AppointmentServiceDefinitionService.class)
+			        .getAllAppointmentServices(false);
+			final Comparator<AppointmentServiceDefinition> finalComparator = comparator;
+			services = services.stream()
+					.filter(svc -> specialityFilterUuids.isEmpty()
+							|| (svc.getSpeciality() != null && specialityFilterUuids.contains(svc.getSpeciality().getUuid())))
+					.sorted(finalComparator)
+					.collect(Collectors.toList());
+
+			for (AppointmentServiceDefinition svc : services) {
+				serviceWidget.addOption(new Option(svc.getName(), svc.getUuid(), false));
+			}
+			context.registerWidget(serviceWidget);
+			context.registerErrorWidget(serviceWidget, serviceErrorWidget);
+
+			// --- Appointment Type ---
+			List<AppointmentKind> allowedTypes = TagUtil.parseListParameter(parameters, "type", AppointmentKind.class);
+			if (allowedTypes.isEmpty()) {
+				allowedTypes = Arrays.asList(AppointmentKind.values());
+			}
+			typeWidget = new DropdownWidget();
+			typeErrorWidget = new ErrorWidget();
+			if (allowedTypes.size() > 1) {
+				typeWidget.addOption(new Option(Context.getMessageSourceService().getMessage(
+					"htmlformentry.scheduleAppointment.chooseType"), "", false));
+			}
+			for (AppointmentKind kind : allowedTypes) {
+				typeWidget.addOption(new Option(kind.getValue(), kind.name(), false));
+			}
+			context.registerWidget(typeWidget);
+			context.registerErrorWidget(typeWidget, typeErrorWidget);
+
+			// --- Date ---
+			DateWidget dateWidget = new DateWidget();
+			TimeWidget timeWidget = new TimeWidget();
+			timeWidget.setHideSeconds(true);
+			context.registerWidget(dateWidget);
+			context.registerWidget(timeWidget);
+			startDateTimeWidget = new DateTimeWidget(dateWidget, timeWidget);
+			startDateTimeErrorWidget = new ErrorWidget();
+			timeErrorWidget = new ErrorWidget();
+			context.registerErrorWidget(startDateTimeWidget, startDateTimeErrorWidget);
+			context.registerWidget(timeErrorWidget);
+
+			// --- All-day toggle (hidden field; value set by JS radio buttons) ---
+			allDayWidget = new TextFieldWidget();
+			context.registerWidget(allDayWidget);
+
+			// --- Duration ---
+			durationWidget = new NumberFieldWidget(1.0, null, false);
+			durationErrorWidget = new ErrorWidget();
+			context.registerWidget(durationWidget);
+			context.registerErrorWidget(durationWidget, durationErrorWidget);
+
+			// --- Provider ---
+			providerWidget = new ProviderAjaxAutoCompleteWidget(MatchMode.ANYWHERE, null);
+			providerErrorWidget = new ErrorWidget();
+			context.registerWidget(providerWidget);
+			context.registerErrorWidget(providerWidget, providerErrorWidget);
+
+			// --- Note ---
+			noteWidget = new TextFieldWidget();
+			noteWidget.setTextArea(true);
+			context.registerWidget(noteWidget);
 		}
-
-		services = Context.getService(AppointmentServiceDefinitionService.class).getAllAppointmentServices(false);
-		final Comparator<AppointmentServiceDefinition> finalComparator = comparator;
-		services = services.stream()
-		        .filter(svc -> specialityFilterUuids.isEmpty()
-		                || (svc.getSpeciality() != null && specialityFilterUuids.contains(svc.getSpeciality().getUuid())))
-		        .sorted(finalComparator)
-		        .collect(Collectors.toList());
-
-		for (AppointmentServiceDefinition svc : services) {
-			serviceWidget.addOption(new Option(svc.getName(), svc.getUuid(), false));
-		}
-		context.registerWidget(serviceWidget);
-		context.registerErrorWidget(serviceWidget, serviceErrorWidget);
-
-		// --- Appointment Type ---
-		List<AppointmentKind> allowedTypes = TagUtil.parseListParameter(parameters, "type", AppointmentKind.class);
-		if (allowedTypes.isEmpty()) {
-			allowedTypes = Arrays.asList(AppointmentKind.values());
-		}
-		typeWidget = new DropdownWidget();
-		typeErrorWidget = new ErrorWidget();
-		if (allowedTypes.size() > 1) {
-			typeWidget.addOption(new Option(Context.getMessageSourceService().getMessage(
-			    "htmlformentry.scheduleAppointment.chooseType"), "", false));
-		}
-		for (AppointmentKind kind : allowedTypes) {
-			typeWidget.addOption(new Option(kind.getValue(), kind.name(), false));
-		}
-		if (allowedTypes.size() == 1) {
-			typeWidget.setInitialValue(allowedTypes.get(0).name());
-		}
-		context.registerWidget(typeWidget);
-		context.registerErrorWidget(typeWidget, typeErrorWidget);
-
-		// --- Date ---
-		DateWidget dateWidget = new DateWidget();
-		TimeWidget timeWidget = new TimeWidget();
-		timeWidget.setHideSeconds(true);
-		context.registerWidget(dateWidget);
-		context.registerWidget(timeWidget);
-		startDateTimeWidget = new DateTimeWidget(dateWidget, timeWidget);
-		startDateTimeErrorWidget = new ErrorWidget();
-		timeErrorWidget = new ErrorWidget();
-		context.registerErrorWidget(startDateTimeWidget, startDateTimeErrorWidget);
-		context.registerWidget(timeErrorWidget);
-
-		// --- All-day toggle (hidden field; value set by JS radio buttons) ---
-		allDayWidget = new TextFieldWidget();
-		context.registerWidget(allDayWidget);
-
-		// --- Duration ---
-		durationWidget = new NumberFieldWidget(1.0, null, false);
-		durationErrorWidget = new ErrorWidget();
-		context.registerWidget(durationWidget);
-		context.registerErrorWidget(durationWidget, durationErrorWidget);
-
-		// --- Provider ---
-		providerWidget = new ProviderAjaxAutoCompleteWidget(MatchMode.ANYWHERE, null);
-		providerErrorWidget = new ErrorWidget();
-		context.registerWidget(providerWidget);
-		context.registerErrorWidget(providerWidget, providerErrorWidget);
-
-		// --- Note ---
-		noteWidget = new TextFieldWidget();
-		noteWidget.setTextArea(true);
-		context.registerWidget(noteWidget);
 	}
 
 	@Override
@@ -583,13 +579,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		// Build end datetime
 		Date endDateTime;
 		if (isAllDay) {
-			Calendar endCal = Calendar.getInstance();
-			endCal.setTime(date);
-			endCal.set(Calendar.HOUR_OF_DAY, 23);
-			endCal.set(Calendar.MINUTE, 59);
-			endCal.set(Calendar.SECOND, 59);
-			endCal.set(Calendar.MILLISECOND, 999);
-			endDateTime = endCal.getTime();
+			endDateTime = OpenmrsUtil.getLastMomentOfDay(date);
 		} else {
 			Integer durationMins = null;
 			try {
@@ -618,25 +608,21 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		appointment.setEndDateTime(endDateTime);
 		appointment.setComments(note);
 
-		if (selectedProvider != null) {
-			AppointmentProvider appointmentProvider = new AppointmentProvider();
-			appointmentProvider.setProvider(selectedProvider);
-			appointmentProvider.setResponse(AppointmentProviderResponse.ACCEPTED);
-			appointmentProvider.setAppointment(appointment);
-			Set<AppointmentProvider> providers = new HashSet<>();
-			providers.add(appointmentProvider);
-			appointment.setProviders(providers);
-		}
+		AppointmentProvider appointmentProvider = new AppointmentProvider();
+		appointmentProvider.setProvider(selectedProvider);
+		appointmentProvider.setResponse(AppointmentProviderResponse.ACCEPTED);
+		appointmentProvider.setAppointment(appointment);
+		Set<AppointmentProvider> providers = new HashSet<>();
+		providers.add(appointmentProvider);
+		appointment.setProviders(providers);
 
 		session.getSubmissionActions().addAppointmentToCreate(appointment);
 
 		// Save the appointment UUID as a single obs so VIEW/EDIT mode can retrieve it
-		if (appointmentUuidConceptMapping != null) {
-			Concept uuidConcept = HtmlFormEntryUtil.getConcept(appointmentUuidConceptMapping);
-			if (uuidConcept != null) {
-				session.getSubmissionActions().createObs(uuidConcept, appointment.getUuid(),
-				    session.getEncounter().getEncounterDatetime(), null, null, getControlFormPath(session));
-			}
+		Concept uuidConcept = HtmlFormEntryUtil.getConcept(appointmentUuidConceptMapping);
+		if (uuidConcept != null) {
+			session.getSubmissionActions().createObs(uuidConcept, appointment.getUuid(),
+				session.getEncounter().getEncounterDatetime(), null, null, getControlFormPath(session));
 		}
 	}
 
@@ -665,7 +651,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	}
 
 	private String msg(String key) {
-		return Context.getMessageSourceService().getMessage(key);
+		return HtmlFormEntryUtil.translate(key);
 	}
 
 	private String fieldRow(String cssClass, String label, String widgetHtml) {
