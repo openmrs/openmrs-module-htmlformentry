@@ -37,6 +37,7 @@ import org.openmrs.api.LocationService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.appointments.model.Appointment;
+import org.openmrs.module.appointments.model.AppointmentKind;
 import org.openmrs.module.appointments.service.AppointmentServiceDefinitionService;
 import org.openmrs.module.appointments.service.AppointmentsService;
 import org.openmrs.module.appointments.service.SpecialityService;
@@ -151,7 +152,7 @@ public class ScheduleAppointmentElementTest {
 	// --- controlId: VIEW mode constructor ---
 
 	@Test
-	public void constructor_viewMode_withControlId_shouldFetchObsByControlId() {
+	public void constructor_viewMode_withControlId_shouldFetchObsByControlId() throws Exception {
 		Obs obs = new Obs();
 		obs.setValueText(APPT_UUID);
 		when(context.getMode()).thenReturn(Mode.VIEW);
@@ -161,20 +162,20 @@ public class ScheduleAppointmentElementTest {
 		new ScheduleAppointmentElement(context, params("appointmentUuidConcept", CONCEPT_ID, "controlId", "apptCtrl"));
 
 		verify(context).getObsFromExistingObs(concept, "apptCtrl");
-		verify(context, never()).removeExistingObs(concept);
+		verify(context, never()).removeExistingObs(concept, (Concept) null);
 	}
 
 	@Test
-	public void constructor_viewMode_withoutControlId_shouldFetchObsByRemoveExistingObs() {
+	public void constructor_viewMode_withoutControlId_shouldFetchObsByRemoveExistingObs() throws Exception {
 		Obs obs = new Obs();
 		obs.setValueText(APPT_UUID);
 		when(context.getMode()).thenReturn(Mode.VIEW);
-		when(context.removeExistingObs(concept)).thenReturn(Collections.singletonList(obs));
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(obs);
 		when(appointmentsService.getAppointmentByUuid(APPT_UUID)).thenReturn(new Appointment());
 
 		new ScheduleAppointmentElement(context, params("appointmentUuidConcept", CONCEPT_ID));
 
-		verify(context).removeExistingObs(concept);
+		verify(context).removeExistingObs(concept, (Concept) null);
 		verify(context, never()).getObsFromExistingObs(any(Concept.class), anyString());
 	}
 
@@ -201,7 +202,7 @@ public class ScheduleAppointmentElementTest {
 	}
 
 	@Test
-	public void handleSubmission_withoutControlId_shouldNotStampUuidObsWithFormPath() {
+	public void handleSubmission_withoutControlId_shouldNotStampUuidObsWithFormPath() throws Exception {
 		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
 
 		element.handleSubmission(session, buildRequest());
@@ -238,7 +239,7 @@ public class ScheduleAppointmentElementTest {
 		when(context.getFieldName(any(ProviderAjaxAutoCompleteWidget.class))).thenReturn("prov");
 
 		MockHttpServletRequest req = new MockHttpServletRequest();
-		req.addParameter("dd", "any-location-uuid"); // location (service UUID won't match, so service=null — OK)
+		req.addParameter("dd", AppointmentKind.Scheduled.name()); // all DropdownWidgets share "dd"; value must be a valid AppointmentKind for the type widget
 		req.addParameter("tf", "allday");             // allDayWidget → all-day, no time widget needed
 		req.addParameter("dt", "2025-01-15");         // date (parsed as yyyy-MM-dd by HtmlFormEntryUtil)
 		// prov_hid not set → provider = null (appointment is created without provider)

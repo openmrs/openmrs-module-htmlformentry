@@ -32,6 +32,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	// Patient 2 (person_id=2) from standard test dataset
 	private static final String PATIENT_UUID = "da7f524f-27ce-4bb2-86d6-6d1d05312bd5";
 
+	// Text concept added in scheduleAppointmentTest.xml for storing appointment UUID obs
+	private static final String APPT_UUID_CONCEPT = "c36006e5-9fbb-4f20-866b-0ece245615a7";
+
 	// Widget-label note: date and time widgets are found via the "Timing" section
 	// label as a stable anchor. "Timing!!2" = allday hidden input (3rd name="w" after
 	// "Timing"), "Timing!!3" = appointment date hidden input (4th), "Timing!!4" =
@@ -99,7 +102,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -129,7 +132,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"Scheduled\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"Scheduled\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -158,7 +161,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"Scheduled,WalkIn\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\" type=\"Scheduled,WalkIn\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -189,7 +192,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment restrictToCurrentVisitLocation=\"true\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment restrictToCurrentVisitLocation=\"true\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -225,7 +228,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform><scheduleAppointment restrictToCurrentVisitLocation=\"true\"/><submit/></htmlform>";
+				return "<htmlform><scheduleAppointment restrictToCurrentVisitLocation=\"true\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -557,7 +560,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform>Encounter Date: <encounterDate/><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\"/><submit/></htmlform>";
+				return "<htmlform>Encounter Date: <encounterDate/><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -596,7 +599,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform>Encounter Date: <encounterDate/><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\"/><submit/></htmlform>";
+				return "<htmlform>Encounter Date: <encounterDate/><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -650,7 +653,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 
 			@Override
 			public String getFormXml() {
-				return "<htmlform>Encounter Date: <encounterDate/><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\"/><submit/></htmlform>";
+				return "<htmlform>Encounter Date: <encounterDate/><scheduleAppointment locationTag=\"Some Tag\" optional=\"true\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/><submit/></htmlform>";
 			}
 
 			@Override
@@ -678,10 +681,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	// ---------------------------------------------------------------
 
 	@Test
-	public void scheduleAppointmentTag_shouldShowAppointmentsLinkInViewModeWithoutUuidConcept() throws Exception {
-		// When no appointmentUuidConcept is configured the tag cannot look up the
-		// saved appointment, so view mode falls back to a generic "use the
-		// Appointments app" message.
+	public void scheduleAppointmentTag_shouldShowErrorWhenUuidConceptMissing() throws Exception {
+		// When appointmentUuidConcept is omitted the tag handler throws BadFormDesignException,
+		// which the HFE framework renders as an inline error div.
 		new RegressionTestHelper() {
 
 			@Override
@@ -690,48 +692,24 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			}
 
 			@Override
+			public String getFormXml() {
+				return "<htmlform><scheduleAppointment locationTag=\"Some Tag\"/><submit/></htmlform>";
+			}
+
+			@Override
 			public String[] widgetLabels() {
-				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				return new String[] {};
 			}
 
 			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Encounter Date:"), "2025-01-15");
-				request.setParameter(widgets.get("Location"), KIGALI_UUID);
-				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
-				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
-
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
-				request.setParameter(timeBase + "hours", "10");
-				request.setParameter(timeBase + "minutes", "30");
-				request.setParameter(timeBase + "seconds", "0");
-
-				request.setParameter(widgets.get("Duration (minutes)"), "30");
-				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
-			}
-
-			@Override
-			public boolean doViewEncounter() {
-				return true;
-			}
-
-			@Override
-			public void testViewingEncounter(Encounter encounter, String html) {
-				TestUtil.assertFuzzyContains("Appointments app", html);
-				TestUtil.assertFuzzyDoesNotContain("Kigali", html);
-				TestUtil.assertFuzzyDoesNotContain("Consultation", html);
+			public void testBlankFormHtml(String html) {
+				TestUtil.assertFuzzyContains("error", html);
 			}
 		}.run();
 	}
 
 	@Test
 	public void scheduleAppointmentTag_shouldShowAppointmentDetailsInViewModeWithUuidConcept() throws Exception {
-		// uuid="c36006e5-9fbb-4f20-866b-0ece245615a7" is the text concept added in scheduleAppointmentTest.xml
-		final String APPT_UUID_CONCEPT = "c36006e5-9fbb-4f20-866b-0ece245615a7";
-
 		new RegressionTestHelper() {
 
 			@Override

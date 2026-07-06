@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,12 +33,14 @@ import org.openmrs.module.appointments.model.Speciality;
 import org.openmrs.module.appointments.service.AppointmentServiceDefinitionService;
 import org.openmrs.module.appointments.service.AppointmentsService;
 import org.openmrs.module.appointments.service.SpecialityService;
+import org.openmrs.module.htmlformentry.BadFormDesignException;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.FormEntrySession;
 import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
+import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.tag.TagUtil;
 import org.openmrs.module.htmlformentry.util.MatchMode;
 import org.openmrs.module.htmlformentry.widget.DateTimeWidget;
@@ -48,6 +49,7 @@ import org.openmrs.module.htmlformentry.widget.DropdownWidget;
 import org.openmrs.module.htmlformentry.widget.ErrorWidget;
 import org.openmrs.module.htmlformentry.widget.Option;
 import org.openmrs.module.htmlformentry.widget.ProviderAjaxAutoCompleteWidget;
+import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
 
@@ -76,7 +78,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	// Hidden field tracking "allday" vs "specific" radio state
 	private TextFieldWidget allDayWidget;
 
-	private TextFieldWidget durationWidget;
+	private NumberFieldWidget durationWidget;
 
 	private ErrorWidget locationErrorWidget;
 
@@ -103,28 +105,32 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	// Appointment fetched in VIEW/EDIT mode constructor
 	private Appointment existingAppointment;
 
-	public ScheduleAppointmentElement(FormEntryContext context, Map<String, String> parameters) {
+	public ScheduleAppointmentElement(FormEntryContext context, Map<String, String> parameters) throws BadFormDesignException {
 		appointmentUuidConceptMapping = parameters.get("appointmentUuidConcept");
 		tagControlId = parameters.get("controlId");
+
+		if (appointmentUuidConceptMapping == null) {
+			throw new BadFormDesignException("scheduleAppointment tag requires appointmentUuidConcept");
+		}
+		Concept uuidConcept = HtmlFormEntryUtil.getConcept(appointmentUuidConceptMapping);
+		if (uuidConcept == null) {
+			throw new BadFormDesignException("Could not find concept for appointmentUuidConcept mapping: "
+			        + appointmentUuidConceptMapping);
+		}
 
 		if (context.getMode() != Mode.ENTER) {
 			// VIEW/EDIT: claim the UUID obs so HFE doesn't warn about an unmatched obs,
 			// then fetch the appointment for display in generateHtml().
-			if (appointmentUuidConceptMapping != null) {
-				Concept uuidConcept = HtmlFormEntryUtil.getConcept(appointmentUuidConceptMapping);
-				if (uuidConcept != null) {
-					Obs uuidObs = StringUtils.isNotBlank(tagControlId)
-					        ? context.getObsFromExistingObs(uuidConcept, tagControlId)
-					        : (context.removeExistingObs(uuidConcept).stream().findFirst().orElse(null));
-					if (uuidObs != null && uuidObs.getValueText() != null) {
-						try {
-							existingAppointment = Context.getService(AppointmentsService.class)
-							        .getAppointmentByUuid(uuidObs.getValueText());
-						}
-						catch (Exception e) {
-							// appointments module unavailable
-						}
-					}
+			Obs uuidObs = StringUtils.isNotBlank(tagControlId)
+			        ? context.getObsFromExistingObs(uuidConcept, tagControlId)
+			        : context.removeExistingObs(uuidConcept, (Concept) null);
+			if (uuidObs != null && uuidObs.getValueText() != null) {
+				try {
+					existingAppointment = Context.getService(AppointmentsService.class)
+					        .getAppointmentByUuid(uuidObs.getValueText());
+				}
+				catch (Exception e) {
+					// appointments module unavailable
 				}
 			}
 			return;
@@ -133,10 +139,8 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		// ENTER mode: set up all widgets
 		optional = "true".equalsIgnoreCase(parameters.get("optional"));
 		id = parameters.get("id");
-		if (optional) {
-			scheduleChoiceWidget = new TextFieldWidget();
-			context.registerWidget(scheduleChoiceWidget);
-		}
+		scheduleChoiceWidget = new TextFieldWidget();
+		context.registerWidget(scheduleChoiceWidget);
 
 		// --- Location ---
 		locationWidget = new DropdownWidget();
@@ -155,8 +159,13 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			    ((Visit) context.getVisit()).getLocation());
 		}
 
+		List<Option> locationOptions = new ArrayList<>();
 		for (Location loc : locations) {
-			locationWidget.addOption(new Option(loc.getName(), loc.getUuid(), false));
+			locationOptions.add(new Option(HtmlFormEntryUtil.format(loc), loc.getUuid(), false));
+		}
+		Collections.sort(locationOptions, new OptionComparator());
+		for (Option opt : locationOptions) {
+			locationWidget.addOption(opt);
 		}
 		context.registerWidget(locationWidget);
 		context.registerErrorWidget(locationWidget, locationErrorWidget);
@@ -169,16 +178,18 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		// Resolve speciality filter (also defines the order for the "specialityOrder" sort key)
 		List<String> specialityFilterNames = TagUtil.parseListParameter(parameters, "specialities", String.class)
-		        .stream().map(String::toLowerCase).map(String::trim).collect(Collectors.toList());
+		        .stream().map(String::trim).collect(Collectors.toList());
 		List<Speciality> allSpecialities = Context.getService(SpecialityService.class).getAllSpecialities();
-		List<String> specialityFilterUuids = specialityFilterNames.stream()
-		        .map(s -> allSpecialities.stream()
-		                .filter(sp -> sp.getName().equalsIgnoreCase(s) || sp.getUuid().equalsIgnoreCase(s))
-		                .findFirst())
-		        .filter(Optional::isPresent)
-		        .map(Optional::get)
-		        .map(Speciality::getUuid)
-		        .collect(Collectors.toList());
+		List<String> specialityFilterUuids = new ArrayList<>();
+		for (String filter : specialityFilterNames) {
+			Speciality match = allSpecialities.stream()
+			        .filter(sp -> sp.getName().equalsIgnoreCase(filter) || sp.getUuid().equalsIgnoreCase(filter))
+			        .findFirst().orElse(null);
+			if (match == null) {
+				throw new BadFormDesignException("No appointment speciality found matching: " + filter);
+			}
+			specialityFilterUuids.add(match.getUuid());
+		}
 
 		// Build comparator from sortBy list (e.g. sortBy="specialityOrder,serviceName")
 		List<String> sortByKeys = TagUtil.parseListParameter(parameters, "sortServicesBy", String.class);
@@ -251,7 +262,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		context.registerWidget(allDayWidget);
 
 		// --- Duration ---
-		durationWidget = new TextFieldWidget();
+		durationWidget = new NumberFieldWidget(1.0, null, false);
 		durationErrorWidget = new ErrorWidget();
 		context.registerWidget(durationWidget);
 		context.registerErrorWidget(durationWidget, durationErrorWidget);
@@ -276,26 +287,32 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		StringBuilder sb = new StringBuilder();
 
+		sb.append("<style>");
+		sb.append(".schedule-appointment p{margin:0.3em 0;}");
+		sb.append(".schedule-appointment p>label{display:block;margin-bottom:0.2em;}");
+		sb.append(".schedule-appointment .field-widget{display:flex;align-items:center;gap:0.25em;flex-wrap:wrap;}");
+		sb.append(".schedule-appointment-choice label{display:inline-flex;align-items:center;gap:0.3em;cursor:pointer;margin-right:1em;}");
+		sb.append(".schedule-appointment-timing-options{display:flex;gap:1.5em;align-items:center;}");
+		sb.append(".schedule-appointment-timing-option{display:inline-flex;align-items:center;gap:0.3em;cursor:pointer;}");
+		sb.append(".schedule-appointment-date-time-widget{display:inline-flex;align-items:center;gap:0.5em;flex-wrap:wrap;}");
+		sb.append(".schedule-appt-time{display:inline-flex;align-items:center;gap:0.25em;}");
+		sb.append("</style>");
+
 		sb.append("<div class=\"schedule-appointment\"").append(id != null ? " id=\"" + id + "\"" : "").append(">");
 
-		String fieldsWrapperId = null;
 		if (optional) {
 			String choiceFieldName = context.getFieldName(scheduleChoiceWidget);
-			fieldsWrapperId = "schedule-appt-fields-" + choiceFieldName;
 			sb.append("<p class=\"schedule-appointment-choice\">");
 			sb.append("<label><input type=\"radio\" name=\"").append(choiceFieldName)
 			        .append("\" value=\"yes\" checked")
-			        .append(" onchange=\"document.getElementById('").append(fieldsWrapperId)
-			        .append("').style.display='block'\"> ")
+			        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appointment-fields').style.display='block'\"> ")
 			        .append(msg("htmlformentry.scheduleAppointment.doSchedule")).append("</label> ");
 			sb.append("<label><input type=\"radio\" name=\"").append(choiceFieldName)
 			        .append("\" value=\"no\"")
-			        .append(" onchange=\"document.getElementById('").append(fieldsWrapperId)
-			        .append("').style.display='none'\"> ")
+			        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appointment-fields').style.display='none'\"> ")
 			        .append(msg("htmlformentry.scheduleAppointment.skip")).append("</label>");
 			sb.append("</p>");
-			sb.append("<div id=\"").append(fieldsWrapperId)
-			        .append("\" class=\"schedule-appointment-fields\" style=\"display:block\">");
+			sb.append("<div class=\"schedule-appointment-fields\" style=\"display:block\">");
 		}
 
 		// Location
@@ -308,45 +325,46 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		    msg("htmlformentry.scheduleAppointment.service"),
 		    serviceWidget.generateHtml(context) + serviceErrorWidget.generateHtml(context), true));
 
-		// Appointment Type (only when more than one option)
+		// Appointment Type: dropdown when multiple options, hidden input when only one
 		if (typeWidget.getOptions().size() > 1) {
 			sb.append(fieldRow("schedule-appointment-type",
 			    msg("htmlformentry.scheduleAppointment.appointmentType"),
 			    typeWidget.generateHtml(context) + typeErrorWidget.generateHtml(context), true));
+		} else {
+			String typeFieldName = context.getFieldName(typeWidget);
+			sb.append("<input type=\"hidden\" name=\"").append(typeFieldName)
+			        .append("\" value=\"").append(typeWidget.getOptions().get(0).getValue()).append("\"/>");
 		}
 
 		// All-day / Specific-time toggle — shown BEFORE the date/time row
 		String allDayFieldName = context.getFieldName(allDayWidget);
-		String timeSpanId = "schedule-appt-time-" + allDayFieldName;
-		String durationRowId = "schedule-appt-duration-" + allDayFieldName;
 		sb.append("<p class=\"schedule-appointment-timing\">");
 		sb.append("<label>").append(msg("htmlformentry.scheduleAppointment.timing"))
 		        .append(" <span class=\"required\">*</span></label>");
-		sb.append("<span style=\"display:flex;gap:1.5em;align-items:center\">");
-		sb.append("<label style=\"display:inline-flex;align-items:center;gap:0.3em\"><input type=\"radio\" name=\"").append(allDayFieldName).append("-radio\" value=\"allday\"")
-		        .append(" onchange=\"document.getElementById('").append(allDayFieldName).append("').value='allday';")
-		        .append("document.getElementById('").append(timeSpanId).append("').style.display='none';")
-		        .append("document.getElementById('").append(durationRowId).append("').style.display='none';\"> ")
+		sb.append("<span class=\"field-widget schedule-appointment-timing-options\">");
+		sb.append("<label class=\"schedule-appointment-timing-option\"><input type=\"radio\" name=\"").append(allDayFieldName).append("-radio\" value=\"allday\"")
+		        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appt-allday').value='allday';")
+		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-time').style.display='none';")
+		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-duration').style.display='none';\"> ")
 		        .append(msg("htmlformentry.scheduleAppointment.allDay")).append("</label>");
-		sb.append("<label style=\"display:inline-flex;align-items:center;gap:0.3em\"><input type=\"radio\" name=\"").append(allDayFieldName).append("-radio\" value=\"specific\" checked")
-		        .append(" onchange=\"document.getElementById('").append(allDayFieldName).append("').value='specific';")
-		        .append("document.getElementById('").append(timeSpanId).append("').style.display='inline-flex';")
-		        .append("document.getElementById('").append(durationRowId).append("').style.display='block';\"> ")
+		sb.append("<label class=\"schedule-appointment-timing-option\"><input type=\"radio\" name=\"").append(allDayFieldName).append("-radio\" value=\"specific\" checked")
+		        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appt-allday').value='specific';")
+		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-time').style.display='inline-flex';")
+		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-duration').style.display='block';\"> ")
 		        .append(msg("htmlformentry.scheduleAppointment.specificTime")).append("</label>");
 		sb.append("</span>");
 		sb.append("<input type=\"hidden\" name=\"").append(allDayFieldName)
-		        .append("\" id=\"").append(allDayFieldName).append("\" value=\"specific\"/>");
+		        .append("\" class=\"schedule-appt-allday\" value=\"specific\"/>");
 		sb.append("</p>");
 
 		// Date + Time on one line; time portion shown/hidden by the toggle above
 		sb.append("<p class=\"schedule-appointment-date-time\">");
 		sb.append("<label>").append(msg("htmlformentry.scheduleAppointment.date"))
 		        .append(" <span class=\"required\">*</span></label>");
-		sb.append("<span style=\"display:inline-flex;align-items:center;gap:0.5em;flex-wrap:wrap\">");
+		sb.append("<span class=\"field-widget schedule-appointment-date-time-widget\">");
 		sb.append(startDateTimeWidget.getDateWidget().generateHtml(context));
 		sb.append(startDateTimeErrorWidget.generateHtml(context));
-		sb.append("<span id=\"").append(timeSpanId)
-		        .append("\" style=\"display:inline-flex;align-items:center;gap:0.25em\">");
+		sb.append("<span class=\"schedule-appt-time\">");
 		sb.append(startDateTimeWidget.getTimeWidget().generateHtml(context));
 		sb.append(timeErrorWidget.generateHtml(context));
 		sb.append("</span>");
@@ -354,12 +372,10 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		sb.append("</p>");
 
 		// Duration (shown only for specific-time)
-		String durFieldName = context.getFieldName(durationWidget);
-		sb.append("<div id=\"").append(durationRowId).append("\">");
+		sb.append("<div class=\"schedule-appt-duration\">");
 		sb.append(fieldRow("schedule-appointment-duration",
 		    msg("htmlformentry.scheduleAppointment.duration"),
-		    "<input type=\"number\" name=\"" + durFieldName + "\" id=\"" + durFieldName
-		            + "\" min=\"1\" style=\"width:5em\"/>" + durationErrorWidget.generateHtml(context),
+		    durationWidget.generateHtml(context) + durationErrorWidget.generateHtml(context),
 		    true));
 		sb.append("</div>");
 
@@ -384,9 +400,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	private String generateViewEditHtml() {
 		if (existingAppointment == null) {
-			if (appointmentUuidConceptMapping == null) {
-				return "<p>" + msg("htmlformentry.scheduleAppointment.viewModeMessage") + "</p>";
-			}
 			return "<p class=\"schedule-appointment-none\">"
 			        + msg("htmlformentry.scheduleAppointment.noAppointment") + "</p>";
 		}
@@ -400,29 +413,30 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		// Date
 		String dateStr = Context.getDateFormat().format(start);
-		sb.append(viewRow(msg("htmlformentry.scheduleAppointment.date"), dateStr));
+		sb.append(viewRow("schedule-appointment-date", msg("htmlformentry.scheduleAppointment.date"), dateStr));
 
 		// Time (or "All day")
 		if (isAllDay) {
-			sb.append(viewRow(msg("htmlformentry.scheduleAppointment.appointmentTime"),
+			sb.append(viewRow("schedule-appointment-time", msg("htmlformentry.scheduleAppointment.appointmentTime"),
 			    msg("htmlformentry.scheduleAppointment.allDay")));
 		} else {
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(start);
 			String timeStr = String.format("%02d:%02d",
 			    cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
-			sb.append(viewRow(msg("htmlformentry.scheduleAppointment.appointmentTime"), timeStr));
+			sb.append(viewRow("schedule-appointment-time", msg("htmlformentry.scheduleAppointment.appointmentTime"),
+			    timeStr));
 		}
 
 		// Location
 		if (existingAppointment.getLocation() != null) {
-			sb.append(viewRow(msg("htmlformentry.scheduleAppointment.location"),
-			    existingAppointment.getLocation().getName()));
+			sb.append(viewRow("schedule-appointment-location", msg("htmlformentry.scheduleAppointment.location"),
+			    HtmlFormEntryUtil.format(existingAppointment.getLocation())));
 		}
 
 		// Service
 		if (existingAppointment.getService() != null) {
-			sb.append(viewRow(msg("htmlformentry.scheduleAppointment.service"),
+			sb.append(viewRow("schedule-appointment-service", msg("htmlformentry.scheduleAppointment.service"),
 			    existingAppointment.getService().getName()));
 		}
 
@@ -430,20 +444,20 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		if (existingAppointment.getProviders() != null && !existingAppointment.getProviders().isEmpty()) {
 			AppointmentProvider ap = existingAppointment.getProviders().iterator().next();
 			if (ap.getProvider() != null) {
-				sb.append(viewRow(msg("htmlformentry.scheduleAppointment.provider"),
+				sb.append(viewRow("schedule-appointment-provider", msg("htmlformentry.scheduleAppointment.provider"),
 				    ap.getProvider().getName()));
 			}
 		}
 
 		// Notes
 		if (StringUtils.isNotBlank(existingAppointment.getComments())) {
-			sb.append(viewRow(msg("htmlformentry.scheduleAppointment.note"),
+			sb.append(viewRow("schedule-appointment-note", msg("htmlformentry.scheduleAppointment.note"),
 			    existingAppointment.getComments()));
 		}
 
 		// Status
 		if (existingAppointment.getStatus() != null) {
-			sb.append(viewRow(msg("htmlformentry.scheduleAppointment.status"),
+			sb.append(viewRow("schedule-appointment-status", msg("htmlformentry.scheduleAppointment.status"),
 			    existingAppointment.getStatus().name()));
 		}
 
@@ -464,20 +478,20 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		List<FormSubmissionError> errors = new ArrayList<>();
 
 		String locationUuid = (String) locationWidget.getValue(context, submission);
-		if (locationUuid == null || locationUuid.isEmpty()) {
+		if (StringUtils.isBlank(locationUuid)) {
 			errors.add(new FormSubmissionError(context.getFieldName(locationErrorWidget),
 			        msg("htmlformentry.scheduleAppointment.error.locationRequired")));
 		}
 
 		String serviceUuid = (String) serviceWidget.getValue(context, submission);
-		if (serviceUuid == null || serviceUuid.isEmpty()) {
+		if (StringUtils.isBlank(serviceUuid)) {
 			errors.add(new FormSubmissionError(context.getFieldName(serviceErrorWidget),
 			        msg("htmlformentry.scheduleAppointment.error.serviceRequired")));
 		}
 
 		if (typeWidget.getOptions().size() > 1) {
 			String typeValue = (String) typeWidget.getValue(context, submission);
-			if (typeValue == null || typeValue.isEmpty()) {
+			if (StringUtils.isBlank(typeValue)) {
 				errors.add(new FormSubmissionError(context.getFieldName(typeErrorWidget),
 				        msg("htmlformentry.scheduleAppointment.error.typeRequired")));
 			}
@@ -500,17 +514,14 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 				        msg("htmlformentry.scheduleAppointment.error.timeRequired")));
 			}
 
-			String durStr = (String) durationWidget.getValue(context, submission);
-			boolean validDuration = false;
-			if (StringUtils.isNotBlank(durStr)) {
-				try {
-					validDuration = Integer.parseInt(durStr.trim()) > 0;
-				}
-				catch (NumberFormatException e) {
-					// falls through to error
-				}
+			Number durNum = null;
+			try {
+				durNum = (Number) durationWidget.getValue(context, submission);
 			}
-			if (!validDuration) {
+			catch (IllegalArgumentException e) {
+				// non-numeric input — falls through to error
+			}
+			if (durNum == null || durNum.intValue() < 1) {
 				errors.add(new FormSubmissionError(context.getFieldName(durationErrorWidget),
 				        msg("htmlformentry.scheduleAppointment.error.durationRequired")));
 			}
@@ -540,19 +551,15 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		String locationUuid = (String) locationWidget.getValue(context, submission);
 		String serviceUuid = (String) serviceWidget.getValue(context, submission);
-		String typeValue = typeWidget.getOptions().size() == 1
-		        ? typeWidget.getOptions().get(0).getValue()
-		        : (String) typeWidget.getValue(context, submission);
+		String typeValue = (String) typeWidget.getValue(context, submission);
 		Date date = (Date) startDateTimeWidget.getDateWidget().getValue(context, submission);
 		String allDayValue = (String) allDayWidget.getValue(context, submission);
 		boolean isAllDay = "allday".equals(allDayValue);
 		Provider selectedProvider = (Provider) providerWidget.getValue(context, submission);
 		String note = (String) noteWidget.getValue(context, submission);
 
-		AppointmentServiceDefinition service = services.stream()
-		        .filter(s -> s.getUuid().equals(serviceUuid))
-		        .findFirst()
-		        .orElse(null);
+		AppointmentServiceDefinition service = Context.getService(AppointmentServiceDefinitionService.class)
+		        .getAppointmentServiceByUuid(serviceUuid);
 
 		// Build start datetime
 		Calendar cal = Calendar.getInstance();
@@ -585,14 +592,14 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			endDateTime = endCal.getTime();
 		} else {
 			Integer durationMins = null;
-			String durStr = (String) durationWidget.getValue(context, submission);
-			if (StringUtils.isNotBlank(durStr)) {
-				try {
-					durationMins = Integer.parseInt(durStr.trim());
+			try {
+				Number durNum = (Number) durationWidget.getValue(context, submission);
+				if (durNum != null) {
+					durationMins = durNum.intValue();
 				}
-				catch (NumberFormatException e) {
-					// ignore invalid input
-				}
+			}
+			catch (IllegalArgumentException e) {
+				// non-numeric input — validation should have caught this
 			}
 			if (durationMins == null && service != null) {
 				durationMins = service.getDurationMins();
@@ -606,9 +613,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		appointment.setPatient(session.getPatient());
 		appointment.setLocation(Context.getLocationService().getLocationByUuid(locationUuid));
 		appointment.setService(service);
-		if (typeValue == null || typeValue.isEmpty()) {
-			return;
-		}
 		appointment.setAppointmentKind(AppointmentKind.valueOf(typeValue));
 		appointment.setStartDateTime(startDateTime);
 		appointment.setEndDateTime(endDateTime);
@@ -670,11 +674,11 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	private String fieldRow(String cssClass, String label, String widgetHtml, boolean required) {
 		String labelHtml = required ? label + " <span class=\"required\">*</span>" : label;
-		return "<p class=\"" + cssClass + "\"><label>" + labelHtml + "</label><span>" + widgetHtml + "</span></p>";
+		return "<p class=\"" + cssClass + "\"><label>" + labelHtml + "</label><span class=\"field-widget\">" + widgetHtml + "</span></p>";
 	}
 
-	private String viewRow(String label, String value) {
-		return "<p class=\"schedule-appointment-row\"><label>" + label + "</label><span class=\"value\">"
+	private String viewRow(String cssClass, String label, String value) {
+		return "<p class=\"schedule-appointment-row " + cssClass + "\"><label>" + label + "</label><span class=\"value\">"
 		        + StringEscapeUtils.escapeHtml(value) + "</span></p>";
 	}
 
