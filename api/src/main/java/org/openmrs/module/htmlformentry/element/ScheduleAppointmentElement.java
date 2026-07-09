@@ -306,7 +306,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			sb.append("<label><input type=\"radio\" name=\"").append(choiceFieldName)
 			        .append("\" value=\"no\"")
 			        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appointment-fields').style.display='none'\"> ")
-			        .append(msg("htmlformentry.scheduleAppointment.skip")).append("</label>");
+			        .append(msg("htmlformentry.scheduleAppointment.doNotSchedule")).append("</label>");
 			sb.append("</p>");
 			sb.append("<div class=\"schedule-appointment-fields\" style=\"display:block\">");
 		}
