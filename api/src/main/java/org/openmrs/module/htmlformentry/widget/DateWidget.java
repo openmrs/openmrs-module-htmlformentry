@@ -111,7 +111,7 @@ public class DateWidget implements Widget {
 			}
 			
 			if (!hidden) {
-				sb.append("<input type=\"text\" readonly size=\"10\" id=\"").append(fieldName).append("-display\"/>");
+				sb.append("<input type=\"text\" size=\"10\" id=\"").append(fieldName).append("-display\"/>");
 			}
 			sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
 			if (onChangeFunction != null) {

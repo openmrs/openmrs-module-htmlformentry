@@ -649,9 +649,28 @@ function setupDatePicker(jsDateFormat,yearsrange, jsLocale, displaySelector, val
 		setDatePickerValue(displaySelector, initialDateYMD);
 
 	// register a handler to set the date value to zero if the display widget is emptied (workaround for jquery bug http://bugs.jqueryui.com/ticket/5734)
+	// also highlight the display field with the same illegalValue class used by numeric fields if what's typed isn't
+	// a valid date, and forward the raw text into the hidden field so the server's strict date parser rejects it on
+	// submit the same way an unparseable number is rejected today - the highlight is just an early hint, not a hard block
 	jq.change(function () {
-		if (jq.val() == null || jq.val() == '') {
+		const val = jq.val();
+		if (val == null || val == '') {
+			jq.removeClass('illegalValue');
 			setDatePickerValue(displaySelector, null);
+		} else {
+			let parsed = null;
+			try {
+				parsed = jQuery.datepicker.parseDate(jsDateFormat, val);
+			} catch (err) {
+				// not a valid date in the expected format
+			}
+			
+			if (parsed) {
+				jq.removeClass('illegalValue');
+			} else {
+				jq.addClass('illegalValue');
+				jQuery(valueSelector).val(val);
+			}
 		}
 	});
 }
