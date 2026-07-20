@@ -111,7 +111,11 @@ public class DateWidget implements Widget {
 			}
 			
 			if (!hidden) {
-				sb.append("<input type=\"text\" readonly size=\"10\" id=\"").append(fieldName).append("-display\"/>");
+				sb.append("<input type=\"text\" readonly size=\"10\" id=\"").append(fieldName)
+					.append("-display\" style=\"display:inline-block;vertical-align:middle;\"/>");
+				sb.append("<span class=\"ui-icon ui-icon-close\" style=\"display:inline-block;vertical-align:middle;cursor:pointer;\" ")
+					.append("onclick=\"clearDatePickerValue('#").append(fieldName).append("-display', '#")
+					.append(fieldName).append("')\" title=\"clear\"></span>");
 			}
 			sb.append("<input type=\"hidden\" name=\"").append(fieldName).append("\" id=\"").append(fieldName).append("\"");
 			if (onChangeFunction != null) {

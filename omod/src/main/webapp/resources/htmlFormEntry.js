@@ -669,6 +669,12 @@ function setDatePickerValue(displaySelector, ymd) {
 	}
 }
 
+function clearDatePickerValue(displaySelector, valueSelector) {
+	setDatePickerValue(displaySelector, null);
+	jQuery(valueSelector).change();
+	jQuery(displaySelector).change();
+}
+
 function setupDatePickerLocalization(locale) {
 	if (locale == 'es') {
 		jQuery.datepicker.regional['es'] = {
