@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.widget;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +49,21 @@ public class DateWidgetTest extends BaseModuleContextSensitiveTest {
 		assertThat(widget.isHidden(), is(false));
 	}
 	
+	@Test
+	public void testNotHiddenRendersClearIcon() throws Exception {
+		Date date = new SimpleDateFormat("yyyy-MM-dd").parse("2014-10-01");
+
+		DateWidget widget = new DateWidget();
+		widget.setInitialValue(date);
+
+		FormEntryContext formEntryContext = mock(FormEntryContext.class);
+		when(formEntryContext.getFieldName(widget)).thenReturn("w1");
+
+		String html = widget.generateHtml(formEntryContext);
+		assertThat(html, containsString(
+		    "<span class=\"ui-icon ui-icon-close\" style=\"display:inline-block;vertical-align:middle;cursor:pointer;\" onclick=\"clearDatePickerValue('#w1-display', '#w1')\" title=\"clear\" aria-label=\"clear\"></span>"));
+	}
+
 	@Test
 	public void testSetOnChangeFunction() throws Exception {
 		Date date = new SimpleDateFormat("yyyy-MM-dd").parse("2014-10-01");

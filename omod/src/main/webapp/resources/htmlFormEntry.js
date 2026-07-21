@@ -675,6 +675,28 @@ function clearDatePickerValue(displaySelector, valueSelector) {
 	jQuery(displaySelector).change();
 }
 
+// The hour/minute/second fields are only enabled once a date has been entered. If no date is entered,
+// the time fields are disabled (and reset to 00), so the DateTimeWidget is treated as having no value.
+function setupDateTimeValidation(dateFieldName, timeFieldName) {
+	var displaySelector = '#' + dateFieldName + '-display';
+	var timeSelector = '[name="' + timeFieldName + 'hours"], [name="' + timeFieldName + 'minutes"], [name="'
+	        + timeFieldName + 'seconds"]';
+
+	function syncTimeFieldsToDate() {
+		var dateVal = jQuery(displaySelector).val();
+		if (dateVal == null || dateVal === '') {
+			jQuery(timeSelector).val('0');
+			jQuery(timeSelector).prop('disabled', true);
+		} else {
+			jQuery(timeSelector).prop('disabled', false);
+		}
+	}
+
+	jQuery(displaySelector).change(syncTimeFieldsToDate);
+
+	syncTimeFieldsToDate();
+}
+
 function setupDatePickerLocalization(locale) {
 	if (locale == 'es') {
 		jQuery.datepicker.regional['es'] = {
