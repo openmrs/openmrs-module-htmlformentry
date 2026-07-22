@@ -366,6 +366,9 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		sb.append("</span>");
 		sb.append("</span>");
 		sb.append("</p>");
+		sb.append("<script>setupDateTimeValidation('")
+			.append(context.getFieldName(startDateTimeWidget.getDateWidget())).append("', '")
+			.append(context.getFieldName(startDateTimeWidget.getTimeWidget())).append("')</script>");
 
 		// Duration (shown only for specific-time)
 		sb.append("<div class=\"schedule-appt-duration\">");

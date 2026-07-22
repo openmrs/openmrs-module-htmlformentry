@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 import org.openmrs.module.htmlformentry.FormEntryContext;
+import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 
 /**
@@ -43,9 +44,16 @@ public class DateTimeWidget implements Widget {
 		// have the date and time widgets generate their HTML
 		String dateHTML = dateWidget.generateHtml(context);
 		String timeHTML = timeWidget.generateHtml(context);
-		
-		// combine them and return them
-		return dateHTML + " " + timeHTML;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append(dateHTML).append(" ").append(timeHTML);
+
+		if (context.getMode() != Mode.VIEW && !dateWidget.isHidden() && !timeWidget.isHidden()) {
+			sb.append("<script>setupDateTimeValidation('").append(context.getFieldName(dateWidget)).append("', '")
+				.append(context.getFieldName(timeWidget)).append("')</script>");
+		}
+
+		return sb.toString();
 	}
 	
 	/**

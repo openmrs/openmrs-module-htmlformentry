@@ -91,7 +91,13 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 			sb.append("<input type=\"hidden\" class=\"hfe-timezone\" name=\"").append(context.getFieldName(this))
 			        .append("timezone").append("\">");
 			sb.append("</input>");
-			
+
+			if (!isHidden()) {
+				String fieldName = context.getFieldName(this);
+				sb.append("<script>setupDateTimeValidation('").append(fieldName).append("', '").append(fieldName)
+					.append("')</script>");
+			}
+
 			return sb.toString();
 		}
 	}
@@ -113,10 +119,13 @@ public class ZonedDateTimeWidget extends DateWidget implements Widget {
 	@Override
 	public Date getValue(FormEntryContext context, HttpServletRequest request) {
 		try {
+			Date date = super.getValue(context, request);
+			if (date == null) {
+				return null;
+			}
 			Date time = (Date) timeWidget.getValue(context, request, this);
 			Calendar timeCal = Calendar.getInstance();
 			timeCal.setTime(time);
-			Date date = super.getValue(context, request);
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
 			cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
