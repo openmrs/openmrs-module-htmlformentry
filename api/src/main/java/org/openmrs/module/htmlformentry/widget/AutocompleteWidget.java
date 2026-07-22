@@ -3,9 +3,9 @@ package org.openmrs.module.htmlformentry.widget;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
-import org.springframework.web.util.HtmlUtils;
 
 /**
  * A single option auto complete widget which provides auto complete suggestions using a list of
@@ -81,7 +81,7 @@ public class AutocompleteWidget extends SingleOptionWidget {
 			}
 			
 			sb.append("<input type=\"text\" id=\"" + id + "\" value=\""
-			        + ((initialOption != null) ? HtmlUtils.htmlEscape(initialOption.getLabel()) : "")
+			        + ((initialOption != null) ? StringEscapeUtils.escapeHtml(initialOption.getLabel()) : "")
 			        + "\" onblur=\"onBlurAutocomplete(this)\" class=\"optionAutoComplete\""
 			        + " onfocus=\"setupOptionAutocomplete(this,'" + optionNames + "','" + optionValues
 			        + "')\" onchange=\"setValWhenAutocompleteFieldBlanked(this)\" placeholder=\""

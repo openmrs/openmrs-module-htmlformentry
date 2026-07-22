@@ -118,9 +118,10 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!-- spring-web is a plain library dependency (not the OpenMRS web-tier module) used directly
-                 by api-tier code, e.g. for MultipartHttpServletRequest and UriComponentsBuilder. Version
-                 kept in sync with the Spring version openmrs-api itself depends on. -->
+            <!-- spring-web is a plain library dependency (not the OpenMRS web-tier module). Only remaining
+                 use in api-tier code is MultipartHttpServletRequest/MultipartFile in HtmlFormEntryUtil,
+                 for extracting uploaded files from the request. Version kept in sync with the Spring
+                 version openmrs-api itself depends on. -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
