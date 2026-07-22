@@ -38,7 +38,6 @@ import org.openmrs.module.htmlformentry.widget.OrderWidget;
 import org.openmrs.module.htmlformentry.widget.Widget;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.JavaScriptUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -1165,12 +1164,12 @@ public class FormEntrySession {
 								}
 								
 								sb.append("$j('#" + widgetFieldName + "').val(\""
-								        + (location == null ? "" : JavaScriptUtils.javaScriptEscape(location.getName()))
+								        + (location == null ? "" : StringEscapeUtils.escapeJavaScript(location.getName()))
 								        + "\");\n");
 								sb.append(
 								    "$j('#" + widgetFieldName + "_hid" + "').val(\""
 								            + (location == null ? ""
-								                    : JavaScriptUtils.javaScriptEscape(location.getId().toString()))
+								                    : StringEscapeUtils.escapeJavaScript(location.getId().toString()))
 								            + "\");\n");
 								sb.append("$j('#" + widgetFieldName + "').change();\n");
 								
@@ -1185,12 +1184,12 @@ public class FormEntrySession {
 								}
 								sb.append("$j('#" + widgetFieldName + "').val(\""
 								        + (provider == null ? ""
-								                : JavaScriptUtils.javaScriptEscape(provider.getPersonName().getFullName()))
+								                : StringEscapeUtils.escapeJavaScript(provider.getPersonName().getFullName()))
 								        + "\");\n");
 								sb.append(
 								    "$j('#" + widgetFieldName + "_hid" + "').val(\""
 								            + (provider == null ? ""
-								                    : JavaScriptUtils.javaScriptEscape(provider.getId().toString()))
+								                    : StringEscapeUtils.escapeJavaScript(provider.getId().toString()))
 								            + "\");\n");
 								sb.append("$j('#" + widgetFieldName + "').change();\n");
 							}
@@ -1211,16 +1210,16 @@ public class FormEntrySession {
 							val = "";
 						}
 						sb.append("$j('#" + widgetFieldName + "').val(\""
-						        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getDisplayString()))
+						        + (concept == null ? "" : StringEscapeUtils.escapeJavaScript(concept.getDisplayString()))
 						        + "\");\n");
 						sb.append("$j('#" + widgetFieldName + "_hid" + "').val(\""
-						        + (concept == null ? "" : JavaScriptUtils.javaScriptEscape(concept.getId().toString()))
+						        + (concept == null ? "" : StringEscapeUtils.escapeJavaScript(concept.getId().toString()))
 						        + "\");\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
 					} else {
 						// set the value of the widget based on it's name
 						sb.append(
-						    "setValueByName('" + widgetFieldName + "', '" + JavaScriptUtils.javaScriptEscape(val) + "');\n");
+						    "setValueByName('" + widgetFieldName + "', '" + StringEscapeUtils.escapeJavaScript(val) + "');\n");
 						sb.append("$j('#" + widgetFieldName + "').change();\n");
 					}
 					

@@ -6,14 +6,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.HtmlUtils;
-import org.springframework.web.util.JavaScriptUtils;
 
 /**
  * A widget that allows for the selection of a Location. Implemented using a drop-down selection
@@ -56,7 +55,7 @@ public class LocationWidget implements Widget {
 		StringBuilder sb = new StringBuilder();
 		if ("autocomplete".equalsIgnoreCase(type)) {
 			sb.append("<input type=\"text\" id=\"display_" + context.getFieldName(this) + "\" value=\""
-			        + ((location != null) ? HtmlUtils.htmlEscape(location.getName()) : "")
+			        + ((location != null) ? StringEscapeUtils.escapeHtml(location.getName()) : "")
 			        + "\" onblur=\"updateLocationFields(this)\" placeholder=\""
 			        + Context.getMessageSourceService().getMessage("htmlformentry.form.location.placeholder") + "\" />");
 			sb.append(
@@ -66,7 +65,7 @@ public class LocationWidget implements Widget {
 			sb.append("\nvar locationNameIdMap = new Object();");
 			ArrayList<String> escapedLocationNames = new ArrayList<String>(useLocations.size());
 			for (Location location : useLocations) {
-				String escapeLocationName = JavaScriptUtils.javaScriptEscape(location.getName());
+				String escapeLocationName = StringEscapeUtils.escapeJavaScript(location.getName());
 				escapedLocationNames.add(escapeLocationName);
 				sb.append("\nlocationNameIdMap[\"" + escapeLocationName + "\"] = " + location.getLocationId() + ";");
 			}

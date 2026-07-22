@@ -8,10 +8,10 @@ import org.openmrs.Obs;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.ModuleUtil;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
+import org.openmrs.module.htmlformentry.HtmlFormEntryWebAppContext;
 import org.openmrs.obs.handler.AbstractHandler;
 import org.openmrs.obs.handler.ImageHandler;
 import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.web.WebConstants;
 
 /**
  * Contains shortcut methods to instantiate Widgets, and related utility methods.
@@ -187,7 +187,8 @@ public class WidgetFactory {
 		if (ModuleUtil.compareVersion(OpenmrsConstants.OPENMRS_VERSION_SHORT, "2.0") < 0) {
 			prefix = "";
 		}
-		return "/" + WebConstants.WEBAPP_NAME + prefix + "/complexObsServlet?obsId=" + obs.getObsId() + "&view=RAW_VIEW";
+		return "/" + HtmlFormEntryWebAppContext.getWebAppName() + prefix + "/complexObsServlet?obsId=" + obs.getObsId()
+		        + "&view=RAW_VIEW";
 	}
 	
 	private static String getDownloadHyperlink(Obs obs) {
