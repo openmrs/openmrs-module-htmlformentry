@@ -48,7 +48,7 @@ public class DateTimeWidget implements Widget {
 		StringBuilder sb = new StringBuilder();
 		sb.append(dateHTML).append(" ").append(timeHTML);
 
-		if (context.getMode() != Mode.VIEW && !dateWidget.isHidden()) {
+		if (context.getMode() != Mode.VIEW && !dateWidget.isHidden() && !timeWidget.isHidden()) {
 			sb.append("<script>setupDateTimeValidation('").append(context.getFieldName(dateWidget)).append("', '")
 				.append(context.getFieldName(timeWidget)).append("')</script>");
 		}
