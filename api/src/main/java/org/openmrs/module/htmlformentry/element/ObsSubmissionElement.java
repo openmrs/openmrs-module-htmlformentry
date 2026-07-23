@@ -23,6 +23,7 @@ import org.openmrs.module.htmlformentry.FormSubmissionError;
 import org.openmrs.module.htmlformentry.HtmlFormEntryConstants;
 import org.openmrs.module.htmlformentry.HtmlFormEntryService;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
+import org.openmrs.module.htmlformentry.HtmlFormEntryWebAppContext;
 import org.openmrs.module.htmlformentry.action.FormSubmissionControllerAction;
 import org.openmrs.module.htmlformentry.comparator.OptionComparator;
 import org.openmrs.module.htmlformentry.schema.ObsField;
@@ -51,7 +52,6 @@ import org.openmrs.obs.ComplexData;
 import org.openmrs.util.LocaleUtility;
 import org.openmrs.util.OpenmrsUtil;
 import org.openmrs.util.RoleConstants;
-import org.openmrs.web.WebConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -884,7 +884,9 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 					else if (parameters.get("answerDrugs") != null) {
 						// we support searching through all drugs via AJAX
 						StringBuilder ajaxUrl = new StringBuilder();
-						ajaxUrl.append("/" + WebConstants.WEBAPP_NAME + "/module/htmlformentry/drugSearch.form");
+						ajaxUrl
+						        .append("/" + HtmlFormEntryWebAppContext.getWebAppName()
+						                + "/module/htmlformentry/drugSearch.form");
 						ajaxUrl.append("?includeRetired=");
 						ajaxUrl.append(parameters.getOrDefault("includeRetiredDrugs", "true"));
 						RemoteJsonAutocompleteWidget widget = new RemoteJsonAutocompleteWidget(ajaxUrl.toString());
