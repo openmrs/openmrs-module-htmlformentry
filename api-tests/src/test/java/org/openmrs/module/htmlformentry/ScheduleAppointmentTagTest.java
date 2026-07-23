@@ -543,6 +543,86 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 
+	@Test
+	public void scheduleAppointmentTag_shouldRequireTimeInline() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), "2025-01-15");
+				request.setParameter(widgets.get("Location"), KIGALI_UUID);
+				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
+				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
+				// Time intentionally omitted
+
+				request.setParameter(widgets.get("Duration (minutes)"), "30");
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				Assert.assertTrue("Expected inline 'Appointment time is required' error",
+				        results.getValidationErrors().stream()
+				                .anyMatch(e -> e.getError().contains("Appointment time is required")));
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldRequireDurationInline() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), "2025-01-15");
+				request.setParameter(widgets.get("Location"), KIGALI_UUID);
+				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
+				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
+
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
+				request.setParameter(timeBase + "hours", "10");
+				request.setParameter(timeBase + "minutes", "30");
+				request.setParameter(timeBase + "seconds", "0");
+
+				// Duration intentionally omitted
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				Assert.assertTrue("Expected inline 'Duration is required' error",
+				        results.getValidationErrors().stream()
+				                .anyMatch(e -> e.getError().contains("Duration is required")));
+			}
+		}.run();
+	}
+
 	// ---------------------------------------------------------------
 	// Optional tag tests
 	// ---------------------------------------------------------------
