@@ -52,7 +52,6 @@ import org.openmrs.module.htmlformentry.widget.ProviderAjaxAutoCompleteWidget;
 import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
-import org.openmrs.util.OpenmrsUtil;
 
 public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSubmissionControllerAction {
 
@@ -75,9 +74,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	private ProviderAjaxAutoCompleteWidget providerWidget;
 
 	private TextFieldWidget noteWidget;
-
-	// Hidden field tracking "allday" vs "specific" radio state
-	private TextFieldWidget allDayWidget;
 
 	private NumberFieldWidget durationWidget;
 
@@ -252,10 +248,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			context.registerErrorWidget(startDateTimeWidget, startDateTimeErrorWidget);
 			context.registerWidget(timeErrorWidget);
 
-			// --- All-day toggle (hidden field; value set by JS radio buttons) ---
-			allDayWidget = new TextFieldWidget();
-			context.registerWidget(allDayWidget);
-
 			// --- Duration ---
 			durationWidget = new NumberFieldWidget(1.0, null, false);
 			durationErrorWidget = new ErrorWidget();
@@ -288,8 +280,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		sb.append(".schedule-appointment p>label{display:block;margin-bottom:0.2em;}");
 		sb.append(".schedule-appointment .field-widget{display:flex;align-items:center;gap:0.25em;flex-wrap:wrap;}");
 		sb.append(".schedule-appointment-choice label{display:inline-flex;align-items:center;gap:0.3em;cursor:pointer;margin-right:1em;}");
-		sb.append(".schedule-appointment-timing-options{display:flex;gap:1.5em;align-items:center;}");
-		sb.append(".schedule-appointment-timing-option{display:inline-flex;align-items:center;gap:0.3em;cursor:pointer;}");
 		sb.append(".schedule-appointment-date-time-widget{display:inline-flex;align-items:center;gap:0.5em;flex-wrap:wrap;}");
 		sb.append(".schedule-appt-time{display:inline-flex;align-items:center;gap:0.25em;}");
 		sb.append("</style>");
@@ -332,28 +322,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			        .append("\" value=\"").append(typeWidget.getOptions().get(0).getValue()).append("\"/>");
 		}
 
-		// All-day / Specific-time toggle — shown BEFORE the date/time row
-		String allDayFieldName = context.getFieldName(allDayWidget);
-		sb.append("<p class=\"schedule-appointment-timing\">");
-		sb.append("<label>").append(msg("htmlformentry.scheduleAppointment.timing"))
-		        .append(" <span class=\"required\">*</span></label>");
-		sb.append("<span class=\"field-widget schedule-appointment-timing-options\">");
-		sb.append("<label class=\"schedule-appointment-timing-option\"><input type=\"radio\" name=\"").append(allDayFieldName).append("-radio\" value=\"allday\"")
-		        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appt-allday').value='allday';")
-		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-time').style.display='none';")
-		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-duration').style.display='none';\"> ")
-		        .append(msg("htmlformentry.scheduleAppointment.allDay")).append("</label>");
-		sb.append("<label class=\"schedule-appointment-timing-option\"><input type=\"radio\" name=\"").append(allDayFieldName).append("-radio\" value=\"specific\" checked")
-		        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appt-allday').value='specific';")
-		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-time').style.display='inline-flex';")
-		        .append("this.closest('.schedule-appointment').querySelector('.schedule-appt-duration').style.display='block';\"> ")
-		        .append(msg("htmlformentry.scheduleAppointment.specificTime")).append("</label>");
-		sb.append("</span>");
-		sb.append("<input type=\"hidden\" name=\"").append(allDayFieldName)
-		        .append("\" class=\"schedule-appt-allday\" value=\"specific\"/>");
-		sb.append("</p>");
-
-		// Date + Time on one line; time portion shown/hidden by the toggle above
+		// Date + Time
 		sb.append("<p class=\"schedule-appointment-date-time\">");
 		sb.append("<label>").append(msg("htmlformentry.scheduleAppointment.date"))
 		        .append(" <span class=\"required\">*</span></label>");
@@ -370,13 +339,11 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			.append(context.getFieldName(startDateTimeWidget.getDateWidget())).append("', '")
 			.append(context.getFieldName(startDateTimeWidget.getTimeWidget())).append("')</script>");
 
-		// Duration (shown only for specific-time)
-		sb.append("<div class=\"schedule-appt-duration\">");
+		// Duration
 		sb.append(fieldRow("schedule-appointment-duration",
 		    msg("htmlformentry.scheduleAppointment.duration"),
 		    durationWidget.generateHtml(context) + durationErrorWidget.generateHtml(context),
 		    true));
-		sb.append("</div>");
 
 		// Provider
 		sb.append(fieldRow("schedule-appointment-provider",
@@ -503,27 +470,22 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			        msg("htmlformentry.scheduleAppointment.error.dateRequired")));
 		}
 
-		// Time and duration required only for specific-time appointments
-		String allDayValue = (String) allDayWidget.getValue(context, submission);
-		boolean isAllDay = "allday".equals(allDayValue);
-		if (!isAllDay) {
-			Date time = (Date) startDateTimeWidget.getTimeWidget().getValue(context, submission);
-			if (time == null) {
-				errors.add(new FormSubmissionError(context.getFieldName(timeErrorWidget),
-				        msg("htmlformentry.scheduleAppointment.error.timeRequired")));
-			}
+		Date time = (Date) startDateTimeWidget.getTimeWidget().getValue(context, submission);
+		if (time == null) {
+			errors.add(new FormSubmissionError(context.getFieldName(timeErrorWidget),
+			        msg("htmlformentry.scheduleAppointment.error.timeRequired")));
+		}
 
-			Number durNum = null;
-			try {
-				durNum = (Number) durationWidget.getValue(context, submission);
-			}
-			catch (IllegalArgumentException e) {
-				// non-numeric input — falls through to error
-			}
-			if (durNum == null || durNum.intValue() < 1) {
-				errors.add(new FormSubmissionError(context.getFieldName(durationErrorWidget),
-				        msg("htmlformentry.scheduleAppointment.error.durationRequired")));
-			}
+		Number durNum = null;
+		try {
+			durNum = (Number) durationWidget.getValue(context, submission);
+		}
+		catch (IllegalArgumentException e) {
+			// non-numeric input — falls through to error
+		}
+		if (durNum == null || durNum.intValue() < 1) {
+			errors.add(new FormSubmissionError(context.getFieldName(durationErrorWidget),
+			        msg("htmlformentry.scheduleAppointment.error.durationRequired")));
 		}
 
 		Provider provider = (Provider) providerWidget.getValue(context, submission);
@@ -552,8 +514,6 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		String serviceUuid = (String) serviceWidget.getValue(context, submission);
 		String typeValue = (String) typeWidget.getValue(context, submission);
 		Date date = (Date) startDateTimeWidget.getDateWidget().getValue(context, submission);
-		String allDayValue = (String) allDayWidget.getValue(context, submission);
-		boolean isAllDay = "allday".equals(allDayValue);
 		Provider selectedProvider = (Provider) providerWidget.getValue(context, submission);
 		String note = (String) noteWidget.getValue(context, submission);
 
@@ -563,44 +523,34 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		// Build start datetime
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		if (!isAllDay) {
-			Date time = (Date) startDateTimeWidget.getTimeWidget().getValue(context, submission);
-			if (time != null) {
-				Calendar timeCal = Calendar.getInstance();
-				timeCal.setTime(time);
-				cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-				cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-			}
-		} else {
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
+		Date time = (Date) startDateTimeWidget.getTimeWidget().getValue(context, submission);
+		if (time != null) {
+			Calendar timeCal = Calendar.getInstance();
+			timeCal.setTime(time);
+			cal.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
 		}
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		Date startDateTime = cal.getTime();
 
 		// Build end datetime
-		Date endDateTime;
-		if (isAllDay) {
-			endDateTime = OpenmrsUtil.getLastMomentOfDay(date);
-		} else {
-			Integer durationMins = null;
-			try {
-				Number durNum = (Number) durationWidget.getValue(context, submission);
-				if (durNum != null) {
-					durationMins = durNum.intValue();
-				}
+		Integer durationMins = null;
+		try {
+			Number durNum = (Number) durationWidget.getValue(context, submission);
+			if (durNum != null) {
+				durationMins = durNum.intValue();
 			}
-			catch (IllegalArgumentException e) {
-				// non-numeric input — validation should have caught this
-			}
-			if (durationMins == null && service != null) {
-				durationMins = service.getDurationMins();
-			}
-			endDateTime = durationMins != null
-			        ? new Date(startDateTime.getTime() + (long) durationMins * 60 * 1000)
-			        : null;
 		}
+		catch (IllegalArgumentException e) {
+			// non-numeric input — validation should have caught this
+		}
+		if (durationMins == null && service != null) {
+			durationMins = service.getDurationMins();
+		}
+		Date endDateTime = durationMins != null
+		        ? new Date(startDateTime.getTime() + (long) durationMins * 60 * 1000)
+		        : null;
 
 		Appointment appointment = new Appointment();
 		appointment.setPatient(session.getPatient());

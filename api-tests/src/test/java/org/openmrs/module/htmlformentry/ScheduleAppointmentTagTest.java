@@ -35,12 +35,14 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	// Text concept added in scheduleAppointmentTest.xml for storing appointment UUID obs
 	private static final String APPT_UUID_CONCEPT = "c36006e5-9fbb-4f20-866b-0ece245615a7";
 
-	// Widget-label note: date and time widgets are found via the "Timing" section
-	// label as a stable anchor. "Timing!!2" = allday hidden input (3rd name="w" after
-	// "Timing"), "Timing!!3" = appointment date hidden input (4th), "Timing!!4" =
-	// time-hours select (5th). Using "Date##N" labels is fragile because the shared
-	// html variable in getLabeledWidgets is mutated by ## processing, making
-	// consecutive "Date##N" label lookups interact unexpectedly.
+	// Widget-label note: the date/time widgets have no text label of their own that's safe to
+	// anchor on ("Date" also matches the earlier "Encounter Date:" widget, and the wrapper's CSS
+	// class name is also a substring of the <style> block emitted earlier in the HTML). Anchor on
+	// the literal opening tag of the date/time wrapper instead: DATE_TIME_ANCHOR (no suffix) = the
+	// appointment date hidden input (1st name="w" after the anchor), DATE_TIME_ANCHOR + "!!1" =
+	// the time-hours select (2nd name="w" after the anchor; minutes/seconds are derived by
+	// replacing "hours" in that field name).
+	private static final String DATE_TIME_ANCHOR = "<p class=\"schedule-appointment-date-time\">";
 
 	@Before
 	public void loadTestData() throws Exception {
@@ -338,7 +340,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 	}
 
 	// ---------------------------------------------------------------
-	// Submission tests — specific-time appointment
+	// Submission tests
 	// ---------------------------------------------------------------
 
 	@Test
@@ -353,7 +355,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
 			}
 
 			@Override
@@ -362,10 +364,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(widgets.get("Location"), KIGALI_UUID);
 				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
 				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
 
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
 				request.setParameter(timeBase + "hours", "10");
 				request.setParameter(timeBase + "minutes", "30");
 				request.setParameter(timeBase + "seconds", "0");
@@ -410,96 +411,6 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 
-
-	// ---------------------------------------------------------------
-	// Submission tests — all-day appointment
-	// ---------------------------------------------------------------
-
-	@Test
-	public void scheduleAppointmentTag_shouldCreateAllDayAppointment() throws Exception {
-		new RegressionTestHelper() {
-
-			@Override
-			public String getFormName() {
-				return "scheduleAppointmentForm";
-			}
-
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Provider" };
-			}
-
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Encounter Date:"), "2025-03-10");
-				request.setParameter(widgets.get("Location"), KIGALI_UUID);
-				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
-				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "allday");
-				request.setParameter(widgets.get("Timing!!3"), "2025-03-10");
-				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
-				// No time or duration — not required for all-day
-			}
-
-			@Override
-			public void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-
-				AppointmentSearchRequest searchRequest = new AppointmentSearchRequest();
-				searchRequest.setPatientUuid(PATIENT_UUID);
-				searchRequest.setStartDate(new Date(0));
-				List<Appointment> appointments = Context.getService(AppointmentsService.class).search(searchRequest);
-				Assert.assertEquals(1, appointments.size());
-
-				Appointment appt = appointments.get(0);
-
-				Calendar startCal = Calendar.getInstance();
-				startCal.setTime(appt.getStartDateTime());
-				Assert.assertEquals(0, startCal.get(Calendar.HOUR_OF_DAY));
-				Assert.assertEquals(0, startCal.get(Calendar.MINUTE));
-
-				Calendar endCal = Calendar.getInstance();
-				endCal.setTime(appt.getEndDateTime());
-				Assert.assertEquals(23, endCal.get(Calendar.HOUR_OF_DAY));
-				Assert.assertEquals(59, endCal.get(Calendar.MINUTE));
-			}
-		}.run();
-	}
-
-	@Test
-	public void scheduleAppointmentTag_shouldNotRequireDurationForAllDayAppointment() throws Exception {
-		new RegressionTestHelper() {
-
-			@Override
-			public String getFormName() {
-				return "scheduleAppointmentForm";
-			}
-
-			@Override
-			public String[] widgetLabels() {
-				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Provider" };
-			}
-
-			@Override
-			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
-				request.setParameter(widgets.get("Encounter Date:"), "2025-03-10");
-				request.setParameter(widgets.get("Location"), KIGALI_UUID);
-				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
-				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "allday");
-				request.setParameter(widgets.get("Timing!!3"), "2025-03-10");
-				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
-			}
-
-			@Override
-			public void testResults(SubmissionResults results) {
-				results.assertNoErrors();
-			}
-		}.run();
-	}
-
 	// ---------------------------------------------------------------
 	// Inline validation tests
 	// ---------------------------------------------------------------
@@ -516,7 +427,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
 			}
 
 			@Override
@@ -525,10 +436,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(widgets.get("Location"), KIGALI_UUID);
 				// Service intentionally omitted
 				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
 
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
 				request.setParameter(timeBase + "hours", "10");
 				request.setParameter(timeBase + "minutes", "30");
 				request.setParameter(timeBase + "seconds", "0");
@@ -561,7 +471,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
 			}
 
 			@Override
@@ -570,10 +480,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				// Location intentionally omitted
 				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
 				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
 
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
 				request.setParameter(timeBase + "hours", "10");
 				request.setParameter(timeBase + "minutes", "30");
 				request.setParameter(timeBase + "seconds", "0");
@@ -604,7 +513,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
 			}
 
 			@Override
@@ -613,10 +522,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(widgets.get("Location"), KIGALI_UUID);
 				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
 				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
 
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
 				request.setParameter(timeBase + "hours", "10");
 				request.setParameter(timeBase + "minutes", "30");
 				request.setParameter(timeBase + "seconds", "0");
@@ -631,6 +539,86 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				Assert.assertTrue("Expected inline 'Provider is required' error",
 				        results.getValidationErrors().stream()
 				                .anyMatch(e -> e.getError().contains("Provider is required")));
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldRequireTimeInline() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), "2025-01-15");
+				request.setParameter(widgets.get("Location"), KIGALI_UUID);
+				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
+				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
+				// Time intentionally omitted
+
+				request.setParameter(widgets.get("Duration (minutes)"), "30");
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				Assert.assertTrue("Expected inline 'Appointment time is required' error",
+				        results.getValidationErrors().stream()
+				                .anyMatch(e -> e.getError().contains("Appointment time is required")));
+			}
+		}.run();
+	}
+
+	@Test
+	public void scheduleAppointmentTag_shouldRequireDurationInline() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
+			}
+
+			@Override
+			public void setupRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Encounter Date:"), "2025-01-15");
+				request.setParameter(widgets.get("Location"), KIGALI_UUID);
+				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
+				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
+
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
+				request.setParameter(timeBase + "hours", "10");
+				request.setParameter(timeBase + "minutes", "30");
+				request.setParameter(timeBase + "seconds", "0");
+
+				// Duration intentionally omitted
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
+			}
+
+			@Override
+			public void testResults(SubmissionResults results) {
+				results.assertErrors();
+				Assert.assertTrue("Expected inline 'Duration is required' error",
+				        results.getValidationErrors().stream()
+				                .anyMatch(e -> e.getError().contains("Duration is required")));
 			}
 		}.run();
 	}
@@ -695,7 +683,8 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Encounter Date:", "Schedule appointment", "Location", "Service",
-				        "Appointment Type", "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				        "Appointment Type", DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)",
+				        "Provider" };
 			}
 
 			@Override
@@ -705,10 +694,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(widgets.get("Location"), KIGALI_UUID);
 				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
 				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-02-20");
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-02-20");
 
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
 				request.setParameter(timeBase + "hours", "14");
 				request.setParameter(timeBase + "minutes", "0");
 				request.setParameter(timeBase + "seconds", "0");
@@ -817,7 +805,7 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			@Override
 			public String[] widgetLabels() {
 				return new String[] { "Encounter Date:", "Location", "Service", "Appointment Type",
-				        "Timing!!2", "Timing!!3", "Timing!!4", "Duration (minutes)", "Provider" };
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
 			}
 
 			@Override
@@ -826,10 +814,9 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 				request.setParameter(widgets.get("Location"), KIGALI_UUID);
 				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
 				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
-				request.setParameter(widgets.get("Timing!!2"), "specific");
-				request.setParameter(widgets.get("Timing!!3"), "2025-01-15");
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
 
-				String timeBase = widgets.get("Timing!!4").replace("hours", "");
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
 				request.setParameter(timeBase + "hours", "10");
 				request.setParameter(timeBase + "minutes", "30");
 				request.setParameter(timeBase + "seconds", "0");

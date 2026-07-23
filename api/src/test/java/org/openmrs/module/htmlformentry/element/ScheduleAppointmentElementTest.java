@@ -14,7 +14,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,10 +106,28 @@ public class ScheduleAppointmentElementTest {
 		mockedHtmlFormEntryUtil.when(() -> HtmlFormEntryUtil.getConcept(CONCEPT_ID)).thenReturn(concept);
 		mockedHtmlFormEntryUtil.when(() -> HtmlFormEntryUtil.createObs(any(Concept.class), any(), any(), any()))
 		        .thenCallRealMethod();
+		// real conversion logic per requested type, since different widgets request different types
+		// (DateWidget wants a Date, TimeWidget wants Integers) and a blanket canned value breaks whichever
+		// widget didn't ask for that type
 		mockedHtmlFormEntryUtil
 		        .when(() -> HtmlFormEntryUtil.getParameterAsType(any(HttpServletRequest.class), anyString(),
 		            any(Class.class)))
-		        .thenReturn(new java.util.Date());
+		        .thenAnswer(invocation -> {
+			        HttpServletRequest req = invocation.getArgument(0);
+			        String name = invocation.getArgument(1);
+			        Class<?> clazz = invocation.getArgument(2);
+			        String val = req.getParameter(name);
+			        if (val == null) {
+				        return null;
+			        }
+			        if (Date.class.isAssignableFrom(clazz)) {
+				        return new SimpleDateFormat("yyyy-MM-dd").parse(val);
+			        }
+			        if (Integer.class.isAssignableFrom(clazz)) {
+				        return Integer.valueOf(val);
+			        }
+			        return val;
+		        });
 
 		mockedContext.when(Context::getAdministrationService).thenReturn(administrationService);
 		mockedContext.when(Context::getMessageSourceService).thenReturn(messageSourceService);
@@ -240,7 +260,6 @@ public class ScheduleAppointmentElementTest {
 
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		req.addParameter("dd", AppointmentKind.Scheduled.name()); // all DropdownWidgets share "dd"; value must be a valid AppointmentKind for the type widget
-		req.addParameter("tf", "allday");             // allDayWidget → all-day, no time widget needed
 		req.addParameter("dt", "2025-01-15");         // date (parsed as yyyy-MM-dd by HtmlFormEntryUtil)
 		// prov_hid not set → provider = null (appointment is created without provider)
 		return req;
