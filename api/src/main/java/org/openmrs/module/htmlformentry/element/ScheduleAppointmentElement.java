@@ -99,6 +99,10 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 	// Appointment fetched in VIEW/EDIT mode constructor
 	private Appointment existingAppointment;
 
+	// True when this element should render the scheduling form and handle submission:
+	// always in ENTER mode, and in EDIT mode when no appointment has been scheduled yet.
+	private boolean allowScheduling;
+
 	public ScheduleAppointmentElement(FormEntryContext context, Map<String, String> parameters) throws BadFormDesignException {
 		appointmentUuidConceptMapping = parameters.get("appointmentUuidConcept");
 		tagControlId = parameters.get("controlId");
@@ -112,7 +116,10 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			        + appointmentUuidConceptMapping);
 		}
 
-		if (context.getMode() != Mode.ENTER) {
+		if (context.getMode() == Mode.ENTER) {
+			allowScheduling = true;
+		}
+		else {
 			// VIEW/EDIT: claim the UUID obs so HFE doesn't warn about an unmatched obs,
 			// then fetch the appointment for display in generateHtml().
 			Obs uuidObs = StringUtils.isNotBlank(tagControlId)
@@ -127,9 +134,14 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 					// appointments module unavailable
 				}
 			}
+			// EDIT mode with no previously-scheduled appointment: let the user schedule one now.
+			if (context.getMode() == Mode.EDIT && uuidObs == null) {
+				allowScheduling = true;
+			}
 		}
-		else {
-			// ENTER mode: set up all widgets
+
+		if (allowScheduling) {
+			// set up all widgets
 			optional = "true".equalsIgnoreCase(parameters.get("optional"));
 			id = parameters.get("id");
 			scheduleChoiceWidget = new TextFieldWidget();
@@ -269,7 +281,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	@Override
 	public String generateHtml(FormEntryContext context) {
-		if (context.getMode() != Mode.ENTER) {
+		if (!allowScheduling) {
 			return generateViewEditHtml();
 		}
 
@@ -433,7 +445,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	@Override
 	public Collection<FormSubmissionError> validateSubmission(FormEntryContext context, HttpServletRequest submission) {
-		if (context.getMode() != Mode.ENTER) {
+		if (!allowScheduling) {
 			return Collections.emptyList();
 		}
 
@@ -499,8 +511,9 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
-		// EDIT mode is intentionally a no-op: the element does not update existing appointments.
-		if (session.getContext().getMode() != Mode.ENTER) {
+		// Only schedule when the form was rendered for scheduling (ENTER, or EDIT with no existing
+		// appointment). Otherwise this is a no-op: the element never updates an existing appointment.
+		if (!allowScheduling) {
 			return;
 		}
 

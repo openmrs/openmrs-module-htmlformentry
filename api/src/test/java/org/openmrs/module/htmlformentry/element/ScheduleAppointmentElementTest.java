@@ -233,6 +233,37 @@ public class ScheduleAppointmentElementTest {
 		assertNull(obsToCreate.get(0).getFormFieldPath());
 	}
 
+	// --- EDIT mode: scheduling allowed only when no appointment exists yet ---
+
+	@Test
+	public void handleSubmission_editMode_noExistingAppointment_shouldScheduleAppointment() throws Exception {
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(null);
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		element.handleSubmission(session, buildRequest());
+
+		assertEquals(1, actions.getObsToCreate().size());
+		assertEquals(1, actions.getAppointmentsToCreate().size());
+	}
+
+	@Test
+	public void handleSubmission_editMode_existingAppointment_shouldBeNoOp() throws Exception {
+		Obs obs = new Obs();
+		obs.setValueText(APPT_UUID);
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(obs);
+		when(appointmentsService.getAppointmentByUuid(APPT_UUID)).thenReturn(new Appointment());
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		element.handleSubmission(session, new MockHttpServletRequest());
+
+		assertEquals(0, actions.getObsToCreate().size());
+		assertEquals(0, actions.getAppointmentsToCreate().size());
+	}
+
 	// --- Helpers ---
 
 	private Map<String, String> params(String... kvs) {
