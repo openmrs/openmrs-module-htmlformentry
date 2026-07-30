@@ -57,7 +57,14 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 	private static final String DEFAULT_LOCATION_TAG = "Appointment Location";
 
-	private boolean optional;
+	// True when the yes/no "schedule an appointment?" question should be rendered: whenever the form
+	// author asked for it via optional="true", and always in EDIT mode.
+	private boolean showScheduleChoice;
+
+	// Which side of that question starts selected (and whether the fields wrapper starts visible).
+	// EDIT mode defaults to "no" so that editing an encounter for any other reason does not force
+	// the user to book an appointment; ENTER mode keeps defaulting to "yes".
+	private boolean defaultToScheduling;
 
 	private String id;
 
@@ -120,8 +127,12 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			allowScheduling = true;
 		}
 		else {
-			// VIEW/EDIT: claim the UUID obs so HFE doesn't warn about an unmatched obs,
-			// then fetch the appointment for display in generateHtml().
+			// VIEW/EDIT: look up the UUID obs written by a previous submission, so the appointment can
+			// be displayed in generateHtml(). Which lookup applies depends on whether this tag stamps a
+			// controlId into formFieldPath, mirroring ObsSubmissionElement.setExistingObs(): the
+			// controlId branch matches on the stamped path, removeExistingObs() only matches obs whose
+			// path is null. As elsewhere in HFE, that means adding or removing a controlId on a tag that
+			// already has data will stop the lookup from matching.
 			Obs uuidObs = StringUtils.isNotBlank(tagControlId)
 			        ? context.getObsFromExistingObs(uuidConcept, tagControlId)
 			        : context.removeExistingObs(uuidConcept, (Concept) null);
@@ -142,7 +153,9 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		if (allowScheduling) {
 			// set up all widgets
-			optional = "true".equalsIgnoreCase(parameters.get("optional"));
+			boolean optional = "true".equalsIgnoreCase(parameters.get("optional"));
+			showScheduleChoice = optional || context.getMode() == Mode.EDIT;
+			defaultToScheduling = context.getMode() != Mode.EDIT;
 			id = parameters.get("id");
 			scheduleChoiceWidget = new TextFieldWidget();
 			context.registerWidget(scheduleChoiceWidget);
@@ -298,19 +311,20 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		sb.append("<div class=\"schedule-appointment\"").append(id != null ? " id=\"" + id + "\"" : "").append(">");
 
-		if (optional) {
+		if (showScheduleChoice) {
 			String choiceFieldName = context.getFieldName(scheduleChoiceWidget);
 			sb.append("<p class=\"schedule-appointment-choice\">");
 			sb.append("<label><input type=\"radio\" name=\"").append(choiceFieldName)
-			        .append("\" value=\"yes\" checked")
+			        .append("\" value=\"yes\"").append(defaultToScheduling ? " checked=\"true\"" : "")
 			        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appointment-fields').style.display='block'\"> ")
 			        .append(msg("htmlformentry.scheduleAppointment.doSchedule")).append("</label> ");
 			sb.append("<label><input type=\"radio\" name=\"").append(choiceFieldName)
-			        .append("\" value=\"no\"")
+			        .append("\" value=\"no\"").append(defaultToScheduling ? "" : " checked=\"true\"")
 			        .append(" onchange=\"this.closest('.schedule-appointment').querySelector('.schedule-appointment-fields').style.display='none'\"> ")
 			        .append(msg("htmlformentry.scheduleAppointment.doNotSchedule")).append("</label>");
 			sb.append("</p>");
-			sb.append("<div class=\"schedule-appointment-fields\" style=\"display:block\">");
+			sb.append("<div class=\"schedule-appointment-fields\" style=\"display:")
+			        .append(defaultToScheduling ? "block" : "none").append("\">");
 		}
 
 		// Location
@@ -367,7 +381,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 		    msg("htmlformentry.scheduleAppointment.note"),
 		    noteWidget.generateHtml(context)));
 
-		if (optional) {
+		if (showScheduleChoice) {
 			sb.append("</div>");
 		}
 
@@ -449,7 +463,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 			return Collections.emptyList();
 		}
 
-		if (optional && !"yes".equals(scheduleChoiceWidget.getValue(context, submission))) {
+		if (showScheduleChoice && !"yes".equals(scheduleChoiceWidget.getValue(context, submission))) {
 			return Collections.emptyList();
 		}
 
@@ -519,7 +533,7 @@ public class ScheduleAppointmentElement implements HtmlGeneratorElement, FormSub
 
 		FormEntryContext context = session.getContext();
 
-		if (optional && !"yes".equals(scheduleChoiceWidget.getValue(context, submission))) {
+		if (showScheduleChoice && !"yes".equals(scheduleChoiceWidget.getValue(context, submission))) {
 			return;
 		}
 
