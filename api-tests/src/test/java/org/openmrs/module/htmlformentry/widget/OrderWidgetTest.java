@@ -10,9 +10,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Drug;
+import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.tester.FormSessionTester;
 import org.openmrs.module.htmlformentry.tester.FormTester;
+import org.openmrs.module.htmlformentry.util.JsonObject;
 
 public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 	
@@ -76,5 +79,29 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 			fst.assertHtmlContains("<div class=\"order-field-widget order-" + property);
 			fst.assertHtmlContains(propertyWidget.generateHtml(fst.getFormEntrySession().getContext()));
 		}
+	}
+
+	@Test
+	public void shouldIndicateWhenDrugOrderHistoryDrugIsRetired() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+
+		// Patient 2 has an existing, open order for drug 2, which is not retired
+		FormSessionTester fst = formTester.openNewForm(2);
+		OrderWidget widget = fst.getWidgets(OrderWidget.class).get(0);
+		JsonObject config = widget.constructJavascriptConfig(fst.getFormEntrySession().getContext());
+		JsonObject historyOrder = config.getObjectArray("history").get(0);
+		assertThat(historyOrder.getObject("drug").getString("retired"), is("false"));
+
+		// Once the drug is retired, the history entry for the existing order should reflect this
+		Drug drug = Context.getConceptService().getDrug(2);
+		drug.setRetired(true);
+		Context.getConceptService().saveDrug(drug);
+
+		FormSessionTester fstAfterRetiring = formTester.openNewForm(2);
+		OrderWidget widgetAfterRetiring = fstAfterRetiring.getWidgets(OrderWidget.class).get(0);
+		JsonObject configAfterRetiring = widgetAfterRetiring
+		        .constructJavascriptConfig(fstAfterRetiring.getFormEntrySession().getContext());
+		JsonObject historyOrderAfterRetiring = configAfterRetiring.getObjectArray("history").get(0);
+		assertThat(historyOrderAfterRetiring.getObject("drug").getString("retired"), is("true"));
 	}
 }

@@ -114,6 +114,11 @@
         return supportsAction && (inEncounter || notDiscontinued);
     }
 
+    // True if the given order is a drug order whose drug has since been retired
+    orderWidget.isDrugRetired = function(order) {
+        return order.isDrugOrder === 'true' && order.drug && order.drug.retired === 'true';
+    }
+
     orderWidget.getActionOption = function(config, action) {
         var $orderTemplate = $('#' + config.fieldName + '_template');
         var $actionSection = $orderTemplate.find('.order-field.order-action');
@@ -379,25 +384,31 @@
             var actionLabel = isVoidAndEdit ? config.translations.editOrder : isVoid ? config.translations.deleteOrder : $actionOption.html();
 
             var $actionButton = orderWidget.createActionButton(idSuffix, action, actionLabel);
-            $actionButton.click(function() {
-                var $orderForm = $orderActionForms.find('.orderwidget-order-form');
-                $orderActionSection.find(".order-action-button").removeClass('orderwidget-selected-action');
-                if ($orderForm.length > 0) {
-                    $orderForm.remove();
-                }
-                $actionButton.addClass('orderwidget-selected-action');
-                $actionButton.show();
-                $orderForm = orderWidget.constructOrderForm($orderActionForms, idSuffix, config, action, $actionButton);
-                orderWidget.populateOrderForm(config, $orderForm, order);
 
-                if (isVoidAndEdit || isVoid) {
-                    if (isVoid) {
-                        $orderForm.find('.order-field').hide();
+            if ((action === 'RENEW' || action === 'REVISE') && orderWidget.isDrugRetired(order)) {
+                $actionButton.addClass('orderwidget-disabled-action');
+                $actionButton.attr('title', config.translations.drugRetired);
+            } else {
+                $actionButton.click(function() {
+                    var $orderForm = $orderActionForms.find('.orderwidget-order-form');
+                    $orderActionSection.find(".order-action-button").removeClass('orderwidget-selected-action');
+                    if ($orderForm.length > 0) {
+                        $orderForm.remove();
                     }
-                    $orderForm.prepend("<div class='order-action-warnings'>" + config.translations.editDeleteWarning + "</div>");
-                    $orderForm.show();
-                }
-            });
+                    $actionButton.addClass('orderwidget-selected-action');
+                    $actionButton.show();
+                    $orderForm = orderWidget.constructOrderForm($orderActionForms, idSuffix, config, action, $actionButton);
+                    orderWidget.populateOrderForm(config, $orderForm, order);
+
+                    if (isVoidAndEdit || isVoid) {
+                        if (isVoid) {
+                            $orderForm.find('.order-field').hide();
+                        }
+                        $orderForm.prepend("<div class='order-action-warnings'>" + config.translations.editDeleteWarning + "</div>");
+                        $orderForm.show();
+                    }
+                });
+            }
             $orderActionButtons.append($actionButton);
         });
 
