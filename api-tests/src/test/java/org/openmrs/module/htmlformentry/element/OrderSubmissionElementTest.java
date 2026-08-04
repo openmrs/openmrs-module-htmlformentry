@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.element;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.api.context.Context;
@@ -506,6 +507,42 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		TestUtil.assertDate(originalOrder.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-03-29 23:59:59");
 	}
 	
+	@Test
+	public void shouldDiscontinueOrderWithRetiredDrugEvenIfDrugFieldNotSubmitted() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+
+		Integer initialOrderId;
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			initialOrderId = results.assertDrugOrder(Order.Action.NEW, 2).getOrderId();
+		}
+
+		Drug drug = Context.getConceptService().getDrug(2);
+		drug.setRetired(true);
+		Context.getConceptService().saveDrug(drug);
+
+		{
+			// Since drug 2 is now retired, it is not a selectable option in the drug dropdown, so the
+			// browser submits no value for the drug field, the same as if the concept alone were selected
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-05-15", "2", "502");
+			OrderFieldTester triomuneField = OrderFieldTester.forConcept(792, formSessionTester);
+			triomuneField.careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.orderAction("DISCONTINUE").previousOrder(initialOrderId.toString());
+			triomuneField.discontinueReason("556");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o2 = results.assertDrugOrder(Order.Action.DISCONTINUE, 2);
+			assertThat(o2.getDrug(), is(drug));
+		}
+	}
+
 	@Test
 	public void shouldCreateLabTestOrder() {
 		FormTester formTester = FormTester.buildForm("orderLabTestForm.xml");
