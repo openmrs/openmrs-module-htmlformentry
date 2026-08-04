@@ -152,6 +152,18 @@
 	box-shadow: 0 0 5px -1px rgba(0,0,0,0.6);
 }
 
+.order-action-button.orderwidget-disabled-action {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+.order-action-button.orderwidget-disabled-action:hover,
+.order-action-button.orderwidget-disabled-action:active {
+	background: -webkit-linear-gradient(top, #ffffff, #dddddd);
+	border-color: #dddddd;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.2);
+	font-weight: normal;
+}
+
 .orderwidget-autocomplete-textbox {
 	display: inline-block;
 	max-width: 600px;

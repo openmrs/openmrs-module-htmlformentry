@@ -169,7 +169,7 @@ public class OrderWidget implements Widget {
 		String[] messageCodes = { "encounterDateChangeWarning", "delete", "editDeleteWarning", "editOrder", "deleteOrder",
 		        "previousOrder", "orderReason", "starting", "until", "for", "discontinueReason", "asNeeded", "quantity",
 		        "refills", "active", "cancelAction", "existingOrdersViewTitle", "existingOrdersEditTitle", "newOrdersTitle",
-		        "noOrders" };
+		        "noOrders", "drugRetired" };
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
 		}
@@ -258,6 +258,7 @@ public class OrderWidget implements Widget {
 					if (o instanceof DrugOrder) {
 						DrugOrder d = (DrugOrder) o;
 						addToJsonObject(jho, "drug", d.getDrug());
+						jho.getObject("drug").addString("retired", Boolean.toString(d.getDrug() != null && d.getDrug().getRetired()));
 						addToJsonObject(jho, "drugNonCoded", d.getDrugNonCoded());
 						addToJsonObject(jho, "dosingType", d.getDosingType());
 						addToJsonObject(jho, "dosingInstructions", d.getDosingInstructions());
