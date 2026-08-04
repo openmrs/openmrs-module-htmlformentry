@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.element;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -50,6 +51,8 @@ import org.openmrs.module.htmlformentry.FormSubmissionActions;
 import org.openmrs.module.htmlformentry.HtmlFormEntryUtil;
 import org.openmrs.module.htmlformentry.widget.DateWidget;
 import org.openmrs.module.htmlformentry.widget.DropdownWidget;
+import org.openmrs.module.htmlformentry.widget.ErrorWidget;
+import org.openmrs.module.htmlformentry.widget.NumberFieldWidget;
 import org.openmrs.module.htmlformentry.widget.ProviderAjaxAutoCompleteWidget;
 import org.openmrs.module.htmlformentry.widget.TextFieldWidget;
 import org.openmrs.module.htmlformentry.widget.TimeWidget;
@@ -233,6 +236,92 @@ public class ScheduleAppointmentElementTest {
 		assertNull(obsToCreate.get(0).getFormFieldPath());
 	}
 
+	// --- EDIT mode: scheduling allowed only when no appointment exists yet ---
+
+	@Test
+	public void handleSubmission_editMode_noExistingAppointment_shouldScheduleAppointment() throws Exception {
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(null);
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		MockHttpServletRequest req = buildRequest();
+		chooseToSchedule(req);
+		element.handleSubmission(session, req);
+
+		assertEquals(1, actions.getObsToCreate().size());
+		assertEquals(1, actions.getAppointmentsToCreate().size());
+	}
+
+	// --- EDIT mode: scheduling is opt-in, so an edit that leaves the choice alone must not schedule ---
+
+	@Test
+	public void handleSubmission_editMode_choiceNo_shouldBeNoOp() throws Exception {
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(null);
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		// appointment fields are all filled in, but the user declined to schedule
+		MockHttpServletRequest req = buildRequest();
+		declineScheduling(req);
+		element.handleSubmission(session, req);
+
+		assertEquals(0, actions.getObsToCreate().size());
+		assertEquals(0, actions.getAppointmentsToCreate().size());
+	}
+
+	@Test
+	public void validateSubmission_editMode_choiceNo_shouldReturnNoErrors() throws Exception {
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(null);
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		// an edit made for some other reason: choice left at its "no" default, every field blank
+		MockHttpServletRequest req = emptyRequest();
+		declineScheduling(req);
+		assertTrue(element.validateSubmission(context, req).isEmpty());
+	}
+
+	@Test
+	public void validateSubmission_editMode_choiceYes_shouldRequireAppointmentFields() throws Exception {
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(null);
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		MockHttpServletRequest req = emptyRequest();
+		chooseToSchedule(req);
+
+		// location, service, date, time, duration, provider (type is a single fixed value here)
+		assertEquals(6, element.validateSubmission(context, req).size());
+	}
+
+	@Test
+	public void validateSubmission_enterMode_notOptional_shouldRequireAppointmentFields() throws Exception {
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		// ENTER mode without optional="true" has no choice to make, so validation still always applies
+		assertEquals(6, element.validateSubmission(context, emptyRequest()).size());
+	}
+
+	@Test
+	public void handleSubmission_editMode_existingAppointment_shouldBeNoOp() throws Exception {
+		Obs obs = new Obs();
+		obs.setValueText(APPT_UUID);
+		when(context.getMode()).thenReturn(Mode.EDIT);
+		when(context.removeExistingObs(concept, (Concept) null)).thenReturn(obs);
+		when(appointmentsService.getAppointmentByUuid(APPT_UUID)).thenReturn(new Appointment());
+
+		ScheduleAppointmentElement element = new ScheduleAppointmentElement(context, enterParams());
+
+		element.handleSubmission(session, new MockHttpServletRequest());
+
+		assertEquals(0, actions.getObsToCreate().size());
+		assertEquals(0, actions.getAppointmentsToCreate().size());
+	}
+
 	// --- Helpers ---
 
 	private Map<String, String> params(String... kvs) {
@@ -252,16 +341,35 @@ public class ScheduleAppointmentElementTest {
 	}
 
 	private MockHttpServletRequest buildRequest() {
-		when(context.getFieldName(any(DropdownWidget.class))).thenReturn("dd");
-		when(context.getFieldName(any(TextFieldWidget.class))).thenReturn("tf");
-		when(context.getFieldName(any(DateWidget.class))).thenReturn("dt");
-		lenient().when(context.getFieldName(any(TimeWidget.class))).thenReturn("time");
-		when(context.getFieldName(any(ProviderAjaxAutoCompleteWidget.class))).thenReturn("prov");
-
-		MockHttpServletRequest req = new MockHttpServletRequest();
+		MockHttpServletRequest req = emptyRequest();
 		req.addParameter("dd", AppointmentKind.Scheduled.name()); // all DropdownWidgets share "dd"; value must be a valid AppointmentKind for the type widget
 		req.addParameter("dt", "2025-01-15");         // date (parsed as yyyy-MM-dd by HtmlFormEntryUtil)
 		// prov_hid not set → provider = null (appointment is created without provider)
 		return req;
+	}
+
+	/** Registers the widget field names but leaves every appointment field blank. */
+	private MockHttpServletRequest emptyRequest() {
+		lenient().when(context.getFieldName(any(DropdownWidget.class))).thenReturn("dd");
+		lenient().when(context.getFieldName(any(TextFieldWidget.class))).thenReturn("tf");
+		lenient().when(context.getFieldName(any(DateWidget.class))).thenReturn("dt");
+		lenient().when(context.getFieldName(any(TimeWidget.class))).thenReturn("time");
+		lenient().when(context.getFieldName(any(NumberFieldWidget.class))).thenReturn("dur");
+		lenient().when(context.getFieldName(any(ProviderAjaxAutoCompleteWidget.class))).thenReturn("prov");
+		lenient().when(context.getFieldName(any(ErrorWidget.class))).thenReturn("err");
+		return new MockHttpServletRequest();
+	}
+
+	/**
+	 * Answers "yes" to the schedule-an-appointment question. The choice widget shares the "tf" field
+	 * name with the note widget, so this also lands "yes" in the note — harmless for these assertions.
+	 */
+	private void chooseToSchedule(MockHttpServletRequest req) {
+		req.setParameter("tf", "yes");
+	}
+
+	/** Answers "no" — what an untouched EDIT form submits, since that radio starts checked. */
+	private void declineScheduling(MockHttpServletRequest req) {
+		req.setParameter("tf", "no");
 	}
 }

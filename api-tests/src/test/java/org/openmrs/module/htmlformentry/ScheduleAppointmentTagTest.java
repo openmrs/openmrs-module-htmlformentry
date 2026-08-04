@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Encounter;
+import org.openmrs.Obs;
 import org.openmrs.Visit;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appointments.model.Appointment;
@@ -786,8 +787,14 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 		}.run();
 	}
 
+	/**
+	 * Once an appointment has been scheduled, the tag is read-only in both VIEW and EDIT: the details
+	 * are shown, no scheduling widgets are rendered, and re-saving in EDIT cannot book a second one.
+	 * The element never updates an existing appointment - that has to be done in the appointment app.
+	 */
 	@Test
-	public void scheduleAppointmentTag_shouldShowAppointmentDetailsInViewModeWithUuidConcept() throws Exception {
+	public void scheduleAppointmentTag_withUuidConcept_shouldRenderExistingAppointmentReadOnlyInViewAndEdit()
+	        throws Exception {
 		new RegressionTestHelper() {
 
 			@Override
@@ -840,6 +847,183 @@ public class ScheduleAppointmentTagTest extends BaseHtmlFormEntryTest {
 			public void testViewingEncounter(Encounter encounter, String html) {
 				TestUtil.assertFuzzyContains("Kigali", html);
 				TestUtil.assertFuzzyContains("Consultation", html);
+			}
+
+			@Override
+			public boolean doEditEncounter() {
+				return true;
+			}
+
+			@Override
+			public void testEditFormHtml(String html) {
+				// the appointment is shown read-only...
+				TestUtil.assertFuzzyContains("schedule-appointment-view", html);
+				TestUtil.assertFuzzyContains("Consultation", html);
+				// ...with no way to schedule another: no yes/no choice and no scheduling fields
+				TestUtil.assertFuzzyDoesNotContain("schedule-appointment-choice", html);
+				TestUtil.assertFuzzyDoesNotContain("schedule-appointment-fields", html);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				// the edit request is rebuilt from the rendered form, i.e. the user changed nothing
+				results.assertNoErrors();
+
+				AppointmentSearchRequest searchRequest = new AppointmentSearchRequest();
+				searchRequest.setPatientUuid(PATIENT_UUID);
+				searchRequest.setStartDate(new Date(0));
+				Assert.assertEquals("editing must not create a second appointment", 1,
+				    Context.getService(AppointmentsService.class).search(searchRequest).size());
+			}
+		}.run();
+	}
+
+	// ---------------------------------------------------------------
+	// EDIT mode: scheduling is opt-in
+	// ---------------------------------------------------------------
+
+	/**
+	 * Adding a scheduleAppointment tag to a form that already has encounters must not make those
+	 * encounters unsaveable. Encounter 101 predates the tag, so it has no appointment-uuid obs: EDIT
+	 * offers the yes/no choice (even though the tag is not marked optional) and defaults it to "no",
+	 * so re-submitting the form untouched saves cleanly without booking anything.
+	 */
+	@Test
+	public void scheduleAppointmentTag_editMode_shouldDefaultToNotSchedulingAndSaveWithoutAppointment()
+	        throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform>Encounter Date: <encounterDate/>"
+				        + "<scheduleAppointment locationTag=\"Some Tag\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/>"
+				        + "<submit/></htmlform>";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public boolean doCreateEncounter() {
+				return false;
+			}
+
+			@Override
+			public Encounter getEncounterToEdit() {
+				// pre-existing encounter for patient 2, with no appointment-uuid obs
+				return Context.getEncounterService().getEncounter(101);
+			}
+
+			@Override
+			public void testEditFormHtml(String html) {
+				// the choice is offered in EDIT regardless of the optional attribute...
+				TestUtil.assertFuzzyContains("value=\"no\" checked", html);
+				// ...and defaults to "no", with the fields hidden to match
+				TestUtil.assertFuzzyDoesNotContain("value=\"yes\" checked", html);
+				TestUtil.assertFuzzyContains("class=\"schedule-appointment-fields\" style=\"display:none\"", html);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				// the edit request is built from the rendered form, i.e. the user changed nothing
+				results.assertNoErrors();
+
+				AppointmentSearchRequest searchRequest = new AppointmentSearchRequest();
+				searchRequest.setPatientUuid(PATIENT_UUID);
+				searchRequest.setStartDate(new Date(0));
+				Assert.assertEquals(0, Context.getService(AppointmentsService.class).search(searchRequest).size());
+			}
+		}.run();
+	}
+
+	/**
+	 * An encounter that carries no appointment can have one scheduled
+	 * during EDIT. The appointment and its uuid obs must land on the existing encounter.
+	 */
+	@Test
+	public void scheduleAppointmentTag_editMode_shouldCreateAppointmentWhenYesSelected() throws Exception {
+		new RegressionTestHelper() {
+
+			@Override
+			public String getFormName() {
+				return "scheduleAppointmentForm";
+			}
+
+			@Override
+			public String getFormXml() {
+				return "<htmlform>Encounter Date: <encounterDate/>"
+				        + "<scheduleAppointment locationTag=\"Some Tag\" appointmentUuidConcept=\"" + APPT_UUID_CONCEPT + "\"/>"
+				        + "<submit/></htmlform>";
+			}
+
+			@Override
+			public String[] widgetLabels() {
+				return new String[] {};
+			}
+
+			@Override
+			public boolean doCreateEncounter() {
+				return false;
+			}
+
+			@Override
+			public Encounter getEncounterToEdit() {
+				// pre-existing encounter for patient 2, with no appointment-uuid obs
+				return Context.getEncounterService().getEncounter(101);
+			}
+
+			@Override
+			public String[] widgetLabelsForEdit() {
+				return new String[] { "Schedule appointment", "Location", "Service", "Appointment Type",
+				        DATE_TIME_ANCHOR, DATE_TIME_ANCHOR + "!!1", "Duration (minutes)", "Provider" };
+			}
+
+			@Override
+			public void setupEditRequest(MockHttpServletRequest request, Map<String, String> widgets) {
+				request.setParameter(widgets.get("Schedule appointment"), "yes");
+				request.setParameter(widgets.get("Location"), KIGALI_UUID);
+				request.setParameter(widgets.get("Service"), CONSULTATION_UUID);
+				request.setParameter(widgets.get("Appointment Type"), AppointmentKind.Scheduled.name());
+				request.setParameter(widgets.get(DATE_TIME_ANCHOR), "2025-01-15");
+
+				String timeBase = widgets.get(DATE_TIME_ANCHOR + "!!1").replace("hours", "");
+				request.setParameter(timeBase + "hours", "10");
+				request.setParameter(timeBase + "minutes", "30");
+				request.setParameter(timeBase + "seconds", "0");
+
+				request.setParameter(widgets.get("Duration (minutes)"), "30");
+				request.setParameter(widgets.get("Provider") + "_hid", PROVIDER_ID);
+			}
+
+			@Override
+			public void testEditedResults(SubmissionResults results) {
+				results.assertNoErrors();
+
+				AppointmentSearchRequest searchRequest = new AppointmentSearchRequest();
+				searchRequest.setPatientUuid(PATIENT_UUID);
+				searchRequest.setStartDate(new Date(0));
+				List<Appointment> appointments = Context.getService(AppointmentsService.class).search(searchRequest);
+				Assert.assertEquals(1, appointments.size());
+				Assert.assertEquals(CONSULTATION_UUID, appointments.get(0).getService().getUuid());
+
+				// the uuid obs must be attached to the encounter that was edited, not a new one
+				Encounter edited = Context.getEncounterService().getEncounter(101);
+				String appointmentUuid = appointments.get(0).getUuid();
+				boolean foundUuidObs = false;
+				for (Obs obs : edited.getAllObs(false)) {
+					if (APPT_UUID_CONCEPT.equals(obs.getConcept().getUuid())
+					        && appointmentUuid.equals(obs.getValueText())) {
+						foundUuidObs = true;
+					}
+				}
+				Assert.assertTrue("appointment uuid obs not found on encounter 101", foundUuidObs);
 			}
 		}.run();
 	}
