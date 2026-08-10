@@ -74,10 +74,14 @@ public class OrderTagHandlerTest extends BaseHtmlFormEntryTest {
 	public void shouldSupportDefaultDrugsIfNoneExplicitlyConfigured() {
 		OrderWidget widget = getDrugOrderWidgets("orderTestFormAllDefaults.xml").get(0);
 		OrderField f = widget.getOrderField();
-		List<Drug> allDrugs = Context.getConceptService().getAllDrugs(false);
+		List<Drug> allDrugs = Context.getConceptService().getAllDrugs(true);
 		assertThat(f.getDrugOrderAnswers().size(), is(0));
 		List<Option> drugOptions = widget.getWidgetConfig().getOrderPropertyOptions("drug");
 		assertThat(drugOptions.size(), is(allDrugs.size()));
+		for (Option drugOption : drugOptions) {
+			Drug d = Context.getConceptService().getDrug(Integer.parseInt(drugOption.getValue()));
+			assertThat(drugOption.isRetired(), is(d.getRetired()));
+		}
 	}
 	
 	@Test

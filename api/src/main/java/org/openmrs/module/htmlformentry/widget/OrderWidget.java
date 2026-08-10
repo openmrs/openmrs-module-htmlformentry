@@ -215,6 +215,7 @@ public class OrderWidget implements Widget {
 				JsonObject jsonDrug = new JsonObject();
 				jsonDrug.addString("drugId", d.getDrugId().toString());
 				jsonDrug.addString("drugLabel", drugOption.getLabel());
+				jsonDrug.addString("retired", Boolean.toString(drugOption.isRetired()));
 				jsonDrug.addString("strength", d.getStrength());
 				String dosageForm = d.getDosageForm() == null ? "" : d.getDosageForm().getConceptId().toString();
 				jsonDrug.addString("dosageForm", dosageForm);
@@ -545,17 +546,8 @@ public class OrderWidget implements Widget {
 					}
 					if (newOrder instanceof DrugOrder) {
 						DrugOrder newDrugOrder = (DrugOrder) newOrder;
-						// For discontinue orders, the drug can never change from the previous order, and the drug
-						// dropdown only offers non-retired drugs as options, so inherit it directly instead of
-						// relying on a submitted value that may be blank if the previous order's drug is retired
-						if (action == Order.Action.DISCONTINUE && previousOrder instanceof DrugOrder) {
-							DrugOrder previousDrugOrder = (DrugOrder) previousOrder;
-							newDrugOrder.setDrug(previousDrugOrder.getDrug());
-							newDrugOrder.setDrugNonCoded(previousDrugOrder.getDrugNonCoded());
-						} else {
-							newDrugOrder.setDrug(parseValue(getValue(c, r, fs, "drug"), Drug.class));
-							newDrugOrder.setDrugNonCoded(getValue(c, r, fs, "drugNonCoded"));
-						}
+						newDrugOrder.setDrug(parseValue(getValue(c, r, fs, "drug"), Drug.class));
+						newDrugOrder.setDrugNonCoded(getValue(c, r, fs, "drugNonCoded"));
 						newDrugOrder.setDosingType(parseValue(getValue(c, r, fs, "dosingType"), Class.class));
 						newDrugOrder.setDosingInstructions(getValue(c, r, fs, "dosingInstructions"));
 						newDrugOrder.setDose(parseValue(getValue(c, r, fs, "dose"), Double.class));

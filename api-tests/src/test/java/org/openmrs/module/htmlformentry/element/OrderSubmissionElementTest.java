@@ -12,6 +12,8 @@ import org.openmrs.module.htmlformentry.tester.FormResultsTester;
 import org.openmrs.module.htmlformentry.tester.FormSessionTester;
 import org.openmrs.module.htmlformentry.tester.FormTester;
 import org.openmrs.module.htmlformentry.tester.OrderFieldTester;
+import org.openmrs.module.htmlformentry.util.JsonObject;
+import org.openmrs.module.htmlformentry.widget.OrderWidget;
 
 import java.util.List;
 
@@ -440,6 +442,38 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
+	public void shouldStillSurfaceExistingOrderWhenAllFormularyDrugsForItsConceptAreRetired() {
+		// This form does not restrict the drug order to a configured list of concepts/drugs, so the
+		// set of concepts it operates on is derived from the entire (non-retired) drug formulary
+		FormTester formTester = FormTester.buildForm("orderTestFormAllDefaults.xml");
+
+		Integer initialOrderId;
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertEncounterCreated().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			initialOrderId = results.assertDrugOrder(Order.Action.NEW, 2).getOrderId();
+		}
+
+		// Drug 2 is the only formulary drug for concept 792. Once it is retired, the concept must
+		// remain configured so that the existing order for it is still surfaced (and discontinuable)
+		Drug drug = Context.getConceptService().getDrug(2);
+		drug.setRetired(true);
+		Context.getConceptService().saveDrug(drug);
+
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		OrderWidget widget = formSessionTester.getWidgets(OrderWidget.class).get(0);
+		JsonObject config = widget.constructJavascriptConfig(formSessionTester.getFormEntrySession().getContext());
+		boolean orderIsSurfaced = config.getObjectArray("history").stream()
+		        .anyMatch(o -> o.getString("orderId").equals(initialOrderId.toString()));
+		assertThat(orderIsSurfaced, is(true));
+	}
+
+	@Test
 	public void reviseShouldVoidIfWithinSameEncounterForSameDate() {
 		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
 		FormSessionTester formSessionTester = formTester.openNewForm(6);
@@ -508,7 +542,7 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 	}
 	
 	@Test
-	public void shouldDiscontinueOrderWithRetiredDrugEvenIfDrugFieldNotSubmitted() {
+	public void shouldDiscontinueOrderWithRetiredDrug() {
 		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
 
 		Integer initialOrderId;
@@ -528,11 +562,11 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		Context.getConceptService().saveDrug(drug);
 
 		{
-			// Since drug 2 is now retired, it is not a selectable option in the drug dropdown, so the
-			// browser submits no value for the drug field, the same as if the concept alone were selected
+			// The retired drug remains a selectable value on the drug widget, so a discontinue
+			// submission still supplies it, the same as it would for a non-retired drug
 			FormSessionTester formSessionTester = formTester.openNewForm(6);
 			formSessionTester.setEncounterFields("2020-05-15", "2", "502");
-			OrderFieldTester triomuneField = OrderFieldTester.forConcept(792, formSessionTester);
+			OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
 			triomuneField.careSetting("2").urgency(Order.Urgency.ROUTINE.name());
 			triomuneField.orderAction("DISCONTINUE").previousOrder(initialOrderId.toString());
 			triomuneField.discontinueReason("556");
