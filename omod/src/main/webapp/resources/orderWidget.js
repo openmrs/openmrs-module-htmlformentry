@@ -422,6 +422,11 @@
         var $drugElements = $orderForm.find('.order-drug');
         var $drugNonCodedElements = $orderForm.find('.order-drugNonCoded');
 
+        // Retired drugs remain valid values on the underlying widget (eg. so that editing or
+        // discontinuing an existing order for a retired drug continues to work), but should never
+        // be offered as a choice when placing a NEW order
+        $drugSelect.find('option.orderwidget-retired-option').hide();
+
         $orderForm.find('.order-concept').show();
 
         if ($conceptSelect.is(":visible")) {
@@ -440,8 +445,10 @@
                     $drugSelect.val("");
                     var concept = orderWidget.getConfigForConcept(config, conceptId);
                     concept.drugs.forEach(function (drug) {
-                        $drugSelect.find('option[value="' + drug.drugId + '"]').show();
-                        $drugElements.show();
+                        if (drug.retired !== 'true') {
+                            $drugSelect.find('option[value="' + drug.drugId + '"]').show();
+                            $drugElements.show();
+                        }
                     })
                     $drugNonCodedElements.show();
                 }
@@ -688,7 +695,7 @@
         var options = [];
         $selectListElement.find('option').each(function() {
             var val = $(this).val();
-            if (val !== '') {
+            if (val !== '' && !$(this).hasClass('orderwidget-retired-option')) {
                 options.push( { 'label': $(this).html(), 'value': val })
             }
         });

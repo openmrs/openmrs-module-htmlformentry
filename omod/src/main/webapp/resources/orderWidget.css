@@ -164,6 +164,11 @@
 	font-weight: normal;
 }
 
+option.orderwidget-retired-option {
+	color: gray;
+	font-style: italic;
+}
+
 .orderwidget-autocomplete-textbox {
 	display: inline-block;
 	max-width: 600px;

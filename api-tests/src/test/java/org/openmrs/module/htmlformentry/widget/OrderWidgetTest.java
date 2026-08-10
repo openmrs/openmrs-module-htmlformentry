@@ -2,6 +2,7 @@ package org.openmrs.module.htmlformentry.widget;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,5 +104,35 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 		        .constructJavascriptConfig(fstAfterRetiring.getFormEntrySession().getContext());
 		JsonObject historyOrderAfterRetiring = configAfterRetiring.getObjectArray("history").get(0);
 		assertThat(historyOrderAfterRetiring.getObject("drug").getString("retired"), is("true"));
+	}
+
+	@Test
+	public void shouldKeepRetiredDrugAsASelectableOptionButFlagItAsRetired() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+
+		Drug drug = Context.getConceptService().getDrug(2);
+		drug.setRetired(true);
+		Context.getConceptService().saveDrug(drug);
+
+		FormSessionTester fst = formTester.openNewForm(2);
+		OrderWidget widget = fst.getWidgets(OrderWidget.class).get(0);
+
+		// The retired drug remains a selectable Option on the underlying widget, but is flagged as
+		// retired so the UI (JS) can exclude it from being offered as a choice for a NEW order
+		Option drugOption = widget.getWidgetConfig().getOption("drug", "2");
+		assertThat(drugOption, notNullValue());
+		assertThat(drugOption.isRetired(), is(true));
+
+		// The same retired flag is surfaced to the UI in the per-concept drug list used to filter
+		// the drug dropdown for a NEW order
+		JsonObject config = widget.constructJavascriptConfig(fst.getFormEntrySession().getContext());
+		JsonObject drugConcept = config.getObjectArray("concepts").stream()
+		        .filter(c -> c.getString("conceptId").equals(drug.getConcept().getConceptId().toString())).findFirst()
+		        .orElse(null);
+		assertThat(drugConcept, notNullValue());
+		JsonObject drugJson = drugConcept.getObjectArray("drugs").stream()
+		        .filter(d -> d.getString("drugId").equals("2")).findFirst().orElse(null);
+		assertThat(drugJson, notNullValue());
+		assertThat(drugJson.getString("retired"), is("true"));
 	}
 }

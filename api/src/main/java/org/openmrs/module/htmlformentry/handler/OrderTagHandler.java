@@ -75,6 +75,8 @@ public class OrderTagHandler extends AbstractTagHandler {
 	public static final String LABEL_ATTRIBUTE = "label";
 	
 	public static final String VALUE_ATTRIBUTE = "value";
+
+	public static final String RETIRED_OPTION_CSS_CLASS = "orderwidget-retired-option";
 	
 	public static final Map<String, Class<? extends OpenmrsObject>> PROPERTIES = new HashMap<>();
 	
@@ -285,6 +287,7 @@ public class OrderTagHandler extends AbstractTagHandler {
 			}
 			option.setValue(d.getDrugId().toString());
 			option.setLabel(getLabel(option.getLabel(), d.getDisplayName()));
+			markIfRetired(option, d.getRetired());
 			config.getOrderField().addDrugOrderAnswer(new DrugOrderAnswer(d, option.getLabel()));
 		}
 		config.setOrderPropertyOptions("drug", drugOptions);
@@ -551,7 +554,20 @@ public class OrderTagHandler extends AbstractTagHandler {
 		}
 		config.setOrderPropertyOptions(prop, options);
 	}
-	
+
+	protected Option newDrugOption(Drug d) {
+		Option option = new Option(d.getDisplayName(), d.getDrugId().toString());
+		markIfRetired(option, d.getRetired());
+		return option;
+	}
+
+	protected void markIfRetired(Option option, boolean retired) {
+		if (retired) {
+			option.setRetired(true);
+			option.setCssClass(RETIRED_OPTION_CSS_CLASS);
+		}
+	}
+
 	protected void ensureConceptAndDrugOptionsAreConsistent(OrderWidgetConfig config) {
 		List<Option> concepts = config.getOrderPropertyOptions("concept");
 		List<Option> drugs = config.getOrderPropertyOptions("drug");
@@ -567,25 +583,25 @@ public class OrderTagHandler extends AbstractTagHandler {
 		for (Option o : drugs) {
 			existingDrugs.add(o.getValue());
 		}
-		
+
 		Map<String, Drug> allDrugsInFormulary = new HashMap<>();
 		Map<String, Concept> allConceptsInFormulary = new HashMap<>();
 		Map<Concept, List<Drug>> conceptsToDrugs = new HashMap<>();
-		for (Drug d : Context.getConceptService().getAllDrugs(false)) {
+		for (Drug d : Context.getConceptService().getAllDrugs(true)) {
 			allDrugsInFormulary.put(d.getDrugId().toString(), d);
 			Concept c = d.getConcept();
 			allConceptsInFormulary.put(c.getConceptId().toString(), c);
 			List<Drug> l = conceptsToDrugs.computeIfAbsent(c, k -> new ArrayList<>());
 			l.add(d);
 		}
-		
+
 		// If there are no drugs or concepts configured, populate based on entire formulary
 		if (!conceptsExplicitlyDefined && !drugsExplicitlyDefined) {
 			config.setConceptsAndDrugsConfigured(conceptsToDrugs);
 			for (Concept c : conceptsToDrugs.keySet()) {
 				concepts.add(new Option(c.getDisplayString(), c.getId().toString()));
 				for (Drug d : conceptsToDrugs.get(c)) {
-					drugs.add(new Option(d.getDisplayName(), d.getId().toString()));
+					drugs.add(newDrugOption(d));
 				}
 			}
 		}
@@ -612,9 +628,9 @@ public class OrderTagHandler extends AbstractTagHandler {
 					for (Drug d : conceptsToDrugs.get(c)) {
 						String drugId = d.getDrugId().toString();
 						if (!existingDrugs.contains(drugId)) {
-							drugs.add(new Option(d.getDisplayName(), drugId));
 							existingDrugs.add(drugId);
 							config.getConceptsAndDrugsConfigured().computeIfAbsent(c, k -> new ArrayList<>()).add(d);
+							drugs.add(newDrugOption(d));
 						}
 					}
 				}
