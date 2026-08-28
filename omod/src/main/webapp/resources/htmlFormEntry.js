@@ -675,6 +675,28 @@ function clearDatePickerValue(displaySelector, valueSelector) {
 	jQuery(displaySelector).change();
 }
 
+// For a checkbox-style obs with an associated obs date, the date (label + widget + clear button) should
+// only be shown while the checkbox is checked. When the checkbox is unchecked, the date is hidden and its
+// value cleared so it cannot trigger a "date without value" validation error on a field the user can no
+// longer see.
+function setupCheckboxDateToggle(checkboxFieldName, dateHolderId, dateFieldName) {
+	var checkboxSelector = '#' + checkboxFieldName;
+	var holderSelector = '#' + dateHolderId;
+
+	function syncDateHolderToCheckbox() {
+		if (jQuery(checkboxSelector).is(':checked')) {
+			jQuery(holderSelector).show();
+		} else {
+			jQuery(holderSelector).hide();
+			clearDatePickerValue('#' + dateFieldName + '-display', '#' + dateFieldName);
+		}
+	}
+
+	jQuery(checkboxSelector).change(syncDateHolderToCheckbox);
+
+	syncDateHolderToCheckbox();
+}
+
 // The hour/minute/second fields are only enabled once a date has been entered. If no date is entered,
 // the time fields are disabled (and reset to 00), so the DateTimeWidget is treated as having no value.
 function setupDateTimeValidation(dateFieldName, timeFieldName) {

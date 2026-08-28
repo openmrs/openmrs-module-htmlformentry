@@ -1282,11 +1282,31 @@ public class ObsSubmissionElement<T extends FormEntryContext> implements HtmlGen
 			ret.append("</span>");
 		}
 		if (dateWidget != null) {
+			// For a checkbox-style obs, the date (label + widget + clear button) is only meaningful once the
+			// checkbox is checked, so wrap it and toggle its visibility off the checkbox state.
+			boolean toggleDateWithCheckbox = context.getMode() != Mode.VIEW && valueWidget instanceof CheckboxWidget;
+			String dateHolderId = null;
+			if (toggleDateWithCheckbox) {
+				CheckboxWidget checkbox = (CheckboxWidget) valueWidget;
+				boolean checked = checkbox.getInitialValue() != null && !"".equals(checkbox.getInitialValue());
+				dateHolderId = context.getFieldNameIfRegistered(valueWidget) + "_date_holder";
+				ret.append("<span id=\"").append(dateHolderId).append("\"");
+				if (!checked) {
+					ret.append(" style=\"display:none\"");
+				}
+				ret.append(">");
+			}
 			ret.append(" ");
 			if (dateLabel != null) {
 				ret.append(dateLabel);
 			}
 			ret.append(dateWidget.generateHtml(context));
+			if (toggleDateWithCheckbox) {
+				ret.append("</span>");
+				ret.append("<script>setupCheckboxDateToggle('").append(context.getFieldNameIfRegistered(valueWidget))
+				        .append("', '").append(dateHolderId).append("', '")
+				        .append(context.getFieldNameIfRegistered(dateWidget)).append("')</script>");
+			}
 		}
 		if (accessionNumberWidget != null) {
 			ret.append(" ");
