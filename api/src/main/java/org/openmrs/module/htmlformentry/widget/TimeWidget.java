@@ -110,7 +110,7 @@ public class TimeWidget implements Widget {
 	public String generateHtml(FormEntryContext context) {
 		if (context.getMode() == Mode.VIEW) {
 			if (initialValue != null) {
-				String toPrint = timeFormat().format(initialValue);
+				String toPrint = timeFormat().format(initialValue).toUpperCase(Context.getLocale());
 				return WidgetFactory.displayValue(toPrint);
 			} else {
 				return WidgetFactory.displayEmptyValue(hideSeconds ? "___:___" : "___:___:___");
