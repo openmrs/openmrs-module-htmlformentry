@@ -14,6 +14,7 @@ import org.openmrs.Person;
 import org.openmrs.PersonAttribute;
 import org.openmrs.Relationship;
 import org.openmrs.RelationshipType;
+import org.openmrs.api.RelationshipService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.FormEntryContext;
 import org.openmrs.module.htmlformentry.FormEntryContext.Mode;
@@ -308,6 +309,9 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement, Form
 	 */
 	@Override
 	public void handleSubmission(FormEntrySession session, HttpServletRequest submission) {
+		
+		RelationshipService relationshipService = Context.getService(RelationshipService.class);
+		
 		Person relatedPerson = null;
 		
 		if (personWidget != null && personWidget.getValue(session.getContext(), submission) != null) {
@@ -369,7 +373,13 @@ public class RelationshipSubmissionElement implements HtmlGeneratorElement, Form
 						}
 						rel.setRelationshipType(r);
 						
-						Context.getPersonService().saveRelationship(rel);
+						//						Context.getPersonService().saveRelationship(rel);
+						
+						// Save relationship
+						rel = relationshipService.saveRelationship(rel);
+						
+						// Add relationship to submission actions
+						session.getSubmissionActions().add(new SaveRelationshipAction(rel));
 						//session.getSubmissionActions().getRelationshipsToCreate().add(rel);
 					}
 				}
