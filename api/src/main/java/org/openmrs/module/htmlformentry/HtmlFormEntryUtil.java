@@ -357,17 +357,33 @@ public class HtmlFormEntryUtil {
 	}
 	
 	/**
-	 * Converts a Document object to an xml string
+	 * Converts a Document object to an xml string, indenting the output
 	 *
 	 * @param document the Document instance to convert
 	 * @return the resulting xml string
 	 * @throws Exception
 	 */
 	public static String documentToString(Document document) throws Exception {
+		return documentToString(document, true);
+	}
+
+	/**
+	 * Converts a Document object to an xml string
+	 *
+	 * @param document the Document instance to convert
+	 * @param indent whether to indent the resulting xml. This should only be set to true if the
+	 *            resulting xml is intended for human consumption (e.g. exporting a form for
+	 *            editing). Indenting inserts whitespace text nodes around element boundaries,
+	 *            which corrupts mixed text/element content, most notably a {@code <lookup>} or
+	 *            other substitution tag nested within a {@code <script>} block.
+	 * @return the resulting xml string
+	 * @throws Exception
+	 */
+	public static String documentToString(Document document, boolean indent) throws Exception {
 		//set up a transformer
 		Transformer trans = null;
 		TransformerFactory transfac = TransformerFactory.newInstance();
-		
+
 		try {
 			trans = transfac.newTransformer();
 		}
@@ -375,10 +391,10 @@ public class HtmlFormEntryUtil {
 			System.out.println(HtmlFormEntryConstants.ERROR_TRANSFORMER_1 + te);
 		}
 		trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, HtmlFormEntryConstants.CONSTANT_YES);
-		trans.setOutputProperty(OutputKeys.INDENT, HtmlFormEntryConstants.CONSTANT_YES);
+		trans.setOutputProperty(OutputKeys.INDENT, indent ? HtmlFormEntryConstants.CONSTANT_YES : "no");
 		trans.setOutputProperty(OutputKeys.METHOD, HtmlFormEntryConstants.CONSTANT_XML);
 		trans.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-		
+
 		//create string from xml tree
 		StringWriter sw = new StringWriter();
 		StreamResult result = new StreamResult(sw);
@@ -390,7 +406,7 @@ public class HtmlFormEntryUtil {
 			System.out.println(HtmlFormEntryConstants.ERROR_TRANSFORMER_2 + te);
 		}
 		String xmlString = sw.toString();
-		
+
 		return xmlString;
 	}
 	
