@@ -133,7 +133,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		content.removeChild(macrosNode);
 		
 		// switch back to String mode from the document so we can use string utilities to substitute
-		xml = HtmlFormEntryUtil.documentToString(doc);
+		xml = HtmlFormEntryUtil.documentToString(doc, false);
 		
 		// substitute any macros we found
 		for (Object temp : macros.keySet()) {
@@ -240,7 +240,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 			doc.renameNode(pageNodes.item(y), null, "div");
 		}
 		
-		xml = HtmlFormEntryUtil.documentToString(doc);
+		xml = HtmlFormEntryUtil.documentToString(doc, false);
 		return xml;
 	}
 	
@@ -303,7 +303,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 		content.removeChild(transNode);
 		
 		// switch back to String mode from the document so we can use string utilities to substitute
-		xml = HtmlFormEntryUtil.documentToString(doc);
+		xml = HtmlFormEntryUtil.documentToString(doc, false);
 		return xml;
 	}
 	
@@ -518,7 +518,7 @@ public class HtmlFormEntryGenerator implements TagHandler {
 					nodesToReplace = doc.getElementsByTagName(SUBFORM);
 				}
 			}
-			xml = HtmlFormEntryUtil.documentToString(doc);
+			xml = HtmlFormEntryUtil.documentToString(doc, false);
 		}
 		return xml;
 	}
