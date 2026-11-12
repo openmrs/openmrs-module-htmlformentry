@@ -830,7 +830,7 @@ openmrs.htmlformentry.refresh = function(v) {
 				this.id = newSpanId;
 				jq('#' + spanId + '_hid').attr('id', newSpanId + '_hid');
 				jq('#' + spanId + '_button').removeAttr('onclick', null)
-						.unbind('click').attr('id', newSpanId + '_button')
+						.off('click').attr('id', newSpanId + '_button')
 						.click(
 								function() {
 									jq('#' + newSpanId).remove();
