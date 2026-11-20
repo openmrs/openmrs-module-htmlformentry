@@ -12,6 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
+import org.openmrs.MedicationDispense;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
 import org.openmrs.module.htmlformentry.tester.FormSessionTester;
@@ -104,6 +106,34 @@ public class OrderWidgetTest extends BaseHtmlFormEntryTest {
 		        .constructJavascriptConfig(fstAfterRetiring.getFormEntrySession().getContext());
 		JsonObject historyOrderAfterRetiring = configAfterRetiring.getObjectArray("history").get(0);
 		assertThat(historyOrderAfterRetiring.getObject("drug").getString("retired"), is("true"));
+	}
+
+	@Test
+	public void shouldIndicateWhenDrugOrderHistoryOrderIsDispensed() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+
+		// Patient 2 has an existing, open order for drug 2, which has not been dispensed
+		FormSessionTester fst = formTester.openNewForm(2);
+		OrderWidget widget = fst.getWidgets(OrderWidget.class).get(0);
+		JsonObject config = widget.constructJavascriptConfig(fst.getFormEntrySession().getContext());
+		JsonObject historyOrder = config.getObjectArray("history").get(0);
+		assertThat(historyOrder.getString("dispensed"), is("false"));
+
+		// Once the order is dispensed, the history entry for the existing order should reflect this
+		DrugOrder order = (DrugOrder) Context.getOrderService().getOrder(Integer.valueOf(historyOrder.getString("orderId")));
+		MedicationDispense dispense = new MedicationDispense();
+		dispense.setPatient(order.getPatient());
+		dispense.setConcept(order.getConcept());
+		dispense.setDrugOrder(order);
+		dispense.setStatus(Context.getConceptService().getConcept(556));
+		Context.getMedicationDispenseService().saveMedicationDispense(dispense);
+
+		FormSessionTester fstAfterDispensing = formTester.openNewForm(2);
+		OrderWidget widgetAfterDispensing = fstAfterDispensing.getWidgets(OrderWidget.class).get(0);
+		JsonObject configAfterDispensing = widgetAfterDispensing
+		        .constructJavascriptConfig(fstAfterDispensing.getFormEntrySession().getContext());
+		JsonObject historyOrderAfterDispensing = configAfterDispensing.getObjectArray("history").get(0);
+		assertThat(historyOrderAfterDispensing.getString("dispensed"), is("true"));
 	}
 
 	@Test

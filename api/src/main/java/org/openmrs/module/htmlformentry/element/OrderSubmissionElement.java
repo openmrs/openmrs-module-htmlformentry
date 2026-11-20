@@ -190,6 +190,12 @@ public class OrderSubmissionElement implements HtmlGeneratorElement, FormSubmiss
 					if (previousOrder == null) {
 						addError(ret, errorField, "htmlformentry.orders.previousOrderRequired");
 					} else {
+						// A dispensed order cannot be changed or deleted in the encounter it was ordered in
+						Encounter existingEncounter = ctx.getExistingEncounter();
+						if (existingEncounter != null && existingEncounter.equals(previousOrder.getEncounter())
+						        && HtmlFormEntryUtil.hasNonVoidedMedicationDispense(previousOrder)) {
+							addError(ret, errorField, "htmlformentry.orders.dispensedCannotEdit");
+						}
 						if (!newOrder.hasSameOrderableAs(previousOrder) && BooleanUtils.isNotTrue(newOrder.getVoided())) {
 							addError(ret, errorField, "htmlformentry.orders.drugChangedForRevision");
 						}
