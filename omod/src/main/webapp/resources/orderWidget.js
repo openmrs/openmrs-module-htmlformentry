@@ -388,6 +388,10 @@
             if ((action === 'RENEW' || action === 'REVISE') && orderWidget.isDrugRetired(order)) {
                 $actionButton.addClass('orderwidget-disabled-action');
                 $actionButton.attr('title', config.translations.drugRetired);
+            } else if (orderInCurrentEncounter && order.dispensed === 'true') {
+                // Changing or deleting an order in this encounter voids it, which is not allowed once it is dispensed
+                $actionButton.addClass('orderwidget-disabled-action');
+                $actionButton.attr('title', config.translations.dispensedCannotEdit);
             } else {
                 $actionButton.click(function() {
                     var $orderForm = $orderActionForms.find('.orderwidget-order-form');
