@@ -169,7 +169,7 @@ public class OrderWidget implements Widget {
 		String[] messageCodes = { "encounterDateChangeWarning", "delete", "editDeleteWarning", "editOrder", "deleteOrder",
 		        "previousOrder", "orderReason", "starting", "until", "for", "discontinueReason", "asNeeded", "quantity",
 		        "refills", "active", "cancelAction", "existingOrdersViewTitle", "existingOrdersEditTitle", "newOrdersTitle",
-		        "noOrders", "drugRetired" };
+		        "noOrders", "drugRetired", "dispensedCannotEdit" };
 		for (String messageCode : messageCodes) {
 			translations.addTranslation(prefix, messageCode);
 		}
@@ -242,6 +242,7 @@ public class OrderWidget implements Widget {
 					jho.addString("isServiceOrder",
 					    Boolean.toString(HtmlFormEntryUtil.isAServiceOrderType(o.getOrderType())));
 					addToJsonObject(jho, "action", o.getAction());
+					jho.addString("dispensed", Boolean.toString(HtmlFormEntryUtil.hasNonVoidedMedicationDispense(o)));
 					JsonObject conceptObj = jho.addObject("concept");
 					conceptObj.addString("value", c.getId().toString());
 					conceptObj.addString("display", conceptOption.getLabel());

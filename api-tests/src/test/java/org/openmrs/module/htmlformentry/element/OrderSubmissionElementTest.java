@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
+import org.openmrs.MedicationDispense;
 import org.openmrs.Order;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.htmlformentry.BaseHtmlFormEntryTest;
@@ -500,6 +501,118 @@ public class OrderSubmissionElementTest extends BaseHtmlFormEntryTest {
 		Order originalOrderRetrieved = Context.getOrderService().getOrder(originalOrder.getId());
 		assertThat(originalOrderRetrieved.getVoided(), is(true));
 		assertThat(originalOrderRetrieved.getVoidReason(), is("Voided by htmlformentry"));
+	}
+	
+	@Test
+	public void reviseShouldFailIfDispensedWithinSameEncounterForSameDate() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors();
+		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
+		dispense(originalOrder);
+		
+		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
+		OrderFieldTester revisedTriomuneField = OrderFieldTester.forDrug(2, triomuneField.getSuffix(), reviseTester);
+		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
+		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
+		FormResultsTester revisedResults = reviseTester.submitForm();
+		
+		revisedResults.assertErrorMessage("htmlformentry.orders.dispensedCannotEdit");
+		assertThat(Context.getOrderService().getOrder(originalOrder.getId()).getVoided(), is(false));
+	}
+	
+	@Test
+	public void deleteShouldFailIfDispensedWithinSameEncounterForSameDate() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors();
+		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
+		dispense(originalOrder);
+		
+		FormSessionTester deleteTester = formSessionTester.reopenForEditing(results);
+		OrderFieldTester deletedTriomuneField = OrderFieldTester.forDrug(2, triomuneField.getSuffix(), deleteTester);
+		deletedTriomuneField.orderAction("DISCONTINUE").previousOrder(originalOrder.getId().toString());
+		deletedTriomuneField.discontinueReason("556");
+		FormResultsTester deleteResults = deleteTester.submitForm();
+		
+		deleteResults.assertErrorMessage("htmlformentry.orders.dispensedCannotEdit");
+		assertThat(Context.getOrderService().getOrder(originalOrder.getId()).getVoided(), is(false));
+	}
+	
+	@Test
+	public void reviseShouldVoidIfDispenseWasVoided() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		FormSessionTester formSessionTester = formTester.openNewForm(6);
+		formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+		OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+		triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+		triomuneField.freeTextDosing("Triomune instructions");
+		FormResultsTester results = formSessionTester.submitForm();
+		results.assertNoErrors();
+		DrugOrder originalOrder = results.assertDrugOrder(Order.Action.NEW, 2);
+		MedicationDispense dispense = dispense(originalOrder);
+		Context.getMedicationDispenseService().voidMedicationDispense(dispense, "entered in error");
+		
+		FormSessionTester reviseTester = formSessionTester.reopenForEditing(results);
+		OrderFieldTester revisedTriomuneField = OrderFieldTester.forDrug(2, triomuneField.getSuffix(), reviseTester);
+		revisedTriomuneField.orderAction("REVISE").previousOrder(originalOrder.getId().toString());
+		revisedTriomuneField.freeTextDosing("Revised Triomune instructions");
+		FormResultsTester revisedResults = reviseTester.submitForm();
+		
+		revisedResults.assertNoErrors().assertNonVoidedOrderCount(1).assertVoidedOrderCount(1);
+		assertThat(Context.getOrderService().getOrder(originalOrder.getId()).getVoided(), is(true));
+	}
+	
+	@Test
+	public void reviseShouldNotFailIfDispensedInEarlierEncounter() {
+		FormTester formTester = FormTester.buildForm("orderTestForm.xml");
+		
+		Integer initialOrderId;
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-03-30", "2", "502");
+			OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.orderAction("NEW").careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.freeTextDosing("Triomune instructions");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors();
+			DrugOrder o1 = results.assertDrugOrder(Order.Action.NEW, 2);
+			dispense(o1);
+			initialOrderId = o1.getOrderId();
+		}
+		{
+			FormSessionTester formSessionTester = formTester.openNewForm(6);
+			formSessionTester.setEncounterFields("2020-05-15", "2", "502");
+			OrderFieldTester triomuneField = OrderFieldTester.forDrug(2, formSessionTester);
+			triomuneField.careSetting("2").urgency(Order.Urgency.ROUTINE.name());
+			triomuneField.orderAction("DISCONTINUE").previousOrder(initialOrderId.toString());
+			triomuneField.discontinueReason("556");
+			FormResultsTester results = formSessionTester.submitForm();
+			results.assertNoErrors().assertOrderCreatedCount(1).assertNonVoidedOrderCount(1);
+			DrugOrder o1 = (DrugOrder) Context.getOrderService().getOrder(initialOrderId);
+			assertThat(o1.getVoided(), is(false));
+			TestUtil.assertDate(o1.getDateStopped(), "yyyy-MM-dd HH:mm:ss", "2020-05-14 23:59:59");
+		}
+	}
+	
+	private MedicationDispense dispense(DrugOrder order) {
+		MedicationDispense dispense = new MedicationDispense();
+		dispense.setPatient(order.getPatient());
+		dispense.setConcept(order.getConcept());
+		dispense.setDrug(order.getDrug());
+		dispense.setDrugOrder(order);
+		dispense.setStatus(Context.getConceptService().getConcept(556));
+		return Context.getMedicationDispenseService().saveMedicationDispense(dispense);
 	}
 	
 	@Test

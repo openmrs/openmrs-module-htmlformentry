@@ -70,6 +70,8 @@ import org.openmrs.obs.ComplexData;
 import org.openmrs.propertyeditor.ConceptEditor;
 import org.openmrs.propertyeditor.DrugEditor;
 import org.openmrs.propertyeditor.EncounterTypeEditor;
+import org.openmrs.parameter.MedicationDispenseCriteria;
+import org.openmrs.parameter.MedicationDispenseCriteriaBuilder;
 import org.openmrs.propertyeditor.LocationEditor;
 import org.openmrs.propertyeditor.PatientEditor;
 import org.openmrs.propertyeditor.PersonEditor;
@@ -707,6 +709,23 @@ public class HtmlFormEntryUtil {
 		catch (Exception e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * @return true if the given order is a saved drug order with at least one non-voided medication
+	 *         dispense
+	 */
+	public static boolean hasNonVoidedMedicationDispense(Order order) {
+		if (order == null || order.getOrderId() == null) {
+			return false;
+		}
+		Order realOrder = HibernateUtil.getRealObjectFromProxy(order);
+		if (!(realOrder instanceof DrugOrder)) {
+			return false;
+		}
+		MedicationDispenseCriteria criteria = new MedicationDispenseCriteriaBuilder().setDrugOrder((DrugOrder) realOrder)
+		        .build();
+		return !Context.getMedicationDispenseService().getMedicationDispenseByCriteria(criteria).isEmpty();
 	}
 	
 	/**
